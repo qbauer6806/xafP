@@ -6,8 +6,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidMotifRenouvellementEnum;
 
+@Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidDemandeRenouvellementCarteDTO implements Serializable {
@@ -16,8 +19,10 @@ public class ResidDemandeRenouvellementCarteDTO implements Serializable {
 
     private ResidDemandeBaseDTO demandeBase;
 
+    @Getter
     private String idTS;
 
+    @Getter
     private ResidMotifRenouvellementEnum motifRenouvellement;
 
     @JsonProperty("demandeBaseV2")
@@ -25,23 +30,4 @@ public class ResidDemandeRenouvellementCarteDTO implements Serializable {
         return demandeBase;
     }
 
-    public void setDemandeBase(ResidDemandeBaseDTO demandeBase) {
-        this.demandeBase = demandeBase;
-    }
-
-    public String getIdTS() {
-        return idTS;
-    }
-
-    public void setIdTS(String idTS) {
-        this.idTS = idTS;
-    }
-
-    public ResidMotifRenouvellementEnum getMotifRenouvellement() {
-        return motifRenouvellement;
-    }
-
-    public void setMotifRenouvellement(ResidMotifRenouvellementEnum motifRenouvellement) {
-        this.motifRenouvellement = motifRenouvellement;
-    }
 }

@@ -19,7 +19,7 @@ public enum ResidRelationEnum {
 	 EPO("EPO"),
 	 XPO("XPO");
 
-    public String value;
+    private final String value;
 
     ResidRelationEnum(String value) {
         this.value = value;

@@ -14,8 +14,6 @@
 
 <!-- Import FONTS -->
 <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
-<!--[if lt IE 8]><!-->
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
 <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -23,7 +21,7 @@
 <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	rel="stylesheet" />
 
 <link rel="shortcut icon" type="image/x-icon"
@@ -39,11 +37,11 @@
 
 	<div>
 
-		<div th:replace="fragments/header :: header"></div>
+		<div th:replace="~{fragments/header :: header}"></div>
 
 		<div id="wrapper">
 
-			<div th:replace="fragments/sidebar :: sidebar"></div>
+			<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 			<!-- DEBUT CONTENU -->
 			<div id="page-content-wrapper">
@@ -82,7 +80,7 @@
 
 									<div class="row container-fluid">
 										<div
-											th:class="${#fields.hasErrors('code') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											th:class="${#fields.hasErrors('code') || motifsFormBean.errGlobale} ? 'form-group error' : 'form-group'">
 											<div class="col-xs-3">
 												<label for="code">Code<span class="required"></span>
 													:
@@ -110,7 +108,7 @@
 									<br />
 									<div class="row container-fluid">
 										<div
-											th:class="${#fields.hasErrors('statut') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											th:class="${#fields.hasErrors('statut') || motifsFormBean.errGlobale} ? 'form-group error' : 'form-group'">
 											<div class="col-xs-3">
 												<label for="statut">Statut<span class="required"></span>
 													:
@@ -130,7 +128,7 @@
 
 									<div class="row container-fluid">
 										<div
-											th:class="${#fields.hasErrors('libelleFr') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											th:class="${#fields.hasErrors('libelleFr') || motifsFormBean.errGlobale} ? 'form-group error' : 'form-group'">
 											<div class="col-xs-3">
 												<label for="libelleFr">Libellé Français<span
 													class="required"></span> :
@@ -148,7 +146,7 @@
 
 									<div class="row container-fluid">
 										<div
-											th:class="${#fields.hasErrors('libelleEn') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											th:class="${#fields.hasErrors('libelleEn') || motifsFormBean.errGlobale} ? 'form-group error' : 'form-group'">
 											<div class="col-xs-3">
 												<label for="libelleEn">Libellé Anglais :</label>
 											</div>
@@ -164,7 +162,7 @@
 
 									<div class="row container-fluid">
 										<div
-											th:class="${#fields.hasErrors('commentairePrerempliFr') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											th:class="${#fields.hasErrors('commentairePrerempliFr') || motifsFormBean.errGlobale} ? 'form-group error' : 'form-group'">
 											<div class="col-xs-3">
 												<label for="commentairePrerempliFr">Commentaire
 													prérempli Français :</label>
@@ -182,7 +180,7 @@
 
 									<div class="row container-fluid">
 										<div
-											th:class="${#fields.hasErrors('commentairePrerempliEn') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											th:class="${#fields.hasErrors('commentairePrerempliEn') || motifsFormBean.errGlobale} ? 'form-group error' : 'form-group'">
 											<div class="col-xs-3">
 												<label for="commentairePrerempliEn">Commentaire
 													prérempli Anglais :</label>
@@ -250,9 +248,9 @@
 
 	</div>
 
-	<div th:replace="fragments/footer :: footer"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
 
-	<div th:replace="fragments/message :: message"></div>
+	<div th:replace="~{fragments/message :: message}"></div>
 
 	<script>
 		$(document).ready(function() {

@@ -1,0 +1,86 @@
+package mc.gouv.xaf.back.data.entity;
+
+import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
+
+/**
+ * 
+ * Classe BO de la table DEM.DEM_DEMANDES_USAGERS
+ * 
+ * @author uek
+ *
+ */
+@Setter
+@Getter
+@Entity
+@Table(name = "DEM_DEMANDES_USAGERS")
+public class DemandesUsagersBO {
+
+    @Id
+    @Column(name = "ID", nullable = false)
+    private Integer id;
+
+    @Column(name = "ETAT", length = 128)
+    @Size(max = 128)
+    private String etat;
+
+    @Column(name = "EMAIL", length = 128)
+    @Size(max = 128)
+    private String email;
+
+    @Column(name = "TITRE", length = 128)
+    @Size(max = 128)
+    private String titre;
+
+    @Column(name = "PRENOM", length = 128)
+    @Size(max = 128)
+    private String prenom;
+
+    @Column(name = "NOM", length = 128)
+    @Size(max = 128)
+    private String nom;
+
+    @Column(name = "RAISON_SOCIALE", length = 128)
+    @Size(max = 128)
+    private String raisonSociale;
+
+    @Column(name = "ADRESSE_1", length = 128)
+    @Size(max = 128)
+    private String adresse1;
+
+    @Column(name = "ADRESSE_2", length = 128)
+    @Size(max = 128)
+    private String adresse2;
+
+    @Column(name = "COMPLEMENT_ADRESSE", length = 128)
+    @Size(max = 128)
+    private String complementAdresse;
+
+    @Column(name = "CODE_POSTAL", length = 128)
+    @Size(max = 128)
+    private String codePostal;
+
+    @Column(name = "VILLE", length = 128)
+    @Size(max = 128)
+    private String ville;
+
+    @Column(name = "NOM_PAYS", length = 128)
+    @Size(max = 128)
+    private String nomPays;
+
+    @Column(name = "LOGIN", length = 128)
+    @Size(max = 128)
+    private String login;
+
+    @Type(PostgreSQLTSVectorType.class)
+    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    private String searchVector;
+
+}

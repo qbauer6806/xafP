@@ -1,16 +1,14 @@
 package mc.gouv.xaf.backweb;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
  * 
@@ -22,7 +20,7 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
  */
 @Component
 @Profile("gouv")
-public class GouvInterceptor extends HandlerInterceptorAdapter {
+public class GouvInterceptor implements HandlerInterceptor {
     
     @Autowired
     private AfBackUtils afBackUtils;
@@ -32,12 +30,11 @@ public class GouvInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-            ModelAndView modelAndView) throws Exception {
+            ModelAndView modelAndView) {
         if (modelAndView != null) {
             modelAndView.addObject("AfBackUtils", afBackUtils);
             modelAndView.addObject("DemarchesDataProvider", demarchesDataProvider);
         }
-        super.postHandle(request, response, handler, modelAndView);
     }
 
 }

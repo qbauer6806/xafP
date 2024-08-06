@@ -20,6 +20,7 @@ import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
@@ -55,9 +56,12 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
             GichuniUsagerDTO usager = usagersCache.get(demande.getUsagerId());
             if (usager == null) {
                 usager = new GichuniUsagerDTO();
-                usager.setNom(demande.getUsagerNom());
-                usager.setPrenom(demande.getUsagerPrenom());
-                usager.setEmail(demande.getUsagerEmail());
+                DemandeUsagerDTO usagerDto = demande.getUsager();
+                if (usagerDto != null) {
+                    usager.setNom(usagerDto.getNom());
+                    usager.setPrenom(usagerDto.getPrenom());
+                    usager.setEmail(usagerDto.getEmail());
+                }
             }
             model.put("usager", usager.getPrenom() + " " + usager.getNom());
             String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR

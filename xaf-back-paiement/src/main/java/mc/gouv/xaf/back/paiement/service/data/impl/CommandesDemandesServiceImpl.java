@@ -19,6 +19,9 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
 
+    @Autowired
+    private DemandesTransformer demandesTransformer;
+
     @Override
     public CommandeDemandeDTO getDerniereCommandeDemande(Integer demandeId) {
         List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findByDemande_PkDemandesOrderByCommande_DateCreationDesc(demandeId);
@@ -33,7 +36,7 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
         List<DemandeDTO> demandes = new ArrayList<>();
         List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(pkCommandes);
         for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
-            demandes.add(DemandesTransformer.bo2Dto(commandeDemandeBO.getDemande(), new String[]{}));
+            demandes.add(demandesTransformer.bo2Dto(commandeDemandeBO.getDemande(), new String[]{}));
         }
         return demandes;
     }

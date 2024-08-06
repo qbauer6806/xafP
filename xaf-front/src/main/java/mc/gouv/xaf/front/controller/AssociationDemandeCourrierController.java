@@ -1,12 +1,13 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Servlet permettant d'associer une demande courrier à un usager téléservice.
@@ -60,7 +59,9 @@ public class AssociationDemandeCourrierController extends AbstractXafController 
             // Récupération de l'ID de la démarche dans le Context-Param
             String demarcheId = propertiesResolver.getDemarcheId();
             Integer usagerId = usagerInfosDTO.getId();
-            LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, identifiant, nomProprio);
+            String safeIdentifiant = identifiant.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+            String safeNomProprio = nomProprio.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+            LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, safeIdentifiant, safeNomProprio);
             LOGGER.info("Appel à la démarche...");
             AfApiClient afApiClient = getAfApiClient();
             afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);

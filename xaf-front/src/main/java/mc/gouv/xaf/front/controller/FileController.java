@@ -1,17 +1,23 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 /**
  * Servlet servant à télécharger ou visualiser un fichier de FILE.
@@ -76,13 +76,13 @@ public class FileController extends AbstractXafController {
             }
 
             String accountId = propertiesResolver.getDemarcheId().toUpperCase();
-            String containerId = xafFrontserverUtils.CONTAINER_ROOT;
+            String containerId = XafFrontserverUtils.CONTAINER_ROOT;
 
             LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String fullFilename=accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, "UTF-8");
+            String fullFilename=accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
             String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + fullFilename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
@@ -97,18 +97,18 @@ public class FileController extends AbstractXafController {
             getRequest.setHeader(HttpHeaders.AUTHORIZATION, xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
-            HttpResponse getResponse = client.execute(getRequest);
+            ClassicHttpResponse getResponse = (ClassicHttpResponse)client.execute(getRequest);
 
             LOGGER.info("Constitution de la réponse pour retour au client");
-            ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getStatusLine().getStatusCode())
-                    .contentType(MediaType.valueOf(getResponse.getEntity().getContentType().getValue()));
+            ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getCode())
+                    .contentType(MediaType.valueOf(getResponse.getEntity().getContentType()));
             // Ajout de la métadonnée indiquant le demandeId lié
-            for (Header header : getResponse.getAllHeaders()) {
-                if (header.getName().startsWith(xafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
+            for (Header header : getResponse.getHeaders()) {
+                if (header.getName().startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                     response.header(header.getName(), header.getValue());
                 } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
                     String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
-                    response.header(header.getName(), URLDecoder.decode(headerValue, "UTF-8"));
+                    response.header(header.getName(), URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
                 }
             }
 

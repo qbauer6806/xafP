@@ -1,20 +1,18 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.back.data.entity.BrouillonBO;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.back.data.entity.BrouillonBO;
-import mc.gouv.xaf.shared.dto.BrouillonDTO;
-import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -124,7 +122,7 @@ public class BrouillonsTransformer {
 
     public static void setDernierStatut(BrouillonDTO brouillonDTO, String statut) {
         DemandeStatutDTO demandeStatutDTO = new DemandeStatutDTO();
-        demandeStatutDTO.setLibelle(statut);
+        demandeStatutDTO.setName(statut);
         brouillonDTO.setDernierStatut(demandeStatutDTO);
     }
 

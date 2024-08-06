@@ -6,10 +6,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import mc.gouv.xaf.back.dsp.enums.common.ResidEtatEnum;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class ResidStatutDemandeDTO implements Serializable {
 
     private static final long serialVersionUID = 1737364601317166129L;
@@ -21,35 +27,4 @@ public class ResidStatutDemandeDTO implements Serializable {
     // TODO Resid à supprimer car le timestamp sera connu de resid, mais pour le moment j'ai besoin d'un élément de comparaison
     private String timestamp;
 
-    public String getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public String getIdTS() {
-        return idTS;
-    }
-
-    public void setIdTS(String idTS) {
-        this.idTS = idTS;
-    }
-
-    public ResidEtatEnum getEtat() {
-        return etat;
-    }
-
-    public void setEtat(ResidEtatEnum etat) {
-        this.etat = etat;
-    }
-
-	@Override
-	public String toString() {
-		return "ResidStatutDemandeDTO{" +
-				"idTS='" + idTS + '\'' +
-				", etat=" + etat +
-				'}';
-	}
 }

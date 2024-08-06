@@ -21,6 +21,7 @@ public class RequestConstant {
     public static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
 
     public static final String DEMANDES_PATH = "demandes";
+    public static final String CONFIGS_PATH = "configs";
     public static final String ACCESSES_PATH = "accesses";
     public static final String BROUILLONS_PATH = "brouillons";
     public static final String COMPLEMENTS_PATH = "complements";

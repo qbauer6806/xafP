@@ -1,23 +1,32 @@
 package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
-import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SessionConstant;
-import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.
@@ -60,6 +69,17 @@ public class DemandesController extends AbstractXafController {
             LOGGER.info("Appel à la démarche pour créer la demande");
             if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
                 demandeInput.setContenuInitial(mapper.valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+            }
+            // récupérer la config pour faire les vérifications
+            JsonNode config;
+            try {
+                config = xafFrontserverUtils.getConfig();
+            } catch (IOException e) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, "Impossible de lire le fichier config.json");
+            }
+            // vérifier la consistance des donneesexternes fournies par l'usager
+            if (!xafFrontserverUtils.checkDonneesExternes(demandeInput.getDonneesExternes(), config.get("donneesExternes"))) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, "Inconsistance des donneesExternes envoyées");
             }
             demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
             request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, null);

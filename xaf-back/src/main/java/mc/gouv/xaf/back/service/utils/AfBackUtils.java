@@ -1,5 +1,13 @@
 package mc.gouv.xaf.back.service.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.google.gson.Gson;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -8,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -18,37 +27,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
-import com.google.gson.Gson;
-
 import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.logon.shared.Droit;
-import mc.gouv.logon.shared.Role;
-import mc.gouv.logon.shared.User;
-import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
+import mc.gouv.xaf.back.service.itg.logon.dto.Role;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
@@ -58,14 +47,26 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
-import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
-import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -157,12 +158,16 @@ public class AfBackUtils {
 
     @Autowired
     @Lazy
+    private MarqueursService marqueursService;
+
+    @Autowired
+    @Lazy
     private PropertiesService propertiesService;
 
     @Autowired
     @Lazy
     private MotifsCache motifsCache;
-    
+
     private AfApiClient afApiClient2Tiers = null;
 
     public static final short GENDER_MR_INDEX = 0;
@@ -173,8 +178,8 @@ public class AfBackUtils {
         if (SecurityContextHolder.getContext() != null
                 && SecurityContextHolder.getContext().getAuthentication() != null) {
             Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (o instanceof User) {
-                return ((User) o).getMatricule();
+            if (o instanceof User user) {
+                return user.getMatricule();
             }
         }
 
@@ -185,8 +190,8 @@ public class AfBackUtils {
         if (SecurityContextHolder.getContext() != null
                 && SecurityContextHolder.getContext().getAuthentication() != null) {
             Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (o instanceof User) {
-                return ((User) o).getNom();
+            if (o instanceof User user) {
+                return user.getNom();
             }
         }
 
@@ -228,7 +233,7 @@ public class AfBackUtils {
                 builder.append(AfBackUtils.escapeChars(u.getNom()));
             }
         }
-        return StringEscapeUtils.escapeHtml(builder.toString());
+        return StringEscapeUtils.escapeHtml4(builder.toString());
     }
 
     /**
@@ -325,23 +330,25 @@ public class AfBackUtils {
      */
     public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
         DemandeFlatDTO flat = new DemandeFlatDTO();
-        flat.setAgentAffecteId(demande.getAgentAffecteId());
-        String nomAgent = utilisateursUtils.getUserNameFromID(demande.getAgentAffecteId());
+        flat.setAgentAffecteId(demande.getAgent() != null ? demande.getAgent().getId() : null);
+        String nomAgent = utilisateursUtils.getUserNameFromID(demande.getAgent() != null ? demande.getAgent().getId() : null);
         flat.setAgentAffecteNom(getSafeString(nomAgent));
-        flat.setCanal(demande.getCanal().libelle);
+        flat.setCanal(demande.getCanal().toString());
         flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
         flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
         flat.setDateCreation(convertDateToString(demande.getDateCreation()));
-        flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getLibelle()));
+        flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getName()));
         flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
         flat.setLangue(getSafeString(demande.getLangue()));
         flat.setObservations(getSafeString(demande.getObservations()));
         flat.setPkDemandes(demande.getPkDemandes());
         flat.setUsagerId(demande.getUsagerId());
-        flat.setUsagerNom(getSafeString(demande.getUsagerNom()));
-        flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
-        flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
-        flat.setBuildId(demande.getBuildId());
+        DemandeUsagerDTO usager = demande.getUsager();
+        if (usager != null) {
+            flat.setUsagerNom(getSafeString(usager.getNom()));
+            flat.setUsagerPrenom(getSafeString(usager.getPrenom()));
+            flat.setUsagerEmail(getSafeString(usager.getEmail()));
+        }
         // motif
         if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {
             MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
@@ -389,8 +396,8 @@ public class AfBackUtils {
     /**
      * Permet de récupérer le d'un demandeur (ici, la raison sociale de l'entreprise)
      */
-    public String getDemandeur(Object contenuDemandeDTO) {
-        return demarchesDataProvider.getDemandeur(contenuDemandeDTO);
+    public String getDemandeur(DemandeDTO demande) {
+        return demarchesDataProvider.getDemandeur(demande);
     }
 
     public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto) {
@@ -423,7 +430,7 @@ public class AfBackUtils {
         }
         return destinataires;
     }
-    
+
     private boolean hasRole(Role role, String codeAppli, String[] rolesList) {
         if (role.getAppli().getCode().equals(codeAppli)) {
             for (Droit droit : role.getDroits()) {
@@ -581,10 +588,7 @@ public class AfBackUtils {
      * Echappe les caractères posant problèmes dans les logs selon la règle Sonar javasecurity:S5145
      */
     public static String logSafe(String str) {
-        if (StringUtils.isEmpty(str)) {
-            return str;
-        }
-        return str.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        return str != null ? str.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
     }
 
     /**
@@ -619,7 +623,7 @@ public class AfBackUtils {
     }
 
     public static Double parseDoubleSafe(String texte) {
-        Double parsed = 0.0;
+        double parsed = 0.0;
         if (StringUtils.isNotEmpty(texte)) {
             String safe = StringUtils.replace(texte, ",", ".", -1);
             try {
@@ -670,43 +674,6 @@ public class AfBackUtils {
 	    }
 	    return null;
     }
-
-    public static List<SourceFiableDTO> donneesCertifieesJsonToList(String json) {
-        if (json != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                return mapper.readValue(json, new TypeReference<>() {
-                });
-            } catch (JsonProcessingException e) {
-                try {
-                    List<String> values = mapper.readValue(json, new TypeReference<>() {
-                    });
-                    if (CollectionUtils.isNotEmpty(values)) {
-                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
-                                .collect(Collectors.toList());
-                    }
-                } catch (JsonProcessingException ex) {
-                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
-                }
-            }
-        }
-        return new ArrayList<>();
-    }
-    public static String donneesCertifieesListToJson(List<SourceFiableDTO> list) {
-    	ObjectMapper mapper = new ObjectMapper();
-    	try {
-			return mapper.writeValueAsString(list);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("Erreur dans donneesCertifieesListToJson()", e);
-		}
-    	return null;
-    }
-    
-	public static String addDonneeCertifiee(String donneesCertifiees, SourceFiableDTO sourceFiable) {
-		List<SourceFiableDTO> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
-		donneesCertifieesList.add(sourceFiable);
-		return donneesCertifieesListToJson(donneesCertifieesList);
-	}
 	
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
@@ -721,9 +688,6 @@ public class AfBackUtils {
 		if (demarche.getLangues().contains("en")) {
 			langues.put("en", "Anglais");
 		}
-		if (demarche.getLangues().contains("it")) {
-			langues.put("it", "Italien");
-		}
 		return langues;
 	}
 
@@ -736,7 +700,7 @@ public class AfBackUtils {
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
         	return false;
         }
-        return Boolean.valueOf(emailHtmlEnabledProp.getValue());
+        return Boolean.parseBoolean(emailHtmlEnabledProp.getValue());
 	}
 	
 	/**
@@ -746,12 +710,142 @@ public class AfBackUtils {
     public boolean isTypedocApplicable(String typedoc) {
         return demarchesDataProvider.isTypedocApplicable(typedoc);
     }
-    
+
     public AfApiClient getAfApiClient2Tiers() {
     	if (afApiClient2Tiers == null) {
     		afApiClient2Tiers = new AfApiClient(gouvPropertiesResolver.get2TiersBoUrl(), gouvPropertiesResolver.get2TiersBoJwt());
     	}
     	return afApiClient2Tiers;
     }
+
+    public String getMarqueurValue(DemandeDTO demande, String idMarqueur) {
+        return getMarqueurValue(demande, idMarqueur, null);
+    }
+
+    public String getMarqueurValue(DemandeDTO demande, String identifiant, String complementChemin) {
+        MarqueurDTO marqueur = marqueursService.getMarqueur(identifiant, demande.getConfig().get("buildId").asText());
+        if (marqueur != null) {
+            String complement = complementChemin != null ? "." + complementChemin : "";
+            String chemin = marqueur.getChemin() + complement;
+            JsonNode node = getNodeFromPath(demande.getContenuTrad(), chemin);
+            return node != null ? node.asText() : null;
+        }
+        return null;
+    }
+
+    public static JsonNode getNodeFromPath(JsonNode contenu, String path) {
+        String chemin = getCheminRelatif(path);
+        return contenu.at(chemin);
+    }
+
+    public static String getCheminRelatif(String path) {
+        return path.replace("contenu.", "/").replace(".", "/");
+    }
+
+    public static void setNodeValue(JsonNode contenu, String path, String nouvelleValeur){
+        // [contenu,donnee,demandeur,prenom]
+        List<String> donneeExterneKeyArray = new ArrayList<>(Arrays.asList(path.split("\\.")));
+        // [donnee,demandeur,prenom]
+        donneeExterneKeyArray.remove(0);
+        //	 "[donnee,demandeur]" / field = prenom
+        String field = donneeExterneKeyArray.remove(donneeExterneKeyArray.size() - 1);
+        // "/donnee/demandeur"
+        String p = "/" + String.join("/", donneeExterneKeyArray);
+        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+    }
+
+    /**
+     * Permet de convertir une ligne d'historique DEM en une ligne d'historique TS avec tous les détails
+     * spécifiques au TS.
+     *
+     * @param demHisto
+     * @return
+     */
+    public DemandeHistoriqueAffichageDTO histoDem2Ts(DemandeHistoriqueDTO demHisto) {
+        DemandeHistoriqueAffichageDTO tsHisto = new DemandeHistoriqueAffichageDTO();
+        tsHisto.setDemHistorique(demHisto);
+        DemandeHistoriqueContenuDTO contenu = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            contenu = mapper.treeToValue(demHisto.getContenu(), DemandeHistoriqueContenuDTO.class);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur", e);
+        }
+        tsHisto.setContenu(contenu);
+        return tsHisto;
+    }
+
+    /**
+     * Permet de convertir un ensemble de lignes d'historique DEM en un ensemble de lignes d'historique TS avec
+     * tous les détails spécifiques au TS.
+     *
+     * @param demHistos
+     * @return
+     */
+    public List<DemandeHistoriqueAffichageDTO> histoDem2Ts(List<DemandeHistoriqueDTO> demHistos) {
+
+        // Trier l'historique, au cas où (#9597)
+        demHistos.sort(new DemandeHistoriqueComparator());
+
+        List<DemandeHistoriqueAffichageDTO> tsHistos = new ArrayList<>();
+        for (DemandeHistoriqueDTO demHisto : demHistos) {
+            tsHistos.add(histoDem2Ts(demHisto));
+        }
+        return tsHistos;
+    }
+
+    /**
+     * Permet de créer une ligne d'historique pour DEM à partir des données d'historique spécifiques au TS
+     *
+     * @param tsHistoContenu
+     * @param usagerId
+     * @param agentId
+     * @return
+     */
+    public DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu,
+            Integer usagerId,
+            String agentId) {
+        DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
+        demHisto.setAgentId(agentId);
+        demHisto.setUsagerId(usagerId);
+        ObjectMapper mapper = new ObjectMapper();
+        demHisto.setContenu(mapper.valueToTree(tsHistoContenu));
+        return demHisto;
+    }
+
+    public String getUtilisateurAffecte(DemandeDTO demande) {
+        String utilisateurAffecte = StringUtils.EMPTY;
+        if (demande.getAgent() != null) {
+            User u = utilisateursCache.get(demande.getAgent().getId());
+            if (u != null) {
+                utilisateurAffecte = u.getNom();
+            }
+        }
+        return utilisateurAffecte;
+    }
+
+    public String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
+        String codePostal = getMarqueurValue(demande, marqueurIdentifiant, "codePostal");
+        String ville = getMarqueurValue(demande, marqueurIdentifiant, "ville");
+        String adresseComplete = genererAdresse(demande, marqueurIdentifiant);
+        if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
+            adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
+        }
+        return adresseComplete;
+    }
+
+    public String genererAdresse(DemandeDTO demande, String marqueurIdentifiant) {
+        String adresseComplete = escapeChars(getMarqueurValue(demande, marqueurIdentifiant, "ligne1"));
+        String adresse2 = getMarqueurValue(demande, marqueurIdentifiant, "ligne2");
+        String adresse3 = getMarqueurValue(demande, marqueurIdentifiant, "ligne3");
+        if (!StringUtils.isEmpty(adresse2)) {
+            adresseComplete += "\n" + escapeChars(adresse3);
+        }
+        if (!StringUtils.isEmpty(adresse3)) {
+            adresseComplete += "\n" + escapeChars(adresse3);
+        }
+        return adresseComplete;
+    }
+
 
 }

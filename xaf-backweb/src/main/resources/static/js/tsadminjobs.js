@@ -96,11 +96,7 @@ var tableJobs = $('#datatable-jobs').DataTable(configurationDataTableJobs);
 
 $("#executeJobButton").click(function() {
 
-	$.fancybox.open($("#executeJobConfirmPanel"), {
-		autoSize : false,
-		width : "30%",
-		height : "auto"
-	});
+	$('#executeJobConfirmPanel').modal();
 
 });
 
@@ -121,7 +117,7 @@ $("#executeJobConfirmationButton").click(
 							"Demande d'exécution prise en compte").click();
 					console.log("Success" + data);
 					tableJobs.ajax.reload(null, true);
-					$.fancybox.close();
+					$('.modal').modal('hide');
 
 				},
 				error : function(xhr) {
@@ -131,14 +127,14 @@ $("#executeJobConfirmationButton").click(
 							"Un problème est survenu lors du lancement du job : "
 									+ error.message).click();
 					console.log("failed to submit : " + error);
-					$.fancybox.close();
+					$('.modal').modal('hide');
 				}
 			});
 		});
 
 $("#cancelExecuteJobButton").click(function() {
 
-	$.fancybox.close();
+	$('.modal').modal('hide');
 
 });
 

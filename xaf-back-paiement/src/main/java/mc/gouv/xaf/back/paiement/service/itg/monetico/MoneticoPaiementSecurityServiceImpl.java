@@ -1,6 +1,12 @@
 package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
 import com.google.gson.Gson;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
@@ -11,13 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityService {
@@ -95,7 +94,7 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
                 "dateech4=" + paiementDTO.getDateech4(),
                 "lgue=" + paiementDTO.getLgue(),
                 "libelleMonetique=" + paiementDTO.getLibelleMonetique(),
-                "libelleMonetiqueLocalite=" + paiementDTO.getlibelleMonetiqueLocalite(),
+                "libelleMonetiqueLocalite=" + paiementDTO.getLibelleMonetiqueLocalite(),
                 "mail=" + paiementDTO.getMail(),
                 "mode_affichage=" + paiementDTO.getMode_affichage(),
                 "montant=" + paiementDTO.getMontant(),

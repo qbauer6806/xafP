@@ -5,50 +5,56 @@
 
 	<div id="selectionusagertransfert"
 		th:fragment="selectionusagertransfert">
-		<div id="transferer-box" style="display: none">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-xs-12">
+		<div id="transferer-box" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-xs-12">
 						<span style="color: rgb(94, 97, 100); font-size: 16pt">Transfert
 							de demande(s)</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
 						<span id="transfertNomPrenom"
-							style="font-weight: bold;"></span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12">
+									style="font-weight: bold;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
 						<span id="transfertRaisonSociale"
-							style="font-weight: bold;"></span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12">
-						<span id="transfertAdresse" style="font-weight: bold;"></span>&nbsp;-&nbsp;<span
-							id="transfertCodePostal" style="font-weight: bold;"></span>&nbsp;
-						<span id="transfertVille" style="font-weight: bold;"></span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12">
+									style="font-weight: bold;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
+									<span id="transfertAdresse" style="font-weight: bold;"></span>&nbsp;-&nbsp;<span
+										id="transfertCodePostal" style="font-weight: bold;"></span>&nbsp;
+									<span id="transfertVille" style="font-weight: bold;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12">
 						<span style="color: rgb(94, 97, 100);">Rechercher un usager
 							pour transférer les demandes :</span><br /> <input type="text"
-							id="autocomplete" name="texte" class="form-control" />
+																																 id="autocomplete" name="texte" class="form-control" />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-12 text-center margin-top">
+									<a href="#"
+										 class="btn btn-action-second ripple-effect transferer-annuler"
+										 style="margin-right: 10px">Annuler</a> <a id="lientransfert"
+																															 href="#" class="btn btn-action ripple-effect margin-left">Valider</a>
+								</div>
+							</div>
+						</div>
 					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12 text-center margin-top">
-						<a href="#"
-							class="btn btn-action-second ripple-effect transferer-annuler"
-							style="margin-right: 10px">Annuler</a> <a id="lientransfert"
-							href="#" class="btn btn-action ripple-effect margin-left">Valider</a>
-					</div>
-				</div>
-			</div>
-		</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
 	</div>
 
 </body>

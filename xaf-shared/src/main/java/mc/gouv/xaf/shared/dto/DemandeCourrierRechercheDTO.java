@@ -3,6 +3,7 @@ package mc.gouv.xaf.shared.dto;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Setter;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 /**
@@ -11,6 +12,7 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
  * @author mpavone
  *
  */
+@Setter
 public class DemandeCourrierRechercheDTO extends DemandeRechercheDTO {
 
     private boolean imprime;
@@ -30,10 +32,6 @@ public class DemandeCourrierRechercheDTO extends DemandeRechercheDTO {
 
     public boolean getImprime() {
         return imprime;
-    }
-
-    public void setImprime(boolean imprime) {
-        this.imprime = imprime;
     }
 
 }

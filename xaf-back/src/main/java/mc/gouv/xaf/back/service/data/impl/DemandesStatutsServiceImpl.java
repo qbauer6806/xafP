@@ -1,28 +1,8 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-
-import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.service.data.StatistiquesService;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
@@ -31,9 +11,28 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Service permettant la manipulation des statuts des demandes.
@@ -68,12 +67,14 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Autowired
     private GUKafkaProducer guKafkaProducer;
 
+    @Autowired
+    private DemandesTransformer demandesTransformer;
+
     /**
      * {@inheritDoc}
      */
     @Override
-    // TODO: Alerte Sonar sur le trop grand nombre de paramètres
-    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId,
+    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
         
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
@@ -87,23 +88,30 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         return updateStatut(demandeBo, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
     }
 
+    @Override
+    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId,
+                                   String codeMotif, String commentaire, String texteAEnvoyer) {
+        return updateStatut(demarcheId, demandeId, new StatutPublicOuInterneDTO(statut.getName(), statut.getLibelle()), agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId,
+    public DemandeDTO updateStatut(DemandeBO demande, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
     	
     	LOGGER.info("updateStatut({}, {}, {}, {}, {}, {}, {})", demande.getPkDemandes(), statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
     	
     	String statutInitial = null;
     	if (demande.getDernierStatut() != null) {
-    		statutInitial = demande.getDernierStatut().getLibelle();
+    		statutInitial = demande.getDernierStatut().getName();
     	}
     	
         LOGGER.info("Constitution du nouveau statut ({}) et sauvegarde en base...", statut);
         DemandesStatutsBO statutBo = new DemandesStatutsBO();
-        statutBo.setLibelle(statut);
+        statutBo.setLibelle(statut.getLibelle());
+        statutBo.setName(statut.getName());
         statutBo.setDate(new Date());
         statutBo.setUsagerId(usagerId);
         statutBo.setAgentId(agentId);
@@ -127,7 +135,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         	LOGGER.info("Le statut simplifié initial est TERMINEE, il s'agit donc probablement d'une duplication de demande, donc aucun message à envoyer au Guichet Unique via Kafka");
         }
         else {
-	        StatutSimplifieEnum statutSimplifieNouveau = demarchesDataProvider.getStatutSimplifieFromStatutPublic(statut);
+	        StatutSimplifieEnum statutSimplifieNouveau = demarchesDataProvider.getStatutSimplifieFromStatutPublic(statut.getName());
 	        if (statutSimplifieInitial.equals(statutSimplifieNouveau)) {
 	        	LOGGER.info("Le statut simplifié n'a pas changé, pas d'envoi de message au Guichet Unique via Kafka.");
 	        }
@@ -140,7 +148,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 	        }
         }
 
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
+        DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demande);
         statistiquesService.saveStatistique(demandeDTO);
 
         return demandeDTO;
@@ -150,10 +158,10 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut) {
+    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, StatutPublicOuInterneDTO statut) {
         List<DemandeDTO> saved = new ArrayList<>();
         for (DemandeDTO demandeDTO : demandes) {
-            DemandeBO demandeBO = DemandesTransformer.dto2Bo(demandeDTO);
+            DemandeBO demandeBO = demandesTransformer.dto2Bo(demandeDTO);
             AccessBO accessBO = new AccessBO();
             accessBO.setPkAccess(demandeDTO.getFkAccess());
             accessBO.setDemarcheId(demandeDTO.getDemarcheId());

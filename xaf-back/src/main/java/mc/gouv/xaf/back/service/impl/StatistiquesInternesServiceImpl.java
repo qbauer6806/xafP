@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class StatistiquesInternesServiceImpl implements StatistiquesInternesService {
@@ -63,7 +62,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
                     List<String> tasksIds = gouvBPM.getNumberActiveDemandesInState(status);
 
                     // Convert String id list to Integer id list
-                    List<Integer> taskIntIds = tasksIds.stream().map(Integer::parseInt).collect(Collectors.toList());
+                    List<Integer> taskIntIds = tasksIds.stream().map(Integer::parseInt).toList();
                     count = getNumberDemandesFilteredByStatusAndCanalWithIds(taskIntIds, canal.name());
                 }
                 totalByCanal += count;
@@ -108,7 +107,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
 
         LOGGER.info("Récupération du nombre de demarches par démarche id...");
 
-        return demandesStatInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(demarcheId, canal, status);
+        return demandesStatInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutName(demarcheId, canal, status);
     }
 
     @Override

@@ -14,9 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.el.PropertyNotFoundException;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;

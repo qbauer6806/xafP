@@ -1,20 +1,20 @@
 package mc.gouv.xaf.back.data.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -23,6 +23,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_ACCESS")
 public class AccessBO {
@@ -59,77 +61,5 @@ public class AccessBO {
     
     @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BrouillonBO> brouillons;
-
-    public Integer getPkAccess() {
-        return pkAccess;
-    }
-
-    public void setPkAccess(Integer pkAccess) {
-        this.pkAccess = pkAccess;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public Integer getUsagerId() {
-        return usagerId;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateDerModif() {
-        return dateDerModif;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setUsagerId(Integer usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public void setDateDerModif(Date dateDerModif) {
-        this.dateDerModif = dateDerModif;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
-
-    public Set<DemandeBO> getDemandes() {
-        return demandes;
-    }
-
-    public void setDemandes(Set<DemandeBO> demandes) {
-        this.demandes = demandes;
-    }
-
-    public Set<BrouillonBO> getBrouillons() {
-		return brouillons;
-	}
-
-	public void setBrouillons(Set<BrouillonBO> brouillons) {
-		this.brouillons = brouillons;
-	}
-
-	public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
 
 }

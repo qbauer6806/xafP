@@ -1,10 +1,12 @@
 package mc.gouv.xaf.back.data.entity;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -13,6 +15,8 @@ import java.util.Set;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMARCHES")
 public class DemarchesBO {
@@ -110,171 +114,4 @@ public class DemarchesBO {
     @Size(max = 256)
     private String nomSousDirectionComplementEn;
 
-	public String getPkDemarches() {
-        return pkDemarches;
-    }
-
-    public void setPkDemarches(String pkDemarches) {
-        this.pkDemarches = pkDemarches;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-    
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getEmailService() {
-        return emailService;
-    }
-
-    public void setEmailService(String emailService) {
-        this.emailService = emailService;
-    }
-
-    public String getEmailReplyto() {
-        return emailReplyto;
-    }
-
-    public void setEmailReplyto(String emailReplyto) {
-        this.emailReplyto = emailReplyto;
-    }
-
-    public String getEmailReplytoNom() {
-        return emailReplytoNom;
-    }
-
-    public void setEmailReplytoNom(String emailReplytoNom) {
-        this.emailReplytoNom = emailReplytoNom;
-    }
-
-    public String getEmailFrom() {
-        return emailFrom;
-    }
-
-    public void setEmailFrom(String emailFrom) {
-        this.emailFrom = emailFrom;
-    }
-
-    public String getEmailFromNom() {
-        return emailFromNom;
-    }
-
-    public void setEmailFromNom(String emailFromNom) {
-        this.emailFromNom = emailFromNom;
-    }
-    
-    public String getIdentifiantPrefixe() {
-        return identifiantPrefixe;
-    }
-
-    public void setIdentifiantPrefixe(String identifiantPrefixe) {
-        this.identifiantPrefixe = identifiantPrefixe;
-    }
-
-	public Set<PeriodesOuvertureBO> getPeriodesOuverture() {
-		return periodesOuverture;
-	}
-
-	public void setPeriodesOuverture(Set<PeriodesOuvertureBO> periodesOuverture) {
-		this.periodesOuverture = periodesOuverture;
-	}
-
-    public Set<PropertiesBO> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Set<PropertiesBO> properties) {
-        this.properties = properties;
-    }
-
-	public String getLangues() {
-		return langues;
-	}
-
-	public void setLangues(String langues) {
-		this.langues = langues;
-	}
-
-	public String getNomEn() {
-		return nomEn;
-	}
-
-	public void setNomEn(String nomEn) {
-		this.nomEn = nomEn;
-	}
-
-    public String getNomDirection() {
-        return nomDirection;
-    }
-
-    public void setNomDirection(String nomDirection) {
-        this.nomDirection = nomDirection;
-    }
-
-    public String getNomSousDirection() {
-        return nomSousDirection;
-    }
-
-    public void setNomSousDirection(String nomSousDirection) {
-        this.nomSousDirection = nomSousDirection;
-    }
-
-    public String getNomFooter() {
-        return nomFooter;
-    }
-
-    public void setNomFooter(String nomFooter) {
-        this.nomFooter = nomFooter;
-    }
-
-    public String getAdresseService() {
-        return adresseService;
-    }
-
-    public void setAdresseService(String adresseService) {
-        this.adresseService = adresseService;
-    }
-
-    public String getNomSousDirectionComplement() {
-        return nomSousDirectionComplement;
-    }
-
-    public void setNomSousDirectionComplement(String nomSousDirectionComplement) {
-        this.nomSousDirectionComplement = nomSousDirectionComplement;
-    }
-
-    public String getTelephoneService() {
-        return telephoneService;
-    }
-
-    public void setTelephoneService(String telephoneService) {
-        this.telephoneService = telephoneService;
-    }
-
-    public String getNomDirectionEn() {
-        return nomDirectionEn;
-    }
-
-    public void setNomDirectionEn(String nomDirectionEn) {
-        this.nomDirectionEn = nomDirectionEn;
-    }
-
-    public String getNomSousDirectionEn() {
-        return nomSousDirectionEn;
-    }
-
-    public void setNomSousDirectionEn(String nomSousDirectionEn) {
-        this.nomSousDirectionEn = nomSousDirectionEn;
-    }
-
-    public String getNomSousDirectionComplementEn() {
-        return nomSousDirectionComplementEn;
-    }
-
-    public void setNomSousDirectionComplementEn(String nomSousDirectionComplementEn) {
-        this.nomSousDirectionComplementEn = nomSousDirectionComplementEn;
-    }
 }

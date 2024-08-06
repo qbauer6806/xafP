@@ -1,5 +1,8 @@
 package mc.gouv.xaf.shared.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 
  * Classe générique représentant un statut d'un {demarcheId}DemandeStatutEnum
@@ -7,26 +10,12 @@ package mc.gouv.xaf.shared.dto;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class GenericStatusDTO {
     
-    public String name;
-    
-    public String libelle;
-    
-    public String getName() {
-        return name;
-    }
+    private String name;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
+    private String libelle;
 
 }

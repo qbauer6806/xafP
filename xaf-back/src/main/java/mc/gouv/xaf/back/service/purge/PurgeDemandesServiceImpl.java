@@ -1,33 +1,20 @@
 package mc.gouv.xaf.back.service.purge;
 
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_VIRTUEL;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-
-import javax.persistence.EntityManager;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
-import org.hibernate.Session;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
@@ -46,13 +33,20 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-
-import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
+import org.hibernate.Session;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
@@ -96,7 +90,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
-
     @Autowired
     private PurgeFilesRepository purgeFilesRepository;
 
@@ -105,9 +98,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     @Autowired
     private GouvSchedulerService gouvSchedulerService;
-
-    @Autowired
-    private MessageSource messageSource;
 
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
@@ -158,11 +148,11 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 dateFinPurge, statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
-			envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+			envoisMailUsagerPurge(demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
             demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
-                    .append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
+                    .append(demandeDTO.getDernierStatut().getName()).append("<br/>");
         }
 
 		// Envois mail agent pour suppression
@@ -236,7 +226,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
 	}
 
-	private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
+	private void envoisMailUsagerPurge(DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
@@ -257,16 +247,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			}
 
 			emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
-			Map<String, Object> model = new HashMap<>();
-			model.put("identifiant", identifiant);
-			model.put("pkDemande", demandeDTO.getPkDemandes());
+			Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
 			model.put("delai", delai);
-			String defaultMailTitre = demandeDTO.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
-					: SharedMessages.DEFAULT_TITRE_MAIL_EN;
-			String titre = usager.getTitre() != null
-					? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()))
-					: defaultMailTitre;
-			model.put("titre", titre);
 			model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 			PropertiesDTO adresseService = propertiesService.getProperty(demandeDTO.getDemarcheId(), "ADRESSE_SERVICE");
 	        if(adresseService != null) {
@@ -291,7 +273,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_CORPS";
 
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
-		emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), org.apache.commons.lang.StringUtils.EMPTY);
+		emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
 		Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
 		model.put("demandes", demandesAPurger);
 		model.put("delai", delai);

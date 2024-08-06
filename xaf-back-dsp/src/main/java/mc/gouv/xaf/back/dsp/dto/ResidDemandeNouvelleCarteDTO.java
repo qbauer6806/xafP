@@ -3,11 +3,15 @@ package mc.gouv.xaf.back.dsp.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidCarteTypeEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidMotifInstallationEnum;
 
 import java.io.Serializable;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidDemandeNouvelleCarteDTO implements Serializable {
@@ -22,35 +26,4 @@ public class ResidDemandeNouvelleCarteDTO implements Serializable {
 
     private ResidMotifInstallationEnum motifInstallation;
 
-    public ResidDemandeBaseDTO getDemandeBase() {
-        return demandeBase;
-    }
-
-    public void setDemandeBase(ResidDemandeBaseDTO demandeBase) {
-        this.demandeBase = demandeBase;
-    }
-
-    public String getIdTS() {
-        return idTS;
-    }
-
-    public void setIdTS(String idTS) {
-        this.idTS = idTS;
-    }
-
-    public ResidCarteTypeEnum getType() {
-        return type;
-    }
-
-    public void setType(ResidCarteTypeEnum type) {
-        this.type = type;
-    }
-
-    public ResidMotifInstallationEnum getMotifInstallation() {
-        return motifInstallation;
-    }
-
-    public void setMotifInstallation(ResidMotifInstallationEnum motifInstallation) {
-        this.motifInstallation = motifInstallation;
-    }
 }

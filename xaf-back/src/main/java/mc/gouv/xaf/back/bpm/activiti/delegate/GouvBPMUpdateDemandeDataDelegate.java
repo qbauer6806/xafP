@@ -1,8 +1,14 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import lombok.Getter;
+import lombok.Setter;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +24,11 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMUpdateDemandeDataDelegate.class);
 
+    @Setter
+    @Getter
     private Expression dataKey;
+    @Setter
+    @Getter
     private Expression dataValue;
 
     @Autowired
@@ -27,12 +37,18 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
     @Autowired
     private DemandesDataService demandesDataService;
 
+    @Autowired
+    private DemandesStatutsService demandesStatutsService;
+
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back MISE A JOUR DATA ...");
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         String dataKeyStr = (String) dataKey.getValue(execution);
         String dataValueStr = (String) dataValue.getValue(execution);
@@ -44,25 +60,17 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");
         }
 
-        demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr,
-                dataValueStr);
+        // xaf 12 on n'utilise plus le flag IS_EN_ATTENTE_VALIDATION pour les validations hérarchiques
+        // on est obligé de laisser cette condition pour faire marcher les anciennes demandes qui sont encore actives avec des vieux bpmn
+        if (dataKeyStr.equals("IS_EN_ATTENTE_VALIDATION") && dataValueStr.equals("1")) {
+            StatutPublicOuInterneDTO statutPublicOuInterneDTO = demarchesDataProvider.getStatutPublicOuInterne(demandeId, "validationHierarchiqueTask");
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statutPublicOuInterneDTO,
+                    AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
+        } else {
+            demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr,
+                    dataValueStr);
+        }
 
-    }
-
-    public Expression getDataKey() {
-        return dataKey;
-    }
-
-    public void setDataKey(Expression dataKey) {
-        this.dataKey = dataKey;
-    }
-
-    public Expression getDataValue() {
-        return dataValue;
-    }
-
-    public void setDataValue(Expression dataValue) {
-        this.dataValue = dataValue;
     }
 
 }

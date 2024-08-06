@@ -3,12 +3,16 @@ package mc.gouv.xaf.shared.dto;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Représente une période d'ouverture d'une démarche
  *
  * @author qdeme
  */
+@Setter
+@Getter
 public class PeriodeOuvertureDTO {
 
     private Integer pkPeriodesOuverture;
@@ -20,37 +24,5 @@ public class PeriodeOuvertureDTO {
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dateFin;
-
-    public Integer getPkPeriodesOuverture() {
-        return pkPeriodesOuverture;
-    }
-
-    public void setPkPeriodesOuverture(Integer pkPeriodesOuverture) {
-        this.pkPeriodesOuverture = pkPeriodesOuverture;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public Date getDateDebut() {
-        return dateDebut;
-    }
-
-    public void setDateDebut(Date dateDebut) {
-        this.dateDebut = dateDebut;
-    }
-
-    public Date getDateFin() {
-        return dateFin;
-    }
-
-    public void setDateFin(Date dateFin) {
-        this.dateFin = dateFin;
-    }
 
 }

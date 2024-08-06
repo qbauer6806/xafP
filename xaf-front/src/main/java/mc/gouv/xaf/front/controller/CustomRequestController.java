@@ -1,6 +1,12 @@
 package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Enumeration;
 import mc.gouv.xaf.front.dto.CustomRequestRechercheDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
@@ -9,22 +15,20 @@ import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Enumeration;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE.
@@ -120,10 +124,10 @@ public class CustomRequestController extends AbstractXafController {
             }
         }
         try {
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
+            int statusCode = serviceResponse.getCode();
             return ResponseEntity.status(statusCode)
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType().getValue()))
+                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
                     .body(serviceResponse.getEntity().getContent());
         } catch (Exception e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
@@ -134,15 +138,15 @@ public class CustomRequestController extends AbstractXafController {
     private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl) throws IOException {
         Request serviceRequest = null;
         if (HttpMethod.GET.equals(httpMethod)) {
-            serviceRequest = Request.Get(serviceUrl);
+            serviceRequest = Request.get(serviceUrl);
         } else if (HttpMethod.POST.equals(httpMethod)) {
             serviceRequest = this.getRequest(request, serviceUrl);
         } else if (HttpMethod.PUT.equals(httpMethod)) {
-            serviceRequest = Request.Put(serviceUrl);
+            serviceRequest = Request.put(serviceUrl);
             String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
             serviceRequest.bodyByteArray(body.getBytes());
         } else if (HttpMethod.DELETE.equals(httpMethod)) {
-            serviceRequest = Request.Delete(serviceUrl);
+            serviceRequest = Request.delete(serviceUrl);
         }
         return serviceRequest;
     }
@@ -163,7 +167,7 @@ public class CustomRequestController extends AbstractXafController {
         } catch (Exception e) {
             LOGGER.info("Exception lors de la deserialization de CustomRequestRechercheDTO", e);
         }
-        Request serviceRequest = Request.Post(serviceUrl);
+        Request serviceRequest = Request.post(serviceUrl);
         serviceRequest.bodyByteArray(body.getBytes());
 
         return serviceRequest;

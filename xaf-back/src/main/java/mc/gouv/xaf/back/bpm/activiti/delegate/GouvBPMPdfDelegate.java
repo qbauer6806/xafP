@@ -1,8 +1,12 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import java.io.IOException;
+import lombok.Getter;
+import lombok.Setter;
+import mc.gouv.xaf.back.exception.DemarcheException;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,17 +39,19 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
     @Autowired
     private DemandesService demandesService;
 
+    @Getter
+    @Setter
     private Expression pdfTypeCodeExpr;
-    
+
     private Expression meta;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back PDF SERVICE ...");
 
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                Integer.parseInt(execution.getProcessBusinessKey()));
+                Integer.parseInt(execution.getProcessInstanceBusinessKey()));
         
         PdfTypeEnum pdfType;
         if (pdfTypeCodeExpr == null) {
@@ -61,16 +67,13 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
         	metaStr = (String)meta.getValue(execution);
         }
 
-        pdfGenerationService.generateAndStorePdf(demandeDto, pdfType, metaStr);
+        try {
+            pdfGenerationService.generateAndStorePdf(demandeDto, pdfType, metaStr);
+        } catch (IOException e) {
+            throw new DemarcheException("Erreur la génération du pdf", e);
+        }
 
         LOGGER.info("==== xaf-back PDF SERVICE <fin>");
     }
 
-    public Expression getPdfTypeCodeExpr() {
-        return pdfTypeCodeExpr;
-    }
-
-    public void setPdfTypeCodeExpr(Expression pdfTypeCodeExpr) {
-        this.pdfTypeCodeExpr = pdfTypeCodeExpr;
-    }
 }

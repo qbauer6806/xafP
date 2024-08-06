@@ -14,7 +14,7 @@ public enum DemandeCanalEnum {
     GUICHET_PHYSIQUE("Guichet physique"),
     COURRIER("Courrier");
 
-    public String libelle;
+    private final String libelle;
 
     DemandeCanalEnum(String libelle) {
         this.libelle = libelle;

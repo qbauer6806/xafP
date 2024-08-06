@@ -1,13 +1,18 @@
 package mc.gouv.xaf.backweb.denjs.controller;
 
-import mc.gouv.logon.apiclient.LogonApiClient;
-import mc.gouv.logon.shared.User;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.denjs.dto.DenjsAgentEtablissementDTO;
 import mc.gouv.xaf.backweb.denjs.formbean.DenjsGestionAgentsFormBean;
+import mc.gouv.xaf.back.service.itg.logon.LogonClient;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +26,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controller de la page de gestion des agents
@@ -47,6 +47,9 @@ public class DenjsGestionAgentsController {
     @Autowired
     private DenjsAffectationService denjsAffectationService;
 
+    @Autowired
+    private LogonClient logonClient;
+
     @GetMapping
     public ModelAndView form(@ModelAttribute("denjsGestionAgentsFormBean") DenjsGestionAgentsFormBean denjsGestionAgentsFormBean,
                              final RedirectAttributes redirectAttributes) {
@@ -58,8 +61,7 @@ public class DenjsGestionAgentsController {
 
         List<User> list;
         try {
-            LogonApiClient logonApiClient = new LogonApiClient(gouvPropertiesResolver.getGouvSharedLogonRestUrl());
-            list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
+            list = logonClient.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
 
             List<DenjsAgentEtablissementDTO> agents = new ArrayList<>();
             for (User user : list) {
@@ -96,8 +98,8 @@ public class DenjsGestionAgentsController {
         if ("aucun".equals(etablissementCode)) {
         	etablissementCode = null;
         }
-
-        LOGGER.info("======================= Appel de la page /denjs/gestion/agents/edit ({}, {})", agentMatricule, etablissementCode);
+        String safeAgentMatricule = AfBackUtils.logSafe(agentMatricule);
+        LOGGER.info("======================= Appel de la page /denjs/gestion/agents/edit ({}, {})", safeAgentMatricule, etablissementCode);
 
         DenjsAffectationAgentDTO affectation = new DenjsAffectationAgentDTO();
         affectation.setAgentMatricule(agentMatricule);

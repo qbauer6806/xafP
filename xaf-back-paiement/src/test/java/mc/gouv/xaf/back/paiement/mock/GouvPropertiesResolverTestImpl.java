@@ -34,7 +34,7 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public String getDemarcheId() {
-        return "PERMC";
+        return null;
     }
 
     @Override
@@ -50,51 +50,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     @Override
     public long getUsagersCacheDuration() {
         return 0;
-    }
-
-    @Override
-    public String getSearchHighlightPreTags() {
-        return null;
-    }
-
-    @Override
-    public String getSearchHighlightPostTags() {
-        return null;
-    }
-
-    @Override
-    public String getEsUser() {
-        return null;
-    }
-
-    @Override
-    public String getEsPassword() {
-        return null;
-    }
-
-    @Override
-    public String getEsClusterHosts() {
-        return null;
-    }
-
-    @Override
-    public Integer getEsPort() {
-        return null;
-    }
-
-    @Override
-    public Integer getEsReindexBulkSize() {
-        return null;
-    }
-
-    @Override
-    public Integer getEsConnectTimeout() {
-        return null;
-    }
-
-    @Override
-    public Integer getEsSocketTimeout() {
-        return null;
     }
 
     @Override
@@ -139,7 +94,7 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public String getApplicationName() {
-        return "PAIEMENT";
+        return null;
     }
 
     @Override
@@ -234,7 +189,7 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public boolean isPaiementEnabled() {
-        return true;
+        return false;
     }
 
     @Override

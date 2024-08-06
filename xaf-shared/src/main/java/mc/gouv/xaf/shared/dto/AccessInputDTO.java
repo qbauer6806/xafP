@@ -1,8 +1,10 @@
 package mc.gouv.xaf.shared.dto;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Input de WS pour les demandes
@@ -10,17 +12,11 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class AccessInputDTO {
 
     @NotNull
     private JsonNode contenu;
 
-    public JsonNode getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(JsonNode contenu) {
-        this.contenu = contenu;
-    }
-    
 }

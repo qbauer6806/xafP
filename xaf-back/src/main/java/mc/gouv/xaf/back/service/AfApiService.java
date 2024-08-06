@@ -1,17 +1,27 @@
 package mc.gouv.xaf.back.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.logon.shared.User;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarcheException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.MotifsService;
@@ -23,6 +33,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
@@ -56,18 +67,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.http.ResponseEntity;
 import org.xml.sax.SAXException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 public abstract class AfApiService extends AbstractAfApiService {
 
@@ -98,6 +98,9 @@ public abstract class AfApiService extends AbstractAfApiService {
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private DemandesConfigService demandesConfigService;
 
     @Autowired
     private DemandesComplementsService demandesComplementsService;
@@ -138,6 +141,9 @@ public abstract class AfApiService extends AbstractAfApiService {
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
 
+    @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
     @Override
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -154,9 +160,9 @@ public abstract class AfApiService extends AbstractAfApiService {
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
-                demarchesDataProvider.getStatutAnnulee());
+                demarchesDataProvider.getStatutAnnulee().getName());
 
-        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee(), null,
+        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee().getName(), null,
                 usagerId, null);
         this.saveHistorique(demandeId, histo);
 
@@ -166,83 +172,79 @@ public abstract class AfApiService extends AbstractAfApiService {
     @Transactional
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException {
 
-        DemandeDTO demandeDto = null;
         LOGGER.info("Appel à DEM...");
+
+        DemandeDTO demandeDto = new DemandeDTO();
+        demandeDto.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
+        demandeDto.setUsagerId(usagerId);
+        demandeDto.setPkDemandes(null);
+        demandeDto.setContenu(demande.getContenu());
+        demandeDto.setFichiers(demande.getFichiers());
+        demandeDto.setLangue(StringUtils.lowerCase(demande.getLangue()));
+        demandeDto.setCanal(demande.getCanal());
+        demandeDto.setObservations(demande.getObservations());
+        demandeDto.setCourrierDateReception(demande.getCourrierDateReception());
+        demandeDto.setCourrierRefInterne(demande.getCourrierRefInterne());
+        demandeDto.setCreeParAgentId(demande.getCreeParAgentId());
+        demandeDto.setRecapType(demande.getRecapType());
+        // Récupération des informations usager pour stockage
+        GichuniUsagerDTO usager = usagersCache.get(usagerId);
+        demandeDto.setUsager(demandesUsagersTransformer.user2Dto(usager));
+        demandeDto.setTypeConnexionUsager(demande.getDonneesMConnect() == null
+                ? TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE
+                : TypeConnexionUsagerEnum.MCONNECT);
+
         try {
-
-            demandeDto = new DemandeDTO();
-            demandeDto.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
-            demandeDto.setUsagerId(usagerId);
-            demandeDto.setPkDemandes(null);
-            demandeDto.setContenu(demande.getContenu());
-            demandeDto.setFichiers(demande.getFichiers());
-            demandeDto.setLangue(StringUtils.lowerCase(demande.getLangue()));
-            demandeDto.setCanal(demande.getCanal());
-            demandeDto.setObservations(demande.getObservations());
-            demandeDto.setAgentAffecteId(demande.getAgentAffecteId());
-            demandeDto.setCourrierDateReception(demande.getCourrierDateReception());
-            demandeDto.setCourrierRefInterne(demande.getCourrierRefInterne());
-            demandeDto.setCreeParAgentId(demande.getCreeParAgentId());
-            demandeDto.setBuildId(demande.getBuildId());
-            demandeDto.setRecapType(demande.getRecapType());
-            // Récupération des informations usager pour stockage
-            GichuniUsagerDTO usager = usagersCache.get(usagerId);
-            demandeDto.setUsagerNom(usager.getNom());
-            demandeDto.setUsagerPrenom(usager.getPrenom());
-            demandeDto.setUsagerEmail(usager.getEmail());
-            demandeDto.setTypeConnexionUsager(
-                    demande.getDonneesMConnect() == null
-                    ? TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE
-                    : TypeConnexionUsagerEnum.MCONNECT);
-
             demandeDto = demandesService.saveOrUpdateDemande(demandeDto, false,
-                    demarchesDataProvider.getPremierStatutCreationDemande());
-
-            // Ajout d'une ligne à l'historique
-            LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
-
-            DemandeHistoriqueDTO histo = histoService.creationDemande(demandeDto.getPkDemandes(), usagerId,
-                    demande.getCreeParAgentId());
-            if (histo != null) {
-                this.saveHistorique(demandeDto.getPkDemandes(), histo);
-            }
-
-            LOGGER.info("Création d'une instance de process dans le BPM pour cette demande {}", demandeDto.getPkDemandes());
-            GouvBPMUser user = new GouvBPMUser();
-            user.setId(usagerId.toString());
-
-            String canal = demandeDto.getCanal().name();
-
-            // Définition des process variables
-            Map<String, Object> variables = new HashMap<>();
-
-            variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), canal);
-            variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name(),
-                    StringUtils.lowerCase(demandeDto.getLangue()));
-            variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
-            variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
-
-            gouvBPM.startProcessInstance(gouvPropertiesResolver.getProcessDefinitionKey(), user,
-                    demandeDto.getPkDemandes(), gouvPropertiesResolver.getDemarcheId(), variables);
-            
-            LOGGER.info("Envoi du message au Guichet Unique via Kafka (création demande)...");
-            List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(usagerId);
-            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-            guKafkaProducer.sendCreationDemandeMessage(usagerId, demandeDto.getPkDemandes(), demandeDto.getIdentifiant(), demandeDto.getDateCreation(), recapDemandes);
-            
-            // Suppression du brouillon éventuel
-            if (demande.getBrouillonId() != null) {
-                LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
-                brouillonsService.deleteBrouillon(gouvPropertiesResolver.getDemarcheId(), demande.getBrouillonId(), usagerId);
-            }
-            
+                    demarchesDataProvider.getPremierStatutCreationDemande(), demande.getDonneesExternes());
         } catch (Exception e) {
-            if (demandeDto != null && demandeDto.getPkDemandes() != null) {
+            LOGGER.error("Erreur lors de la création d'une demande {}", demandeDto);
+            if (demandeDto.getPkDemandes() != null) {
                 LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
                         demandeDto.getIdentifiant());
                 demandesService.deleteDemande(gouvPropertiesResolver.getDemarcheId(), demandeDto.getPkDemandes());
             }
             throw new DemarcheException("Erreur lors de la création d'une demande", e);
+        }
+
+        // Ajout d'une ligne à l'historique
+        LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
+
+        DemandeHistoriqueDTO histo = histoService.creationDemande(demandeDto.getPkDemandes(), usagerId,
+                demande.getCreeParAgentId());
+        if (histo != null) {
+            this.saveHistorique(demandeDto.getPkDemandes(), histo);
+        }
+
+        LOGGER.info("Création d'une instance de process dans le BPM pour cette demande {}", demandeDto.getPkDemandes());
+        GouvBPMUser user = new GouvBPMUser();
+        user.setId(usagerId.toString());
+
+        String canal = demandeDto.getCanal().name();
+
+        // Définition des process variables
+        Map<String, Object> variables = new HashMap<>();
+
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), canal);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name(),
+                StringUtils.lowerCase(demandeDto.getLangue()));
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
+
+        gouvBPM.startProcessInstance(gouvPropertiesResolver.getProcessDefinitionKey(), user, demandeDto.getPkDemandes(),
+                gouvPropertiesResolver.getDemarcheId(), variables);
+
+        LOGGER.info("Envoi du message au Guichet Unique via Kafka (création demande)...");
+        List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(usagerId);
+        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+        guKafkaProducer.sendCreationDemandeMessage(usagerId, demandeDto.getPkDemandes(), demandeDto.getIdentifiant(),
+                demandeDto.getDateCreation(), recapDemandes);
+
+        // Suppression du brouillon éventuel
+        if (demande.getBrouillonId() != null) {
+            LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
+            brouillonsService.deleteBrouillon(gouvPropertiesResolver.getDemarcheId(), demande.getBrouillonId(),
+                    usagerId);
         }
         return demandeDto;
     }
@@ -286,7 +288,7 @@ public abstract class AfApiService extends AbstractAfApiService {
             LOGGER.info("DTO après sauvegarde en base : {}", demandeDto);
 
             // Utiliser le BPM afin d'exécuter les tâches qui suivent la rectification
-            if (demandeEnBase.getDernierStatut().getLibelle().equals(demarchesDataProvider.getStatutEnAttenteRectification())) {
+            if (demandeEnBase.getDernierStatut().getName().equals(demarchesDataProvider.getStatutEnAttenteRectification())) {
                 gouvBPM.reponseRectification(demandeId, usagerId);
             }
             else {
@@ -337,26 +339,6 @@ public abstract class AfApiService extends AbstractAfApiService {
     }
 
     @Override
-    public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
-        return null;
-    }
-
-    @Override
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
                                                             DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
@@ -378,6 +360,7 @@ public abstract class AfApiService extends AbstractAfApiService {
             user.setId(agentId);
         }
 
+        // TODO supprimer ça pour faire autrement que par variables globales ?
         // Définition de variables process à destination du GouvBPMStatusChangeService pour qu'il puisse savoir qui est
         // à l'origine du changement de statut qui va suivre
         LOGGER.info("Progression dans le BPM...");
@@ -396,7 +379,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         try {
             gouvBPM.claimTask(task, user);
         } catch (TaskAlreadyClaimedException e1) {
-            throw new DemarcheException(e1);
+            throw new DemarcheException("Erreur lors du claim de la tache",e1);
         }
         gouvBPM.completeTask(task, demandeId);
 
@@ -404,7 +387,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
         DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId,
-                demande.getDernierStatut().getLibelle(), usagerId, agentId, demande.getAgentAffecteId());
+                demande.getDernierStatut().getName(), usagerId, agentId, demande.getAgent() != null ? demande.getAgent().getId() : null);
         this.saveHistorique(demandeId, histo);
 
         return demandeComplementsDto;
@@ -563,9 +546,9 @@ public abstract class AfApiService extends AbstractAfApiService {
         boolean first = true;
 
         for (DemandeDTO demande : demandes) {
-            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getLibelle()).equals(StatutSimplifieEnum.TERMINEE);
+            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()).equals(StatutSimplifieEnum.TERMINEE);
 
-            if (!isFinal && !demarchesDataProvider.getStatutAnnulee().equals(demande.getDernierStatut().getLibelle())) {
+            if (!isFinal && !demarchesDataProvider.getStatutAnnulee().getName().equals(demande.getDernierStatut().getName())) {
 
                 // Statut non final et non "Annulée", alors passage au statut annulée
 
@@ -576,7 +559,7 @@ public abstract class AfApiService extends AbstractAfApiService {
                     first = false;
                 }
 
-                String libelleStatut = demande.getDernierStatut().getLibelle();
+                String libelleStatut = demande.getDernierStatut().getName();
 
                 demandesImpacteesIdentifiants.append(demande.getIdentifiant()).append(" - ").append(libelleStatut);
                 demandesImpacteesPk.append(demande.getPkDemandes());
@@ -585,12 +568,13 @@ public abstract class AfApiService extends AbstractAfApiService {
 
                 // Modif du DTO pour que l'historique prenne en compte le dernier statut comme étant "Annulée"
                 DemandeStatutDTO dernierStatut = demande.getDernierStatut();
-                dernierStatut.setLibelle(demarchesDataProvider.getStatutAnnulee());
+                dernierStatut.setLibelle(demarchesDataProvider.getStatutAnnulee().getLibelle());
+                dernierStatut.setName(demarchesDataProvider.getStatutAnnulee().getName());
                 demande.setDernierStatut(dernierStatut);
             }
         }
 
-        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.length() == 0 ? "" :
+        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "" :
                 "Par conséquent, les demandes suivantes sont passées à l'état \"Annulée\" :<br/>" + demandesImpacteesIdentifiants + "<br/><br/>";
         return new String[]{demandesAnnuleesPhrase, demandesImpacteesPk.toString()};
     }
@@ -610,7 +594,7 @@ public abstract class AfApiService extends AbstractAfApiService {
             }
 
             gouvBPM.annulerDemande(demande.getPkDemandes(), null, user,
-                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, demarchesDataProvider.getStatutAnnulee());
+                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, demarchesDataProvider.getStatutAnnulee().getName());
         }
     }
 
@@ -730,12 +714,12 @@ public abstract class AfApiService extends AbstractAfApiService {
             brouillonDto.setPkBrouillons(null);
             brouillonDto.setContenu(brouillon.getContenu());
             brouillonDto.setFichiers(brouillon.getFichiers());
-            brouillonDto.setBuildId(brouillon.getBuildId());
             brouillonDto.setRecapType(brouillon.getRecapType());
 
             brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillonDto, usagerId, false);
 
         } catch (Exception e) {
+            LOGGER.error("Erreur lors de la création d'un brouillon {}", brouillonDto);
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la création d'un brouillon", e);
         }
@@ -744,12 +728,13 @@ public abstract class AfApiService extends AbstractAfApiService {
 
 	@Override
 	public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
-        BrouillonDTO brouillonDto;
+        BrouillonDTO brouillonDto = null;
         try {
 
             brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillon, usagerId, false);
 
         } catch (Exception e) {
+            LOGGER.error("Erreur lors de la mise à jour d'un brouillon {}", brouillonDto);
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la mise à jour d'un brouillon", e);
         }
@@ -772,8 +757,14 @@ public abstract class AfApiService extends AbstractAfApiService {
 	}
 
 	@Override
-	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException {
+	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
 		brouillonsService.deleteBrouillon(gouvPropertiesResolver.getDemarcheId(), pkBrouillons, usagerId);
 	}
-	
+
+    @Override
+    @Transactional
+    public JsonNode creerConfig(JsonNode config) {
+        return demandesConfigService.saveConfig(config);
+    }
+
 }

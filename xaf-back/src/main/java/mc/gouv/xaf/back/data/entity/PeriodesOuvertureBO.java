@@ -1,13 +1,17 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Classe BO de la table DEM.PERIODES_OUVERTURE
  *
  * @author qdeme
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_PERIODES_OUVERTURE")
 public class PeriodesOuvertureBO {
@@ -26,37 +30,5 @@ public class PeriodesOuvertureBO {
 
     @Column(name = "DATE_FIN", nullable = false)
     private Date dateFin;
-
-    public Integer getPkPeriodesOuverture() {
-        return pkPeriodesOuverture;
-    }
-
-    public void setPkPeriodesOuverture(Integer pkPeriodesOuverture) {
-        this.pkPeriodesOuverture = pkPeriodesOuverture;
-    }
-
-    public Date getDateDebut() {
-        return dateDebut;
-    }
-
-    public void setDateDebut(Date dateDebut) {
-        this.dateDebut = dateDebut;
-    }
-
-    public Date getDateFin() {
-        return dateFin;
-    }
-
-    public void setDateFin(Date dateFin) {
-        this.dateFin = dateFin;
-    }
-
-    public DemarchesBO getDemarche() {
-        return demarche;
-    }
-
-    public void setDemarche(DemarchesBO demarche) {
-        this.demarche = demarche;
-    }
 
 }

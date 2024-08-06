@@ -1,0 +1,19 @@
+package mc.gouv.xaf.back.service.data;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+
+public interface DemandesConfigService {
+
+    List<String> getBuildIds();
+    List<String> getModelPathsRechercheAvancee();
+    List<String> getModelPathsRechercheAvancee(String buildId);
+    List<String> getModelPathsMarqueurs(String buildId);
+    List<DemandeConfigBO> getConfigsBO();
+    DemandeConfigBO getLastConfig();
+    JsonNode saveConfig(JsonNode config);
+    String getLastBuildId();
+    boolean checkIfCheminExists(String chemin, String buildId);
+
+}

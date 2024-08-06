@@ -6,9 +6,9 @@ import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xaf.apiclient.exception.ExceptionManager;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class PaiementApiClient extends AfApiClient {
 

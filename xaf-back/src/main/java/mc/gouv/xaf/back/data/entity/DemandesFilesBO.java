@@ -1,19 +1,22 @@
 package mc.gouv.xaf.back.data.entity;
 
+import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
+import jakarta.validation.constraints.NotBlank;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 
@@ -22,6 +25,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMANDES_FILES")
 public class DemandesFilesBO {
@@ -45,11 +50,11 @@ public class DemandesFilesBO {
     @Size(min = 1, max = 1024)
     private String url;
 
-    @Column(name = "meta", length = 512, nullable = true)
-    @Size(min = 0, max = 512)
+    @Column(name = "meta", length = 512)
+    @Size(max = 512)
     private String meta;
     
-    @Column(name = "DATE", nullable = true)
+    @Column(name = "DATE")
     private Date date;
 
     @Column(name = "TYPEDOC", length = 128)
@@ -59,67 +64,11 @@ public class DemandesFilesBO {
     @Column(name = "VERIFICATION")
     private boolean verification;
 
-    public Integer getPkDemandesFiles() {
-        return pkDemandesFiles;
-    }
+    @Column(name = "CONTENU", length = 100000)
+    private String contenu;
 
-    public void setPkDemandesFiles(Integer pkDemandesFiles) {
-        this.pkDemandesFiles = pkDemandesFiles;
-    }
+    @Type(PostgreSQLTSVectorType.class)
+    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    private String searchVector;
 
-    public DemandeBO getFkDemandes() {
-        return fkDemandes;
-    }
-
-    public void setFkDemandes(DemandeBO fkDemandes) {
-        this.fkDemandes = fkDemandes;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMeta() {
-        return meta;
-    }
-
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-    public String getTypedoc() {
-        return typedoc;
-    }
-
-    public void setTypedoc(String typedoc) {
-        this.typedoc = typedoc;
-    }
-
-    public boolean isVerification() {
-        return verification;
-    }
-
-    public void setVerification(boolean verification) {
-        this.verification = verification;
-    }
 }

@@ -6,15 +6,15 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.DemandeStatutComparator;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import org.springframework.http.HttpStatus;
 
 /**
  * Classe service appelée par le process Activiti afin de remettre le statut d'avant (dans une
@@ -36,11 +36,11 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
     private DemandesStatutsService demandesStatutsService;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back RESTORE PREVIOUS STATUS DELEGATE ...");
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         LOGGER.info("Demande : {}", demandeId);
 
@@ -72,7 +72,7 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
         LOGGER.info("Appel à demandesStatutsService.updateStatut()...");
 
-        demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut.getLibelle(), null,
+        demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null,
                 Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
 
         LOGGER.info("==== xaf-back RESTORE PREVIOUS STATUS DELEGATE <fin>");

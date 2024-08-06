@@ -2,11 +2,13 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
-import org.apache.commons.lang.StringUtils;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +50,16 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
     
+    @Setter
+    @Getter
     private Expression emailBodyTemplateCode;
     
+    @Setter
+    @Getter
     private Expression emailSubjectTemplateCode;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
         
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENTS ...");
         
@@ -68,14 +74,14 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
                 .getEmailReplytoNom());
         emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
         emailInfo.setLangue("fr");
         
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
         
         Map<String,Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
@@ -87,22 +93,6 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
         }
         
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENTS <fin>");
-    }
-
-    public Expression getEmailBodyTemplateCode() {
-        return emailBodyTemplateCode;
-    }
-
-    public void setEmailBodyTemplateCode(Expression emailBodyTemplateCode) {
-        this.emailBodyTemplateCode = emailBodyTemplateCode;
-    }
-
-    public Expression getEmailSubjectTemplateCode() {
-        return emailSubjectTemplateCode;
-    }
-
-    public void setEmailSubjectTemplateCode(Expression emailSubjectTemplateCode) {
-        this.emailSubjectTemplateCode = emailSubjectTemplateCode;
     }
 
 }

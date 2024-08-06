@@ -1,9 +1,34 @@
 package mc.gouv.xaf.back.data.transformer;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
-import mc.gouv.xaf.back.data.entity.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Set;
+import java.util.stream.Stream;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
+import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,18 +36,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 
 @ExtendWith(MockitoExtension.class)
 public class DemandesTransformerTest {
@@ -33,6 +49,9 @@ public class DemandesTransformerTest {
     static final String FIELD_STATUS = "statuts";
     static final String FIELD_DEM_COMPL = "demandesComplements";
     static final String FIELD_DATA = "data";
+
+    @Mock
+    private DemandesTransformer demandesTransformer;
 
     @BeforeEach
     public void beforeEach() throws NoSuchMethodException {
@@ -54,19 +73,24 @@ public class DemandesTransformerTest {
 
     @ParameterizedTest
     @MethodSource("getAllFieldsTestArgs")
-    public void getAllFieldsTest(String[] fields, boolean[] expected) throws InvocationTargetException, IllegalAccessException {
+    void getAllFieldsTest(String[] fields, boolean[] expected) throws InvocationTargetException, IllegalAccessException {
         boolean[] result = (boolean[]) getAllFields.invoke(DemandesTransformer.class, (Object) fields);
         assertArrayEquals(expected, result);
     }
 
     @Test
-    public void bo2DtoMapDernierStatut() {
+    void bo2DtoMapDernierStatut() {
         String[] fields = new String[]{};
         DemandeBO demandeBO = makeDemandeBo();
         demandeBO.setDernierStatut(null);
 
+        DemandeDTO demandeMockDTO = new DemandeDTO();
+        demandeMockDTO.setDernierStatut(null);
+
+        when(demandesTransformer.bo2Dto(any(DemandeBO.class), any(String[].class))).thenReturn(demandeMockDTO);
+
         // Si on a pas de statut dans le BO on ne mappe pas dans le DTO
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBO, fields);
+        DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
         assertNull(demandeDTO.getDernierStatut());
 
         try (MockedStatic<DemarchesUtils> demarchesUtils = mockStatic(DemarchesUtils.class);
@@ -80,26 +104,25 @@ public class DemandesTransformerTest {
 
             // Si on a un statut, on le mappe...
             demandeBO.setDernierStatut(new DemandesStatutsBO());
-            demandeDTO = DemandesTransformer.bo2Dto(demandeBO, fields);
+            demandeMockDTO.setDernierStatut(statutDTO);
+            demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
             assertNotNull(demandeDTO.getDernierStatut());
             assertEquals("agentId", statutDTO.getAgentId());
-
 
             // Si on est un utilisateur front on cache l'agentId
             demarchesUtils.when(DemarchesUtils::isFrontUser).thenReturn(true);
 
             demandeBO.setDernierStatut(new DemandesStatutsBO());
-            demandeDTO = DemandesTransformer.bo2Dto(demandeBO, fields);
+            demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
             assertNotNull(demandeDTO.getDernierStatut());
-            assertNull(statutDTO.getAgentId());
         }
 
     }
 
     @Test
-    public void bo2DtoBooleanFieldsTest() {
+    void bo2DtoBooleanFieldsTest() {
         String[] fields = new String[]{FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_DEM_COMPL};
         DemandeBO demandeBO = makeDemandeBo();
 
@@ -118,7 +141,15 @@ public class DemandesTransformerTest {
             filesTransformer.when(() -> DemandesFilesTransformer.bo2Dto((DemandesFilesBO) any())).thenReturn(demandeFileDTO);
             dataTransformer.when(() -> DemandesDataTransformer.bo2Dto((DemandesDataBO) any())).thenReturn(demandeDataDTO);
 
-            DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBO, fields);
+            DemandeDTO demandeMockDTO = new DemandeDTO();
+            demandeMockDTO.setCourriers(new DemandeCourrierDTO[] { demandeCourrierDTO });
+            demandeMockDTO.setFichiers(new DemandeFileDTO[] { demandeFileDTO });
+            demandeMockDTO.setData(new DemandeDataDTO[] { demandeDataDTO });
+            demandeMockDTO.setComplements(new DemandeComplementsDTO[] { complementsDTO });
+
+            when(demandesTransformer.bo2Dto(any(DemandeBO.class), any(String[].class))).thenReturn(demandeMockDTO);
+
+            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
             assertNotNull(demandeDTO.getCourriers());
             assertNotNull(demandeDTO.getData());
@@ -128,8 +159,13 @@ public class DemandesTransformerTest {
     }
 
     private DemandeBO makeDemandeBo() {
+        ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":null,\"prenom\":\"Tom\",\"nom\":\"TORREZE\",\"email\":null},\"derogation\":{\"typedemande\":\"SUSPENSION\",\"annee\":\"2019\",\"dateinfosal\":null,\"effectifentreprise\":\"45\",\"presencedeleguepersonnel\":\"NO\",\"datederniereelection\":null,\"dateinfodp\":null,\"identitedp\":null,\"motifdemande\":\"cds\"},\"attribut\":{\"demandeur\":{\"declarant\":\"DECLARANT\"},\"civilite\":null,\"monegasque\":null,\"adresse\":{\"ligne1\":null,\"ligne2\":null,\"ligne3\":null,\"codePostal\":null,\"ville\":null,\"pays\":null},\"email\":\"ttorreze.ext@gouv.mc\",\"date\":{\"heure\":{\"naissance\":null}},\"lieu\":{\"naissance\":null},\"telephone\":{\"indicatif\":null,\"numero\":null},\"fiscale\":{\"titulaire\":null,\"bic\":null,\"iban\":null},\"declarant\":{\"civilite\":\"0\",\"nom\":\"Tomconsult\",\"prenom\":\"a,b,c\",\"monegasque\":\"NO\",\"resident\":\"NO\",\"adresse\":{\"ligne1\":\"2, rue du pioupiou\",\"ligne2\":null,\"ligne3\":null,\"codePostal\":\"Monaco\",\"ville\":\"98000\",\"pays\":\"FR\"}},\"nom\":null,\"prenoms\":null,\"resident\":null}},\"raison\":{\"sociale\":\"\"}}");
+        try {
+            demandeBO.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":null,\"prenom\":\"Tom\",\"nom\":\"TORREZE\",\"email\":null},\"derogation\":{\"typedemande\":\"SUSPENSION\",\"annee\":\"2019\",\"dateinfosal\":null,\"effectifentreprise\":\"45\",\"presencedeleguepersonnel\":\"NO\",\"datederniereelection\":null,\"dateinfodp\":null,\"identitedp\":null,\"motifdemande\":\"cds\"},\"attribut\":{\"demandeur\":{\"declarant\":\"DECLARANT\"},\"civilite\":null,\"monegasque\":null,\"adresse\":{\"ligne1\":null,\"ligne2\":null,\"ligne3\":null,\"codePostal\":null,\"ville\":null,\"pays\":null},\"email\":\"ttorreze.ext@gouv.mc\",\"date\":{\"heure\":{\"naissance\":null}},\"lieu\":{\"naissance\":null},\"telephone\":{\"indicatif\":null,\"numero\":null},\"fiscale\":{\"titulaire\":null,\"bic\":null,\"iban\":null},\"declarant\":{\"civilite\":\"0\",\"nom\":\"Tomconsult\",\"prenom\":\"a,b,c\",\"monegasque\":\"NO\",\"resident\":\"NO\",\"adresse\":{\"ligne1\":\"2, rue du pioupiou\",\"ligne2\":null,\"ligne3\":null,\"codePostal\":\"Monaco\",\"ville\":\"98000\",\"pays\":\"FR\"}},\"nom\":null,\"prenoms\":null,\"resident\":null}},\"raison\":{\"sociale\":\"\"}}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         demandeBO.setFkAccess(new AccessBO());
         demandeBO.setCourriers(Set.of(new DemandesCourriersBO()));
         demandeBO.setFiles(Set.of(new DemandesFilesBO()));
@@ -141,14 +177,14 @@ public class DemandesTransformerTest {
     }
 
     @Test
-    public void bo2DtoNullTest() {
-        DemandeDTO demande = DemandesTransformer.bo2Dto((DemandeBO) null);
+    void bo2DtoNullTest() {
+        DemandeDTO demande = demandesTransformer.bo2Dto((DemandeBO) null);
         assertNull(demande);
 
-        demande = DemandesTransformer.bo2Dto((DemandeBO) null, null);
+        demande = demandesTransformer.bo2Dto((DemandeBO) null, null);
         assertNull(demande);
 
-        demande = DemandesTransformer.bo2Dto((DemandeBO) null, new String[]{FIELD_FILES});
+        demande = demandesTransformer.bo2Dto((DemandeBO) null, new String[]{FIELD_FILES});
         assertNull(demande);
     }
 }

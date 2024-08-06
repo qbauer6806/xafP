@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.transaction.Transactional;
-import javax.ws.rs.BadRequestException;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +90,9 @@ public class GestionConfigJsonController {
 	@Transactional
 	public ModelAndView modifier(@RequestParam(name = "key") String key, @RequestBody String newValue,
 			final RedirectAttributes redirectAttributes) throws IOException {
-
-		LOGGER.info("======================= Appel de la page /gestion/configjson/edit ({}, {})", key, newValue);
+		String safeKey = AfBackUtils.logSafe(key);
+		String safeNewValue = AfBackUtils.logSafe(newValue);
+		LOGGER.info("======================= Appel de la page /gestion/configjson/edit ({}, {})", safeKey, safeNewValue);
 		ObjectMapper mapper = new ObjectMapper();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 

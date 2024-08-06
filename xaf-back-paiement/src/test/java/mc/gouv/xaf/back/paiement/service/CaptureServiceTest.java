@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -74,8 +75,13 @@ public class CaptureServiceTest {
     @Transactional
     @Test
     public void captureOk() {
+        ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
+        try {
+            demandeBO.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
@@ -135,7 +141,6 @@ public class CaptureServiceTest {
         paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});
         contenuTestDTO.setPaiement(paiement);
         contenuTestDTO.setTitre(new Titre("123456"));
-        ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
         demandeDTO.setContenu(contenu);
 

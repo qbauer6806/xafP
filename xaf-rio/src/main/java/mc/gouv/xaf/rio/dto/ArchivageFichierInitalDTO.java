@@ -1,5 +1,10 @@
 package mc.gouv.xaf.rio.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ArchivageFichierInitalDTO {
 
     private String rang;
@@ -8,27 +13,4 @@ public class ArchivageFichierInitalDTO {
 
     private String format;
 
-    public String getRang() {
-        return rang;
-    }
-
-    public void setRang(String rang) {
-        this.rang = rang;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
 }

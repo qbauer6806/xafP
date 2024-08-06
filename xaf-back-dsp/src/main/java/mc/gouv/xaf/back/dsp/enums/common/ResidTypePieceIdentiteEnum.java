@@ -7,7 +7,7 @@ public enum ResidTypePieceIdentiteEnum {
     IDC("IDC"),
     DIP("DIP");
 	
-	public String value;
+	private final String value;
 
 	ResidTypePieceIdentiteEnum(String value) {
         this.value = value;

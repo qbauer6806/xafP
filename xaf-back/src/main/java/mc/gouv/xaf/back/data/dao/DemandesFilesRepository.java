@@ -24,7 +24,7 @@ public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO,
     @Query("select count(demFile) from DemandesFilesBO demFile where demFile.url = :url")
     public Integer findHowManyTimeIsFileReferenced(String url);
 
-    @Query("select DF from DemandesFilesBO DF where DF.fkDemandes not in (select D.pkDemandes from DemandeBO D)")
+    @Query("select DF from DemandesFilesBO DF where DF.fkDemandes.pkDemandes not in (select D.pkDemandes from DemandeBO D)")
     public List<DemandesFilesBO> findAllNonReferencedFiles();
 
 }

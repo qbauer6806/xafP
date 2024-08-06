@@ -33,7 +33,7 @@ var configurationDataTableFacets = {
 
 		// Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
 		"traditional" : true,
-		"url" : APP.getContextPath() + "/ws/admin/properties",
+		"url" : APP.getContextPath() + "/ws/demandes/recherchechamps",
 		"dataSrc" : function(json) {
 
 			json['recordsTotal'] = json['length'];
@@ -163,10 +163,10 @@ var configurationDataTableFacets = {
 var tableProperties = $('#datatable-search-properties').DataTable(configurationDataTableFacets);
 
 function equals(val1, val2) {
-	if ((val1 == null && val2 == "") || (val1 == "" && val2 == null))
+	if ((val1 == null && val2 === "") || (val1 === "" && val2 == null))
 		return true;
 	else
-		return val1 == val2;
+		return val1 === val2;
 }
 
 var changedProperties = [];
@@ -197,7 +197,7 @@ function checkPropertiesToUpdate(that) {
 		$(that).parents("tr").addClass("updated-value");
 	}
 	if (propIndex !== -1 && equals(propLabel, rowData.label)
-			&& equals(catId, rowData.categoryId) && enabled == rowData.enabled) {
+			&& equals(catId, rowData.categoryId) && enabled === rowData.enabled) {
 		changedProperties.splice(propIndex, 1);
 		$(that).parents("tr").removeClass("updated-value");
 	}
@@ -242,12 +242,7 @@ $("#datatable-search-properties").on(
 
 $("#savePropertiesButton").click(function() {
 
-	$.fancybox.open($("#savePropertiesConfirmPanel"), {
-		autoSize : false,
-		width : "30%",
-		height : "auto"
-	});
-
+	$('#savePropertiesConfirmPanel').modal();
 });
 
 $("#savePropertiesConfirmButton").click(function() {
@@ -266,18 +261,18 @@ $("#savePropertiesConfirmButton").click(function() {
 	});
 
 	$.ajax({
-		url : APP.getContextPath() + "/ws/admin/updateproperties",
+		url : APP.getContextPath() + "/ws/admin/updaterecherchechamps",
 		method : "POST",
 		traditional : true,
 		contentType : "application/json",
-		data : JSON.stringify({	properties : properties }),
+    data : JSON.stringify(properties),
 		beforeSend : function(xhr) { xhr.setRequestHeader(header, token); },
 		success : function(data) {
 			$("#successMessage").data("message", "La configuration a été enregistrée avec succès").click();
 			console.log("Success" + data);
 			changedProperties = [];
 			tableProperties.ajax.reload(null, true);
-			$.fancybox.close();
+			$('.modal').modal('hide');
 		},
 		error : function(e) {
 			$("#errorMessage").data("message", "Un problème est survenu lors de l'enregistrement de la configuration").click();
@@ -375,7 +370,7 @@ $("#datatable-categories").on('keyup', "input", function(e) {
 		$(this).parents("tr").addClass("updated-value");
 
 	}
-	if (catIndex !== -1 && rowData.label == categoryValue) {
+	if (catIndex !== -1 && rowData.label === categoryValue) {
 		changedCategories.splice(catIndex, 1);
 		$(this).parents("tr").removeClass("updated-value");
 	}
@@ -386,11 +381,7 @@ $("#datatable-categories").on('keyup', "input", function(e) {
 
 $("#saveCatButton").click(function() {
 
-	$.fancybox.open($("#saveCategoriesConfirmPanel"), {
-		autoSize : false,
-		width : "30%",
-		height : "auto"
-	});
+	$('#saveCategoriesConfirmPanel').modal();
 });
 
 $("#saveCategoriesButton")
@@ -414,9 +405,7 @@ $("#saveCategoriesButton")
 										+ "/ws/admin/updatecategories",
 								method : "POST",
 								traditional : true,
-								data : JSON.stringify({
-									categories : categories
-								}),
+								data : JSON.stringify(categories),
 								contentType : "application/json",
 								beforeSend : function(xhr) {
 									xhr.setRequestHeader(header, token);
@@ -434,7 +423,7 @@ $("#saveCategoriesButton")
 												.text(category.label);
 									});
 									tableCategories.ajax.reload(null, true);
-									$.fancybox.close();
+									$('.modal').modal('hide');
 
 								},
 								error : function(xhr) {
@@ -454,11 +443,7 @@ var categoryToDelete;
 $("#datatable-categories").on('click', "input", function(e) {
 	if (this.type == "submit") {
 		categoryToDelete = this.name;
-		$.fancybox.open($("#removeCategoryConfirmPanel"), {
-			autoSize : false,
-			width : "30%",
-			height : "auto"
-		});
+		$('#removeCategoryConfirmPanel').modal();
 	}
 });
 
@@ -483,7 +468,7 @@ $("#deleteCategoryButton").click(
 									"select option[value='" + categoryToDelete
 											+ "']").remove();
 							categoryToDelete = null;
-							$.fancybox.close();
+							$('.modal').modal('hide');
 							$("#successMessage").data("message",
 									"La catégorie a été supprimée avec succès")
 									.click();
@@ -496,7 +481,7 @@ $("#deleteCategoryButton").click(
 									"message",
 									"Un problème est survenu lors de la suppression de la catégorie: "
 											+ error.message).click();
-							$.fancybox.close();
+							$('.modal').modal('hide');
 							console.log("failed to submit : " + error);
 						}
 					});
@@ -507,7 +492,7 @@ $(
 		"#cancelDeleteCategoryButton, #cancelSaveCategoriesButton, #cancelAddCategoryConfirmButton, #cancelSavePropertiesButton")
 		.click(function() {
 
-			$.fancybox.close();
+			$('.modal').modal('hide');
 
 		});
 
@@ -516,13 +501,7 @@ $("#addCategoryButton").click(function() {
 	$("#libelleCatInput").val('');
 	$("#catErrorMessage").css("visibility", "hidden").css("display", "none");
 
-	$.fancybox.open({
-		src: '#addCategoryPanel',
-		type: 'inline',
-		btnTpl: {
-			smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
-		}
-	});
+	$('#addCategoryPanel').modal();
 });
 
 $("#addCategoryConfirmButton").click(
@@ -549,7 +528,7 @@ $("#addCategoryConfirmButton").click(
 					$("#libelleCatInput").val('');
 					$("#catErrorMessage").css("visibility", "hidden").css(
 							"display", "none");
-					$.fancybox.close();
+					$('.modal').modal('hide');
 
 				},
 				error : function(xhr) {
@@ -560,7 +539,6 @@ $("#addCategoryConfirmButton").click(
 									+ error.message);
 					$("#catErrorMessage").css("visibility", "visible").css(
 							"display", "block");
-					$.fancybox.update();
 
 					console.log("failed to submit : " + error);
 				}

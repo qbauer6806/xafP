@@ -63,6 +63,7 @@ public class DemandesComplementsFilesTransformer {
         bo.setMeta(dto.getMeta());
         bo.setTypedoc(dto.getTypedoc());
         bo.setVerification(dto.isVerification());
+        bo.setContenu(dto.getContenu());
         return bo;
     }
 

@@ -1,24 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.EntityType;
-
-import mc.gouv.xaf.shared.SharedMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
@@ -30,7 +11,24 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.EntityType;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service permettant la manipulation des accès.
@@ -91,7 +89,7 @@ public class AccessServiceImpl implements AccessService {
 
         // Vérification préalable de l'existence de la démarche indiquée
         Optional<DemarchesBO> demarcheBoOp = demarchesRepository.findById(access.getDemarcheId());
-        if (!demarcheBoOp.isPresent()) {
+        if (demarcheBoOp.isEmpty()) {
             throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
 
@@ -104,7 +102,7 @@ public class AccessServiceImpl implements AccessService {
             // maintenir
             // étant donné qu'une seule colonne peut correspondre à un usager dans Login ou dans DEM
             Optional<UsagersCourrierBO> usagerCourrierOp = usagerCourrierRepository.findById(access.getUsagerId());
-            if (!usagerCourrierOp.isPresent()) {
+            if (usagerCourrierOp.isEmpty()) {
                 throw new DemarchesServiceException("L'usager courrier spécifié est introuvable", HttpStatus.NOT_FOUND);
             }
         }
@@ -153,7 +151,7 @@ public class AccessServiceImpl implements AccessService {
 
         Optional<AccessBO> boOp = getAccessBO(pkAccess);
 
-        if (!boOp.isPresent()) {
+        if (boOp.isEmpty()) {
             LOGGER.error(SharedMessages.DONNEE_INTROUVABLE);
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }

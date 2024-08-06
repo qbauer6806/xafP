@@ -3,14 +3,15 @@ package mc.gouv.xaf.backweb.web.config.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.logon.LogonClient;
+import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
+import mc.gouv.xaf.back.service.itg.logon.dto.Role;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,12 +19,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.logon.apiclient.LogonApiClient;
-import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.logon.shared.Droit;
-import mc.gouv.logon.shared.Role;
-import mc.gouv.logon.shared.User;
 
 /**
  * Composant Spring permettant de lier l'application à Logon pour la sécurité
@@ -38,10 +33,8 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
     private static final String AUCUN_UTILISATEUR_ERREUR = "Aucun utilisateur n'a pu être récupéré à partir de la session";
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
+    private LogonClient logonClient;
 
-    @Autowired
-    private AuthenticationEventPublisher eventPublisher;
 
     @Value("${display.name}")
     private String displayName;
@@ -60,9 +53,8 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
         User user;
 
         try {
-            var logonApiClient = new LogonApiClient(gouvPropertiesResolver.getGouvSharedLogonRestUrl());
-            user = logonApiClient.getRessUser().getLoggedUser(sessionId);
-        } catch (RestException e) {
+            user = logonClient.getLoggedUser(sessionId);
+        } catch (Exception e) {
             LOGGER.error("Une erreur s'est produite lors de l'appel à Logon", e);
             throw new AccessDeniedException(AUCUN_UTILISATEUR_ERREUR);
         }
@@ -87,10 +79,7 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
             }
         }
 
-        Authentication authFinal = new UsernamePasswordAuthenticationToken(user, logonBean, grantedAuthorities);
-        //Publication de l'événement
-        eventPublisher.publishAuthenticationSuccess(authFinal);
-        return authFinal;
+        return new UsernamePasswordAuthenticationToken(user, logonBean, grantedAuthorities);
     }
 
     @Override

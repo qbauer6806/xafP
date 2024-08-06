@@ -2,18 +2,20 @@ package mc.gouv.xaf.back.data.entity;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -22,6 +24,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_BROUILLONS_FILES")
 public class BrouillonsFilesBO {
@@ -45,70 +49,14 @@ public class BrouillonsFilesBO {
     @Size(min = 1, max = 1024)
     private String url;
     
-    @Column(name = "meta", length = 512, nullable = true)
+    @Column(name = "meta", length = 512)
     @Size(min = 0, max = 512)
     private String meta;
     
-    @Column(name = "DATE", nullable = true)
+    @Column(name = "DATE")
     private Date date;
     
     @Column(name = "TYPEDOC", length = 128)
     private String typedoc;
-
-	public Integer getPkBrouillonsFiles() {
-		return pkBrouillonsFiles;
-	}
-
-	public void setPkBrouillonsFiles(Integer pkBrouillonsFiles) {
-		this.pkBrouillonsFiles = pkBrouillonsFiles;
-	}
-
-	public BrouillonBO getFkBrouillons() {
-		return fkBrouillons;
-	}
-
-	public void setFkBrouillons(BrouillonBO fkBrouillons) {
-		this.fkBrouillons = fkBrouillons;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public String getMeta() {
-		return meta;
-	}
-
-	public void setMeta(String meta) {
-		this.meta = meta;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public String getTypedoc() {
-		return typedoc;
-	}
-
-	public void setTypedoc(String typedoc) {
-		this.typedoc = typedoc;
-	}
 
 }

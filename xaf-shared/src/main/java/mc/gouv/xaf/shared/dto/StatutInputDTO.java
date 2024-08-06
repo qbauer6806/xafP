@@ -1,6 +1,8 @@
 package mc.gouv.xaf.shared.dto;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Permet la saisie d'un statut
@@ -8,6 +10,8 @@ import javax.validation.constraints.NotNull;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class StatutInputDTO {
 
     @NotNull
@@ -23,51 +27,4 @@ public class StatutInputDTO {
 
     private Integer usagerId;
 
-    public String getStatut() {
-        return statut;
-    }
-
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public String getCodeMotif() {
-        return codeMotif;
-    }
-
-    public void setCodeMotif(String codeMotif) {
-        this.codeMotif = codeMotif;
-    }
-
-    public String getCommentaire() {
-        return commentaire;
-    }
-
-    public void setCommentaire(String commentaire) {
-        this.commentaire = commentaire;
-    }
-
-    public Integer getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(Integer usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public String getTexteAEnvoyer() {
-        return texteAEnvoyer;
-    }
-
-    public void setTexteAEnvoyer(String texteAEnvoyer) {
-        this.texteAEnvoyer = texteAEnvoyer;
-    }
 }

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.FilenameUtils;
@@ -42,7 +42,10 @@ public class GestionModelesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionModelesController.class);
     private static final String MODELES = "MODELES";
-    
+    private static final String REDIRECT = "redirect:/gestion/modeles?typeModele=";
+    private static final String LE_MODELE = "Le modèle ";
+    private static final String SUCCESS_MESSAGE = "successMessages";
+
     @Autowired
     private AfBackUtils afBackUtils;
     
@@ -109,7 +112,7 @@ public class GestionModelesController {
 
         LOGGER.info("Appel de /gestion/modeles/valider");
         
-        ModelAndView mav = new ModelAndView("redirect:/gestion/modeles?typeModele=" + typeModele);
+        ModelAndView mav = new ModelAndView(REDIRECT + typeModele);
         
         List<String> messages = new ArrayList<>();
 
@@ -133,14 +136,78 @@ public class GestionModelesController {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
         	afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), filename, fileToUpload.getContentType(), meta, outputStream);
-    		messages.add("Le modèle " + filename + " a été mis à jour avec succès.");
-    		redirectAttributes.addFlashAttribute("successMessages", messages);
+    		messages.add(LE_MODELE + filename + " a été mis à jour avec succès.");
+    		redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
         } catch (Exception e) {
     		messages.add(e.getMessage());
     		redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
         }
 		
         LOGGER.info("======================= Fin /gestion/modeles/valider. Méthode form");
+
+        return mav;
+    }
+
+    @PostMapping(value = "/supprimer")
+    @Transactional
+    public ModelAndView supprimer(@RequestParam String filename, @RequestParam String typeModele, final RedirectAttributes redirectAttributes) {
+        LOGGER.info("Appel de /gestion/modeles/supprimer");
+
+        ModelAndView mav = new ModelAndView(REDIRECT + typeModele);
+
+        List<String> messages = new ArrayList<>();
+
+        if(StringUtils.isEmpty(filename)) {
+            messages.add("Aucun fichier n'a été sélectionné");
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+            return mav;
+        }
+
+        try {
+            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES, filename);
+            messages.add(LE_MODELE + filename + " a été supprimé avec succès.");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
+        } catch (Exception e) {
+            messages.add(e.getMessage());
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+        }
+
+        LOGGER.info("======================= Fin /gestion/modeles/supprimer. Méthode supprimer");
+
+        return mav;
+    }
+
+    @PostMapping(value = "/ajouter")
+    @Transactional
+    public ModelAndView ajouter(@RequestParam MultipartFile fileToUpload, @RequestParam String typeModele, final RedirectAttributes redirectAttributes) {
+        LOGGER.info("Appel de /gestion/modeles/ajouter");
+
+        ModelAndView mav = new ModelAndView(REDIRECT + typeModele);
+
+        List<String> messages = new ArrayList<>();
+
+        String filename = fileToUpload.getOriginalFilename();
+        // Utile seulement si l'utilisateur enable le bouton avec un F12...
+        if (StringUtils.isBlank(filename)) {
+            messages.add("Veuillez d'abord choisir un fichier.");
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+            return mav;
+        }
+
+        try {
+            try(ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                Map<String,String> meta = new HashMap<>();
+                meta.put("X-MC-TypeModele", typeModele);
+                afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), filename, fileToUpload.getContentType(), meta, bos);
+            }
+            messages.add(LE_MODELE + filename + " a été ajouté avec succès.");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
+        } catch (Exception e) {
+            messages.add(e.getMessage());
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+        }
+
+        LOGGER.info("======================= Fin /gestion/modeles/ajouter. Méthode ajouter");
 
         return mav;
     }

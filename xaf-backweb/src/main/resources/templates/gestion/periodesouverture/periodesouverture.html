@@ -17,8 +17,6 @@
 
     <!-- Import FONTS -->
     <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
-    <!--[if lt IE 8]><!-->
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
     <!-- Import CSS -->
     <link rel="stylesheet"
@@ -27,28 +25,23 @@
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/sidebar.css}"/>
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/element.css}"/>
     <link rel="stylesheet"
-          th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"/>
-    <link rel="stylesheet"
-          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
+          th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
     <link rel="shortcut icon" th:href="@{/img/favicon.ico}"
           type="image/x-icon"/>
     <link rel="stylesheet"
           th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"/>
     <link rel="stylesheet"
           th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"/>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"/>
-    <link rel="stylesheet"
-          th:href="@{/webjars/Eonasdan-bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css}"/>
 
 </head>
 
 <body th:with="pageParametresActive='active'">
 
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div id="wrapper">
 
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <!-- DEBUT CONTENU -->
     <div id="page-content-wrapper">
@@ -114,111 +107,129 @@
     </div>
 
     <!-- EDITION MODAL -->
-    <div id="editionModal" style="display: none;overflow: unset">
-        <form id="editionPeriodesForm" method="POST" th:action="@{/gestion/periodesouverture/edit}">
-            <!-- input cachée pour insérer la pk de la properties à modifier -->
-            <input id="pkPeriodesOuverture" name="pkPeriodesOuverture" type="hidden"/>
-            <!-- input cachée pour insérer le nombre d'éléments par page -->
-            <input id="pageLengthNumber" name="pageLengthNumber" type="hidden"/>
-            <div class="row no-margin-row" style="width: 500px;">
-                <div class="col-xs-12 text-center">
-                    <h2 id="saveTitle">SAVE_TITLE</h2>
+    <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="editionPeriodesForm" method="POST" th:action="@{/gestion/periodesouverture/edit}">
+                        <!-- input cachée pour insérer la pk de la properties à modifier -->
+                        <input id="pkPeriodesOuverture" name="pkPeriodesOuverture" type="hidden"/>
+                        <!-- input cachée pour insérer le nombre d'éléments par page -->
+                        <input id="pageLengthNumber" name="pageLengthNumber" type="hidden"/>
+                        <div class="row no-margin-row">
+                            <div class="col-xs-12 text-center">
+                                <h2 id="saveTitle">SAVE_TITLE</h2>
+                            </div>
+                            <div class="col-xs-12 text-center form-group" id="formWarning"></div>
+                            <div class="col-xs-12 col-md-6 form-group">
+                                <label for="periodeStartDatePicker">Date de début</label>
+                                <div class="input-group date" id="periodeStartDatePicker">
+                                    <input class="form-control" id="periodeStartDate" name="periodeStartDate" type="text"/>
+                                    <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6 form-group">
+                                <label for="periodeEndDatePicker">Date de fin</label>
+                                <div class="input-group date" id="periodeEndDatePicker">
+                                    <input class="form-control" id="periodeEndDate" name="periodeEndDate" type="text"/>
+                                    <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 text-center form-group error" id="formError"></div>
+                            <div class="col-xs-12 text-center">
+                                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerEditBouton"
+                                        name="annuler" type="button"
+                                        value="annuler">
+                                    annuler
+                                </button>
+                                <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
+                                <button class="btn btn-action ripple-effect" id="saveBtn" type="button">
+                                    SAVE_BTN
+                                </button>
+                                <!-- Input pour submit le formulaire -->
+                                <input id="formSubmit" name="action" style="display: none" type="submit" value="save"/>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-xs-12 text-center form-group" id="formWarning"></div>
-                <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeStartDatePicker">Date de début</label>
-                    <div class="input-group date" id="periodeStartDatePicker">
-                        <input class="form-control" id="periodeStartDate" name="periodeStartDate" type="text"/>
-                        <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeEndDatePicker">Date de fin</label>
-                    <div class="input-group date" id="periodeEndDatePicker">
-                        <input class="form-control" id="periodeEndDate" name="periodeEndDate" type="text"/>
-                        <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
-                    </div>
-                </div>
-                <div class="col-xs-12 text-center form-group error" id="formError"></div>
-                <div class="col-xs-12 text-center">
-                    <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerEditBouton"
-                            name="annuler" type="button"
-                            value="annuler">
-                        annuler
-                    </button>
-                    <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
-                    <button class="btn btn-action ripple-effect" id="saveBtn" type="button">
-                        SAVE_BTN
-                    </button>
-                    <!-- Input pour submit le formulaire -->
-                    <input id="formSubmit" name="action" style="display: none" type="submit" value="save"/>
-                </div>
-            </div>
-        </form>
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <!-- FIN EDITION MODAL -->
 
     <!-- SUPRESSION MODAL -->
-    <div id="supressionModal" style="display: none">
-        <form id="suppressionForm" method="POST" th:action="@{/gestion/periodesouverture/supprimer}">
-            <!-- input cachée pour insérer la pk de la properties à modifier -->
-            <input id="pkPropertiesSuppr" name="pkPeriodesOuverture" type="hidden"/>
-            <!-- input cachée pour insérer le nombre d'éléments par page -->
-            <input id="pageLengthNumberSuppr" name="pageLengthNumber" type="hidden"/>
-            <div class="row no-margin-row text-center" style="width: 400px;">
-                <div class="col-xs-12">
-                    <h2>Supprimer une période d'ouverture</h2>
+    <div id="supressionModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="suppressionForm" method="POST" th:action="@{/gestion/periodesouverture/supprimer}">
+                        <!-- input cachée pour insérer la pk de la properties à modifier -->
+                        <input id="pkPropertiesSuppr" name="pkPeriodesOuverture" type="hidden"/>
+                        <!-- input cachée pour insérer le nombre d'éléments par page -->
+                        <input id="pageLengthNumberSuppr" name="pageLengthNumber" type="hidden"/>
+                        <div class="row no-margin-row text-center">
+                            <div class="col-xs-12">
+                                <h2>Supprimer une période d'ouverture</h2>
+                            </div>
+                            <div class="col-xs-12">
+                                <span id="suppressionMessage">SUPPRESSION_MESSAGE</span>
+                            </div>
+                            <div class="col-xs-12 margin-top">
+                                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprBouton"
+                                        name="annuler" type="button"
+                                        value="annuler">
+                                    annuler
+                                </button>
+                                <button class="btn btn-action ripple-effect" id="supprBtn" type="submit">
+                                    supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-xs-12">
-                    <span id="suppressionMessage">SUPPRESSION_MESSAGE</span>
-                </div>
-                <div class="col-xs-12 margin-top">
-                    <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprBouton"
-                            name="annuler" type="button"
-                            value="annuler">
-                        annuler
-                    </button>
-                    <button class="btn btn-action ripple-effect" id="supprBtn" type="submit">
-                        supprimer
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <!-- FIN SUPPRESSION MODAL -->
 
     <!-- SUPPRIMER TOUS MODAL -->
-    <div id="supressionTousModal" style="display: none">
-        <form id="suppressionTousForm" method="POST" th:action="@{/gestion/periodesouverture/supprimertous}">
-            <div class="row no-margin-row text-center" style="width: 400px;">
-                <div class="col-xs-12">
-                    <h2>Supprimer toutes les périodes d'ouverture</h2>
-                </div>
-                <div class="col-xs-12 form-group">
+    <div id="supressionTousModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="suppressionTousForm" method="POST" th:action="@{/gestion/periodesouverture/supprimertous}">
+                        <div class="row no-margin-row text-center">
+                            <div class="col-xs-12">
+                                <h2>Supprimer toutes les périodes d'ouverture</h2>
+                            </div>
+                            <div class="col-xs-12 form-group">
                     <span>
                         Attention, vous êtes sur le point de supprimer toutes les périodes d’ouverture. Si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
                         <br/>
                         Êtes-vous sûr(e) de vouloir continuer ?
                     </span>
+                            </div>
+                            <div class="col-xs-12 margin-top">
+                                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprTousBouton"
+                                        name="annuler" type="button"
+                                        value="annuler">
+                                    annuler
+                                </button>
+                                <button class="btn btn-action ripple-effect" id="supprTousBtn" type="submit">
+                                    supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-xs-12 margin-top">
-                    <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprTousBouton"
-                            name="annuler" type="button"
-                            value="annuler">
-                        annuler
-                    </button>
-                    <button class="btn btn-action ripple-effect" id="supprTousBtn" type="submit">
-                        supprimer
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <!-- FIN SUPPRESSION TOUS MODAL -->
 
 </div>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <script th:inline="javascript">
     var momentFormat = 'DD/MM/YYYY HH:mm';
@@ -267,7 +278,6 @@
     /*<![CDATA[*/
 
     $(document).ready(function () {
-
         var pageLength = /*[[${pageLength}]]*/5;
         var periodesSize = 0;
         var table = $('#datatable-periodes-page');
@@ -362,10 +372,7 @@
             $('#formSubmit').val('ajouter');
             $('#saveBtn').html('ajouter');
 
-            $.fancybox.open({
-                src: '#editionModal',
-                type: 'inline'
-            });
+            $('#editionModal').modal();
 
             return true;
         });
@@ -394,16 +401,12 @@
             $('#periodeEndDate').val(endMoment.format(momentFormat));
             $('#pkPeriodesOuverture').val(pkPeriodesOuverture);
 
-            $.fancybox.open({
-                src: '#editionModal',
-                type: 'inline'
-            });
+            $('#editionModal').modal();
 
             return true;
         });
 
         table.on('click', 'button.boutonSupprimer', function (e) {
-            console.log('supprimer');
             e.preventDefault();
             var pk = $(this).data('pkperiodesouverture');
             var dateDebut = moment($(this).data("datedebut"));
@@ -422,26 +425,19 @@
             if (pageLength) {
                 $('#pageLengthNumberSuppr').val(pageLength);
             }
-
-            $.fancybox.open({
-                src: '#supressionModal',
-                type: 'inline'
-            });
+            $('#supressionModal').modal();
             return true;
         });
 
         $("#boutonSupprTous").click(function (e) {
             e.preventDefault();
-            $.fancybox.open({
-                src: '#supressionTousModal',
-                type: 'inline'
-            });
+            $('#supressionTousModal').modal();
             return true;
         });
 
         $('.annulerBouton').click(function (e) {
             e.preventDefault();
-            $.fancybox.close();
+            $('.modal').modal('hide');
             return true;
         });
 

@@ -1,25 +1,24 @@
 package mc.gouv.xaf.front.filter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.HttpMethod;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import mc.gouv.xaf.front.dto.FileUploadCompteurDTO;
 import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.HttpMethod;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class FileUploadLimitFilter extends OncePerRequestFilter {

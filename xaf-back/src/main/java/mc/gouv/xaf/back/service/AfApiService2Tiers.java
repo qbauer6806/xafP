@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.file.shared.dto.FileResponseDTO;
-import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.back.controller.AfApiController2Tiers;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
@@ -57,7 +56,10 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 public abstract class AfApiService2Tiers extends AbstractAfApiService implements AfApiController2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService2Tiers.class);
-    
+
+    private static final String FILE_PATH = "/api2tiers/v1/file/";
+    private static final String LOG_CHEMIN = "Chemin du fichier récupéré dans la requête : {}";
+
     @Autowired
     private MotifsServiceImpl motifsService;
     
@@ -281,9 +283,9 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
         // (+ utilisation de la classe WebMvcConfig afin d'éviter que les
         // extensions ne soient traitées par Spring)
 		String file = request.getServletPath();
-		file = file.replace("/api2tiers/v1/file/", "");
+		file = file.replace(FILE_PATH, "");
 		file = file.split("/", 2)[1];
-		LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
+		LOGGER.info(LOG_CHEMIN, file);
         
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
         file = Normalizer.normalize(file, Form.NFC);
@@ -310,9 +312,9 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 	@Override
 	public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request, HttpServletResponse response) {
 		String file = request.getServletPath();
-		file = file.replace("/api2tiers/v1/file/", "");
+		file = file.replace(FILE_PATH, "");
 		file = file.split("/", 2)[1];
-		LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
+		LOGGER.info(LOG_CHEMIN, file);
         
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
         file = Normalizer.normalize(file, Form.NFC);
@@ -320,7 +322,6 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
         String account = gouvPropertiesResolver.getDemarcheId();
         
         LOGGER.info("====================== getFile({}/{}/{})", account, container, file);
-        
         try {
         	afBackUtils.getFileClient().getFile(account, container, file, response);
 		} catch (IOException e) {
@@ -334,9 +335,9 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 	@Override
 	public ResponseEntity deleteFile(@PathVariable("container") String container, HttpServletRequest request) {
 		String file = request.getServletPath();
-		file = file.replace("/api2tiers/v1/file/", "");
+		file = file.replace(FILE_PATH, "");
 		file = file.split("/", 2)[1];
-		LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
+		LOGGER.info(LOG_CHEMIN, file);
         
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
         file = Normalizer.normalize(file, Form.NFC);

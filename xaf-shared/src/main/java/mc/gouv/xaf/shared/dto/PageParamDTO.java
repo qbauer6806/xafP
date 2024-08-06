@@ -1,7 +1,10 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.google.gson.Gson;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
 public class PageParamDTO {
 
     private static final int DEFAULT_SIZE = 10;
@@ -13,16 +16,19 @@ public class PageParamDTO {
     /**
      * Numéro de la page (commençant par 0)
      */
+    @Setter
     private int page;
 
     /**
      * nombre d'élément par page
      */
+    @Setter
     private int size;
 
     /**
      * nom de la propriété sur lequel faire un tri
      */
+    @Setter
     private String sort;
 
     /**
@@ -33,11 +39,13 @@ public class PageParamDTO {
     /**
      * tableau contenant les codes du statut sur lequel effectuer un filtre
      */
+    @Setter
     private String status;
 
     /**
      * La langue courante de la page pour pouvoir effectuer correctement le tri sur les statut
      */
+    @Setter
     private String lang;
 
     public PageParamDTO() {
@@ -58,44 +66,8 @@ public class PageParamDTO {
         this.lang = lang;
     }
 
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public String getSort() {
-        return sort;
-    }
-
-    public void setSort(String sort) {
-        this.sort = sort;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
     public void setDirection(String direction) {
         this.direction = DESC.equalsIgnoreCase(direction) ? DESC : ASC;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public String[] getStatusArray() {
@@ -103,11 +75,4 @@ public class PageParamDTO {
         return gson.fromJson(status, String[].class);
     }
 
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
 }

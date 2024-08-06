@@ -1,8 +1,19 @@
 package mc.gouv.xaf.front.controller;
 
+import static mc.gouv.xaf.front.util.DocHolderUtils.CONSENTING_NODE;
+import static mc.gouv.xaf.front.util.DocHolderUtils.DATE_CREATION_NODE;
+import static mc.gouv.xaf.front.util.DocHolderUtils.DOCHOLDER_CONSENT_NODE;
+import static mc.gouv.xaf.front.util.DocHolderUtils.JSON_DATE_FORMAT;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Date;
 import mc.gouv.xaf.front.dto.DocHolderConsentDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -18,16 +29,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Date;
-
-import static mc.gouv.xaf.front.util.DocHolderUtils.*;
 
 @Controller
 @RequestMapping("/doc-holder/consent")
@@ -46,7 +47,7 @@ public class DocHolderConsentController extends AbstractXafController {
      * </ul>
      */
     @GetMapping
-    protected ResponseEntity doGet(HttpServletRequest req) throws ServletException, IOException {
+    protected ResponseEntity doGet(HttpServletRequest req) throws IOException {
         LOGGER.info("====================== {} doGet()", req.getServletPath());
 
         ObjectMapper mapper = new ObjectMapper();
@@ -94,7 +95,7 @@ public class DocHolderConsentController extends AbstractXafController {
      * </ul>
      */
     @PostMapping
-    protected ResponseEntity doPost(HttpServletRequest req) throws ServletException, IOException {
+    protected ResponseEntity doPost(HttpServletRequest req) {
         LOGGER.info("====================== {} doPost()", req.getServletPath());
 
         LOGGER.info("Vérification usager connecté");

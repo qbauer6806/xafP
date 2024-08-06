@@ -1,6 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import mc.gouv.xaf.front.dto.TgfApiIbanResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -8,20 +9,17 @@ import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Servlet permettant l'appel à la méthode /verification-iban de l'API TGF
@@ -50,16 +48,15 @@ public class VerificationIbanController extends AbstractXafController {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
-        Request serviceRequest = Request.Post(propertiesResolver.getTgfApiUrl());
+        Request serviceRequest = Request.post(propertiesResolver.getTgfApiUrl());
         serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + propertiesResolver.getTgfApiJwt());
 
         try {
             serviceRequest.bodyStream(request.getInputStream());
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
-            ResponseEntity.BodyBuilder response = ResponseEntity.status(statusCode)
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType().getValue()));
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();
+            int statusCode = serviceResponse.getCode();
+            ResponseEntity.BodyBuilder response = ResponseEntity.status(statusCode);
 
             String responseContent = IOUtils.toString(serviceResponse.getEntity().getContent());
             LOGGER.info("Response content: {}", responseContent);

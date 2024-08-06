@@ -1,6 +1,29 @@
 package mc.gouv.xaf.front.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.el.PropertyNotFoundException;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.front.dto.FileUploadCompteurDTO;
@@ -12,18 +35,22 @@ import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.HttpMultipartMode;
+import org.apache.hc.client5.http.entity.mime.InputStreamBody;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,20 +58,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import javax.el.PropertyNotFoundException;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.*;
 
 @Component
 public class FileControllerUtils {
@@ -54,7 +67,8 @@ public class FileControllerUtils {
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
     private static final String SLASH = "/";
-    
+    private static final String BEARER = "Bearer ";
+
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
     
@@ -106,7 +120,7 @@ public class FileControllerUtils {
         return part.getSize() <= tailleMaxFichierMB;
     }
 
-    public boolean vscan(Part part0, String filename, HttpPost postRequest, HttpServletResponse response, ServletContext servletContext) throws IOException {
+    public boolean vscan(Part part0, String filename, HttpPost postRequest, ServletContext servletContext) throws IOException {
         // Varification de l'activation de VSCAN
         PropertiesDTO propActivationVscan = propertiesCache.getFrontProperty(VSCAN_ACTIVATION);
         if (propActivationVscan == null) {
@@ -117,7 +131,7 @@ public class FileControllerUtils {
         // Constitution de la requête
         boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
         // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
-        postRequest.setHeader(xafFrontserverUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
+        postRequest.setHeader(XafFrontserverUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
         LOGGER.info("Activation de VSCAN: {}", activationVscan);
 
         if (activationVscan) {
@@ -130,9 +144,9 @@ public class FileControllerUtils {
                 builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), ContentType.create(part0.getContentType()), part0.getSubmittedFileName()));
 
                 ScanRequestDTO scanRequest = new ScanRequestDTO();
-                scanRequest.setCodeAppli(servletContext.getInitParameter(xafFrontserverUtils.DEMARCHEID_KEY));
+                scanRequest.setCodeAppli(servletContext.getInitParameter(XafFrontserverUtils.DEMARCHEID_KEY));
                 scanRequest.setFilename(filename);
-                scanRequest.setEnduserAppModule(servletContext.getInitParameter(xafFrontserverUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+                scanRequest.setEnduserAppModule(servletContext.getInitParameter(XafFrontserverUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
 
                 ObjectMapper mapper = new ObjectMapper();
                 String scanRequestStr = mapper.writeValueAsString(scanRequest);
@@ -141,11 +155,11 @@ public class FileControllerUtils {
                 HttpEntity multipartVscan = builderVscan.build();
                 HttpPost postRequestVscan = new HttpPost(urlVscan);
                 postRequestVscan.setEntity(multipartVscan);
-                postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + frontGouvPropertiesResolver.getVscanJwt());
+                postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, BEARER + frontGouvPropertiesResolver.getVscanJwt());
 
-                HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+                ClassicHttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
                 String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent(), StandardCharsets.UTF_8);
-                LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
+                LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getCode(), vscanResp);
 
                 ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
                 if (!scanDto.isResult()) {
@@ -241,7 +255,7 @@ public class FileControllerUtils {
             }
 
             String accountId = propertiesResolver.getDemarcheId().toUpperCase();
-            String containerId = xafFrontserverUtils.CONTAINER_ROOT;
+            String containerId = XafFrontserverUtils.CONTAINER_ROOT;
 
             LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
@@ -261,14 +275,14 @@ public class FileControllerUtils {
             getRequest.setHeader(HttpHeaders.AUTHORIZATION, xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
-            HttpResponse getResponse = client.execute(getRequest);
+            ClassicHttpResponse getResponse = (ClassicHttpResponse) client.execute(getRequest);
 
             LOGGER.info("Constitution de la réponse pour retour au client");
-            ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getStatusLine().getStatusCode())
-                            .contentType(MediaType.valueOf(getResponse.getEntity().getContentType().getValue()));
+            ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getCode())
+                            .contentType(MediaType.valueOf(getResponse.getEntity().getContentType()));
             // Ajout de la métadonnée indiquant le demandeId lié
-            for (Header header : getResponse.getAllHeaders()) {
-                if (header.getName().startsWith(xafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
+            for (Header header : getResponse.getHeaders()) {
+                if (header.getName().startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                     response.header(header.getName(), header.getValue());
                 } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
                     String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
@@ -288,13 +302,12 @@ public class FileControllerUtils {
      * @param pathInfo     le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
      * @param accessToken  le token d'accès à l'API, du compte connecté
      */
-    public HttpResponse downloadFromDocHolder(String docHolderUrl, String pathInfo, String accessToken) throws IOException, URISyntaxException {
+    public HttpResponse downloadFromDocHolder(String docHolderUrl, String pathInfo, String accessToken) throws IOException {
         MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addPart("filename", new StringBody(pathInfo, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")));
 
         HttpClient client = HttpClientBuilder.create().build();
-        HttpRequestWithEntity request = new HttpRequestWithEntity("GET");
-        request.setURI(URI.create(docHolderUrl));
-        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        HttpGet request = new HttpGet(URI.create(docHolderUrl));
+        request.addHeader(HttpHeaders.AUTHORIZATION, BEARER + accessToken);
         request.setEntity(multipart.build());
 
         return client.execute(request);
@@ -306,15 +319,15 @@ public class FileControllerUtils {
                 .addPart("file", new InputStreamBody(filestream, filename))
                 .addPart("preferredName", new StringBody(preferredName, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")))
                 .addTextBody("typedoc", typedoc)
-                .setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                .setMode(HttpMultipartMode.EXTENDED);
 
         if (!StringUtils.isEmpty(endOfValidity)) {
             entityBuilder.addTextBody("endOfValidity", endOfValidity);
         }
 
-        Request serviceRequest = Request.Post(docHolderUrl);
+        Request serviceRequest = Request.post(docHolderUrl);
         serviceRequest.body(entityBuilder.build());
-        serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, BEARER + accessToken);
 
         LOGGER.info("Envoi de la requête");
         return serviceRequest.execute().returnResponse();
@@ -330,7 +343,7 @@ public class FileControllerUtils {
      */
     public ResponseEntity uploadToFILE(UsagerInfosDTO usagerInfosDTO, String filename, String typeModele, InputStream filestream) throws URISyntaxException, IOException {
         // Génération de l'UUID
-        UUID uuid = xafFrontserverUtils.generateUUID();
+        UUID uuid = XafFrontserverUtils.generateUUID();
         LOGGER.debug("UUID généré : {}", uuid);
 
         // Récupération de l'AccessID via appel WS à Demarches
@@ -342,9 +355,8 @@ public class FileControllerUtils {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.NOT_FOUND, "Erreur : impossible de récupérer l'accès");
         }
 
-        HttpPost postRequest = new HttpPost();
         URI uri = generateFileUrl(uuid, accessId, filename);
-        postRequest.setURI(uri);
+        HttpPost postRequest = new HttpPost(uri);
 
         // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
         //extraireDemandeId(postRequest, request);
@@ -370,7 +382,7 @@ public class FileControllerUtils {
      * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
      */
     public ResponseEntity constituerReponse(String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
-        int statusCode = postResponse.getStatusLine().getStatusCode();
+        int statusCode = postResponse.getCode();
         ResponseEntity.BodyBuilder response = ResponseEntity.status(statusCode);
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
@@ -380,7 +392,7 @@ public class FileControllerUtils {
         } else {
             LOGGER.error("Status code : {}", statusCode);
             // S'il y a eu un problème, alors on retourne le message d'erreur au client
-            return response.body(new String(postResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+            return response.body(new String(((ClassicHttpResponse)postResponse).getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
         }
     }
 
@@ -392,12 +404,12 @@ public class FileControllerUtils {
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
-            if (headerName.startsWith(xafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
+            if (headerName.startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                 demandeId = request.getHeader(headerName);
             }
         }
         if (demandeId != null) {
-            postRequest.setHeader(xafFrontserverUtils.FILE_METADATA_DEMANDEID, demandeId);
+            postRequest.setHeader(XafFrontserverUtils.FILE_METADATA_DEMANDEID, demandeId);
         }
     }
 
@@ -418,7 +430,7 @@ public class FileControllerUtils {
 
     public URI generateFileUrl(UUID uuid, Integer accessId, String filename) throws URISyntaxException {
         String accountId = propertiesResolver.getDemarcheId().toUpperCase();
-        String containerId = xafFrontserverUtils.CONTAINER_ROOT;
+        String containerId = XafFrontserverUtils.CONTAINER_ROOT;
 
         LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 

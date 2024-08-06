@@ -14,7 +14,7 @@ public class ExcelMockData {
 	public static final String USAGER_EMAIL = "test@email.net";
 	public static final String DATE_CREATION = "01/03/2019";
 	public static final String LANGUE = "fr";
-	public static final String CANAL = DemandeCanalEnum.GUICHET_VIRTUEL.libelle;
+	public static final String CANAL = DemandeCanalEnum.GUICHET_VIRTUEL.toString();
 	public static final String OBSERVATIONS = "Test de observation";
 	public static final String AGENT_AFFECT_ID = "1234";
 	public static final String AGENT_AFFECT_NAME = "Jaques Mora";

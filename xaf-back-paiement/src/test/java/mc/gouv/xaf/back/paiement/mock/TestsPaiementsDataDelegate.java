@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
@@ -16,6 +17,11 @@ public class TestsPaiementsDataDelegate implements PaiementsDataProvider {
     @Override
     public InformationFacturationDTO getInfosFacturation(DemandeDTO demandeDTO) {
         return null;
+    }
+
+    @Override
+    public double getMontantCapture(DemandeDTO demandeDTO, CommandeDemandeDTO commandeDemandeDTO) {
+        return 80.0;
     }
 
     @Override

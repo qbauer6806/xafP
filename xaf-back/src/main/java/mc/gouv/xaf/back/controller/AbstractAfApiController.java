@@ -1,38 +1,13 @@
 package mc.gouv.xaf.back.controller;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import mc.gouv.xaf.shared.SharedMessages;
-import org.apache.tika.exception.TikaException;
-import org.hibernate.TransactionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
-import mc.gouv.xaf.shared.SharedMessages;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import java.io.IOException;
+import java.util.List;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -48,6 +23,20 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
+import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -61,10 +50,6 @@ import mc.gouv.xapi.error.exception.WebException;
 public abstract class AbstractAfApiController implements AfApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAfApiController.class);
-    private static final String REINDEX_MESSAGE = "Le nombre de demandes réindexées est {0}";
-
-    @Autowired
-    private DemandesService demandesService;
 
     @PutMapping(value = "/demandes/{demandeId}/annuler")
     public void annulerDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
@@ -155,8 +140,8 @@ public abstract class AbstractAfApiController implements AfApiController {
     public DemandeDTO associerDemandeCourrierRequest(
             @RequestParam(value = "identifiantDemande") String identifiantDemande,
             @RequestParam(value = "nomProprio") String nomProprio, @RequestParam(value = "usagerId") Integer usagerId) {
-        String safeIndentifiant = identifiantDemande.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-        String safeNom = nomProprio.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safeIndentifiant = AfBackUtils.logSafe(identifiantDemande);
+        String safeNom = AfBackUtils.logSafe(nomProprio);
         LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", safeIndentifiant, safeNom,
                 usagerId);
         return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
@@ -165,7 +150,8 @@ public abstract class AbstractAfApiController implements AfApiController {
     @DeleteMapping(value = "/accesses/{usagerId}")
     public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
             @RequestParam(value = "langue") String langue) {
-        LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest({}, {})", usagerId, langue);
+        String safeLangue = AfBackUtils.logSafe(langue);
+        LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest({}, {})", usagerId, safeLangue);
         desinscriptionUsager(usagerId, langue, false);
     }
 
@@ -193,29 +179,6 @@ public abstract class AbstractAfApiController implements AfApiController {
     public List<MotifDTO> getMotifsRequest() {
         LOGGER.info("AbstractAfApiController.getMotifsRequest()");
         return getMotifs();
-    }
-
-    @PostMapping(value = "/reindex")
-    public String reindex() throws IOException {
-
-        LOGGER.info("======================= Appel de /ws/demandes/reindex");
-
-        if (demandesService instanceof IndexedEsDemandeServiceImpl) {
-            try {
-                Long demandesCount = ((IndexedEsDemandeServiceImpl) demandesService).reindex();
-                return MessageFormat.format(REINDEX_MESSAGE, demandesCount);
-            } catch (TransactionException e) {
-                if (e.getCause() != null) {
-                    return e.getCause().getMessage();
-                }
-                return e.getMessage();
-            } finally {
-                LOGGER.info("======================= Fin appel de /ws/demandes/reindex");
-            }
-        } else {
-            LOGGER.info("======================= Fin appel de /ws/demandes/reindex");
-            return "Indexing is disabled, please enable it";
-        }
     }
 
     @GetMapping(value = "/periodesouverture")
@@ -322,6 +285,12 @@ public abstract class AbstractAfApiController implements AfApiController {
         errorsDTO.setErrors(ex.getErrors());
         res.setStatus(ex.getHttpStatus());
         return errorsDTO;
+    }
+
+    @PostMapping(value = "/configs")
+    public JsonNode creerConfigRequest(@RequestBody JsonNode config) {
+        LOGGER.info("AbstractAfApiController.creerConfigRequest");
+        return creerConfig(config);
     }
 
 }

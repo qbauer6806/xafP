@@ -3,9 +3,9 @@ package mc.gouv.xaf.back.bpm.activiti;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.User;
-import org.activiti.engine.task.Task;
+import org.flowable.idm.api.Group;
+import org.flowable.idm.api.User;
+import org.flowable.task.api.Task;
 
 import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;

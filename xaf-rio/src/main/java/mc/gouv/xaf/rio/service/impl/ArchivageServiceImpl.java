@@ -147,7 +147,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         List<RioDocumentDTO> rioDocumentDTOs = references.entrySet().stream()
                 .map(entry -> getRioDocumentDTO(entry.getKey(), entry.getValue(), erreurRio))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         for (DemandeFileDTO file : files) {
             try {
@@ -205,7 +205,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         }
         List<String> listeReferences = referencesTraitees.entrySet().stream()
                 .filter(entry -> entry.getValue() == 0)
-                .map(Map.Entry::getKey).collect(Collectors.toList());
+                .map(Map.Entry::getKey).toList();
 
         if (fichiersEnErreurs.get() > 0) {
             // Sauvegarde du numéro de facture dans les données de la demande

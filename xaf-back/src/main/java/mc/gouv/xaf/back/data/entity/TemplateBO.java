@@ -1,10 +1,12 @@
 package mc.gouv.xaf.back.data.entity;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -13,6 +15,8 @@ import java.util.Date;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(
         name = "DEM_TEMPLATES", 
@@ -47,51 +51,4 @@ public class TemplateBO {
     @Column(name = "DATE_MODIF", nullable = false)
     private Date dateModif;
 
-    public Integer getPkTemplates() {
-        return pkTemplates;
-    }
-
-    public void setPkTemplates(Integer pkTemplates) {
-        this.pkTemplates = pkTemplates;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
-
-    public String getLangue() {
-        return langue;
-    }
-
-    public void setLangue(String langue) {
-        this.langue = langue;
-    }
-
-    public Date getDateModif() {
-        return dateModif;
-    }
-
-    public void setDateModif(Date dateModif) {
-        this.dateModif = dateModif;
-    }
 }

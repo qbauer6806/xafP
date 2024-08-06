@@ -1,21 +1,18 @@
 package mc.gouv.xaf.shared.enums;
 
-public enum JobNamesEnum {
+import lombok.Getter;
 
-    GET_DEMANDES_DESYNCHRONISEES("Afficher demandes désynchronisées"),
-    REINDEXATION_DEMANDES_DESYNCHRO("Réindexation des demandes désynchronisées"),
-    REINDEXATION("Réindexation Globale"),
-    REINDEXATION_DEMANDES("Réindexation des demandes"),
-    REINDEXATION_COURRIER("Réindexation des courriers"),
-    RAFRAICHISSEMENT_STATUS("Rafraîchissement du statut des demandes"),
+@Getter
+public enum JobNamesEnum {
     TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA("Traitement du Dead Letter Topic du Guichet Unique sur Kafka"),
     TRAITEMENT_OUTBOX_KAFKA("Traitement de l'Outbox Kafka"),
     SYNCHRONISATION_GLOBALE_GU("Synchronisation globale des demandes des usagers avec le Guichet Unique"),
-    RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA("Récupération du nombre de messages contenus dans l'Outbox Kafka");
+    RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA("Récupération du nombre de messages contenus dans l'Outbox Kafka"),
+    XAF12_MIGRATION_DONNEES("XAF12 - Migration données (contenuTrad, agents, usagers");
 
-    private String libelle;
+    private final String libelle;
 
-    private JobNamesEnum(String libelle) {
+    JobNamesEnum(String libelle) {
         this.libelle = libelle;
     }
 
@@ -31,10 +28,6 @@ public enum JobNamesEnum {
 
         return null;
 
-    }
-
-    public String getLibelle() {
-        return libelle;
     }
 
 }

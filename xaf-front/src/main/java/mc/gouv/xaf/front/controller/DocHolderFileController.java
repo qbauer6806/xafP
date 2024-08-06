@@ -3,6 +3,14 @@ package mc.gouv.xaf.front.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import mc.gouv.xaf.front.dto.DocHolderFileDTO;
 import mc.gouv.xaf.front.dto.DocHolderFilePostDTO;
 import mc.gouv.xaf.front.dto.DocHolderFileUpdateDTO;
@@ -10,20 +18,20 @@ import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.DocHolderUtils;
 import mc.gouv.xaf.front.util.FileControllerUtils;
-import mc.gouv.xaf.front.util.HttpRequestWithEntity;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +39,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/doc-holder/file")
@@ -49,7 +52,9 @@ public class DocHolderFileController extends AbstractXafController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileController.class);
     private static final String SERVICE_URL = "/file";
     public static final String VERIFICATION_USAGER_CONNECTE = "Vérification usager connecté";
-
+    public static final String MAJ = "Mise à jour de la date de consentement TS du porte-documents";
+    public static final String IMPOSSIBLE_MAJ = "Impossible de mettre à jour la date de consentement TS du porte-documents";
+    public static final String VERIFICATION = "Vérification des paramètres envoyés";
     public static final String FILENAME = "filename";
 
 
@@ -90,24 +95,24 @@ public class DocHolderFileController extends AbstractXafController {
             uriBuilder.addParameter(FILENAME, filename);
 
             LOGGER.info("Envoi de la requête porte-document");
-            HttpResponse serviceResponse = fileControllerUtils.downloadFromDocHolder(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) fileControllerUtils.downloadFromDocHolder(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Constitution de la réponse pour retour au client");
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
-            ResponseEntity.BodyBuilder response = ResponseEntity.status(serviceResponse.getStatusLine().getStatusCode());
+            int statusCode = serviceResponse.getCode();
+            ResponseEntity.BodyBuilder response = ResponseEntity.status(serviceResponse.getCode());
             if (statusCode == 200) {
                 Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
 
-                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                LOGGER.info(MAJ);
                 if (!docHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
-                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                    LOGGER.error(IMPOSSIBLE_MAJ);
                 }
                 response.header(RequestConstant.CONTENT_DISPOSITION_HEADER, contentDispositionHeader.getValue());
             }
 
             LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
 
-            return response.contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType().getValue()))
+            return response.contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (URISyntaxException e) {
@@ -133,7 +138,7 @@ public class DocHolderFileController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
-        LOGGER.info("Vérification des paramètres envoyés");
+        LOGGER.info(VERIFICATION);
         DocHolderFilePostDTO filePostDTO;
         try {
             filePostDTO = mapper.readValue(req.getInputStream(), DocHolderFilePostDTO.class);
@@ -155,7 +160,7 @@ public class DocHolderFileController extends AbstractXafController {
                     LOGGER.info("Téléchargement réussi");
                     String filename = fileControllerUtils.getFilename(filePostDTO.getUrl());
                     LOGGER.info("Upload du fichier vers PorteDocument");
-                    HttpResponse uploadResponse = fileControllerUtils.uploadToDocHolder(
+                    ClassicHttpResponse uploadResponse = (ClassicHttpResponse) fileControllerUtils.uploadToDocHolder(
                             frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL,
                             filestream,
                             usagerInfosDTO.getTokenInfo().getAccessToken(),
@@ -164,12 +169,12 @@ public class DocHolderFileController extends AbstractXafController {
                             filePostDTO.getPreferredName(),
                             filePostDTO.getEndOfValidity());
 
-                    int statusCode = uploadResponse.getStatusLine().getStatusCode();
+                    int statusCode = uploadResponse.getCode();
 
                     if (statusCode == HttpStatus.OK.value()) {
-                        LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                        LOGGER.info(MAJ);
                         if (!docHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
-                            LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                            LOGGER.error(IMPOSSIBLE_MAJ);
                         }
                     }
                     LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
@@ -201,7 +206,7 @@ public class DocHolderFileController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
-        LOGGER.info("Vérification des paramètres envoyés");
+        LOGGER.info(VERIFICATION);
         DocHolderFileDTO fileDTO = null;
         try {
             fileDTO = mapper.readValue(req.getInputStream(), DocHolderFileDTO.class);
@@ -217,8 +222,8 @@ public class DocHolderFileController extends AbstractXafController {
 
         LOGGER.info("Préparation de la requête");
         HttpClient client = HttpClientBuilder.create().build();
-        HttpRequestWithEntity serviceRequest = new HttpRequestWithEntity("DELETE");
-        serviceRequest.setURI(URI.create(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL));
+
+        HttpDelete serviceRequest = new HttpDelete(URI.create(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL));
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
@@ -227,13 +232,13 @@ public class DocHolderFileController extends AbstractXafController {
             serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
 
             LOGGER.info("Envoi de la requête");
-            HttpResponse serviceResponse = client.execute(serviceRequest);
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) client.execute(serviceRequest);
+            int statusCode = serviceResponse.getCode();
 
             if (statusCode == HttpStatus.OK.value()) {
-                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                LOGGER.info(MAJ);
                 if (!docHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
-                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                    LOGGER.error(IMPOSSIBLE_MAJ);
                 }
             }
 
@@ -262,7 +267,7 @@ public class DocHolderFileController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
-        LOGGER.info("Vérification des paramètres envoyés");
+        LOGGER.info(VERIFICATION);
         DocHolderFileUpdateDTO fileUpdateDTO = null;
         try {
             fileUpdateDTO = mapper.readValue(req.getInputStream(), DocHolderFileUpdateDTO.class);
@@ -278,18 +283,18 @@ public class DocHolderFileController extends AbstractXafController {
 
         try {
             LOGGER.info("Préparation de la requête");
-            Request serviceRequest = Request.Patch(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL);
+            Request serviceRequest = Request.patch(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL);
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
             serviceRequest.bodyString(new ObjectMapper().writeValueAsString(fileUpdateDTO), ContentType.APPLICATION_JSON);
 
             LOGGER.info("Envoi de la requête");
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
+            int statusCode = serviceResponse.getCode();
 
             if (statusCode == HttpStatus.OK.value()) {
-                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                LOGGER.info(MAJ);
                 if (!docHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
-                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                    LOGGER.error(IMPOSSIBLE_MAJ);
                 }
             }
             LOGGER.info("====================== Fin {} doPatch()", req.getServletPath());

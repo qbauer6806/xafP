@@ -38,8 +38,6 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     private static final String XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE = "XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE";
     private static final String PAIEMENT_IMMEDIAT_HEURE_DIFFERE_DEFAULT = "23:58:00";
 
-    private static final String MC_GOUV_PREFIX = "mc.gouv";
-
     @Value("mc.gouv.cir.api.url")
     private String cirServiceUrl;
 

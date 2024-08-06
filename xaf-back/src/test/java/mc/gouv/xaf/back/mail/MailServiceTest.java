@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.mail;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
@@ -75,9 +76,8 @@ public class MailServiceTest {
 
         Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode,
                 new DemandeDTO(), null, MailTestMockObjects.MOTIF, MailTestMockObjects.COMMENT);
-        String[] preview = mailService.getMailPreview(bodyTemplateCode, subjectTemplateCode, lang, model);
 
-        return preview;
+        return mailService.getMailPreview(bodyTemplateCode, subjectTemplateCode, lang, model);
     }
 
     /**
@@ -91,7 +91,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[1]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.IDENTIFIER.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.IDENTIFIER, matcher.group(1));
     }
 
     /**
@@ -106,7 +106,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[1]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.IDENTIFIER.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.IDENTIFIER, matcher.group(1));
     }
 
     /**
@@ -120,7 +120,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.IDENTIFIER.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.IDENTIFIER, matcher.group(1));
     }
 
     /**
@@ -133,7 +133,7 @@ public class MailServiceTest {
         Pattern pattern = Pattern.compile(EN_CHECK_MAILBODY_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.IDENTIFIER.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.IDENTIFIER, matcher.group(1));
     }
 
     /**
@@ -147,9 +147,9 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.TITLE.equals(matcher.group(1)));
-        assertTrue(MailTestMockObjects.LAST_NAME.equals(matcher.group(2)));
-        assertTrue(MailTestMockObjects.FIRST_NAME.equals(matcher.group(3)));
+        assertEquals(MailTestMockObjects.TITLE, matcher.group(1));
+        assertEquals(MailTestMockObjects.LAST_NAME, matcher.group(2));
+        assertEquals(MailTestMockObjects.FIRST_NAME, matcher.group(3));
     }
 
     /**
@@ -163,9 +163,9 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.TITLE.equals(matcher.group(1)));
-        assertTrue(MailTestMockObjects.LAST_NAME.equals(matcher.group(2)));
-        assertTrue(MailTestMockObjects.FIRST_NAME.equals(matcher.group(3)));
+        assertEquals(MailTestMockObjects.TITLE, matcher.group(1));
+        assertEquals(MailTestMockObjects.LAST_NAME, matcher.group(2));
+        assertEquals(MailTestMockObjects.FIRST_NAME, matcher.group(3));
     }
 
     /**
@@ -179,7 +179,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.PK.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.PK, matcher.group(1));
     }
 
     /**
@@ -193,7 +193,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.PK.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.PK, matcher.group(1));
     }
 
     /**
@@ -207,7 +207,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.MOTIF.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.MOTIF, matcher.group(1));
     }
 
     /**
@@ -221,7 +221,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.MOTIF.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.MOTIF, matcher.group(1));
     }
 
     /**
@@ -235,7 +235,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.UTILISATEUR.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.UTILISATEUR, matcher.group(1));
     }
 
     /**
@@ -249,7 +249,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.UTILISATEUR.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.UTILISATEUR, matcher.group(1));
     }
 
     /**
@@ -262,7 +262,7 @@ public class MailServiceTest {
         Pattern pattern = Pattern.compile(FR_CHECK_USAGER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.USAGER.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.USAGER, matcher.group(1));
     }
 
     /**
@@ -276,7 +276,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.USAGER.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.USAGER, matcher.group(1));
     }
 
     /**
@@ -290,7 +290,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.FRONT_URL.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.FRONT_URL, matcher.group(1));
     }
 
     /**
@@ -304,7 +304,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.FRONT_URL.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.FRONT_URL, matcher.group(1));
     }
 
     /**
@@ -318,7 +318,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.BACK_URL.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.BACK_URL, matcher.group(1));
     }
 
     /**
@@ -332,7 +332,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.BACK_URL.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.BACK_URL, matcher.group(1));
     }
 
     /**
@@ -346,7 +346,7 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.COMMENT.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.COMMENT, matcher.group(1));
     }
 
     /**
@@ -360,6 +360,6 @@ public class MailServiceTest {
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
         assertTrue(matcher.find());
-        assertTrue(MailTestMockObjects.COMMENT.equals(matcher.group(1)));
+        assertEquals(MailTestMockObjects.COMMENT, matcher.group(1));
     }
 }

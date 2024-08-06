@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.paiement.service.purge;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -45,8 +47,13 @@ public class PurgePaiementDataServiceTest {
     private PurgePaiementDataServiceImpl purgeCommandesService;
 
     private DemandeBO createDemande(String indentifiant) {
+        ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("contenu");
+        try {
+            demandeBO.setContenu(mapper.readTree("contenu"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant(indentifiant);
         demandeBO.setDateCreation(new Date());

@@ -2,7 +2,10 @@ package mc.gouv.xaf.shared.dto;
 
 import java.util.Date;
 import java.util.List;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 /**
@@ -11,52 +14,57 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
  * @author qdeme
  *
  */
+@Setter
+@ToString
+@NoArgsConstructor
 public class DemandeRechercheDTO {
 
+    @Getter
     private String demarcheId;
 
+    @Getter
     private String texte;
 
+    @Getter
     private List<String> statuts;
 
+    @Getter
     private List<DemandeCanalEnum> canaux;
 
+    @Getter
     private String agentAffecteId;
 
+    @Getter
     private Integer usagerId;
 
+    @Getter
     private Date creationStartDate;
 
+    @Getter
     private Date creationEndDate;
 
     // Pour le moment on gère la recherhe pour une data
+    @Getter
     private DataRechercheDTO data;
 
+    @Getter
     private String identifiant;
 
+    @Getter
     private String[] searchFields;
 
     private boolean aucunCanal;
 
     private boolean aucunStatut;
 
+    @Getter
     private boolean aucunResponsable;
 
+    @Getter
     private String statutPublicOuInterne;
 
+    @Getter
     private boolean checkTimestamp;
-
-    public boolean isCheckTimestamp() {
-        return checkTimestamp;
-    }
-
-    public void setCheckTimestamp(boolean checkTimestamp) {
-        this.checkTimestamp = checkTimestamp;
-    }
-
-    public DemandeRechercheDTO() {
-        super();
-    }
 
     public DemandeRechercheDTO(String demarcheId, String texte, List<String> statuts, List<DemandeCanalEnum> canaux,
                                String agentAffecteId, Integer usagerId, Date creationStartDate, Date creationEndDate,
@@ -74,132 +82,12 @@ public class DemandeRechercheDTO {
         this.identifiant = identifiant;
     }
 
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getTexte() {
-        return texte;
-    }
-
-    public void setTexte(String texte) {
-        this.texte = texte;
-    }
-
-    public List<String> getStatuts() {
-        return statuts;
-    }
-
-    public void setStatuts(List<String> statuts) {
-        this.statuts = statuts;
-    }
-
-    public String getAgentAffecteId() {
-        return agentAffecteId;
-    }
-
-    public void setAgentAffecteId(String agentAffecteId) {
-        this.agentAffecteId = agentAffecteId;
-    }
-
-    public Integer getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(Integer usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public Date getCreationStartDate() {
-        return creationStartDate;
-    }
-
-    public void setCreationStartDate(Date creationStartDate) {
-        this.creationStartDate = creationStartDate;
-    }
-
-    public Date getCreationEndDate() {
-        return creationEndDate;
-    }
-
-    public void setCreationEndDate(Date creationEndDate) {
-        this.creationEndDate = creationEndDate;
-    }
-
-    public List<DemandeCanalEnum> getCanaux() {
-        return canaux;
-    }
-
-    public void setCanaux(List<DemandeCanalEnum> canaux) {
-        this.canaux = canaux;
-    }
-
-    public DataRechercheDTO getData() {
-        return data;
-    }
-
-    public void setData(DataRechercheDTO data) {
-        this.data = data;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-
-    public String[] getSearchFields() {
-        return searchFields;
-    }
-
-    public void setSearchFields(String[] searchFields) {
-        this.searchFields = searchFields;
-    }
-
     public boolean getAucunCanal() {
         return aucunCanal;
     }
 
-    public void setAucunCanal(boolean aucunCanal) {
-        this.aucunCanal = aucunCanal;
-    }
-
     public boolean getAucunStatut() {
         return aucunStatut;
-    }
-
-    public void setAucunStatut(boolean aucunStatut) {
-        this.aucunStatut = aucunStatut;
-    }
-
-    public String getStatutPublicOuInterne() {
-		return statutPublicOuInterne;
-	}
-
-	public void setStatutPublicOuInterne(String statutPublicOuInterne) {
-		this.statutPublicOuInterne = statutPublicOuInterne;
-	}
-
-    public boolean isAucunResponsable() {
-        return aucunResponsable;
-    }
-
-    public void setAucunResponsable(boolean aucunResponsable) {
-        this.aucunResponsable = aucunResponsable;
-    }
-
-    @Override
-    public String toString() {
-        return "DemandeRechercheDTO [demarcheId=" + demarcheId + ", texte=" + texte + ", statuts=" + statuts
-                + ", canaux=" + canaux + ", agentAffecteId=" + agentAffecteId + ", usagerId=" + usagerId
-                + ", creationStartDate=" + creationStartDate + ", creationEndDate=" + creationEndDate + ", data=" + data
-                + ", identifiant=" + identifiant + "]";
     }
 
 }

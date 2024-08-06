@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<div id="supprimermodele" th:fragment="supprimermodele">
+  <div id="supprimer-box" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div id="supprimer-content">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-xs-12">
+                  <span style="color: rgb(94, 97, 100); font-size: 16pt">Suppression</span>
+                  <br/> <br/>
+                  <span class="suppressionOk" style="color: rgb(94, 97, 100);">Vous êtes sur le point de supprimer un modèle de documents&nbsp;:</span>
+                  <br/>
+                  <span id="dlgFilename" style="font-weight: bold;"></span>
+                  <br/>
+                  <span style="color: rgb(94, 97, 100);">Voulez-vous le supprimer&nbsp;?</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xs-12 text-center  suppressionOk margin-top">
+                  <form action="#" id="form-supprimer" method="post" th:action="@{/gestion/modeles/supprimer}">
+                    <div>
+                      <input class="filename" name="filename" type="hidden"/>
+                      <input class="typeModele" name="typeModele" type="hidden"/>
+                    </div>
+                    <a class="btn btn-action-second ripple-effect supprimer-annuler" href="#">Annuler</a>
+                    <button class="btn btn-action ripple-effect margin-left" id="supprimer-button" name="action" type="button" value="Valider">Valider</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</div>
+</body>
+</html>

@@ -1,9 +1,16 @@
 package mc.gouv.xaf.shared.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class DonneesExternesDemandeDTO {
 
+    @Setter
+    @Getter
     private DemandeDTO demande;
     private DonneesExternesStatutRetourEnum statutRetour;
+    @Setter
+    @Getter
     private String source;
 
     public enum DonneesExternesStatutRetourEnum {
@@ -12,28 +19,12 @@ public class DonneesExternesDemandeDTO {
         CONFLICT
     }
 
-    public DemandeDTO getDemande() {
-        return demande;
-    }
-
-    public void setDemande(DemandeDTO demande) {
-        this.demande = demande;
-    }
-
     public DonneesExternesStatutRetourEnum getStatut() {
         return statutRetour;
     }
 
     public void setStatut(DonneesExternesStatutRetourEnum statut) {
         this.statutRetour = statut;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
     }
 
 }

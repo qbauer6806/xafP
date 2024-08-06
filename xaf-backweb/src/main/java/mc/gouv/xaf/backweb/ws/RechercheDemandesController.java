@@ -3,11 +3,21 @@ package mc.gouv.xaf.backweb.ws;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import mc.gouv.xaf.back.data.model.RechercheChampDTO;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.RechercheAdminService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.backweb.dto.AfBackDemandeDTO;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,22 +30,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import mc.gouv.logon.shared.User;
-import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import mc.gouv.xaf.back.config.es.IndexationDisabledCondition;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.xaf.backweb.dto.AfBackDemandeDTO;
-import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-
 @GouvRestController
 @RequestMapping("/ws/demandes")
-@Conditional(IndexationDisabledCondition.class)
 public class RechercheDemandesController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheDemandesController.class);
@@ -47,7 +43,7 @@ public class RechercheDemandesController extends AbstractController {
     private DemandesService demandesService;
 
     @Autowired
-    private UtilisateursCache utilisateursCache;
+    private RechercheAdminService rechercheAdminService;
 
     @GetMapping(value = "/pageable")
     public Page<AfBackDemandeDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,
@@ -61,11 +57,12 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
             @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
             @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
+            @RequestParam(value = "searchFields", required = false) String[] searchFields,
             Pageable pageable) {
-
+        String safeAgent = AfBackUtils.logSafe(agentId);
+        String safeTexte = AfBackUtils.logSafe(texte);
         LOGGER.info(
-                "======================= Appel de /ws/demandes/pageable (statuts={}, canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})",
-                statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
+                "======================= Appel de /ws/demandes/pageable (canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})", canaux, safeAgent, creationStartDate, creationEndDate, safeTexte, data);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
@@ -81,6 +78,7 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setAucunCanal(aucunCanal);
         demandeRecherche.setAucunStatut(aucunStatut);
         demandeRecherche.setCheckTimestamp(checkTimestamp);
+        demandeRecherche.setSearchFields(searchFields);
 
         Order order = pageable.getSort().iterator().next();
         if (order != null) {
@@ -99,14 +97,16 @@ public class RechercheDemandesController extends AbstractController {
         List<AfBackDemandeDTO> newDemandes = new ArrayList<>();
         for (DemandeDTO demande : demandes) {
             AfBackDemandeDTO newDem = new AfBackDemandeDTO(demande);
-            if (demande.getAgentAffecteId() != null) {
-                User user = utilisateursCache.get(demande.getAgentAffecteId());
-                newDem.setAgentAffectePrenom(user.getPrenom());
-                newDem.setAgentAffecteNom(user.getNomAffichage());
-            }
+            // todo vérifier si on peut supprimer les AfBackDemandeDTO maintenant qu'on a supprimé ES
             newDemandes.add(newDem);
         }
         Pageable newPageable = PageRequest.of(demandes.getNumber(), demandes.getSize(), demandes.getSort());
         return new PageImpl<>(newDemandes, newPageable, demandes.getTotalElements());
+    }
+
+    @GetMapping(value = "/recherchechamps")
+    public List<RechercheChampDTO> getRechercheChamps() {
+        LOGGER.info("Appel du webservice /ws/demandes/recherchechamps");
+        return rechercheAdminService.getRechercheChamps();
     }
 }

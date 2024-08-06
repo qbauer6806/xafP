@@ -24,7 +24,7 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public String getDemandeur(Object contenuDemandeDTO) {
+    public String getDemandeur(DemandeDTO contenuDemandeDTO) {
         return null;
     }
 
@@ -54,7 +54,7 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle) {
+    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutName) {
         return null;
     }
 
@@ -73,17 +73,7 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
         return false;
     }
 
-    @Override
-    public boolean getDemarcheCanHandleDenjsGestionAgents() {
-        return false;
-    }
-
-    @Override
-    public boolean getDemarcheCanHandleTaches() {
-        return false;
-    }
-
-    @Override
+  @Override
     public String[] getGUKafkaSupportedVersions() {
         return new String[0];
     }
@@ -143,7 +133,7 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     }
 
 	@Override
-	public String getStatutAnnulee() {
+	public StatutPublicOuInterneDTO getStatutAnnulee() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -161,7 +151,7 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
 	}
 
 	@Override
-	public String getPremierStatutCreationDemande() {
+	public StatutPublicOuInterneDTO getPremierStatutCreationDemande() {
 		// TODO Auto-generated method stub
 		return null;
 	}

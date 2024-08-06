@@ -1,5 +1,12 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.StringTokenizer;
 import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -11,9 +18,9 @@ import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +31,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.StringTokenizer;
 
 /**
  * 
@@ -68,7 +67,7 @@ public class LoginController extends AbstractXafController {
         	sessionId = code;
         }
 
-        String safe = sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safe = sessionId != null ? sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
         LOGGER.info("SessionID = {}", safe);
 
         if (StringUtils.isBlank(sessionId)) {
@@ -179,8 +178,8 @@ public class LoginController extends AbstractXafController {
         if (StringUtils.isBlank(sessionId)) {
             LOGGER.info("Pas d'ID donné en paramètre, donc appel à GICHKEY pour faire le logout");
         	UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-        	HttpResponse postResponse = gichkeyService.logout(usagerInfosDTO);
-        	int statusCode = postResponse.getStatusLine().getStatusCode();
+            ClassicHttpResponse postResponse = (ClassicHttpResponse)gichkeyService.logout(usagerInfosDTO);
+        	int statusCode = postResponse.getCode();
         	
 			// Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
 			if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
@@ -188,21 +187,18 @@ public class LoginController extends AbstractXafController {
 				request.getSession().removeAttribute(LOGIN);
 				request.getSession().invalidate();
                 return ResponseEntity.ok().build();
-			} else {
-				if (postResponse.getEntity() != null) {
-					try {
-                        return xafFrontserverUtils.logAndSendError(LOGGER, statusCode,
-								"Erreur: GICHKEY a retourné le code " + statusCode + " ("
-										+ EntityUtils.toString(postResponse.getEntity()) + ")");
-					} catch (ParseException | IOException e) {
-						LOGGER.error("Erreur lors du EntityUtils.toString()", e);
-                        return ResponseEntity.internalServerError().build();
-					}
-				} else {
-                    return xafFrontserverUtils.logAndSendError(LOGGER, statusCode,
-							"Erreur: GICHKEY a retourné le code " + statusCode);
-				}
 			}
+            if (postResponse.getEntity() != null) {
+                try {
+                    return xafFrontserverUtils.logAndSendError(LOGGER, statusCode,
+                            "Erreur: GICHKEY a retourné le code " + statusCode + " ("
+                                    + EntityUtils.toString(postResponse.getEntity()) + ")");
+                } catch (ParseException | IOException e) {
+                    LOGGER.error("Erreur lors du EntityUtils.toString()", e);
+                    return ResponseEntity.internalServerError().build();
+                }
+            }
+            return xafFrontserverUtils.logAndSendError(LOGGER, statusCode, "Erreur: GICHKEY a retourné le code " + statusCode);
         } else if (!sessionId.startsWith("c_")) {
             // Usager courrier, pas d'appel à GICHKEY pour faire un logout Juste destruction de la session
             LOGGER.info("Usager courrier : suppression de la session sans appel à GICHKEY...");
@@ -236,17 +232,17 @@ public class LoginController extends AbstractXafController {
         String sig = request.getParameter("sig");
         if (StringUtils.isBlank(sig)) {
             return HttpStatus.BAD_REQUEST;
-        } else {
-            LOGGER.info("Vérification du sig : {}", sig);
-            StringTokenizer strToken = new StringTokenizer(sig, ":");
-            String signature = strToken.nextToken();
-            String currentMilli = strToken.nextToken();
-            String signatureComputed = DigestUtils.sha256Hex(propertiesResolver.getSharedKey() + sessionId + currentMilli);
-            LOGGER.info("Sig calculé : {}", signatureComputed);
-            if (!StringUtils.equals(signature, signatureComputed)) {
-                LOGGER.info("SIGS DIFFERENT");
-                return HttpStatus.FORBIDDEN;
-            }
+        }
+        String safeSig = sig.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        LOGGER.info("Vérification du sig : {}", safeSig);
+        StringTokenizer strToken = new StringTokenizer(sig, ":");
+        String signature = strToken.nextToken();
+        String currentMilli = strToken.nextToken();
+        String signatureComputed = DigestUtils.sha256Hex(propertiesResolver.getSharedKey() + sessionId + currentMilli);
+        LOGGER.info("Sig calculé : {}", signatureComputed);
+        if (!StringUtils.equals(signature, signatureComputed)) {
+            LOGGER.info("SIGS DIFFERENT");
+            return HttpStatus.FORBIDDEN;
         }
         return HttpStatus.OK;
     }

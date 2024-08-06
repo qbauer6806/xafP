@@ -87,14 +87,14 @@
                                  th:attr="aria-labelledby='heading' + ${iter.index}"
                                  th:id="${'subcat'+iter.index}">
                                 <!-- On appelle le tableau sous forme de fragment, en lui passant en paramètre la sous-catégorie -->
-                                <div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable(cat=${subcat})"></div>
+                                <div th:replace="~{fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable(cat=${subcat})}"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div th:if="${cat.subCategories == null}">
-                    <div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable"></div>
+                    <div th:replace="~{fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable}"></div>
                 </div>
 
                 <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and ((${cat.files != null} and ${cat.files.size() > 0}) or (${cat.subCategories != null} and ${cat.subCategories.size() > 0}))">

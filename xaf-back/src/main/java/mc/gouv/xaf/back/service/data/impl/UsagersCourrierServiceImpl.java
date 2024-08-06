@@ -1,27 +1,15 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.databind.node.NullNode;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.node.NullNode;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
@@ -38,6 +26,13 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des usagers courrier.
@@ -288,14 +283,13 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      * {@inheritDoc}
      */
     @Override
-
     public DemandeDTO getDerniereDemandePourDuplication(String demarcheId, Integer usagerId, List<String> statuts,
             List<String> buildIds) {
         List<DemandeDTO> listDemandes = demandesService.getDemandes(demarcheId, usagerId, true);
         return listDemandes.stream()
-                .filter(dem -> statuts.contains(dem.getDernierStatut().getLibelle())
-                        && buildIds.contains(dem.getBuildId()))
-                .sorted(Collections.reverseOrder(Comparator.comparing(DemandeDTO::getDateCreation))).findFirst()
+                .filter(dem -> statuts.contains(dem.getDernierStatut().getName()) && buildIds.contains(
+                        dem.getConfig().get("buildId").asText()))
+                .max(Comparator.comparing(DemandeDTO::getDateCreation))
                 .orElse(null);
 
     }

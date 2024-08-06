@@ -1,17 +1,30 @@
 package mc.gouv.xaf.back.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import mc.gouv.xaf.back.service.DemandeExcelGenerationService;
+import mc.gouv.xaf.back.service.DemandeExcelRechercheProvider;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,26 +45,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import mc.gouv.xaf.back.service.DemandeExcelGenerationService;
-import mc.gouv.xaf.back.service.DemandeExcelRechercheProvider;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 /**
  * 
@@ -66,8 +60,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExcelGenerationServiceImpl.class);
 
-    private static final String CONTENU_DTO = "ContenuProjectDemandeDTO";
-    
     private static final String LABEL = "label";
     
     private static final String CONTENU = "contenu.";
@@ -82,7 +74,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     private PropertiesService propertiesService;
     
     @Autowired
-    private DemandesService demandesService;
+    private DemandesConfigService demandesConfigService;
     
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
@@ -100,22 +92,22 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     }
 
 	@Override
-	public void generateExcel(ExcelRechercheDTO excelRechercheDto, DemandeExcelRechercheProvider demandesByDateRangeProvider, OutputStream outputStream) throws IOException, ParseException {
+	public void generateExcel(ExcelRechercheDTO excelRechercheDto, DemandeExcelRechercheProvider demandesByDateRangeProvider, OutputStream outputStream)
+            throws IOException, ParseException {
 
         LOGGER.info("Début de la génération de l'export Excel des demandes...");
         
         XSSFWorkbook workbook = new XSSFWorkbook();
-        
-		List<String> buildIds = demandesService.getAllBuildIds();
+
+		List<DemandeConfigBO> demandeConfigs = demandesConfigService.getConfigsBO();
         List<DemandeDTO> demandes = demandesByDateRangeProvider.getDemandes(excelRechercheDto);
 
-		for (String buildId : buildIds) {
+		for (DemandeConfigBO demandeConfig : demandeConfigs) {
+			String buildId = demandeConfig.getBuildId();
 	        LOGGER.info("Chargement du fichier recap {}...", buildId);
-	        InputStream inputStream = new ClassPathResource("/recaps/recaps_" + buildId + ".json")
-	                .getInputStream();
-	        JSONParser jsonParser = new JSONParser();
-	        JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-	
+			JsonNode sectionsNode = demandeConfig.getContenu().get("recap").get("sections");
+			JSONParser jsonParser = new JSONParser();
+			JSONArray sections = (JSONArray) jsonParser.parse(sectionsNode.toString());
 	        String sheetName = buildId;
 	        DemandeExcelGenerationDTO demandeExcelGenerationDto = demarchesDataProvider.getDemandeExcelGenerationDTO();
 	        if (demandeExcelGenerationDto.getBuildIdNameMap() != null && demandeExcelGenerationDto.getBuildIdNameMap().get(buildId) != null) {
@@ -129,14 +121,14 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 			
 			// Écriture de la ligne de header
 			LOGGER.info("Ecriture de la ligne de header...");
-	        writeRow(workbook, jsonArray, headerRow, null, true);
-	        List<Row> rows = new ArrayList<Row>();
+	        writeRow(workbook, sections, headerRow, null, true);
+	        List<Row> rows = new ArrayList<>();
 	        int n = 1;
 	        for (DemandeDTO demande : demandes) {
-	        	if (buildId.equals(demande.getBuildId())) {
+	        	if (buildId.equals(demande.getConfig().get("buildId").asText())) {
 	        		LOGGER.info("Ecriture de la ligne de la demande {}...", demande.getPkDemandes());
 	        		Row demRow = sheet.createRow(n);
-	        		writeRow(workbook, jsonArray, demRow, demande, false);
+	        		writeRow(workbook, sections, demRow, demande, false);
 	        		rows.add(demRow);
 	        		n++;
 	        	}
@@ -159,7 +151,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 		workbook.close();
 	}
 	
-	private void writeRow(XSSFWorkbook workbook, JSONArray jsonArray, Row row, DemandeDTO demande, boolean header) {
+	private void writeRow(XSSFWorkbook workbook, JSONArray sections, Row row, DemandeDTO demande, boolean header) {
 		// 2 premières colonnes, qui ne concernent pas le contenu de la demande
 		if (header) {
     		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
@@ -183,51 +175,45 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 		}
 		
 		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
-        genererColonnes(workbook, jsonArray, row, demande, header);
+        genererColonnes(workbook, sections, row, demande, header);
 	}
 	
-	private void genererColonnes(XSSFWorkbook workbook, JSONArray jsonArray, Row row, DemandeDTO demande, boolean header) {
+	private void genererColonnes(XSSFWorkbook workbook, JSONArray sections, Row row, DemandeDTO demande, boolean header) {
 		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
-        for (int k = 0; k < jsonArray.size(); k++) {
-            if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
-                JSONObject projectDemandeRecap = (JSONObject) jsonArray.get(k);
-                JSONArray sections = (JSONArray) projectDemandeRecap.get("sections");
-                String pojo = StringUtils.remove((String) projectDemandeRecap.get("pojo"), CONTENU_DTO);
-                for (int i = 0; i < sections.size(); i++) {
-                    JSONObject section = (JSONObject) sections.get(i);
-                    String sectionType = (String) section.get("type");
-                    
-                    XSSFCellStyle cellStyle = workbook.createCellStyle();
-                    setCellStyle(cellStyle, header, i+1);
-                    
-                    if (!StringUtils.equals(sectionType, "sousSections")) {
-                    	generateBasicField((String)section.get("titre"), (JSONObject) section, pojo, row, cellStyle, demande == null ? null : demande.getContenu(), header);
-                    }
-                    else {
-                    	JSONArray sousSections = ((JSONArray)section.get("sousSections"));
-                    	for (Object sect : sousSections) {
-                    		generateBasicField((String)section.get("titre"), (JSONObject) sect, pojo, row, cellStyle, demande == null ? null : demande.getContenu(), header);
-                    	}
-                    }
-                }
-            }
-        }
+		for (int i = 0; i < sections.size(); i++) {
+			JSONObject section = (JSONObject) sections.get(i);
+			String sectionType = (String) section.get("type");
+
+			XSSFCellStyle cellStyle = workbook.createCellStyle();
+			setCellStyle(cellStyle, header, i+1);
+
+			if (!StringUtils.equals(sectionType, "sousSections")) {
+				generateBasicField((String)section.get("titre"),
+						section, row, cellStyle, demande == null ? null : demande.getContenu(), header);
+			}
+			else {
+				JSONArray sousSections = ((JSONArray)section.get("sousSections"));
+				for (Object sect : sousSections) {
+					generateBasicField((String)section.get("titre"), (JSONObject) sect,  row, cellStyle, demande == null ? null : demande.getContenu(), header);
+				}
+			}
+		}
 	}
 	
-	private void generateBasicField(String nomSection, JSONObject jsonObject, String pojo, Row row, CellStyle cellStyle, JsonNode node, boolean header) {
+	private void generateBasicField(String nomSection, JSONObject jsonObject, Row row, CellStyle cellStyle, JsonNode node, boolean header) {
 		String type = (String)jsonObject.get("type");
         if (StringUtils.equals(type, "champs")) {
             JSONArray champs = (JSONArray) jsonObject.get("champs");
-            for (int j = 0; j < champs.size(); j++) {
-                JSONObject champ = (JSONObject) champs.get(j);
-                
-        		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
-        		cell.setCellStyle(cellStyle);
-        		String cellValue = getFieldValue(champ, pojo, node, header);
-        		if (header) {
-        			cellValue = nomSection + " - " + cellValue;
-        		}
-        		cell.setCellValue(cellValue);
+            for (Object o : champs) {
+                JSONObject champ = (JSONObject) o;
+
+                Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
+                cell.setCellStyle(cellStyle);
+                String cellValue = getFieldValue(champ, node, header);
+                if (header) {
+                    cellValue = nomSection + " - " + cellValue;
+                }
+                cell.setCellValue(cellValue);
             }
         }
         else if ("tableau".equals(type)) {
@@ -236,25 +222,23 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
         		cell.setCellStyle(cellStyle);
         		if (header) {
-    	    		cell.setCellValue(nomSection + " - " + (String)((JSONObject)column).get(LABEL));
+    	    		cell.setCellValue(nomSection + " - " + ((JSONObject)column).get(LABEL));
         		}
         		else {
 	        		JsonNode node0 = getNode(node, jsonObject, "path");
-	        		String valeurColonne = "";
+                    StringBuilder valeurColonne = new StringBuilder();
 	        		if (node0 instanceof ArrayNode) {
-	        			Iterator<JsonNode> it = ((ArrayNode)node0).iterator();
-	        			while (it.hasNext()) {
-	        				JsonNode elem = it.next();
-	        				String val = getFieldValue((JSONObject)column, pojo, elem, header);
-	        				if (StringUtils.isNotBlank(val)) {
-		        				if (valeurColonne.length() > 0) {
-		        					valeurColonne += ", ";
-		        				}
-		        				valeurColonne += val;
-	        				}
-	        			}
+                        for (JsonNode elem : node0) {
+                            String val = getFieldValue((JSONObject) column, elem, header);
+                            if (StringUtils.isNotBlank(val)) {
+                                if (!valeurColonne.isEmpty()) {
+                                    valeurColonne.append(", ");
+                                }
+                                valeurColonne.append(val);
+                            }
+                        }
 	        		}
-	        		cell.setCellValue(valeurColonne);
+	        		cell.setCellValue(valeurColonne.toString());
         		}
         	}
         }
@@ -285,7 +269,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         return ret;
     }
     
-    private String getFieldValue(JSONObject jsonObject, String pojo, JsonNode node, boolean header) {
+    private String getFieldValue(JSONObject jsonObject, JsonNode node, boolean header) {
 		String type = (String)jsonObject.get("type");
         if ("chaine".equals(type) || "texte".equals(type)) {
     		if (header) {
@@ -333,7 +317,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     if (pathNode instanceof MissingNode) {
                     	return "N/A";
                     }
-                	String key = mapping.substring(11, mapping.length()) + "_FR";
+                	String key = mapping.substring(11) + "_FR";
 					return propertiesService.getPropertyPourRecap(key, pathNode, true);
                 } else {
                     String path = jsonObject.get("path").toString().replace(CONTENU, "/").replace(".", "/");
@@ -369,9 +353,11 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 		                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
 		                    Class<?> klass;
 							try {
-								klass = Class.forName(pojo + mapping + "Enum");
-			                    Object value = klass.getMethod("forValue", String.class).invoke(klass, enumField);
-			                    return value != null ? value.toString() : enumField;
+								// todo enum
+								return "";
+//								klass = Class.forName(pojo + mapping + "Enum");
+//			                    Object value = klass.getMethod("forValue", String.class).invoke(klass, enumField);
+//			                    return value != null ? value.toString() : enumField;
 							} catch (Exception e) {
 								LOGGER.error("Erreur lors de la récupération d'un champ d'Enum", e);
 								return "ERREUR";
@@ -407,32 +393,32 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         	}
         	else {
                 JsonNode n = getNode(node, jsonObject, "path");
-                if (n instanceof ObjectNode) {
-                    ObjectNode list = (ObjectNode) n;
+                if (n instanceof ObjectNode list) {
                     Iterator<Map.Entry<String, JsonNode>> it = list.fields();
-                    String ret = "";
+                    StringBuilder ret = new StringBuilder();
                     String mapping = jsonObject.get("mapping").toString();
                     while (it.hasNext()) {
                         Map.Entry<String, JsonNode> entry = it.next();
                         if (entry.getValue().asBoolean()) {
                             mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-                            Class<?> klass;
-							try {
-								klass = Class.forName(pojo + mapping + "Enum");
-	                            Object[] parameters = {entry.getKey().toUpperCase(), true};
-	                            Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
-	                            LOGGER.debug("n={}, path={}, klass={}, parameters={}, value={}", n, jsonObject.get("path"), klass, parameters, value);
-	                            if (!ret.equals("")) {
-	                                ret += ", ";
-	                            }
-	                            ret += value.toString();
+                            try {
+								// todo enum
+								//ret = " ";
+//								klass = Class.forName(pojo + mapping + "Enum");
+//	                            Object[] parameters = {entry.getKey().toUpperCase(), true};
+//	                            Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
+//	                            LOGGER.debug("n={}, path={}, klass={}, parameters={}, value={}", n, jsonObject.get("path"), klass, parameters, value);
+//	                            if (!ret.isEmpty()) {
+//	                                ret += ", ";
+//	                            }
+//	                            ret += value.toString();
 							} catch (Exception e) {
-								ret += "ERREUR";
+								ret.append("ERREUR");
 								LOGGER.error("Erreur lors de la récupération d'un champ d'Enum", e);
 							}
                         }
                     }
-                    return ret;
+                    return ret.toString();
                 }
                 else {
                 	return "";

@@ -1,6 +1,23 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
@@ -15,20 +32,6 @@ import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.util.*;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class FactureApiClientImpl implements FactureApiClient {
@@ -57,10 +60,11 @@ public class FactureApiClientImpl implements FactureApiClient {
         cp.connectionFactory(url -> (HttpURLConnection) url.openConnection());
 
         config.register(JacksonJsonProvider.class);
-        Client client = ClientBuilder.newClient();
-        this.targetCheck = client.target(serviceUrl + CHECK_ROUTE);
-        this.targetCreate = client.target(serviceUrl + PAIEMENT_ROUTE);
-        this.targetGet = client.target(serviceUrl + FACTURE_ROUTE);
+        try (Client client = ClientBuilder.newClient()) {
+            this.targetCheck = client.target(serviceUrl + CHECK_ROUTE);
+            this.targetCreate = client.target(serviceUrl + PAIEMENT_ROUTE);
+            this.targetGet = client.target(serviceUrl + FACTURE_ROUTE);
+        }
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;

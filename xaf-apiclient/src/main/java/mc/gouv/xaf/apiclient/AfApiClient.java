@@ -1,24 +1,32 @@
 package mc.gouv.xaf.apiclient;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.client.ApiClient;
 import mc.gouv.xaf.apiclient.exception.ExceptionManager;
 import mc.gouv.xaf.shared.RequestConstant;
-import mc.gouv.xaf.shared.dto.*;
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.Page;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Classe cliente permettant d'appeler les WS des démarches
@@ -38,8 +46,7 @@ public class AfApiClient extends ApiClient {
      *            Mot de passe à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String user, String password) {
-        super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password),
-                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+        super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password), true);
     }
 
     /**
@@ -51,8 +58,7 @@ public class AfApiClient extends ApiClient {
      *            JWT à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String jwtToken) {
-        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken),
-                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken), true);
     }
 
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -336,6 +342,23 @@ public class AfApiClient extends ApiClient {
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
         ExceptionManager.checkExceptionResponse(res);
         return res.readEntity(new GenericType<Page<BrouillonDTO>>() {
+        });
+    }
+
+    public JsonNode creerConfig(JsonNode config) {
+        Response res;
+        try {
+            res = getTarget().path(RequestConstant.CONFIGS_PATH).request(MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                    .post(Entity.entity(config, MediaType.APPLICATION_JSON));
+
+            ExceptionManager.checkExceptionResponse(res);
+        } catch (Exception e) {
+            return null;
+        }
+
+        return res.readEntity(new GenericType<>() {
+
         });
     }
 

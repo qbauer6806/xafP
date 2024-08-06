@@ -1,5 +1,10 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 
+import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidDate;
+import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidHourMinute;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -10,8 +15,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
+import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
+import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
+import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.RestitutionStatistiquesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -33,34 +59,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
-import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
-import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
-import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
-import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.data.RestitutionStatistiquesService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
-
-import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidDate;
-import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidHourMinute;
 
 @Component
 public class ResidApiServiceImpl implements ResidApiService {
@@ -455,8 +453,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 			return responseEntity.getBody();
 		} catch (Exception e) {
 			LOGGER.error("====== ERREUR lors du GET Usager RESID", e);
-			if (e.getCause() instanceof ResidHttpResponseException) {
-				ResidHttpResponseException residException = (ResidHttpResponseException) e.getCause();
+			if (e.getCause() instanceof ResidHttpResponseException residException) {
 				restitutionStatsService.saveRestitutionStatistique(
 						createStatsAStocker(residException.getHttpStatus(), usagerId, residException.getMessage()));
 			}

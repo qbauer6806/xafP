@@ -1,14 +1,16 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMSauvegarderHistoriqueDelegate.class);
 
+    @Setter
+    @Getter
     private Expression targetState;
 
     @Autowired
@@ -41,7 +45,7 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         LOGGER.info("==== xaf-back SAUVEGARDE HISTORIQUE ...");
 
         String statut = getTargetState(execution);
-        Integer pkDemande = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer pkDemande = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         LOGGER.info("targetState = {}, pkDemande = {} ...", statut, pkDemande);
 
@@ -55,14 +59,6 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         }
 
         LOGGER.info("==== xaf-back SAUVEGARDE HISTORIQUE <FIN>");
-    }
-
-    public Expression getTargetState() {
-        return targetState;
-    }
-
-    public void setTargetState(Expression targetState) {
-        this.targetState = targetState;
     }
 
     /**

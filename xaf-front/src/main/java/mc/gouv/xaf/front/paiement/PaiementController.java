@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -63,7 +63,8 @@ public class PaiementController extends AbstractXafController {
             }
 
             String codeRetour = request.getParameter("code-retour");
-            LOGGER.info("codeRetour : {}", codeRetour);
+            String safeCodeRetour = codeRetour.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+            LOGGER.info("codeRetour : {}", safeCodeRetour);
 
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode paiementNode = mapper.createObjectNode();
@@ -72,7 +73,7 @@ public class PaiementController extends AbstractXafController {
                 String value = entry.getValue()[0];
                 paiementNode.put(key, value);
                 String safeKey = key.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-                String safeValue = value.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+                String safeValue = value != null ? value.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
                 LOGGER.info("{}={}", safeKey, safeValue);
             }
             MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);

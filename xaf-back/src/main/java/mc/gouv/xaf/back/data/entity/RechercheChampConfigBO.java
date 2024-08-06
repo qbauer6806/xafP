@@ -1,19 +1,18 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
-import org.springframework.context.annotation.Conditional;
-
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-
-@Conditional(IndexationEnabledCondition.class)
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_RECHERCHE_CHAMP_CONFIG")
 public class RechercheChampConfigBO {
@@ -38,53 +37,5 @@ public class RechercheChampConfigBO {
     @ManyToOne
     @JoinColumn(name = "fk_categorie")
     private RechercheCatConfigBO categorie;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public String getCle() {
-        return cle;
-    }
-
-    public void setCle(String cle) {
-        this.cle = cle;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public RechercheCatConfigBO getCategorie() {
-        return categorie;
-    }
-
-    public void setCategorie(RechercheCatConfigBO categorie) {
-        this.categorie = categorie;
-    }
-
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public void setEditable(boolean editable) {
-        this.editable = editable;
-    }
 
 }

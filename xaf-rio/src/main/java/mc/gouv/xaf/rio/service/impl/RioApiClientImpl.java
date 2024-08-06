@@ -22,7 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
@@ -201,11 +201,6 @@ public class RioApiClientImpl implements RioApiClient {
     }
 
     private RestTemplate getRestTemplate() {
-        // Propriétés de tests pour bloquer les appels d'API
-//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
-//        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-//            throw new RuntimeException();
-//        }
 
         RestTemplate rest = restTemplateBuilder.build();
         rest.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));

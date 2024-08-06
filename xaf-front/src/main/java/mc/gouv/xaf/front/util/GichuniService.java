@@ -6,21 +6,20 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Classe permettant d'appeler GICHUNI afin de récupérer les informations de profil de
@@ -64,9 +63,9 @@ public class GichuniService {
 
         LOGGER.info("Appel à GICHUNI");
         try {
-            HttpResponse getResponse = client.execute(getRequest);
+            ClassicHttpResponse getResponse = (ClassicHttpResponse)client.execute(getRequest);
             String resp = IOUtils.toString(getResponse.getEntity().getContent());
-            LOGGER.info("Status : {}, resp = {}", getResponse.getStatusLine().getStatusCode(), resp);
+            LOGGER.info("Status : {}, resp = {}", getResponse.getCode(), resp);
             ArrayNode anode = new ObjectMapper().readValue(resp, ArrayNode.class);
             return setupUsagerInfos(anode, uinfos);
         } catch (IOException e) {

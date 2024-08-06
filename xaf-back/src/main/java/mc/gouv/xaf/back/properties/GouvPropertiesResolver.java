@@ -25,24 +25,6 @@ public interface GouvPropertiesResolver {
 
     long getUsagersCacheDuration();
 
-    String getSearchHighlightPreTags();
-
-    String getSearchHighlightPostTags();
-
-    String getEsUser();
-
-    String getEsPassword();
-
-    String getEsClusterHosts();
-
-    Integer getEsPort();
-
-    Integer getEsReindexBulkSize();
-
-    Integer getEsConnectTimeout();
-
-    Integer getEsSocketTimeout();
-
     String getGouvSharedLogonUrl();
 
     String getGouvSharedLogonRestUrl();

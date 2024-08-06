@@ -2,6 +2,8 @@ package mc.gouv.xaf.front.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 import java.io.Serializable;
@@ -31,26 +33,28 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
 
     protected boolean isUsagerCourrier = false;
     
+    @Setter
+    @Getter
     protected Integer accessId;
     
+    @Setter
+    @Getter
     protected KeycloakTokenInfo tokenInfo;
     
+    @Setter
+    @Getter
     protected boolean mConnect = false;
 
     public String getTitreLabel() {
         if (getTitre() == null) {
             return null;
         }
-        switch (getTitre()) {
-            case GENDER_MR_INDEX:
-                return "Monsieur";
-            case GENDER_MME_INDEX:
-                return "Madame";
-            case GENDER_MLLE_INDEX:
-                return "Mademoiselle";
-            default:
-                return null;
-        }
+        return switch (getTitre()) {
+            case GENDER_MR_INDEX -> "Monsieur";
+            case GENDER_MME_INDEX -> "Madame";
+            case GENDER_MLLE_INDEX -> "Mademoiselle";
+            default -> null;
+        };
     }
 
     @Override
@@ -67,29 +71,5 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
     public void setUsagerCourrier(boolean isUsagerCourrier) {
         this.isUsagerCourrier = isUsagerCourrier;
     }
-
-	public Integer getAccessId() {
-		return accessId;
-	}
-
-	public void setAccessId(Integer accessId) {
-		this.accessId = accessId;
-	}
-
-	public KeycloakTokenInfo getTokenInfo() {
-		return tokenInfo;
-	}
-
-	public void setTokenInfo(KeycloakTokenInfo tokenInfo) {
-		this.tokenInfo = tokenInfo;
-	}
-
-	public boolean ismConnect() {
-		return mConnect;
-	}
-
-	public void setmConnect(boolean mConnect) {
-		this.mConnect = mConnect;
-	}
 
 }

@@ -1,8 +1,10 @@
 package mc.gouv.xaf.backweb.formbean;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Formulaire pour les usagers courrier
@@ -10,17 +12,19 @@ import javax.validation.constraints.Size;
  * @author qdeme
  * 
  */
+@Setter
+@Getter
 public class UsagerCourrierFormBean {
 
     private Integer titre;
 
-    @Size(min = 0, max = 50, message = "Maximum 50 lettres autorisées")
+    @Size(max = 50, message = "Maximum 50 lettres autorisées")
     private String nom;
 
-    @Size(min = 0, max = 20, message = "Maximum 20 lettres autorisées")
+    @Size(max = 20, message = "Maximum 20 lettres autorisées")
     private String prenom;
 
-    @Size(min = 0, max = 100, message = "La raison sociale doit avoir une taille comprise entre 0 et 100")
+    @Size(max = 100, message = "La raison sociale doit avoir une taille comprise entre 0 et 100")
     private String raisonSociale;
 
     @NotEmpty
@@ -28,10 +32,10 @@ public class UsagerCourrierFormBean {
     @Size(min = 1, max = 128, message = "L’adresse doit avoir une taille comprise entre 1 et 128")
     private String adresse1;
 
-    @Size(min = 0, max = 128, message = "Le complément d’adresse doit avoir une taille comprise entre 0 et 128")
+    @Size(max = 128, message = "Le complément d’adresse doit avoir une taille comprise entre 0 et 128")
     private String adresse2;
 
-    @Size(min = 0, max = 128, message = "Le complément d’adresse doit avoir une taille comprise entre 0 et 128")
+    @Size(max = 128, message = "Le complément d’adresse doit avoir une taille comprise entre 0 et 128")
     private String adresseComplement;
 
     @NotEmpty
@@ -44,109 +48,13 @@ public class UsagerCourrierFormBean {
     @Size(min = 1, max = 50, message = "La ville doit avoir une taille comprise entre 1 et 50")
     private String ville;
 
-    @Size(min = 0, max = 64, message = "Le numéro de téléphone doit avoir une taille comprise entre 0 et 64")
+    @Size(max = 64, message = "Le numéro de téléphone doit avoir une taille comprise entre 0 et 64")
     private String telephone;
 
-    @Size(min = 0, max = 256, message = "L’adresse email doit avoir une taille comprise entre 0 et 256")
+    @Size(max = 256, message = "L’adresse email doit avoir une taille comprise entre 0 et 256")
     private String email;
 
     @NotEmpty(message = "Le pays doit être précisé")
     private String paysChoisi;
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getPrenom() {
-        return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
-
-    public String getRaisonSociale() {
-        return raisonSociale;
-    }
-
-    public void setRaisonSociale(String raisonSociale) {
-        this.raisonSociale = raisonSociale;
-    }
-
-    public String getAdresse1() {
-        return adresse1;
-    }
-
-    public void setAdresse1(String adresse1) {
-        this.adresse1 = adresse1;
-    }
-
-    public String getAdresse2() {
-        return adresse2;
-    }
-
-    public void setAdresse2(String adresse2) {
-        this.adresse2 = adresse2;
-    }
-
-    public String getAdresseComplement() {
-        return adresseComplement;
-    }
-
-    public void setAdresseComplement(String adresseComplement) {
-        this.adresseComplement = adresseComplement;
-    }
-
-    public String getCodePostal() {
-        return codePostal;
-    }
-
-    public void setCodePostal(String codePostal) {
-        this.codePostal = codePostal;
-    }
-
-    public String getVille() {
-        return ville;
-    }
-
-    public void setVille(String ville) {
-        this.ville = ville;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Integer getTitre() {
-        return titre;
-    }
-
-    public void setTitre(Integer titre) {
-        this.titre = titre;
-    }
-
-    public String getPaysChoisi() {
-        return paysChoisi;
-    }
-
-    public void setPaysChoisi(String paysChoisi) {
-        this.paysChoisi = paysChoisi;
-    }
 
 }

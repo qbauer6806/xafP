@@ -40,6 +40,7 @@ public class DemandesFilesTransformer {
         bo.setDate(dto.getDate());
         bo.setTypedoc(dto.getTypedoc());
         bo.setVerification(dto.isVerification());
+        bo.setContenu(dto.getContenu());
         return bo;
     }
 

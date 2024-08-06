@@ -3,10 +3,14 @@ package mc.gouv.xaf.shared.dto;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Modélise une stats de restitution des données 
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RestitutionStatistiquesDTO {
 
@@ -23,61 +27,5 @@ public class RestitutionStatistiquesDTO {
     private String source;
     
     private String demarcheId;
-
-    public Integer getPkStatistique() {
-		return pkStatistique;
-	}
-
-	public void setPkStatistique(Integer pkStatistique) {
-		this.pkStatistique = pkStatistique;
-	}
-
-	public Integer getUsagerId() {
-		return usagerId;
-	}
-
-	public void setUsagerId(Integer usagerId) {
-		this.usagerId = usagerId;
-	}
-
-	public Integer getHttpCode() {
-		return httpCode;
-	}
-
-	public void setHttpCode(Integer httpCode) {
-		this.httpCode = httpCode;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
-	public String getDemarcheId() {
-		return demarcheId;
-	}
-
-	public void setDemarcheId(String demarcheId) {
-		this.demarcheId = demarcheId;
-	}
 
 }

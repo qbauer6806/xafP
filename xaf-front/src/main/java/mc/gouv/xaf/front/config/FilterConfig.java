@@ -2,8 +2,8 @@ package mc.gouv.xaf.front.config;
 
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 
 /**
  * 

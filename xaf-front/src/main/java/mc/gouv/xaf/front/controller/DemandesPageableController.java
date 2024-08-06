@@ -1,5 +1,6 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -18,9 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-
 @Controller
 @RequestMapping("/demandespage")
 public class DemandesPageableController extends AbstractXafController {
@@ -38,7 +36,7 @@ public class DemandesPageableController extends AbstractXafController {
                                                   @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
                                                   @RequestParam(name = RequestConstant.STATUS_PARAM) String status,
                                                   @RequestParam(name = RequestConstant.LANG_PARAM) String lang,
-                                                  HttpServletRequest request) throws IOException {
+                                                  HttpServletRequest request) {
 
         LOGGER.info("====================== /demandespage doGet()");
 

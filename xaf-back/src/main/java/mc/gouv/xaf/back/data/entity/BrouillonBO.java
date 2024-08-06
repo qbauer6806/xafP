@@ -3,20 +3,22 @@ package mc.gouv.xaf.back.data.entity;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -25,6 +27,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_BROUILLONS")
 public class BrouillonBO {
@@ -51,98 +55,18 @@ public class BrouillonBO {
     @OneToMany(mappedBy = "fkBrouillons", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BrouillonsFilesBO> files;
 
-    @Column(name = "BUILD_ID", length = 32, nullable = true)
-    @Size(min = 0, max = 32)
+    @Column(name = "BUILD_ID", length = 32)
+    @Size(max = 32)
     private String buildId;
 
-    @Column(name = "RECAP_TYPE", length = 256, nullable = true)
-    @Size(min = 0, max = 256)
+    @Column(name = "RECAP_TYPE", length = 256)
+    @Size(max = 256)
     private String recapType;
 
-    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "META", columnDefinition = "TEXT")
     private String meta;
 
-    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT")
     private String contenuInitial;
-
-    public Integer getPkBrouillons() {
-        return pkBrouillons;
-    }
-
-    public void setPkBrouillons(Integer pkBrouillons) {
-        this.pkBrouillons = pkBrouillons;
-    }
-
-    public AccessBO getFkAccess() {
-        return fkAccess;
-    }
-
-    public void setFkAccess(AccessBO fkAccess) {
-        this.fkAccess = fkAccess;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateDerModif() {
-        return dateDerModif;
-    }
-
-    public void setDateDerModif(Date dateDerModif) {
-        this.dateDerModif = dateDerModif;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
-
-    public Set<BrouillonsFilesBO> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<BrouillonsFilesBO> files) {
-        this.files = files;
-    }
-
-    public String getBuildId() {
-        return buildId;
-    }
-
-    public void setBuildId(String buildId) {
-        this.buildId = buildId;
-    }
-
-    public String getRecapType() {
-        return recapType;
-    }
-
-    public void setRecapType(String recapType) {
-        this.recapType = recapType;
-    }
-
-    public String getMeta() {
-        return meta;
-    }
-
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
-
-    public String getContenuInitial() {
-        return contenuInitial;
-    }
-
-    public void setContenuInitial(String contenuInitial) {
-        this.contenuInitial = contenuInitial;
-    }
 
 }

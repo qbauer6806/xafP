@@ -1,6 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.utils.AgentComparator;

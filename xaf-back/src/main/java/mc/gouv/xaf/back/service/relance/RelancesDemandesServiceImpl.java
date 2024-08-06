@@ -5,8 +5,8 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
-import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +48,13 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		final String subjectTemplateCode = codeMailPrefix + "_OBJET";
 		final String bodyTemplateCode = codeMailPrefix + "_CORPS";
 
-		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode,
-				demande.getLangue());
-		String usagerNom = demande.getUsagerNom();
-		String usagerPrenom = demande.getUsagerPrenom();
-		emailInfoDTO.addTo(demande.getUsagerEmail(), usagerPrenom + " " + usagerNom);
-		Map<String,Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
+		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode, demande.getLangue());
+        DemandeUsagerDTO usager = demande.getUsager();
+        if (usager != null) {
+            emailInfoDTO.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
+        }
+
+        Map<String,Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
 		model.put("expireDans", relanceUtils.getExpirationTime(demande));
 
 		try {

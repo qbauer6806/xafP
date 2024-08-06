@@ -12,9 +12,8 @@
 	<meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 	<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 
-	<!-- Import FONTS -->
-	<link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
-	<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
+    <!-- Import FONTS -->
+    <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
 
 	<!-- Import CSS -->
 	<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -22,10 +21,10 @@
 	<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
 	<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
 	<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
-	<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 		  rel="stylesheet"/>
 	<link
-			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
 			rel="stylesheet"/>
 
 	<link rel="shortcut icon" type="image/x-icon"
@@ -35,18 +34,18 @@
 	<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
 		  rel="stylesheet"/>
 	<link
-			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
 			rel="stylesheet"/>
 
 </head>
 
 <body th:with="pageConfigurationActive='active'">
 
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div id="wrapper">
 
-	<div th:replace="fragments/sidebar :: sidebar"></div>
+	<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 	<!-- DEBUT CONTENU -->
 	<div id="page-content-wrapper">
@@ -334,6 +333,26 @@
 					</div>
 				</div>
 
+        <div class="row container-fluid">
+          <div th:class="form-group">
+            <div class="col-xs-2">
+              <label>Version <span th:text="${displayName}"/></label>
+            </div>
+            <div class="col-xs-8">
+              <span th:text="${tsVersion}"/>
+            </div>
+          </div>
+        </div>
+        <div class="row container-fluid">
+          <div th:class="form-group">
+            <div class="col-xs-2">
+              <label>Version XAF</label>
+            </div>
+            <div class="col-xs-8">
+              <span th:text="${xafVersion}"/>
+            </div>
+          </div>
+        </div>
 				<div class="row container-fluid">
 					<div class="col-xs-12">
 						<div class="text-center">
@@ -350,7 +369,7 @@
 	</div>
 </div>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 
 <script type="text/javascript" th:inline="javascript">

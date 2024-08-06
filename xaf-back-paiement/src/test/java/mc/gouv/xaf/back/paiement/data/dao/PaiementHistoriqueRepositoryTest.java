@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.paiement.data.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
@@ -30,8 +32,13 @@ public class PaiementHistoriqueRepositoryTest {
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
     private DemandeBO createDemande() {
+        ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("contenu");
+        try {
+            demandeBO.setContenu(mapper.readTree("contenu"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());

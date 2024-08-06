@@ -2,12 +2,17 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class ResidEtatsDemandesUpdatedAfterDTO implements Serializable {
 
 	private static final long serialVersionUID = -4873508865715945892L;
@@ -18,36 +23,4 @@ public class ResidEtatsDemandesUpdatedAfterDTO implements Serializable {
 
 	private Boolean moreUpdates;
 
-	public List<ResidStatutDemandeDTO> getEtatsDemandes() {
-		return etatsDemandes;
-	}
-	
-	public void setEtatsDemandes(List<ResidStatutDemandeDTO> etatsDemandes) {
-		this.etatsDemandes = etatsDemandes;
-	}
-	
-	public String getLastUpdateHorodatage() {
-		return lastUpdateHorodatage;
-	}
-	
-	public void setLastUpdateHorodatage(String lastUpdateHorodatage) {
-		this.lastUpdateHorodatage = lastUpdateHorodatage;
-	}
-	
-	public Boolean getMoreUpdates() {
-		return moreUpdates;
-	}
-	
-	public void setMoreUpdates(Boolean moreUpdates) {
-		this.moreUpdates = moreUpdates;
-	}
-
-	@Override
-	public String toString() {
-		return "ResidEtatsDemandesUpdatedAfterDTO{" +
-				"etatsDemandes=" + etatsDemandes +
-				", lastUpdateHorodatage='" + lastUpdateHorodatage + '\'' +
-				", moreUpdates=" + moreUpdates +
-				'}';
-	}
 }

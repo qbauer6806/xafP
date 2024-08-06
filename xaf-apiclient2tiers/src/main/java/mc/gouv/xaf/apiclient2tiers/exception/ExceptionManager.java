@@ -4,7 +4,7 @@ import mc.gouv.xapi.error.exception.WebException;
 import mc.gouv.xapi.error.exception.client.*;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 
 /**
@@ -14,7 +14,7 @@ import java.net.HttpURLConnection;
  */
 public class ExceptionManager {
 
-    public ExceptionManager() {
+    private ExceptionManager() {
         super();
     }
 

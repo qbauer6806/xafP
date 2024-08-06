@@ -1,6 +1,20 @@
 package mc.gouv.xaf.api.config.filter.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import mc.gouv.xaf.back.config.utils.XafSpringException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -13,12 +27,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Authentification via la vérification du token JWT
  * Le principal sera lié à la valeur du payload "sub"
@@ -30,12 +38,6 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationProvider.class);
     //Header définissant l'algo de signature utilisé
     private static final String JWT_HEADER_ALG = "alg";
-
-    /**
-     * https://tools.ietf.org/html/rfc7519#section-4.1.2
-     */
-
-    private static final String JWT_PAYLOAD_AUD = "aud";
 
     /**
      * Roles de l'utilisateur
@@ -90,8 +92,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 LOGGER.error("roles manquant dans le token JWT");
                 throw new BadCredentialsException("Element roles manquant dans le JWT");
             }
-
-            String aud = (String) jws.getBody().get(JWT_PAYLOAD_AUD);
+            String aud = null;
+            Set<String> audiences = jws.getPayload().getAudience();
+            Optional<String> optional = audiences.stream().findFirst();
+            if (optional.isPresent()) {
+                 aud = optional.get();
+            }
             if (StringUtils.isBlank(aud)) {
                 LOGGER.error("aud manquant dans le token JWT");
                 throw new BadCredentialsException("Element aud manquant dans le JWT");
@@ -140,7 +146,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         if (secretValue == null) {
             throw new XafSpringException("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
         }
-        return Jwts.parser().setSigningKey(secretValue.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token);
+        return Jwts.parser().setSigningKey(secretValue.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token);
     }
 
     @Override

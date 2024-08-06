@@ -4,7 +4,11 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidDemandeRenouvellementCarteCompleteDTO extends ResidDemandeCompleteDTO implements Serializable {
@@ -17,27 +21,4 @@ public class ResidDemandeRenouvellementCarteCompleteDTO extends ResidDemandeComp
 
     private ResidUsagerExistantDTO usager;
 
-    public ResidDemandeRenouvellementCarteDTO getDemande() {
-        return demande;
-    }
-
-    public void setDemande(ResidDemandeRenouvellementCarteDTO demande) {
-        this.demande = demande;
-    }
-
-    public ResidUtilisateurDTO getUtilisateur() {
-        return utilisateur;
-    }
-
-    public void setUtilisateur(ResidUtilisateurDTO utilisateur) {
-        this.utilisateur = utilisateur;
-    }
-
-    public ResidUsagerExistantDTO getUsager() {
-        return usager;
-    }
-
-    public void setUsager(ResidUsagerExistantDTO usager) {
-        this.usager = usager;
-    }
 }

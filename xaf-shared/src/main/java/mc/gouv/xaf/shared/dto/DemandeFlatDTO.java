@@ -1,6 +1,8 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Modélise une demande simplifiée, à plat, à destination notamment de l'export Excel
@@ -8,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeFlatDTO {
     
@@ -42,142 +46,5 @@ public class DemandeFlatDTO {
     private String courrierRefInterne;
 
     private String motif;
-    
-    private String buildId;
 
-    public Integer getPkDemandes() {
-        return pkDemandes;
-    }
-
-    public void setPkDemandes(Integer pkDemandes) {
-        this.pkDemandes = pkDemandes;
-    }
-
-    public Integer getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(Integer usagerId) {
-        this.usagerId = usagerId;
-    }
-    
-    public String getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(String dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-    
-    public String getLangue() {
-        return langue;
-    }
-    
-    public void setLangue(String langue) {
-        this.langue = langue;
-    }
-
-    public String getCanal() {
-        return canal;
-    }
-
-    public void setCanal(String canal) {
-        this.canal = canal;
-    }
-    
-    public String getObservations() {
-        return observations;
-    }
-
-    public void setObservations(String observations) {
-        this.observations = observations;
-    }
-    
-    public String getAgentAffecteId() {
-        return agentAffecteId;
-    }
-
-    public void setAgentAffecteId(String agentAffecteId) {
-        this.agentAffecteId = agentAffecteId;
-    }
-    
-    public String getDernierStatut() {
-        return dernierStatut;
-    }
-
-    public void setDernierStatut(String dernierStatut) {
-        this.dernierStatut = dernierStatut;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-    
-    public String getCourrierDateReception() {
-        return courrierDateReception;
-    }
-
-    public void setCourrierDateReception(String courrierDateReception) {
-        this.courrierDateReception = courrierDateReception;
-    }
-
-    public String getCourrierRefInterne() {
-        return courrierRefInterne;
-    }
-    
-    public void setCourrierRefInterne(String courrierRefInterne) {
-        this.courrierRefInterne = courrierRefInterne;
-    }
-
-    public String getUsagerPrenom() {
-        return usagerPrenom;
-    }
-
-    public void setUsagerPrenom(String usagerPrenom) {
-        this.usagerPrenom = usagerPrenom;
-    }
-    
-    public String getUsagerNom() {
-        return usagerNom;
-    }
-    
-    public void setUsagerNom(String usagerNom) {
-        this.usagerNom = usagerNom;
-    }
-    
-    public String getUsagerEmail() {
-        return usagerEmail;
-    }
-    
-    public void setUsagerEmail(String usagerEmail) {
-        this.usagerEmail = usagerEmail;
-    }
-
-    public String getAgentAffecteNom() {
-        return agentAffecteNom;
-    }
-
-    public void setAgentAffecteNom(String agentAffecteNom) {
-        this.agentAffecteNom = agentAffecteNom;
-    }
-
-    public String getMotif() {
-        return motif;
-    }
-
-    public void setMotif(String motif) {
-        this.motif = motif;
-    }
-
-	public String getBuildId() {
-		return buildId;
-	}
-
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
 }

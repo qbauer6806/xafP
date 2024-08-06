@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.xls;
 
 import mc.gouv.xaf.back.DemandeContenuMockDTO;
+import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 
 public class ExcelMockObjects {
 
@@ -30,13 +32,15 @@ public class ExcelMockObjects {
 	public static DemandeDTO getDemandDtoMock() {
 		
 		DemandeDTO dto = new DemandeDTO();
-		
-		dto.setAgentAffecteId(ExcelMockData.AGENT_AFFECT_ID);
+
+		dto.setAgent(new DemandeAgentDTO(ExcelMockData.AGENT_AFFECT_ID));
 		dto.setDemarcheId("CANDI");
 		dto.setLangue(ExcelMockData.LANGUE);
-		dto.setUsagerEmail(ExcelMockData.USAGER_EMAIL);
-		dto.setUsagerNom(ExcelMockData.USAGER_NOM);
-		dto.setUsagerPrenom(ExcelMockData.USAGER_PRENOM);
+		DemandeUsagerDTO usager = new DemandeUsagerDTO();
+		usager.setEmail(ExcelMockData.USAGER_EMAIL);
+		usager.setNom(ExcelMockData.USAGER_NOM);
+		usager.setPrenom(ExcelMockData.USAGER_PRENOM);
+		dto.setUsager(usager);
 		dto.setDateDerModif(ExcelMockData.COURRIER_DATE_DERNIER_MODIFICATION);
 		
 		return dto;

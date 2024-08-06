@@ -6,8 +6,12 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidDemandeurTypeEnum;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidDemandeBaseDTO implements Serializable {
@@ -22,35 +26,4 @@ public class ResidDemandeBaseDTO implements Serializable {
 
     private List<ResidPieceJustificativeDTO> piecesJustificatives;
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public ResidDemandeurTypeEnum getDemandeur() {
-        return demandeur;
-    }
-
-    public void setDemandeur(ResidDemandeurTypeEnum demandeur) {
-        this.demandeur = demandeur;
-    }
-
-    public String getDemandeurNom() {
-        return demandeurNom;
-    }
-
-    public void setDemandeurNom(String demandeurNom) {
-        this.demandeurNom = demandeurNom;
-    }
-
-    public List<ResidPieceJustificativeDTO> getPiecesJustificatives() {
-        return piecesJustificatives;
-    }
-
-    public void setPiecesJustificatives(List<ResidPieceJustificativeDTO> piecesJustificatives) {
-        this.piecesJustificatives = piecesJustificatives;
-    }
 }

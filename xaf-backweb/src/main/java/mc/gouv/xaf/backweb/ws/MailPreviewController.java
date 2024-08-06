@@ -3,8 +3,10 @@ package mc.gouv.xaf.backweb.ws;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +83,11 @@ public class MailPreviewController extends AbstractController {
 		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
 		Integer pkDemande = mailPreviewFormBean.getPkDemande();
 		String commentaire = mailPreviewFormBean.getCommentaire();
-		LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", action, codeMotifChoisi,
-				pkDemande, commentaire);
+		String safeAction = AfBackUtils.logSafe(action);
+		String safeCodeMotifChoisi = AfBackUtils.logSafe(codeMotifChoisi);
+		String safeCommentaire = AfBackUtils.logSafe(commentaire);
+		LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", safeAction, safeCodeMotifChoisi,
+				pkDemande, safeCommentaire);
 		ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
 		LOGGER.info("======================= Fin /ws/mailpreview");
 		return mav;

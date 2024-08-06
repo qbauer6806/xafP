@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import lombok.Getter;
+import lombok.Setter;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,8 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDeleteDemandeDataDelegate.class);
 
+    @Setter
+    @Getter
     private Expression dataKey;
 
     @Autowired
@@ -27,11 +31,11 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
     private DemandesDataService demandesDataService;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back DELETE DATA ...");
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         String dataKeyStr = (String) dataKey.getValue(execution);
         LOGGER.info("Demande : {}", demandeId);
@@ -43,14 +47,6 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
 
         demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr);
 
-    }
-
-    public Expression getDataKey() {
-        return dataKey;
-    }
-
-    public void setDataKey(Expression dataKey) {
-        this.dataKey = dataKey;
     }
 
 }

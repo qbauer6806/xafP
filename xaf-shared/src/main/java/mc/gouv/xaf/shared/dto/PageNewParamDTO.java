@@ -1,5 +1,10 @@
 package mc.gouv.xaf.shared.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class PageNewParamDTO {
 
     /**
@@ -22,36 +27,4 @@ public class PageNewParamDTO {
         this.sortDirection = sortDirection;
     }
 
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getItemsPerPage() {
-        return itemsPerPage;
-    }
-
-    public void setItemsPerPage(int itemsPerPage) {
-        this.itemsPerPage = itemsPerPage;
-    }
-
-
-    public String getSortDirection() {
-        return sortDirection;
-    }
-
-    public void setSortDirection(String sortDirection) {
-        this.sortDirection = sortDirection;
-    }
-
-    public String getSortBy() {
-        return sortBy;
-    }
-
-    public void setSortBy(String sortBy) {
-        this.sortBy = sortBy;
-    }
 }

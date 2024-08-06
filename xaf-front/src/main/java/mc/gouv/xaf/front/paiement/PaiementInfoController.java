@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Servlet permettant au Front de récupérer les données afin de générer le formulaire de paiement
@@ -61,7 +61,7 @@ public class PaiementInfoController extends AbstractXafController {
 
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-        String safeIds = demandeIds.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safeIds = demandeIds != null ? demandeIds.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
         LOGGER.info("Récupération des données de paiement pour la demande {}...", safeIds);
         MoneticoDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
 

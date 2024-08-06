@@ -1,5 +1,20 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
+import java.util.stream.Stream;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -38,10 +53,12 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,23 +67,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
-import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 
 @Service
 public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
@@ -131,14 +131,19 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     @Autowired
     private DemandesStatutsService demandesStatutsService;
 
+    @Autowired
+    private DemandesTransformer demandesTransformer;
+
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
+        String safeDemandeId = AfBackUtils.logSafe(demandesId);
+        String safeLangue = AfBackUtils.logSafe(langue);
+        LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", safeDemandeId, safeLangue, usagerId);
 
         String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
-        List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
+        List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).toList();
         StringJoiner listeIdentifiantsDemandes = new StringJoiner(",");
         BigDecimal totalCommande = BigDecimal.ZERO;
         Map<Integer, BigDecimal> totauxDemandes = new HashMap<>();
@@ -160,7 +165,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
             }
 
-            var articlesDemande = montantService.getArticles(DemandesTransformer.bo2Dto(demandeBO, new String[]{}));
+            var articlesDemande = montantService.getArticles(demandesTransformer.bo2Dto(demandeBO, new String[]{}));
             BigDecimal montantdemande = BigDecimal.ZERO;
             for (CommandeDemandeArticleBO article : articlesDemande) {
                 BigDecimal montantArticle = BigDecimal.valueOf(article.getMontant());
@@ -242,7 +247,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());
         paiementDTO.setLibelleMonetique(paiementPropertiesResolver.getXafMoneticoLibelleSociete());
-        paiementDTO.setlibelleMonetiqueLocalite(paiementPropertiesResolver.getXafMoneticoLibelleLieu());
+        paiementDTO.setLibelleMonetiqueLocalite(paiementPropertiesResolver.getXafMoneticoLibelleLieu());
 
         // Création d'une clé MAC
         String mac = paiementSecurityService.getHmacStringInterfaceAller(paiementDTO);
@@ -250,8 +255,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         moyenPaiement.setMac(mac);
         moyenPaiement = moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
-
-        LOGGER.info("Return [ paiementDTO {}] ", paiementDTO);
         return paiementDTO;
     }
 
@@ -290,12 +293,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moneticoResponseDTO {}] ", moneticoResponseDTO);
 
-        // Propriétés de tests pour bloquer les appels d'API
-//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RETOUR_MONETICO");
-//        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-//            return CODE_RETOUR_KO;
-//        }
-
         LOGGER.info("Vérification de la clé HMAC...");
         String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
         if (!StringUtils.equals(moneticoResponseDTO.getMac(), mac)) {
@@ -303,7 +300,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
 
         String reference = moneticoResponseDTO.getReference();
-        String safeReference = reference.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safeReference = AfBackUtils.logSafe(reference);
         LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", safeReference);
         MoyenPaiementBO moyenPaiementBO = moyenPaiementRepository.findById(reference)
                 .orElseThrow(() -> new DemarchesServiceException("Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND));
@@ -321,7 +318,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
             List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBO.getCommande().getPkCommandes());
-            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
+            demandesStatutsService.updateMultipleStatuts(demandes, new StatutPublicOuInterneDTO(EN_COURS_PAIEMENT_STATUT_KEY, null));
             updateDemandeData(demandes, dateValidite, moneticoResponseDTO);
         } else {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.INVALIDE);
@@ -378,8 +375,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
                 LOGGER.info("Ajout de l'historique de paiement...");
                 PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-                historique.setFkDemandes(DemandesTransformer.dto2Bo(demande));
-                historique.setContenu("Usager " + demande.getUsagerPrenom() + " " + demande.getUsagerNom() + " : Effectue une empreinte bancaire");
+                historique.setFkDemandes(demandesTransformer.dto2Bo(demande));
+                DemandeUsagerDTO usager = demande.getUsager();
+                if (usager != null) {
+                    historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom() + " : Effectue une empreinte bancaire");
+                }
                 historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
                 historique.setDate(date);
                 historique.setUsagerId(demande.getUsagerId());

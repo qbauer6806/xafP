@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.bpm.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Classe permettant de représenter une association entre action et son statut
  * cible
@@ -7,6 +10,8 @@ package mc.gouv.xaf.back.bpm.model;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class GouvBPMStatutAction {
 
     private String statut;
@@ -15,22 +20,6 @@ public class GouvBPMStatutAction {
 
     public GouvBPMStatutAction(String statut, String action) {
         this.statut = statut;
-        this.action = action;
-    }
-
-    public String getStatut() {
-        return statut;
-    }
-
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
         this.action = action;
     }
 

@@ -1,10 +1,14 @@
 package mc.gouv.xaf.rio.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 public class ArchivageRapportExportDTO {
 
     private String demarcheId;
@@ -21,38 +25,6 @@ public class ArchivageRapportExportDTO {
 
     private List<ArchivageFichierDeposeDTO> fichiersDeposes;
 
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getCodeNotice() {
-        return codeNotice;
-    }
-
-    public void setCodeNotice(String codeNotice) {
-        this.codeNotice = codeNotice;
-    }
-
-    public String getRefDocument() {
-        return refDocument;
-    }
-
-    public void setRefDocument(String refDocument) {
-        this.refDocument = refDocument;
-    }
-
-    public List<ArchivageFichierInitalDTO> getFichiersInitiaux() {
-        return fichiersInitiaux;
-    }
-
-    public void setFichiersInitiaux(List<ArchivageFichierInitalDTO> fichiersInitiaux) {
-        this.fichiersInitiaux = fichiersInitiaux;
-    }
-
     public void addFichiersInitiaux(ArchivageFichierInitalDTO fichier) {
         if (this.fichiersInitiaux == null) {
             this.fichiersInitiaux = new ArrayList<>();
@@ -62,14 +34,6 @@ public class ArchivageRapportExportDTO {
             fichier.setRang(this.fichiersInitiaux.size() + 1 + "");
             this.fichiersInitiaux.add(fichier);
         }
-    }
-
-    public List<ArchivageFichierConvertiDTO> getFichiersConvertis() {
-        return fichiersConvertis;
-    }
-
-    public void setFichiersConvertis(List<ArchivageFichierConvertiDTO> fichiersConvertis) {
-        this.fichiersConvertis = fichiersConvertis;
     }
 
     public void addFichiersConvertis(ArchivageFichierConvertiDTO fichier) {
@@ -83,14 +47,6 @@ public class ArchivageRapportExportDTO {
         }
     }
 
-    public List<ArchivageFichierDeposeDTO> getFichiersDeposes() {
-        return fichiersDeposes;
-    }
-
-    public void setFichiersDeposes(List<ArchivageFichierDeposeDTO> fichiersDeposes) {
-        this.fichiersDeposes = fichiersDeposes;
-    }
-
     public void addFichiersDeposes(ArchivageFichierDeposeDTO fichier) {
         if (this.fichiersDeposes == null) {
             this.fichiersDeposes = new ArrayList<>();
@@ -102,11 +58,4 @@ public class ArchivageRapportExportDTO {
         }
     }
 
-    public DemandeFlatDTO getDemandeFlatDTO() {
-        return demandeFlatDTO;
-    }
-
-    public void setDemandeFlatDTO(DemandeFlatDTO demandeFlatDTO) {
-        this.demandeFlatDTO = demandeFlatDTO;
-    }
 }

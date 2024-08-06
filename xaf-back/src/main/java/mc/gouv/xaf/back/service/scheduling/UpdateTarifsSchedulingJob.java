@@ -19,8 +19,6 @@ public class UpdateTarifsSchedulingJob implements Job {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateTarifsSchedulingJob.class);
 
-	public static final String JOB_NAME = "UpdateTarifsSchedulingJob";
-
 	@Autowired
     private UpdateTarifsService updateTarifsService;
 	
@@ -31,8 +29,8 @@ public class UpdateTarifsSchedulingJob implements Job {
 
 			// Récupération de la liste des statuts à purger dans le contexte du job detail
 			Object tarifToUpdate = jobExecutionContext.getJobDetail().getJobDataMap().get("tarifToUpdateKey");
-			if (tarifToUpdate instanceof String) {
-				tarifToUpdateKey = (String) tarifToUpdate;
+			if (tarifToUpdate instanceof String t) {
+				tarifToUpdateKey = t;
 			}
 			LOGGER.info("UPDATE TARIF: Mise à jour du tarif {}", tarifToUpdateKey);
 			updateTarifsService.updateTarifs(tarifToUpdateKey);

@@ -1,19 +1,20 @@
 package mc.gouv.xaf.back.data.entity;
 
+import jakarta.validation.constraints.NotBlank;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -22,6 +23,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMANDES_STATUTS")
 public class DemandesStatutsBO {
@@ -35,110 +38,40 @@ public class DemandesStatutsBO {
     @JoinColumn(name = "FK_DEMANDES")
     private DemandeBO fkDemandes;
 
-    @Column(name = "LIBELLE", length = 64, nullable = false)
+    @Column(name = "LIBELLE", length = 128)
+    @Size(max = 128)
+    private String libelle;
+
+    @Column(name = "NAME", length = 64, nullable = false)
     @NotBlank
     @Size(min = 1, max = 64)
-    private String libelle;
+    private String name;
 
     @Column(name = "DATE", nullable = false)
     private Date date;
 
-    @Column(name = "AGENT_ID", length = 128, nullable = true)
-    @Size(min = 0, max = 128)
+    @Column(name = "AGENT_ID", length = 128)
+    @Size(max = 128)
     private String agentId;
 
-    @Column(name = "USAGER_ID", nullable = true)
+    @Column(name = "USAGER_ID")
     private Integer usagerId;
 
-    @Column(name = "CODE_MOTIF", length = 128, nullable = true)
-    @Size(min = 0, max = 128)
+    @Column(name = "CODE_MOTIF", length = 128)
+    @Size(max = 128)
     private String codeMotif;
 
-    @Column(name = "COMMENTAIRE", length = 8000, nullable = true)
-    @Size(min = 0, max = 8000)
+    @Column(name = "COMMENTAIRE", length = 8000)
+    @Size(max = 8000)
     private String commentaire;
 
     @Column(name = "TEXTE_A_ENVOYER", columnDefinition = "TEXT")
     private String texteAEnvoyer;
-
-    public Integer getPkDemandesStatuts() {
-        return pkDemandesStatuts;
-    }
-
-    public void setPkDemandesStatuts(Integer pkDemandesStatuts) {
-        this.pkDemandesStatuts = pkDemandesStatuts;
-    }
-
-    public DemandeBO getFkDemandes() {
-        return fkDemandes;
-    }
-
-    public void setFkDemandes(DemandeBO fkDemandes) {
-        this.fkDemandes = fkDemandes;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public Integer getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(Integer usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public String getCodeMotif() {
-        return codeMotif;
-    }
-
-    public void setCodeMotif(String codeMotif) {
-        this.codeMotif = codeMotif;
-    }
-
-    public String getCommentaire() {
-        return commentaire;
-    }
-
-    public void setCommentaire(String commentaire) {
-        this.commentaire = commentaire;
-    }
-
-    public String getTexteAEnvoyer() {
-        return texteAEnvoyer;
-    }
-
-    public void setTexteAEnvoyer(String texteAEnvoyer) {
-        this.texteAEnvoyer = texteAEnvoyer;
-    }
 
     @Override
     public String toString() {
         return "DemandesStatutsBO [libelle=" + libelle + ", date=" + date + ", agentId=" + agentId + ", usagerId="
                 + usagerId + ", codeMotif=" + codeMotif + ", commentaire=" + commentaire+ ", textAEnvoyer=" + texteAEnvoyer + "]";
     }
-    
-    
 
 }

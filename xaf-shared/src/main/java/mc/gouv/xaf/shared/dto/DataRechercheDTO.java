@@ -1,7 +1,13 @@
 package mc.gouv.xaf.shared.dto;
 
 import java.util.StringTokenizer;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
+@Getter
+@ToString
 public class DataRechercheDTO {
 
     public enum DataRechercheOperand {
@@ -38,37 +44,8 @@ public class DataRechercheDTO {
         }
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return "DataRechercheDTO [key=" + key + ", value=" + value + "]";
-    }
-
     public String generateParamUrl() {
         return operand + SEPARATOR_AFTER_OPERAND + key + SEPARATOR + value;
-    }
-
-    public DataRechercheOperand getOperand() {
-        return operand;
-    }
-
-    public void setOperand(DataRechercheOperand operand) {
-        this.operand = operand;
     }
 
 }

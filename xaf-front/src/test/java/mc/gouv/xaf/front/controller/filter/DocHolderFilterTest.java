@@ -1,33 +1,32 @@
 package mc.gouv.xaf.front.controller.filter;
 
-import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
-import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.filter.DocHolderFilter;
-import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
-import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Enumeration;
-
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Enumeration;
+import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.filter.DocHolderFilter;
+import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.hc.core5.http.HttpStatus;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DocHolderFilterTest {

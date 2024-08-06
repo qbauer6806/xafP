@@ -3,11 +3,13 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
-import org.apache.commons.lang.StringUtils;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 
 /**
  * 
@@ -51,8 +53,12 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
     
+    @Setter
+    @Getter
     private Expression emailBodyTemplateCode;
     
+    @Setter
+    @Getter
     private Expression emailSubjectTemplateCode;
     
     private Expression roles;
@@ -60,7 +66,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     private Expression copieAuService;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
         
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT WITH ROLES ...");
         
@@ -94,7 +100,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
             }
             LOGGER.info("Liste de destinataires calculée pour la liste de rôles [{}] : {}", rolesStr, emailInfo.getTo());
             
-            emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
+            emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
             emailInfo.setLangue("fr");
             
             if ("true".equals(copieAuServiceStr)) {
@@ -106,7 +112,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
             String commentaire = (String) execution
                     .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
-            Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+            Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
             DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
             
             Map<String,Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
@@ -122,22 +128,6 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
         }
         
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT WITH ROLES <fin>");
-    }
-
-    public Expression getEmailBodyTemplateCode() {
-        return emailBodyTemplateCode;
-    }
-
-    public void setEmailBodyTemplateCode(Expression emailBodyTemplateCode) {
-        this.emailBodyTemplateCode = emailBodyTemplateCode;
-    }
-
-    public Expression getEmailSubjectTemplateCode() {
-        return emailSubjectTemplateCode;
-    }
-
-    public void setEmailSubjectTemplateCode(Expression emailSubjectTemplateCode) {
-        this.emailSubjectTemplateCode = emailSubjectTemplateCode;
     }
 
 }

@@ -1,7 +1,16 @@
 package mc.gouv.xaf.back.config;
 
+import jakarta.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
-
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.itg.rest.impl.PaysCacheImpl;
+import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheDataProvider;
+import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
+import org.activiti.compatibility.spring.DefaultFlowable5SpringCompatibilityHandler;
+import org.flowable.spring.SpringProcessEngineConfiguration;
+import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -10,18 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheImpl;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.itg.rest.impl.PaysCacheImpl;
-import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheDataProvider;
-import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
-
-import javax.annotation.PostConstruct;
 
 /**
  * 
@@ -37,9 +34,6 @@ public class AfBackConfig {
 
     // 24h
     private static final long PAYS_CACHE_DURATION = 24 * 60 * 60 * 1000L;
-
-    // 6h
-    private static final long UTILISATEURS_CACHE_DURATION = 6 * 60 * 60 * 1000L;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -61,24 +55,18 @@ public class AfBackConfig {
         return new PaysCacheImpl(gouvPropertiesResolver.getPaysRestUrl(), null, null, PAYS_CACHE_DURATION);
     }
 
-    @Bean(name = "utilisateursCacheImpl")
-    public UtilisateursCache getUtilisateursCache() {
-        String url = gouvPropertiesResolver.getGouvSharedLogonRestUrl();
-        return new UtilisateursCacheImpl(url, gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
-    }
-
     @Bean(name = "usagersCacheImpl")
     public UsagersCache getUsagersCache(UsagersCacheDataProvider usagersCacheDataProvider) {
         return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
     }
-
-    @Bean
-    public CommonsMultipartResolver multipartResolver() {
-        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(16777216); // 16 MB
-        resolver.setDefaultEncoding("utf-8");
-        return resolver;
-    }
+// todo spring
+//    @Bean
+//    public MultipartResolver multipartResolver() {
+//        StandardServletMultipartResolver resolver = new StandardServletMultipartResolver();
+//        resolver.setMaxUploadSize(16777216); // 16 MB
+//        resolver.setDefaultEncoding("utf-8");
+//        return resolver;
+//    }
 
     @Bean
     @Primary
@@ -89,4 +77,16 @@ public class AfBackConfig {
         return builder;
     }
 
+    @Bean
+    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableFlowable5CompatibilityConfigurer() {
+        return (SpringProcessEngineConfiguration processEngineConfiguration) -> {
+            processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
+            processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(DefaultFlowable5SpringCompatibilityHandler::new);
+        };
+
+    }
+
+
 }
+
+

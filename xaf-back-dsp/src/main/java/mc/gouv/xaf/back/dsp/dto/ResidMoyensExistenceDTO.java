@@ -5,8 +5,12 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidSituationEnum;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidMoyensExistenceDTO implements Serializable {
@@ -21,35 +25,4 @@ public class ResidMoyensExistenceDTO implements Serializable {
 
     private String employeurPays;
 
-    public ResidSituationEnum getSituationPrincipale() {
-        return situationPrincipale;
-    }
-
-    public void setSituationPrincipale(ResidSituationEnum situationPrincipale) {
-        this.situationPrincipale = situationPrincipale;
-    }
-
-    public String getEmployeurRaisonSociale() {
-        return employeurRaisonSociale;
-    }
-
-    public void setEmployeurRaisonSociale(String employeurRaisonSociale) {
-        this.employeurRaisonSociale = employeurRaisonSociale;
-    }
-
-    public String getEmployeurVille() {
-        return employeurVille;
-    }
-
-    public void setEmployeurVille(String employeurVille) {
-        this.employeurVille = employeurVille;
-    }
-
-    public String getEmployeurPays() {
-        return employeurPays;
-    }
-
-    public void setEmployeurPays(String employeurPays) {
-        this.employeurPays = employeurPays;
-    }
 }

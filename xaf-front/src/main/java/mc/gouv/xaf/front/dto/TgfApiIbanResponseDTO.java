@@ -1,5 +1,8 @@
 package mc.gouv.xaf.front.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 
  * Classe permettant de matérialiser une erreur en retour de l'API TGF pour les IBAN
@@ -7,16 +10,10 @@ package mc.gouv.xaf.front.dto;
  * @author qdeme
  * 
  */
+@Setter
+@Getter
 public class TgfApiIbanResponseDTO {
 	
 	private TgfApiIbanResponseErreurDTO[] erreurs;
-
-	public TgfApiIbanResponseErreurDTO[] getErreurs() {
-		return erreurs;
-	}
-
-	public void setErreurs(TgfApiIbanResponseErreurDTO[] erreurs) {
-		this.erreurs = erreurs;
-	}
 
 }

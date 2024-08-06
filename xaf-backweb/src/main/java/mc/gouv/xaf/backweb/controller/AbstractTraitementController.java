@@ -1,13 +1,20 @@
 package mc.gouv.xaf.backweb.controller;
 
-import java.io.IOException;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import javax.transaction.Transactional;
-
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.exception.DemarcheException;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,23 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.xml.sax.SAXException;
-
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
-import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public class AbstractTraitementController extends AbstractController {
 
@@ -57,11 +52,10 @@ public class AbstractTraitementController extends AbstractController {
 	private static final String REDIRECT = "redirect:";
 
     @Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
-	@RequestMapping(value = "/infosAdministration", method = RequestMethod.POST)
+	@PostMapping(value = "/infosAdministration")
 	@Transactional
 	public ModelAndView infosAdministration(@ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
-			@RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
-			throws IOException, SAXException {
+			@RequestParam() Integer pkDemande, final RedirectAttributes redirectAttributes) {
 
 	    LOGGER.info("======================= Appel de la page /traitement/infosAdministration ({})", pkDemande);
 
@@ -81,25 +75,26 @@ public class AbstractTraitementController extends AbstractController {
 
 	@Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
 	@ResponseBody
-	@RequestMapping(value = "/commentaires", method = RequestMethod.POST)
+	@PostMapping(value = "/commentaires")
 	@Transactional
 	public CommentaireInterneDTO sauvegarderComm(
 			@ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
-			@RequestParam(required = true) Integer pkDemande) throws Exception {
+			@RequestParam() Integer pkDemande) {
 
 	    LOGGER.info("======================= Appel de la page /traitement/commentaires action=Ajouter ({})", pkDemande);
 
 		String commString = xafTraitementFormBean.getCommentaireInterne();
 		CommentaireInterneDTO commInterne = new CommentaireInterneDTO();
 		if (!StringUtils.isBlank(commString)) {
-			LOGGER.info("Commentaire : {}", commString);
+			String safeComm = AfBackUtils.logSafe(commString);
+			LOGGER.info("Commentaire : {}", safeComm);
 			commInterne.setAgentId(AfBackUtils.getAuthenticatedAgentId());
 			commInterne.setDate(new Date());
 			commInterne.setCommentaire(commString);
 			gouvBPM.putCommentaireInterne(pkDemande, commInterne);
 
 		} else {
-			throw new Exception("Impossible d'insérer un commentaire vide");
+			throw new DemarcheException("Impossible d'insérer un commentaire vide");
 		}
 
 		LOGGER.info("======================= Fin /traitement/commentaires action=Ajouter");

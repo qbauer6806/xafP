@@ -22,9 +22,9 @@ public class GouvMemoryCache<K, V> implements GouvCache<K, V> {
 
     private GouvCacheDataProvider<K, V> gouvCacheDataProvider;
 
-    private Map<K, V> cache = new ConcurrentHashMap<K, V>();
+    private Map<K, V> cache = new ConcurrentHashMap<>();
 
-    private Map<K, Long> cacheRefreshTimestamps = new ConcurrentHashMap<K, Long>();
+    private Map<K, Long> cacheRefreshTimestamps = new ConcurrentHashMap<>();
 
     private long lastRefreshTimestamp;
 
@@ -72,7 +72,7 @@ public class GouvMemoryCache<K, V> implements GouvCache<K, V> {
             value = getAll().get(key);
             // Si on n'a rien trouvé, on va chercher dans le provider
             if (value == null) {
-                LOGGER.info("Cache miss : get value for key '" + key + "'...");
+                LOGGER.info("Cache miss : get value for key '{}'...", key);
                 value = gouvCacheDataProvider.get(key);
                 if (value != null) {
                     // On a trouvé une valeur, on l'ajoute au cache

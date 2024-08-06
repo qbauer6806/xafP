@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -91,7 +91,7 @@ public class InitialDemandeController extends AbstractXafController {
         }
 
         try {
-            if (usagerInfosDTO.ismConnect()) {
+            if (usagerInfosDTO.isMConnect()) {
                 DonneesExternesDTO donneesMConnectDTO;
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
                 donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);

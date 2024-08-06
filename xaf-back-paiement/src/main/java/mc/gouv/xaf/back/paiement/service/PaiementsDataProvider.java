@@ -7,7 +7,7 @@ import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**

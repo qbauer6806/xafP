@@ -12,8 +12,8 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TacheDTO;
 import mc.gouv.xaf.shared.enums.StatutTachesEnum;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
     public void execute(DelegateExecution execution) {
         LOGGER.info("==== xaf-back-stc Archivage ...");
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);

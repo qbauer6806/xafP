@@ -126,7 +126,7 @@ function ajouterCommentaireDiscussion($this) {
         success: function (json) { // On récupère la réponse du fichier PHP
             //json retourné {"agentId":"19723","date":"2017-05-03T17:24:41+0200","commentaire":"salut 3"}
             //On récupère le commentaire sauvegardé pour pouvoir l'afficher.
-            const contentMsg = '<div class="row"><div class="col-xs-12" style="background-color: #ffffff;line-height:1em"><div style="font-size:0.8em;font-weight:bold;color: rgb(94,97,100);">' + moment(json.date).format("DD/MM/YYYY HH:mm:ss") + '</div><div style="font-weight: bold;">' + utilisateurConnecte + '</div><div style="margin: 5px 0 8px 0 ;">' + xssEscape(json.commentaire) + '</div></div>'
+            const contentMsg = '<div class="row"><div class="col-xs-12" style="background-color: #ffffff;line-height:1em"><div style="font-size:0.8em;font-weight:bold;color: rgb(94,97,100);">' + moment(json.date).format("DD/MM/YYYY HH:mm:ss") + '</div><div style="font-weight: bold;">' + utilisateurConnecte + '</div><div style="margin: 5px 0 8px 0 ;">' + filterXSS(json.commentaire) + '</div></div>'
 
             $("#commentairesInternes").append(contentMsg)
 

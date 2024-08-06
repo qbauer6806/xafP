@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 import java.util.List;
 
@@ -27,7 +28,9 @@ public interface DemandesStatutsService {
      * @return L'objet DTO de la demande mise à jour
      */
     // TODO: Alerte Sonar sur le trop grand nombre de paramètres
-    DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(String demarcheId, Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+
+    DemandeDTO updateStatut(String demarcheId, Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**
      * Permet d'ajouter un statut à une demande, version appelable par d'autres services, sans check préalable
@@ -41,7 +44,7 @@ public interface DemandesStatutsService {
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
      * @return L'objet BO de la demande mise à jour
      */
-    DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(DemandeBO demande, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**
      * Permet de mettre le même statut sur plusieurs demandes en même temps.
@@ -50,7 +53,7 @@ public interface DemandesStatutsService {
      * @param statut    Le nouveau statut
      * @return          La liste à jour des demandes
      */
-    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut);
+    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, StatutPublicOuInterneDTO statut);
 
     /**
      * Récupérer le dernier statut d'une demande

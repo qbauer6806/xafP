@@ -18,56 +18,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jetty</artifactId>
-            <!-- -->
-            <exclusions>        <!-- Exclude the Jetty-9 specific dependencies -->
-                <exclusion>
-                    <groupId>org.eclipse.jetty.websocket</groupId>
-                    <artifactId>websocket-server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jetty.websocket</groupId>
-                    <artifactId>javax-websocket-server-impl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-jndi</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-jmx</artifactId>
-        </dependency>
-
-        <!-- monitoring via monitor?token=&format=json -->
-        <dependency>
-            <groupId>mc.gouv.tools_monitor</groupId>
-            <artifactId>tools_monitor</artifactId>
-            <version>${tools_monitor.version}</version>
         </dependency>
 
         <dependency>
@@ -82,7 +39,7 @@
 
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
 
         <dependency>
@@ -91,44 +48,57 @@
             <version>${xcb-wlib.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
         <!-- Web JS and CSS dependencies -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
-            <version>4.17.47</version>
+            <version>4.17.49</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>pdfjs-dist</artifactId>
+            <version>4.4.168</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>basiclightbox</artifactId>
+            <version>5.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
-            <artifactId>Magnific-Popup</artifactId>
-            <version>1.1.0</version>
+            <artifactId>jQuery-Autocomplete</artifactId>
+            <version>1.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>xss</artifactId>
+            <version>1.0.15</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>autosize</artifactId>
+            <version>6.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>momentjs</artifactId>
+            <version>2.29.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>datatables</artifactId>
+            <version>1.11.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox-tools</artifactId>
-            <version>2.0.25</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>jbig2-imageio</artifactId>
-            <version>3.0.2</version>
+            <artifactId>pdfbox</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>mc.gouv.logon</groupId>
-            <artifactId>logon-caching</artifactId>
-            <version>${logon-apiclient.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mc.gouv.logon</groupId>
-            <artifactId>logon-apiclient</artifactId>
-            <version>${logon-apiclient.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

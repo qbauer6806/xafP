@@ -27,9 +27,5 @@ public interface DemandesHistoriqueService {
      */
     DemandeHistoriqueDTO saveHistoriqueActionAuto(String demarcheId, Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto);
 
-    /**
-     * Permet de sauvegarder en base l'historique et d'appeler l'indexation du justificatif de traitement
-     */
-    DemandeHistoriqueDTO saveAndIndexHistorique(DemandeHistoriqueDTO histo, String demarcheId, Integer demandeId);
 
 }

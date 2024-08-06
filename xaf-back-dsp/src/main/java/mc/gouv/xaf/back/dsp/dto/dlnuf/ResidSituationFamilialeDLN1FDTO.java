@@ -5,12 +5,18 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import mc.gouv.xaf.back.dsp.enums.common.ResidCiviliteEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidSituationFamilialeEnum;
 import mc.gouv.xaf.back.dsp.enums.v2.ResidRelationEnum;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class ResidSituationFamilialeDLN1FDTO implements Serializable {
 
 	private static final long serialVersionUID = -2369443223981508962L;
@@ -33,82 +39,4 @@ public class ResidSituationFamilialeDLN1FDTO implements Serializable {
 	
 	private String lieuNomEntreprise;
 
-	public ResidSituationFamilialeEnum getSituationFamiliale() {
-		return situationFamiliale;
-	}
-
-	public void setSituationFamiliale(ResidSituationFamilialeEnum situationFamiliale) {
-		this.situationFamiliale = situationFamiliale;
-	}
-
-	public ResidCiviliteEnum getTitre() {
-		return titre;
-	}
-
-	public void setTitre(ResidCiviliteEnum titre) {
-		this.titre = titre;
-	}
-
-	public String getNom() {
-		return nom;
-	}
-
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
-
-	public String getPrenom() {
-		return prenom;
-	}
-
-	public void setPrenom(String prenom) {
-		this.prenom = prenom;
-	}
-
-	public String getDateNaissance() {
-		return dateNaissance;
-	}
-
-	public void setDateNaissance(String dateNaissance) {
-		this.dateNaissance = dateNaissance;
-	}
-
-	public String getNationalite() {
-		return nationalite;
-	}
-
-	public void setNationalite(String nationalite) {
-		this.nationalite = nationalite;
-	}
-
-	public ResidRelationEnum getRelation() {
-		return relation;
-	}
-
-	public void setRelation(ResidRelationEnum relation) {
-		this.relation = relation;
-	}
-
-	public boolean isFoyer() {
-		return foyer;
-	}
-
-	public void setFoyer(boolean foyer) {
-		this.foyer = foyer;
-	}
-
-	@Override
-	public String toString() {
-		return "ResidSituationFamilialeDTO{" + "situationFamiliale='" + situationFamiliale + '\'' + ", titre='" + titre
-				+ '\'' + ", nom='" + nom + '\'' + ", prenom='" + prenom + '\'' + ", dateNaissance='" + dateNaissance
-				+ ", nationalite='" + nationalite + ", relation='" + relation + ", foyer='" + foyer + '}';
-	}
-
-	public String getLieuNomEntreprise() {
-		return lieuNomEntreprise;
-	}
-
-	public void setLieuNomEntreprise(String lieuNomEntreprise) {
-		this.lieuNomEntreprise = lieuNomEntreprise;
-	}
 }

@@ -3,20 +3,22 @@ package mc.gouv.xaf.back.data.entity;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -25,6 +27,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMANDES_COMPLEMENTS")
 public class DemandesComplementsBO {
@@ -41,7 +45,7 @@ public class DemandesComplementsBO {
     @Column(name = "DATE_CREATION", nullable = false)
     private Date dateCreation;
 
-    @Column(name = "DATE_REPONSE", nullable = true)
+    @Column(name = "DATE_REPONSE")
     private Date dateReponse;
 
     @Column(name = "CODE_MOTIF", length = 128, nullable = false)
@@ -49,12 +53,12 @@ public class DemandesComplementsBO {
     @Size(min = 1, max = 128)
     private String codeMotif;
 
-    @Column(name = "QUESTION", length = 8000, nullable = true)
-    @Size(min = 0, max = 8000)
+    @Column(name = "QUESTION", length = 8000)
+    @Size(max = 8000)
     private String question;
 
-    @Column(name = "REPONSE", length = 8000, nullable = true)
-    @Size(min = 0, max = 8000)
+    @Column(name = "REPONSE", length = 8000)
+    @Size(max = 8000)
     private String reponse;
 
     @Column(name = "STATUT", length = 64, nullable = false)
@@ -67,110 +71,14 @@ public class DemandesComplementsBO {
     @Size(min = 1, max = 128)
     private String agentId;
 
-    @Column(name = "REPONSE_AGENT_ID", length = 128, nullable = true)
-    @Size(min = 0, max = 128)
+    @Column(name = "REPONSE_AGENT_ID", length = 128)
+    @Size(max = 128)
     private String reponseAgentId;
 
-    @Column(name = "REPONSE_USAGER_ID", nullable = true)
+    @Column(name = "REPONSE_USAGER_ID")
     private Integer reponseUsagerId;
 
     @OneToMany(mappedBy = "fkDemandesComplements", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesComplementsFilesBO> files;
-
-    public Integer getPkDemandesComplements() {
-        return pkDemandesComplements;
-    }
-
-    public void setPkDemandesComplements(Integer pkDemandesComplements) {
-        this.pkDemandesComplements = pkDemandesComplements;
-    }
-
-    public DemandeBO getFkDemandes() {
-        return fkDemandes;
-    }
-
-    public void setFkDemandes(DemandeBO fkDemandes) {
-        this.fkDemandes = fkDemandes;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateReponse() {
-        return dateReponse;
-    }
-
-    public void setDateReponse(Date dateReponse) {
-        this.dateReponse = dateReponse;
-    }
-
-    public String getReponse() {
-        return reponse;
-    }
-
-    public void setReponse(String reponse) {
-        this.reponse = reponse;
-    }
-
-    public String getStatut() {
-        return statut;
-    }
-
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public String getReponseAgentId() {
-        return reponseAgentId;
-    }
-
-    public void setReponseAgentId(String reponseAgentId) {
-        this.reponseAgentId = reponseAgentId;
-    }
-
-    public Integer getReponseUsagerId() {
-        return reponseUsagerId;
-    }
-
-    public void setReponseUsagerId(Integer reponseUsagerId) {
-        this.reponseUsagerId = reponseUsagerId;
-    }
-
-    public Set<DemandesComplementsFilesBO> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<DemandesComplementsFilesBO> files) {
-        this.files = files;
-    }
-
-    public String getCodeMotif() {
-        return codeMotif;
-    }
-
-    public void setCodeMotif(String codeMotif) {
-        this.codeMotif = codeMotif;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
 
 }

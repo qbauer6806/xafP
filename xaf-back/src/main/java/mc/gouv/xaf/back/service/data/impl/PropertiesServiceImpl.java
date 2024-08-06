@@ -1,24 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
@@ -27,10 +15,18 @@ import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des Properties d'une démarche
@@ -130,13 +126,13 @@ public class PropertiesServiceImpl implements PropertiesService {
     	if (!StringUtils.isEmpty(propertiesDTO.getValue())) {
 			try {
 				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
-				Collections.sort(jsonObjectsToDisplay, (p1, p2) -> {
+				jsonObjectsToDisplay.sort((p1, p2) -> {
                     // On veut laisser le libelle Autre en 1ere position dans la liste
                     if (p1.getLabel().equals("AUTRE") || p2.getLabel().equals("AUTRE")) {
                         // je retourne 1 si AUTRE commme ça il reste au début de la liste
                         return 1;
                     }
-                  return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
+                    return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
                 });
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 		    	mapper.writeValue(out, jsonObjectsToDisplay);
@@ -166,7 +162,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
         // Vérification préalable de l'existence de la démarche
         Optional<DemarchesBO> demarcheBo = demarchesRepository.findById(demarcheId);
-        if (!demarcheBo.isPresent()) {
+        if (demarcheBo.isEmpty()) {
             throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
 
@@ -181,7 +177,7 @@ public class PropertiesServiceImpl implements PropertiesService {
         } else {
             LOGGER.info("Mise à jour d'une propriété");
             Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(toSave.getPkProperties());
-            if (!propertiesBoOpt.isPresent()) {
+            if (propertiesBoOpt.isEmpty()) {
                 throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
             }
             PropertiesBO bo = propertiesBoOpt.get();
@@ -203,7 +199,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public void deleteProperties(Integer propertiesId) {
         Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(propertiesId);
-        if (!propertiesBoOpt.isPresent()) {
+        if (propertiesBoOpt.isEmpty()) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
         LOGGER.info("Suppression de la propriété ...");
@@ -261,7 +257,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     public PropertiesDTO updatePropertyValue(Integer pkProperties, String value) {
         LOGGER.info("Vérification de l'existance de la propriété {} ...", pkProperties);
         Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(pkProperties);
-        if (!propertiesBoOpt.isPresent()) {
+        if (propertiesBoOpt.isEmpty()) {
             throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
         PropertiesBO bo = propertiesBoOpt.get();

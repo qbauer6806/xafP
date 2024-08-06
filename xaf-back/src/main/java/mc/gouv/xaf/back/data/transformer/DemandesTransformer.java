@@ -1,20 +1,14 @@
 package mc.gouv.xaf.back.data.transformer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -22,13 +16,22 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
 
 /**
  * 
  * @author qdeme
  *
  */
+@Service
 public class DemandesTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesTransformer.class);
@@ -39,10 +42,22 @@ public class DemandesTransformer {
     private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
 
+    @Autowired
+    private UtilisateursCache utilisateursCache;
+
+    @Autowired
+    private DemandesAgentsTransformer demandesAgentsTransformer;
+
+    @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
+    private DemandesConfigTransformer demandesConfigTransformer;
+
     private DemandesTransformer() {
     }
 
-    public static DemandeDTO bo2Dto(DemandeBO bo) {
+    public DemandeDTO bo2Dto(DemandeBO bo) {
         return bo2Dto(bo, null);
     }
 
@@ -85,7 +100,7 @@ public class DemandesTransformer {
                 addDataField };
     }
 
-    public static DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
+    public DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
         if (bo == null) {
             return null;
         }
@@ -108,22 +123,28 @@ public class DemandesTransformer {
         dto.setDemarcheId(bo.getFkAccess().getDemarcheId());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
-        dto.setAgentAffecteId(bo.getAgentAffecteId());
+        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
         dto.setIdentifiant(bo.getIdentifiant());
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
         dto.setUsagerId(bo.getFkAccess().getUsagerId());
-        dto.setUsagerNom(bo.getUsagerNom());
-        dto.setUsagerPrenom(bo.getUsagerPrenom());
-        dto.setUsagerEmail(bo.getUsagerEmail());
-        dto.setBuildId(bo.getBuildId());
+        dto.setUsager(demandesUsagersTransformer.bo2Dto(bo.getUsager()));
         dto.setRecapType(bo.getRecapType());
-        dto.setDonneesCertifiees(bo.getDonneesCertifiees());
         dto.setPkDemandeSource(bo.getPkDemandeSource());
         dto.setModificationTimestamp(bo.getModificationTimestamp());
 
         if(bo.getTypeConnexionUsager() != null) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
+        }
+
+        // Mapper le contenu de la demande
+        dto.setContenu(bo.getContenu());
+
+        dto.setContenuTrad(bo.getContenuTrad());
+
+        // Mapper le contenu de la config
+        if(bo.getConfig() != null) {
+            dto.setConfig(demandesConfigTransformer.bo2Json(bo.getConfig()));
         }
 
         // Mapper les demandes d'informations complémentaires
@@ -175,26 +196,25 @@ public class DemandesTransformer {
 
         return dto;
     }
-    
+
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-        	// Mapper le contenu de la demande
-            dto.setContenu(mapper.readTree(bo.getContenu()));
-            
-            // Mapper le contenu de la demande préremplie
+          // Mapper le contenu de la demande préremplie
             if (bo.getContenuInitial() != null)
                 dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
-            
+
             // Meta
             if (bo.getMeta() != null)
             	dto.setMeta(mapper.readTree(bo.getMeta()));
+
+            dto.setDonneesCertifiees(mapper.treeToValue(bo.getDonneesCertifiees(), SourceFiableDTO[].class));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
         return dto;
     }
-    
+
     private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {
         // Mapper les statuts
         if (addStatutsField) {
@@ -214,7 +234,7 @@ public class DemandesTransformer {
         return dto;
     }
 
-    public static List<DemandeDTO> bo2Dto(List<DemandeBO> bos, String[] fields) {
+    public List<DemandeDTO> bo2Dto(List<DemandeBO> bos, String[] fields) {
         ArrayList<DemandeDTO> dtos = new ArrayList<>();
         for (DemandeBO bo : bos) {
             dtos.add(bo2Dto(bo, fields));
@@ -222,7 +242,7 @@ public class DemandesTransformer {
         return dtos;
     }
 
-    public static List<DemandeDTO> bo2Dto(List<DemandeBO> bos) {
+    public List<DemandeDTO> bo2Dto(List<DemandeBO> bos) {
         ArrayList<DemandeDTO> dtos = new ArrayList<>();
         for (DemandeBO bo : bos) {
             dtos.add(bo2Dto(bo, null));
@@ -237,7 +257,7 @@ public class DemandesTransformer {
      * compris le "dernier statut") Mapper les données de demande ("data") attachées après appel à cette fonction, si
      * besoin Mapper les courriers attachés après appel à cette fonction, si besoin
      */
-    public static DemandeBO dto2Bo(DemandeDTO dto) {
+    public DemandeBO dto2Bo(DemandeDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -248,31 +268,32 @@ public class DemandesTransformer {
         bo.setCanal(dto.getCanal().name());
         bo.setObservations(dto.getObservations());
         bo.setPkDemandes(dto.getPkDemandes());
-        bo.setAgentAffecteId(dto.getAgentAffecteId());
+        if (dto.getAgent() != null) {
+            User user = utilisateursCache.get(dto.getAgent().getId());
+            bo.setAgent(demandesAgentsTransformer.user2Bo(user));
+        }
         bo.setIdentifiant(dto.getIdentifiant());
         bo.setCourrierDateReception(dto.getCourrierDateReception());
         bo.setCourrierRefInterne(dto.getCourrierRefInterne());
         bo.setCreeParAgentId(dto.getCreeParAgentId());
-        bo.setUsagerNom(dto.getUsagerNom());
-        bo.setUsagerPrenom(dto.getUsagerPrenom());
-        bo.setUsagerEmail(dto.getUsagerEmail());
-        bo.setBuildId(dto.getBuildId());
+        bo.setUsager(demandesUsagersTransformer.dto2Bo(dto.getUsager()));
         bo.setRecapType(dto.getRecapType());
-        bo.setDonneesCertifiees(dto.getDonneesCertifiees());
         bo.setPkDemandeSource(dto.getPkDemandeSource());
         if(dto.getTypeConnexionUsager() != null) {
             bo.setTypeConnexionUsager(dto.getTypeConnexionUsager().name());
         }
+        bo.setContenu(dto.getContenu());
+        bo.setContenuTrad(dto.getContenuTrad());
         ObjectMapper mapper = new ObjectMapper();
         try {
-            bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
             bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-            
+
             bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
             // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
             if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
             	bo.setContenuInitial(null);
             }
+            bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -280,7 +301,7 @@ public class DemandesTransformer {
         return bo;
     }
 
-    public static mc.gouv.xaf.shared.dto.Page<DemandeDTO> boPage2DtoPage(Page<DemandeBO> bos) {
+    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> boPage2DtoPage(Page<DemandeBO> bos) {
         mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
         page.setTotalElements(bos.getTotalElements());
         page.setNumber(bos.getNumber());

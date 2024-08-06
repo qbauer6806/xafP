@@ -1,12 +1,14 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -15,6 +17,8 @@ import javax.validation.constraints.Size;
  * @author xdecool
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_STATISTIQUES_TYPES")
 public class StatistiquesTypesBO {
@@ -31,28 +35,5 @@ public class StatistiquesTypesBO {
 	@Column(name = "\"VALUE\"", length = 250)
     @Size(min = 1, max = 250)
     private String value;
-	
-	public Integer getPkStatistiquesTypes() {
-		return pkStatistiquesTypes;
-	}
 
-	public void setPkStatistiquesTypes(Integer pkStatistiquesTypes) {
-		this.pkStatistiquesTypes = pkStatistiquesTypes;
-	}
-
-	public String getIdentifiantDemande() {
-		return identifiantDemande;
-	}
-
-	public void setIdentifiantDemande(String identifiantDemande) {
-		this.identifiantDemande = identifiantDemande;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
 }

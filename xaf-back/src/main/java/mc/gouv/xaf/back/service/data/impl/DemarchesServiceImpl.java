@@ -52,7 +52,7 @@ public class DemarchesServiceImpl implements DemarchesService {
     public DemarchesBO getCheckDemarche(String demarcheId) {
         LOGGER.info("Récupération en base de la démarche...");
         Optional<DemarchesBO> demarcheBoOp = demarchesRepository.findById(demarcheId);
-        if (!demarcheBoOp.isPresent()) {
+        if (demarcheBoOp.isEmpty()) {
             throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
         return demarcheBoOp.get();

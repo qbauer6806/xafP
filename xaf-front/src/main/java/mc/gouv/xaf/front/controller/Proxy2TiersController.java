@@ -4,12 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,9 +143,8 @@ public class Proxy2TiersController extends AbstractXafController {
                 apiPath += "?" + queryString; // Ajouter les paramètres de requête à l'URL
             }
             return apiPath;
-        } catch (Exception e) {
-            e.printStackTrace(); // Gérer l'erreur selon vos besoins
+        } catch (URISyntaxException e) {
+            return requestUrl; // Retourne l'URL originale si la transformation échoue
         }
-        return requestUrl; // Retourne l'URL originale si la transformation échoue
     }
 }

@@ -1,15 +1,15 @@
 package mc.gouv.xaf.back.service.utils;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.logon.shared.User;
-import mc.gouv.logon.shared.User.Civilite;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.service.itg.logon.dto.Civilite;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 /**
@@ -44,7 +44,7 @@ public class UtilisateursUtils {
             User user = utilisateursCache.get(matricule);
             if (user != null) {
                 String value = AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
-                return StringEscapeUtils.escapeHtml(value);
+                return StringEscapeUtils.escapeHtml4(value);
             }
         }
         return null;
@@ -67,7 +67,7 @@ public class UtilisateursUtils {
                 builder.append(AfBackUtils.escapeChars(nom));
             }
         }
-        return StringEscapeUtils.escapeHtml(builder.toString());
+        return StringEscapeUtils.escapeHtml4(builder.toString());
     }
 
 }

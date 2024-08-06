@@ -24,9 +24,11 @@ public class Xaf12BatchApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+		System.out.println("RUN APPLI");
 		JobParameters jobParameters = new JobParametersBuilder()
 				.addLong("startAt", System.currentTimeMillis())
 				.toJobParameters();
+		System.out.println("RUN JOB LAUNCHER");
 		jobLauncher.run(migrationJob, jobParameters);
 	}
 

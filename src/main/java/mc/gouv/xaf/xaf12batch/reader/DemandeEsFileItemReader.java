@@ -42,7 +42,11 @@ public class DemandeEsFileItemReader implements ItemReader<DemandeFileEsDTO> {
     @Override
     public DemandeFileEsDTO read() throws Exception {
         if (currentIndex < searchResponse.getHits().getHits().length) {
+            System.out.println("DemandeEsFileItemReader");
+            System.out.println(searchResponse.getHits().getHits().length);
             SearchHit searchHit = searchResponse.getHits().getHits()[currentIndex++];
+            System.out.println("searchHit.getSourceAsString()");
+            System.out.println(searchHit.getSourceAsString());
             return new ObjectMapper().readValue(searchHit.getSourceAsString(), DemandeFileEsDTO.class);
         } else {
             return null;

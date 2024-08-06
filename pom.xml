@@ -19,6 +19,8 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
+		<jacoco.version>0.8.12</jacoco.version>
     </properties>
 
 	<groupId>mc.gouv.xaf</groupId>

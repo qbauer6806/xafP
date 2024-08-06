@@ -91,7 +91,6 @@ pipeline {
 //             }
 //         }
 
-        /*
         stage('NexusIQ analysis') {
             parallel {
                 stage('Analysing project migration-es-db') {
@@ -107,7 +106,5 @@ pipeline {
                 }
             }
         }
-        */
-
     }
 }

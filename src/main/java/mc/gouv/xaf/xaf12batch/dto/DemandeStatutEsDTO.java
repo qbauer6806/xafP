@@ -1,8 +1,10 @@
 package mc.gouv.xaf.xaf12batch.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.ToString;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class DemandeStatutEsDTO {
 
     private String libelle;

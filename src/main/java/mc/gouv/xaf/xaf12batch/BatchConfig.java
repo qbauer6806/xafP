@@ -76,6 +76,8 @@ public class BatchConfig {
     @Bean
     public ItemProcessor<DemandeEsDTO, DemandeDTO> demandeEsDTOProcessor() {
         return demandeEsDTO -> {
+            System.out.println("demandeEsDTOProcessor");
+            System.out.println(demandeEsDTO);
             DemandeDTO demande = new DemandeDTO();
             demande.setPkDemandes(demandeEsDTO.getPkDemandes());
             demande.setCode(demandeEsDTO.getDernierStatut().getCode());
@@ -87,6 +89,8 @@ public class BatchConfig {
     @Bean
     public ItemProcessor<DemandeFileEsDTO, DemandeFileDTO> demandeFileEsDTOProcessor() {
         return demandeFileEsDTO -> {
+            System.out.println("demandeFileEsDTOProcessor");
+            System.out.println(demandeFileEsDTO);
             DemandeFileDTO demandeFile = new DemandeFileDTO();
             demandeFile.setContent(demandeFileEsDTO.getContent());
             demandeFile.setTypeFichier(demandeFileEsDTO.getTypeFichier());

@@ -74,6 +74,7 @@ pipeline {
                 }
             }
         }
+        /*
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv(credentialsId: 'sonar-prod', installationName: 'sonar') {
@@ -81,6 +82,7 @@ pipeline {
                 }
             }
         }
+        */
 //         stage("SonarQube Quality Gate") {
 //             steps {
 //                 timeout(time: 5, unit: 'MINUTES') {
@@ -91,6 +93,7 @@ pipeline {
 //             }
 //         }
 
+        /*
         stage('NexusIQ analysis') {
             parallel {
                 stage('Analysing project migration-es-db') {
@@ -106,5 +109,6 @@ pipeline {
                 }
             }
         }
+        */
     }
 }

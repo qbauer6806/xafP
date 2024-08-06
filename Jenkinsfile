@@ -68,11 +68,12 @@ pipeline {
                 sh 'env'
                 sh 'mvn ${MC_M2_OPTS_REVISION} clean jacoco:prepare-agent install jacoco:report jacoco:report-aggregate org.cyclonedx:cyclonedx-maven-plugin:makeBom deploy'
             }
-            post {
-                success {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
+            
+        //    post {
+        //        success {
+        //            junit '**/target/surefire-reports/*.xml'
+        //        }
+        //    }
         }
         /*
         stage('SonarQube analysis') {

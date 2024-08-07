@@ -7,6 +7,8 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
+import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
+import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
@@ -60,6 +62,12 @@ public class DemandeJobServiceImpl implements DemandeJobService {
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private DemandesFilesService demandesFilesService;
+
+    @Autowired
+    private DemandesComplementsFilesService demandesComplementsFilesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -125,11 +133,16 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     }
                     break;
                 case XAF12_MIGRATION_DONNEES:
-                    demandesService.updateContenuTrad();
-                    demandesService.updateAgents();
-                    demandesService.updateUsagers();
+                    int countDemandes = demandesService.updateContenuTrad();
+                    int countAgents = demandesService.updateAgents();
+                    int countUsagers = demandesService.updateUsagers();
 
-                    msg = "Demandes migrées correctement";
+                    msg = countDemandes + " demandes, "+ countAgents + " agents, "+ countUsagers +" usagers migrés correctement";
+                    break;
+                case XAF12_MIGRATION_FICHIERS:
+                    int count = demandesFilesService.updateContenuFiles();
+                    int countComplement = demandesComplementsFilesService.updateContenuFiles();
+                    msg = count +" fichiers et "+ countComplement + " compléments migrés correctement";
                     break;
                 default:
                     break;

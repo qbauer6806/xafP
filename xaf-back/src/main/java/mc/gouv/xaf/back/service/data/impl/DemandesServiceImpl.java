@@ -310,41 +310,50 @@ public class DemandesServiceImpl implements DemandesService {
 	/**
 	 * Méthode utilisée pour migration données XAF12, à supprimer plus tard
 	 */
-    public void updateContenuTrad(){
-        // récupérer toutes les demandes
+    public int updateContenuTrad(){
+        LOGGER.debug("Début de la méthode DemandesServiceImpl.updateContenuTrad");
         List<DemandeBO> demandeBOS = getAllDemarchesBoById(gouvPropertiesResolver.getDemarcheId());
+        LOGGER.debug("{} demandes récupérées", demandeBOS.size());
         for(DemandeBO demandeBO : demandeBOS) {
             JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
             setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
             demandeBO.setContenuTrad(contenuTrad);
         }
         demandesRepository.saveAll(demandeBOS);
+        LOGGER.debug("Fin de la méthode DemandesServiceImpl.updateContenuTrad");
+        return demandeBOS.size();
     }
 
     /**
      * Méthode utilisée pour migration données XAF12, à supprimer plus tard
      */
-    public void updateUsagers(){
-        // récupérer tous les usagers
+    public int updateUsagers(){
+        LOGGER.debug("Début de la méthode DemandesServiceImpl.updateUsagers");
         List<DemandesUsagersBO> usagerBOS = demandesUsagersRepository.findAll();
+        LOGGER.debug("{} usagers récupérées", usagerBOS.size());
         for(DemandesUsagersBO usagerBO : usagerBOS) {
             GichuniUsagerDTO usager = usagersCache.get(usagerBO.getId());
             demandesUsagersTransformer.user2Bo(usager, usagerBO);
         }
         demandesUsagersRepository.saveAll(usagerBOS);
+        LOGGER.debug("Fin de la méthode DemandesServiceImpl.updateUsagers");
+        return usagerBOS.size();
     }
 
     /**
      * Méthode utilisée pour migration données XAF12, à supprimer plus tard
      */
-    public void updateAgents(){
-        // récupérer tous les usagers
+    public int updateAgents(){
+        LOGGER.debug("Début de la méthode DemandesServiceImpl.updateAgents");
         List<DemandesAgentsBO> agentsBOS = demandesAgentsRepository.findAll();
+        LOGGER.debug("{} agents récupérées", agentsBOS.size());
         for(DemandesAgentsBO agentsBO : agentsBOS) {
             User user = utilisateursCache.get(String.valueOf(agentsBO.getId()));
             demandesAgentsTransformer.user2Bo(user, agentsBO);
         }
         demandesAgentsRepository.saveAll(agentsBOS);
+        LOGGER.debug("Fin de la méthode DemandesServiceImpl.updateAgents");
+        return agentsBOS.size();
     }
 
 	private void setContenuTrad(JsonNode contenuTrad, JsonNode config) {

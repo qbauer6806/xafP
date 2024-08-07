@@ -8,7 +8,8 @@ public enum JobNamesEnum {
     TRAITEMENT_OUTBOX_KAFKA("Traitement de l'Outbox Kafka"),
     SYNCHRONISATION_GLOBALE_GU("Synchronisation globale des demandes des usagers avec le Guichet Unique"),
     RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA("Récupération du nombre de messages contenus dans l'Outbox Kafka"),
-    XAF12_MIGRATION_DONNEES("XAF12 - Migration données (contenuTrad, agents, usagers)");
+    XAF12_MIGRATION_DONNEES("XAF12 - Migration données (contenuTrad, agents, usagers)"),
+    XAF12_MIGRATION_FICHIERS("XAF12 - Migration contenu fichiers");
 
     private final String libelle;
 

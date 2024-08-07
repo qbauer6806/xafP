@@ -1,7 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
+import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -11,10 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Service permettant la manipulation des fichiers joints aux  d'informations complémentaires.
@@ -35,6 +36,9 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private DemandeFileTransformer demandeFileTransformer;
 
 	private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes, AtomicBoolean success) {
 		String pk = "" + file.getPkDemandesComplementsFiles();
@@ -77,4 +81,25 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 		LOGGER.info("Fin updateTypedocs()");
 		return success.get();
 	}
+
+    @Override
+    public int updateContenuFiles() {
+        LOGGER.debug("Début de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
+        int count = 0;
+        for (DemandesComplementsFilesBO file : demandesComplementsFilesRepository.findAll()) {
+            String url = file.getUrl();
+            if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
+                try {
+                    String text = demandeFileTransformer.getFileText(url);
+                    file.setContenu(text);
+                    demandesComplementsFilesRepository.save(file);
+                    count++;
+                } catch (IOException e) {
+                    LOGGER.debug("Fichier impossible à lire {}", url);
+                }
+            }
+        }
+        LOGGER.debug("Fin de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
+        return count;
+    }
 }

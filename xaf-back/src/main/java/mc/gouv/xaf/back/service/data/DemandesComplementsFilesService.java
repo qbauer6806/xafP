@@ -10,4 +10,5 @@ import java.util.Map;
 public interface DemandesComplementsFilesService {
 
 	boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes);
+    int updateContenuFiles();
 }

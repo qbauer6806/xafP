@@ -101,7 +101,7 @@ public class DemandeFileTransformer {
         return is;
     }
 
-    private String getFileText(String url) throws IOException {
+    public String getFileText(String url) throws IOException {
         String fileUrl = getFileURL(url);
         InputStream is = getFileInputStream(fileUrl);
         String fileText = "";

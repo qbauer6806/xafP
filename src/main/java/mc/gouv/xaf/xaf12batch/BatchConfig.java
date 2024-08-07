@@ -7,6 +7,7 @@ import mc.gouv.xaf.xaf12batch.dto.DemandeFileDTO;
 import mc.gouv.xaf.xaf12batch.dto.DemandeFileEsDTO;
 import mc.gouv.xaf.xaf12batch.reader.DemandeEsFileItemReader;
 import mc.gouv.xaf.xaf12batch.reader.DemandeEsItemReader;
+import mc.gouv.xaf.xaf12batch.writer.CustomJdbcBatchItemWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -24,7 +25,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 @EnableBatchProcessing
 public class BatchConfig {
-
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -100,12 +100,17 @@ public class BatchConfig {
     }
 
     @Bean
-    public JdbcBatchItemWriter<DemandeDTO> demandeWriter() {
+    public JdbcBatchItemWriter<DemandeDTO> delegateDemandeWriter() {
         return new JdbcBatchItemWriterBuilder<DemandeDTO>()
                 .dataSource(dataSource)
                 .sql("UPDATE dem_demandes_statuts SET name = :code, libelle = :libelle FROM dem_demandes WHERE dem_demandes_statuts.pk_demandesstatuts = dem_demandes.fk_dernier_statut AND dem_demandes.pk_demandes = :pkDemandes")
                 .beanMapped()
                 .build();
+    }
+
+    @Bean
+    public CustomJdbcBatchItemWriter<DemandeDTO> demandeWriter() {
+        return CustomJdbcBatchItemWriter.customJdbcBatchItemWriter(delegateDemandeWriter());
     }
 
     @Bean

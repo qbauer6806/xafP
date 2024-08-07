@@ -28,8 +28,8 @@ public class GenerateConfigFromRecaps {
             JsonNode recapBack;
             JsonNode recapFront;
             try {
-                recapBack = readJsonFromFile("xaf12/recaps_"+buildId+".json");
-                recapFront = readJsonFromFile("xaf12/recapsFront_"+buildId+".json");
+                recapBack = readJsonFromFile("xaf12/recaps_" + buildId + ".json");
+                recapFront = readJsonFromFile("xaf12/recapsFront_" + buildId + ".json");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -197,7 +197,10 @@ public class GenerateConfigFromRecaps {
                     break;
                 }
             }
-            System.out.println("insert into TSCode.DEM_DEMANDES_CONFIG values (" + config.get("buildId").asText() + ",'" + config.toString().replace("'", "''") + "');");
+            System.out.println(
+                    "INSERT INTO TSCode.DEM_DEMANDES_CONFIG (build_id, contenu) values (" + config.get(
+                            "buildId").asText() + ",'" + config.toString().replace("'", "''")
+                            + "') ON CONFLICT (build_id) DO UPDATE SET contenu = EXCLUDED.contenu;");
             System.out.println();
         }
 

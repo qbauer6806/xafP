@@ -311,16 +311,16 @@ public class DemandesServiceImpl implements DemandesService {
 	 * Méthode utilisée pour migration données XAF12, à supprimer plus tard
 	 */
     public int updateContenuTrad(){
-        LOGGER.debug("Début de la méthode DemandesServiceImpl.updateContenuTrad");
+        LOGGER.info("Début de la méthode DemandesServiceImpl.updateContenuTrad");
         List<DemandeBO> demandeBOS = getAllDemarchesBoById(gouvPropertiesResolver.getDemarcheId());
-        LOGGER.debug("{} demandes récupérées", demandeBOS.size());
+        LOGGER.info("{} demandes récupérées", demandeBOS.size());
         for(DemandeBO demandeBO : demandeBOS) {
             JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
             setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
             demandeBO.setContenuTrad(contenuTrad);
         }
         demandesRepository.saveAll(demandeBOS);
-        LOGGER.debug("Fin de la méthode DemandesServiceImpl.updateContenuTrad");
+        LOGGER.info("Fin de la méthode DemandesServiceImpl.updateContenuTrad");
         return demandeBOS.size();
     }
 
@@ -328,15 +328,15 @@ public class DemandesServiceImpl implements DemandesService {
      * Méthode utilisée pour migration données XAF12, à supprimer plus tard
      */
     public int updateUsagers(){
-        LOGGER.debug("Début de la méthode DemandesServiceImpl.updateUsagers");
+        LOGGER.info("Début de la méthode DemandesServiceImpl.updateUsagers");
         List<DemandesUsagersBO> usagerBOS = demandesUsagersRepository.findAll();
-        LOGGER.debug("{} usagers récupérées", usagerBOS.size());
+        LOGGER.info("{} usagers récupérées", usagerBOS.size());
         for(DemandesUsagersBO usagerBO : usagerBOS) {
             GichuniUsagerDTO usager = usagersCache.get(usagerBO.getId());
             demandesUsagersTransformer.user2Bo(usager, usagerBO);
         }
         demandesUsagersRepository.saveAll(usagerBOS);
-        LOGGER.debug("Fin de la méthode DemandesServiceImpl.updateUsagers");
+        LOGGER.info("Fin de la méthode DemandesServiceImpl.updateUsagers");
         return usagerBOS.size();
     }
 
@@ -344,15 +344,15 @@ public class DemandesServiceImpl implements DemandesService {
      * Méthode utilisée pour migration données XAF12, à supprimer plus tard
      */
     public int updateAgents(){
-        LOGGER.debug("Début de la méthode DemandesServiceImpl.updateAgents");
+        LOGGER.info("Début de la méthode DemandesServiceImpl.updateAgents");
         List<DemandesAgentsBO> agentsBOS = demandesAgentsRepository.findAll();
-        LOGGER.debug("{} agents récupérées", agentsBOS.size());
+        LOGGER.info("{} agents récupérées", agentsBOS.size());
         for(DemandesAgentsBO agentsBO : agentsBOS) {
             User user = utilisateursCache.get(String.valueOf(agentsBO.getId()));
             demandesAgentsTransformer.user2Bo(user, agentsBO);
         }
         demandesAgentsRepository.saveAll(agentsBOS);
-        LOGGER.debug("Fin de la méthode DemandesServiceImpl.updateAgents");
+        LOGGER.info("Fin de la méthode DemandesServiceImpl.updateAgents");
         return agentsBOS.size();
     }
 

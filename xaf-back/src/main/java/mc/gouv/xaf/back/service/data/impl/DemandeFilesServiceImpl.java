@@ -275,7 +275,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public int updateContenuFiles() {
-        LOGGER.debug("Début de la méthode DemandeFilesServiceImpl.updateContenuFiles");
+        LOGGER.info("Début de la méthode DemandeFilesServiceImpl.updateContenuFiles");
         int count = 0;
         for (DemandesFilesBO file : demandesFilesRepository.findAll()) {
             String url = file.getUrl();
@@ -286,11 +286,11 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                     demandesFilesRepository.save(file);
                     count++;
                 } catch (IOException e) {
-                    LOGGER.debug("Fichier impossible à lire {}", url);
+                    LOGGER.info("Fichier impossible à lire {}", url);
                 }
             }
         }
-        LOGGER.debug("Fin de la méthode DemandeFilesServiceImpl.updateContenuFiles");
+        LOGGER.info("Fin de la méthode DemandeFilesServiceImpl.updateContenuFiles");
         return count;
     }
 }

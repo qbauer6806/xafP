@@ -84,7 +84,7 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 
     @Override
     public int updateContenuFiles() {
-        LOGGER.debug("Début de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
+        LOGGER.info("Début de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
         int count = 0;
         for (DemandesComplementsFilesBO file : demandesComplementsFilesRepository.findAll()) {
             String url = file.getUrl();
@@ -95,11 +95,11 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
                     demandesComplementsFilesRepository.save(file);
                     count++;
                 } catch (IOException e) {
-                    LOGGER.debug("Fichier impossible à lire {}", url);
+                    LOGGER.info("Fichier impossible à lire {}", url);
                 }
             }
         }
-        LOGGER.debug("Fin de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
+        LOGGER.info("Fin de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
         return count;
     }
 }

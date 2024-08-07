@@ -11,7 +11,6 @@ import lombok.ToString;
 @ToString
 public class DemandeFileEsDTO {
     private String typeFichier;
-    private String _class;
     private String content;
     private String url;
 

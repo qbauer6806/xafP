@@ -10,8 +10,8 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
 public class DemandeEsDTO {
-    private DemandeStatutEsDTO dernierStatut;
 
+    private DemandeStatutEsDTO dernierStatut;
     private Integer pkDemandes;
 
 }

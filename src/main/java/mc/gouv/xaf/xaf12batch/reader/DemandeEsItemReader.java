@@ -37,10 +37,7 @@ public class DemandeEsItemReader implements ItemReader<DemandeEsDTO> {
         SearchRequest searchRequest = new SearchRequest(applicationName + "-index");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        // Exclure les documents qui ont la propriété identifiantDemande
-        boolQuery.mustNot(QueryBuilders.existsQuery("identifiantDemande"));
-        // Exclure les documents où la propriété identifiant est null
-        boolQuery.mustNot(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery("identifiant")));
+        boolQuery.must(QueryBuilders.existsQuery("dernierStatut"));
         searchSourceBuilder.query(boolQuery);
         searchRequest.source(searchSourceBuilder);
 

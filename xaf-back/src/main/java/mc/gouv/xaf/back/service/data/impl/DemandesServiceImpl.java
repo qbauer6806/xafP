@@ -312,7 +312,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
     public int updateContenuTrad() {
         LOGGER.info("Début de la méthode DemandesServiceImpl.updateContenuTrad");
-        int batchSize = 100; // Taille du lot
+        int batchSize = 300; // Taille du lot
         int totalUpdated = 0;
         Page<DemandeBO> batchPage;
         do {
@@ -328,6 +328,7 @@ public class DemandesServiceImpl implements DemandesService {
                 }
             }
             totalUpdated += batch.size();
+            batch.clear();
         } while (batchPage.hasNext()); // Vérifie s'il y a une autre page à traiter
 
         LOGGER.info("Fin de la méthode DemandesServiceImpl.updateContenuTrad");

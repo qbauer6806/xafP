@@ -321,9 +321,11 @@ public class DemandesServiceImpl implements DemandesService {
             List<DemandeBO> batch = batchPage.getContent();
             LOGGER.info("{} demandes récupérées", batch.size());
             for (DemandeBO demandeBO : batch) {
-                JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
-                setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
-                demandeBO.setContenuTrad(contenuTrad);
+                if (demandeBO.getConfig() != null) {
+                    JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
+                    setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
+                    demandeBO.setContenuTrad(contenuTrad);
+                }
             }
             demandesRepository.saveAll(batch);
             totalUpdated += batch.size();

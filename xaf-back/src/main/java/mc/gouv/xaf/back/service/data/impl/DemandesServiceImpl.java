@@ -312,22 +312,22 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
     public int updateContenuTrad() {
         LOGGER.info("Début de la méthode DemandesServiceImpl.updateContenuTrad");
-        int batchSize = 250; // Taille du lot
+        int batchSize = 100; // Taille du lot
         int totalUpdated = 0;
-
+        int totalRecup = 0;
         Page<DemandeBO> batchPage;
         do {
             batchPage = getBatchDemandesBo(totalUpdated, batchSize);
             List<DemandeBO> batch = batchPage.getContent();
-            LOGGER.info("{} demandes récupérées", batch.size());
+            LOGGER.info("{} demandes récupérées (cumulé)", totalUpdated);
             for (DemandeBO demandeBO : batch) {
                 if (demandeBO.getConfig() != null) {
                     JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
                     setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
                     demandeBO.setContenuTrad(contenuTrad);
+                    demandesRepository.save(demandeBO);
                 }
             }
-            demandesRepository.saveAll(batch);
             totalUpdated += batch.size();
         } while (batchPage.hasNext()); // Vérifie s'il y a une autre page à traiter
 

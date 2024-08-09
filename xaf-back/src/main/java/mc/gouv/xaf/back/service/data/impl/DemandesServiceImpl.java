@@ -310,18 +310,32 @@ public class DemandesServiceImpl implements DemandesService {
 	/**
 	 * Méthode utilisée pour migration données XAF12, à supprimer plus tard
 	 */
-    public int updateContenuTrad(){
+    public int updateContenuTrad() {
         LOGGER.info("Début de la méthode DemandesServiceImpl.updateContenuTrad");
-        List<DemandeBO> demandeBOS = getAllDemarchesBoById(gouvPropertiesResolver.getDemarcheId());
-        LOGGER.info("{} demandes récupérées", demandeBOS.size());
-        for(DemandeBO demandeBO : demandeBOS) {
-            JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
-            setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
-            demandeBO.setContenuTrad(contenuTrad);
-        }
-        demandesRepository.saveAll(demandeBOS);
+        int batchSize = 250; // Taille du lot
+        int totalUpdated = 0;
+
+        Page<DemandeBO> batchPage;
+        do {
+            batchPage = getBatchDemandesBo(totalUpdated, batchSize);
+            List<DemandeBO> batch = batchPage.getContent();
+            LOGGER.info("{} demandes récupérées", batch.size());
+            for (DemandeBO demandeBO : batch) {
+                JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
+                setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
+                demandeBO.setContenuTrad(contenuTrad);
+            }
+            demandesRepository.saveAll(batch);
+            totalUpdated += batch.size();
+        } while (batchPage.hasNext()); // Vérifie s'il y a une autre page à traiter
+
         LOGGER.info("Fin de la méthode DemandesServiceImpl.updateContenuTrad");
-        return demandeBOS.size();
+        return totalUpdated;
+    }
+
+    public Page<DemandeBO> getBatchDemandesBo(int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.ASC, "pkDemandes"));
+        return demandesRepository.findAll(pageable);
     }
 
     /**

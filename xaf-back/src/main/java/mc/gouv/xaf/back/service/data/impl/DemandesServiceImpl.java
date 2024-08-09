@@ -317,7 +317,7 @@ public class DemandesServiceImpl implements DemandesService {
         Page<DemandeBO> batchPage;
         do {
             batchPage = getBatchDemandesBo(totalUpdated, batchSize);
-            List<DemandeBO> batch = new ArrayList<>(batchPage.getContent());
+            List<DemandeBO> batch = batchPage.getContent();
             LOGGER.info("{} demandes récupérées (cumulé)", totalUpdated);
             for (DemandeBO demandeBO : batch) {
                 if (demandeBO.getConfig() != null) {
@@ -328,7 +328,7 @@ public class DemandesServiceImpl implements DemandesService {
                 }
             }
             totalUpdated += batch.size();
-            batch.clear();
+            System.gc(); // Forcer le garbage collection si nécessaire
         } while (batchPage.hasNext()); // Vérifie s'il y a une autre page à traiter
 
         LOGGER.info("Fin de la méthode DemandesServiceImpl.updateContenuTrad");

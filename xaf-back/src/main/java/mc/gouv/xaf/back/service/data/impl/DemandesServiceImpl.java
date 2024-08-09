@@ -317,7 +317,7 @@ public class DemandesServiceImpl implements DemandesService {
         Page<DemandeBO> batchPage;
         do {
             batchPage = getBatchDemandesBo(totalUpdated, batchSize);
-            List<DemandeBO> batch = batchPage.getContent();
+            List<DemandeBO> batch = new ArrayList<>(batchPage.getContent());
             LOGGER.info("{} demandes récupérées (cumulé)", totalUpdated);
             for (DemandeBO demandeBO : batch) {
                 if (demandeBO.getConfig() != null) {

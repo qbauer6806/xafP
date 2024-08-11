@@ -1,8 +1,14 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import mc.gouv.file.apiclient.FileClient;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -11,13 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 @Service
 public class DemandeFileTransformer {
 
@@ -25,6 +24,9 @@ public class DemandeFileTransformer {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     /**
      * Méthode permettant de récupérer une liste de DTO avec le contenu des fichier sous forme de chaine de caractéres
@@ -92,9 +94,7 @@ public class DemandeFileTransformer {
     private InputStream getFileInputStream(String fileUrl) throws IOException, FileConnectionException {
         InputStream is;
         try {
-            FileClient fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
-            LOGGER.info("Le fichier à indexer est le {}", fileUrl);
-            is = fileClient.getFile(fileUrl);
+            is = afBackUtils.getFileClient().getFile(fileUrl);
         } catch (ConnectException e) {
             throw new FileConnectionException("Could not connect to file", e);
         }

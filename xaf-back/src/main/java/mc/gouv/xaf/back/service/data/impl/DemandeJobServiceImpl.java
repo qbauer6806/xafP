@@ -141,8 +141,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     break;
                 case XAF12_MIGRATION_FICHIERS:
                     int count = demandesFilesService.updateContenuFiles();
-                    //int countComplement = demandesComplementsFilesService.updateContenuFiles();
-                    int countComplement = 0;
+                    int countComplement = demandesComplementsFilesService.updateContenuFiles();
                     msg = count +" fichiers et "+ countComplement + " compléments migrés correctement";
                     break;
                 default:

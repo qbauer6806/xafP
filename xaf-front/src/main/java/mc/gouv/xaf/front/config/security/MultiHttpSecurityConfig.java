@@ -76,12 +76,13 @@ public class MultiHttpSecurityConfig {
             http.securityMatcher("/api2tiers/**")
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                     .authorizeRequests().anyRequest().authenticated().and()
-                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf()
+                    .disable();
         } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas d'ouverture de l'endpoint /api2tiers/**");
             http.authorizeRequests()
                     .requestMatchers("/api2tiers/**").denyAll() // Empêcher l'accès à /api2tiers/** par défaut
-                    .anyRequest().permitAll(); // Autorise toutes les autres requêtes
+                    .anyRequest().permitAll().and().csrf().disable(); // Autorise toutes les autres requêtes
         }
         return http.build();
     }

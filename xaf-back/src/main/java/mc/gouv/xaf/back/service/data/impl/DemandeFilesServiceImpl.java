@@ -282,29 +282,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
 	}
 
-
-//    @Override
-//    public int updateContenuFiles() {
-//        LOGGER.info("Début de la méthode DemandeFilesServiceImpl.updateContenuFiles");
-//        int count = 0;
-//        for (DemandesFilesBO file : demandesFilesRepository.findAll()) {
-//            String url = file.getUrl();
-//            if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
-//                try {
-//                    String text = demandeFileTransformer.getFileText(url);
-//                    file.setContenu(text);
-//                    demandesFilesRepository.save(file);
-//                    count++;
-//                } catch (IOException e) {
-//                    LOGGER.info("Fichier impossible à lire {}", url);
-//                }
-//            }
-//        }
-//        LOGGER.info("Fin de la méthode DemandeFilesServiceImpl.updateContenuFiles");
-//        return count;
-//    }
     @Override
     public int updateContenuFiles() {
+        LOGGER.info("Début de la méthode DemandeFilesServiceImpl.updateContenuFiles");
         AtomicInteger t = new AtomicInteger();
         AtomicInteger d = new AtomicInteger();
         try (Stream<DemandesFilesBO> demandesFiles = demandesJpaFilesRepository.streamAll()) {
@@ -324,6 +304,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                         LOGGER.info("{} fichiers lus", d.getAndIncrement());
                     });
         }
+        LOGGER.info("Fin de la méthode DemandeFilesServiceImpl.updateContenuFiles");
         return d.get();
     }
 }

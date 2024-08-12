@@ -288,7 +288,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         AtomicInteger t = new AtomicInteger();
         AtomicInteger d = new AtomicInteger();
         try (Stream<DemandesFilesBO> demandesFiles = demandesJpaFilesRepository.streamAll()) {
-            demandesFiles.peek(em::detach)
+            demandesFiles.parallel().peek(em::detach)
                     .forEach(file -> {
                         String url = file.getUrl();
                         if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
@@ -297,7 +297,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                                 LOGGER.info("CONTENU {} fichiers traités", text);
                                 LOGGER.info("FICHIER {}", url);
                                 file.setContenu(text);
-                                demandesFilesRepository.save(file);
+                                LOGGER.info("FICHIER SAUVEGARDE {}", demandesFilesRepository.save(file).getContenu());
                                 LOGGER.info("{} fichiers traités", t.getAndIncrement());
                             } catch (IOException e) {
                                 LOGGER.info("Fichier impossible à lire {}", url);

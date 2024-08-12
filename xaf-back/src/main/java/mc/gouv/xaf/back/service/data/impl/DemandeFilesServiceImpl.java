@@ -294,6 +294,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                         if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                             try {
                                 String text = demandeFileTransformer.getFileText(url);
+                                LOGGER.info("CONTENU {} fichiers traités", text);
+                                LOGGER.info("FICHIER {}", url);
                                 file.setContenu(text);
                                 demandesFilesRepository.save(file);
                                 LOGGER.info("{} fichiers traités", t.getAndIncrement());

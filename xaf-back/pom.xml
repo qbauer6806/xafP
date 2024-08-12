@@ -345,11 +345,6 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
         </dependency>
-      <dependency>
-        <groupId>org.apache.pdfbox</groupId>
-        <artifactId>fontbox</artifactId>
-        <version>${pdfbox.version}</version>
-      </dependency>
 
 
       <!-- Quartz -->

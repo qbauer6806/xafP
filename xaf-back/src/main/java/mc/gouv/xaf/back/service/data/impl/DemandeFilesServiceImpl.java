@@ -293,10 +293,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                         String url = file.getUrl();
                         if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                             try {
-                                String text = demandeFileTransformer.getFileText(url);
-                                LOGGER.info("CONTENU {} fichiers traités", text);
-                                LOGGER.info("FICHIER {} {}", file.getFkDemandes(), url);
-                                file.setContenu(text);
+                                LOGGER.info("FICHIER {} {}", file.getFkDemandes().getPkDemandes(), url);
+                                file.setContenu(demandeFileTransformer.getFileText(url));
                                 demandesFilesRepository.save(file);
                                 LOGGER.info("{} fichiers traités", t.getAndIncrement());
                             } catch (IOException e) {

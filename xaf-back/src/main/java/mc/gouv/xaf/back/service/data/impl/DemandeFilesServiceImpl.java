@@ -288,16 +288,16 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         AtomicInteger t = new AtomicInteger();
         AtomicInteger d = new AtomicInteger();
         try (Stream<DemandesFilesBO> demandesFiles = demandesJpaFilesRepository.streamAll()) {
-            demandesFiles.parallel().peek(em::detach)
+            demandesFiles.peek(em::detach)
                     .forEach(file -> {
                         String url = file.getUrl();
                         if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                             try {
                                 String text = demandeFileTransformer.getFileText(url);
                                 LOGGER.info("CONTENU {} fichiers traités", text);
-                                LOGGER.info("FICHIER {}", url);
+                                LOGGER.info("FICHIER {} {}", file.getFkDemandes(), url);
                                 file.setContenu(text);
-                                LOGGER.info("FICHIER SAUVEGARDE {}", demandesFilesRepository.save(file).getContenu());
+                                demandesFilesRepository.save(file);
                                 LOGGER.info("{} fichiers traités", t.getAndIncrement());
                             } catch (IOException e) {
                                 LOGGER.info("Fichier impossible à lire {}", url);

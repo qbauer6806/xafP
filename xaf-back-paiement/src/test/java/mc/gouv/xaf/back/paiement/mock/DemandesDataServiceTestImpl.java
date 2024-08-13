@@ -76,4 +76,9 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     public void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo) {
 
     }
+
+    @Override
+    public int updateStatuts() {
+        return 0;
+    }
 }

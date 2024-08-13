@@ -1,5 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -28,11 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * Service permettant la manipulation des statuts des demandes.
@@ -69,6 +71,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 
     @Autowired
     private DemandesTransformer demandesTransformer;
+
+    @Autowired
+    private EntityManager em;
 
     /**
      * {@inheritDoc}
@@ -233,5 +238,21 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 
         // "Dernier statut" d'une demande
         newDemandeBo.setDernierStatut(dernierStatutBo);
+    }
+
+    @Override
+    public int updateStatuts() {
+        LOGGER.info("Début de la méthode DemandesStatutsServiceImpl.updateStatuts");
+        AtomicInteger d = new AtomicInteger();
+        try (Stream<DemandesStatutsBO> demandesFiles = demandesStatutsRepository.streamAll()) {
+            demandesFiles.peek(em::detach)
+                    .forEach(statut -> {
+                        statut.setLibelle(demarchesDataProvider.getStatusLibelle(statut.getName()));
+                        demandesStatutsRepository.save(statut);
+                        LOGGER.info("{} statuts lus", d.incrementAndGet());
+                    });
+        }
+        LOGGER.info("Fin de la méthode DemandesStatutsServiceImpl.updateStatuts");
+        return d.get();
     }
 }

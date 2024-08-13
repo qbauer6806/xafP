@@ -13,9 +13,7 @@
 
     <properties>
         <flowable.version>7.0.1</flowable.version>
-        <!-- Librairie pour generer le fichier recap d'une demande (sous license LGPL). -->
-        <openhtml.version>1.1.19</openhtml.version>
-        <pdfbox.version>3.0.2</pdfbox.version>
+        <openhtml.version>1.1.21</openhtml.version>
         <xdocreport.version>2.1.0</xdocreport.version>
         <jxls.version>3.0.0</jxls.version>
     </properties>
@@ -345,6 +343,12 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
         </dependency>
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>fontbox</artifactId>
+        <version>${pdfbox.version}</version>
+      </dependency>
+
 
 
       <!-- Quartz -->

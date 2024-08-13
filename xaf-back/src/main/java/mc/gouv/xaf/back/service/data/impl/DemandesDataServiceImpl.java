@@ -1,10 +1,15 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
+import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +40,15 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	@Autowired
 	private DemandesDataRepository demandesDataRepository;
 
+    @Autowired
+    private DemandesStatutsRepository demandesStatutsRepository;
+
 	@Autowired
 	private DemandesService demandesService;
+
+    @Autowired
+    private EntityManager em;
+
 
 	@Override
 	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key) {
@@ -217,4 +229,23 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 			newDemandeBo.setData(new HashSet<>(datasBo));
 		}
 	}
+
+    @Override
+    public int updateStatuts() {
+        LOGGER.info("Début de la méthode DemandesDataServiceImpl.updateStatuts");
+        AtomicInteger d = new AtomicInteger();
+        try (Stream<DemandesDataBO> demandesFiles = demandesDataRepository.streamAll()) {
+            demandesFiles.peek(em::detach)
+                    .forEach(data -> {
+                        if(data.getKey().equals("IS_EN_ATTENTE_VALIDATION") && data.getValue().equals("1")) {
+                            DemandesStatutsBO statut = data.getFkDemandes().getDernierStatut();
+                            statut.setName("validationHierarchiqueTask");
+                            demandesStatutsRepository.save(statut);
+                            LOGGER.info("{} data lus", d.incrementAndGet());
+                        }
+                    });
+        }
+        LOGGER.info("Fin de la méthode DemandesDataServiceImpl.updateStatuts");
+        return d.get();
+    }
 }

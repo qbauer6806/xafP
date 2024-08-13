@@ -19,7 +19,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <servicerest.version>3.0.4-SNAPSHOT</servicerest.version>
-        <tika.version>2.9.2</tika.version>
+        <tika.version>3.0.0-BETA2</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <poi-ooxml.version>5.3.0</poi-ooxml.version>
@@ -29,7 +29,7 @@
         <jacoco.version>0.8.12</jacoco.version>
         <jbig2-imageio.version>3.0.4</jbig2-imageio.version>
         <vscan.version>1.0.0</vscan.version>
-        <pdfbox.version>2.0.32</pdfbox.version>
+        <pdfbox.version>3.0.3</pdfbox.version>
     </properties>
 
     <groupId>mc.gouv.xaf</groupId>

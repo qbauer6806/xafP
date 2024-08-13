@@ -90,4 +90,6 @@ public interface DemandesDataService {
      */
     void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo);
 
+    int updateStatuts();
+
 }

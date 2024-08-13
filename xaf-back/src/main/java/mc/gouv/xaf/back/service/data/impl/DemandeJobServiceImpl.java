@@ -1,5 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import jakarta.inject.Inject;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.DemandeJobRepository;
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.back.data.transformer.DemandeJobTransformer;
@@ -8,8 +12,10 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -29,11 +35,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.inject.Inject;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -65,6 +66,12 @@ public class DemandeJobServiceImpl implements DemandeJobService {
 
     @Autowired
     private DemandesFilesService demandesFilesService;
+
+    @Autowired
+    private DemandesStatutsService demandesStatutsService;
+
+    @Autowired
+    private DemandesDataService demandesDataService;
 
     @Autowired
     private DemandesComplementsFilesService demandesComplementsFilesService;
@@ -143,6 +150,11 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     int count = demandesFilesService.updateContenuFiles();
                     int countComplement = demandesComplementsFilesService.updateContenuFiles();
                     msg = count +" fichiers et "+ countComplement + " compléments migrés correctement";
+                    break;
+                case XAF12_MIGRATION_STATUTS:
+                    int countData = demandesDataService.updateStatuts();
+                    int countStatuts = demandesStatutsService.updateStatuts();
+                    msg = countData +" demandes data et "+ countStatuts + " statuts migrés correctement";
                     break;
                 default:
                     break;

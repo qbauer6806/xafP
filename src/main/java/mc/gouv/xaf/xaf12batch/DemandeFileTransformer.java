@@ -20,8 +20,8 @@ public class DemandeFileTransformer {
 
     private FileClient fileClient = null;
 
-    @Value("${file.container}")
-    private String fileContainer;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Value("${file.url}")
     private String fileApiUrl;
@@ -44,7 +44,7 @@ public class DemandeFileTransformer {
         String[] split = url.split("/");
         String isolatedFileName = split[split.length - 1];
         finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, StandardCharsets.UTF_8));
-        return fileContainer + "/ROOT/" + finalFilename;
+        return applicationName.toUpperCase() + "/ROOT/" + finalFilename;
     }
 
     /**

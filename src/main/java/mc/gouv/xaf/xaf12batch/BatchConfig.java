@@ -1,6 +1,8 @@
 package mc.gouv.xaf.xaf12batch;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManagerFactory;
+import mc.gouv.xaf.xaf12batch.dto.DemandeBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesComplementsFilesBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesFilesBO;
 import org.slf4j.Logger;
@@ -32,12 +34,16 @@ public class BatchConfig {
     @Autowired
     private DemandeFileTransformer demandeFileTransformer;
 
+    @Autowired
+    private DemandeTransformer demandeTransformer;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfig.class);
 
     public BatchConfig(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
     }
+
     @Bean
     public JpaPagingItemReader<DemandesFilesBO> filesReader(EntityManagerFactory entityManagerFactory) {
         return new JpaPagingItemReaderBuilder<DemandesFilesBO>()
@@ -54,6 +60,16 @@ public class BatchConfig {
                 .name("demandeComplementFileReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT d FROM DemandesComplementsFilesBO d ORDER BY d.pkDemandesComplementsFiles ASC")
+                .pageSize(10)
+                .build();
+    }
+
+    @Bean
+    public JpaPagingItemReader<DemandeBO> demandesReader(EntityManagerFactory entityManagerFactory) {
+        return new JpaPagingItemReaderBuilder<DemandeBO>()
+                .name("demandesReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("SELECT d FROM DemandeBO d ORDER BY d.pkDemandes ASC")
                 .pageSize(10)
                 .build();
     }
@@ -83,6 +99,19 @@ public class BatchConfig {
     }
 
     @Bean
+    public ItemProcessor<DemandeBO, DemandeBO> demandesProcessor() {
+        return demande -> {
+            LOGGER.info("Traitement de la demande ID {}", demande.getPkDemandes());
+            if (demande.getConfig() != null) {
+                JsonNode contenuTrad = demande.getContenuTrad();
+                demandeTransformer.setContenuTrad(contenuTrad, demande.getConfig().getContenu());
+                demande.setContenuTrad(contenuTrad);
+            }
+            return demande;
+        };
+    }
+
+    @Bean
     public JpaItemWriter<DemandesFilesBO> filesWriter(EntityManagerFactory entityManagerFactory) {
         return new JpaItemWriterBuilder<DemandesFilesBO>()
                 .entityManagerFactory(entityManagerFactory)
@@ -92,6 +121,13 @@ public class BatchConfig {
     @Bean
     public JpaItemWriter<DemandesComplementsFilesBO> complementsFilesWriter(EntityManagerFactory entityManagerFactory) {
         return new JpaItemWriterBuilder<DemandesComplementsFilesBO>()
+                .entityManagerFactory(entityManagerFactory)
+                .build();
+    }
+
+    @Bean
+    public JpaItemWriter<DemandeBO> demandesWriter(EntityManagerFactory entityManagerFactory) {
+        return new JpaItemWriterBuilder<DemandeBO>()
                 .entityManagerFactory(entityManagerFactory)
                 .build();
     }
@@ -119,11 +155,23 @@ public class BatchConfig {
     }
 
     @Bean
+    public Step demandesStep(EntityManagerFactory entityManagerFactory) {
+        return new StepBuilder("demandesStep", jobRepository)
+                .<DemandeBO, DemandeBO>chunk(10, transactionManager)
+                .reader(demandesReader(entityManagerFactory))
+                .processor(demandesProcessor())
+                .writer(demandesWriter(entityManagerFactory))
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+    @Bean
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(filesStep(null))  // Premier Step pour la première table
                 .next(complementsFilesStep(null))   // Deuxième Step pour la deuxième table
+//                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
                 .build();
     }
 

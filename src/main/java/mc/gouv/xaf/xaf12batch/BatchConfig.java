@@ -80,7 +80,12 @@ public class BatchConfig {
             LOGGER.info("Traitement du file ID {}", file.getPkDemandesFiles());
             String url = file.getUrl();
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
-                file.setContenu(demandeFileTransformer.getFileText(url));
+                String text = demandeFileTransformer.getFileText(url);
+                if (text.length() > 100000) {
+                    LOGGER.info("Contenu trop long, fichier ignoré");
+                } else {
+                    file.setContenu(text);
+                }
             }
             return file;
         };
@@ -92,7 +97,12 @@ public class BatchConfig {
             LOGGER.info("Traitement de complementFile ID {}", file.getPkDemandesComplementsFiles());
             String url = file.getUrl();
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
-                file.setContenu(demandeFileTransformer.getFileText(url));
+                String text = demandeFileTransformer.getFileText(url);
+                if (text.length() > 100000) {
+                    LOGGER.info("Contenu trop long, fichier ignoré");
+                } else {
+                    file.setContenu(text);
+                }
             }
             return file;
         };
@@ -171,7 +181,7 @@ public class BatchConfig {
                 .incrementer(new RunIdIncrementer())
                 .start(filesStep(null))  // Premier Step pour la première table
                 .next(complementsFilesStep(null))   // Deuxième Step pour la deuxième table
-//                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
+                //                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
                 .build();
     }
 

@@ -27,10 +27,6 @@ public class DemandeBO {
     @Column(name = "PK_DEMANDES", nullable = false)
     private Integer pkDemandes;
 
-    @Column(name = "CONTENU", columnDefinition = "JSONB", nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private JsonNode contenu;
-
     @Column(name = "CONTENU_TRAD", columnDefinition = "JSONB")
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode contenuTrad;

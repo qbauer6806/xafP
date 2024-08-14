@@ -1,81 +1,88 @@
 package mc.gouv.xaf.xaf12batch;
 
-import javax.sql.DataSource;
-import mc.gouv.xaf.xaf12batch.dto.DemandeDTO;
-import mc.gouv.xaf.xaf12batch.dto.DemandeEsDTO;
-import mc.gouv.xaf.xaf12batch.reader.DemandeEsItemReader;
-import mc.gouv.xaf.xaf12batch.writer.CustomJdbcBatchItemWriter;
+import jakarta.persistence.EntityManagerFactory;
+import mc.gouv.xaf.xaf12batch.dto.DemandesFilesBO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
-import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableBatchProcessing
 public class BatchConfig {
 
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager transactionManager;
 
     @Autowired
-    private StepBuilderFactory stepBuilderFactory;
+    private DemandeFileTransformer demandeFileTransformer;
 
-    @Autowired
-    private DataSource dataSource;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfig.class);
 
-    @Autowired
-    private DemandeEsItemReader demandeEsItemReader;
-
+    public BatchConfig(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        this.jobRepository = jobRepository;
+        this.transactionManager = transactionManager;
+    }
     @Bean
-    public Job migrateDataJob() {
-        return jobBuilderFactory.get("migrateDataJob")
-                .start(migrateDemandeEsDTOStep())
+    public JpaPagingItemReader<DemandesFilesBO> reader(EntityManagerFactory entityManagerFactory) {
+        return new JpaPagingItemReaderBuilder<DemandesFilesBO>()
+                .name("demandeFileReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("SELECT d FROM DemandesFilesBO d ORDER BY d.pkDemandesFiles ASC")
+                .pageSize(10)
                 .build();
     }
 
     @Bean
-    public Step migrateDemandeEsDTOStep() {
-        return stepBuilderFactory.get("migrateDemandeEsDTOStep")
-                .<DemandeEsDTO, DemandeDTO>chunk(100)
-                .reader(demandeEsItemReader)
-                .processor(demandeEsDTOProcessor())
-                .writer(demandeWriter())
-                .build();
-    }
-
-
-    @Bean
-    public ItemProcessor<DemandeEsDTO, DemandeDTO> demandeEsDTOProcessor() {
-        return demandeEsDTO -> {
-            System.out.println("demandeEsDTOProcessor");
-            System.out.println(demandeEsDTO);
-            DemandeDTO demande = new DemandeDTO();
-            demande.setPkDemandes(demandeEsDTO.getPkDemandes());
-            demande.setCode(demandeEsDTO.getDernierStatut().getCode());
-            demande.setLibelle(demandeEsDTO.getDernierStatut().getLibelle());
-            return demande;
+    public ItemProcessor<DemandesFilesBO, DemandesFilesBO> processor() {
+        return file -> {
+            LOGGER.info("Traitement de l'élément ID {}", file.getPkDemandesFiles());
+            String url = file.getUrl();
+            if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
+                file.setContenu(demandeFileTransformer.getFileText(url));
+            }
+            return file;
         };
     }
 
     @Bean
-    public JdbcBatchItemWriter<DemandeDTO> delegateDemandeWriter() {
-        return new JdbcBatchItemWriterBuilder<DemandeDTO>()
-                .dataSource(dataSource)
-                .sql("UPDATE dem_demandes_statuts SET name = :code, libelle = :libelle FROM dem_demandes WHERE dem_demandes_statuts.pk_demandesstatuts = dem_demandes.fk_dernier_statut AND dem_demandes.pk_demandes = :pkDemandes")
-                .beanMapped()
+    public JpaItemWriter<DemandesFilesBO> writer(EntityManagerFactory entityManagerFactory) {
+        return new JpaItemWriterBuilder<DemandesFilesBO>()
+                .entityManagerFactory(entityManagerFactory)
                 .build();
     }
 
     @Bean
-    public CustomJdbcBatchItemWriter<DemandeDTO> demandeWriter() {
-        return CustomJdbcBatchItemWriter.customJdbcBatchItemWriter(delegateDemandeWriter());
+    public Step step1(EntityManagerFactory entityManagerFactory) {
+        return new StepBuilder("step1", jobRepository)
+                .<DemandesFilesBO, DemandesFilesBO>chunk(10, transactionManager)
+                .reader(reader(entityManagerFactory))
+                .processor(processor())
+                .writer(writer(entityManagerFactory))
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+    @Bean
+    public Job importUserJob(@Qualifier("step1") Step step1) {
+        return new JobBuilder("importUserJob", jobRepository)
+                .incrementer(new org.springframework.batch.core.launch.support.RunIdIncrementer())
+                .start(step1)
+                .build();
     }
 
 }

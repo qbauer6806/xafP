@@ -81,8 +81,8 @@ public class BatchConfig {
             String url = file.getUrl();
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                 String text = demandeFileTransformer.getFileText(url);
-                if (text.length() > 100000) {
-                    LOGGER.info("Contenu trop long, fichier ignoré");
+                if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
+                    LOGGER.info("Contenu trop long ou fichier inexistant, ignoré");
                 } else {
                     file.setContenu(text);
                 }
@@ -98,8 +98,8 @@ public class BatchConfig {
             String url = file.getUrl();
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                 String text = demandeFileTransformer.getFileText(url);
-                if (text.length() > 100000) {
-                    LOGGER.info("Contenu trop long, fichier ignoré");
+                if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
+                    LOGGER.info("Contenu trop long ou fichier inexistant, ignoré");
                 } else {
                     file.setContenu(text);
                 }
@@ -179,8 +179,8 @@ public class BatchConfig {
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(filesStep(null))  // Premier Step pour la première table
-                .next(complementsFilesStep(null))   // Deuxième Step pour la deuxième table
+                .start(complementsFilesStep(null))  // Premier Step pour la première table
+                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
                 //                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
                 .build();
     }

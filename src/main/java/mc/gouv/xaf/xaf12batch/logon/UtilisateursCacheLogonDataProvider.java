@@ -42,7 +42,7 @@ public class UtilisateursCacheLogonDataProvider implements GouvCacheDataProvider
     public User get(String key) {
         try {
             return logonClient.getUserByMatricule(key);
-        } catch (FeignException.NotFound e) {
+        } catch (FeignException.NotFound | FeignException.InternalServerError e) {
             // Log l'erreur et retourner une valeur par défaut ou null
             LOGGER.warn("Utilisateur avec le matricule {} non trouvé.", key);
             return null; // ou vous pouvez lancer une exception personnalisée

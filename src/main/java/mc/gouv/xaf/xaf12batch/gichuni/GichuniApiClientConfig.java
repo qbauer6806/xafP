@@ -23,10 +23,10 @@ public class GichuniApiClientConfig {
     @Value("${gichkey.url}")
     private String gichkeyUrl;
 
-    @Value("${gichkey.client_id}")
+    @Value("${gichkey.back.client_id}")
     private String gichkeyClientId;
 
-    @Value("${gichkey.client_secret}")
+    @Value("${gichkey.back.client_secret}")
     private String gichkeyClientSecret;
 
     @Bean

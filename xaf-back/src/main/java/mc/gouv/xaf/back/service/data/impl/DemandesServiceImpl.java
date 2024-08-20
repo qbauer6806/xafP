@@ -28,12 +28,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
-import mc.gouv.xaf.back.data.dao.DemandesJpaRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
 import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
@@ -52,7 +49,6 @@ import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
@@ -130,9 +126,6 @@ public class DemandesServiceImpl implements DemandesService {
 	private DemandesRepository demandesRepository;
 
     @Autowired
-    private DemandesJpaRepository demandesJpaRepository;
-
-    @Autowired
 	private AccessRepository accessRepository;
 
 	@Autowired
@@ -198,9 +191,6 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
 	private EntityManager em;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private UsagersCache usagersCache;
@@ -312,59 +302,6 @@ public class DemandesServiceImpl implements DemandesService {
 
 		return demandeDTO;
 	}
-
-	/**
-	 * Méthode utilisée pour migration données XAF12, à supprimer plus tard
-	 */
-//    public int updateContenuTrad() {
-//        LOGGER.info("Début de la méthode DemandesServiceImpl.updateContenuTrad");
-//        int batchSize = 300; // Taille du lot
-//        int totalUpdated = 0;
-//        Page<DemandeBO> batchPage;
-//        do {
-//            batchPage = getBatchDemandesBo(totalUpdated, batchSize);
-//            List<DemandeBO> batch = batchPage.getContent();
-//            LOGGER.info("{} demandes récupérées (cumulé)", totalUpdated);
-//            for (DemandeBO demandeBO : batch) {
-//                if (demandeBO.getConfig() != null) {
-//                    JsonNode contenuTrad = demandeBO.getContenuTrad();
-//                    setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
-//                    demandeBO.setContenuTrad(contenuTrad);
-//                    demandesRepository.save(demandeBO);
-//                }
-//            }
-//            totalUpdated += batch.size();
-//            System.gc(); // Forcer le garbage collection si nécessaire
-//        } while (batchPage.hasNext()); // Vérifie s'il y a une autre page à traiter
-//
-//        LOGGER.info("Fin de la méthode DemandesServiceImpl.updateContenuTrad");
-//        return totalUpdated;
-//    }
-
-
-    public int updateContenuTrad() {
-        AtomicInteger t = new AtomicInteger();
-        AtomicInteger d = new AtomicInteger();
-        try (Stream<DemandeBO> students = demandesJpaRepository.streamAll()) {
-            students.peek(em::detach)
-                    .forEach(demandeBO -> {
-                        if (demandeBO.getConfig() != null) {
-                            JsonNode contenuTrad = demandeBO.getContenuTrad();
-                            setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
-                            demandeBO.setContenuTrad(contenuTrad);
-                            demandesRepository.save(demandeBO);
-                            LOGGER.info("{} demandes traitées", t.getAndIncrement());
-                        }
-                        LOGGER.info("{} demandes lues", d.getAndIncrement());
-                    });
-        }
-        return 0;
-    }
-
-//    public Page<DemandeBO> getBatchDemandesBo(int offset, int limit) {
-//        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.ASC, "pkDemandes"));
-//        return demandesRepository.findAll(pageable);
-//    }
 
     /**
      * Méthode utilisée pour migration données XAF12, à supprimer plus tard

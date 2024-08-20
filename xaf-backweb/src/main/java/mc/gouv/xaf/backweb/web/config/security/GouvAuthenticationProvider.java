@@ -35,7 +35,6 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private LogonClient logonClient;
 
-
     @Value("${display.name}")
     private String displayName;
 

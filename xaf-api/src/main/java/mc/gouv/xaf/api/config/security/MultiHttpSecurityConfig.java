@@ -5,16 +5,15 @@ import mc.gouv.xaf.api.config.filter.jwt.JwtAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 @Configuration
 public class MultiHttpSecurityConfig {
 
@@ -34,20 +33,12 @@ public class MultiHttpSecurityConfig {
         http.securityMatcher("/api/**");
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().anyRequest().authenticated();
+                .authorizeRequests().requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll().anyRequest().authenticated();
+
 
         http.addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf()
                 .disable();
         return http.build();
-    }
-
-    /**
-     * Pour permettre d'accéder à la documentation /index.html
-     */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        //https://stackoverflow.com/questions/43651298/adding-authorization-to-annotation-driven-swagger-json-with-jersey-2-and-spring/
-        return web -> web.ignoring().requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**");
     }
 
 }

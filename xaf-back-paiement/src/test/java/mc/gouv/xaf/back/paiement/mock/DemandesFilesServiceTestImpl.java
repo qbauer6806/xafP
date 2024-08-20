@@ -63,9 +63,4 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     public void deleteAllOrphans() {
 
     }
-
-    @Override
-    public int updateContenuFiles() {
-        return 0;
-    }
 }

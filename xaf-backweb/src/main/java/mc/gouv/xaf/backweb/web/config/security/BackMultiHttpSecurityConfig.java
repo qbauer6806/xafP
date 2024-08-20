@@ -5,13 +5,9 @@ import mc.gouv.xaf.backweb.web.config.security.filter.GouvPreAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -26,39 +22,21 @@ public class BackMultiHttpSecurityConfig {
     @Autowired
     private BackGouvPropertiesResolver propertiesResolver;
 
-    @Autowired
-    private GouvAuthenticationProvider gouvAuthenticationProvider;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests().anyRequest().authenticated().and().exceptionHandling()
+        http.authorizeRequests()
+                .requestMatchers("/monitor", "/css/**", "/js/**", "/font/**", "/img/**", "/webjars/**", "/h2-console/**", "/fonts/**", "/dynamicjs/**").permitAll()
+                .anyRequest().authenticated().and()
+                .exceptionHandling()
                 .accessDeniedPage("/error/403").and()
                 .securityContext(securityContext -> securityContext.requireExplicitSave(false)
                 )
-                .addFilterBefore(gouvPreAuthFilterRegistration(), BasicAuthenticationFilter.class)
-                .authenticationProvider(gouvAuthenticationProvider);
+                .addFilterBefore(gouvPreAuthFilterRegistration(), BasicAuthenticationFilter.class);
         return http.build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers("/monitor", "/css/**", "/js/**", "/font/**", "/img/**", "/webjars/**", "/h2-console/**", "/fonts/**", "/dynamicjs/**");
-
     }
 
     private GouvPreAuthFilter gouvPreAuthFilterRegistration() {
         return new GouvPreAuthFilter(propertiesResolver);
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Autowired
-    protected void registerProvider(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(gouvAuthenticationProvider);
     }
 
 

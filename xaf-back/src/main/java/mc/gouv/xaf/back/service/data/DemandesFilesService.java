@@ -50,6 +50,5 @@ public interface DemandesFilesService {
 	void suppressionDesFichiers(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours);
 
     void deleteAllOrphans();
-    int updateContenuFiles();
 
 }

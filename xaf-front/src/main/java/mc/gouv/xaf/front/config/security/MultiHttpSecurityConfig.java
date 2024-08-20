@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -75,25 +74,16 @@ public class MultiHttpSecurityConfig {
             LOGGER.info("Activation du proxy 2 tiers, donc ouverture et sécurisation de l'endpoint /api2tiers/** en JWT");
             http.securityMatcher("/api2tiers/**")
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                    .authorizeRequests().anyRequest().authenticated().and()
+                    .authorizeRequests().requestMatchers("/*").permitAll().anyRequest().authenticated().and()
                     .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf()
                     .disable();
         } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas d'ouverture de l'endpoint /api2tiers/**");
             http.authorizeRequests()
                     .requestMatchers("/api2tiers/**").denyAll() // Empêcher l'accès à /api2tiers/** par défaut
-                    .anyRequest().permitAll().and().csrf().disable(); // Autorise toutes les autres requêtes
+                    .requestMatchers("/*").permitAll().anyRequest().permitAll().and().csrf().disable(); // Autorise toutes les autres requêtes
         }
         return http.build();
-    }
-
-    /**
-     * Pour permettre d'accéder au reste de l'appli
-     */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        //https://stackoverflow.com/questions/43651298/adding-authorization-to-annotation-driven-swagger-json-with-jersey-2-and-spring/
-        return web -> web.ignoring().requestMatchers("/*");
     }
 
 }

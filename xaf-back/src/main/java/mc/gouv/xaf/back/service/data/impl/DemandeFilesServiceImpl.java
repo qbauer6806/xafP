@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -12,11 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesJpaFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -56,9 +52,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     private DemandesFilesRepository demandesFilesRepository;
 
     @Autowired
-    private DemandesJpaFilesRepository demandesJpaFilesRepository;
-
-    @Autowired
     private BrouillonsFilesRepository brouillonsFilesRepository;
 
     @Autowired
@@ -75,9 +68,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private DemandesTransformer demandesTransformer;
-
-    @Autowired
-    private EntityManager em;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -281,30 +271,4 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
 
 	}
-
-    @Override
-    public int updateContenuFiles() {
-        LOGGER.info("Début de la méthode DemandeFilesServiceImpl.updateContenuFiles");
-        AtomicInteger t = new AtomicInteger();
-        AtomicInteger d = new AtomicInteger();
-        try (Stream<DemandesFilesBO> demandesFiles = demandesJpaFilesRepository.streamAll()) {
-            demandesFiles.peek(em::detach)
-                    .forEach(file -> {
-                        String url = file.getUrl();
-                        if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
-                            try {
-                                LOGGER.info("FICHIER {} {}", file.getFkDemandes().getPkDemandes(), url);
-                                file.setContenu(demandeFileTransformer.getFileText(url));
-                                demandesFilesRepository.save(file);
-                                LOGGER.info("{} fichiers traités", t.getAndIncrement());
-                            } catch (IOException e) {
-                                LOGGER.info("Fichier impossible à lire {}", url);
-                            }
-                        }
-                        LOGGER.info("{} fichiers lus", d.getAndIncrement());
-                    });
-        }
-        LOGGER.info("Fin de la méthode DemandeFilesServiceImpl.updateContenuFiles");
-        return d.get();
-    }
 }

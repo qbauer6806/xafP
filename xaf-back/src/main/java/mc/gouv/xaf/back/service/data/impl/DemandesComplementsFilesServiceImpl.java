@@ -1,14 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import jakarta.persistence.EntityManager;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesJpaComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -35,20 +30,11 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 	@Autowired
 	private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
-    @Autowired
-    private DemandesJpaComplementsFilesRepository demandesJpaComplementsFilesRepository;
-
 	@Autowired
 	private FileService fileService;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private DemandeFileTransformer demandeFileTransformer;
-
-    @Autowired
-    private EntityManager em;
 
 	private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes, AtomicBoolean success) {
 		String pk = "" + file.getPkDemandesComplementsFiles();
@@ -92,29 +78,4 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 		return success.get();
 	}
 
-    @Override
-    public int updateContenuFiles() {
-        LOGGER.info("Début de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
-        AtomicInteger t = new AtomicInteger();
-        AtomicInteger d = new AtomicInteger();
-        try (Stream<DemandesComplementsFilesBO> demandesFiles = demandesJpaComplementsFilesRepository.streamAll()) {
-            demandesFiles.peek(em::detach)
-                    .forEach(file -> {
-                        String url = file.getUrl();
-                        if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
-                            try {
-                                String text = demandeFileTransformer.getFileText(url);
-                                file.setContenu(text);
-                                demandesComplementsFilesRepository.save(file);
-                                LOGGER.info("{} fichiers traités", t.getAndIncrement());
-                            } catch (IOException e) {
-                                LOGGER.info("Fichier impossible à lire {}", url);
-                            }
-                        }
-                        LOGGER.info("{} fichiers lus", d.getAndIncrement());
-                    });
-        }
-        LOGGER.info("Fin de la méthode DemandesComplementsFilesServiceImpl.updateContenuFiles");
-        return d.get();
-    }
 }

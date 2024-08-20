@@ -80,5 +80,4 @@ public interface DemandesStatutsService {
      */
     void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo);
 
-    int updateStatuts();
 }

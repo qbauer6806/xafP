@@ -45,9 +45,4 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     public void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo) {
 
     }
-
-    @Override
-    public int updateStatuts() {
-        return 0;
-    }
 }

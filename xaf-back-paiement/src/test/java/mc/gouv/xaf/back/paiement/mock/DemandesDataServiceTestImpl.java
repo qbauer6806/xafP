@@ -77,8 +77,4 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
 
     }
 
-    @Override
-    public int updateStatuts() {
-        return 0;
-    }
 }

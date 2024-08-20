@@ -11,9 +11,6 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
-import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -58,15 +55,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     
     @Autowired
     private KafkaOutboxService kafkaOutboxService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
-
-    @Autowired
-    private DemandesDataService demandesDataService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -130,17 +118,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     else {
                         msg += " message.";
                     }
-                    break;
-                case XAF12_MIGRATION_DONNEES:
-                    int countAgents = demandesService.updateAgents();
-                    int countUsagers = demandesService.updateUsagers();
-
-                    msg = countAgents + " agents, "+ countUsagers +" usagers migrés correctement";
-                    break;
-                case XAF12_MIGRATION_STATUTS:
-                    int countData = demandesDataService.updateStatuts();
-                    int countStatuts = demandesStatutsService.updateStatuts();
-                    msg = countData +" demandes data et "+ countStatuts + " statuts migrés correctement";
                     break;
                 default:
                     break;

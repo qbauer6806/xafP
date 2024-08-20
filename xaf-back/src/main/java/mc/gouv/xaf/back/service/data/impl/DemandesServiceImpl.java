@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
@@ -47,7 +46,6 @@ import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
@@ -66,7 +64,6 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.postprocessing.PostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -75,7 +72,6 @@ import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
@@ -134,9 +130,6 @@ public class DemandesServiceImpl implements DemandesService {
 	@Autowired
 	private DemandesUsagersRepository demandesUsagersRepository;
 
-    @Autowired
-    private DemandesAgentsRepository demandesAgentsRepository;
-
   @Autowired
     private PurgeFilesRepository purgeFilesRepository;
 
@@ -191,12 +184,6 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
 	private EntityManager em;
-
-    @Autowired
-    private UsagersCache usagersCache;
-
-    @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -302,38 +289,6 @@ public class DemandesServiceImpl implements DemandesService {
 
 		return demandeDTO;
 	}
-
-    /**
-     * Méthode utilisée pour migration données XAF12, à supprimer plus tard
-     */
-    public int updateUsagers(){
-        LOGGER.info("Début de la méthode DemandesServiceImpl.updateUsagers");
-        List<DemandesUsagersBO> usagerBOS = demandesUsagersRepository.findAll();
-        LOGGER.info("{} usagers récupérées", usagerBOS.size());
-        for(DemandesUsagersBO usagerBO : usagerBOS) {
-            GichuniUsagerDTO usager = usagersCache.get(usagerBO.getId());
-            demandesUsagersTransformer.user2Bo(usager, usagerBO);
-        }
-        demandesUsagersRepository.saveAll(usagerBOS);
-        LOGGER.info("Fin de la méthode DemandesServiceImpl.updateUsagers");
-        return usagerBOS.size();
-    }
-
-    /**
-     * Méthode utilisée pour migration données XAF12, à supprimer plus tard
-     */
-    public int updateAgents(){
-        LOGGER.info("Début de la méthode DemandesServiceImpl.updateAgents");
-        List<DemandesAgentsBO> agentsBOS = demandesAgentsRepository.findAll();
-        LOGGER.info("{} agents récupérées", agentsBOS.size());
-        for(DemandesAgentsBO agentsBO : agentsBOS) {
-            User user = utilisateursCache.get(String.valueOf(agentsBO.getId()));
-            demandesAgentsTransformer.user2Bo(user, agentsBO);
-        }
-        demandesAgentsRepository.saveAll(agentsBOS);
-        LOGGER.info("Fin de la méthode DemandesServiceImpl.updateAgents");
-        return agentsBOS.size();
-    }
 
 	private void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
 		JsonNode mappings = config.get("mappings");

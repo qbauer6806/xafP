@@ -40,14 +40,9 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	@Autowired
 	private DemandesDataRepository demandesDataRepository;
 
-    @Autowired
-    private DemandesStatutsRepository demandesStatutsRepository;
 
 	@Autowired
 	private DemandesService demandesService;
-
-    @Autowired
-    private EntityManager em;
 
 
 	@Override
@@ -230,22 +225,4 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 		}
 	}
 
-    @Override
-    public int updateStatuts() {
-        LOGGER.info("Début de la méthode DemandesDataServiceImpl.updateStatuts");
-        AtomicInteger d = new AtomicInteger();
-        try (Stream<DemandesDataBO> demandesFiles = demandesDataRepository.streamAll()) {
-            demandesFiles.peek(em::detach)
-                    .forEach(data -> {
-                        if(data.getKey().equals("IS_EN_ATTENTE_VALIDATION") && data.getValue().equals("1")) {
-                            DemandesStatutsBO statut = data.getFkDemandes().getDernierStatut();
-                            statut.setName("validationHierarchiqueTask");
-                            demandesStatutsRepository.save(statut);
-                            LOGGER.info("{} data lus", d.incrementAndGet());
-                        }
-                    });
-        }
-        LOGGER.info("Fin de la méthode DemandesDataServiceImpl.updateStatuts");
-        return d.get();
-    }
 }

@@ -247,7 +247,5 @@ public interface DemandesService {
 
     void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException;
-    int updateUsagers();
-    int updateAgents();
 
 }

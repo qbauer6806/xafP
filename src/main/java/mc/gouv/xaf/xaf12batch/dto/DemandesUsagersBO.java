@@ -50,16 +50,16 @@ public class DemandesUsagersBO {
     @Size(max = 128)
     private String adresse2;
 
-    @Column(name = "COMPLEMENT_ADRESSE", length = 128)
-    @Size(max = 128)
+    @Column(name = "COMPLEMENT_ADRESSE", length = 256)
+    @Size(max = 256)
     private String complementAdresse;
 
-    @Column(name = "CODE_POSTAL", length = 128)
-    @Size(max = 128)
+    @Column(name = "CODE_POSTAL", length = 256)
+    @Size(max = 256)
     private String codePostal;
 
-    @Column(name = "VILLE", length = 128)
-    @Size(max = 128)
+    @Column(name = "VILLE", length = 256)
+    @Size(max = 256)
     private String ville;
 
     @Column(name = "NOM_PAYS", length = 128)

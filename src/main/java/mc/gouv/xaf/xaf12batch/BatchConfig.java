@@ -121,7 +121,7 @@ public class BatchConfig {
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                 String text = demandeFileTransformer.getFileText(url);
                 if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
-                    LOGGER.info("Contenu trop long ou fichier inexistant, ignoré");
+                    LOGGER.warn("Contenu trop long ou fichier inexistant, ignoré");
                 } else {
                     file.setContenu(text);
                 }
@@ -138,7 +138,7 @@ public class BatchConfig {
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                 String text = demandeFileTransformer.getFileText(url);
                 if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
-                    LOGGER.info("Contenu trop long ou fichier inexistant, ignoré");
+                    LOGGER.warn("Contenu trop long ou fichier inexistant, ignoré");
                 } else {
                     file.setContenu(text);
                 }
@@ -175,7 +175,11 @@ public class BatchConfig {
         return usagerBo -> {
             LOGGER.info("Traitement de l'usager ID {}", usagerBo.getId());
             GichuniUsagerDTO usager = usagersCache.get(usagerBo.getId());
-            demandesUsagersTransformer.user2Bo(usager, usagerBo);
+            if (usager == null) {
+                LOGGER.warn("Usager ID {} non trouvé", usagerBo.getId());
+            } else {
+                demandesUsagersTransformer.user2Bo(usager, usagerBo);
+            }
             return usagerBo;
         };
     }

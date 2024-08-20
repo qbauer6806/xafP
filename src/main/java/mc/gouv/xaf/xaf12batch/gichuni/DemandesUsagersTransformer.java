@@ -14,19 +14,21 @@ public class DemandesUsagersTransformer {
     private DemandesUsagersTransformer() {}
 
     public void user2Bo(GichuniUsagerDTO user, DemandesUsagersBO bo) {
-        bo.setAdresse1(user.getAdresse1());
-        bo.setAdresse2(user.getAdresse2());
-        bo.setCodePostal(user.getCodePostal());
-        bo.setComplementAdresse(user.getComplementAdresse());
-        bo.setEmail(user.getEmail());
-        bo.setEtat(user.getEtat() != null ? user.getEtat().toString() : null);
-        bo.setNom(user.getNom());
-        bo.setNomPays(user.getNomPays());
-        bo.setPrenom(user.getPrenom());
-        bo.setRaisonSociale(user.getRaisonSociale());
-        bo.setTitre((user.getTitre() != null) ? getTitreStr(user.getTitre()) : null);
-        bo.setVille(user.getVille());
-        bo.setLogin(user.getLogin());
+        if (user != null) {
+            bo.setAdresse1(user.getAdresse1());
+            bo.setAdresse2(user.getAdresse2());
+            bo.setCodePostal(user.getCodePostal());
+            bo.setComplementAdresse(user.getComplementAdresse());
+            bo.setEmail(user.getEmail());
+            bo.setEtat(user.getEtat() != null ? user.getEtat().toString() : null);
+            bo.setNom(user.getNom());
+            bo.setNomPays(user.getNomPays());
+            bo.setPrenom(user.getPrenom());
+            bo.setRaisonSociale(user.getRaisonSociale());
+            bo.setTitre((user.getTitre() != null) ? getTitreStr(user.getTitre()) : null);
+            bo.setVille(user.getVille());
+            bo.setLogin(user.getLogin());
+        }
     }
 
     public String getTitreStr(Short titre) {

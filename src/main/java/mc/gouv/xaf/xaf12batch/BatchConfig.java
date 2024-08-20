@@ -3,8 +3,15 @@ package mc.gouv.xaf.xaf12batch;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManagerFactory;
 import mc.gouv.xaf.xaf12batch.dto.DemandeBO;
+import mc.gouv.xaf.xaf12batch.dto.DemandesAgentsBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesComplementsFilesBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesFilesBO;
+import mc.gouv.xaf.xaf12batch.dto.DemandesUsagersBO;
+import mc.gouv.xaf.xaf12batch.gichuni.DemandesUsagersTransformer;
+import mc.gouv.xaf.xaf12batch.gichuni.GichuniUsagerDTO;
+import mc.gouv.xaf.xaf12batch.logon.UtilisateursCache;
+import mc.gouv.xaf.xaf12batch.logon.dto.User;
+import mc.gouv.xboot.caching.GouvCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -36,6 +43,18 @@ public class BatchConfig {
 
     @Autowired
     private DemandeTransformer demandeTransformer;
+
+    @Autowired
+    private DemandesAgentsTransformer demandesAgentsTransformer;
+
+    @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
+    private UtilisateursCache utilisateursCache;
+
+    @Autowired
+    private GouvCache<Integer, GichuniUsagerDTO> usagersCache;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfig.class);
 
@@ -70,6 +89,26 @@ public class BatchConfig {
                 .name("demandesReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT d FROM DemandeBO d ORDER BY d.pkDemandes ASC")
+                .pageSize(10)
+                .build();
+    }
+
+    @Bean
+    public JpaPagingItemReader<DemandesAgentsBO> agentsReader(EntityManagerFactory entityManagerFactory) {
+        return new JpaPagingItemReaderBuilder<DemandesAgentsBO>()
+                .name("agentsReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("SELECT d FROM DemandesAgentsBO d ORDER BY d.id ASC")
+                .pageSize(10)
+                .build();
+    }
+
+    @Bean
+    public JpaPagingItemReader<DemandesUsagersBO> usagersReader(EntityManagerFactory entityManagerFactory) {
+        return new JpaPagingItemReaderBuilder<DemandesUsagersBO>()
+                .name("agentsReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("SELECT d FROM DemandesUsagersBO d WHERE d.id < 1000000000 ORDER BY d.id ASC")
                 .pageSize(10)
                 .build();
     }
@@ -122,6 +161,26 @@ public class BatchConfig {
     }
 
     @Bean
+    public ItemProcessor<DemandesAgentsBO, DemandesAgentsBO> agentsProcessor() {
+        return agent -> {
+            LOGGER.info("Traitement de l'agent ID {}", agent.getId());
+            User user = utilisateursCache.get(String.valueOf(agent.getId()));
+            demandesAgentsTransformer.user2Bo(user, agent);
+            return agent;
+        };
+    }
+
+    @Bean
+    public ItemProcessor<DemandesUsagersBO, DemandesUsagersBO> usagersProcessor() {
+        return usagerBo -> {
+            LOGGER.info("Traitement de l'usager ID {}", usagerBo.getId());
+            GichuniUsagerDTO usager = usagersCache.get(usagerBo.getId());
+            demandesUsagersTransformer.user2Bo(usager, usagerBo);
+            return usagerBo;
+        };
+    }
+
+    @Bean
     public JpaItemWriter<DemandesFilesBO> filesWriter(EntityManagerFactory entityManagerFactory) {
         return new JpaItemWriterBuilder<DemandesFilesBO>()
                 .entityManagerFactory(entityManagerFactory)
@@ -141,6 +200,21 @@ public class BatchConfig {
                 .entityManagerFactory(entityManagerFactory)
                 .build();
     }
+
+    @Bean
+    public JpaItemWriter<DemandesAgentsBO> agentsWriter(EntityManagerFactory entityManagerFactory) {
+        return new JpaItemWriterBuilder<DemandesAgentsBO>()
+                .entityManagerFactory(entityManagerFactory)
+                .build();
+    }
+
+    @Bean
+    public JpaItemWriter<DemandesUsagersBO> usagersWriter(EntityManagerFactory entityManagerFactory) {
+        return new JpaItemWriterBuilder<DemandesUsagersBO>()
+                .entityManagerFactory(entityManagerFactory)
+                .build();
+    }
+
 
     @Bean
     public Step filesStep(EntityManagerFactory entityManagerFactory) {
@@ -176,12 +250,37 @@ public class BatchConfig {
     }
 
     @Bean
+    public Step agentsStep(EntityManagerFactory entityManagerFactory) {
+        return new StepBuilder("agentsStep", jobRepository)
+                .<DemandesAgentsBO, DemandesAgentsBO>chunk(10, transactionManager)
+                .reader(agentsReader(entityManagerFactory))
+                .processor(agentsProcessor())
+                .writer(agentsWriter(entityManagerFactory))
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+    @Bean
+    public Step usagersStep(EntityManagerFactory entityManagerFactory) {
+        return new StepBuilder("usagersStep", jobRepository)
+                .<DemandesUsagersBO, DemandesUsagersBO>chunk(10, transactionManager)
+                .reader(usagersReader(entityManagerFactory))
+                .processor(usagersProcessor())
+                .writer(usagersWriter(entityManagerFactory))
+                .allowStartIfComplete(true)
+                .build();
+    }
+
+
+    @Bean
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(complementsFilesStep(null))  // Premier Step pour la première table
-                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
-                //                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
+//                .start(complementsFilesStep(null))  // Premier Step pour la première table
+               // .start(agentsStep(null))  // Premier Step pour la première table
+                .start(agentsStep(null))  // Premier Step pour la première table
+                .next(usagersStep(null))   // Deuxième Step pour la deuxième table
+//                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
                 .build();
     }
 

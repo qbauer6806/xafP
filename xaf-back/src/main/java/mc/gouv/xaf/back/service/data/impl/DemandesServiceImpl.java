@@ -834,12 +834,12 @@ public class DemandesServiceImpl implements DemandesService {
             LOGGER.info("L'agent associé n'est pas utilisé ailleurs, suppression...");
             demandesAgentsRepository.delete(agent);
         }
-        // Suppression de l'usager (pas géré par cascade, donc le faire ici)
-        LOGGER.info("Vérification de l'usager");
-        if (!demandesRepository.existsByUsager(usager)) {
-            LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
-            demandesUsagersRepository.delete(usager);
-        }
+//        // Suppression de l'usager (pas géré par cascade, donc le faire ici)
+//        LOGGER.info("Vérification de l'usager");
+//        if (!demandesRepository.existsByUsager(usager)) {
+//            LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
+//            demandesUsagersRepository.delete(usager);
+//        }
 
 		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
 		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(access.getUsagerId());

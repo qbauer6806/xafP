@@ -1,15 +1,16 @@
 package mc.gouv.xaf.back.data.dao;
 
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author qdeme
@@ -139,4 +140,10 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     @Query("select d from DemandeBO d inner join d.fkAccess fa where fa.demarcheId = :demarcheId and fa.usagerId = :usagerId")
     List<DemandeBO> findByDemarcheIdAndUsagerId(@Param("demarcheId") String demarcheId,
             @Param("usagerId") Integer usagerId);
+
+    @Query("SELECT COUNT(d) > 0 FROM DemandeBO d WHERE d.agent = :agent")
+    boolean existsByAgent(@Param("agent") DemandesAgentsBO agent);
+
+    @Query("SELECT COUNT(d) > 0 FROM DemandeBO d WHERE d.usager = :usager")
+    boolean existsByUsager(@Param("usager") DemandesUsagersBO usager);
 }

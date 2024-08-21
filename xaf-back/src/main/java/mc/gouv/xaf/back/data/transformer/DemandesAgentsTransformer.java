@@ -64,11 +64,13 @@ public class DemandesAgentsTransformer {
     }
 
     public void user2Bo(User user, DemandesAgentsBO bo) {
-        bo.setNom(user.getNom());
-        bo.setNomUsage(user.getNomUsage());
-        bo.setNomNaissance(user.getNomNaissance());
-        bo.setPrenom(user.getPrenom());
-        bo.setMail(user.getMail());
-        bo.setNomAffichage(getNomAffichage(user));
+        if (user != null) {
+            bo.setNom(user.getNom());
+            bo.setNomUsage(user.getNomUsage());
+            bo.setNomNaissance(user.getNomNaissance());
+            bo.setPrenom(user.getPrenom());
+            bo.setMail(user.getMail());
+            bo.setNomAffichage(getNomAffichage(user));
+        }
     }
 }

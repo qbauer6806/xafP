@@ -829,11 +829,13 @@ public class DemandesServiceImpl implements DemandesService {
 		demandesRepository.delete(demandeBo);
 
         // Suppression de l'agent (pas géré par cascade, donc le faire ici)
+        LOGGER.info("Vérification de l'agent");
         if (agent != null && !demandesRepository.existsByAgent(agent)) {
             LOGGER.info("L'agent associé n'est pas utilisé ailleurs, suppression...");
             demandesAgentsRepository.delete(agent);
         }
         // Suppression de l'usager (pas géré par cascade, donc le faire ici)
+        LOGGER.info("Vérification de l'usager");
         if (!demandesRepository.existsByUsager(usager)) {
             LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
             demandesUsagersRepository.delete(usager);

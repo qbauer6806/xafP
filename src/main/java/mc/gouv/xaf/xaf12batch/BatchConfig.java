@@ -121,7 +121,7 @@ public class BatchConfig {
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                 String text = demandeFileTransformer.getFileText(url);
                 if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
-                    LOGGER.warn("Contenu trop long ou fichier inexistant, ignoré");
+                    LOGGER.warn("Fichier {} : contenu trop long ou fichier inexistant, ignoré", file.getPkDemandesFiles());
                 } else {
                     file.setContenu(text);
                 }
@@ -138,7 +138,7 @@ public class BatchConfig {
             if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
                 String text = demandeFileTransformer.getFileText(url);
                 if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
-                    LOGGER.warn("Contenu trop long ou fichier inexistant, ignoré");
+                    LOGGER.warn("Fichier {} : contenu trop long ou fichier inexistant, ignoré",  file.getPkDemandesComplementsFiles());
                 } else {
                     file.setContenu(text);
                 }
@@ -280,11 +280,11 @@ public class BatchConfig {
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-//                .start(complementsFilesStep(null))  // Premier Step pour la première table
-               // .start(agentsStep(null))  // Premier Step pour la première table
-                .start(agentsStep(null))  // Premier Step pour la première table
-                .next(usagersStep(null))   // Deuxième Step pour la deuxième table
-//                .next(demandesStep(null))   // Deuxième Step pour la deuxième table
+                .start(filesStep(null))
+                .next(complementsFilesStep(null))
+                .next(demandesStep(null))
+                .next(agentsStep(null))
+                .next(usagersStep(null))
                 .build();
     }
 

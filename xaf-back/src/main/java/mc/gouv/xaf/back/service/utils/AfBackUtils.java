@@ -28,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
-import mc.gouv.xaf.back.service.itg.logon.dto.Role;
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -40,6 +37,9 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
+import mc.gouv.xaf.back.service.itg.logon.dto.Role;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
@@ -845,6 +845,27 @@ public class AfBackUtils {
             adresseComplete += "\n" + escapeChars(adresse3);
         }
         return adresseComplete;
+    }
+
+    /**
+     * Convertit la syntaxe velocity vers thymeleaf (${dateDebut} vers <span th:text="${dateDebut}"></span>)
+     * @param input
+     * @return
+     */
+    public String convertToThymeleaf(String input) {
+        // 1ère règle: Remplacer les <a href="${gichuniFrontUrl}"> par <a th:href="${gichuniFrontUrl}">
+        String contenuIntermediaire = input.replaceAll(
+                "<a href=\"\\$\\{([^}]+)\\}\">",
+                "<a th:href=\"\\$\\{$1\\}\">"
+        );
+
+        // 2ème règle: Remplacer les ${...} non précédés de "th:href=" par <span th:text="${...}"></span>
+        String resultatFinal = contenuIntermediaire.replaceAll(
+                "(?<!th:href=\")\\$\\{([^}]+)\\}",
+                "<span th:text=\"\\$\\{$1\\}\"></span>"
+        );
+
+        return resultatFinal;
     }
 
 

@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.itg.mail.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -30,17 +29,16 @@ import mc.gouv.xaf.shared.dto.mail.ParamDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.tools.ToolManager;
-import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.exceptions.TemplateProcessingException;
 
 /**
  *
@@ -56,8 +54,6 @@ public class MailServiceImpl implements MailService {
 
     private static final String XAF_NOTIFICATION_MAIL_AGENT = "XAF_NOTIFICATION_MAIL_AGENT";
 
-    private ToolManager manager = new ToolManager();
-
     @Autowired
     private TemplatesCache templatesCache;
 
@@ -69,6 +65,10 @@ public class MailServiceImpl implements MailService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    @Qualifier("customTemplateEngine")
+    private TemplateEngine templateEngine;
 
     /**
      * {@inheritDoc}
@@ -164,79 +164,64 @@ public class MailServiceImpl implements MailService {
         LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
 
-        LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-        Velocity.init();
-        Context context = getContext();
-        if (model != null) {
-            for (Map.Entry<String,Object> entry : model.entrySet()) {
-                context.put(entry.getKey(), entry.getValue());
-            }
-        }
-        StringWriter output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
-            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        String mailBodyToSend = output.toString();
+        LOGGER.info("Appel à Thymeleaf pour le templating du corps et du sujet de l'email...");
+        Context context = getContext(model);
 
-        output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
-            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du subject n'a pas fonctionné.",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        String mailSubjectToSend = output.toString();
-        
+        String mailBodyToSend = processTemplate(afBackUtils.convertToThymeleaf(templateBody.getContenu()), context);
+        String mailSubjectToSend = processTemplate(afBackUtils.convertToThymeleaf(templateSubject.getContenu()), context);
+
         // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
         if (afBackUtils.isEmailHtmlEnabled()) {
-	        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
-	        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-			Velocity.init();
-	        context = getContext();
-	        context.put("emailBodyToSend", mailBodyToSend);
-	        if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
-	        	context.put("titreTs", afBackUtils.getDemarcheNomEn());
-	        }
-	        else {
-	        	context.put("titreTs", afBackUtils.getDemarcheNom());
-	        }
-	        InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
-	        String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-	        output = new StringWriter();
-	        if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
-	            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
-	        }
-	        mailBodyToSend = output.toString();
+            LOGGER.info("Intégration du corps de l'email dans le template HTML de XAF...");
+            context.setVariable("emailBodyToSend", mailBodyToSend);
+            if ("en".equals(langue) && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
+                context.setVariable("titreTs", afBackUtils.getDemarcheNomEn());
+            } else {
+                context.setVariable("titreTs", afBackUtils.getDemarcheNom());
+            }
+
+            InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
+            String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            mailBodyToSend = processTemplate(contenu, context);
         }
-        
+
         return new String[] { mailSubjectToSend, mailBodyToSend };
     }
 
-    private Context getContext() {
-        Context context = manager.createContext();
-        context.put("StringUtils", StringUtils.class);
-        context.put("date", new DateTool());
+    private Context getContext(Map<String, Object> model) {
+        Context context = new Context();
+        if (model != null) {
+            context.setVariables(model);
+        }
         return context;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String formatCommentaire(String commentaire) {
-		if (!StringUtils.isBlank(commentaire)) {
-			String lineSep = System.lineSeparator();
-			commentaire = commentaire.replace(lineSep, "<br/>");
-		}
-		return commentaire;
-	}
+    private String processTemplate(String templateContent, Context context) {
+        try {
+            return templateEngine.process(templateContent, context);
+        } catch (TemplateProcessingException e) {
+            throw new DemarchesServiceException("Thymeleaf template processing failed.", HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,Integer pkDemande,
-                                String identifiantDemande, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
+    public String formatCommentaire(String commentaire) {
+        if (!StringUtils.isBlank(commentaire)) {
+            String lineSep = System.lineSeparator();
+            commentaire = commentaire.replace(lineSep, "<br/>");
+        }
+        return commentaire;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails, Integer pkDemande,
+            String identifiantDemande, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
         Date date = new Date(System.currentTimeMillis());
         final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
         String dateTimeString = simpleDateTimeFormat.format(date);
@@ -258,7 +243,7 @@ public class MailServiceImpl implements MailService {
         model.put("dateTimeString", dateTimeString);
         model.put("identifiant", identifiantDemande);
         model.put("Pkdemandes", pkDemande);
-        if(modelAdd != null) {
+        if (modelAdd != null) {
             model.putAll(modelAdd);
         }
         try {
@@ -274,7 +259,7 @@ public class MailServiceImpl implements MailService {
     @Override
     public Set<String> getMailingLists(String... mailingListProps) {
         Set<String> list = new TreeSet<>();
-        for(String mailProp : mailingListProps) {
+        for (String mailProp : mailingListProps) {
             PropertiesDTO mailProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), mailProp);
             if (mailProperty != null && StringUtils.isNotBlank(mailProperty.getValue())) {
                 list.addAll(Arrays.asList(mailProperty.getValue().trim().split(",")));

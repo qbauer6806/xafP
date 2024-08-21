@@ -84,11 +84,11 @@ public class DemandeBO {
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesStatutsBO> statuts;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "FK_DEMANDESAGENTS")
     private DemandesAgentsBO agent;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "FK_CONFIG")
     private DemandeConfigBO config;
 
@@ -117,7 +117,7 @@ public class DemandeBO {
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesCourriersBO> courriers;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "FK_DEMANDESUSAGERS")
     private DemandesUsagersBO usager;
 

@@ -2,12 +2,10 @@ package mc.gouv.xaf.back.service.itg.mail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 
 /**
  * Composant permettant l'envoi d'emails "templatés"
@@ -34,7 +32,6 @@ public interface MailService {
 	 * Permet d'obtenir un aperçu de l'email qui serait envoyé
 	 *
 	 * @return [0] contient le titre, [1] contient le contenu en HTML
-	 * @throws DemarchesServiceException si les appels à velocity ne fonctionne pas
 	 */
 	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws IOException;
 

@@ -1,5 +1,23 @@
 package mc.gouv.xaf.rio.service.impl;
 
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.ARCHIVAGE_RIO_COMPLETED;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.CODE_TYPE_IMMAT;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.CODE_TYPE_PERMIS;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
@@ -29,26 +47,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.ARCHIVAGE_RIO_COMPLETED;
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.CODE_TYPE_IMMAT;
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.CODE_TYPE_PERMIS;
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE;
 
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
@@ -325,7 +323,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
         LOGGER.info("Génération du fichier...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        excelExportService.exportExcelSimple("rapport_archivage.xlsx", model, output);
+        excelExportService.exportExcel("rapport_archivage.xlsx", model, output);
 
         LOGGER.info("Sauvegarde du fichier...");
         ByteArrayOutputStream outputSave = new ByteArrayOutputStream();

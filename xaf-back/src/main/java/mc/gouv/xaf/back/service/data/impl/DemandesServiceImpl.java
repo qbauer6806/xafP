@@ -326,7 +326,13 @@ public class DemandesServiceImpl implements DemandesService {
 						String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
 						AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
 					}
-				}
+				} else if (champ.get("type").asText().equals("date")) {
+                    JsonNode dateNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
+                    if(dateNode != null && !dateNode.isNull()) {
+                        String date = dateNode.asText();
+                        AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(date));
+                    }
+                }
 			}
 		}
 	}

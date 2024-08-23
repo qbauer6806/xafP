@@ -27,29 +27,13 @@ public class ExcelExportServiceImpl implements ExcelExportService {
 
     @Override
     public void exportExcel(String templateFileName, Map<String, Object> model, OutputStream outputStream) {
-        // #54487 : Utilisation du streaming SXSSF plutôt que XSSF pour gérer les exports volumineux
-        // Le SXSSF est moins gourmand en RAM utilisée
+        // AUTO_DETECT regarde si il y a sheetStreaming="true" dans la 1ère cellule du template
+        // sauf cas particulier il vaut mieux activer le streaming pour éviter les problèmes de mémoire sur les fichiers volumineux
         LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
         try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
-            JxlsPoi.fill(is, JxlsStreaming.STREAMING_ON, model, outputStream);
+            JxlsPoi.fill(is, JxlsStreaming.AUTO_DETECT, model, outputStream);
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la génération Excel", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * @param templateFileName
-     * @param model
-     * @param outputStream
-     */
-    @Override
-    public void exportExcelSimple(String templateFileName, Map<String, Object> model, OutputStream outputStream) {
-        LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
-        try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
-            JxlsPoi.fill(is, JxlsStreaming.STREAMING_OFF, model, outputStream);
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la génération du fichier Excel", e);
         }
     }
 }

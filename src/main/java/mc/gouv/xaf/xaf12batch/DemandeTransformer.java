@@ -2,6 +2,8 @@ package mc.gouv.xaf.xaf12batch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 public class DemandeTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeTransformer.class);
+
+    public static final String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
 
     @Autowired
     private PaysNationalitesCache paysCache;
@@ -61,9 +65,23 @@ public class DemandeTransformer {
                         String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
                         setNodeValue(contenuTrad, path, enumValue);
                     }
+                } else if (champ.get("type").asText().equals("date")) {
+                    JsonNode dateNode = getNodeFromPath(contenuTrad, path);
+                    if(dateNode != null && !dateNode.isNull()) {
+                        String date = dateNode.asText();
+                        setNodeValue(contenuTrad, path, changeDateStringFormat(date));
+                    }
                 }
             }
         }
+    }
+
+    private String changeDateStringFormat(final String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return " ";
+        }
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
     }
 
     public void setNodeValue(JsonNode contenu, String path, String nouvelleValeur){

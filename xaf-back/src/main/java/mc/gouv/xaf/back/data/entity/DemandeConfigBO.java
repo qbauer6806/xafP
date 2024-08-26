@@ -2,10 +2,14 @@ package mc.gouv.xaf.back.data.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
@@ -23,5 +27,8 @@ public class DemandeConfigBO {
     @Column(name = "CONTENU", columnDefinition = "JSONB", nullable = false)
     @Type(JsonType.class)
     private JsonNode contenu;
+
+    @OneToMany(mappedBy = "buildId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<MarqueurBO> marqueurs;
 
 }

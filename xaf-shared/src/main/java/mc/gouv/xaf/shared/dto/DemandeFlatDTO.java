@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,5 +47,7 @@ public class DemandeFlatDTO {
     private String courrierRefInterne;
 
     private String motif;
+
+    private Map<String, String> marqueurs;
 
 }

@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -53,6 +57,9 @@ public class DemandesTransformer {
 
     @Autowired
     private DemandesConfigTransformer demandesConfigTransformer;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     private DemandesTransformer() {
     }
@@ -104,7 +111,7 @@ public class DemandesTransformer {
         if (bo == null) {
             return null;
         }
-        LOGGER.info("Transformation de la demande {}", bo.getPkDemandes());
+
         boolean[] addFields = getAllFields(fields);
         boolean addCourriersField = addFields[0] && bo.getCourriers() != null && !bo.getCourriers().isEmpty();
         boolean addFilesField = addFields[1] && bo.getFiles() != null && !bo.getFiles().isEmpty();
@@ -144,7 +151,11 @@ public class DemandesTransformer {
 
         // Mapper le contenu de la config
         if(bo.getConfig() != null) {
-            dto.setConfig(demandesConfigTransformer.bo2Json(bo.getConfig()));
+            DemandeConfigBO config = bo.getConfig();
+            dto.setConfig(demandesConfigTransformer.bo2Json(config));
+
+            // mapper les marqueurs
+            dto.setMarqueurs(config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant, marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()))));
         }
 
         // Mapper les demandes d'informations complémentaires

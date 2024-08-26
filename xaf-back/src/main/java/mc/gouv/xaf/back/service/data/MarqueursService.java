@@ -7,11 +7,10 @@ public interface MarqueursService {
 
     List<MarqueurDTO> getMarqueurs(String buildId);
 
-    MarqueurDTO getMarqueur(String identifiant, String buildId);
-
     MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueur);
 
     void deleteMarqueur(Integer pkMarqueur);
 
-    void copyMarqueurs(String lastBuildId, String buildId, List<String> modelPaths);
+    void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths);
+    void resetMarqueurs();
 }

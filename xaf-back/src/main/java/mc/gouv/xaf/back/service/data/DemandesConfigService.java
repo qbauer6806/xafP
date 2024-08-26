@@ -14,6 +14,5 @@ public interface DemandesConfigService {
     DemandeConfigBO getLastConfig();
     JsonNode saveConfig(JsonNode config);
     String getLastBuildId();
-    boolean checkIfCheminExists(String chemin, String buildId);
-
+    List<String> getModelPaths(JsonNode modelPaths);
 }

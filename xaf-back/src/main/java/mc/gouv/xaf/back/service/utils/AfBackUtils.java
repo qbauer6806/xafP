@@ -53,7 +53,6 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
@@ -354,6 +353,8 @@ public class AfBackUtils {
             MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
             flat.setMotif(motif != null ? motif.getLibelle() : null);
         }
+        // marqueurs
+        flat.setMarqueurs(demande.getMarqueurs());
         return flat;
     }
 
@@ -718,19 +719,9 @@ public class AfBackUtils {
     	return afApiClient2Tiers;
     }
 
-    public String getMarqueurValue(DemandeDTO demande, String idMarqueur) {
-        return getMarqueurValue(demande, idMarqueur, null);
-    }
-
-    public String getMarqueurValue(DemandeDTO demande, String identifiant, String complementChemin) {
-        MarqueurDTO marqueur = marqueursService.getMarqueur(identifiant, demande.getConfig().get("buildId").asText());
-        if (marqueur != null) {
-            String complement = complementChemin != null ? "." + complementChemin : "";
-            String chemin = marqueur.getChemin() + complement;
-            JsonNode node = getNodeFromPath(demande.getContenuTrad(), chemin);
-            return node != null ? node.asText() : null;
-        }
-        return null;
+    public String getMarqueurValue(JsonNode contenu, String path) {
+        JsonNode node = getNodeFromPath(contenu, path);
+        return node != null ? node.asText() : "";
     }
 
     public static JsonNode getNodeFromPath(JsonNode contenu, String path) {
@@ -825,8 +816,8 @@ public class AfBackUtils {
     }
 
     public String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
-        String codePostal = getMarqueurValue(demande, marqueurIdentifiant, "codePostal");
-        String ville = getMarqueurValue(demande, marqueurIdentifiant, "ville");
+        String codePostal = demande.getMarqueurs().get(marqueurIdentifiant + "CodePostal");
+        String ville = demande.getMarqueurs().get(marqueurIdentifiant + "Ville");
         String adresseComplete = genererAdresse(demande, marqueurIdentifiant);
         if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
             adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
@@ -835,9 +826,9 @@ public class AfBackUtils {
     }
 
     public String genererAdresse(DemandeDTO demande, String marqueurIdentifiant) {
-        String adresseComplete = escapeChars(getMarqueurValue(demande, marqueurIdentifiant, "ligne1"));
-        String adresse2 = getMarqueurValue(demande, marqueurIdentifiant, "ligne2");
-        String adresse3 = getMarqueurValue(demande, marqueurIdentifiant, "ligne3");
+        String adresseComplete = escapeChars(demande.getMarqueurs().get(marqueurIdentifiant + "Ligne1"));
+        String adresse2 = demande.getMarqueurs().get(marqueurIdentifiant + "Ligne2");
+        String adresse3 = demande.getMarqueurs().get(marqueurIdentifiant + "Ligne3");
         if (!StringUtils.isEmpty(adresse2)) {
             adresseComplete += "\n" + escapeChars(adresse3);
         }

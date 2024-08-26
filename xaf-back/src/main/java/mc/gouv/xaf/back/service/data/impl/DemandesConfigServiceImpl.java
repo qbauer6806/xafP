@@ -64,7 +64,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 		if (configBO == null || configBO.getContenu() == null) {
 			String lastBuildId = getLastBuildId();
 			configBO = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(config));
-			marqueursService.copyMarqueurs(lastBuildId, buildId, getModelPaths(config.get("modelPaths").get("marqueurs")));
+			marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId, getModelPaths(config.get("modelPaths").get("rechercheAvancee")));
 		}
 		return demandesConfigTransformer.bo2Json(configBO);
 	}
@@ -84,17 +84,13 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         return getModelPaths(buildId, "marqueurs");
     }
 
-    @Override
-    public boolean checkIfCheminExists(String chemin, String buildId) {
-        return getModelPathsMarqueurs(buildId).contains(chemin);
-    }
-
     private List<String> getModelPaths(String buildId, String node) {
         DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
         return getModelPaths(configBO.getContenu().get("modelPaths").get(node));
     }
 
-	private List<String> getModelPaths(JsonNode modelPaths) {
+    @Override
+	public List<String> getModelPaths(JsonNode modelPaths) {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {});
 		try {

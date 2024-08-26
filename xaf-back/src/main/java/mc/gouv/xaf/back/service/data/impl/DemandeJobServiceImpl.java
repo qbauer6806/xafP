@@ -12,6 +12,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
+import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
@@ -55,6 +56,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     
     @Autowired
     private KafkaOutboxService kafkaOutboxService;
+
+    @Autowired
+    private MarqueursService marqueursService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -118,6 +122,10 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     else {
                         msg += " message.";
                     }
+                    break;
+                case RESET_MARQUEURS:
+                    marqueursService.resetMarqueurs();
+                    msg = "Reset effectué";
                     break;
                 default:
                     break;

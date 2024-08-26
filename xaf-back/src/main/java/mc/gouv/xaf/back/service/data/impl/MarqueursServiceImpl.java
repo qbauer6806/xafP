@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.MarqueursRepository;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.transformer.MarqueursTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -27,30 +29,10 @@ public class MarqueursServiceImpl implements MarqueursService {
     @Autowired
     private DemandesConfigService demandesConfigService;
 
-	@Override
+    @Override
 	public List<MarqueurDTO> getMarqueurs(String buildId) {
 		List<MarqueurBO> marqueurBOS = marqueursRepository.findAllByBuildId(buildId);
 		return marqueursTransformer.bos2Dtos(marqueurBOS);
-	}
-
-	@Override
-	public MarqueurDTO getMarqueur(String identifiant, String buildId) {
-		MarqueurBO marqueurBO = marqueursRepository.findOneByIdentifiantAndBuildId(identifiant, buildId);
-        // si on ne retrouve pas le marqueur alors on essaye de le créer automatiquement à partir de son identifiant
-        if (marqueurBO == null) {
-            MarqueurDTO newMarqueur = new MarqueurDTO();
-            newMarqueur.setIdentifiant(identifiant);
-            newMarqueur.setBuildId(buildId);
-            // expression régulière pour trouver les majuscules et les remplacer par ".lettre minuscule"
-            String chemin = "contenu." + identifiant.replaceAll("([a-z])([A-Z])", "$1.$2").toLowerCase();
-            // vérifier si le chemin existe, alors on peut lui associer un chemin
-            if (demandesConfigService.checkIfCheminExists(chemin, buildId)) {
-                newMarqueur.setChemin(chemin);
-            }
-            // un marqueur sans chemin est quand même créé
-            return saveOrUpdateMarqueur(newMarqueur);
-        }
-		return marqueursTransformer.bo2Dto(marqueurBO);
 	}
 
 	@Override
@@ -90,19 +72,71 @@ public class MarqueursServiceImpl implements MarqueursService {
 	}
 
     @Override
-    public void copyMarqueurs(String lastBuildId, String buildId, List<String> modelPaths) {
-		// on copie les marqueurs du précédent build id
+    public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths) {
 		if (lastBuildId != null) {
 			List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
-			for (MarqueurDTO marqueurDTO : marqueurDTOS) {
-				marqueurDTO.setPkMarqueur(null);
-				marqueurDTO.setBuildId(buildId);
-				// vérifier si le chemin existe toujours dans le nouveau config
-				if (marqueurDTO.getChemin() != null && !modelPaths.contains(marqueurDTO.getChemin())) {
-					marqueurDTO.setChemin(null);
-				}
-			}
+            // on copie les marqueurs du précédent build id s'il y en a
+            if(!marqueurDTOS.isEmpty()) {
+                for (MarqueurDTO marqueurDTO : marqueurDTOS) {
+                    marqueurDTO.setPkMarqueur(null);
+                    marqueurDTO.setBuildId(buildId);
+                    // vérifier si le chemin existe toujours dans le nouveau config
+                    if (marqueurDTO.getChemin() != null && !modelPaths.contains(marqueurDTO.getChemin())) {
+                        marqueurDTO.setChemin(null);
+                    }
+                }
+            } else {
+                // sinon on les génere tous
+                setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId);
+            }
+
 			marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
 		}
 	}
+
+    @Override
+    public void resetMarqueurs() {
+        marqueursRepository.deleteAll();
+        List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
+        for (DemandeConfigBO config : configs) {
+            List<MarqueurDTO> marqueurDTOS = new ArrayList<>();
+            setMarqueursFromModelPaths(demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("rechercheAvancee")), marqueurDTOS, config.getBuildId());
+            marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
+        }
+    }
+
+    private void setMarqueursFromModelPaths(List<String> modelPaths, List<MarqueurDTO> marqueurDTOS, String buildId) {
+        for (String modelPath : modelPaths) {
+            MarqueurDTO marqueur = new MarqueurDTO();
+            marqueur.setChemin(modelPath);
+            marqueur.setIdentifiant(pathToCamelCase(modelPath));
+            marqueur.setBuildId(buildId);
+            marqueurDTOS.add(marqueur);
+        }
+    }
+
+    private String pathToCamelCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+
+        // Diviser la chaîne en segments
+        String[] parts = input.split("\\.");
+
+        // Si la chaîne contient moins de deux parties, rien à transformer
+        if (parts.length < 2) {
+            return input;
+        }
+
+        StringBuilder result = new StringBuilder(parts[1]);
+
+        for (int i = 2; i < parts.length; i++) {
+            String part = parts[i];
+            result.append(Character.toUpperCase(part.charAt(0)))
+                    .append(part.substring(1));
+        }
+
+        return result.toString();
+    }
+
 }

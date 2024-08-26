@@ -3,10 +3,10 @@ package mc.gouv.xaf.shared.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +28,8 @@ public class AbstractDemandeDTO implements Serializable {
     protected transient JsonNode contenuTrad;
 
     protected transient JsonNode config;
+
+    protected transient Map<String, String> marqueurs;
 
     protected String langue;
 

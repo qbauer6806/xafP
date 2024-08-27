@@ -112,6 +112,7 @@ public class DemandesTransformer {
             return null;
         }
         LOGGER.info("----- Transformation de la demande {}", bo.getPkDemandes());
+        LOGGER.info("----- Debut fields");
         boolean[] addFields = getAllFields(fields);
         boolean addCourriersField = addFields[0] && bo.getCourriers() != null && !bo.getCourriers().isEmpty();
         boolean addFilesField = addFields[1] && bo.getFiles() != null && !bo.getFiles().isEmpty();
@@ -119,8 +120,9 @@ public class DemandesTransformer {
         boolean addDemandesComplementsField = addFields[3] && bo.getDemandesComplements() != null
                 && !bo.getDemandesComplements().isEmpty();
         boolean addDataField = addFields[4] && bo.getData() != null && !bo.getData().isEmpty();
-
+        LOGGER.info("----- Fin fields");
         DemandeDTO dto = new DemandeDTO();
+        LOGGER.info("----- Debut basique");
         dto.setFkAccess(bo.getFkAccess().getPkAccess());
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
@@ -143,34 +145,42 @@ public class DemandesTransformer {
         if(bo.getTypeConnexionUsager() != null) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
+        LOGGER.info("----- Fin basique");
 
         // Mapper le contenu de la demande
+        LOGGER.info("----- Début contenu");
         dto.setContenu(bo.getContenu());
 
         dto.setContenuTrad(bo.getContenuTrad());
+        LOGGER.info("----- Fin contenu");
 
         // Mapper le contenu de la config
+        LOGGER.info("----- Début config");
         if (bo.getConfig() != null) {
             DemandeConfigBO config = bo.getConfig();
             dto.setConfig(demandesConfigTransformer.bo2Json(config));
-
+            LOGGER.info("----- Début marqueurs");
             // mapper les marqueurs
             dto.setMarqueurs(config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant, marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()))));
+            LOGGER.info("----- Fin marqueurs");
         }
-
+        LOGGER.info("----- Fin config");
         // Mapper les demandes d'informations complémentaires
+        LOGGER.info("----- Début addDemandesComplementsField");
         if (addDemandesComplementsField) {
             dto.setComplements(DemandesComplementsTransformer.bo2Dto(new ArrayList<>(bo.getDemandesComplements()))
-                    .toArray(new DemandeComplementsDTO[bo.getDemandesComplements().size()]));
+                    .toArray(DemandeComplementsDTO[]::new));
         }
-
+        LOGGER.info("----- Fin addDemandesComplementsField");
         // Mapper les fichiers
+        LOGGER.info("----- Début addFilesField");
         if (addFilesField) {
             dto.setFichiers(DemandesFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles()))
-                    .toArray(new DemandeFileDTO[bo.getFiles().size()]));
+                    .toArray(DemandeFileDTO[]::new));
         }
-
+        LOGGER.info("----- Fin addFilesField");
         // Mapper les statuts
+        LOGGER.info("----- Début statuts");
         dto = bo2DtoProcessStatuts(bo, dto, addStatutsField);
 
         // Mapper le "dernier statut"
@@ -183,8 +193,10 @@ public class DemandesTransformer {
             }
             dto.setDernierStatut(statutDto);
         }
+        LOGGER.info("----- Fin statuts");
 
         // Mapper les courriers
+        LOGGER.info("----- Début courriers");
         if (addCourriersField) {
             // Ticket https://redmine.monaco-gouvernement.mc/issues/25476
             // Avant le fix de ce ticket, on ne remontait pas les courriers à l'user FRONT
@@ -194,16 +206,20 @@ public class DemandesTransformer {
             // Décision prise de remonter les courriers dans les deux cas : FO (API) et BO
             // Car cela ne pose aucun problème de sécurité
             dto.setCourriers(DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()))
-                    .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
+                    .toArray(DemandeCourrierDTO[]::new));
         }
+        LOGGER.info("----- Fin courriers");
 
         // Mapper les données de demande
+        LOGGER.info("----- Début data");
         if (addDataField) {
             dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<>(bo.getData()))
-                    .toArray(new DemandeDataDTO[bo.getData().size()]));
+                    .toArray(DemandeDataDTO[]::new));
         }
-
+        LOGGER.info("----- Fin data");
+        LOGGER.info("----- Début bo2DtoProcessJsonFields");
         dto = bo2DtoProcessJsonFields(bo, dto);
+        LOGGER.info("----- Fin bo2DtoProcessJsonFields");
         LOGGER.info("----- FIN transformation de la demande {}", bo.getPkDemandes());
         return dto;
     }

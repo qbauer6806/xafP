@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -23,7 +24,6 @@ import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,48 +77,49 @@ public class DemandesTransformer {
      * </p>
      */
     private static boolean[] getAllFields(String[] fields) {
-        if (null == fields) {
+        if (fields == null) {
             return new boolean[] { true, true, true, true, true };
         }
 
-        boolean addCourriersField = false;
-        boolean addFilesField = false;
-        boolean addStatutsField = false;
-        boolean addDemandesComplementsField = false;
-        boolean addDataField = false;
+        boolean[] addFields = new boolean[5];
         for (String field : fields) {
-            if (StringUtils.equals(FIELD_COURRIER, field)) {
-                addCourriersField = true;
-            }
-            if (StringUtils.equals(FIELD_FILES, field)) {
-                addFilesField = true;
-            }
-            if (StringUtils.equals(FIELD_STATUS, field)) {
-                addStatutsField = true;
-            }
-            if (StringUtils.equals(FIELD_DEM_COMPL, field)) {
-                addDemandesComplementsField = true;
-            }
-            if (StringUtils.equals(FIELD_DATA, field)) {
-                addDataField = true;
+            switch (field) {
+                case FIELD_COURRIER:
+                    addFields[0] = true;
+                    break;
+                case FIELD_FILES:
+                    addFields[1] = true;
+                    break;
+                case FIELD_STATUS:
+                    addFields[2] = true;
+                    break;
+                case FIELD_DEM_COMPL:
+                    addFields[3] = true;
+                    break;
+                case FIELD_DATA:
+                    addFields[4] = true;
+                    break;
+                default:
+                    break;
             }
         }
-        return new boolean[] { addCourriersField, addFilesField, addStatutsField, addDemandesComplementsField,
-                addDataField };
+        return addFields;
+    }
+
+    private static boolean hasNonEmptyCollection(Collection<?> collection) {
+        return collection != null && !collection.isEmpty();
     }
 
     public DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
         if (bo == null) {
             return null;
         }
-        LOGGER.info("----- Transformation de la demande {}", bo.getPkDemandes());
         boolean[] addFields = getAllFields(fields);
-        boolean addCourriersField = addFields[0] && bo.getCourriers() != null && !bo.getCourriers().isEmpty();
-        boolean addFilesField = addFields[1] && bo.getFiles() != null && !bo.getFiles().isEmpty();
-        boolean addStatutsField = addFields[2] && bo.getStatuts() != null && !bo.getStatuts().isEmpty();
-        boolean addDemandesComplementsField = addFields[3] && bo.getDemandesComplements() != null
-                && !bo.getDemandesComplements().isEmpty();
-        boolean addDataField = addFields[4] && bo.getData() != null && !bo.getData().isEmpty();
+        boolean addCourriersField = addFields[0] && hasNonEmptyCollection(bo.getCourriers());
+        boolean addFilesField = addFields[1] && hasNonEmptyCollection(bo.getFiles());
+        boolean addStatutsField = addFields[2] && hasNonEmptyCollection(bo.getStatuts());
+        boolean addDemandesComplementsField = addFields[3] && hasNonEmptyCollection(bo.getDemandesComplements());
+        boolean addDataField = addFields[4] && hasNonEmptyCollection(bo.getData());
 
         DemandeDTO dto = new DemandeDTO();
         dto.setFkAccess(bo.getFkAccess().getPkAccess());

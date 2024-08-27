@@ -3,28 +3,28 @@ package mc.gouv.xaf.back.denjs.bpm.activiti.delegate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 
@@ -60,8 +60,12 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
     @Autowired
     private DenjsAffectationService denjsAffectationService;
     
+    @Setter
+    @Getter
     private Expression emailBodyTemplateCode;
     
+    @Setter
+    @Getter
     private Expression emailSubjectTemplateCode;
 
     @Override
@@ -139,22 +143,6 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
         	return null;
         }
     	return agent;
-    }
-
-    public Expression getEmailBodyTemplateCode() {
-        return emailBodyTemplateCode;
-    }
-
-    public void setEmailBodyTemplateCode(Expression emailBodyTemplateCode) {
-        this.emailBodyTemplateCode = emailBodyTemplateCode;
-    }
-
-    public Expression getEmailSubjectTemplateCode() {
-        return emailSubjectTemplateCode;
-    }
-
-    public void setEmailSubjectTemplateCode(Expression emailSubjectTemplateCode) {
-        this.emailSubjectTemplateCode = emailSubjectTemplateCode;
     }
 
 }

@@ -1,8 +1,10 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import java.util.ArrayList;
+import java.util.List;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AgentComparator;
 import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
 import org.slf4j.Logger;
@@ -14,9 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controller pour la page /demandes

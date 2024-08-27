@@ -54,17 +54,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
             // Loop over status and count total by canal
             for (String status : demarchesDataProvider.getStatusMap().keySet()) {
                 Long count;
-                // If a public status retrieve it from db, else from bpm
-                if (!privateStatusMap.containsKey(status)) {
-                    count = getNumberDemandesFilteredByStatusAndCanal(demarcheId, canal.name(), status);
-                }
-                else {
-                    List<String> tasksIds = gouvBPM.getNumberActiveDemandesInState(status);
-
-                    // Convert String id list to Integer id list
-                    List<Integer> taskIntIds = tasksIds.stream().map(Integer::parseInt).toList();
-                    count = getNumberDemandesFilteredByStatusAndCanalWithIds(taskIntIds, canal.name());
-                }
+                count = getNumberDemandesFilteredByStatusAndCanal(demarcheId, canal.name(), status);
                 totalByCanal += count;
                 nbByStatus.put(status, count);
             }

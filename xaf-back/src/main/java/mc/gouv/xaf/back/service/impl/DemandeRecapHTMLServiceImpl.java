@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -680,13 +678,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             return "";
         }
         try {
-            LocalDateTime dateTime = LocalDateTime.parse(node0.asText(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            // Si la date a un format d'affichage
-            String format = (String) champ.get("displayJavaFormat");
-            if (StringUtils.isBlank(format)) {
-                format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
-            }
-            return dateTime.format(DateTimeFormatter.ofPattern(format));
+//            LocalDateTime dateTime = LocalDateTime.parse(node0.asText(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+//            // Si la date a un format d'affichage
+//            String format = (String) champ.get("displayJavaFormat");
+//            if (StringUtils.isBlank(format)) {
+//                format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
+//            }
+//            return dateTime.format(DateTimeFormatter.ofPattern(format));
+            return node0.asText();
         } catch (Exception e) {
             LOGGER.error("buildDateHTML exception: vérifier le format en entrée");
             return "date en erreur";

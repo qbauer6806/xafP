@@ -150,7 +150,7 @@ public class DemandesTransformer {
         dto.setContenuTrad(bo.getContenuTrad());
 
         // Mapper le contenu de la config
-        if(bo.getConfig() != null) {
+        if (bo.getConfig() != null) {
             DemandeConfigBO config = bo.getConfig();
             dto.setConfig(demandesConfigTransformer.bo2Json(config));
 

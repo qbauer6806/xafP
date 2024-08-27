@@ -1,12 +1,11 @@
 package mc.gouv.xaf.back.auth;
 
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 @Component
 public class AuthenticationListener implements ApplicationListener<AuthenticationSuccessEvent> {

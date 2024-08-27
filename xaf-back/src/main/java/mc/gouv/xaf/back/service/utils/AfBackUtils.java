@@ -721,7 +721,7 @@ public class AfBackUtils {
 
     public String getMarqueurValue(JsonNode contenu, String path) {
         JsonNode node = getNodeFromPath(contenu, path);
-        boolean hasValue = node != null && "null".equals(node.asText());
+        boolean hasValue = node != null && !"null".equals(node.asText());
         return hasValue ? node.asText() : "";
     }
 

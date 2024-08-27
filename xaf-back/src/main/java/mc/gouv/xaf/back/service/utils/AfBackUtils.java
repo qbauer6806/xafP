@@ -328,20 +328,15 @@ public class AfBackUtils {
      * @return
      */
     public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
-        LOGGER.info("Début demandeDTOToDemandeFlatDTO");
         DemandeFlatDTO flat = new DemandeFlatDTO();
         flat.setAgentAffecteId(demande.getAgent() != null ? demande.getAgent().getId() : null);
-        LOGGER.info("Début utilisateursUtils");
-        String nomAgent = utilisateursUtils.getUserNameFromID(demande.getAgent() != null ? demande.getAgent().getId() : null);
-        LOGGER.info("Fin utilisateursUtils");
-        flat.setAgentAffecteNom(getSafeString(nomAgent));
+        String agent = demande.getAgent() != null ? demande.getAgent().getNomAffichage() : "";
+        flat.setAgentAffecteNom(getSafeString(agent));
         flat.setCanal(demande.getCanal().toString());
         flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
         flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
         flat.setDateCreation(convertDateToString(demande.getDateCreation()));
-        LOGGER.info("Début demarchesDataProvider");
         flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getName()));
-        LOGGER.info("Fin demarchesDataProvider");
         flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
         flat.setLangue(getSafeString(demande.getLangue()));
         flat.setObservations(getSafeString(demande.getObservations()));
@@ -355,15 +350,11 @@ public class AfBackUtils {
         }
         // motif
         if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {
-            LOGGER.info("Début motifsCache");
             MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
-            LOGGER.info("Fin motifsCache");
             flat.setMotif(motif != null ? motif.getLibelle() : null);
         }
         // marqueurs
-        LOGGER.info("Début marqueurs");
         flat.setMarqueurs(demande.getMarqueurs());
-        LOGGER.info("Fin marqueurs");
         return flat;
     }
 

@@ -475,7 +475,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return demandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes, new String[] {});
 	}
 
 	/**

@@ -111,7 +111,7 @@ public class DemandesTransformer {
         if (bo == null) {
             return null;
         }
-
+        LOGGER.info("----- Transformation de la demande {}", bo.getPkDemandes());
         boolean[] addFields = getAllFields(fields);
         boolean addCourriersField = addFields[0] && bo.getCourriers() != null && !bo.getCourriers().isEmpty();
         boolean addFilesField = addFields[1] && bo.getFiles() != null && !bo.getFiles().isEmpty();
@@ -204,7 +204,7 @@ public class DemandesTransformer {
         }
 
         dto = bo2DtoProcessJsonFields(bo, dto);
-
+        LOGGER.info("----- FIN transformation de la demande {}", bo.getPkDemandes());
         return dto;
     }
 

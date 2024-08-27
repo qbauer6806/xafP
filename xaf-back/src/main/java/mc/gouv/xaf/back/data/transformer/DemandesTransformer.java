@@ -205,7 +205,6 @@ public class DemandesTransformer {
         }
 
         dto = bo2DtoProcessJsonFields(bo, dto);
-        LOGGER.info("----- FIN transformation de la demande {}", bo.getPkDemandes());
         return dto;
     }
 

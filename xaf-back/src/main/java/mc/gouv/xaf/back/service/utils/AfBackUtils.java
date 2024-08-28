@@ -8,6 +8,7 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.gson.Gson;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -819,17 +820,17 @@ public class AfBackUtils {
     public String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
         String codePostal = demande.getMarqueurs().get(marqueurIdentifiant + "CodePostal");
         String ville = demande.getMarqueurs().get(marqueurIdentifiant + "Ville");
-        String adresseComplete = genererAdresse(demande, marqueurIdentifiant);
+        String adresseComplete = genererAdresse(demande.getMarqueurs(), marqueurIdentifiant);
         if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
             adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
         }
         return adresseComplete;
     }
 
-    public String genererAdresse(DemandeDTO demande, String marqueurIdentifiant) {
-        String adresseComplete = escapeChars(demande.getMarqueurs().get(marqueurIdentifiant + "Ligne1"));
-        String adresse2 = demande.getMarqueurs().get(marqueurIdentifiant + "Ligne2");
-        String adresse3 = demande.getMarqueurs().get(marqueurIdentifiant + "Ligne3");
+    public static String genererAdresse(Map<String, String> marqueurs, String marqueurIdentifiant) {
+        String adresseComplete = escapeChars(marqueurs.get(marqueurIdentifiant + "Ligne1"));
+        String adresse2 = marqueurs.get(marqueurIdentifiant + "Ligne2");
+        String adresse3 = marqueurs.get(marqueurIdentifiant + "Ligne3");
         if (!StringUtils.isEmpty(adresse2)) {
             adresseComplete += "\n" + escapeChars(adresse3);
         }
@@ -858,6 +859,33 @@ public class AfBackUtils {
         );
 
         return resultatFinal;
+    }
+
+    /**
+     * Utilisé dans les template doc
+     * @param date
+     * @param pattern
+     * @return
+     */
+    public static String formatDate(String date, String pattern) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat(pattern, Locale.FRANCE);
+        DateFormat inputFormat = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+        try {
+            return outputFormat.format(inputFormat.parse(date));
+        } catch (ParseException e) {
+            return "";
+        }
+    }
+
+    /**
+     * Utilisé dans les template doc
+     * @param date
+     * @param pattern
+     * @return
+     */
+    public static String dateCourante(String pattern) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat(pattern, Locale.FRANCE);
+        return outputFormat.format(new Date());
     }
 
 

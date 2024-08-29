@@ -475,6 +475,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        // pour l'export, on réduit le nombre de fields récupérés pour optimiser le temps de traitement, si besoin il faudra rajouter le field data par exemple
 		return demandesTransformer.bo2Dto(demandes, new String[] {});
 	}
 

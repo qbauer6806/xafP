@@ -162,13 +162,13 @@ public class DemandesTransformer {
         // Mapper les demandes d'informations complémentaires
         if (addDemandesComplementsField) {
             dto.setComplements(DemandesComplementsTransformer.bo2Dto(new ArrayList<>(bo.getDemandesComplements()))
-                    .toArray(new DemandeComplementsDTO[bo.getDemandesComplements().size()]));
+                    .toArray(DemandeComplementsDTO[]::new));
         }
 
         // Mapper les fichiers
         if (addFilesField) {
             dto.setFichiers(DemandesFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles()))
-                    .toArray(new DemandeFileDTO[bo.getFiles().size()]));
+                    .toArray(DemandeFileDTO[]::new));
         }
 
         // Mapper les statuts
@@ -195,13 +195,13 @@ public class DemandesTransformer {
             // Décision prise de remonter les courriers dans les deux cas : FO (API) et BO
             // Car cela ne pose aucun problème de sécurité
             dto.setCourriers(DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()))
-                    .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
+                    .toArray(DemandeCourrierDTO[]::new));
         }
 
         // Mapper les données de demande
         if (addDataField) {
             dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<>(bo.getData()))
-                    .toArray(new DemandeDataDTO[bo.getData().size()]));
+                    .toArray(DemandeDataDTO[]::new));
         }
 
         dto = bo2DtoProcessJsonFields(bo, dto);
@@ -239,7 +239,7 @@ public class DemandesTransformer {
             } else {
                 // Back Office : tout remonter
                 dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
-                        .toArray(new DemandeStatutDTO[bo.getStatuts().size()]));
+                        .toArray(DemandeStatutDTO[]::new));
             }
         }
         return dto;

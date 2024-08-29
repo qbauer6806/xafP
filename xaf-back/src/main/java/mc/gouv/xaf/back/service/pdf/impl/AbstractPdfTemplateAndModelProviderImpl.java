@@ -76,6 +76,7 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         model.put("motif", motif);
         model.put("commentaire", commentaire);
         model.put("texteAEnvoyer", texteAEnvoyer);
+        model.put("marqueurs", demande.getMarqueurs());
         model.putAll(getGenericModel());
         return model;
     }

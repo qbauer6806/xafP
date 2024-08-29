@@ -179,6 +179,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 			LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
 			IContext context = report.createContext();
 			context.put("StringUtils", StringUtils.class);
+			context.put("Utils", AfBackUtils.class);
 			for (Entry<String, Object> entry : dto.getModel().entrySet()) {
 				context.put(entry.getKey(), entry.getValue());
 			}

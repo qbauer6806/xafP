@@ -71,6 +71,7 @@ public class BackErrorController implements org.springframework.boot.web.servlet
     	
     	mav.addObject("tsCode", gouvPropertiesResolver.getDemarcheId());
     	mav.addObject("environnement", env);
+    	mav.addObject("displayStackTrace", gouvPropertiesResolver.getGouvSharedEnvDisplayStackTrace());
     	mav.addObject("matricule", AfBackUtils.getAuthenticatedAgentId());
     	mav.addObject("errCode", errCode);
     	DateFormat dateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT);
@@ -81,9 +82,8 @@ public class BackErrorController implements org.springframework.boot.web.servlet
     	LOGGER.error("Code d'erreur affiché à l'utilisateur : {}", errId);
     	mav.addObject("errId", errId);
     	
-    	// Affichage de la stacktrace à l'utilisateur si l'on n'est pas en production
-    	// La prod doit avoir un environnement vide !
-    	if (errCode == 500 && !StringUtils.isBlank(env)) {
+    	// Affichage de la stacktrace à l'utilisateur si displayStackTrace=true
+    	if (errCode == 500 && gouvPropertiesResolver.getGouvSharedEnvDisplayStackTrace()) {
 	    	Exception e = (Exception) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
 	    	if (e != null) {
 	    		mav.addObject("stacktrace", ExceptionUtils.getStackTrace(e));

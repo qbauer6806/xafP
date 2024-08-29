@@ -68,7 +68,7 @@
 		</div>
 
 		<div
-			th:if="${errCode == 500} and !${#strings.isEmpty(environnement)}"
+			th:if="${errCode == 500} and ${displayStackTrace}"
 			class="row mt-15">
 			<h2>Stack trace (affichée uniquement hors Production) :</h2>
 			<div class="col-xs-12">

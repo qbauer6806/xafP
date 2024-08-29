@@ -1,18 +1,19 @@
 package mc.gouv.xaf.back.service.impl;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
 
 @Component
 public class StatistiquesInternesServiceImpl implements StatistiquesInternesService {
@@ -28,18 +29,12 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 
-    @Autowired
-    private GouvBPM gouvBPM;
-
     private static final String TOTAL = "TOTAL";
 
     @Override
     public Map<String, Map<String, Long>> getNumberOfEachDemandes() {
 
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
-        // Private status
-        Map<String, String> privateStatusMap = demarchesDataProvider.getPrivateStatusMap();
 
         // Init global map and total by status
         Map<String, Map<String, Long>> map = new LinkedHashMap<>();

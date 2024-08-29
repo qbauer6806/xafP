@@ -17,6 +17,11 @@ public class AfBackWebControllerAdvice {
         return gouvPropertiesResolver.getHelpUrl();
     }
 
+    @ModelAttribute(name = "appCode")
+    public String appCode() {
+        return gouvPropertiesResolver.getApplicationName();
+    }
+
     @ModelAttribute(name = "contactSupportUrl")
     public String getContactSupportUrl() {
         return gouvPropertiesResolver.getContactSupportUrl();

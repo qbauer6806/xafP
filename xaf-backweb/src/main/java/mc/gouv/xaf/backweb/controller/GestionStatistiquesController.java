@@ -34,7 +34,7 @@ public class GestionStatistiquesController {
 
     @GetMapping
     public ModelAndView form() {
-        LOGGER.info("Appel de la page gestion/adminrecherche. Méthode form");
+        LOGGER.info("Appel de la page gestion/statistiques. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/stats/statistiques");
         LOGGER.info("Récupération des statistiques par statut de démarche");
         Map<String, Map<String, Long>> statListstatList = statistiquesService.getNumberOfEachDemandes();

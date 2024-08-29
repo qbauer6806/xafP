@@ -26,12 +26,6 @@ public class GouvWebUtilsAdvice {
     @Value("${maven.name}")
     private String name;
 
-    @Value("${mc.gouv.backserver.env}")
-    private String gouvEnvironment;
-
-    @Value("${mc.gouv.backserver.env.color}")
-    private String gouvEnvironmentColor;
-
     @Autowired
     private BackGouvPropertiesResolver gouvPropertiesResolver;
 
@@ -46,36 +40,12 @@ public class GouvWebUtilsAdvice {
 
     @ModelAttribute(name = "gouvEnvironmentLibelle")
     public String getGouvEnvironmentLibelle() {
-        var libelle = "";
-        // Si production, ne rien afficher
-        if ("prod".equals(gouvEnvironment)) {
-            libelle = "";
-        } else if ("sup".equals(gouvEnvironment)) {
-            libelle = "Support";
-        } else if ("pre".equals(gouvEnvironment)) {
-            libelle = "Pré-production";
-        } else if ("rec".equals(gouvEnvironment)) {
-            libelle = "Recette";
-        } else if ("dev".equals(gouvEnvironment)) {
-            libelle = "Développement";
-        } else if ("loc".equals(gouvEnvironment)) {
-            libelle = "Local";
-        } else {
-            libelle = "Environnement inconnu";
-        }
-        return libelle;
+        return gouvPropertiesResolver.getGouvSharedEnv();
     }
 
     @ModelAttribute(name = "gouvEnvironmentColor")
     public String getGouvEnvironmentColor() {
-        var envColor = "";
-        // Fond noir si environnement de production, et non pas rouge
-        if ("prod".equals(gouvEnvironment)) {
-            envColor = "#000000";
-        } else {
-            envColor = gouvEnvironmentColor;
-        }
-        return envColor;
+    	return gouvPropertiesResolver.getGouvSharedEnvColor();
     }
 
     @ModelAttribute(name = "applicationBuildTimestamp")

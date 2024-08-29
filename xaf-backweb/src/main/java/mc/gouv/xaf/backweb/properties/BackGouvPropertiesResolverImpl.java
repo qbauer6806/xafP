@@ -31,7 +31,7 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
     @Value("${mc.gouv.backserver.contact.support.url}")
     private String contactSupportUrl;
 
-    @Value("${mc.gouv.backserver.env}")
+    @Value("${mc.gouv.backserver.env.name}")
     private String sharedEnv;
 
     @Value("${mc.gouv.backserver.env.color}")

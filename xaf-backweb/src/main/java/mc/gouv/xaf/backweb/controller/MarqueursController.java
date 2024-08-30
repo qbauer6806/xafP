@@ -75,7 +75,7 @@ public class MarqueursController extends AbstractController {
 
         String currentBuildId = buildId != null ? buildId : buildIds.get(0);
 
-        List<String> chemins = demandesConfigService.getModelPathsMarqueurs(currentBuildId);
+        List<String> chemins = demandesConfigService.getModelPathsRechercheAvancee(currentBuildId);
         List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(currentBuildId);
 
         mav.addObject("marqueurs", marqueurs);

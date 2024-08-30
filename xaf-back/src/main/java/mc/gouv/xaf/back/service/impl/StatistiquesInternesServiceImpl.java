@@ -92,7 +92,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
 
         LOGGER.info("Récupération du nombre de demarches par démarche id...");
 
-        return demandesStatInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutName(demarcheId, canal, status);
+        return demandesStatInternesRepository.countByCanalAndDernierStatutName(canal, status);
     }
 
     @Override

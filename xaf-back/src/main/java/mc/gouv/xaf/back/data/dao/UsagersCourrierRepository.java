@@ -13,7 +13,7 @@ import mc.gouv.xaf.back.data.entity.UsagersCourrierBO;
  */
 public interface UsagersCourrierRepository extends CrudRepository<UsagersCourrierBO, Integer> {
     
-    List<UsagersCourrierBO> findByDemarcheId(String demarcheId);
+    List<UsagersCourrierBO> findAll();
     
     UsagersCourrierBO findByDemarcheIdAndPkUsagersCourrier(String demarcheId, Integer pkUsagersCourrier);
     

@@ -26,7 +26,7 @@ public interface UsagersCourrierService {
      *            Optionnel : permet de rechercher par nom
      * @return Les usagers courrier demandés
      */
-    List<UsagerCourrierDTO> getUsagersCourrier(String demarcheId, String query);
+    List<UsagerCourrierDTO> getUsagersCourrier(String query);
 
     /**
      * Permet de sauvegarder ou mettre à jour un usager courrier en base

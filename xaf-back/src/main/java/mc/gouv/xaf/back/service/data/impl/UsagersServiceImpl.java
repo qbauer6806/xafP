@@ -75,8 +75,8 @@ public class UsagersServiceImpl implements UsagersService {
     }
     
     @Override
-    public Integer getNbDemandesUsager(String demarcheId, Integer usagerId) {
-    	return demandesRepository.getNbDemandesForUsager(demarcheId, usagerId);
+    public Integer getNbDemandesUsager(Integer usagerId) {
+    	return demandesRepository.countByFkAccess_UsagerIdAndFkAccess_ActiveTrue(usagerId);
     }
 
 }

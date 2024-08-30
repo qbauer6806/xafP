@@ -22,6 +22,7 @@ import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -67,6 +68,9 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     @Autowired
     private DemarchesService demarchesService;
 
+    @Autowired
+    private UsagersService usagersService;
+
     private UsagersCourrierBO getCourrierBO(String demarcheId, Integer pkUsagersCourrier) {
         LOGGER.info("Récupération en base de l'usager courrier...");
         UsagersCourrierBO usagersCourrierBO = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
@@ -92,7 +96,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
         LOGGER.info(SharedMessages.SUCCESS_MESSAGES);
         UsagerCourrierDTO usagerCourrierDto = UsagerCourrierTransformer.bo2Dto(usagersCourrierBO);
         LOGGER.info("Récupération du nombre de demandes effectuées par cet usager courrier...");
-        Integer nbDemandes = demandesRepository.getNbDemandesForUsager(usagersCourrierBO.getDemarcheId(), usagersCourrierBO.getPkUsagersCourrier());
+        Integer nbDemandes = usagersService.getNbDemandesUsager(usagersCourrierBO.getPkUsagersCourrier());
         usagerCourrierDto.setNbDemandes(nbDemandes);
         return usagerCourrierDto;
     }
@@ -101,20 +105,18 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      * {@inheritDoc}
      */
     @Override
-    public List<UsagerCourrierDTO> getUsagersCourrier(String demarcheId, String query) {
+    public List<UsagerCourrierDTO> getUsagersCourrier(String query) {
 
         LOGGER.info("Récupération en base des usagers courrier...");
 
-        List<UsagersCourrierBO> usagersCourrierBos = null;
+        List<UsagersCourrierBO> usagersCourrierBos;
         if (StringUtils.isBlank(query)) {
-            usagersCourrierBos = usagersCourrierRepository.findByDemarcheId(demarcheId);
+            usagersCourrierBos = usagersCourrierRepository.findAll();
         } else {
             // Recherche par nom
             CriteriaBuilder builder = em.getCriteriaBuilder();
             CriteriaQuery<UsagersCourrierBO> cquery = builder.createQuery(UsagersCourrierBO.class);
             Root<UsagersCourrierBO> root = cquery.from(UsagersCourrierBO.class);
-            // Créer un predicat pour la démarche
-            Predicate isDemarche = builder.equal(root.<String> get("demarcheId"), demarcheId);
             // Créer un predicat par mot présent dans la query
             List<Predicate> predicats = new ArrayList<>();
             String[] mots = query.split(" ");
@@ -134,8 +136,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
                 predicats.add(adresse2);
                 predicats.add(adresseComplement);
             }
-            cquery.where(builder.and(isDemarche));
-            cquery.where(builder.or(predicats.toArray(new Predicate[predicats.size()])));
+            cquery.where(builder.or(predicats.toArray(Predicate[]::new)));
             usagersCourrierBos = em.createQuery(cquery.select(root)).getResultList();
         }
 
@@ -144,8 +145,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Récupération du nombre de demandes effectuées par les usagers courrier...");
         for (UsagerCourrierDTO uc : usagersCourrier) {
-            Integer nbDemandes = demandesRepository.getNbDemandesForUsager(uc.getDemarcheId(),
-                    uc.getPkUsagersCourrier());
+            Integer nbDemandes = usagersService.getNbDemandesUsager(uc.getPkUsagersCourrier());
             uc.setNbDemandes(nbDemandes);
         }
 

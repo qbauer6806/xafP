@@ -66,7 +66,7 @@ public class UsagersCourrierAutocompleteController {
     
     private AutocompleteUsagerListeDTO usagersAutoComplete(String query, boolean fullText) {
 
-        List<UsagerCourrierDTO> usagers = usagersCourrierService.getUsagersCourrier(gouvPropertiesResolver.getDemarcheId(), query);
+        List<UsagerCourrierDTO> usagers = usagersCourrierService.getUsagersCourrier(query);
         
         List<AutocompleteUsagerDTO> liste = new ArrayList<>();
         for (UsagerCourrierDTO usager : usagers) {

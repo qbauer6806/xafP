@@ -7,7 +7,7 @@ public interface StatistiquesInternesService {
 
     Map<String, Map<String, Long>> getNumberOfEachDemandes();
 
-    Long getNumberDemandesFilteredByStatusAndCanal(String demarcheId, String canal, String status);
+    Long getNumberDemandesFilteredByStatusAndCanal(String canal, String status);
 
     Long getNumberDemandesFilteredByStatusAndCanalWithIds(List<Integer> ids, String canal);
 

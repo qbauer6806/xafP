@@ -31,8 +31,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Permet de récupérer le nombre de demandes créées par un usager (courrier ou non)
      */
-    @Query("select count(d) from DemandeBO d inner join d.fkAccess fa where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true")
-    Integer getNbDemandesForUsager(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);
+    Integer countByFkAccess_UsagerIdAndFkAccess_ActiveTrue(Integer usagerId);
 
     Page<DemandeBO> findAll(Pageable pageRequest);
 

@@ -104,7 +104,7 @@ public class GestionUsagersController extends AbstractController {
         if (usagers == null) {
             LOGGER.info("Appel à DEM pour récupérer la liste des usagers courrier...");
             List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService
-                    .getUsagersCourrier(gouvPropertiesResolver.getDemarcheId(), null);
+                    .getUsagersCourrier(null);
 
             usagers = usagersDemToDemarche(usagersCourrierDTO);
         }
@@ -136,7 +136,7 @@ public class GestionUsagersController extends AbstractController {
 
         LOGGER.info("Appel à DEM pour rechercher l'usager courrier...");
         List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService
-                .getUsagersCourrier(gouvPropertiesResolver.getDemarcheId(), usagerInput);
+                .getUsagersCourrier(usagerInput);
 
         List<UsagerCourrierResultDTO> usagers = usagersDemToDemarche(usagersCourrierDTO);
 

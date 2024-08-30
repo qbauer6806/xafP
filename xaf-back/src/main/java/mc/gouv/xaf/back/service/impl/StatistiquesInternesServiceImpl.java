@@ -34,8 +34,6 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
     @Override
     public Map<String, Map<String, Long>> getNumberOfEachDemandes() {
 
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
         // Init global map and total by status
         Map<String, Map<String, Long>> map = new LinkedHashMap<>();
         Map<String, Long> totalByStatus = new HashMap<>();
@@ -49,7 +47,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
             // Loop over status and count total by canal
             for (String status : demarchesDataProvider.getStatusMap().keySet()) {
                 Long count;
-                count = getNumberDemandesFilteredByStatusAndCanal(demarcheId, canal.name(), status);
+                count = getNumberDemandesFilteredByStatusAndCanal(canal.name(), status);
                 totalByCanal += count;
                 nbByStatus.put(status, count);
             }
@@ -88,9 +86,9 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
     }
 
     @Override
-    public Long getNumberDemandesFilteredByStatusAndCanal(String demarcheId, String canal, String status) {
+    public Long getNumberDemandesFilteredByStatusAndCanal(String canal, String status) {
 
-        LOGGER.info("Récupération du nombre de demarches par démarche id...");
+        LOGGER.info("Récupération du nombre de demandes par canal et status...");
 
         return demandesStatInternesRepository.countByCanalAndDernierStatutName(canal, status);
     }

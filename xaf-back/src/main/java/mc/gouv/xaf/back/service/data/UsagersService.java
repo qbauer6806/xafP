@@ -14,6 +14,6 @@ public interface UsagersService {
      */
 	void desinscriptionUsager(String demarcheId, Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif);
 
-    Integer getNbDemandesUsager(String demarcheId, Integer usagerId);
+    Integer getNbDemandesUsager(Integer usagerId);
 
 }

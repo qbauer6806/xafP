@@ -24,7 +24,7 @@
 
 				<!-- Lien simple -->
 				<li th:class="${pageDemandesActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_LECTURE')">
-					<a id="menuDemandes" th:href="'/' + ${appCode} + '/demandes'">
+					<a id="menuDemandes" th:href="@{/demandes}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"
 								data-placement="right" title="" data-original-title="Demandes"></span>
@@ -40,7 +40,7 @@
 				<li th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
 					th:class="${pageCourriersActive} ? 'active' : ''"
 					sec:authorize="hasRole('ROLE_SAISIE')">
-					<a id="menuCourriers" th:href="'/' + ${appCode} + '/gestion/courriers'">
+					<a id="menuCourriers" th:href="@{/gestion/courriers}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"
 								data-placement="right" title="" data-original-title="Impressions"></span>
@@ -70,7 +70,7 @@
 					<ul class="" style="left: 40px; display: none;">
 						<li sec:authorize="hasRole('ROLE_SAISIE')"
 							th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}">
-							<a id="menuUsagersCourrier" th:href="'/' + ${appCode} + '/gestion/usagers'">
+							<a id="menuUsagersCourrier" th:href="@{/gestion/usagers}">
 								<div class="whiteBullet"></div>
 								Usagers courriers
 							</a>
@@ -90,7 +90,7 @@
 				<div th:replace="~{fragments/exportssidebarelements :: exportssidebarelements}"></div>
 
 				<li th:class="${pageStatistiquesActive} ? 'active' : ''" sec:authorize="hasAnyRole('ROLE_CONFIGURATION','ROLE_PARAMETRAGE')">
-					<a id="menuStatistiques" th:href="'/' + ${appCode} + '/gestion/statistiques'">
+					<a id="menuStatistiques" th:href="@{/gestion/statistiques}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Statistiques"></span>
 						</div>
@@ -103,7 +103,7 @@
 
 				<!-- TODO lot 2 : Ajouter un lien pour les demandes supprimées prochainement -->
 				<li th:class="${pagePurgeActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_PARAMETRAGE')">
-					<a id="menuPurge" th:href="'/' + ${appCode} + '/gestion/purge'">
+					<a id="menuPurge" th:href="@{/gestion/purge}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title=""
 									  data-original-title="Suppressions"></span>
@@ -133,19 +133,19 @@
 					</a>
 					<ul class="" style="left: 40px; display: none;">
 						<li>
-							<a id="menuUtilisateurs" th:href="'/' + ${appCode} + '/gestion/utilisateurs'">
+							<a id="menuUtilisateurs" th:href="@{/gestion/utilisateurs}">
 								<div class="whiteBullet"></div>
 								Liste des accès
 							</a>
 						</li>
 						<li th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
-							<a id="menuGestionPeriodesOuverture" th:href="'/' + ${appCode} + '/gestion/periodesouverture'">
+							<a id="menuGestionPeriodesOuverture" th:href="@{/gestion/periodesouverture}">
 								<div class="whiteBullet"></div>
 								Périodes d'ouverture
 							</a>
 						</li>
 						<li th:if="${AfBackUtils.getDemarcheCanHandleDenjsGestionAgents()}" sec:authorize="hasRole('ROLE_PARAMETRAGE')">
-							<a id="menuGestionAgents" th:href="'/' + ${appCode} + '/denjs/gestion/agents'">
+							<a id="menuGestionAgents" th:href="@{/denjs/gestion/agents}">
 								<div class="whiteBullet"></div>
 								Gestion des agents
 							</a>
@@ -168,43 +168,43 @@
 					</a>
 					<ul class="" style="left: 40px; display: none;">
 						<li>
-							<a id="menuJobs" th:href="'/' + ${appCode} + '/gestion/jobs'">
+							<a id="menuJobs" th:href="@{/gestion/jobs}">
 								<div class="whiteBullet"></div> Jobs
 							</a>
 						</li>
 						<li>
-							<a id="menuGestionModeles" th:href="'/' + ${appCode} + '/gestion/modeles'">
+							<a id="menuGestionModeles" th:href="@{/gestion/modeles}">
 								<div class="whiteBullet"></div> Modèles de documents
 							</a>
 						</li>
 						<li>
-							<a id="menuGestionTemplate" th:href="'/' + ${appCode} + '/gestion/template'">
+							<a id="menuGestionTemplate" th:href="@{/gestion/template}">
 								<div class="whiteBullet"></div> Modèles de courriels
 							</a>
 						</li>
 						<li>
-							<a id="menuMotifs" th:href="'/' + ${appCode} + '/gestion/parametres'">
+							<a id="menuMotifs" th:href="@{/gestion/parametres}">
 								<div class="whiteBullet"></div> Motifs de traitement
 							</a>
 						</li>
 						<li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
-							<a id="menuGestionProperties" th:href="'/' + ${appCode} + '/gestion/properties'">
+							<a id="menuGestionProperties" th:href="@{/gestion/properties}">
 								<div class="whiteBullet"></div> Propriétés
 							</a>
 						</li>
 						<li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
-							<a id="menuGestionParametrage" th:href="'/' + ${appCode} + '/gestion/parametrage'">
+							<a id="menuGestionParametrage" th:href="@{/gestion/parametrage}">
 								<div class="whiteBullet"></div> Paramétrage démarche
 							</a>
 						</li>
             <li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
-              <a id="menuMarqueurs" th:href="'/' + ${appCode} + '/gestion/marqueurs'">
+              <a id="menuMarqueurs" th:href="@{/gestion/marqueurs}">
                 <div class="whiteBullet"></div> Marqueurs
               </a>
             </li>
 
             <li>
-							<a id="menuRechercheAvancee" th:href="'/' + ${appCode} + '/gestion/adminrecherche'">
+							<a id="menuRechercheAvancee" th:href="@{/gestion/adminrecherche}">
 								<div class="whiteBullet"></div> Recherche avancée
 							</a>
 						</li>

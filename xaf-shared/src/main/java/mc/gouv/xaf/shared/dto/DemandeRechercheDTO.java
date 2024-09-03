@@ -20,9 +20,6 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 public class DemandeRechercheDTO {
 
     @Getter
-    private String demarcheId;
-
-    @Getter
     private String texte;
 
     @Getter
@@ -66,11 +63,10 @@ public class DemandeRechercheDTO {
     @Getter
     private boolean checkTimestamp;
 
-    public DemandeRechercheDTO(String demarcheId, String texte, List<String> statuts, List<DemandeCanalEnum> canaux,
+    public DemandeRechercheDTO(String texte, List<String> statuts, List<DemandeCanalEnum> canaux,
                                String agentAffecteId, Integer usagerId, Date creationStartDate, Date creationEndDate,
                                DataRechercheDTO data, String identifiant) {
         super();
-        this.demarcheId = demarcheId;
         this.texte = texte;
         this.statuts = statuts;
         this.canaux = canaux;

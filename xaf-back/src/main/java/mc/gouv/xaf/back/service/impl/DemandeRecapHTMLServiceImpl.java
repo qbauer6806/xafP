@@ -334,8 +334,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 LOGGER.error("Impossible de parser le contenu initial de la demande" + demande.getIdentifiant(), e);
             }
         } else if (demande.getPkDemandeSource() != null) {
-            demandeSource = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                    demande.getPkDemandeSource());
+            demandeSource = demandesService.getDemande(demande.getPkDemandeSource());
         }
 
         // On créé un nouveau SB de façon à ne pas générer la section si aucune donnée n'est renseignée.

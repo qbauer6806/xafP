@@ -1,33 +1,25 @@
 package mc.gouv.xaf.back.data.dao;
 
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.PeriodesOuvertureBO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author qdeme
  */
 public interface PeriodesOuvertureRepository extends CrudRepository<PeriodesOuvertureBO, Integer> {
 
-    List<PeriodesOuvertureBO> findByDemarchePkDemarches(String demarcheId);
+    List<PeriodesOuvertureBO> findAll();
 
-    Page<PeriodesOuvertureBO> findByDemarchePkDemarches(String demarcheId, Pageable pageable);
+    Page<PeriodesOuvertureBO> findAll(Pageable pageable);
 
-    @Query("select p from PeriodesOuvertureBO p " +
-            "where p.dateFin < :date and p.demarche.pkDemarches = :demarcheId " +
-            "order by p.dateFin desc")
-    List<PeriodesOuvertureBO> findAllWithDateFinBeforeDate(@Param("date") Date date, @Param("demarcheId") String demarcheId);
+    List<PeriodesOuvertureBO> findByDateFinBeforeOrderByDateFinDesc(Date date);
 
-    @Query("select p from PeriodesOuvertureBO p where p.dateDebut > :date and p.demarche.pkDemarches = :demarcheId")
-    List<PeriodesOuvertureBO> findAllWithDateDebutAfterDate(@Param("date") Date date, @Param("demarcheId") String demarcheId);
+    List<PeriodesOuvertureBO> findByDateDebutAfter(Date date);
 
-    @Query("select p from PeriodesOuvertureBO p where p.dateDebut <= :date and p.dateFin >= :date and p.demarche.pkDemarches = :demarcheId")
-    List<PeriodesOuvertureBO> findAllWithDateDebutAndDateFinBetweenDate(@Param("date") Date date, @Param("demarcheId") String demarcheId);
+    List<PeriodesOuvertureBO> findByDateDebutLessThanEqualAndDateFinGreaterThanEqual(Date date1, Date date2);
 
 }

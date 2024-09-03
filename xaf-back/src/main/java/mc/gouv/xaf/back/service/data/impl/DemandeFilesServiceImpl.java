@@ -97,16 +97,16 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     }
 
     @Override
-    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) {
-        saveFile(demandeFile, demarcheId, pkDemande, true);
+    public void saveFile(DemandeFileDTO demandeFile, Integer pkDemande) {
+        saveFile(demandeFile, pkDemande, true);
     }
 
     @Override
-    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande, boolean checkActive) {
+    public void saveFile(DemandeFileDTO demandeFile, Integer pkDemande, boolean checkActive) {
 
-        LOGGER.info("saveFile({}, {}, {}, {})", demandeFile, demarcheId, pkDemande, checkActive);
+        LOGGER.info("saveFile({}, {}, {})", demandeFile, pkDemande, checkActive);
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, checkActive);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, checkActive);
 
         DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
         demandeFileBo.setFkDemandes(demandeBo);
@@ -133,7 +133,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             if (StringUtils.isNotBlank(typedoc)) {
                 file.setTypedoc(typedoc);
                 try {
-                    fileService.updateFileMetadata(file.getUrl(), gouvPropertiesResolver.getDemarcheId(), FileService.FILE_METADATA_TYPEDOC, typedoc);
+                    fileService.updateFileMetadata(file.getUrl(), FileService.FILE_METADATA_TYPEDOC, typedoc);
                 } catch (Exception e) {
                     LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
                 }

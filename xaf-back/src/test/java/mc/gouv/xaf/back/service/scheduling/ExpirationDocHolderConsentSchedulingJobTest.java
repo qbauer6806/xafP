@@ -60,8 +60,8 @@ class ExpirationDocHolderConsentSchedulingJobTest {
 
         PropertiesDTO xafPorteDocumentActif = new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true");
         when(gouvPropertiesResolver.getDemarcheId()).thenReturn("POCTS");
-        when(propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PORTE_DOCUMENT_ACTIF)).thenReturn(xafPorteDocumentActif);
-        when(accessRepository.getByDemarcheIdAndActive(anyString(), anyBoolean())).thenReturn(List.of(access));
+        when(propertiesService.getProperty(XAF_PORTE_DOCUMENT_ACTIF)).thenReturn(xafPorteDocumentActif);
+        when(accessRepository.findByActive(anyBoolean())).thenReturn(List.of(access));
 
         job.execute(null);
 

@@ -12,12 +12,12 @@ import java.util.List;
 @Component
 public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Override
-    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+    public DemandeDTO updateStatut(Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
         return null;
     }
 
     @Override
-    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+    public DemandeDTO updateStatut(Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
         return null;
     }
 
@@ -32,12 +32,12 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     }
 
     @Override
-    public DemandeStatutDTO getStatut(String demarcheId, Integer demandeId) {
+    public DemandeStatutDTO getStatut(Integer demandeId) {
         return null;
     }
 
     @Override
-    public List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId) {
+    public List<DemandeStatutDTO> getStatuts(Integer demandeId) {
         return null;
     }
 

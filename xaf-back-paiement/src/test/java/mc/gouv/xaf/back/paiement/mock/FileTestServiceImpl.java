@@ -62,12 +62,12 @@ public class FileTestServiceImpl implements FileService {
     }
 
     @Override
-    public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws IOException {
+    public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, Integer demandeId) throws IOException {
 
     }
 
     @Override
-    public void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException {
+    public void updateFileMetadata(String fichierURL, String metaKey, String metaValue) throws IOException {
 
     }
 

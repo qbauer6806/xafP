@@ -2,7 +2,6 @@ package mc.gouv.xaf.backweb.controller;
 
 import java.util.Date;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -29,9 +28,6 @@ public class GestionCourrierController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionCourrierController.class);
     
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-    
-    @Autowired
     private DemandesCourriersService demandesCourrierService;
 
     @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
@@ -51,12 +47,12 @@ public class GestionCourrierController extends AbstractController {
         LOGGER.info("======================= Appel de la page /gestion/courriers/print ({}, {})", demandeId, courrierId);
 
         LOGGER.info("Appels à DEM pour mettre à jour la référence courrier...");
-        DemandeCourrierDTO courrier = demandesCourrierService.getCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrierId);
+        DemandeCourrierDTO courrier = demandesCourrierService.getCourrier(demandeId, courrierId);
 
         courrier.setIdentifiant(StringEscapeUtils.escapeHtml4(refCourrier));
         courrier.setDatePrinted(new Date());
 
-        demandesCourrierService.updateCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrier);
+        demandesCourrierService.updateCourrier(demandeId, courrier);
 
         ModelAndView mav = new ModelAndView("redirect:");
 

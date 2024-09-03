@@ -192,7 +192,6 @@ public class ArchivageServiceImpl implements ArchivageService {
 
         LOGGER.info("Fin archivage des documents");
 
-        archivageRapportExportDTO.setDemarcheId(demandeDTO.getDemarcheId());
         archivageRapportExportDTO.setDemandeFlatDTO(afBackUtils.demandeDTOToDemandeFlatDTO(demandeDTO));
 
         String nomRapport = genererNomRapport(demandeDTO.getIdentifiant(), archivageRapportExportDTO);
@@ -207,7 +206,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
         if (fichiersEnErreurs.get() > 0) {
             // Sauvegarde du numéro de facture dans les données de la demande
-            demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE,
+            demandesDataService.saveOrUpdateDemandeData(demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE,
                     String.valueOf(fichiersEnErreurs.get()), false);
             histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
         } else {
@@ -217,7 +216,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
         statutDTO.setProgression(1d);
         archivageProgress.put(demandeId, statutDTO);
-        demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, ARCHIVAGE_RIO_COMPLETED, "true", false);
+        demandesDataService.saveOrUpdateDemandeData(demandeId, ARCHIVAGE_RIO_COMPLETED, "true", false);
 
         return listeReferences;
     }
@@ -312,7 +311,7 @@ public class ArchivageServiceImpl implements ArchivageService {
     private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO, String nomRapport) throws IOException {
         LOGGER.info("Constitution du modèle pour la génération du recap archivage...");
         Map<String, Object> model = new HashMap<>();
-        model.put("demarcheId", rapportExportDTO.getDemarcheId());
+        model.put("demarcheId", gouvPropertiesResolver.getDemarcheId());
         Date date = new Date(System.currentTimeMillis());
         String dateTimeString = simpleDateTimeFormat.format(date);
         model.put("dateGeneration", dateTimeString);
@@ -332,7 +331,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
         outputSave.close();
 
-        saveFichier(nomRapport, url, demandeDTO, demandeDTO.getDemarcheId());
+        saveFichier(nomRapport, url, demandeDTO);
 
         return output;
     }
@@ -349,13 +348,13 @@ public class ArchivageServiceImpl implements ArchivageService {
         return builder.toString();
     }
 
-    private void saveFichier(String fileName, String url, DemandeDTO demande, String demarcheId) {
+    private void saveFichier(String fileName, String url, DemandeDTO demande) {
         DemandeFileDTO file = new DemandeFileDTO();
         file.setName(fileName);
         file.setUrl('/' + url);
         file.setDate(new Date());
         file.setMeta("BACK_RAPPORT_ARCHIVAGE");
-        demandesFilesService.saveFile(file, demarcheId, demande.getPkDemandes(), false);
+        demandesFilesService.saveFile(file, demande.getPkDemandes(), false);
     }
 
     private ArchivageFichierInitalDTO createFichierInitial(DemandeFileDTO file) {

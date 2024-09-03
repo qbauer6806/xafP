@@ -13,13 +13,13 @@ public interface BrouillonsService {
 
 	BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate);
 
-	List<BrouillonDTO> getBrouillons(String demarcheId, Integer usagerId);
+	List<BrouillonDTO> getBrouillons(Integer usagerId);
 
-	List<BrouillonDTO> getAllBrouillons(String demarcheId);
+	List<BrouillonDTO> getAllBrouillons();
 
-	BrouillonDTO getBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId);
+	BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId);
 
-	BrouillonBO getBrouillonBo(String demarcheId, Integer pkBrouillons);
+	BrouillonBO getBrouillonBo(Integer pkBrouillons);
 
 	/**
 	 * Permet de mettre à jour un brouillon
@@ -30,15 +30,14 @@ public interface BrouillonsService {
 
 	/**
 	 * Permet de supprimer un brouillon
-	 * @param demarcheId ID de la démarche contenant le brouillon
 	 * @param pkBrouillons PK du brouillon à supprimer
 	 * @param usagerId ID de l'usager faisant la suppression, à vérifier avec celui dans le brouillon
 	 */
-	void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId);
+	void deleteBrouillon(Integer pkBrouillons, Integer usagerId);
 
-	Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO);
+	Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
 
-	void deleteBrouillons(String demarcheId, Integer usagerId);
+	void deleteBrouillons(Integer usagerId);
 
 	long getNombreBrouillons();
 

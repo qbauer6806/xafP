@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service permettant la manipulation des fichiers joints aux  d'informations complémentaires.
+ * Service permettant la manipulation des fichiers joints aux d'informations complémentaires.
  *
  * @author mboutelier.ext
  */
@@ -33,9 +33,6 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 	@Autowired
 	private FileService fileService;
 
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
-
 	private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes, AtomicBoolean success) {
 		String pk = "" + file.getPkDemandesComplementsFiles();
 		if (changes.containsKey(pk)) {
@@ -43,7 +40,7 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 			if (StringUtils.isNotBlank(typedoc)) {
 				file.setTypedoc(typedoc);
 				try {
-					fileService.updateFileMetadata(file.getUrl(), gouvPropertiesResolver.getDemarcheId(), FileService.FILE_METADATA_TYPEDOC, typedoc);
+					fileService.updateFileMetadata(file.getUrl(), FileService.FILE_METADATA_TYPEDOC, typedoc);
 				} catch (Exception e) {
 					LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
 				}

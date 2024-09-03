@@ -32,11 +32,6 @@ public class MotifBO {
     @Column(name = "PK_MOTIFS", nullable = false)
     private Integer pkMotifs;
 
-    @Column(name = "FK_DEMARCHEID", length = 128, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 128)
-    private String demarcheId;
-
     @Column(name = "CODE", length = 128, nullable = false)
     @NotBlank
     @Size(min = 1, max = 128)

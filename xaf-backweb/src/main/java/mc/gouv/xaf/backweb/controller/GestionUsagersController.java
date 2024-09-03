@@ -1,12 +1,29 @@
 package mc.gouv.xaf.backweb.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import jakarta.validation.Valid;
-
+import mc.gouv.servicerest.pays.model.PaysBean;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.PaysComparator;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
+import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
+import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
+import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,28 +41,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import mc.gouv.servicerest.pays.model.PaysBean;
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.PaysComparator;
-import mc.gouv.xaf.back.service.utils.UsagersUtils;
-import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
-import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
-import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Controller pour la page /gestionusagers
@@ -224,8 +219,7 @@ public class GestionUsagersController extends AbstractController {
 
         if (updateUsagerId == null) {
             LOGGER.info("Appel à DEM pour création de l'usager...");
-            usagerCourrier = usagersCourrierService.saveUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
-                    usagerCourrier);
+            usagerCourrier = usagersCourrierService.saveUsagerCourrier(usagerCourrier);
 
             // Ajout du message de succès
             List<String> messages = new ArrayList<>();
@@ -236,8 +230,7 @@ public class GestionUsagersController extends AbstractController {
             LOGGER.info("Appel à DEM pour mise à jour de l'usager {}...", updateUsagerId);
             usagerCourrier.setLogin(updateUsagerId.toString());
             usagerCourrier.setPkUsagersCourrier(updateUsagerId);
-            usagerCourrier = usagersCourrierService.updateUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
-                    usagerCourrier);
+            usagerCourrier = usagersCourrierService.updateUsagerCourrier(usagerCourrier);
 
             // Ajout du message de succès
             List<String> messages = new ArrayList<>();
@@ -265,8 +258,7 @@ public class GestionUsagersController extends AbstractController {
 
         LOGGER.info("======================= Appel de la page /gestion/usagers/{}", usagerId);
 
-        UsagerCourrierDTO usager = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
-                usagerId);
+        UsagerCourrierDTO usager = usagersCourrierService.getUsagerCourrier(usagerId);
         usagerCourrierFormBean.setAdresse1(usager.getAdresse1());
         usagerCourrierFormBean.setAdresse2(usager.getAdresse2());
         usagerCourrierFormBean.setAdresseComplement(usager.getAdresseComplement());
@@ -296,7 +288,7 @@ public class GestionUsagersController extends AbstractController {
 
         LOGGER.info("======================= Appel de la page /gestion/usagers/supprimer ({})", usagerId);
         LOGGER.info("Appel à DEM pour supprimer l'usager courrier...");
-        usagersCourrierService.deleteUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerId);
+        usagersCourrierService.deleteUsagerCourrier(usagerId);
 
         usagersCache.refresh();
 
@@ -368,11 +360,11 @@ public class GestionUsagersController extends AbstractController {
         }
 
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager source...");
-        List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), usagerSourceId);
+        List<DemandeDTO> demandes = demandesService.getDemandes(usagerSourceId);
 
         LOGGER.info("Appel à DEM afin de récupérer les infos de l'usager source...");
         UsagerCourrierDTO usagerSourceDTO = usagersCourrierService
-                .getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerSourceId);
+                .getUsagerCourrier(usagerSourceId);
 
         ModelAndView mav = new ModelAndView("gestion/usagers/transfertdemandes");
         mav.addObject("usagerSourceId", usagerSourceId);
@@ -402,12 +394,11 @@ public class GestionUsagersController extends AbstractController {
         LOGGER.info("======================= Appel de la page /gestion/usagers/transferer (POST)");
 
         LOGGER.info("Appel à DEM pour récupérer les demandes affectées à l'usager courrier source...");
-        List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), usagerSourceId);
+        List<DemandeDTO> demandes = demandesService.getDemandes(usagerSourceId);
 
         LOGGER.info("Appel à DEM pour transférer les demandes de l'usager courrier source {} vers l'usager courrier cible {} ({})... ",
                 usagerSourceId, usagerCibleId, transfertDemandesFormBean.getCheckedDemandes());
-        usagersCourrierService.transferer(gouvPropertiesResolver.getDemarcheId(), usagerSourceId, usagerCibleId,
-                transfertDemandesFormBean.getCheckedDemandes());
+        usagersCourrierService.transferer(usagerSourceId, usagerCibleId, transfertDemandesFormBean.getCheckedDemandes());
 
         LOGGER.info("Mise à jour des variables BPM concernant les demandes impactées...");
         for (DemandeDTO demande : demandes) {
@@ -418,7 +409,7 @@ public class GestionUsagersController extends AbstractController {
         if (transfererSupprimer) {
 
             LOGGER.info("Appel à DEM pour supprimer l'usager courrier source {}...", usagerSourceId);
-            usagersCourrierService.deleteUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerSourceId);
+            usagersCourrierService.deleteUsagerCourrier(usagerSourceId);
 
             List<String> messages = new ArrayList<>();
             messages.add(
@@ -488,10 +479,10 @@ public class GestionUsagersController extends AbstractController {
             }
         }
         PaysComparator paysComparator = new PaysComparator();
-        Collections.sort(listePaysP1, paysComparator);
-        Collections.sort(listePaysP2, paysComparator);
-        Collections.sort(listePaysP3, paysComparator);
-        Collections.sort(listePaysP4, paysComparator);
+        listePaysP1.sort(paysComparator);
+        listePaysP2.sort(paysComparator);
+        listePaysP3.sort(paysComparator);
+        listePaysP4.sort(paysComparator);
         mav.addObject("listePaysP1", listePaysP1);
         mav.addObject("listePaysP2", listePaysP2);
         mav.addObject("listePaysP3", listePaysP3);

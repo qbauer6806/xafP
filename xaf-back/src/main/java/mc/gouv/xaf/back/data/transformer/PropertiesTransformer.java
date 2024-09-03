@@ -20,7 +20,6 @@ public class PropertiesTransformer {
     public static PropertiesDTO bo2Dto(PropertiesBO bo) {
         PropertiesDTO dto = new PropertiesDTO();
         dto.setPkProperties(bo.getPkProperties());
-        dto.setDemarcheId(bo.getDemarche().getPkDemarches());
         dto.setType(PropertiesTypeEnum.valueOf(bo.getType()));
         dto.setKey(bo.getKey());
         dto.setDescriptif(bo.getDescriptif());

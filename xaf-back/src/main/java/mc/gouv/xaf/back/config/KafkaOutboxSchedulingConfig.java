@@ -65,7 +65,7 @@ public class KafkaOutboxSchedulingConfig {
     }
 
     private String retrieveCronExpression() throws DemPropertyNotFoundException {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION);
         if (propertiesDTO == null || StringUtils.isBlank(propertiesDTO.getValue())) {
             throw new DemPropertyNotFoundException(XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION);
         }
@@ -73,7 +73,7 @@ public class KafkaOutboxSchedulingConfig {
     }
 
     private Integer retrieveRetryNb() throws DemPropertyNotFoundException {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_KAFKA_OUTBOX_RETRY_NB);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_KAFKA_OUTBOX_RETRY_NB);
         if (propertiesDTO == null) {
             throw new DemPropertyNotFoundException(XAF_KAFKA_OUTBOX_RETRY_NB);
         }
@@ -81,7 +81,7 @@ public class KafkaOutboxSchedulingConfig {
     }
 
     private Integer retrieveRetryInterval() throws DemPropertyNotFoundException {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_KAFKA_OUTBOX_RETRY_INTERVAL);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_KAFKA_OUTBOX_RETRY_INTERVAL);
         if (propertiesDTO == null) {
             throw new DemPropertyNotFoundException(XAF_KAFKA_OUTBOX_RETRY_INTERVAL);
         }

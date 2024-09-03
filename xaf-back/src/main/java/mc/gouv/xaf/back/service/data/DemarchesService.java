@@ -11,24 +11,22 @@ import mc.gouv.xaf.shared.dto.DemarcheDTO;
 public interface DemarchesService {
 
     /**
-     * Permet de récupérer la démarche correspondant au DemarcheID
+     * Permet de récupérer la démarche correspondant
      *
-     * @param demarcheId l'id de la démarche à récupérer
      * @return Un objet DTO de la démarche demandée
      */
-    DemarcheDTO getDemarche(String demarcheId);
+    DemarcheDTO getDemarche();
 
     /**
-     * <p>Permet de récupérer la démarche correspondant au DemarcheID</p>
+     * <p>Permet de récupérer la démarche correspondant</p>
      * <p>Fonction réservée aux autres Services</p>
      *
-     * @param demarcheId l'id de la démarche à récupérer
      * @return Un objet BO de la démarche demandée
      */
-    DemarchesBO getCheckDemarche(String demarcheId);
+    DemarchesBO getCheckDemarche();
 
     /**
-     * Permet de modifier une démarche à partir du DemarcheID
+     * Permet de modifier une démarche
      *
      * @param demarche l'objet de la démarche à modifier
      * @return La démarche modifiée

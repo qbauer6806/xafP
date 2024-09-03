@@ -1,10 +1,11 @@
 package mc.gouv.xaf.back.data.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -84,12 +85,6 @@ public class DemarchesBO {
     @NotBlank
     @Size(min = 1, max = 128)
     private String identifiantPrefixe;
-    
-    @OneToMany(mappedBy = "demarche", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<PeriodesOuvertureBO> periodesOuverture;
-
-    @OneToMany(mappedBy = "demarche", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<PropertiesBO> properties;
 
     @Column(name = "LANGUES", length = 256)
     @Size(max = 256)

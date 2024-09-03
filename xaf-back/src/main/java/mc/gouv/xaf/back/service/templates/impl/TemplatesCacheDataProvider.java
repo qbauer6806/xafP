@@ -25,7 +25,7 @@ public class TemplatesCacheDataProvider implements GouvCacheDataProvider<Integer
     @Override
     public ConcurrentHashMap<Integer, TemplateDTO> getAll() {
         ConcurrentHashMap<Integer, TemplateDTO> ret = new ConcurrentHashMap<>();
-        List<TemplateDTO> templates = templatesService.getTemplates(gouvPropertiesResolver.getDemarcheId());
+        List<TemplateDTO> templates = templatesService.getTemplates();
         for (TemplateDTO template : templates) {
             ret.put(template.getPkTemplates(), template);
         }
@@ -34,7 +34,7 @@ public class TemplatesCacheDataProvider implements GouvCacheDataProvider<Integer
 
     @Override
     public TemplateDTO get(Integer key) {
-        return templatesService.getTemplate(gouvPropertiesResolver.getDemarcheId(), key);
+        return templatesService.getTemplate(key);
     }
     
 }

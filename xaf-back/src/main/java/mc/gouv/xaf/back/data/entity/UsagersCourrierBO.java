@@ -31,11 +31,6 @@ public class UsagersCourrierBO {
     @Column(name = "PK_USAGERSCOURRIER", nullable = false)
     private Integer pkUsagersCourrier;
 
-    @Column(name = "FK_DEMARCHEID", length = 128, nullable = false)
-    @NotEmpty
-    @Size(min = 1, max = 128)
-    private String demarcheId;
-
     @Column(name = "LOGIN", length = 20, nullable = false)
     @NotEmpty
     @Size(min = 1, max = 20)

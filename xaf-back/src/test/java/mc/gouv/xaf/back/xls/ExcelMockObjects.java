@@ -34,7 +34,6 @@ public class ExcelMockObjects {
 		DemandeDTO dto = new DemandeDTO();
 
 		dto.setAgent(new DemandeAgentDTO(ExcelMockData.AGENT_AFFECT_ID));
-		dto.setDemarcheId("CANDI");
 		dto.setLangue(ExcelMockData.LANGUE);
 		DemandeUsagerDTO usager = new DemandeUsagerDTO();
 		usager.setEmail(ExcelMockData.USAGER_EMAIL);

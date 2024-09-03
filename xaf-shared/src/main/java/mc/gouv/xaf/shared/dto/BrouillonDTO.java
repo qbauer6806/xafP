@@ -26,8 +26,6 @@ public class BrouillonDTO {
     
     private Integer usagerId;
     
-    private String demarcheId;
-    
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     protected Date dateCreation;
 

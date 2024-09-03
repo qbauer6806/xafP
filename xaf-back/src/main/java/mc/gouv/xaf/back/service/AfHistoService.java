@@ -48,9 +48,9 @@ public interface AfHistoService {
     
     DemandeHistoriqueDTO traiterFinal(Integer demandeId, String targetState, String agentId);
     
-    DemandeHistoriqueDTO historiqueDuplicationNouvelleDemande(Integer demandeId, Integer oldDemandeId, String demarcheId, String agentId);
+    DemandeHistoriqueDTO historiqueDuplicationNouvelleDemande(Integer demandeId, Integer oldDemandeId, String agentId);
     
-    DemandeHistoriqueDTO historiqueDuplicationAncienneDemande(Integer demandeId, Integer oldDemandeId, String demarcheId, String agentId);
+    DemandeHistoriqueDTO historiqueDuplicationAncienneDemande(Integer demandeId, Integer oldDemandeId, String agentId);
 
     default DemandeHistoriqueDTO demanderRectification(Integer demandeId, String agentId) {
         return null;
@@ -61,7 +61,7 @@ public interface AfHistoService {
     }
     DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, StatutPublicOuInterneDTO spoi, String agentId);
 
-    void saveHisto(String demarcheId, Integer demandeId, DemandeHistoriqueDTO histo);
+    void saveHisto(Integer demandeId, DemandeHistoriqueDTO histo);
 
     default DemandeHistoriqueDTO updateDemande(DemandeDTO demandeDto, Integer usagerId, String agentId, String targetState) {
         return null;

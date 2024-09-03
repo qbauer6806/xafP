@@ -70,7 +70,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 		Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
 		GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
 		Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
-		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+		DemandeDTO demande = demandesService.getDemande(demandeId);
 		if (usager == null) {
             usager = new GichuniUsagerDTO();
             DemandeUsagerDTO usagerDto = demande.getUsager();

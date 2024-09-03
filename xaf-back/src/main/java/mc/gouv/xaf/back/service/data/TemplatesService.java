@@ -12,54 +12,54 @@ import java.util.List;
 public interface TemplatesService {
 
     /**
-     * Permet de récupérer le template correspondant à un DemarcheID et un TemplateID
+     * Permet de récupérer le template correspondant à un TemplateID
      *
      * @return Le template demandé
      */
-    TemplateDTO getTemplate(String demarcheId, Integer templateId);
+    TemplateDTO getTemplate(Integer templateId);
 
     /**
-     * Permet de récupérer le template correspondant à un DemarcheID, un code template, et une langue
+     * Permet de récupérer le template correspondant à un code template, et une langue
      */
-    TemplateDTO getTemplateByDemarcheIdAndCodeAndLangue(String demarcheId, String code, String langue);
+    TemplateDTO getTemplateByCodeAndLangue(String code, String langue);
 
     /**
-     * Permet de récupérer les templates correspondant à un DemarcheID
+     * Permet de récupérer les templates correspondant
      *
      * @return Les templates demandés
      */
-    List<TemplateDTO> getTemplates(String demarcheId);
+    List<TemplateDTO> getTemplates();
 
     /**
-     * Permet de récupérer les templates filtrés par langue correspondant à un DemarcheID
+     * Permet de récupérer les templates filtrés par langue correspondant
      *
      * @return Les templates demandés
      */
-    List<TemplateDTO> getTemplates(String demarcheId, String langue);
+    List<TemplateDTO> getTemplates(String langue);
 
     /**
      * Permet de sauvegarder ou mettre à jour un template en base
      *
      * @return Le template sauvegardé ou mis à jour
      */
-    TemplateDTO saveOrUpdateTemplate(String demarcheId, TemplateDTO template);
+    TemplateDTO saveOrUpdateTemplate(TemplateDTO template);
 
     /**
-     * Permet de supprimer un template à partir du DemarcheID et du TemplateID
+     * Permet de supprimer un template à partir du TemplateID
      */
-    void deleteTemplate(String demarcheId, Integer templateId);
+    void deleteTemplate(Integer templateId);
 
     /**
      * Permet de sauvegarder en base un template
      *
      * @return Le template sauvegardé
      */
-    TemplateDTO saveTemplate(String demarcheId, TemplateDTO template);
+    TemplateDTO saveTemplate(TemplateDTO template);
 
     /**
-     * Permet de modifier un template à partir du DemarcheID et du TemplateID
+     * Permet de modifier un template à partir du TemplateID
      *
      * @return Le template modifié
      */
-    TemplateDTO updateTemplate(String demarcheId, TemplateDTO template);
+    TemplateDTO updateTemplate(TemplateDTO template);
 }

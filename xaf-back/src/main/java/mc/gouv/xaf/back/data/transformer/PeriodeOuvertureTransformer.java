@@ -18,7 +18,6 @@ public class PeriodeOuvertureTransformer {
         PeriodeOuvertureDTO dto = new PeriodeOuvertureDTO();
         dto.setDateDebut(bo.getDateDebut());
         dto.setDateFin(bo.getDateFin());
-        dto.setDemarcheId(bo.getDemarche().getPkDemarches());
         dto.setPkPeriodesOuverture(bo.getPkPeriodesOuverture());
         return dto;
     }

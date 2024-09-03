@@ -17,8 +17,6 @@ public class PropertiesDTO {
 
     private Integer pkProperties;
 
-    private String demarcheId;
-
     private PropertiesTypeEnum type;
 
     private String key;

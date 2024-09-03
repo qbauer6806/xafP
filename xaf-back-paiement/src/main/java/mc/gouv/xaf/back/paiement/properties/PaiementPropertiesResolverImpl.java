@@ -86,13 +86,13 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     @Override
     public String getXafMoneticoTexteAller() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_TEXTE_ALLER);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_TEXTE_ALLER);
         return propertiesDTO.getValue();
     }
 
     @Override
     public int getValiditeMaxMoyenPaiement() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_DUREE_CARTE);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_DUREE_CARTE);
         return Integer.parseInt(propertiesDTO.getValue());
     }
 
@@ -138,56 +138,56 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     @Override
     public String getNomParDefaut() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_NAME);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_CONTEXTE_COMMANDE_NAME);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getPrenomParDefaut() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_FIRSTNAME);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_CONTEXTE_COMMANDE_FIRSTNAME);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getAdresseParDefaut() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_ADRESSE);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_CONTEXTE_COMMANDE_ADRESSE);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getVilleParDefaut() {
 
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_VILLE);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_CONTEXTE_COMMANDE_VILLE);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getCodePostalParDefaut() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_CODE_POSTAL);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_CONTEXTE_COMMANDE_CODE_POSTAL);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getCodePaysParDefaut() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_PAYS);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_CONTEXTE_COMMANDE_PAYS);
         return propertiesDTO.getValue();
     }
 
     @Override
     public int getXafRetryInitialDelay() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_RETRY_INITIAL_DELAY);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_RETRY_INITIAL_DELAY);
         return Integer.parseInt(propertiesDTO.getValue());
     }
 
     @Override
     public int getXafRetryCount() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_RETRY_COUNT);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_RETRY_COUNT);
         return Integer.parseInt(propertiesDTO.getValue());
     }
 
     @Override
     public int getXafRetryMultiplier() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_RETRY_MULTIPLIER);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_RETRY_MULTIPLIER);
         return Integer.parseInt(propertiesDTO.getValue());
     }
 
@@ -199,7 +199,7 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
      */
     @Override
     public String getXafPaiementImmediatHeureDiffere() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE);
         return (propertiesDTO != null) ? propertiesDTO.getValue() : PAIEMENT_IMMEDIAT_HEURE_DIFFERE_DEFAULT;
     }
 
@@ -255,25 +255,25 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     @Override
     public String getXafMonetico3dsv2Scenario() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_3DSV2_SCENARIO);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_3DSV2_SCENARIO);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getCodePaiement() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_PAIEMENT);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_CODE_PAIEMENT);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getXafMoneticoLibelleSociete() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_SOCIETE);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_LIBELLE_SOCIETE);
         return propertiesDTO.getValue();
     }
 
     @Override
     public String getXafMoneticoLibelleLieu() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_LIEU);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_LIBELLE_LIEU);
         return propertiesDTO.getValue();
     }
 

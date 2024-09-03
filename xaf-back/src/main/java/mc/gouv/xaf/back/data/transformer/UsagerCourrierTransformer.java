@@ -24,7 +24,6 @@ public class UsagerCourrierTransformer {
         dto.setCodePostal(bo.getCodePostal());
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
-        dto.setDemarcheId(bo.getDemarcheId());
         dto.setEmail(bo.getEmail());
         dto.setLogin(bo.getLogin());
         dto.setNom(bo.getNom());
@@ -46,7 +45,6 @@ public class UsagerCourrierTransformer {
         bo.setCodePostal(dto.getCodePostal());
         bo.setDateCreation(dto.getDateCreation());
         bo.setDateDerModif(dto.getDateDerModif());
-        bo.setDemarcheId(dto.getDemarcheId());
         bo.setEmail(dto.getEmail());
         bo.setLogin(dto.getLogin());
         bo.setNom(dto.getNom());

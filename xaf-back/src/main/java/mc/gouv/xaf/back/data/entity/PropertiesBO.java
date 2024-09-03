@@ -22,10 +22,6 @@ public class PropertiesBO {
     @Column(name = "PK_PROPERTIES", nullable = false)
     private Integer pkProperties;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "FK_DEMARCHEID", nullable = false)
-    private DemarchesBO demarche;
-
     @Column(name = "TYPE", length = 256, nullable = false)
     @NotEmpty
     @Size(min = 1, max = 256)

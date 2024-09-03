@@ -48,11 +48,10 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
         LOGGER.info("==== xaf-back-stc Archivage ...");
 
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
-        DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
+        DemandeDTO demandeDto = demandesService.getDemande(demandeId);
 
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(demarcheId, XAF_ARCHIVAGE_ACTIVATION);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_ARCHIVAGE_ACTIVATION);
 
         if (propertiesDTO != null && Boolean.parseBoolean(propertiesDTO.getValue())) {
             String reference = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_REFERENCE_PERMIS);

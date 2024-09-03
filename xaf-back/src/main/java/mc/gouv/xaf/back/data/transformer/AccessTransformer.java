@@ -30,7 +30,6 @@ public class AccessTransformer {
         AccessDTO dto = new AccessDTO();
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
-        dto.setDemarcheId(bo.getDemarcheId());
         dto.setPkAccess(bo.getPkAccess());
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -49,7 +48,6 @@ public class AccessTransformer {
         AccessBO bo = new AccessBO();
         bo.setDateCreation(dto.getDateCreation());
         bo.setDateDerModif(dto.getDateDerModif());
-        bo.setDemarcheId(dto.getDemarcheId());
         bo.setPkAccess(dto.getPkAccess());
         ObjectMapper mapper = new ObjectMapper();
         try {

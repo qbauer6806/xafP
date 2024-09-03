@@ -13,12 +13,12 @@ import mc.gouv.xaf.back.data.entity.TemplateBO;
  */
 public interface TemplatesRepository extends CrudRepository<TemplateBO, Integer> {
 
-    List<TemplateBO> findByDemarcheId(String demarcheId);
+    List<TemplateBO> findAll();
 
-    List<TemplateBO> findByDemarcheIdAndLangue(String demarcheId, String langue);
+    List<TemplateBO> findByLangue(String langue);
 
-    TemplateBO findByDemarcheIdAndPkTemplates(String demarcheId, Integer pkTemplates);
+    TemplateBO findByPkTemplates(Integer pkTemplates);
     
-    TemplateBO findByDemarcheIdAndCodeAndLangue(String demarcheId, String code, String langue);
+    TemplateBO findByCodeAndLangue(String code, String langue);
     
 }

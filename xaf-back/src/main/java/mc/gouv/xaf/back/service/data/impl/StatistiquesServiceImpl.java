@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.data.transformer.StatistiqueTransformer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
@@ -26,6 +27,9 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     @Autowired
     private StatistiquesRepository statRepository;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     /**
      * {@inheritDoc}
      */
@@ -33,7 +37,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     public StatistiqueDTO saveStatistique(StatistiqueDTO stat) {
 
         LOGGER.info("Création d'une statistique pour la demande {}", stat.getDemandeId());
-        List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeIdAndDemarcheId(stat.getDemandeId(), stat.getDemarcheId());
+        List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(stat.getDemandeId());
 
         if (!statistiquesBO.isEmpty()) {
             StatistiqueBO derniereStat = statistiquesBO.get(statistiquesBO.size()-1);
@@ -55,7 +59,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     public StatistiqueDTO saveStatistique(DemandeDTO demandeDTO) {
         StatistiqueDTO statistiqueDTO = new StatistiqueDTO();
         statistiqueDTO.setDemandeId(demandeDTO.getPkDemandes());
-        statistiqueDTO.setDemarcheId(demandeDTO.getDemarcheId());
+        statistiqueDTO.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         statistiqueDTO.setStatutPublic(demandeDTO.getDernierStatut().getName());
         statistiqueDTO.setCanal(demandeDTO.getCanal().name());
         statistiqueDTO.setDate(demandeDTO.getDernierStatut().getDate());
@@ -73,9 +77,9 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     }
     
     @Override
-    public void deleteStatistiques(String demarcheId, Integer pkDemande) {
+    public void deleteStatistiques(Integer pkDemande) {
         LOGGER.info("Suppression des statistiques de la demande {}", pkDemande);
-        List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeIdAndDemarcheId(pkDemande, demarcheId);
+        List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(pkDemande);
         statRepository.deleteAll(statistiquesBO);
     }
 

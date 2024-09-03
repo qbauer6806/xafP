@@ -175,7 +175,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         LOGGER.info("Appel à DEM...");
 
         DemandeDTO demandeDto = new DemandeDTO();
-        demandeDto.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         demandeDto.setUsagerId(usagerId);
         demandeDto.setPkDemandes(null);
         demandeDto.setContenu(demande.getContenu());
@@ -202,7 +201,7 @@ public abstract class AfApiService extends AbstractAfApiService {
             if (demandeDto.getPkDemandes() != null) {
                 LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
                         demandeDto.getIdentifiant());
-                demandesService.deleteDemande(gouvPropertiesResolver.getDemarcheId(), demandeDto.getPkDemandes());
+                demandesService.deleteDemande(demandeDto.getPkDemandes());
             }
             throw new DemarcheException("Erreur lors de la création d'une demande", e);
         }
@@ -243,7 +242,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         // Suppression du brouillon éventuel
         if (demande.getBrouillonId() != null) {
             LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
-            brouillonsService.deleteBrouillon(gouvPropertiesResolver.getDemarcheId(), demande.getBrouillonId(),
+            brouillonsService.deleteBrouillon(demande.getBrouillonId(),
                     usagerId);
         }
         return demandeDto;
@@ -252,8 +251,7 @@ public abstract class AfApiService extends AbstractAfApiService {
     private void saveHistorique(Integer demandeDto, DemandeHistoriqueDTO histo) {
         LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
         try {
-            demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(),
-                    demandeDto, histo);
+            demandesHistoriqueService.saveHistorique(demandeDto, histo);
 
         } catch (Exception e) {
             LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
@@ -265,16 +263,15 @@ public abstract class AfApiService extends AbstractAfApiService {
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
             throws JsonProcessingException {
 
-        DemandeDTO demandeEnBase = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        DemandeDTO demandeEnBase = demandesService.getDemande(demandeId);
         if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {
             throw new BadRequestWebException("La demande n'est pas éligible à une rectification.");
         }
 
-        DemandeDTO demandeDto = null;
+        DemandeDTO demandeDto;
         try {
 
             demandeDto = new DemandeDTO();
-            demandeDto.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
             demandeDto.setUsagerId(usagerId);
             demandeDto.setPkDemandes(demandeId);
             demandeDto.setContenu(demande.getContenu());
@@ -300,7 +297,7 @@ public abstract class AfApiService extends AbstractAfApiService {
 
             // Récupération du statut courant (qui vient d'être mis par le BPM) afin de déterminer le statut
             // cible à donner à l'historique
-            demandeEnBase = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+            demandeEnBase = demandesService.getDemande(demandeId);
             DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
 
             DemandeHistoriqueDTO histo = histoService.updateDemande(demandeDto, usagerId,
@@ -328,13 +325,12 @@ public abstract class AfApiService extends AbstractAfApiService {
     @Override
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         List<PeriodeOuvertureDTO> periodes = new ArrayList<>();
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        PeriodeOuvertureDTO derniere = periodesOuvertureService.getDernierePeriodeOuvertureTerminee(demarcheId);
+        PeriodeOuvertureDTO derniere = periodesOuvertureService.getDernierePeriodeOuvertureTerminee();
         if (null != derniere) {
             periodes.add(derniere);
         }
-        periodes.addAll(periodesOuvertureService.getPeriodesOuvertureEnCours(demarcheId));
-        periodes.addAll(periodesOuvertureService.getPeriodesOuvertureFutures(demarcheId));
+        periodes.addAll(periodesOuvertureService.getPeriodesOuvertureEnCours());
+        periodes.addAll(periodesOuvertureService.getPeriodesOuvertureFutures());
         return periodes;
     }
 
@@ -344,11 +340,11 @@ public abstract class AfApiService extends AbstractAfApiService {
                                                             DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
 
         LOGGER.info("Appel à demandesService pour récupération de la demande concernée...");
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        DemandeDTO demande = demandesService.getDemande(demandeId);
 
         LOGGER.info("Appel à demandesComplementsService pour répondre à la demande d'informations complémentaires...");
         DemandeComplementsDTO demandeComplementsDto = demandesComplementsService
-                .repondreDemandeComplements(gouvPropertiesResolver.getDemarcheId(), demandeId, icId, reponse);
+                .repondreDemandeComplements(demandeId, icId, reponse);
 
         Integer usagerId = reponse.getUsagerId();
         String agentId = reponse.getAgentId();
@@ -398,7 +394,7 @@ public abstract class AfApiService extends AbstractAfApiService {
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
 
         LOGGER.info("Appel à DEM pour récupération de l'accès actuel de l'usager à cette démarche...");
-        AccessDTO access = accessService.getAccess(gouvPropertiesResolver.getDemarcheId(), usagerId);
+        AccessDTO access = accessService.getAccessActive(usagerId);
 
         LOGGER.info("Appel à DEM pour récupération de la demande concernée...");
 
@@ -406,7 +402,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         canaux.add(DemandeCanalEnum.COURRIER);
         canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
-        demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         demandeRecherche.setIdentifiant(identifiantDemande);
         demandeRecherche.setCanaux(canaux);
         List<DemandeDTO> demandes = demandesService.getDemandes(demandeRecherche);
@@ -425,7 +420,7 @@ public abstract class AfApiService extends AbstractAfApiService {
 
                 LOGGER.info("La chaîne de caractères de vérification pour l'association d'une demande courrier correspond bien à la demande, effectuer l'association...");
 
-                demande = demandesService.associerDemandeCourrier(gouvPropertiesResolver.getDemarcheId(),
+                demande = demandesService.associerDemandeCourrier(
                         demande.getPkDemandes(), access.getPkAccess());
 
                 LOGGER.info("Mise à jour de la variable MC_DEMANDE_CANAL dans le BPM...");
@@ -462,23 +457,22 @@ public abstract class AfApiService extends AbstractAfApiService {
 
     @Override
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
-        return demandesService.getDemandeFilterFiles(gouvPropertiesResolver.getDemarcheId(), demandeId, usagerId);
+        return demandesService.getDemandeFilterFiles(demandeId, usagerId);
     }
 
     @Override
     public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return demandesService.getDemandesFilterFiles(gouvPropertiesResolver.getDemarcheId(), usagerId);
+        return demandesService.getDemandesFilterFiles(usagerId);
     }
 
     @Override
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
-        return demandesComplementsService.getDemandesComplements(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        return demandesComplementsService.getDemandesComplements(demandeId);
     }
 
     @Override
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
-        return demandesComplementsService.getDemandeComplements(gouvPropertiesResolver.getDemarcheId(), demandeId,
-                icId);
+        return demandesComplementsService.getDemandeComplements(demandeId, icId);
     }
 
     @Override
@@ -490,7 +484,7 @@ public abstract class AfApiService extends AbstractAfApiService {
 
         // Récupération de la liste des demandes effectuées par l'usager
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager...");
-        List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), usagerId);
+        List<DemandeDTO> demandes = demandesService.getDemandes(usagerId);
 
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
@@ -504,7 +498,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         miseAJourDesVariablesBPM(demandesAPasserEnAnnuleeDTO, usagerId);
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
-        usagersService.desinscriptionUsager(gouvPropertiesResolver.getDemarcheId(), usagerId,
+        usagersService.desinscriptionUsager(usagerId,
         		demarchesDataProvider.getStatutAnnulee(), demarchesDataProvider.getCodeMotifAnnulationDesinscription());
 
         LOGGER.info(
@@ -621,7 +615,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
         model.put("identifiant_usager", usager.getLogin());
         String cguProp = StringUtils.equals("fr", langue) ? "XAF_CGU_URL_FR" : "XAF_CGU_URL_EN";
-        model.put("cguUrl", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), cguProp).getValue());
+        model.put("cguUrl", propertiesService.getProperty(cguProp).getValue());
         String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(langue));
         model.put("titre", titre);
         try {
@@ -668,25 +662,24 @@ public abstract class AfApiService extends AbstractAfApiService {
     @Transactional
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
         AccessDTO accessDto = new AccessDTO();
-        accessDto.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         accessDto.setUsagerId(usagerId);
         accessDto.setContenu(dto.getContenu());
-        return accessService.saveOrUpdateAccess(gouvPropertiesResolver.getDemarcheId(), usagerId, accessDto);
+        return accessService.saveOrUpdateAccess(usagerId, accessDto);
     }
 
     @Override
     public AccessDTO getAccess(Integer usagerId) {
-        return accessService.getAccess(gouvPropertiesResolver.getDemarcheId(), usagerId);
+        return accessService.getAccessActive(usagerId);
     }
 
     @Override
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
-        return usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
+        return usagersCourrierService.getUsagerCourrier(usagerCourrierId);
     }
 
     @Override
     public List<MotifDTO> getMotifs() {
-        return motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+        return motifsService.getMotifs();
     }
 
     @Override
@@ -700,7 +693,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         if (statusArray.length == 0) {
             statusArray = demarchesDataProvider.getAllStatuts();
         }
-        return demandesService.getDemandesPageable(gouvPropertiesResolver.getDemarcheId(), usagerID, statusArray, paramDTO);
+        return demandesService.getDemandesPageable(usagerID, statusArray, paramDTO);
 	}
 
 	@Override
@@ -709,7 +702,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         try {
 
             brouillonDto = new BrouillonDTO();
-            brouillonDto.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
             brouillonDto.setUsagerId(usagerId);
             brouillonDto.setPkBrouillons(null);
             brouillonDto.setContenu(brouillon.getContenu());
@@ -743,22 +735,22 @@ public abstract class AfApiService extends AbstractAfApiService {
 
 	@Override
 	public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-		return brouillonsService.getBrouillons(gouvPropertiesResolver.getDemarcheId(), usagerId);
+		return brouillonsService.getBrouillons(usagerId);
 	}
 	
 	@Override
 	public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
-		return brouillonsService.getBrouillonsPageable(gouvPropertiesResolver.getDemarcheId(), usagerId, paramDTO);
+		return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
 	}
 
 	@Override
 	public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
-		return brouillonsService.getBrouillon(gouvPropertiesResolver.getDemarcheId(), pkBrouillons, usagerId);
+		return brouillonsService.getBrouillon(pkBrouillons, usagerId);
 	}
 
 	@Override
 	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
-		brouillonsService.deleteBrouillon(gouvPropertiesResolver.getDemarcheId(), pkBrouillons, usagerId);
+		brouillonsService.deleteBrouillon(pkBrouillons, usagerId);
 	}
 
     @Override

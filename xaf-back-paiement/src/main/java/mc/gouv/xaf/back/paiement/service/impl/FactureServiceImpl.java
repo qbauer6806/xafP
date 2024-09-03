@@ -53,13 +53,12 @@ public class FactureServiceImpl implements FactureService {
     @Override
     public void saveFacture(String reference, Integer demandeId) throws IOException {
         logStartMethod(LOGGER);
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
         if (StringUtils.isEmpty(reference) || StringUtils.equals(FactureApiClient.INCIDENT, reference)) {
             throw new DemarchesServiceException("Le numéro de la facture est incorrect", HttpStatus.BAD_REQUEST);
         }
 
-        DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
+        DemandeDTO demande = demandesService.getDemande(demandeId);
         Optional<InputStream> optionalFactureIS = factureApiClient.getFacture(reference, demande);
         if (optionalFactureIS.isPresent()) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -70,7 +69,7 @@ public class FactureServiceImpl implements FactureService {
             saveFichier(fileName, url, demande);
 
             // Sauvegarde du numéro de facture dans les données de la demande
-            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), reference);
+            demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), reference);
         }
     }
 
@@ -81,6 +80,6 @@ public class FactureServiceImpl implements FactureService {
         file.setUrl('/' + url);
         file.setDate(new Date());
         file.setMeta("BACK_FRONT_JUSTIFICATIF_DEMANDE");
-        demandesFilesService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
+        demandesFilesService.saveFile(file, demande.getPkDemandes());
     }
 }

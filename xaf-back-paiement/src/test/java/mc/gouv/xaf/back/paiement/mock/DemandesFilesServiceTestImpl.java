@@ -11,18 +11,19 @@ import java.util.Map;
 
 @Component
 public class DemandesFilesServiceTestImpl implements DemandesFilesService {
+
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
 
     }
 
     @Override
-    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) {
+    public void saveFile(DemandeFileDTO demandeFile, Integer pkDemande) {
 
     }
 
     @Override
-    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande, boolean checkActive) {
+    public void saveFile(DemandeFileDTO demandeFile, Integer pkDemande, boolean checkActive) {
 
     }
 
@@ -33,12 +34,12 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
 
     @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndTypedoc(Integer pkDemande, String typedoc) {
-        return null;
+        return List.of();
     }
 
     @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
-        return null;
+        return List.of();
     }
 
     @Override
@@ -56,9 +57,6 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
 
     }
 
-    /**
-     *
-     */
     @Override
     public void deleteAllOrphans() {
 

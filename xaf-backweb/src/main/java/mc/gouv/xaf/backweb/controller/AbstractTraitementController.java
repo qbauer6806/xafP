@@ -61,7 +61,6 @@ public class AbstractTraitementController extends AbstractController {
 
 		LOGGER.info("Appel à DEM pour stockage des observations...");
 		DemandeDTO demUpd = new DemandeDTO();
-		demUpd.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		demUpd.setPkDemandes(pkDemande);
 		demUpd.setObservations(xafTraitementFormBean.getObservations());
 		demandesService.updateDemande(demUpd, true);

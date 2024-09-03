@@ -113,7 +113,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
                     .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
             Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
-            DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+            DemandeDTO demande = demandesService.getDemande(demandeId);
             
             Map<String,Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
     

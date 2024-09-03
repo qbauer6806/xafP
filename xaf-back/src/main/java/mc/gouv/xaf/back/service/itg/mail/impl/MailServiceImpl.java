@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
@@ -64,9 +63,6 @@ public class MailServiceImpl implements MailService {
     private PropertiesService propertiesService;
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     @Qualifier("customTemplateEngine")
     private TemplateEngine templateEngine;
 
@@ -95,7 +91,7 @@ public class MailServiceImpl implements MailService {
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments, MailAudienceEnum audienceMail) throws JsonProcessingException {
         LOGGER.info("MailServiceImpl.sendMail({}, {}, {}, {})", emailInfo, model, attachments, audienceMail);
         if (MailAudienceEnum.AGENT.equals(audienceMail) && !notificationMailAgentProperty()) {
-            LOGGER.info("PAS d'envoi email aux agents du service {}", gouvPropertiesResolver.getDemarcheId());
+            LOGGER.info("PAS d'envoi email aux agents du service");
             return;
         }
         MailDTO email = createMailContent(emailInfo, model);
@@ -108,7 +104,7 @@ public class MailServiceImpl implements MailService {
     }
 
     private boolean notificationMailAgentProperty() {
-        PropertiesDTO enableMailsAgentProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_NOTIFICATION_MAIL_AGENT);
+        PropertiesDTO enableMailsAgentProperty = propertiesService.getProperty(XAF_NOTIFICATION_MAIL_AGENT);
         // Si la propriété n'existe pas alors on active les notifications mails agent par défaut
         if (enableMailsAgentProperty == null) {
             return true;
@@ -260,7 +256,7 @@ public class MailServiceImpl implements MailService {
     public Set<String> getMailingLists(String... mailingListProps) {
         Set<String> list = new TreeSet<>();
         for (String mailProp : mailingListProps) {
-            PropertiesDTO mailProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), mailProp);
+            PropertiesDTO mailProperty = propertiesService.getProperty(mailProp);
             if (mailProperty != null && StringUtils.isNotBlank(mailProperty.getValue())) {
                 list.addAll(Arrays.asList(mailProperty.getValue().trim().split(",")));
             }

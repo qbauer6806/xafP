@@ -43,7 +43,7 @@ public class RecapGenerationController {
 	@GetMapping(value = "/{pkDemande}", produces = "text/html")
 	public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande) throws IOException, ParseException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 		LOGGER.info("======================= Appel de /ws/recap/{}", pkDemande);
-		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		DemandeDTO demande = demandesService.getDemande(pkDemande);
 		String ret = "";
 		if (demande != null) {
 			ret = getHTML(demande);

@@ -49,7 +49,6 @@ import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
@@ -126,9 +125,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private DemandesDataService demandesDataService;
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DemandesStatutsService demandesStatutsService;
 
     @Autowired
@@ -137,7 +133,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         String safeDemandeId = AfBackUtils.logSafe(demandesId);
         String safeLangue = AfBackUtils.logSafe(langue);
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", safeDemandeId, safeLangue, usagerId);
@@ -151,7 +146,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
 
         for (Integer demandeId : demandesIdList) {
-            DemandeBO demandeBO = demandesRepository.findByDemarcheIdAndIdAndUsagerId(demarcheId, demandeId, usagerId);
+            DemandeBO demandeBO = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(demandeId, usagerId);
             if (demandeBO == null) {
                 throw new DemarchesServiceException("La demande " + demandeId + " est introuvable pour l'usager id " +
                         usagerId, HttpStatus.NOT_FOUND);
@@ -160,7 +155,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             listeIdentifiantsDemandes.add(demandeBO.getIdentifiant());
 
             // TODO Changer le moyen de récupérer le statut d'un paiement
-            DemandeDataDTO data = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
+            DemandeDataDTO data = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
             if (data != null && StringUtils.equals(data.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
             }
@@ -364,14 +359,13 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 user.setId(usagerId.toString());
 
                 LOGGER.info("========== Mise à jour des données de la demande {}...", pkDemande);
-                String demarcheId = gouvPropertiesResolver.getDemarcheId();
                 Map<String, String> datas = new HashMap<>();
                 datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
                 datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(DTF_AAAA_MM_JJ));
                 datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
                 datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moneticoResponseDTO.getModepaiement());
                 datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moneticoResponseDTO.getReference());
-                demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
+                demandesDataService.saveOrUpdateDemandeDatas(pkDemande, datas);
 
                 LOGGER.info("Ajout de l'historique de paiement...");
                 PaiementHistoriqueBO historique = new PaiementHistoriqueBO();

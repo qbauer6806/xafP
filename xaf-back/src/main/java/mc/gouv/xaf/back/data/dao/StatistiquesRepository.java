@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface StatistiquesRepository extends CrudRepository<StatistiqueBO, Integer> {
 
-    List<StatistiqueBO> findByDemandeIdAndDemarcheId(Integer demandeId, String demarcheId);
+    List<StatistiqueBO> findByDemandeId(Integer demandeId);
 
     List<StatistiqueBO> findByStatutPublicAndDateBetween(String statut, Date d1, Date d2);
 

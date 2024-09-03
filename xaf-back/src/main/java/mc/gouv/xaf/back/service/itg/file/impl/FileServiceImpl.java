@@ -220,7 +220,7 @@ public class FileServiceImpl implements FileService {
 		}
 
 		// Vérification de la taille maximum du fichier
-		PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), MAX_TAILLE_FICHIER);
+		PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(MAX_TAILLE_FICHIER);
 		int tailleMaxFichiers = Integer.parseInt(tailleMaxFichiersProp.getValue());
 
 		// transformation B en MB: 1 Mo = 1 048 576 octets
@@ -231,7 +231,7 @@ public class FileServiceImpl implements FileService {
 		}
 
 		// Appel à VSCAN pour vérifier la virulance du fichier
-		PropertiesDTO vscanActivationProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), VSCAN_ACTIVATION);
+		PropertiesDTO vscanActivationProp = propertiesService.getProperty(VSCAN_ACTIVATION);
 		boolean vscanActivation = Boolean.parseBoolean(vscanActivationProp.getValue());
 
 		LOGGER.info("Activation de VSCAN: {}", vscanActivation);
@@ -257,7 +257,7 @@ public class FileServiceImpl implements FileService {
 
 
 	private List<String> getExtensionsWhitelist() {
-		PropertiesDTO extensionsProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), EXTENSIONS_WHITELIST);
+		PropertiesDTO extensionsProperty = propertiesService.getProperty(EXTENSIONS_WHITELIST);
 		List<String> extensions = new ArrayList<>();
 
 		if (extensionsProperty != null) {
@@ -323,7 +323,7 @@ public class FileServiceImpl implements FileService {
 		}
 	}
 
-	private URL getFileURL(String fileurl, String demarcheId) throws MalformedURLException {
+	private URL getFileURL(String fileurl) throws MalformedURLException {
 		// file = accessId/uuid/filename (/uuid/filename inclu dans fichier.getUrl())
 		if (fileurl.charAt(0) != '/') {
 			fileurl = SLASH_DELIMITER + fileurl;
@@ -335,7 +335,7 @@ public class FileServiceImpl implements FileService {
 
 		// Rajouter l'AccessID dans l'URL des fichiers
 
-		URL url = new URL(gouvPropertiesResolver.getFileUrl() + SLASH_DELIMITER + demarcheId + SLASH_DELIMITER
+		URL url = new URL(gouvPropertiesResolver.getFileUrl() + SLASH_DELIMITER + gouvPropertiesResolver.getDemarcheId() + SLASH_DELIMITER
 				+ gouvPropertiesResolver.getContainerId() + SLASH_DELIMITER + fileurl);
 		LOGGER.info("URL du fichier calculée : {}", url);
 
@@ -403,11 +403,11 @@ public class FileServiceImpl implements FileService {
 	 * @throws IOException
 	 */
 	@Override
-	public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws IOException {
+	public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, Integer demandeId) throws IOException {
 		LOGGER.info("Début updateFilesMetadataWithDemandeId()");
 		initRestTemplate();
 		for (DemandeFileDTO fichier : fichiers) {
-			URL url = getFileURL(fichier.getUrl(), demarcheId);
+			URL url = getFileURL(fichier.getUrl());
 			updateFileMetadataGeneric(url.toString(), FILE_METADATA_DEMANDEID, demandeId.toString());
 		}
 		LOGGER.info("Fin updateFilesMetadataWithDemandeId()");
@@ -418,9 +418,9 @@ public class FileServiceImpl implements FileService {
 	 * @throws IOException
 	 */
 	@Override
-	public void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException {
+	public void updateFileMetadata(String fichierURL, String metaKey, String metaValue) throws IOException {
 		initRestTemplate();
-		URL url = getFileURL(fichierURL, demarcheId);
+		URL url = getFileURL(fichierURL);
 		updateFileMetadataGeneric(url.toString(), metaKey, metaValue);
 	}
 

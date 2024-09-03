@@ -93,14 +93,14 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         StatutInputDTO statutInput = new StatutInputDTO();
         StatutPublicOuInterneDTO statutPublicOuInterneDTO = demarchesDataProvider.getStatutPublicOuInterne(demandeId, statut);
         if (usagerId != null) {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statutPublicOuInterneDTO, null,
+            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO, null,
                     Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
             statutInput.setUsagerId(Integer.parseInt(usagerId));
         } else if (agentId != null) {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statutPublicOuInterneDTO, agentId,
+            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO, agentId,
                     null, codeMotifStr, commentaireUsager, texteAEnvoyer);
         } else {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statutPublicOuInterneDTO,
+            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO,
                     AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager, texteAEnvoyer);
         }
 

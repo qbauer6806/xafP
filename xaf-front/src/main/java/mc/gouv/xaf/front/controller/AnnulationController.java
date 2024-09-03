@@ -3,7 +3,6 @@ package mc.gouv.xaf.front.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.hc.core5.http.HttpStatus;
@@ -31,9 +30,6 @@ public class AnnulationController extends AbstractXafController {
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
-
     @DeleteMapping(value = {"/{demandeId}"})
     public ResponseEntity doDelete(@PathVariable(required = false) String demandeId, HttpServletRequest request) {
 
@@ -58,10 +54,8 @@ public class AnnulationController extends AbstractXafController {
                     "Problème lors du parsing du demandeId");
         }
 
-        // Récupération de l'ID de la démarche dans le Context-Param
-        String demarcheId = propertiesResolver.getDemarcheId();
         Integer usagerId = usagerInfosDTO.getId();
-        LOGGER.info("DemarcheID={}, UsagerID={}, DemandeID={}", demarcheId, usagerId, demandeId);
+        LOGGER.info("UsagerID={}, DemandeID={}", usagerId, demandeId);
 
         LOGGER.info("Appel à la démarche...");
         AfApiClient afApiClient = getAfApiClient();

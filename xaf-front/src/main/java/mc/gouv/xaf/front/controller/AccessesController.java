@@ -1,7 +1,8 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
@@ -13,10 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
@@ -32,9 +34,6 @@ public class AccessesController extends AbstractXafController {
 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
 
     /**
      * Traitement des méthodes POST
@@ -123,9 +122,7 @@ public class AccessesController extends AbstractXafController {
         }
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-        // Récupération de l'ID de la démarche dans le Context-Param
-        String demarcheId = propertiesResolver.getDemarcheId();
-        LOGGER.info("DemarcheID={}, UsagerID={}", demarcheId, usagerId);
+        LOGGER.info("UsagerID={}", usagerId);
         return usagerInfosDTO;
     }
 }

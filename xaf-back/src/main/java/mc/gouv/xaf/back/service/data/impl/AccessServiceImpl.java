@@ -1,10 +1,11 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.entity.UsagersCourrierBO;
 import mc.gouv.xaf.back.data.transformer.AccessTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -19,16 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.metamodel.EntityType;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Service permettant la manipulation des accès.
@@ -49,22 +40,16 @@ public class AccessServiceImpl implements AccessService {
     private UsagersCourrierRepository usagerCourrierRepository;
 
     @Autowired
-    private DemarchesRepository demarchesRepository;
-
-    @Autowired
-    private EntityManager em;
-    
-    @Autowired
     private GUKafkaProducer guKafkaProducer;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AccessDTO saveOrUpdateAccess(String demarcheId, Integer usagerId, AccessDTO access) {
+    public AccessDTO saveOrUpdateAccess(Integer usagerId, AccessDTO access) {
 
         LOGGER.info("Vérification de l'unicité...");
-        AccessDTO dto = AccessTransformer.bo2Dto(getAccessBO(demarcheId, usagerId, true));
+        AccessDTO dto = AccessTransformer.bo2Dto(getAccessBO(usagerId, true));
 
         if (dto != null) {
             // Accès déjà existant, le mettre à jour
@@ -86,12 +71,6 @@ public class AccessServiceImpl implements AccessService {
             return dto;
         }
         // Accès non existant, le créer
-
-        // Vérification préalable de l'existence de la démarche indiquée
-        Optional<DemarchesBO> demarcheBoOp = demarchesRepository.findById(access.getDemarcheId());
-        if (demarcheBoOp.isEmpty()) {
-            throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
-        }
 
         boolean isUsagerCourrier = DemarchesUtils.isUsagerCourrier(access.getUsagerId());
         LOGGER.info("Usager courrier : {}", isUsagerCourrier);
@@ -134,9 +113,9 @@ public class AccessServiceImpl implements AccessService {
      * {@inheritDoc}
      */
     @Override
-    public AccessDTO getAccess(String demarcheId, Integer usagerId) {
+    public AccessDTO getAccessActive(Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        AccessBO bo = getAccessBO(demarcheId, usagerId);
+        AccessBO bo = getAccessBOActive(usagerId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return AccessTransformer.bo2Dto(bo);
     }
@@ -165,8 +144,8 @@ public class AccessServiceImpl implements AccessService {
      * {@inheritDoc}
      */
     @Override
-    public AccessBO getAccessBO(String demarcheId, Integer usagerId) {
-        AccessBO accessBO = getAccessBO(demarcheId, usagerId, true);
+    public AccessBO getAccessBOActive(Integer usagerId) {
+        AccessBO accessBO = getAccessBO(usagerId, true);
         if (accessBO == null) {
             throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
         }
@@ -174,12 +153,12 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
-    public AccessBO getAccessBO(String demarcheId, Integer usagerId, boolean active) {
+    public AccessBO getAccessBO(Integer usagerId, boolean active) {
         AccessBO bo = null;
 
-        List<AccessBO> bos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, active);
-        if (bos != null && !bos.isEmpty()) {
-            bo = bos.get(0);
+        Optional<AccessBO> accessBOOptional = accessRepository.findFirstByUsagerIdAndActive(usagerId, active);
+        if (accessBOOptional.isPresent()) {
+            bo = accessBOOptional.get();
         }
 
         // Gérer les accès désactivés
@@ -190,11 +169,7 @@ public class AccessServiceImpl implements AccessService {
         return bo;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<AccessBO> getAccessBO(Integer pkAccess) {
+    private Optional<AccessBO> getAccessBO(Integer pkAccess) {
 
         Optional<AccessBO> boOp = accessRepository.findById(pkAccess);
 
@@ -210,9 +185,9 @@ public class AccessServiceImpl implements AccessService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteAccess(String demarcheId, Integer usagerId) {
+    public void deleteAccess(Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        AccessDTO dto = getAccess(demarcheId, usagerId);
+        AccessDTO dto = getAccessActive(usagerId);
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         AccessBO bo = AccessTransformer.dto2Bo(dto);
         bo.setActive(false);
@@ -220,19 +195,11 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
-    public List<Integer> getUsagersIds(String demarcheId) {
+    public List<Integer> getUsagersIds() {
 
         LOGGER.info("Récupération de tous les usagersIds présents en base...");
 
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
-        Root<AccessBO> root = cq.from(AccessBO.class);
-        EntityType<AccessBO> accessBo = root.getModel();
-        Predicate predicateDemarche = cb.equal(root.<String> get("demarcheId"), demarcheId);
-        cq.select(root.get(accessBo.getSingularAttribute("usagerId", Integer.class))).where(predicateDemarche)
-                .distinct(true);
-
-        return em.createQuery(cq).getResultList();
+        return accessRepository.findDistinctUsagerIdBy();
     }
 
     @Override

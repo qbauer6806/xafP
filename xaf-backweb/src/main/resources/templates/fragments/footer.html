@@ -11,7 +11,7 @@
 							alt="Gouvernement Princier Logo" />
 					</div>
 					<div class="col-xs-12 col-sm-8 footerRight">
-						Tous droits réservés - <span th:text="${AfBackUtils.getDemarcheInfos().pkDemarches}"></span> <span
+						Tous droits réservés - <span th:text="${demarcheId}"></span> <span
 							th:text="${DemarchesDataProvider.getVersion()}"></span>
 						- Le <span
 							th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy à HH:mm:ss')}"></span>

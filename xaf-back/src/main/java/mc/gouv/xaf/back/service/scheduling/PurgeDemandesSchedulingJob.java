@@ -41,8 +41,7 @@ public class PurgeDemandesSchedulingJob implements Job {
      * @return La valeur de la propriété d'activation de la purge
      */
     protected boolean getActivationPurge() {
-        PropertiesDTO activationPurge = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(),
-                ACTIVATION_PURGE);
+        PropertiesDTO activationPurge = propertiesService.getProperty(ACTIVATION_PURGE);
         return activationPurge != null && Boolean.parseBoolean(activationPurge.getValue());
     }
 
@@ -61,8 +60,7 @@ public class PurgeDemandesSchedulingJob implements Job {
     }
 
     protected Integer getDelaiPurge() {
-        PropertiesDTO delaiPurgeProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(),
-                DELAI_PURGE_EN_JOURS);
+        PropertiesDTO delaiPurgeProperty = propertiesService.getProperty(DELAI_PURGE_EN_JOURS);
         return delaiPurgeProperty != null ? Integer.parseInt(delaiPurgeProperty.getValue()) : DELAI_PAR_DEFAUT_PURGE;
     }
 

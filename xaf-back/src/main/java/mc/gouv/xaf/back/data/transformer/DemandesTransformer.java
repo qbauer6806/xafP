@@ -128,7 +128,6 @@ public class DemandesTransformer {
         dto.setLangue(bo.getLangue());
         dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
         dto.setObservations(bo.getObservations());
-        dto.setDemarcheId(bo.getFkAccess().getDemarcheId());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
         dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));

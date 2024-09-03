@@ -61,7 +61,7 @@ public class MailPreviewController extends AbstractController {
 
 		Map<String, Object> bpmVariables = gouvBPM.getProcessBusinessVariables(pkDemande);
 
-		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		DemandeDTO demande = demandesService.getDemande(pkDemande);
 
 		Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
 				bpmVariables, codeMotifChoisi, commentaire);

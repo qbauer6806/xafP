@@ -60,7 +60,7 @@ public class GUKafkaUtils {
 	
     @PostConstruct
     private void initProperties() throws DemPropertyNotFoundException {
-        PropertiesDTO dltConsumerJobTimeoutProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT);
+        PropertiesDTO dltConsumerJobTimeoutProp = propertiesService.getProperty(XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT);
         if (dltConsumerJobTimeoutProp == null || StringUtils.isBlank(dltConsumerJobTimeoutProp.getValue())) {
         	throw new DemPropertyNotFoundException(XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT);
         }
@@ -102,7 +102,7 @@ public class GUKafkaUtils {
 	public List<DemandeRecapDTO> getDemandeRecapsFromUsagerId(Integer usagerId) {
 		LOGGER.info("Constitution de la liste de DemandeRecapDTO...");
 		List<DemandeRecapDTO> demandeRecaps = new ArrayList<>();
-		List<DemandeRecapProjection> recapsProj = demandesRepository.findByUsagerIdForDemandeRecapDTO(gouvPropertiesResolver.getDemarcheId(), usagerId);
+		List<DemandeRecapProjection> recapsProj = demandesRepository.findByUsagerIdForDemandeRecapDTO(usagerId);
 		for (DemandeRecapProjection r : recapsProj) {
 			DemandeRecapDTO recap = new DemandeRecapDTO();
 			recap.setDemandeId(r.getPkDemandes());
@@ -132,7 +132,7 @@ public class GUKafkaUtils {
 	
 	public List<UsagerDemandesRecapDTO> getUsagerDemandesRecapList() {
 		List<UsagerDemandesRecapDTO> ret = new ArrayList<>();
-		List<Integer> usagerIds = accessService.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
+		List<Integer> usagerIds = accessService.getUsagersIds();
 		for (Integer usagerId : usagerIds) {
 			if (!DemarchesUtils.isUsagerCourrier(usagerId)) {
 				ret.add(getUsagerDemandesRecap(usagerId));

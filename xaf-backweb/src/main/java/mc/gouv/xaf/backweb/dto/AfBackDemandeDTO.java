@@ -32,7 +32,6 @@ public class AfBackDemandeDTO extends DemandeDTO {
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
-        setDemarcheId(demande.getDemarcheId());
         setDernierStatut(demande.getDernierStatut());
         setFichiers(demande.getFichiers());
         setFkAccess(demande.getFkAccess());

@@ -30,8 +30,6 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
     @Autowired
     private AccessRepository accessRepository;
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-    @Autowired
     private PropertiesService propertiesService;
 
     private static final String DOCHOLDER_CONSENT_NODE = "docholderConsent";
@@ -44,7 +42,7 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         LOGGER.info("====================== Démarrage du job ExpirationDocHolderConsentSchedulingJob");
 
-        PropertiesDTO docHolderEnabled = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PORTE_DOCUMENT_ACTIF);
+        PropertiesDTO docHolderEnabled = propertiesService.getProperty(XAF_PORTE_DOCUMENT_ACTIF);
 
         if (docHolderEnabled == null) {
             LOGGER.error("Impossible de lancer le job d'expiration du consentement du porte-documents : la propriété {} n'a pas été trouvée.", XAF_PORTE_DOCUMENT_ACTIF);
@@ -54,7 +52,7 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
         boolean isDocHolderEnabled = Boolean.parseBoolean(docHolderEnabled.getValue());
         if (isDocHolderEnabled) {
             ObjectMapper mapper = new ObjectMapper();
-            List<AccessBO> accesses = accessRepository.getByDemarcheIdAndActive(gouvPropertiesResolver.getDemarcheId(), true);
+            List<AccessBO> accesses = accessRepository.findByActive( true);
 
             // Si 1 an + 1 mois il faut périmer le consentement TS du porte-documents
             for (AccessBO access : accesses) {

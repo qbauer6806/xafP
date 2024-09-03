@@ -155,7 +155,7 @@ public class DemandesCourrierController extends AbstractController {
 
         // Récuperation de la dernière demande pour duplication
         DemandeDTO derniereDemande = usagersCourrierService.getDerniereDemandePourDuplication(
-                gouvPropertiesResolver.getDemarcheId(), usagerId, demarchesDataProvider.getStatutsPourDuplication(),
+                usagerId, demarchesDataProvider.getStatutsPourDuplication(),
                 demarchesDataProvider.getBuildIdsPourDuplication());
         if (derniereDemande != null) {
             mav.addObject("duplicationKeyId", derniereDemande.getPkDemandes());

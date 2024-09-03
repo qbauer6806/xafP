@@ -29,6 +29,6 @@ public interface StatistiquesService {
 	/**
 	 * Supprimer les statistiques liées à une demande
 	 */
-	void deleteStatistiques(String demarcheId, Integer pkDemande);
+	void deleteStatistiques(Integer pkDemande);
 
 }

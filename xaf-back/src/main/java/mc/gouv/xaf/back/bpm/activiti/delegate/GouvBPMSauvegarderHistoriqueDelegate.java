@@ -53,7 +53,7 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         DemandeHistoriqueDTO histo = histoService.traiterFinal(pkDemande, statut, AfBackUtils.getAuthenticatedAgentId());
         LOGGER.info("Appel à DEM pour historique...");
         try {
-            demandesHistoriqueService.saveHistoriqueActionAuto(gouvPropertiesResolver.getDemarcheId(), pkDemande, histo);
+            demandesHistoriqueService.saveHistoriqueActionAuto(pkDemande, histo);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
         }

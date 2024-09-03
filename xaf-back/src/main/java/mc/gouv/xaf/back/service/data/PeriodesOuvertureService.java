@@ -14,43 +14,43 @@ import java.util.List;
 public interface PeriodesOuvertureService {
 
     /**
-     * Permet de récupérer les périodes correspondant à un DemarcheID
+     * Permet de récupérer les périodes
      */
-    List<PeriodeOuvertureDTO> getPeriodesOuverture(String demarcheId);
+    List<PeriodeOuvertureDTO> getPeriodesOuverture();
 
     /**
-     * Permet de récupérer les périodes correspondant à un DemarcheID en mode paginé
+     * Permet de récupérer les périodes correspondant en mode paginé
      */
-    Page<PeriodeOuvertureDTO> getPeriodesOuverturePageable(String demarcheId, Pageable pageable);
+    Page<PeriodeOuvertureDTO> getPeriodesOuverturePageable(Pageable pageable);
 
     /**
      * Permet de récupérer la dernière période d'ouverture terminée
      */
-    PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee(String demarcheId);
+    PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee();
 
     /**
      * Permet de récupérer toutes les périodes d'ouverture dans le futur
      */
-    List<PeriodeOuvertureDTO> getPeriodesOuvertureFutures(String demarcheId);
+    List<PeriodeOuvertureDTO> getPeriodesOuvertureFutures();
 
     /**
      * Permet de récupérer toutes les périodes d'ouverture en cours
      */
-    List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours(String demarcheId);
+    List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours();
 
     /**
      * Permet de sauvegarder ou mettre à jour un motif en base
      */
-    PeriodeOuvertureDTO saveOrUpdatePeriodeOuverture(String demarcheId, PeriodeOuvertureDTO periodeOuverture);
+    PeriodeOuvertureDTO saveOrUpdatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture);
 
     /**
-     * Permet de supprimer une période d'ouverture à partir du DemarcheID et du PeriodeOuvertureID
+     * Permet de supprimer une période d'ouverture à partir du PeriodeOuvertureID
      */
-    void deletePeriodeOuverture(String demarcheId, Integer pkPeriodeOuverture);
+    void deletePeriodeOuverture(Integer pkPeriodeOuverture);
 
     /**
      * Permet de supprimer toutes les périodes d'ouverture liées à une démarche
      */
-    void deleteAllPeriodeOuverture(String demarcheId);
+    void deleteAllPeriodeOuverture();
 
 }

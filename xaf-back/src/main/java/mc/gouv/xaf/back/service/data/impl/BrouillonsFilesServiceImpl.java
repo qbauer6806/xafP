@@ -60,11 +60,11 @@ public class BrouillonsFilesServiceImpl implements BrouillonsFilesService {
 	}
 
 	@Override
-	public void saveFile(BrouillonFileDTO brouillonFile, String demarcheId, Integer pkBrouillon) {
+	public void saveFile(BrouillonFileDTO brouillonFile, Integer pkBrouillon) {
 
-		LOGGER.info("saveFile({}, {}, {})", brouillonFile, demarcheId, pkBrouillon);
+		LOGGER.info("saveFile({}, {})", brouillonFile, pkBrouillon);
 
-		BrouillonBO brouillonBo = brouillonsService.getBrouillonBo(demarcheId, pkBrouillon);
+		BrouillonBO brouillonBo = brouillonsService.getBrouillonBo(pkBrouillon);
 
 		BrouillonsFilesBO brouillonFileBo = BrouillonsFilesTransformer.dto2Bo(brouillonFile);
 		brouillonFileBo.setFkBrouillons(brouillonBo);

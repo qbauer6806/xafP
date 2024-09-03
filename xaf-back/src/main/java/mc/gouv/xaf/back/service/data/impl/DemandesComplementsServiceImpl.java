@@ -76,14 +76,14 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId,
+    public DemandeComplementsDTO saveDemandeComplements(Integer demandeId,
             DemandeComplementsQuestionDTO demandeComplements) {
 
         DemandeComplementsDTO demandeComplementsDto = new DemandeComplementsDTO();
         demandeComplementsDto.setDemandeId(demandeId);
         demandeComplementsDto.setQuestion(demandeComplements);
 
-        DemandeBO demandeBO = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
+        DemandeBO demandeBO = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
         if (demandeBO == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -114,9 +114,9 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public List<DemandeComplementsDTO> getDemandesComplements(String demarcheId, Integer demandeId) {
+    public List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId) {
 
-        DemandeBO demandeBO = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
+        DemandeBO demandeBO = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
         if (demandeBO == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }
@@ -127,12 +127,12 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         return DemandesComplementsTransformer.bo2Dto(new ArrayList<>(demandesComplements));
     }
 
-    private DemandesComplementsBO getDemandeComplementsBO(String demarcheId, Integer pkDemande, Integer pkDemandeComplements) {
+    private DemandesComplementsBO getDemandeComplementsBO(Integer pkDemande, Integer pkDemandeComplements) {
         LOGGER.info("Récupération en base de la demande d'informations complémentaires correspondante...");
 
         DemandesComplementsBO demandesComplementsBO = demandesComplementsRepository
-                .findByPkDemandesComplementsAndFkDemandesPkDemandesAndFkDemandesFkAccessDemarcheId(pkDemandeComplements,
-                        pkDemande, demarcheId);
+                .findByPkDemandesComplementsAndFkDemandesPkDemandes(pkDemandeComplements,
+                        pkDemande);
 
         // Gérer les accès désactivés
         if (demandesComplementsBO != null && !demandesComplementsBO.getFkDemandes().getFkAccess().isActive()) {
@@ -156,13 +156,13 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO getDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements) {
-        return DemandesComplementsTransformer.bo2Dto(getDemandeComplementsBO(demarcheId, pkDemande, pkDemandeComplements));
+    public DemandeComplementsDTO getDemandeComplements(Integer pkDemande, Integer pkDemandeComplements) {
+        return DemandesComplementsTransformer.bo2Dto(getDemandeComplementsBO(pkDemande, pkDemandeComplements));
     }
 
     @Override
     @Transactional
-    public DemandeComplementsDTO updateDemandeComplements(String demarcheId, Integer pkDemande,
+    public DemandeComplementsDTO updateDemandeComplements(Integer pkDemande,
             Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) {
 
         DemandeComplementsDTO demandeComplementsDto = new DemandeComplementsDTO();
@@ -170,7 +170,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         demandeComplementsDto.setPkDemandeComplements(pkDemandeComplements);
         demandeComplementsDto.setQuestion(demandeComplements);
 
-        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(demarcheId, pkDemande, pkDemandeComplements);
+        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
 
         // Ne pas pouvoir modifier une question si la réponse a déjà été donnée
         if (demandesComplementsBO.getStatut().equals(DemandeComplementsStatutEnum.REPONDUE.name())) {
@@ -194,7 +194,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande,
+    public DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande,
             Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) {
 
         // L'UsagerID OU l'AgentID doivent être remplis
@@ -203,7 +203,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
             throw new DemarchesServiceException("L'UsagerID ou l'AgentID doivent être remplis", HttpStatus.BAD_REQUEST);
         }
 
-        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(demarcheId, pkDemande, pkDemandeComplements);
+        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
 
         // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
         if (demandeComplementsReponse.getUsagerId() != null
@@ -255,8 +255,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public void deleteDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements) {
-        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(demarcheId, pkDemande, pkDemandeComplements);
+    public void deleteDemandeComplements(Integer pkDemande, Integer pkDemandeComplements) {
+        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
         DemandeBO demandeBO = demandesComplementsBO.getFkDemandes();
         demandeBO.getDemandesComplements().remove(demandesComplementsBO);
         demandesRepository.save(demandeBO);
@@ -265,9 +265,9 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public void deleteDemandeComplementsReponse(String demarcheId, Integer pkDemande, Integer pkDemandeComplements) {
+    public void deleteDemandeComplementsReponse(Integer pkDemande, Integer pkDemandeComplements) {
 
-        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(demarcheId, pkDemande, pkDemandeComplements);
+        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
 
         LOGGER.info("Suppression des champs relatifs à la réponse, ainsi que des fichiers liés à la réponse...");
         demandesComplementsBO.setStatut(DemandeComplementsStatutEnum.EN_ATTENTE.name());
@@ -283,15 +283,15 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO saveOrUpdateDemandeComplements(String demarcheId, Integer pkDemande,
+    public DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande,
             Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) {
 
         if (pkDemandeComplements != null) {
             // ID de la demande d'informations complémentaires fourni, il faut donc mettre à jour une demande
-            return updateDemandeComplements(demarcheId, pkDemande, pkDemandeComplements, demandeComplements);
+            return updateDemandeComplements(pkDemande, pkDemandeComplements, demandeComplements);
         } else {
             // Sinon, il faut donc créer une nouvelle demande
-            return saveDemandeComplements(demarcheId, pkDemande, demandeComplements);
+            return saveDemandeComplements(pkDemande, demandeComplements);
         }
 
     }

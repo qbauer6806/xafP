@@ -87,7 +87,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     @Override
     public BrouillonDTO saveBrouillon(BrouillonDTO brouillon) {
         LOGGER.info("Récupération en base de l'accès correspondant...");
-        AccessBO accessBo = accessService.getAccessBO(brouillon.getDemarcheId(), brouillon.getUsagerId());
+        AccessBO accessBo = accessService.getAccessBOActive(brouillon.getUsagerId());
 
         if (brouillon.getFichiers() != null) {
             for (BrouillonFileDTO file : brouillon.getFichiers()) {
@@ -113,12 +113,12 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
-    public List<BrouillonDTO> getAllBrouillons(String demarcheId) {
+    public List<BrouillonDTO> getAllBrouillons() {
 
         LOGGER.info("Récupération en base des brouillons...");
 
         List<BrouillonBO> brouillons = new ArrayList<>();
-        List<AccessBO> accessBos = accessRepository.getByDemarcheId(demarcheId);
+        List<AccessBO> accessBos = accessRepository.findAll();
         for (AccessBO access : accessBos) {
             brouillons.addAll(access.getBrouillons());
         }
@@ -142,7 +142,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             // ID du brouillon fourni, il faut donc mettre à jour un brouillon
             brouillonDTO = updateBrouillon(brouillon, usagerId);
         } else {
-            // UsagerID et DemarcheID fournis, il faut donc créer un nouveau brouillon
+            // UsagerID fournis, il faut donc créer un nouveau brouillon
             brouillonDTO = saveBrouillon(brouillon);
         }
         return brouillonDTO;
@@ -152,16 +152,16 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      * {@inheritDoc}
      */
     @Override
-    public List<BrouillonDTO> getBrouillons(String demarcheId, Integer usagerId) {
+    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        AccessBO accessBo = accessService.getAccessBO(demarcheId, usagerId);
+        AccessBO accessBo = accessService.getAccessBOActive(usagerId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return BrouillonsTransformer.bo2Dto(new ArrayList<>(accessBo.getBrouillons()));
     }
 
     @Override
-    public BrouillonDTO getBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
-        BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
+    public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
+        BrouillonBO brouillonBo = getBrouillonBo(pkBrouillons);
 
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
@@ -173,9 +173,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
-    public BrouillonBO getBrouillonBo(String demarcheId, Integer pkBrouillons) {
+    public BrouillonBO getBrouillonBo(Integer pkBrouillons) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        BrouillonBO brouillonBo = brouillonsRepository.findByFkAccessDemarcheIdAndPkBrouillons(demarcheId, pkBrouillons);
+        BrouillonBO brouillonBo = brouillonsRepository.findByPkBrouillons(pkBrouillons);
         if (brouillonBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -249,8 +249,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
-        BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
+    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
+        BrouillonBO brouillonBo = getBrouillonBo(pkBrouillons);
         AccessBO access = brouillonBo.getFkAccess();
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(access.getUsagerId())) {
@@ -284,9 +284,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteBrouillons(String demarcheId, Integer usagerId) {
+    public void deleteBrouillons(Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        List<BrouillonBO> brouillons = brouillonsRepository.findByDemarcheIdAndUsagerId(demarcheId, usagerId);
+        List<BrouillonBO> brouillons = brouillonsRepository.findByFkAccess_UsagerId(usagerId);
         brouillonsRepository.deleteAll(brouillons);
     }
 
@@ -296,12 +296,12 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
-    public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO) {
+    public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
     	// b.dateDerModif ?
         String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" :  paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
+        Page<BrouillonBO> bos = brouillonsRepository.findByFkAccess_UsagerIdAndFkAccess_Active(usagerId, true, pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
         String lastBuildId = demandesConfigService.getLastBuildId();

@@ -60,8 +60,8 @@ public class GestionTemplateController extends AbstractController {
         boolean frOnly = isFrenchOnly();
         mav.addObject(TS_CODE_VAR, demarcheId);
         mav.addObject(FR_ONLY_VAR, frOnly);
-        List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates(demarcheId, "fr") :
-                templatesService.getTemplates(demarcheId);
+        List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates( "fr") :
+                templatesService.getTemplates();
         mav.addObject("templateList", templateList);
         LOGGER.info("======================= Fin /gestion/template. Méthode getTemplates");
         return mav;

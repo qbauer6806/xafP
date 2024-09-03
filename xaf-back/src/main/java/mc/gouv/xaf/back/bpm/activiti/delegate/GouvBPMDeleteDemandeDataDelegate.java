@@ -45,7 +45,7 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");
         }
 
-        demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr);
+        demandesDataService.deleteDemandeData(demandeId, dataKeyStr);
 
     }
 

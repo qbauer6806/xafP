@@ -3,7 +3,6 @@ package mc.gouv.xaf.front.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +28,6 @@ public class AssociationDemandeCourrierController extends AbstractXafController 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
-
     @PostMapping
     public ResponseEntity doPost(HttpServletRequest request) {
 
@@ -56,12 +52,10 @@ public class AssociationDemandeCourrierController extends AbstractXafController 
         }
 
         try {
-            // Récupération de l'ID de la démarche dans le Context-Param
-            String demarcheId = propertiesResolver.getDemarcheId();
             Integer usagerId = usagerInfosDTO.getId();
             String safeIdentifiant = identifiant.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
             String safeNomProprio = nomProprio.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-            LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, safeIdentifiant, safeNomProprio);
+            LOGGER.info("UsagerID={}, IdentifiantDemande={}, NomProprio={}", usagerId, safeIdentifiant, safeNomProprio);
             LOGGER.info("Appel à la démarche...");
             AfApiClient afApiClient = getAfApiClient();
             afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);

@@ -48,6 +48,7 @@ import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
@@ -137,7 +138,6 @@ public class DemandesServiceImpl implements DemandesService {
   @Autowired
     private PurgeFilesRepository purgeFilesRepository;
 
-
   @Autowired
   private PostProcessingProvider postProcessingProvider;
 
@@ -189,6 +189,9 @@ public class DemandesServiceImpl implements DemandesService {
     @Autowired
 	private EntityManager em;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		String stringDate = dateFormat.format(new Date());
@@ -199,11 +202,11 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	/**
-	 * Permet de générer l'ID public d'une demande demarcheId-yyyyMMdd-randomAlphaNumerique(4) Exemple : HAB-20161014-n6kd
+	 * Permet de générer l'ID public d'une demande idPrefix-yyyyMMdd-randomAlphaNumerique(4) Exemple : HAB-20161014-n6kd
 	 */
-	private String generatePublicID(String demarcheId) {
+	private String generatePublicID() {
 		LOGGER.info("Récupération du préfixe d'identifiant depuis la démarche associée...");
-		String prefixe = demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe();
+		String prefixe = demarchesService.getDemarche().getIdentifiantPrefixe();
 
 		// Génération de l'identifiant de la demande (ID public)
 		String identifiant = generatePublicIDWithoutCollisionCheck(prefixe);
@@ -228,7 +231,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		LOGGER.info("Récupération en base de l'accès correspondant...");
-		AccessBO accessBo = accessService.getAccessBO(demande.getDemarcheId(), demande.getUsagerId());
+		AccessBO accessBo = accessService.getAccessBOActive(demande.getUsagerId());
 
 		LOGGER.info("Postprocessing de la demande...");
 		try {
@@ -247,7 +250,7 @@ public class DemandesServiceImpl implements DemandesService {
 		demande.setDateDerModif(demande.getDateCreation());
 
 		// Génération de l'identifiant de la demande (ID public)
-		String identifiant = generatePublicID(demande.getDemarcheId());
+		String identifiant = generatePublicID();
 		demande.setIdentifiant(identifiant);
 
 		// Création d'une nouvelle demande, ignorer les champs suivants (ils seront mis à jour plus tard lors du traitement d'une demande) :
@@ -287,7 +290,7 @@ public class DemandesServiceImpl implements DemandesService {
 		// Lier les fichiers de la demande au DemandeID, dans FILE
 		if (demande.getFichiers() != null) {
 			LOGGER.info("Lier ces fichiers au DemandeID dans FILE...");
-			fileService.updateFilesMetadataWithDemandeId(demande.getFichiers(), demandeBo.getFkAccess().getDemarcheId(),
+			fileService.updateFilesMetadataWithDemandeId(demande.getFichiers(),
 					demandeBo.getPkDemandes());
 		}
 
@@ -352,7 +355,7 @@ public class DemandesServiceImpl implements DemandesService {
 			// ID de la demande fourni, il faut donc mettre à jour une demande
 			demandeDTO = updateDemande(demande, partialUpdate);
 		} else {
-			// UsagerID et DemarcheID fournis, il faut donc créer une nouvelle demande
+			// UsagerID fournis, il faut donc créer une nouvelle demande
 			demandeDTO = saveDemande(demande, premierStatut, donneesExternes);
 		}
 		return demandeDTO;
@@ -362,21 +365,21 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId) {
-		return getDemandesUsager(demarcheId, usagerId, true);
+	public List<DemandeDTO> getDemandes(Integer usagerId) {
+		return getDemandesUsager(usagerId, true);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active) {
-		return getDemandesUsager(demarcheId, usagerId, active);
+	public List<DemandeDTO> getDemandes(Integer usagerId, boolean active) {
+		return getDemandesUsager(usagerId, active);
 	}
 
-	private List<DemandeDTO> getDemandesUsager(String demarcheId, Integer usagerId, boolean active) {
+	private List<DemandeDTO> getDemandesUsager(Integer usagerId, boolean active) {
 		LOGGER.info(RECUPERATION_DEMANDES);
-		AccessBO accessBo = accessService.getAccessBO(demarcheId, usagerId, active);
+		AccessBO accessBo = accessService.getAccessBO(usagerId, active);
 		if (accessBo == null) {
 			throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
 		}
@@ -388,8 +391,8 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId) {
-		List<DemandeDTO> demandes = getDemandes(demarcheId, usagerId);
+	public List<DemandeDTO> getDemandesFilterFiles(Integer usagerId) {
+		List<DemandeDTO> demandes = getDemandes(usagerId);
 		for (DemandeDTO demande : demandes) {
 			DemandeFileDTO[] fichiers = demande.getFichiers();
 			if (fichiers != null) {
@@ -414,14 +417,13 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getDemandes(String demarcheId) {
+	public List<DemandeDTO> getDemandes() {
 
 		LOGGER.info(RECUPERATION_DEMANDES);
 
-		// Si usagerId null, alors rechercher tous les accès de ce demarcheId, qui sont
-		// actifs
+		// Si usagerId null, alors rechercher tous les accès qui sont actifs
 		ArrayList<DemandeBO> demandes = new ArrayList<>();
-		List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndActive(demarcheId, true);
+		List<AccessBO> accessBos = accessRepository.findByActive(true);
 		for (AccessBO access : accessBos) {
 			demandes.addAll(access.getDemandes());
 		}
@@ -434,42 +436,29 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getAllDemandes(String demarcheId) {
+	public List<DemandeDTO> getAllDemandes() {
 		LOGGER.info(RECUPERATION_DEMANDES);
-		List<DemandeBO> demandes = getAllDemarchesBoById(demarcheId);
+		List<DemandeBO> demandes = demandesRepository.findAll();
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return demandesTransformer.bo2Dto(demandes);
 	}
 
 
-
-	/**
-	 * Récupère toutes les demandes liées au demarcheId
-	 */
-	private List<DemandeBO> getAllDemarchesBoById(String demarcheId) {
-		List<DemandeBO> demandes = new ArrayList<>();
-		List<AccessBO> accessBos = accessRepository.getByDemarcheId(demarcheId);
-		for (AccessBO access : accessBos) {
-			demandes.addAll(access.getDemandes());
-		}
-		return demandes;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getAllDemandesFilteredByDate(String demarcheId, Date startDate, Date endDate) {
+	public List<DemandeDTO> getAllDemandesFilteredByDate(Date startDate, Date endDate) {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date...");
 
 		List<DemandeBO> demandes;
 		if (startDate != null && endDate != null) {
-			demandes = demandesRepository.findAllByDateCreationBetween(startDate, endDate);
+			demandes = demandesRepository.findByDateCreationBetween(startDate, endDate);
 		} else if (startDate != null) {
-			demandes = demandesRepository.findAllByDateCreationFrom(startDate);
+			demandes = demandesRepository.findByDateCreationGreaterThanEqual(startDate);
 		} else if (endDate != null) {
-			demandes = demandesRepository.findAllByDateCreationUntil(endDate);
+			demandes = demandesRepository.findByDateCreationLessThanEqual(endDate);
 		} else {
 			demandes = demandesRepository.findAll();
 		}
@@ -483,18 +472,18 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String demarcheId, Date startDate, Date endDate,
+	public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate,
 																  String statut) {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
 
 		List<DemandeBO> demandes;
 		if (startDate != null && endDate != null) {
-			demandes = demandesRepository.findAllByDateCreationBetweenAndDernierStatut(startDate, endDate, statut);
+			demandes = demandesRepository.findByDateCreationBetweenAndDernierStatut_Name(startDate, endDate, statut);
 		} else if (startDate != null) {
-			demandes = demandesRepository.findAllByDateCreationFromAndDernierStatut(startDate, statut);
+			demandes = demandesRepository.findByDateCreationGreaterThanEqualAndDernierStatut_Name(startDate, statut);
 		} else if (endDate != null) {
-			demandes = demandesRepository.findAllByDateCreationUntilAndDernierStatut(endDate, statut);
+			demandes = demandesRepository.findByDateCreationLessThanEqualAndDernierStatut_Name(endDate, statut);
 		} else {
 			demandes = demandesRepository.findAllByDernierStatut_Name(statut);
 		}
@@ -507,7 +496,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate,
+	public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(Date startDate,
 																			 Date endDate, String statut) {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
@@ -583,15 +572,15 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeBO getCheckDemarcheDemandeBO(String demarcheId, DemandeDTO demande, boolean checkActive) {
-		return getCheckDemarcheDemandeBO(demarcheId, demande.getPkDemandes(), checkActive);
+	public DemandeBO getCheckDemarcheDemandeBO(DemandeDTO demande, boolean checkActive) {
+		return getCheckDemarcheDemandeBO(demande.getPkDemandes(), checkActive);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeBO getCheckDemarcheDemandeBO(String demarcheId, Integer demandeId, boolean checkActive) {
+	public DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive) {
 
 		LOGGER.info(RECUPERATION_DEMANDE);
 
@@ -603,8 +592,8 @@ public class DemandesServiceImpl implements DemandesService {
 			demandeBoOp = Optional.empty();
 		}
 
-		if (demandeBoOp.isEmpty() || !demandeBoOp.get().getFkAccess().getDemarcheId().equals(demarcheId)) {
-			LOGGER.error("Le demande ID: {}, pour la démarche {}, est introuvable.", demandeId, demarcheId);
+		if (demandeBoOp.isEmpty()) {
+			LOGGER.error("Le demande ID: {}, est introuvable.", demandeId);
 			throw new DemarchesServiceException("Demande introuvable ou supprimée", HttpStatus.NOT_FOUND);
 		}
 
@@ -615,8 +604,8 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO getCheckDemarcheDemandeDTO(String demarcheId, Integer demandeId, boolean checkActive) {
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, checkActive);
+	public DemandeDTO getCheckDemarcheDemandeDTO(Integer demandeId, boolean checkActive) {
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, checkActive);
 		if (demandeBo == null) {
 			return null;
 		}
@@ -627,9 +616,9 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO getDemande(String demarcheId, Integer pkDemande, Integer usagerId) {
+	public DemandeDTO getDemande(Integer pkDemande, Integer usagerId) {
 		LOGGER.info(RECUPERATION_DEMANDE);
-		DemandeBO demandeBo = demandesRepository.findByDemarcheIdAndIdAndUsagerId(demarcheId, pkDemande, usagerId);
+		DemandeBO demandeBo = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(pkDemande, usagerId);
 		if (demandeBo == null) {
 			throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
 		}
@@ -641,8 +630,8 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO getDemandeFilterFiles(String demarcheId, Integer pkDemande, Integer usagerId) {
-		DemandeDTO demande = getDemande(demarcheId, pkDemande, usagerId);
+	public DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId) {
+		DemandeDTO demande = getDemande(pkDemande, usagerId);
 		DemandeFileDTO[] fichiers = demande.getFichiers();
 		if (fichiers != null) {
 			demande.setFichiers(DemarchesUtils.filterFiles(fichiers));
@@ -654,8 +643,8 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO getDemande(String demarcheId, Integer pkDemandes) {
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
+	public DemandeDTO getDemande(Integer pkDemandes) {
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return demandesTransformer.bo2Dto(demandeBo);
 	}
@@ -673,7 +662,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, checkActive);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, checkActive);
 
 		// Mise à jour du contenu
 		setContenu(demandeBo, demande, partialUpdate);
@@ -740,20 +729,20 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
+	public void deleteDemande(Integer demandeId) throws JsonProcessingException {
 
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 
 		DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
+		LOGGER.info("Suppression des fichiers de la demande {}...", demandeId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
-		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
+		LOGGER.info("Suppression des fichiers complémentaires de la demande {}...", demandeId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
 
-		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
+		AccessBO access = suppressionDeLaDemande(demandeBo, demandeId);
 
 		String identifiant = demandeBo.getIdentifiant();
 		Date dateCreation = demandeBo.getDateCreation();
@@ -764,12 +753,12 @@ public class DemandesServiceImpl implements DemandesService {
 				recapDemandes);
 	}
 
-	private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, String demarcheId, Integer demandeId) {
+	private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, Integer demandeId) {
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
 		stat.setDate(new Date());
 		stat.setDemandeId(demandeId);
-		stat.setDemarcheId(demarcheId);
+		stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 	    if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
@@ -788,7 +777,7 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		statistiquesService.saveStatistique(stat);
 
-		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
+		LOGGER.info("Suppression de la demande {}...", demandeId);
 		demandesRepository.delete(demandeBo);
 
 		return access;
@@ -798,10 +787,10 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
+	public void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
 
-		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+		LOGGER.info("Suppression de la demande {}...", demandeId);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
@@ -813,7 +802,7 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setCanal(demandeBo.getCanal());
 		stat.setDate(new Date());
 		stat.setDemandeId(demandeId);
-		stat.setDemarcheId(demarcheId);
+		stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
         statistiquesService.saveStatistique(stat);
@@ -857,16 +846,16 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Override
 	public Integer getAccessIdFromDemande(DemandeDTO demande) {
-		return getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true).getFkAccess().getPkAccess();
+		return getCheckDemarcheDemandeBO(demande, true).getFkAccess().getPkAccess();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
+	public DemandeDTO cloneDemande(Integer pkDemande) {
 
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
 		LOGGER.info("Duplication de la demande...");
 		DemandeDTO demandeDto = demandesTransformer.bo2Dto(demandeBo);
@@ -895,7 +884,7 @@ public class DemandesServiceImpl implements DemandesService {
 		demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
 
 		// Génération d'un nouvel identifiant de demande
-		String identifiant = generatePublicID(demarcheId);
+		String identifiant = generatePublicID();
 		newDemandeBo.setIdentifiant(identifiant);
 
 		newDemandeBo = demandesRepository.save(newDemandeBo);
@@ -942,7 +931,6 @@ public class DemandesServiceImpl implements DemandesService {
 		if (DemarchesUtils.isFrontUser()) {
 			predicats.add(builder.equal(access.<String>get("active"), true));
 		}
-		predicats.add(builder.equal(access.<String>get("demarcheId"), demandeRecherche.getDemarcheId()));
 
 		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
 		// précédemment car info dans AccessBO)
@@ -1177,7 +1165,6 @@ public class DemandesServiceImpl implements DemandesService {
 		if (DemarchesUtils.isFrontUser()) {
 			predicates.add(cb.equal(access.<String>get("active"), true));
 		}
-		predicates.add(cb.equal(access.<String>get("demarcheId"), demandeRecherche.getDemarcheId()));
 
 		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
 		// précédemment car info dans AccessBO)
@@ -1241,12 +1228,12 @@ public class DemandesServiceImpl implements DemandesService {
 
 
 	@Override
-	public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(String demarcheId, Integer usagerId,
+	public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId,
 																	   String[] status, PageParamDTO paramDTO) {
 		String sortColumn = paramDTO.getSort();
 		Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
 		Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-		Page<DemandeBO> bos = demandesRepository.findByDemarcheIdAndIdAndUsagerIdAndStatuts(demarcheId, usagerId,
+		Page<DemandeBO> bos = demandesRepository.findByUsagerIdAndStatuts(usagerId,
 				status, paramDTO.getLang(), pageable);
 		return demandesTransformer.boPage2DtoPage(bos);
 	}
@@ -1264,9 +1251,9 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	@Override
-	public DemandeDTO associerDemandeCourrier(String demarcheId, Integer pkDemande, Integer pkAccess) {
+	public DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess) {
 
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, false);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
 
 		LOGGER.info("Récupération de l'accès cible en base...");
 		Optional<AccessBO> accessBoOp = accessRepository.findById(pkAccess);
@@ -1288,8 +1275,8 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	@Override
-	public boolean isAccesDesactive(String demarcheId, Integer pkDemande) {
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, false);
+	public boolean isAccesDesactive(Integer pkDemande) {
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
 		return !demandeBo.getFkAccess().isActive();
 	}
 
@@ -1297,8 +1284,8 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemandes, String agentAffecteId) {
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
+	public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
 		demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
 		demandesRepository.save(demandeBo);
 		DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
@@ -1317,48 +1304,48 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
     @Override
-    public List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+    public List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
         return demandesTransformer.bo2Dto(demandesRepository
-                .findAllWithDateDernierStatutBeforeAndNameStatutIn(dernierStatutDateDebut, dernierStatutList,
+                .findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(dernierStatutDateDebut, dernierStatutList,
                         canaux));
 
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndNameStatutIn(
+        return demandesTransformer.bo2Dto(demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(
                 dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
 
     }
 
     @Override
-    public List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
+    public List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux) {
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
-        return demandesRepository.findAllIdsWithDateDernierStatutBeforeAndNameStatutIn(dernierStatutDateDebut,
+        return demandesRepository.findPkDemandesByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(dernierStatutDateDebut,
                 dernierStatutList, canaux);
     }
 
     @Override
-    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForRelanceAvantPurge");
-        return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndNameStatutIn(dernierStatutDateDebut,
+        return demandesRepository.findPkDemandesByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
                 dernierStatutDateFin, dernierStatutList);
     }
 
     @Override
-    public void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts,
+    public void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts,
             int jours) throws JsonProcessingException {
         for (Integer demandeId : demandeIdList) {
-            this.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+            this.deleteDemandeInGivenStatus(demandeId, statuts, jours);
         }
 
     }

@@ -54,7 +54,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
             LOGGER.error("Error compta CIR", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, false);
             histoService.actionSysteme(demandeId, "ECHEC", "Ecriture comptable automatique en échec");
-            demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), FactureApiClient.INCIDENT);
+            demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), FactureApiClient.INCIDENT);
         }
 
         LOGGER.info("==== xaf-back-stc compta CIR <fin>");

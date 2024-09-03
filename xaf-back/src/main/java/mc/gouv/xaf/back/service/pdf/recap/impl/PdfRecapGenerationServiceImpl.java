@@ -108,7 +108,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         file.setDate(new Date());
         file.setMeta( metas);
         file.setTypedoc(META_RECAP);
-        demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
+        demandesFileService.saveFile(file, demande.getPkDemandes());
 
         LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 

@@ -88,12 +88,12 @@ public class GUKafkaConsumerConfig {
         factory.setMissingTopicsFatal(false);
         
         LOGGER.info("Récupération des DEM_PROPERTIES en base pour le GUKafkaConsumerConfig...");
-        PropertiesDTO backOffIntervalProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
+        PropertiesDTO backOffIntervalProp = propertiesService.getProperty(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
         if (backOffIntervalProp == null || StringUtils.isBlank(backOffIntervalProp.getValue())) {
         	throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
         }
         int backOffInterval = Integer.parseInt(backOffIntervalProp.getValue());
-        PropertiesDTO backOffMaxAttemptsProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
+        PropertiesDTO backOffMaxAttemptsProp = propertiesService.getProperty(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
         if (backOffMaxAttemptsProp == null || StringUtils.isBlank(backOffMaxAttemptsProp.getValue())) {
         	throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
         }

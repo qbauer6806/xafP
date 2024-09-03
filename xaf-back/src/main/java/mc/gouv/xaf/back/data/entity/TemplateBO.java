@@ -29,11 +29,6 @@ public class TemplateBO {
     @Column(name = "PK_TEMPLATES", nullable = false)
     private Integer pkTemplates;
 
-    @Column(name = "FK_DEMARCHEID", length = 128, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 128)
-    private String demarcheId;
-
     @Column(name = "CODE", length = 256, nullable = false)
     @NotBlank
     @Size(min = 1, max = 256)

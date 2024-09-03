@@ -78,7 +78,6 @@ public class TemplatesCacheImplMock implements TemplatesCache {
     private TemplateDTO givenContentTemplateDTO(String langue) {
     	TemplateDTO dto = new TemplateDTO();
     	dto.setCode("456");
-    	dto.setDemarcheId("45678");
     	dto.setLangue(langue);
     	dto.setPkTemplates(22);
 
@@ -94,7 +93,6 @@ public class TemplatesCacheImplMock implements TemplatesCache {
     private TemplateDTO givenSubjectTemplateDTO(String langue) {
     	TemplateDTO dto = new TemplateDTO();
     	dto.setCode("123");
-    	dto.setDemarcheId("45678");
     	dto.setLangue(langue);
     	dto.setPkTemplates(11);
     	

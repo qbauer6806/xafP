@@ -17,12 +17,12 @@ public class PeriodeOuvertureDTO {
 
     private Integer pkPeriodesOuverture;
 
-    private String demarcheId;
-
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dateDebut;
 
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dateFin;
+
+    private String demarcheId = "STAGE";
 
 }

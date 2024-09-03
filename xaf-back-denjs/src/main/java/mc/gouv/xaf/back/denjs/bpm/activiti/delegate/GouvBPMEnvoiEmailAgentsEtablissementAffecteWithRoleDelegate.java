@@ -124,7 +124,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
         emailInfo.setLangue("fr");
 
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        DemandeDTO demande = demandesService.getDemande(demandeId);
 
         Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), null, null);

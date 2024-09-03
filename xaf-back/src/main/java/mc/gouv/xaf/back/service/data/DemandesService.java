@@ -22,24 +22,24 @@ import org.xml.sax.SAXException;
 public interface DemandesService {
 
     /**
-     * Permet de récupérer les demandes correspondant au DemarcheID et qui matchent les identifiants
+     * Permet de récupérer les demandes correspondant et qui matchent les identifiants
      */
     List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants);
 
     /**
-     * Permet de récupérer les demandes correspondant au DemarcheID
+     * Permet de récupérer les demandes
      */
-    List<DemandeDTO> getDemandes(String demarcheId);
+    List<DemandeDTO> getDemandes();
 
     /**
-     * Permet de récupérer les demandes correspondant aux DemarcheID et UsagerID
+     * Permet de récupérer les demandes correspondant UsagerID
      */
-    List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId);
+    List<DemandeDTO> getDemandes(Integer usagerId);
 
     /**
-     * Permet de récupérer les demandes correspondant aux DemarcheID et UsagerID avec un accès inactif
+     * Permet de récupérer les demandes correspondant aux UsagerID avec un accès inactif
      */
-    List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active);
+    List<DemandeDTO> getDemandes(Integer usagerId, boolean active);
 
     /**
      * Méthode permettant de récupérer les demandes
@@ -51,36 +51,36 @@ public interface DemandesService {
      */
     Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields);
 
-    mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(String demarcheId, Integer usagerId, String[] status, PageParamDTO paramDTO);
+    mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status, PageParamDTO paramDTO);
 
     /**
-     * Permet de récupérer la demande correspondant aux DemarcheID et UsagerID
+     * Permet de récupérer la demande correspondant UsagerID
      *
      * @return La demande demandée
      */
-    DemandeDTO getDemande(String demarcheId, Integer pkDemandes);
+    DemandeDTO getDemande(Integer pkDemandes);
 
     /**
-     * Permet de vérifier que le couple (demarcheId, demandeId) existe bien (retourne un BO) Lance une exception sinon
+     * Permet de vérifier que demandeId existe bien (retourne un BO) Lance une exception sinon
      *
      * @return La demande, si trouvée
      */
-    DemandeBO getCheckDemarcheDemandeBO(String demarcheId, DemandeDTO demande, boolean checkActive);
+    DemandeBO getCheckDemarcheDemandeBO(DemandeDTO demande, boolean checkActive);
 
     /**
-     * Permet de vérifier que le couple (demarcheId, demandeId) existe bien (retourne un BO) Lance une exception sinon
+     * Permet de vérifier que le couple demandeId existe bien (retourne un BO) Lance une exception sinon
      *
      * @return La demande, si trouvée
      */
-    DemandeBO getCheckDemarcheDemandeBO(String demarcheId, Integer demandeId, boolean checkActive);
+    DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive);
 
     /**
-     * Permet de vérifier que le couple (demarcheId, demandeId) existe bien (retourne un DTO) Lance une exception sinon
+     * Permet de vérifier que demandeId existe bien (retourne un DTO) Lance une exception sinon
      */
-    DemandeDTO getCheckDemarcheDemandeDTO(String demarcheId, Integer demandeId, boolean checkActive);
+    DemandeDTO getCheckDemarcheDemandeDTO(Integer demandeId, boolean checkActive);
 
     /**
-     * Permet de modifier une demande à partir du DemarcheID et de l'UsagerID
+     * Permet de modifier une demande à partir de l'UsagerID
      *
      * @param partialUpdate true si il faut effectuer une mise à jour partielle
      * @return La demande modifiée
@@ -97,12 +97,12 @@ public interface DemandesService {
     DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive);
 
     /**
-     * Permet de supprimer une demande à partir du DemarcheID et de l'UsagerID
+     * Permet de supprimer une demande à partir de l'UsagerID
      */
-    void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
+    void deleteDemande(Integer demandeId) throws JsonProcessingException;
     
     
-    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
+    void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder en base une demande
@@ -135,9 +135,9 @@ public interface DemandesService {
      * @param pkDemande la pk de la demande à dupliquer
      * @return La demande dupliquée (nouvelle instance)
      */
-    DemandeDTO cloneDemande(String demarcheId, Integer pkDemande);
+    DemandeDTO cloneDemande(Integer pkDemande);
 
-    DemandeDTO getDemande(String demarcheId, Integer pkDemande, Integer usagerId);
+    DemandeDTO getDemande(Integer pkDemande, Integer usagerId);
     
     /**
      * Permet de retrouver une demande à partir de son identifiant
@@ -149,43 +149,43 @@ public interface DemandesService {
 
     List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche);
 
-    DemandeDTO associerDemandeCourrier(String demarcheId, Integer pkDemande, Integer pkAccess);
+    DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess);
 
     /**
      * Permet de savoir si la demande correspond à un accès désactivé (usager désinscrit)
      */
-    boolean isAccesDesactive(String demarcheId, Integer pkDemande);
+    boolean isAccesDesactive(Integer pkDemande);
 
     /**
      * Change l'affectation de la demande sans trigger un full update dans le cas où
      * on veut SUPPRIMER l'affectation (car lors d'un partialUpdate on vérifie si le
      * champs est null avant de mettre à jour le champs en question)
      */
-    DemandeDTO changerAffectationDemande(String demarcheId, int pkDemandes, String agentAffecteId);
+    DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId);
 
     /**
      * Retourne toutes les demandes, même celles associées à des accès inactifs
      */
-    List<DemandeDTO> getAllDemandes(String demarcheId);
+    List<DemandeDTO> getAllDemandes();
 
     /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée
      */
-    List<DemandeDTO> getAllDemandesFilteredByDate(String demarcheId, Date startDate, Date endDate);
+    List<DemandeDTO> getAllDemandesFilteredByDate(Date startDate, Date endDate);
 
     /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
      *
      * @param statut     libellé du statut
      */
-    List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String demarcheId, Date startDate, Date endDate, String statut);
+    List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate, String statut);
 
     /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
      *
      * @param statut     libellé du statut
      */
-    List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate, Date endDate, String statut);
+    List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(Date startDate, Date endDate, String statut);
 
     /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
@@ -205,32 +205,30 @@ public interface DemandesService {
     /**
      * Retourne une demande en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT
      */
-    DemandeDTO getDemandeFilterFiles(String demarcheId, Integer pkDemande, Integer usagerId);
+    DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
     /**
      * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT
      */
-    List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId);
+    List<DemandeDTO> getDemandesFilterFiles(Integer usagerId);
 
 
     /**
      * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
      *
-     * @param demarcheId
      * @param dernierStatutDateDebut
      *            : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
      * @param dernierStatutList
      * @return
      */
-    List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+    List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux);
 
-    List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
+    List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux);
     /**
      * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
      *
-     * @param demarcheId
      * @param dernierStatutDateDebut
      *            : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
      * @param dernierStatutDateFin
@@ -239,13 +237,13 @@ public interface DemandesService {
      * @param dernierStatutList
      * @return
      */
-    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList);
 
-    List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+    List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList);
 
-    void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts, int jours)
+    void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException;
 
 }

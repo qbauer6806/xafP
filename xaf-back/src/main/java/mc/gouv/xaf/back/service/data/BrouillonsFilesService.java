@@ -12,6 +12,6 @@ public interface BrouillonsFilesService {
 
 	void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo);
 
-	void saveFile(BrouillonFileDTO brouillonFile, String demarcheId, Integer pkBrouillon);
+	void saveFile(BrouillonFileDTO brouillonFile, Integer pkBrouillon);
 
 }

@@ -1,5 +1,12 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
@@ -12,14 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GestionTemplateServiceImplTest {
@@ -50,7 +49,6 @@ public class GestionTemplateServiceImplTest {
         templateCorps = new TemplateDTO();
         templateCorps.setPkTemplates(1);
         templateCorps.setCode("CODE_TEMPLATE_CORPS");
-        templateCorps.setDemarcheId(demarcheId);
         templateCorps.setLangue(langue);
         templateCorps.setDateModif(getDate("2021-12-09"));
         templateCorps.setContenu("ContenuCorps");
@@ -58,14 +56,13 @@ public class GestionTemplateServiceImplTest {
         templateObjet = new TemplateDTO();
         templateObjet.setPkTemplates(1);
         templateObjet.setCode("CODE_TEMPLATE_OBJET");
-        templateObjet.setDemarcheId(demarcheId);
         templateObjet.setLangue(langue);
         templateObjet.setDateModif(getDate("2021-12-09"));
         templateObjet.setContenu("ContenuObjet");
 
         Mockito.when(gouvPropertiesResolver.getDemarcheId()).thenReturn(demarcheId);
-        Mockito.when(templatesService.getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, codeTemplateCorps,langue)).thenReturn(templateCorps);
-        Mockito.when(templatesService.getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, codeTemplateObjet,langue)).thenReturn(templateObjet);
+        Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateCorps,langue)).thenReturn(templateCorps);
+        Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateObjet,langue)).thenReturn(templateObjet);
     }
 
     @Test
@@ -91,13 +88,13 @@ public class GestionTemplateServiceImplTest {
 
         gestionTemplateServiceImpl.saveTemplateForm(formBean);
 
-        verify(templatesService, times(1)).getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, codeTemplateCorps, langue);
-        verify(templatesService, times(1)).getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, codeTemplateObjet, langue);
+        verify(templatesService, times(1)).getTemplateByCodeAndLangue(codeTemplateCorps, langue);
+        verify(templatesService, times(1)).getTemplateByCodeAndLangue(codeTemplateObjet, langue);
 
         templateCorps.setContenu(formBean.getCorps());
         templateObjet.setContenu(formBean.getObjet());
-        verify(templatesService, times(1)).saveOrUpdateTemplate(demarcheId, templateCorps);
-        verify(templatesService, times(1)).saveOrUpdateTemplate(demarcheId, templateObjet);
+        verify(templatesService, times(1)).saveOrUpdateTemplate(templateCorps);
+        verify(templatesService, times(1)).saveOrUpdateTemplate(templateObjet);
     }
 
     private Date getDate(String date) {

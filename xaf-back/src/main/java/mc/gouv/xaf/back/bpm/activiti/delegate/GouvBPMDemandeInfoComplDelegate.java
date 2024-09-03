@@ -43,8 +43,6 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
         LOGGER.info("==== xaf-back CREATION INFO COMPL ...");
 
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         LOGGER.info("Demande : {}", demandeId);
@@ -85,7 +83,7 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         }
 
         LOGGER.info("Appel à DEM createDemandeComplements()...");
-        demandesComplementsService.saveDemandeComplements(demarcheId, demandeId, questionDto);
+        demandesComplementsService.saveDemandeComplements(demandeId, questionDto);
 
         LOGGER.info("==== xaf-back CREATION INFO COMPL <fin>");
 

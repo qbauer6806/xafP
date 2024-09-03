@@ -63,7 +63,7 @@ public class ApercuPdfController extends AbstractController {
         String texteAEnvoyer = pdfPreviewFormBean.getTexteAEnvoyer();
         PdfTypeEnum pdfType = pdfPreviewFormBean.getPdfType();
 
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+        DemandeDTO demande = demandesService.getDemande(pkDemande);
 
         response.setContentType("application/pdf");
         response.setHeader("Content-disposition", "attachment; filename=" + demande.getIdentifiant() + ".pdf");

@@ -349,7 +349,7 @@ public class FileController {
 	 */
 	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
 		LOGGER.info(LOG_APPEL);
-		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+		DemandeDTO demande = demandesService.getDemande(demandeId);
 		Map<String, String> fileNames = new HashMap<>();
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
@@ -373,7 +373,7 @@ public class FileController {
 	 */
 	public List<DemandeComplementsFileDTO> saveFilesWithMeta(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
 		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
-		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+		DemandeDTO demande = demandesService.getDemande(demandeId);
 		List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {

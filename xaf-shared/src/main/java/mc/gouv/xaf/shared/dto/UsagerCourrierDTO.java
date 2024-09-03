@@ -20,8 +20,6 @@ public class UsagerCourrierDTO {
 
     private Integer pkUsagersCourrier;
 
-    private String demarcheId;
-
     private String login;
 
     private Integer titre;

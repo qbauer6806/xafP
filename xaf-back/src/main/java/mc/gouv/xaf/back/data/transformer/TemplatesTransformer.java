@@ -19,7 +19,6 @@ public class TemplatesTransformer {
         TemplateDTO dto = new TemplateDTO();
         dto.setCode(bo.getCode());
         dto.setContenu(bo.getContenu());
-        dto.setDemarcheId(bo.getDemarcheId());
         dto.setLangue(bo.getLangue());
         dto.setPkTemplates(bo.getPkTemplates());
         dto.setDateModif(bo.getDateModif());
@@ -30,7 +29,6 @@ public class TemplatesTransformer {
         TemplateBO bo = new TemplateBO();
         bo.setCode(dto.getCode());
         bo.setContenu(dto.getContenu());
-        bo.setDemarcheId(dto.getDemarcheId());
         bo.setLangue(dto.getLangue());
         bo.setPkTemplates(dto.getPkTemplates());
         bo.setDateModif(dto.getDateModif());

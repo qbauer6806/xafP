@@ -17,7 +17,6 @@ public interface DemandesStatutsService {
     /**
      * Permet d'ajouter un statut à une demande
      *
-     * @param demarcheId    ID de la démarche
      * @param demandeId     ID de la demande
      * @param statut        Le nouveau statut
      * @param agentId       AgentID à associer au statut
@@ -27,10 +26,9 @@ public interface DemandesStatutsService {
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
      * @return L'objet DTO de la demande mise à jour
      */
-    // TODO: Alerte Sonar sur le trop grand nombre de paramètres
-    DemandeDTO updateStatut(String demarcheId, Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
-    DemandeDTO updateStatut(String demarcheId, Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**
      * Permet d'ajouter un statut à une demande, version appelable par d'autres services, sans check préalable
@@ -58,20 +56,18 @@ public interface DemandesStatutsService {
     /**
      * Récupérer le dernier statut d'une demande
      *
-     * @param demarcheId ID de la démarche
      * @param demandeId  ID de la demande
      * @return L'objet DTO du statut
      */
-    DemandeStatutDTO getStatut(String demarcheId, Integer demandeId);
+    DemandeStatutDTO getStatut(Integer demandeId);
 
     /**
      * Récupérer tous les statuts d'une demande
      *
-     * @param demarcheId ID de la démarche
      * @param demandeId  ID de la demande
      * @return Une liste de statut DTO
      */
-    List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId);
+    List<DemandeStatutDTO> getStatuts(Integer demandeId);
 
     /**
      * Duplication des statuts d'une demande vers une nouvelle demande.

@@ -29,7 +29,6 @@ public class DemandeDTO extends AbstractDemandeDTO {
     protected transient DemandeCourrierDTO[] courriers;
     private Integer fkAccess;
     private Integer usagerId;
-    private String demarcheId;
     private transient DemandeFileDTO[] fichiers;
     private String identifiant;
     private transient DemandeStatutDTO[] statuts;

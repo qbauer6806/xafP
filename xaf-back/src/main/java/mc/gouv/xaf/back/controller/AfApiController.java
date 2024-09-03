@@ -113,7 +113,7 @@ public interface AfApiController {
 
     List<BrouillonDTO> getBrouillons(Integer usagerId);
 
-    default List<BrouillonDTO> getAllBrouillons(String demarcheId) {
+    default List<BrouillonDTO> getAllBrouillons() {
         return Collections.emptyList();
     }
 

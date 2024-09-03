@@ -196,16 +196,14 @@ public class MoneticoApiClient implements PaiementApiClient {
                 String mac = paiementSecurityService.getHmacStringCapture(captureDTO);
 
                 // Permet de désactiver la capture en simulant monetico injoignable
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(),
-                        "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
+                PropertiesDTO errorProp = propertiesService.getProperty("TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
                 if (errorProp != null && "true".equals(errorProp.getValue())) {
                     // On met le statut 400 pour éviter de faire plusieurs tentatives
                     throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
                 }
 
                 // Permet de désactiver la capture en simulant un code retour 0
-                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(),
-                        "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+                PropertiesDTO errorProp2 = propertiesService.getProperty("TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
                 int statutCode;
                 String responseString;
                 if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {

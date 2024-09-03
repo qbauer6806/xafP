@@ -1,31 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.DemandesCourriersService;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
-import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -42,6 +16,29 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.DemandesCourriersService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des courriers liés à une demande.
@@ -65,21 +62,15 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
     private DemandesService demandesService;
 
     @Autowired
-    private DemarchesService demarchesService;
-    
-    @Autowired 
-    private FileService fileService;
-
-    @Autowired
     private EntityManager em;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
+    public DemandeCourrierDTO saveCourrier(Integer pkDemande, DemandeCourrierDTO courrierDto) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -103,15 +94,15 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeCourrierDTO getCourrier(String demarcheId, Integer pkDemande, Integer pkCourrier) {
-        DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, pkCourrier);
+    public DemandeCourrierDTO getCourrier(Integer pkDemande, Integer pkCourrier) {
+        DemandesCourriersBO courrierBo = getCourrierBo(pkDemande, pkCourrier);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesCourriersTransformer.bo2Dto(courrierBo);
     }
 
-    private DemandesCourriersBO getCourrierBo(String demarcheId, Integer pkDemande, Integer pkCourrier) {
+    private DemandesCourriersBO getCourrierBo(Integer pkDemande, Integer pkCourrier) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -128,9 +119,9 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeCourrierDTO> getCourriers(String demarcheId, Integer pkDemande) {
+    public List<DemandeCourrierDTO> getCourriers(Integer pkDemande) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -143,9 +134,8 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeCourrierDTO> getCourriersPourDemarche(String demarcheId) {
-        demarchesService.getCheckDemarche(demarcheId);
-        List<DemandesCourriersBO> courriers = demandesCourriersRepository.findByFkDemandesFkAccessDemarcheId(demarcheId);
+    public List<DemandeCourrierDTO> getCourriers() {
+        List<DemandesCourriersBO> courriers = demandesCourriersRepository.findAll();
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesCourriersTransformer.bo2Dto(courriers);
     }
@@ -167,9 +157,9 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
+    public DemandeCourrierDTO updateCourrier(Integer pkDemande, DemandeCourrierDTO courrierDto) {
 
-        DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, courrierDto.getPkCourrier());
+        DemandesCourriersBO courrierBo = getCourrierBo(pkDemande, courrierDto.getPkCourrier());
 
         LOGGER.info("Mise à jour du courrier...");
 
@@ -180,7 +170,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         courrierBo.setDatePrinted(courrierDto.getDatePrinted());
         courrierBo = demandesCourriersRepository.save(courrierBo);
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
         updateDemandeCourrier(demandeBo, courrierBo);
 
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
@@ -188,12 +178,12 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
     }
 
 	@Override
-	public void deleteCourriers(String demarcheId, Integer pkDemande) {
-		LOGGER.info("Suppression de la demande courrier {} de la demarche {}...", pkDemande, demarcheId);
-		List<DemandeCourrierDTO> courriersToDelete = getCourriers(demarcheId, pkDemande);
+	public void deleteCourriers(Integer pkDemande) {
+		LOGGER.info("Suppression de la demande courrier {}...", pkDemande);
+		List<DemandeCourrierDTO> courriersToDelete = getCourriers(pkDemande);
 		if(null != courriersToDelete && !courriersToDelete.isEmpty()) {
 			for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
-				DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, currentCourriersToDelete.getPkCourrier());
+				DemandesCourriersBO courrierBo = getCourrierBo(pkDemande, currentCourriersToDelete.getPkCourrier());
 				if (courrierBo == null) {
 		            throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
 		        }

@@ -47,8 +47,8 @@ public class PropertiesTestServiceImpl implements PropertiesService {
     }
 
     @Override
-    public PropertiesDTO getProperty(String demarcheId, String key) {
-        if ("PERMC".equals(demarcheId) && "XAF_TARIF_ECHANGE".equals(key))
+    public PropertiesDTO getProperty(String key) {
+        if ("XAF_TARIF_ECHANGE".equals(key))
             return new PropertiesDTO("amount", "80.00");
         return null;
     }

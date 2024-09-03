@@ -38,7 +38,7 @@ public class PurgeDemandesSchedulingConfig {
     }
 
     private void initPurgeJobs() throws SchedulerException {
-        PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION);
+        PropertiesDTO prop = propertiesService.getProperty(PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION);
         JobDetail jobDetail = schedulerService.buildJobDetail(PurgeDemandesSchedulingJob.class, "PurgeDemandesSchedulingJob");
 
         // Ajout de la liste des statuts dans le JobDataMap

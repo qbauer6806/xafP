@@ -63,7 +63,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         Integer usagerId = (Integer) variables.get(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
 
 		GichuniUsagerDTO usager = usagersCache.get(usagerId, true);
-		DemandeDTO demandeDto = demandesService.getDemande(afBackUtils.getDemarcheInfos().getPkDemarches(), demandeId);
+		DemandeDTO demandeDto = demandesService.getDemande(demandeId);
 		if (usager == null) {
 			usager = new GichuniUsagerDTO();
 			DemandeUsagerDTO usagerDto = demandeDto.getUsager();

@@ -16,14 +16,11 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableTaskAlreadyClaimedException;
 import org.flowable.engine.FormService;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.form.FormProperty;
@@ -57,16 +54,7 @@ public class GouvBPMImpl implements GouvBPM {
     private TaskService taskService;
 
     @Autowired
-    private ProcessEngineConfiguration processEngineConfiguration;
-
-    @Autowired
-    private ProcessEngine processEngine;
-
-    @Autowired
     private FormService formService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
                                                    Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {

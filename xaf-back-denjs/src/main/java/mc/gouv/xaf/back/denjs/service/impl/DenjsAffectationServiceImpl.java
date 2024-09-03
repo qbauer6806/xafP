@@ -64,7 +64,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	@Override
 	public List<DenjsAffectationAgentDTO> getAffectationsAgents() {
 		LOGGER.info("DenjsAffectationServiceImpl.getAffectationsAgents()");
-		PropertiesDTO affectations = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LISTE_AFFECTATIONS_KEY);
+		PropertiesDTO affectations = propertiesService.getProperty(LISTE_AFFECTATIONS_KEY);
 		if (affectations == null) {
 			LOGGER.warn("ATTENTION : aucune liste d'affectations en base !");
 			return new ArrayList<>();
@@ -82,7 +82,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	@Override
 	public List<DenjsEtablissementDTO> getEtablissements() {
 		LOGGER.info("DenjsAffectationServiceImpl.getEtablissements()");
-		PropertiesDTO etabs = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LISTE_ETABLISSEMENTS_KEY);
+		PropertiesDTO etabs = propertiesService.getProperty(LISTE_ETABLISSEMENTS_KEY);
 		if (etabs == null) {
 			LOGGER.warn("ATTENTION : aucune liste d'établissements en base !");
 			return new ArrayList<>();
@@ -139,10 +139,9 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 			ajoutModificationAffectation(affs, affectation);
 		}
 		
-		PropertiesDTO affectations = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LISTE_AFFECTATIONS_KEY);
+		PropertiesDTO affectations = propertiesService.getProperty(LISTE_AFFECTATIONS_KEY);
 		if (affectations == null) {
 			affectations = new PropertiesDTO();
-			affectations.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 			affectations.setKey(LISTE_AFFECTATIONS_KEY);
 			affectations.setType(PropertiesTypeEnum.BACK);
 		}
@@ -164,7 +163,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	public void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode) {
 		LOGGER.info("DenjsAffectationServiceImpl.affecterDemandeEtablissement({}, {})", pkDemande, etablissementCode);
 		try {
-			demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY , etablissementCode);
+			demandesDataService.saveOrUpdateDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY , etablissementCode);
 		} catch (Exception e) {
 			LOGGER.error("Erreur pendant la sauvegarde en base de l'affectation d'une demande à un établissement", e);
 		}
@@ -173,7 +172,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	@Override
 	public String getAffectationDemandeEtablissement(Integer pkDemande) {
 		LOGGER.info("DenjsAffectationServiceImpl.getAffectationDemandeEtablissement({})", pkDemande);
-		DemandeDataDTO demandeData = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
+		DemandeDataDTO demandeData = demandesDataService.getDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
 		if (demandeData == null) {
 			return null;
 		}
@@ -194,7 +193,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	public void desaffecterDemandeEtablissement(Integer pkDemande) {
 		LOGGER.info("DenjsAffectationServiceImpl.desaffecterDemandeEtablissement({})", pkDemande);
 		try {
-			demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
+			demandesDataService.deleteDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
 		} catch (Exception e) {
 			LOGGER.error("Erreur pendant la suppression en base de l'affectation d'une demande à un établissement", e);
 		}

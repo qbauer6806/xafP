@@ -34,10 +34,10 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
     private DemandesService demandesService;
 
     @Override
-    public List<DemandeHistoriqueDTO> getHistorique(String demarcheId, Integer demandeId) {
+    public List<DemandeHistoriqueDTO> getHistorique(Integer demandeId) {
 
         // Jette une exception si la demande n'existe pas
-        demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, false);
+        demandesService.getCheckDemarcheDemandeDTO(demandeId, false);
 
         List<DemandesHistoriqueBO> demandeHistorique = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
 
@@ -46,13 +46,13 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
     }
 
     @Override
-    public DemandeHistoriqueDTO saveHistorique(String demarcheId, Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
-        return saveHistoriqueActionAuto(demarcheId, demandeId, demandeHistoriqueDto);
+    public DemandeHistoriqueDTO saveHistorique(Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
+        return saveHistoriqueActionAuto(demandeId, demandeHistoriqueDto);
     }
 
     @Override
-    public DemandeHistoriqueDTO saveHistoriqueActionAuto(String demarcheId, Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+    public DemandeHistoriqueDTO saveHistoriqueActionAuto(Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
 
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         DemandesHistoriqueBO demandeHistoriqueBo = DemandesHistoriqueTransformer.dto2Bo(demandeHistoriqueDto);

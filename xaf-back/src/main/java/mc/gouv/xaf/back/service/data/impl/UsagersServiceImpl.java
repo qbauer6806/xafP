@@ -50,11 +50,10 @@ public class UsagersServiceImpl implements UsagersService {
     private DemarchesDataProvider demarchesDataProvider;
 
     @Override
-    public void desinscriptionUsager(String demarcheId, Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif) {
+    public void desinscriptionUsager(Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif) {
 
         LOGGER.info("Récupération des demandes liées à l'usager...");
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
-        demandeRecherche.setDemarcheId(demarcheId);
         demandeRecherche.setUsagerId(usagerId);
         List<DemandeDTO> demandes = demandesService.getDemandes(demandeRecherche);
 
@@ -62,16 +61,16 @@ public class UsagersServiceImpl implements UsagersService {
         for (DemandeDTO demande : demandes) {
             boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()).equals(StatutSimplifieEnum.TERMINEE);
             if (!isFinal && !statutAnnulation.getName().equals(demande.getDernierStatut().getName())) {
-                demandesStatutsService.updateStatut(demande.getDemarcheId(), demande.getPkDemandes(), statutAnnulation,
+                demandesStatutsService.updateStatut(demande.getPkDemandes(), statutAnnulation,
                         null, usagerId, codeMotif, null, null);
             }
         }
         
         LOGGER.info("Suppression des brouillons...");
-        brouillonsService.deleteBrouillons(demarcheId, usagerId);
+        brouillonsService.deleteBrouillons(usagerId);
 
         LOGGER.info("Suppression de l'accès...");
-        accessService.deleteAccess(demarcheId, usagerId);
+        accessService.deleteAccess(usagerId);
     }
     
     @Override

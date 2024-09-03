@@ -83,7 +83,7 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
                 .getEmailReplytoNom());
 
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        DemandeDTO demande = demandesService.getDemande(demandeId);
         DemandeAgentDTO agent = demande.getAgent();
         if (agent != null) {
             LOGGER.info("Adresse / Nom de l'agent affecté à la demande : {} / {}", agent.getMail(), agent.getNom());

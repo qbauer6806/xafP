@@ -1,12 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import mc.gouv.xaf.back.data.dao.DemarchesRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.PeriodesOuvertureRepository;
-import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.entity.PeriodesOuvertureBO;
 import mc.gouv.xaf.back.data.transformer.PeriodeOuvertureTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
@@ -18,10 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Service permettant la manipulation des périodes d'ouverture
@@ -37,33 +33,27 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     @Autowired
     private PeriodesOuvertureRepository periodesOuvertureRepository;
 
-    @Autowired
-    private DemarchesService demarchesService;
-
-    @Autowired
-    private DemarchesRepository demarchesRepository;
-
     @Override
-    public List<PeriodeOuvertureDTO> getPeriodesOuverture(String demarcheId) {
+    public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         LOGGER.info("Récupération en base des périodes d'ouverture...");
-        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDemarchePkDemarches(demarcheId);
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAll();
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
     }
 
     @Override
-    public Page<PeriodeOuvertureDTO> getPeriodesOuverturePageable(String demarcheId, Pageable pageable) {
+    public Page<PeriodeOuvertureDTO> getPeriodesOuverturePageable(Pageable pageable) {
         LOGGER.info("Récupération en base des périodes d'ouverture...");
-        Page<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDemarchePkDemarches(demarcheId, pageable);
+        Page<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAll(pageable);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return periodesOuvertureBos.map(PeriodeOuvertureTransformer::bo2Dto);
     }
 
     @Override
-    public PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee(String demarcheId) {
+    public PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee() {
         Date date = new Date();
         LOGGER.info("Récupération en base des périodes d'ouvertures avant le {} ...", date);
-        List<PeriodesOuvertureBO> periodesOuvertureBOS = periodesOuvertureRepository.findAllWithDateFinBeforeDate(date, demarcheId);
+        List<PeriodesOuvertureBO> periodesOuvertureBOS = periodesOuvertureRepository.findByDateFinBeforeOrderByDateFinDesc(date);
         PeriodeOuvertureDTO dto = null;
         if (!periodesOuvertureBOS.isEmpty()) {
             PeriodesOuvertureBO bo = periodesOuvertureBOS.get(0);
@@ -76,41 +66,33 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     }
 
     @Override
-    public List<PeriodeOuvertureDTO> getPeriodesOuvertureFutures(String demarcheId) {
+    public List<PeriodeOuvertureDTO> getPeriodesOuvertureFutures() {
         Date date = new Date();
         LOGGER.info("Récupération en base des périodes d'ouverture commençant après le {} ...", date);
-        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAllWithDateDebutAfterDate(date, demarcheId);
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDateDebutAfter(date);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
     }
 
     @Override
-    public List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours(String demarcheId) {
+    public List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours() {
         Date date = new Date();
         LOGGER.info("Récupération en base des périodes d'ouverture en cours ...");
-        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAllWithDateDebutAndDateFinBetweenDate(date, demarcheId);
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDateDebutLessThanEqualAndDateFinGreaterThanEqual(date, date);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
     }
 
     @Override
-    public PeriodeOuvertureDTO saveOrUpdatePeriodeOuverture(String demarcheId, PeriodeOuvertureDTO periodeOuverture) {
-        // Vérification préalable de l'existence de la démarche indiquée
-        DemarchesBO demarchesBO = demarchesService.getCheckDemarche(demarcheId);
-
+    public PeriodeOuvertureDTO saveOrUpdatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
         // Création
         if (periodeOuverture.getPkPeriodesOuverture() == null) {
             LOGGER.info("Création d'une période d'ouverture");
             LOGGER.info("Transformation dto -> bo");
 
             PeriodesOuvertureBO bo = PeriodeOuvertureTransformer.dto2Bo(periodeOuverture);
-            bo.setDemarche(demarchesBO);
 
             bo = periodesOuvertureRepository.save(bo);
-
-            demarchesBO.getPeriodesOuverture().add(bo);
-
-            demarchesRepository.save(demarchesBO);
 
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
@@ -121,7 +103,7 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
             LOGGER.info("Mise à jour de la période d'ouverture");
 
             Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(periodeOuverture.getPkPeriodesOuverture());
-            if (!periodeOuvertureBoOpt.isPresent()) {
+            if (periodeOuvertureBoOpt.isEmpty()) {
                 throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable", HttpStatus.NOT_FOUND);
             }
 
@@ -140,11 +122,9 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     }
 
     @Override
-    public void deletePeriodeOuverture(String demarcheId, Integer pkPeriodeOuverture) {
-        // Vérification préalable de l'existence de la démarche indiquée
-        demarchesService.getCheckDemarche(demarcheId);
+    public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
         Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(pkPeriodeOuverture);
-        if (!periodeOuvertureBoOpt.isPresent()) {
+        if (periodeOuvertureBoOpt.isEmpty()) {
             throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
         LOGGER.info("Suppression de la période d'ouverture...");
@@ -152,11 +132,9 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     }
 
     @Override
-    public void deleteAllPeriodeOuverture(String demarcheId) {
-        // Vérification préalable de l'existence de la démarche indiquée
-        demarchesService.getCheckDemarche(demarcheId);
+    public void deleteAllPeriodeOuverture() {
         LOGGER.info("Récupération des périodes à supprimer ...");
-        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDemarchePkDemarches(demarcheId);
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAll();
         if (periodesOuvertureBos.isEmpty()) {
             LOGGER.info("Aucune période à supprimer");
         } else {

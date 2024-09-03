@@ -49,7 +49,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
      * Filtre les ids des usagers en fonction de s'ils sont en ligne ou non.
      */
     private void filtrerUsagersIds(List<Integer> usagersCourriersIds, List<Integer> usagersInternetIds) {
-        List<Integer> usagersIds = accessService.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
+        List<Integer> usagersIds = accessService.getUsagersIds();
         for (Integer usagerId : usagersIds) {
             if (!isUsagerCourrier(usagerId)) {
                 usagersInternetIds.add(usagerId);
@@ -127,7 +127,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         List<GichuniUsagerDTO> usagersCourriers = new ArrayList<>();
         //Voir pour faire la fonction qui prend une liste d'ids
         for (Integer usagerCourrierId : usagersCourriersIds) {
-            UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
+            UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(usagerCourrierId);
             if (uc != null) {
             	GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
                 usagersCourriers.add(ub);
@@ -148,7 +148,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     @Override
     public GichuniUsagerDTO get(Integer key) {
         if (isUsagerCourrier(key)) {
-            UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), key);
+            UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(key);
             return UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
         } else {
             return gichuniApiClient.getUsager(key);

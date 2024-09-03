@@ -46,16 +46,16 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
 
 	@Override
-	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key) {
-		return getDemandeData(demarcheId, demandeId, key, true);
+	public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
+		return getDemandeData(demandeId, key, true);
 	}
 
 	@Override
-	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive) {
+	public DemandeDataDTO getDemandeData(Integer demandeId, String key, boolean checkActive) {
 
 		// Jette une exception si la demande n'existe pas
 		if(checkActive) {
-			demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, true);
+			demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
 		}
 
 		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
@@ -72,10 +72,10 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DemandeDataDTO> getDemandeDatas(String demarcheId, Integer demandeId) {
+	public List<DemandeDataDTO> getDemandeDatas(Integer demandeId) {
 
 		// Jette une exception si la demande n'existe pas
-		demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, true);
+		demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
 
 		LOGGER.info("Récupération en base de la donnée de demande...");
 
@@ -113,17 +113,17 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
-		return saveOrUpdateDemandeData(demarcheId, demandeId, key, value,true);
+	public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value) {
+		return saveOrUpdateDemandeData(demandeId, key, value,true);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value, boolean checkActive) {
+	public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value, boolean checkActive) {
 		// Jette une exception si la demande n'existe pas
-		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, checkActive);
+		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, checkActive);
 		return saveOrUpdateDemandeDatas(demandeBo, key, value);
 	}
 
@@ -131,10 +131,10 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) {
+	public void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas) {
 
 		// Jette une exception si la demande n'existe pas
-		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
+		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
 
 		if (datas != null) {
 			for (Map.Entry<String, String> entry : datas.entrySet()) {
@@ -196,10 +196,10 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteDemandeData(String demarcheId, Integer demandeId, String key) {
+	public void deleteDemandeData(Integer demandeId, String key) {
 
 		// Jette une exception si la demande n'existe pas
-		demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
+		demandesService.getCheckDemarcheDemandeBO(demandeId, true);
 
 		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
 

@@ -1,10 +1,9 @@
 package mc.gouv.xaf.back.data.dao;
 
-import org.springframework.data.repository.CrudRepository;
-
-import mc.gouv.xaf.back.data.entity.AccessBO;
-
 import java.util.List;
+import java.util.Optional;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import org.springframework.data.repository.CrudRepository;
 
 /**
  * 
@@ -18,10 +17,12 @@ public interface AccessRepository extends CrudRepository<AccessBO, Integer> {
      * Normalement il n'y en a un seul en base qui correspond à ce couple (demarcheId,usagerId) et qui ait Active = true
      * Sinon cela signifie que la DB est dans un état incohérent
      */
-    List<AccessBO> getByDemarcheIdAndUsagerIdAndActive(String demarcheId, Integer usagerId, boolean active);
+    Optional<AccessBO> findFirstByUsagerIdAndActive(Integer usagerId, boolean active);
     
-    List<AccessBO> getByDemarcheIdAndActive(String demarcheId, boolean active);
-    
-    List<AccessBO> getByDemarcheId(String demarcheId);
+    List<AccessBO> findByActive(boolean active);
+
+    List<AccessBO> findAll();
+
+    List<Integer> findDistinctUsagerIdBy();
     
 }

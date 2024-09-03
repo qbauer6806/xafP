@@ -19,8 +19,6 @@ public class TemplateDTO {
 
     private Integer pkTemplates;
 
-    private String demarcheId;
-
     private String code;
 
     private String contenu;

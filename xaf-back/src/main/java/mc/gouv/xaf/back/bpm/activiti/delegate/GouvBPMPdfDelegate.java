@@ -50,8 +50,7 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
 
         LOGGER.info("==== xaf-back PDF SERVICE ...");
 
-        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                Integer.parseInt(execution.getProcessInstanceBusinessKey()));
+        DemandeDTO demandeDto = demandesService.getDemande(Integer.parseInt(execution.getProcessInstanceBusinessKey()));
         
         PdfTypeEnum pdfType;
         if (pdfTypeCodeExpr == null) {

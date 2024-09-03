@@ -32,8 +32,8 @@ public class DemarchesServiceImpl implements DemarchesService {
     private DemarchesRepository demarchesRepository;
 
     @Override
-    public DemarcheDTO getDemarche(String demarcheId) {
-        DemarchesBO demarcheBo = getCheckDemarche(demarcheId);
+    public DemarcheDTO getDemarche() {
+        DemarchesBO demarcheBo = getCheckDemarche();
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemarchesTransformer.bo2Dto(demarcheBo);
     }
@@ -49,9 +49,9 @@ public class DemarchesServiceImpl implements DemarchesService {
     }
 
     @Override
-    public DemarchesBO getCheckDemarche(String demarcheId) {
+    public DemarchesBO getCheckDemarche() {
         LOGGER.info("Récupération en base de la démarche...");
-        Optional<DemarchesBO> demarcheBoOp = demarchesRepository.findById(demarcheId);
+        Optional<DemarchesBO> demarcheBoOp = demarchesRepository.findTopBy();
         if (demarcheBoOp.isEmpty()) {
             throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }

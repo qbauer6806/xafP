@@ -282,7 +282,7 @@ public class AfBackUtils {
      * @return
      */
     public DemarcheDTO getDemarcheInfos() {
-        return demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
+        return demarchesService.getDemarche();
     }
 
     /**
@@ -694,11 +694,11 @@ public class AfBackUtils {
 	}
 
 	public String getIdentifiantFromPkDemande(Integer pkDemande) {
-		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		DemandeDTO demande = demandesService.getDemande(pkDemande);
 		return demande.getIdentifiant();
 	}
 	public boolean isEmailHtmlEnabled() {
-        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
+        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
         	return false;
         }

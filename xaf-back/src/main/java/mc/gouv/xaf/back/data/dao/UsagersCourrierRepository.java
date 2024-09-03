@@ -15,6 +15,6 @@ public interface UsagersCourrierRepository extends CrudRepository<UsagersCourrie
     
     List<UsagersCourrierBO> findAll();
     
-    UsagersCourrierBO findByDemarcheIdAndPkUsagersCourrier(String demarcheId, Integer pkUsagersCourrier);
+    UsagersCourrierBO findByPkUsagersCourrier(Integer pkUsagersCourrier);
     
 }

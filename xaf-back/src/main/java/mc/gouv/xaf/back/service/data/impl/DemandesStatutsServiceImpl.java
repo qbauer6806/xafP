@@ -73,10 +73,10 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId,
+    public DemandeDTO updateStatut(Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
         
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
 
         // Gérer les accès désactivés
         //#4877 - Traitement après désinscription, Il faut pouvoir mettre à jour des statuts de demande même si l'usager s'est désactivé de la démarche
@@ -88,9 +88,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     }
 
     @Override
-    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId,
+    public DemandeDTO updateStatut(Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId,
                                    String codeMotif, String commentaire, String texteAEnvoyer) {
-        return updateStatut(demarcheId, demandeId, new StatutPublicOuInterneDTO(statut.getName(), statut.getLibelle()), agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
+        return updateStatut(demandeId, new StatutPublicOuInterneDTO(statut.getName(), statut.getLibelle()), agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
     }
 
     /**
@@ -163,7 +163,6 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
             DemandeBO demandeBO = demandesTransformer.dto2Bo(demandeDTO);
             AccessBO accessBO = new AccessBO();
             accessBO.setPkAccess(demandeDTO.getFkAccess());
-            accessBO.setDemarcheId(demandeDTO.getDemarcheId());
             accessBO.setUsagerId(demandeDTO.getUsagerId());
             demandeBO.setFkAccess(accessBO);
             DemandeDTO demandeDTOSaved = updateStatut(demandeBO, statut, null, null, null, null, null);
@@ -176,9 +175,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeStatutDTO getStatut(String demarcheId, Integer demandeId) {
+    public DemandeStatutDTO getStatut(Integer demandeId) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
 
         // Gérer les accès désactivés
         if (demandeBo == null) {
@@ -194,9 +193,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId) {
+    public List<DemandeStatutDTO> getStatuts(Integer demandeId) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
 
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);

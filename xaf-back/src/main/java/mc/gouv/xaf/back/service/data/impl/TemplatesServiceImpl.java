@@ -37,9 +37,9 @@ public class TemplatesServiceImpl implements TemplatesService {
     @Autowired
     private DemarchesService demarchesService;
 
-    private TemplateBO getTemplateBO(String demarcheId, Integer templateId) {
+    private TemplateBO getTemplateBO(Integer templateId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        TemplateBO templateBo = templatesRepository.findByDemarcheIdAndPkTemplates(demarcheId, templateId);
+        TemplateBO templateBo = templatesRepository.findByPkTemplates(templateId);
         if (templateBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -50,8 +50,8 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public TemplateDTO getTemplate(String demarcheId, Integer templateId) {
-        TemplateBO templateBo = getTemplateBO(demarcheId, templateId);
+    public TemplateDTO getTemplate(Integer templateId) {
+        TemplateBO templateBo = getTemplateBO(templateId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBo);
     }
@@ -60,9 +60,9 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public TemplateDTO getTemplateByDemarcheIdAndCodeAndLangue(String demarcheId, String code, String langue) {
+    public TemplateDTO getTemplateByCodeAndLangue(String code, String langue) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        TemplateBO templateBo = templatesRepository.findByDemarcheIdAndCodeAndLangue(demarcheId, code, langue);
+        TemplateBO templateBo = templatesRepository.findByCodeAndLangue(code, langue);
         if (templateBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE,
                     HttpStatus.NOT_FOUND);
@@ -75,9 +75,9 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public List<TemplateDTO> getTemplates(String demarcheId) {
+    public List<TemplateDTO> getTemplates() {
         LOGGER.info("Récupération en base des templates...");
-        List<TemplateBO> templateBos = templatesRepository.findByDemarcheId(demarcheId);
+        List<TemplateBO> templateBos = templatesRepository.findAll();
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBos);
     }
@@ -86,9 +86,9 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public List<TemplateDTO> getTemplates(String demarcheId, String langue) {
+    public List<TemplateDTO> getTemplates(String langue) {
         LOGGER.info("Récupération en base des templates...");
-        List<TemplateBO> templateBos = templatesRepository.findByDemarcheIdAndLangue(demarcheId, langue);
+        List<TemplateBO> templateBos = templatesRepository.findByLangue(langue);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBos);
     }
@@ -97,13 +97,13 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public TemplateDTO saveOrUpdateTemplate(String demarcheId, TemplateDTO template) {
+    public TemplateDTO saveOrUpdateTemplate(TemplateDTO template) {
         if (template.getPkTemplates() != null) {
             // PkTemplates fourni, il faut donc mettre à jour un template
-            return updateTemplate(demarcheId, template);
+            return updateTemplate(template);
         } else {
             // Pas de PkTemplates fourni, il faut donc créer un nouveau template
-            return saveTemplate(demarcheId, template);
+            return saveTemplate(template);
         }
     }
 
@@ -111,10 +111,7 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public TemplateDTO saveTemplate(String demarcheId, TemplateDTO template) {
-        
-        // Vérification préalable de l'existence de la démarche indiquée
-        demarchesService.getCheckDemarche(demarcheId);
+    public TemplateDTO saveTemplate(TemplateDTO template) {
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         TemplateBO bo = TemplatesTransformer.dto2Bo(template);
 
@@ -131,8 +128,8 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public TemplateDTO updateTemplate(String demarcheId, TemplateDTO template) {
-        TemplateBO templateBo = getTemplateBO(demarcheId, template.getPkTemplates());
+    public TemplateDTO updateTemplate(TemplateDTO template) {
+        TemplateBO templateBo = getTemplateBO(template.getPkTemplates());
         
         LOGGER.info("Mise à jour du template...");
         templateBo.setLangue(template.getLangue());
@@ -160,8 +157,8 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteTemplate(String demarcheId, Integer templateId) {
-        TemplateBO templateBo = getTemplateBO(demarcheId, templateId);
+    public void deleteTemplate(Integer templateId) {
+        TemplateBO templateBo = getTemplateBO(templateId);
         LOGGER.info("Suppression du template...");
         templatesRepository.delete(templateBo);
     }

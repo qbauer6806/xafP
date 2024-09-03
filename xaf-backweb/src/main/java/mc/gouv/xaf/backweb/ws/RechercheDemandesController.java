@@ -65,7 +65,6 @@ public class RechercheDemandesController extends AbstractController {
                 "======================= Appel de /ws/demandes/pageable (canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})", canaux, safeAgent, creationStartDate, creationEndDate, safeTexte, data);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
-        demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         demandeRecherche.setAgentAffecteId(agentId);
         demandeRecherche.setUsagerId(usagerId);
         demandeRecherche.setCreationStartDate(creationStartDate);

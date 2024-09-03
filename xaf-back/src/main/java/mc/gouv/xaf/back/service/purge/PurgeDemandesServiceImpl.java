@@ -112,9 +112,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 	@Override
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         StringBuilder demandesAPurger = new StringBuilder();
-        PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
+        PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(DELAI_ENVOI_MAIL_PURGE);
 
         int demandesSuppr = 0;
 
@@ -127,12 +126,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         /*** PURGE DES DEMANDES ***/
         Date debutSequentiel = new Date();
 
-		List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+		List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(dateDebutPurge, statuts,
                 Arrays.asList(GUICHET_VIRTUEL.name(), COURRIER.name(), GUICHET_PHYSIQUE.name()));
 
 		for (Integer demandeId : listDem) {
 
-			demandesService.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+			demandesService.deleteDemandeInGivenStatus(demandeId, statuts, jours);
 			demandesSuppr++;
 			LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", demandeId, demandesSuppr);
 		}
@@ -144,7 +143,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         LOGGER.info("Début des envois mails utilisateur ... Demandes dont dernier statut final est >= à {} et < à {}",
 				dateDebutPurge, dateFinPurge);
-        List<DemandeDTO> listDto = demandesService.getAllDemandeForRelanceAvantPurge(demarcheId, dateDebutPurge,
+        List<DemandeDTO> listDto = demandesService.getAllDemandeForRelanceAvantPurge(dateDebutPurge,
                 dateFinPurge, statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
@@ -250,7 +249,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
 			model.put("delai", delai);
 			model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-			PropertiesDTO adresseService = propertiesService.getProperty(demandeDTO.getDemarcheId(), "ADRESSE_SERVICE");
+			PropertiesDTO adresseService = propertiesService.getProperty("ADRESSE_SERVICE");
 	        if(adresseService != null) {
 	        	model.put("adresseService", adresseService.getValue());
 	        }

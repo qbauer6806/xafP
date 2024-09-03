@@ -55,20 +55,18 @@ public interface FileService {
 	 * du fichier.
 	 *
 	 * @param fichiers,   liste de fichiers à mettre à jour
-	 * @param demarcheId, le nom de la démarche
 	 * @param demandeId,  la métadata à appliquer aux fichiers
 	 */
-	void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws IOException;
+	void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, Integer demandeId) throws IOException;
 
 	/**
 	 * Appelle le WS FILE PATCH sur l'url du fichier afin d'y mettre à jour la métadonnée du fichier.
 	 *
 	 * @param fichierURL, l'url du fichier à mettre à jour
-	 * @param demarcheId, le nom de la démarche
 	 * @param metaKey,    la clé de la métadonnée
 	 * @param metaValue,  la valeur de la métadonnée
 	 */
-	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException;
+	void updateFileMetadata(String fichierURL, String metaKey, String metaValue) throws IOException;
 
     void deleteFiles(String containerId, List<String> fileName);
 

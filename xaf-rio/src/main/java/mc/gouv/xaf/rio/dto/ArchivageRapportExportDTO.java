@@ -11,8 +11,6 @@ import java.util.List;
 @Getter
 public class ArchivageRapportExportDTO {
 
-    private String demarcheId;
-
     private String codeNotice;
 
     private String refDocument;

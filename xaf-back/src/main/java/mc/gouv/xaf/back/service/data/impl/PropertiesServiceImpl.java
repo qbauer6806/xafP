@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
-import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.entity.PropertiesBO;
 import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -45,9 +44,6 @@ public class PropertiesServiceImpl implements PropertiesService {
             PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACK_AF};
 
     @Autowired
-    private DemarchesRepository demarchesRepository;
-    
-    @Autowired
     private PropertiesRepository propertiesRepository;
 
     @Autowired
@@ -61,8 +57,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public List<PropertiesDTO> getProperties() {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        List<PropertiesBO> bos = propertiesRepository.findByDemarchePkDemarches(demarcheId);
+        List<PropertiesBO> bos = propertiesRepository.findAll();
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PropertiesTransformer.bo2Dto(bos);
     }
@@ -76,8 +71,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public List<PropertiesDTO> getPropertiesByType(PropertiesTypeEnum type) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        List<PropertiesBO> bos = propertiesRepository.findByDemarchePkDemarchesAndType(demarcheId, type.name());
+        List<PropertiesBO> bos = propertiesRepository.findByType(type.name());
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PropertiesTransformer.bo2Dto(bos);
     }
@@ -97,8 +91,7 @@ public class PropertiesServiceImpl implements PropertiesService {
             List<String> typeStr = new ArrayList<>(types.size());
             types.forEach(type -> typeStr.add(type.name()));
             LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-            String demarcheId = gouvPropertiesResolver.getDemarcheId();
-            List<PropertiesBO> bos = propertiesRepository.findAllInListOfTypes(demarcheId, typeStr);
+            List<PropertiesBO> bos = propertiesRepository.findByTypeIn(typeStr);
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
             result = PropertiesTransformer.bo2Dto(bos);
         }
@@ -158,19 +151,11 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public PropertiesDTO saveOrUpdateProperties(PropertiesDTO toSave) {
         PropertiesDTO saved;
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
-        // Vérification préalable de l'existence de la démarche
-        Optional<DemarchesBO> demarcheBo = demarchesRepository.findById(demarcheId);
-        if (demarcheBo.isEmpty()) {
-            throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
-        }
 
         if (toSave.getPkProperties() == null) {
             LOGGER.info("Création d'une nouvelle propriété ...");
             LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
             PropertiesBO bo = PropertiesTransformer.dto2Bo(toSave);
-            bo.setDemarche(demarcheBo.get());
             bo = propertiesRepository.save(bo);
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
             saved = PropertiesTransformer.bo2Dto(bo);
@@ -209,13 +194,12 @@ public class PropertiesServiceImpl implements PropertiesService {
     /**
      * Récupérer une Property par sa clé
      *
-     * @param demarcheId l'id de la démarche
      * @param key la clé de la propriété à récupérer
      * @return le PropertiesDTO correspondant
      */
     @Override
-    public PropertiesDTO getProperty(String demarcheId, String key) {
-        Optional<PropertiesBO> propertiesBoOptional = propertiesRepository.findByDemarchePkDemarchesAndKey(demarcheId, key);
+    public PropertiesDTO getProperty(String key) {
+        Optional<PropertiesBO> propertiesBoOptional = propertiesRepository.findByKey(key);
         if (propertiesBoOptional.isPresent()) {
             PropertiesBO propertiesBO = propertiesBoOptional.get();
             return PropertiesTransformer.bo2Dto(propertiesBO);
@@ -225,7 +209,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     @Override
     public String getPropertyPourRecap(String key, JsonNode pathNode, boolean recap) {
-        PropertiesDTO prop = getProperty(gouvPropertiesResolver.getDemarcheId(), key);
+        PropertiesDTO prop = getProperty(key);
         if (prop != null) {
             PropertiesListEntityDTO[] entreprises = AfBackUtils.parserPropertiesListJson(prop.getValue());
             if (null == entreprises || entreprises.length == 0) {

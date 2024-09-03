@@ -18,21 +18,21 @@ public interface DemandesDataService {
      *
      * @return La donnée de demande demandée
      */
-    DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key);
+    DemandeDataDTO getDemandeData(Integer demandeId, String key);
 
     /**
      * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, en vérifiant l'existance de la demande via le paramètre checkActive
      *
      * @return La donnée de demande demandée
      */
-    DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive);
+    DemandeDataDTO getDemandeData(Integer demandeId, String key, boolean checkActive);
 
     /**
      * Permet de récupérer les données de demande correspondant à un DemandeID
      *
      * @return Les données de demande demandées
      */
-    List<DemandeDataDTO> getDemandeDatas(String demarcheId, Integer demandeId);
+    List<DemandeDataDTO> getDemandeDatas(Integer demandeId);
 
     /**
      * Permet de récupérer les data des demandes associées au couple key / value
@@ -52,14 +52,14 @@ public interface DemandesDataService {
      *
      * @return La donnée de demande sauvegardée ou mise à jour
      */
-    DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value);
+    DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value);
 
     /**
      * Permet de sauvegarder ou mettre à jour une donnée de demande en base
      *
      * @return La donnée de demande sauvegardée ou mise à jour
      */
-    DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value, boolean checkActive);
+    DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value, boolean checkActive);
 
     /**
      * Permet de mettre à jour en base une donnée de demande
@@ -71,17 +71,16 @@ public interface DemandesDataService {
     /**
      * Permet de supprimer une donnée de demande à partir du DemandeID et de sa clé
      */
-    void deleteDemandeData(String demarcheId, Integer demandeId, String key);
+    void deleteDemandeData(Integer demandeId, String key);
 
     /**
      * <p>Méthode permettant de sauvgarder plusieurs données de la demande en base.</p>
      * <p>Cette méthode est a utiliser pour éviter de bombarder elasticsearch si on met à jours plusieurs clès valeurs</p>
      *
-     * @param demarcheId Identifiant de la démarche
      * @param demandeId  Identifiant de la demande
      * @param datas      Données à mettre à jour
      */
-    void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas);
+    void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas);
 
     /**
      * Duplication des données d'une demande vers une nouvelle demande.

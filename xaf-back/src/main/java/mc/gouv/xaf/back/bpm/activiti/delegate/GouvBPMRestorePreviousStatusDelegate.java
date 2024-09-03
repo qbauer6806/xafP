@@ -63,7 +63,7 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
         LOGGER.info("Code motif : {}", codeMotifStr);
 
         LOGGER.info("Récupération du statut précédent...");
-        List<DemandeStatutDTO> statuts = demandesStatutsService.getStatuts(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        List<DemandeStatutDTO> statuts = demandesStatutsService.getStatuts(demandeId);
         statuts.sort(new DemandeStatutComparator());
         // Récupération du statut avant le statut courant
         DemandeStatutDTO statut = statuts.get(statuts.size() - 2);
@@ -72,7 +72,7 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
         LOGGER.info("Appel à demandesStatutsService.updateStatut()...");
 
-        demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null,
+        demandesStatutsService.updateStatut(demandeId, statut, null,
                 Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
 
         LOGGER.info("==== xaf-back RESTORE PREVIOUS STATUS DELEGATE <fin>");

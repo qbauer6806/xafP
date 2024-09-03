@@ -20,52 +20,52 @@ public interface DemandesComplementsService {
      *
      * @return La demande sauvegardée
      */
-    DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId, DemandeComplementsQuestionDTO demandeComplements);
+    DemandeComplementsDTO saveDemandeComplements(Integer demandeId, DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de récupérer les demandes d'informations complémentaires correspondant à une demande
      *
      * @return Les demandes demandées
      */
-    List<DemandeComplementsDTO> getDemandesComplements(String demarcheId, Integer demandeId);
+    List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId);
 
     /**
      * Permet de récupérer une demande d'informations complémentaires
      *
      * @return La demande d'informations complémentaires demandée
      */
-    DemandeComplementsDTO getDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements);
+    DemandeComplementsDTO getDemandeComplements(Integer pkDemande, Integer pkDemandeComplements);
 
     /**
-     * Permet de modifier une demande d'informations complémentaires à partir du DemarcheID et de l'UsagerID
+     * Permet de modifier une demande d'informations complémentaires à partir de l'UsagerID
      *
      * @return La demande d'informations complémentaires modifiée
      */
-    DemandeComplementsDTO updateDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
+    DemandeComplementsDTO updateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
 
     /**
-     * Permet de supprimer une demande d'informations complémentaires à partir du DemarcheID et de l'UsagerID
+     * Permet de supprimer une demande d'informations complémentaires à partir de l'UsagerID
      */
-    void deleteDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements);
+    void deleteDemandeComplements(Integer pkDemande, Integer pkDemandeComplements);
 
     /**
-     * Permet de supprimer la réponse d'une demande d'informations complémentaires à partir du DemarcheID et de l'UsagerID
+     * Permet de supprimer la réponse d'une demande d'informations complémentaires et de l'UsagerID
      */
-    void deleteDemandeComplementsReponse(String demarcheId, Integer pkDemande, Integer pkDemandeComplements);
+    void deleteDemandeComplementsReponse(Integer pkDemande, Integer pkDemandeComplements);
 
     /**
      * Permet de sauvegarder ou mettre à jour une demande d'informations complémentaires en base
      *
      * @return La demande d'informations complémentaires sauvegardée ou mise à jour
      */
-    DemandeComplementsDTO saveOrUpdateDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
+    DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de répondre à une demande d'informations complémentaires
      *
      * @return La demande d'informations complémentaires mise à jour
      */
-    DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse);
+    DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse);
 
     /**
      * Permet de dupliquer les demandes complémentaires d'une demande à l'autre

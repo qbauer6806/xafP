@@ -118,7 +118,7 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 	
     private void sendMailKafka(ProducerRecord<String, String> producerRecord, KafkaOutboxDTO kafkaOutbox, String objet, String corps) {
     	LOGGER.info("Envoi d'un e-mail à la liste du support technique...");
-		PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
+		PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
         if (propertiesDTO.getValue() != null) {
             String[] adresses = propertiesDTO.getValue().trim().split(",");
             // Composition du mail

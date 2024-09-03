@@ -34,11 +34,6 @@ public class AccessBO {
     @Column(name = "PK_ACCESS", nullable = false)
     private Integer pkAccess;
 
-    @Column(name = "FK_DEMARCHEID", length = 128, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 128)
-    private String demarcheId;
-
     @Column(name = "USAGER_ID", nullable = false)
     private Integer usagerId;
 

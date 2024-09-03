@@ -23,7 +23,6 @@ public class MotifTransformer {
         dto.setCode(bo.getCode());
         dto.setStatut(bo.getStatut());
         dto.setPkMotifs(bo.getPkMotifs());
-        dto.setDemarcheId(bo.getDemarcheId());
         dto.setDateArchive(bo.getDateArchive());
         dto.setCommentairePrerempli(bo.getCommentairePrerempli());
         dto.setTexteAEnvoyer(bo.getTexteAEnvoyer());
@@ -37,7 +36,6 @@ public class MotifTransformer {
         bo.setCode(dto.getCode());
         bo.setStatut(dto.getStatut());
         bo.setPkMotifs(dto.getPkMotifs());
-        bo.setDemarcheId(dto.getDemarcheId());
         bo.setDateArchive(dto.getDateArchive());
         bo.setCommentairePrerempli(dto.getCommentairePrerempli());
         bo.setTexteAEnvoyer(dto.getTexteAEnvoyer());

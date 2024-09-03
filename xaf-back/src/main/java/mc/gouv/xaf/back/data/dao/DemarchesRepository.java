@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.data.dao;
 
-import org.springframework.data.repository.CrudRepository;
-
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
+import org.springframework.data.repository.CrudRepository;
 
 /**
  * 
@@ -10,5 +10,5 @@ import mc.gouv.xaf.back.data.entity.DemarchesBO;
  *
  */
 public interface DemarchesRepository extends CrudRepository<DemarchesBO, String> {
-    
+    Optional<DemarchesBO> findTopBy();
 }

@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import lombok.Getter;
@@ -16,14 +17,13 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MotifDTO {
 
     public static final String LANG_FR = "fr";
     public static final String LANG_EN = "en";
 
     private Integer pkMotifs;
-
-    private String demarcheId;
 
     @NotNull
     private String code;
@@ -46,6 +46,8 @@ public class MotifDTO {
 
     private String texteAEnvoyer;
 
+    private String demarcheId = "STAGE";
+
     /**
      * Constructeur remplaçant la méthode clone()<br>
      * Copie l'objet source donné en paramètre.
@@ -55,7 +57,6 @@ public class MotifDTO {
     public MotifDTO(MotifDTO source) {
         super();
         this.pkMotifs = source.getPkMotifs();
-        this.demarcheId = source.getDemarcheId();
         this.code = source.getCode();
         this.libelle = source.getLibelle();
         this.statut = source.getStatut();

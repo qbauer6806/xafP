@@ -124,7 +124,6 @@ public class MoneticoPaiementServiceTest {
         accessBO.setContenu("{\"CGU\":true}");
         accessBO.setDateCreation(new Date());
         accessBO.setDateDerModif(new Date());
-        accessBO.setDemarcheId("PERMC");
         accessBO.setUsagerId(1);
         accessRepository.save(accessBO);
 
@@ -226,7 +225,6 @@ public class MoneticoPaiementServiceTest {
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
 
         AccessBO access = new AccessBO();
-        access.setDemarcheId("PERMC");
         access.setContenu("{\"CGU\":true}");
         access.setUsagerId(1);
         access.setDateCreation(new Date());
@@ -356,7 +354,6 @@ public class MoneticoPaiementServiceTest {
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
 
         AccessBO access = new AccessBO();
-        access.setDemarcheId("PERMC");
         access.setContenu("{\"CGU\":true}");
         access.setUsagerId(1);
         access.setDateCreation(new Date());
@@ -447,7 +444,6 @@ public class MoneticoPaiementServiceTest {
         DemandeBO demandeBO = new DemandeBO();
 
         AccessBO access = new AccessBO();
-        access.setDemarcheId("PERMC");
         access.setContenu("{\"CGU\":true}");
         access.setUsagerId(1);
         access.setDateCreation(new Date());
@@ -494,7 +490,6 @@ public class MoneticoPaiementServiceTest {
         DemandeBO demandeBO = new DemandeBO();
 
         AccessBO access = new AccessBO();
-        access.setDemarcheId("PERMC");
         access.setContenu("{\"CGU\":true}");
         access.setUsagerId(1);
         access.setDateCreation(new Date());

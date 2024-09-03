@@ -158,7 +158,7 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 	@Override
 	public List<MotifDTO> getMotifs() {
 		LOGGER.info("AfApiService2Tiers.getMotifs()");
-		return motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+		return motifsService.getMotifs();
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 	@Override
 	public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
 		LOGGER.info("AfApiService2Tiers.getPeriodesOuverture()");
-		return periodesOuvertureService.getPeriodesOuverture(gouvPropertiesResolver.getDemarcheId());
+		return periodesOuvertureService.getPeriodesOuverture();
 	}
 
 	@Override
@@ -243,32 +243,32 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 
 	@Override
 	public MotifDTO createMotif(MotifDTO motif) {
-		return motifsService.saveMotif(gouvPropertiesResolver.getDemarcheId(), motif);
+		return motifsService.saveMotif(motif);
 	}
 	
 	@Override
 	public MotifDTO updateMotif(MotifDTO motif) {
-		return motifsService.updateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
+		return motifsService.updateMotif(motif);
 	}
 
 	@Override
 	public void deleteMotif(Integer pkMotif) {
-		motifsService.deleteMotif(gouvPropertiesResolver.getDemarcheId(), pkMotif);
+		motifsService.deleteMotif(pkMotif);
 	}
 	
 	@Override
 	public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
-		return periodesOuvertureService.saveOrUpdatePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), periodeOuverture);
+		return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
 	}
 	
 	@Override
 	public PeriodeOuvertureDTO updatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
-		return periodesOuvertureService.saveOrUpdatePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), periodeOuverture);
+		return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
 	}
 
 	@Override
 	public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
-		periodesOuvertureService.deletePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), pkPeriodeOuverture);
+		periodesOuvertureService.deletePeriodeOuverture(pkPeriodeOuverture);
 	}
 	
 	@Override

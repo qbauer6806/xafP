@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import java.util.Date;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * Implémentation du service pour la gestion des templates
@@ -27,9 +25,6 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
     private static final String CORPS = "_CORPS";
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private TemplatesService templatesService;
 
     @Autowired
@@ -38,17 +33,15 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
     @Override
     public TemplateFormBean retrieveTemplateForm(TemplateFormBean formBean) {
 
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
         try {
-            TemplateDTO templateDtoObjet = templatesService.getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, formBean.getCode() + OBJET, formBean.getLangue());
+            TemplateDTO templateDtoObjet = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + OBJET, formBean.getLangue());
             formBean.setObjet(templateDtoObjet.getContenu());
         } catch (Exception e) {
             LOGGER.error("Aucun objet trouvé pour le code {}", formBean.getCode());
         }
 
         try {
-            TemplateDTO templateDtoCorps = templatesService.getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, formBean.getCode() + CORPS, formBean.getLangue());
+            TemplateDTO templateDtoCorps = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + CORPS, formBean.getLangue());
             formBean.setCorps(templateDtoCorps.getContenu());
         } catch (Exception e) {
             LOGGER.error("Aucun corps trouvé pour le code {}", formBean.getCode());
@@ -59,23 +52,20 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
 
     @Override
     public void saveTemplateForm(TemplateFormBean formBean) {
-
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
         try {
-            TemplateDTO templateObjet = templatesService.getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, formBean.getCode() + OBJET, formBean.getLangue());
+            TemplateDTO templateObjet = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + OBJET, formBean.getLangue());
             templateObjet.setContenu(formBean.getObjet());
             templateObjet.setDateModif(new Date());
-            templatesService.saveOrUpdateTemplate(demarcheId, templateObjet);
+            templatesService.saveOrUpdateTemplate(templateObjet);
         } catch (Exception e) {
             LOGGER.error("Aucun objet trouvé pour le code {}", formBean.getCode(), e);
         }
 
         try {
-            TemplateDTO templateCorps = templatesService.getTemplateByDemarcheIdAndCodeAndLangue(demarcheId, formBean.getCode() + CORPS, formBean.getLangue());
+            TemplateDTO templateCorps = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + CORPS, formBean.getLangue());
             templateCorps.setContenu(formBean.getCorps());
             templateCorps.setDateModif(new Date());
-            templatesService.saveOrUpdateTemplate(demarcheId, templateCorps);
+            templatesService.saveOrUpdateTemplate(templateCorps);
         } catch (Exception e) {
             LOGGER.error("Aucun corps trouvé pour le code {}", formBean.getCode(), e);
         }

@@ -42,8 +42,8 @@ public abstract class AbstractMotifsTemplateModelProviderImpl implements MotifsT
         model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
         model.put("urlBack", gouvPropertiesResolver.getBackUrl());
         model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-        model.put("urlFicheDemarcheFr", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_FICHE_DEMARCHE_URL_FR").getValue());
-        model.put("urlFicheDemarcheEn", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_FICHE_DEMARCHE_URL_EN").getValue());
+        model.put("urlFicheDemarcheFr", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_FR").getValue());
+        model.put("urlFicheDemarcheEn", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_EN").getValue());
         return model;
     }
 

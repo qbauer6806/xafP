@@ -387,7 +387,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
     @Override
 	public void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
-		PropertiesDTO lastSynchroProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LAST_SUCCESSFUL_SYNCHRO_KEY);
+		PropertiesDTO lastSynchroProperty = propertiesService.getProperty(LAST_SUCCESSFUL_SYNCHRO_KEY);
 		lastSynchroProperty.setValue(lastSuccessfulSynchroTime);
 		propertiesService.saveOrUpdateProperties(lastSynchroProperty);
 	}

@@ -38,9 +38,6 @@ public class DemandeExportController extends AbstractController {
     private ExcelExportModelProvider excelExportModelProvider;
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DemarchesService demarchesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
@@ -54,10 +51,9 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", safeCreationStart, safeCreationEnd);
 
         try {
-            String demarcheId = gouvPropertiesResolver.getDemarcheId();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
-                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
+                    demarchesService.getDemarche().getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
 
             ExcelRechercheDTO excelRechercheDTO = new ExcelRechercheDTO();
             excelRechercheDTO.setCreationStartDate(creationStartDate);

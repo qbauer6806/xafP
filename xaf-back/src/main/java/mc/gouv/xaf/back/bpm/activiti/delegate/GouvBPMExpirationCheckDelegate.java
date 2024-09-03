@@ -51,8 +51,7 @@ public class GouvBPMExpirationCheckDelegate implements JavaDelegate {
 
         LOGGER.info("==== xaf-back GouvBPMExpirationCheckDelegate ...");
 
-        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                Integer.parseInt(execution.getProcessInstanceBusinessKey()));
+        DemandeDTO demandeDto = demandesService.getDemande(Integer.parseInt(execution.getProcessInstanceBusinessKey()));
         
         LocalDate lastStatusDate = Instant.ofEpochMilli(demandeDto.getDernierStatut().getDate().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate currentDate = Instant.now().atZone(ZoneId.systemDefault()).toLocalDate();

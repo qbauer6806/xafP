@@ -49,7 +49,7 @@ public class RelancesUtils {
 
 	public void setRelanceDate(DemandeDTO demande) {
 		try {
-			demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(),
+			demandesDataService.saveOrUpdateDemandeData(demande.getPkDemandes(),
 					DEMANDE_IC_DEJA_RELANCEE_KEY,
 					ZonedDateTime.now().toString());
 		} catch (Exception e) {
@@ -58,8 +58,7 @@ public class RelancesUtils {
 	}
 
 	private Integer getNbJoursAvantExpiration() {
-		PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(),
-				NB_JOURS_AVANT_EXPIRATION_KEY);
+		PropertiesDTO prop = propertiesService.getProperty(NB_JOURS_AVANT_EXPIRATION_KEY);
 		if (prop != null) {
 			return Integer.parseInt(prop.getValue());
 		}
@@ -79,8 +78,7 @@ public class RelancesUtils {
 	 * 
 	 */
 	public boolean isEligiblePourUnMailDeRelance(DemandeDTO demande, Integer intervalleEntreDeuxRelance) {
-		DemandeDataDTO demandeData = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(),
-				demande.getPkDemandes(), DEMANDE_IC_DEJA_RELANCEE_KEY);
+		DemandeDataDTO demandeData = demandesDataService.getDemandeData(demande.getPkDemandes(), DEMANDE_IC_DEJA_RELANCEE_KEY);
 		// Si on a deja relancé
 		if (demandeData != null) {
 			// Si on n'a pas spécifié d'intervalle entre 2 relances, on envoie rien
@@ -133,15 +131,14 @@ public class RelancesUtils {
 	}
 
 	public Map<DemandeDTO, String> getDemandesANotifier(List<RelanceStatutDemandeConf> relanceDemandeSettings) {
-		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		Map<DemandeDTO, String> result = new HashMap<>();
 		for (RelanceStatutDemandeConf relanceDemandeSetting : relanceDemandeSettings) {
 			String currentStatut = relanceDemandeSetting.getStatutARelancer();
-			int nbJoursAvantRelance = Integer.parseInt(propertiesService.getProperty(demarcheId, relanceDemandeSetting.getCleDelaiAvantPremiereRelance()).getValue());
+			int nbJoursAvantRelance = Integer.parseInt(propertiesService.getProperty(relanceDemandeSetting.getCleDelaiAvantPremiereRelance()).getValue());
 			String delaiEntreDeuxRelancesString = relanceDemandeSetting.getCleDelaiEntreDeuxRelances();
 			Integer delaiEntreDauxRelances = null;
 			if (delaiEntreDeuxRelancesString != null) {
-				delaiEntreDauxRelances = Integer.parseInt(propertiesService.getProperty(demarcheId, delaiEntreDeuxRelancesString).getValue());
+				delaiEntreDauxRelances = Integer.parseInt(propertiesService.getProperty(delaiEntreDeuxRelancesString).getValue());
 			}
 			// On va chercher toutes les demandes dans le status à expirer
 			List<DemandeDTO> demandeDTOList = demandesService.getAllDemandesFilteredByStatut(currentStatut);

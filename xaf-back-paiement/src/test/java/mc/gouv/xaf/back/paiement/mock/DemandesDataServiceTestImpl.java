@@ -13,7 +13,7 @@ import java.util.Map;
 @Component
 public class DemandesDataServiceTestImpl implements DemandesDataService {
     @Override
-    public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key) {
+    public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
         if (StringUtils.equals(key, PaiementDemandeDataKeysEnum.NUMERO_PERMIS.name())) {
             DemandeDataDTO data = new DemandeDataDTO();
             data.setValue("12345");
@@ -28,12 +28,12 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
-    public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive) {
-        return getDemandeData(demarcheId, demandeId, key);
+    public DemandeDataDTO getDemandeData(Integer demandeId, String key, boolean checkActive) {
+        return getDemandeData(demandeId, key);
     }
 
     @Override
-    public List<DemandeDataDTO> getDemandeDatas(String demarcheId, Integer demandeId) {
+    public List<DemandeDataDTO> getDemandeDatas(Integer demandeId) {
         return null;
     }
 
@@ -48,12 +48,12 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
-    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
+    public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value) {
         return null;
     }
 
     @Override
-    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value, boolean checkActive) {
+    public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value, boolean checkActive) {
         return null;
     }
 
@@ -63,12 +63,12 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
-    public void deleteDemandeData(String demarcheId, Integer demandeId, String key) {
+    public void deleteDemandeData(Integer demandeId, String key) {
 
     }
 
     @Override
-    public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) {
+    public void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas) {
 
     }
 

@@ -1,7 +1,13 @@
 package mc.gouv.xaf.backweb.controller;
 
+import jakarta.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
@@ -17,12 +23,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import jakarta.validation.Valid;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Controller pour les fonctionnalites (onglets) Utilisateurs et Paramtres
@@ -45,9 +51,6 @@ public class GestionParametresController extends AbstractController {
     private MotifsCache motifsCache;
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private MotifsService motifsService;
 
     @Autowired
@@ -59,7 +62,7 @@ public class GestionParametresController extends AbstractController {
         String errorList = null;
         ModelAndView mav = new ModelAndView("gestion/parametres/parametres");
         try {
-            List<MotifDTO> list = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+            List<MotifDTO> list = motifsService.getMotifs();
             List<CustomMotifDTO> customlist = regroupeLibelle(list);
             if (customlist.isEmpty()) {
                 errorList = ERR_CONTACT;
@@ -100,11 +103,11 @@ public class GestionParametresController extends AbstractController {
         String code = motifsFormBean.getCode();
         boolean isMotifFound = false;
         if (StringUtils.isNotBlank(code)) {
-            List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+            List<MotifDTO> listMotif = motifsService.getMotifs();
             for (MotifDTO motif : listMotif) {
                 if (motif.getCode().equals(code)) {
                     motif.setDateArchive(null);
-                    motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
+                    motifsService.saveOrUpdateMotif(motif);
                     isMotifFound = true;
                 }
             }
@@ -135,10 +138,10 @@ public class GestionParametresController extends AbstractController {
         boolean isMotifFound = false;
         if ((StringUtils.isNotBlank(code))) {
             // Liste des motifs
-            List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+            List<MotifDTO> listMotif = motifsService.getMotifs();
             for (MotifDTO motif : listMotif) {
                 if (motif.getCode().equals(code)) {
-                    motifsService.deleteMotif(gouvPropertiesResolver.getDemarcheId(), motif.getPkMotifs());
+                    motifsService.deleteMotif(motif.getPkMotifs());
                     isMotifFound = true;
                 }
             }
@@ -207,7 +210,7 @@ public class GestionParametresController extends AbstractController {
                     && StringUtils.isNotBlank(motifsFormBean.getLibelleFr())
                     && motifsFormBean.getStatutEnum() != null) {
                 // Saisie des donnees
-                List<MotifDTO> localAllMotifs = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+                List<MotifDTO> localAllMotifs = motifsService.getMotifs();
                 String code = StringUtils.stripAccents(motifsFormBean.getCode().replace(" ", "_").toUpperCase());
                 if (checkCodeExistence(localAllMotifs, code)) {
                     motifsFormBean.setErrCodeExiste(true);
@@ -235,18 +238,17 @@ public class GestionParametresController extends AbstractController {
             errorList = "Motif(s) non identifié(s)";
         } else {
             MotifDTO motif;
-            String demarcheId = gouvPropertiesResolver.getDemarcheId();
             if (motifsFormBean.getMotifPkFr() != null) {
-                motif = motifsService.getMotif(demarcheId, motifsFormBean.getMotifPkFr());
+                motif = motifsService.getMotif(motifsFormBean.getMotifPkFr());
                 motif.setCode(motifsFormBean.getCode());
                 motif.setStatut(motifsFormBean.getStatutEnum());
                 motif.setLibelle(motifsFormBean.getLibelleFr());
                 motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
                 motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
-                motifsService.saveOrUpdateMotif(demarcheId, motif);
+                motifsService.saveOrUpdateMotif(motif);
             }
             if (motifsFormBean.getMotifPkEn() != null) {
-                motif = motifsService.getMotif(demarcheId, motifsFormBean.getMotifPkEn());
+                motif = motifsService.getMotif(motifsFormBean.getMotifPkEn());
                 motif.setCode(motifsFormBean.getCode());
                 motif.setStatut(motifsFormBean.getStatutEnum());
                 if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
@@ -258,7 +260,7 @@ public class GestionParametresController extends AbstractController {
                     motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
                     motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
                 }
-                motifsService.saveOrUpdateMotif(demarcheId, motif);
+                motifsService.saveOrUpdateMotif(motif);
             }
         }
         // MAJ du cache
@@ -269,7 +271,6 @@ public class GestionParametresController extends AbstractController {
     private String createMotif(MotifsFormBean motifsFormBean, String code) {
         LOGGER.info("Méthode formCreate --> create");
         String errorList = "";
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
         // Donnees communes
         MotifDTO motif = new MotifDTO();
@@ -281,14 +282,13 @@ public class GestionParametresController extends AbstractController {
         } else {
             motif.setStatut(statEnum);
         }
-        motif.setDemarcheId(demarcheId);
 
         // Donnees specifiques et insert (français)
         motif.setLibelle(motifsFormBean.getLibelleFr());
         motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
         motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
         motif.setLangue("fr");
-        motifsService.saveOrUpdateMotif(demarcheId, motif);
+        motifsService.saveOrUpdateMotif(motif);
 
         // Donnees specifiques et insert (anglais)
         if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
@@ -298,7 +298,7 @@ public class GestionParametresController extends AbstractController {
         }
         // Si les champs ne sont pas renseigné, on insère les données FR
         motif.setLangue("en");
-        motifsService.saveOrUpdateMotif(demarcheId, motif);
+        motifsService.saveOrUpdateMotif(motif);
 
         // MAJ du cache
         motifsCache.refresh();
@@ -326,7 +326,7 @@ public class GestionParametresController extends AbstractController {
             mav = new ModelAndView(PARAMETRE_NEW_URL);
             if (StringUtils.isNotBlank(motifsFormBean.getCode())) {
                 // Donnees communes
-                List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+                List<MotifDTO> listMotif = motifsService.getMotifs();
                 // Donnees specifiques et insert (français)
                 for (MotifDTO motif : listMotif) {
                     if (motif.getCode().equals(motifsFormBean.getCode())) {
@@ -402,7 +402,6 @@ public class GestionParametresController extends AbstractController {
                     customMotifDTO = new CustomMotifDTO();
                     customMotifDTO.setCode(m.getCode());
                     customMotifDTO.setDateArchive(m.getDateArchive());
-                    customMotifDTO.setDemarcheId(m.getDemarcheId());
                     customMotifDTO.setLangue(m.getLangue());
                     customMotifDTO.setPkMotifs(m.getPkMotifs());
                     customMotifDTO.setStatut(m.getStatut());

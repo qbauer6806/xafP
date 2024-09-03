@@ -110,7 +110,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		courrier.setName(fileName);
 		courrier.setUrl(url);
 		courrier.setMeta(meta);
-		demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(), courrier);
+		demandesCourriersService.saveCourrier(demande.getPkDemandes(), courrier);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		file.setUrl('/' + url);
 		file.setDate(new Date());
 		file.setMeta(meta);
-		demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
+		demandesFileService.saveFile(file, demande.getPkDemandes());
 	}
 
 	private File generatePdf(DemandeDTO demande, PdfTypeEnum pdfType) {

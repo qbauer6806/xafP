@@ -19,15 +19,11 @@ public class UpdateTarifsServiceImpl implements UpdateTarifsService {
 	
 	@Autowired
     private PropertiesService propertiesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
     
 	@Override
 	public void updateTarifs(String tarifToUpdateKey) {
-		String demarcheId = gouvPropertiesResolver.getDemarcheId();
-		PropertiesDTO tarifToUpdate = propertiesService.getProperty(demarcheId, tarifToUpdateKey);
-		String newValue = propertiesService.getProperty(demarcheId, tarifToUpdateKey + "_NEW").getValue();
+		PropertiesDTO tarifToUpdate = propertiesService.getProperty(tarifToUpdateKey);
+		String newValue = propertiesService.getProperty(tarifToUpdateKey + "_NEW").getValue();
 		LOGGER.info("Mise à jour du tarif {}, nouvelle valeur : {}", tarifToUpdateKey, newValue);
 		propertiesService.updatePropertyValue(tarifToUpdate.getPkProperties(), newValue);
 	}

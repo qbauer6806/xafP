@@ -64,10 +64,10 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
         // on est obligé de laisser cette condition pour faire marcher les anciennes demandes qui sont encore actives avec des vieux bpmn
         if (dataKeyStr.equals("IS_EN_ATTENTE_VALIDATION") && dataValueStr.equals("1")) {
             StatutPublicOuInterneDTO statutPublicOuInterneDTO = demarchesDataProvider.getStatutPublicOuInterne(demandeId, "VALIDATION_HIERARCHIQUE");
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statutPublicOuInterneDTO,
+            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO,
                     AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
         } else {
-            demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr,
+            demandesDataService.saveOrUpdateDemandeData(demandeId, dataKeyStr,
                     dataValueStr);
         }
 

@@ -22,8 +22,6 @@ public class AccessDTO {
 
     private Integer pkAccess;
 
-    private String demarcheId;
-
     private Integer usagerId;
 
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")

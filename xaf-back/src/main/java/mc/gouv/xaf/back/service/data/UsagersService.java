@@ -12,7 +12,7 @@ public interface UsagersService {
     /**
      * Permet de gérer les demandes et les accès suite à la désinscription d'un usager
      */
-	void desinscriptionUsager(String demarcheId, Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif);
+	void desinscriptionUsager(Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif);
 
     Integer getNbDemandesUsager(Integer usagerId);
 

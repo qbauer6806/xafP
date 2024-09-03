@@ -54,7 +54,7 @@ public class GestionCourrierController extends AbstractController {
 
         demandesCourrierService.updateCourrier(demandeId, courrier);
 
-        ModelAndView mav = new ModelAndView("redirect:");
+        ModelAndView mav = new ModelAndView("gestion/courriers/gestioncourrier");
 
         LOGGER.info("======================= Fin /gestion/courriers/print");
 

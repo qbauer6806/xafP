@@ -561,6 +561,7 @@ dd span {
     width: 80%;
 }
 
-#preview-container > .modal-dialog {
-    width: auto;
+#preview-container > .modal-dialog,
+#print-box > .modal-dialog {
+  width: auto;
 }

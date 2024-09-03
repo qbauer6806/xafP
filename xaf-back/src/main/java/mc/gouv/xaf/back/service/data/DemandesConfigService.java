@@ -9,7 +9,6 @@ public interface DemandesConfigService {
     List<String> getBuildIds();
     List<String> getModelPathsRechercheAvancee();
     List<String> getModelPathsRechercheAvancee(String buildId);
-    List<String> getModelPathsMarqueurs(String buildId);
     List<DemandeConfigBO> getConfigsBO();
     DemandeConfigBO getLastConfig();
     JsonNode saveConfig(JsonNode config);

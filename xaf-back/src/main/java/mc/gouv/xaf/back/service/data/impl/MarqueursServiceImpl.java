@@ -85,10 +85,9 @@ public class MarqueursServiceImpl implements MarqueursService {
                         marqueurDTO.setChemin(null);
                     }
                 }
-            } else {
-                // sinon on les génere tous
-                setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId);
             }
+            // on génère tous les autres
+            setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId);
 
 			marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
 		}
@@ -107,11 +106,15 @@ public class MarqueursServiceImpl implements MarqueursService {
 
     private void setMarqueursFromModelPaths(List<String> modelPaths, List<MarqueurDTO> marqueurDTOS, String buildId) {
         for (String modelPath : modelPaths) {
-            MarqueurDTO marqueur = new MarqueurDTO();
-            marqueur.setChemin(modelPath);
-            marqueur.setIdentifiant(pathToCamelCase(modelPath));
-            marqueur.setBuildId(buildId);
-            marqueurDTOS.add(marqueur);
+            String id = pathToCamelCase(modelPath);
+            // si le marqueur est déjà présent (du précédent buildId par exemple), on ne génère pas le marqueur
+            if (marqueurDTOS.stream().noneMatch(marqueurDTO -> id.equals(marqueurDTO.getIdentifiant()))) {
+                MarqueurDTO marqueur = new MarqueurDTO();
+                marqueur.setChemin(modelPath);
+                marqueur.setIdentifiant(id);
+                marqueur.setBuildId(buildId);
+                marqueurDTOS.add(marqueur);
+            }
         }
     }
 

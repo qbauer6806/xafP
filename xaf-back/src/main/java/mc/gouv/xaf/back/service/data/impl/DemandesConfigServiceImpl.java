@@ -76,17 +76,8 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 
 	@Override
 	public List<String> getModelPathsRechercheAvancee(String buildId) {
-        return getModelPaths(buildId, "rechercheAvancee");
-    }
-
-    @Override
-    public List<String> getModelPathsMarqueurs(String buildId) {
-        return getModelPaths(buildId, "marqueurs");
-    }
-
-    private List<String> getModelPaths(String buildId, String node) {
         DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
-        return getModelPaths(configBO.getContenu().get("modelPaths").get(node));
+        return getModelPaths(configBO.getContenu().get("modelPaths").get("rechercheAvancee"));
     }
 
     @Override

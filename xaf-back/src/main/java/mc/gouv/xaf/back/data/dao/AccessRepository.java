@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.data.dao;
 import java.util.List;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.AccessBO;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -23,6 +24,7 @@ public interface AccessRepository extends CrudRepository<AccessBO, Integer> {
 
     List<AccessBO> findAll();
 
-    List<Integer> findDistinctUsagerIdBy();
+    @Query("SELECT DISTINCT a.usagerId FROM AccessBO a")
+    List<Integer> findDistinctUsagerId();
     
 }

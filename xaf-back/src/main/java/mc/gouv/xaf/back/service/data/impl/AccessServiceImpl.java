@@ -199,7 +199,7 @@ public class AccessServiceImpl implements AccessService {
 
         LOGGER.info("Récupération de tous les usagersIds présents en base...");
 
-        return accessRepository.findDistinctUsagerIdBy();
+        return accessRepository.findDistinctUsagerId();
     }
 
     @Override

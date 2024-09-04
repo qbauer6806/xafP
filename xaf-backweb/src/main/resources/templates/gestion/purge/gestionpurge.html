@@ -97,22 +97,28 @@
 
     var columnsProperties = [
         {
-        	title:'Identifiant'
+        	title:'Identifiant',
+          render: function (data, type, demandePurgee) {
+            return demandePurgee.demandeId;
+          }
         },
         {
-        	title:'Statut final'
+        	title:'Statut final',
+          render: function (data, type, demandePurgee) {
+            return demandePurgee.statutPublic;
+          }
         },
         {
         	title:'Date du statut final',
             render: function (data, type, demandePurgee) {
-                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(data)
+                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateDernierStatut)
                     .format("DD/MM/YYYY HH:mm:ss") + '</span>';
             }
         },
         {
         	title:'Date de suppression',
             render: function (data, type, demandePurgee) {
-                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(data)
+                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateSuppression)
                     .format("DD/MM/YYYY HH:mm:ss") + '</span>';
             }
         }

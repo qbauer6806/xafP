@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.purge;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Date;
 import java.util.List;
+import mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO;
 
 public interface PurgeDemandesService {
 
@@ -15,7 +16,7 @@ public interface PurgeDemandesService {
 	 * Récupère toutes les demandes ayant comme statut "SUPPRIMEE"
 	 * @return statistiques
 	 */
-    List<Object> getDemandesPurgees();
+    List<StatistiqueSubsetDTO> getDemandesPurgees();
 	
 	/**
 	 * Spécifie la méthode d'envoi des emails aux agents

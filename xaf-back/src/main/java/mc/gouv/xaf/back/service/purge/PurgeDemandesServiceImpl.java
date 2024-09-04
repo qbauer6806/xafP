@@ -5,7 +5,6 @@ import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_VIRTUEL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,6 +21,7 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
+import mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
@@ -68,10 +68,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
-	@Autowired
-    private EntityManager em;
-
-	@Autowired
+    @Autowired
 	private MailService mailService;
 
 	@Autowired
@@ -313,9 +310,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		return emailInfo;
 	}
 
-    public List<Object> getDemandesPurgees() {
+    public List<StatistiqueSubsetDTO> getDemandesPurgees() {
 		LOGGER.info("Récupération des demandes purgées à moins {} mois", OFFSET_MOIS_DATE_PURGE);
 		Date dateDebutOffset = Date.from(LocalDateTime.now().minusMonths(OFFSET_MOIS_DATE_PURGE).atZone(ZoneId.systemDefault()).toInstant());
-        return statRepository.findAllBetweenDates(demarchesDataProvider.getStatutsAPurger(), dateDebutOffset, new Date());
+        List<StatistiqueSubsetDTO> statistiques = statRepository.findAllBetweenDates(demarchesDataProvider.getStatutsAPurger(), dateDebutOffset, new Date());
+        return statistiques.stream()
+                .peek(statistique -> statistique.setStatutPublic(demarchesDataProvider.getStatusLibelle(statistique.getStatutPublic())))
+                .toList();
 	}
 }

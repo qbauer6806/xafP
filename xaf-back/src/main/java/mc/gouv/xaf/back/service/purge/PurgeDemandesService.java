@@ -1,9 +1,8 @@
 package mc.gouv.xaf.back.service.purge;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface PurgeDemandesService {
 

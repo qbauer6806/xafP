@@ -39,7 +39,6 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
-import org.hibernate.Session;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
@@ -317,8 +316,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     public List<Object> getDemandesPurgees() {
 		LOGGER.info("Récupération des demandes purgées à moins {} mois", OFFSET_MOIS_DATE_PURGE);
 		Date dateDebutOffset = Date.from(LocalDateTime.now().minusMonths(OFFSET_MOIS_DATE_PURGE).atZone(ZoneId.systemDefault()).toInstant());
-        Session session = em.unwrap(Session.class);
-        session.enableFilter("filtreStatuts").setParameterList("statuts", demarchesDataProvider.getStatutsAPurger());
-        return statRepository.findAllBetweenDates(dateDebutOffset, new Date());
+        return statRepository.findAllBetweenDates(demarchesDataProvider.getStatutsAPurger(), dateDebutOffset, new Date());
 	}
 }

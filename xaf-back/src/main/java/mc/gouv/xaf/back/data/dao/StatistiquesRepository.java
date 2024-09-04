@@ -2,12 +2,10 @@ package mc.gouv.xaf.back.data.dao;
 
 import java.util.Date;
 import java.util.List;
-
-import org.springframework.data.repository.CrudRepository;
-
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
-
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface StatistiquesRepository extends CrudRepository<StatistiqueBO, Integer> {
 
@@ -17,10 +15,15 @@ public interface StatistiquesRepository extends CrudRepository<StatistiqueBO, In
 
     StatistiqueBO findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(Integer demandeId, String statut);
 
-    @Query("SELECT d.identifiantDemande,t.statutPublic,t.date,d.date"
-            + " FROM StatistiqueBO d, StatistiqueEtatsFinauxBO t WHERE d.demandeId=t.demandeId "
-            + " AND d.date between :startDate AND :endDate "
-            + " AND d.statutPublic = 'SUPPRIMEE'")
-    List<Object> findAllBetweenDates(Date startDate, Date endDate);
+    @Query("SELECT s2.identifiantDemande, s2.statutPublic, s2.date,s1.date " +
+            "FROM StatistiqueBO s1 " +
+            "JOIN StatistiqueBO s2 ON s1.demandeId = s2.demandeId " +
+            "WHERE s1.statutPublic = 'SUPPRIMEE' " +
+            "AND s2.date between :startDate AND :endDate " +
+            "AND s2.statutPublic IN :statutValideOuRefuse")
+    List<Object> findAllBetweenDates(
+            @Param("statutValideOuRefuse") List<String> statutValideOuRefuse, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
+
 
 }

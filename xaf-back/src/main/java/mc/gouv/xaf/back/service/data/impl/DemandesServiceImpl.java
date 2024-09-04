@@ -618,7 +618,7 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public DemandeDTO getDemande(Integer pkDemande, Integer usagerId) {
 		LOGGER.info(RECUPERATION_DEMANDE);
-		DemandeBO demandeBo = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(pkDemande, usagerId);
+		DemandeBO demandeBo = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(usagerId, pkDemande);
 		if (demandeBo == null) {
 			throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
 		}

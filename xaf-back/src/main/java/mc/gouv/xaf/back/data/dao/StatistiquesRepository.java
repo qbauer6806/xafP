@@ -19,7 +19,7 @@ public interface StatistiquesRepository extends CrudRepository<StatistiqueBO, In
             "FROM StatistiqueBO s1 " +
             "JOIN StatistiqueBO s2 ON s1.demandeId = s2.demandeId " +
             "WHERE s1.statutPublic = 'SUPPRIMEE' " +
-            "AND s2.date between :startDate AND :endDate " +
+            "AND s1.date between :startDate AND :endDate " +
             "AND s2.statutPublic IN :statutValideOuRefuse")
     List<Object> findAllBetweenDates(
             @Param("statutValideOuRefuse") List<String> statutValideOuRefuse, @Param("startDate") Date startDate, @Param("endDate") Date endDate);

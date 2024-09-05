@@ -562,6 +562,7 @@ dd span {
 }
 
 #preview-container > .modal-dialog,
+#preview-container-file-pdf > .modal-dialog,
 #print-box > .modal-dialog {
   width: auto;
 }

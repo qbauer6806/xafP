@@ -75,7 +75,16 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      */
     List<DemandeBO> findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(Date dernierStatutDateDebut, List<String> dernierStatutList, List<String> canaux);
 
-    List<Integer> findPkDemandesByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(Date dernierStatutDateDebut, List<String> dernierStatutList, List<String> canaux);
+    @Query("SELECT d.pkDemandes FROM DemandeBO d "
+            + "JOIN d.dernierStatut ds "
+            + "WHERE ds.date < :dernierStatutDateDebut "
+            + "AND ds.name IN :dernierStatutList "
+            + "AND d.canal IN :canaux")
+    List<Integer> findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(
+            @Param("dernierStatutDateDebut") Date dernierStatutDateDebut,
+            @Param("dernierStatutList") List<String> dernierStatutList,
+            @Param("canaux") List<String> canaux
+    );
 
     /**
      * Permet de récupérer les demandes à purger dans un intervalle donné. Utile pour la relance par mail avant purge.

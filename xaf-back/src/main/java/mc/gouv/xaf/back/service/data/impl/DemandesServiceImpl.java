@@ -1328,7 +1328,7 @@ public class DemandesServiceImpl implements DemandesService {
     public List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux) {
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
-        return demandesRepository.findPkDemandesByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(dernierStatutDateDebut,
+        return demandesRepository.findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(dernierStatutDateDebut,
                 dernierStatutList, canaux);
     }
 

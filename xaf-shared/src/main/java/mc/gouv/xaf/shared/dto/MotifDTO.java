@@ -46,8 +46,6 @@ public class MotifDTO {
 
     private String texteAEnvoyer;
 
-    private String demarcheId = "STAGE";
-
     /**
      * Constructeur remplaçant la méthode clone()<br>
      * Copie l'objet source donné en paramètre.

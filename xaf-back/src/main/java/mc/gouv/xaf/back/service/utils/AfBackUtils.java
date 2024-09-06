@@ -858,7 +858,7 @@ public class AfBackUtils {
         // 2ème règle: Remplacer les ${...} non précédés de "th:href=" par <span th:text="${...}"></span>
         String resultatFinal = contenuIntermediaire.replaceAll(
                 "(?<!th:href=\")\\$\\{([^}]+)\\}",
-                "<span th:text=\"\\$\\{$1\\}\"></span>"
+                "<th:block th:text=\"\\$\\{$1\\}\"></th:block>"
         );
 
         return resultatFinal;

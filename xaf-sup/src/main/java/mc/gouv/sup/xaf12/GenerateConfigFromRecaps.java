@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -43,26 +44,23 @@ public class GenerateConfigFromRecaps {
             // modelPaths
             JsonNode modelPaths = mapper.createObjectNode();
             ArrayNode rechercheAvancee = mapper.createArrayNode();
-            ArrayNode marqueurs = mapper.createArrayNode();
             JsonNode displayFields = recapFront.get("initDonnees").get("projectDemande").get("displayFields");
             for (JsonNode displayField : displayFields) {
                 String type = displayField.get("type").asText();
                 JsonNode data = displayField.get("data");
                 if (type.equals("adresse") || type.equals("adresseMc") || type.equals("iban") || type.equals("telephone")) {
-                    marqueurs.add(removeLastSegment(data.get(0).asText()));
                     for (JsonNode d : data) {
                         rechercheAvancee.add(d.asText());
                     }
                 } else if (!type.equals("fichier") && data.asText().startsWith("contenu.")) {
-                    marqueurs.add(data.asText());
                     rechercheAvancee.add(data.asText());
                 }
             }
             ((ObjectNode) modelPaths).put("rechercheAvancee", rechercheAvancee);
-            ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
             ((ObjectNode) config).put("modelPaths", modelPaths);
 
             JsonNode properties = recapFront.get("properties");
+            cleanApostrophes((ObjectNode) properties);
 
             for (JsonNode n : recapBack) {
                 if (n.get("name").asText().equals("projectDemandeRecap")) {
@@ -180,20 +178,6 @@ public class GenerateConfigFromRecaps {
                     // translations
                     ((ObjectNode) config).put("translations", properties);
 
-                    // donneesExternes
-//                    JsonNode donneesExternes = n.get("donneesExternes");
-//                    JsonNode donneesExternesConfig = mapper.createObjectNode();
-//                    if(donneesExternes !=null) {
-//                        donneesExternes.fields().forEachRemaining(donneeExterne -> {
-//                            List<String> list = new ArrayList<>();
-//                            String value = donneeExterne.getValue().asText();
-//                            list.add(getDonneeExterneValue(value));
-//                            ArrayNode array = mapper.valueToTree(list);
-//                            ((ObjectNode) donneesExternesConfig).put(donneeExterne.getKey(), array);
-//                        });
-//                        ((ObjectNode) config).put("donneesExternes", donneesExternesConfig);
-//                    }
-
                     break;
                 }
             }
@@ -208,28 +192,24 @@ public class GenerateConfigFromRecaps {
 
     }
 
-//    public static String getDonneeExterneValue(String key) {
-//        switch (key) {
-//            case "mconnect.familyName":
-//                return "usager.donneesExternes.mconnect.familyName";
-//            case "mconnect.birthDatetime":
-//                return "usager.donneesExternes.mconnect.birthDatetime";
-//            case "mconnect.birthName":
-//                return "usager.donneesExternes.mconnect.birthName";
-//            case "mconnect.givenName":
-//                return "usager.donneesExternes.mconnect.givenName";
-//            case "mconnect.authority":
-//                return "usager.donneesExternes.mconnect.authority";
-//            case "mconnect.birthPlaceCountry":
-//                return "usager.donneesExternes.mconnect.birthPlaceCountry";
-//            case "mconnect.birthPlaceCity":
-//                return "usager.donneesExternes.mconnect.birthPlaceCity";
-//            case "mconnect.birthPlace":
-//                return "usager.donneesExternes.mconnect.birthPlace";
-//            default:
-//                return null;
-//        }
-//    }
+    private static void cleanApostrophes(ObjectNode node) {
+        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            JsonNode valueNode = field.getValue();
+
+            if (valueNode.isObject()) {
+                // Si le champ est un objet, on appelle la fonction récursive
+                cleanApostrophes((ObjectNode) valueNode);
+            } else if (valueNode.isTextual()) {
+                // Si le champ est une chaîne de caractères, on nettoie les apostrophes
+                String value = valueNode.asText();
+                String cleanedValue = value.replaceAll("^'|'$", "");
+                node.put(field.getKey(), cleanedValue);
+            }
+        }
+    }
 
     public static List<String> extractBuildIds(List<String> fileNames) {
         Set<String> uniqueNumbers = new HashSet<>();
@@ -269,15 +249,6 @@ public class GenerateConfigFromRecaps {
         }
 
         return fileNames;
-    }
-
-    public static String removeLastSegment(String input) {
-        if (input == null || !input.contains(".")) {
-            return input;
-        }
-
-        int lastIndex = input.lastIndexOf('.');
-        return input.substring(0, lastIndex);
     }
 
     private static void traitementChamp(JsonNode champ, JsonNode recapFront) {

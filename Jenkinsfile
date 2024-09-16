@@ -48,7 +48,7 @@ pipeline {
                                 nexusIqStage = "build"
                             }
                             mvnVersion = "0.0.0-${env.BRANCH_NAME}-SNAPSHOT"
-                        } else if (env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+(-[a-zA-Z0-9-_]+)?$/) {
+                        } else if (env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+.\d+(-[a-zA-Z0-9-_]+)?$/) {
                             mvnVersion= env.BRANCH_NAME.substring(1) + "-SNAPSHOT"
                          } else if (env.BRANCH_NAME ==~ /^\#\d+.*$/) {
                                 def matcher = env.BRANCH_NAME =~ /^\#(?<redmine>\d+).*$/

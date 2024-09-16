@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -443,13 +444,21 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void deleteFiles(String containerId, List<String> fileList) {
-        String accountId = gouvPropertiesResolver.getDemarcheId();
-        FileBatchDTO FbDTO = new FileBatchDTO();
-        FbDTO.setFiles(fileList);
-        FbDTO.setAccount(accountId);
-        FbDTO.setContainer(containerId);
+    	if (CollectionUtils.isEmpty(fileList)) {
+			LOGGER.info("La liste des fichiers à supprimer est vide. Pas d'appel à FILE");
+			return;
+		}
+		String accountId = gouvPropertiesResolver.getDemarcheId();
+		FileBatchDTO fileBatchDTO = new FileBatchDTO();
+		// Remplacement des espaces par des "+" sur le nom des fichiers
+		List<String> files = fileList.stream().map(file -> StringUtils.replace(file, StringUtils.SPACE, "+"))
+				.collect(Collectors.toList());
+		fileBatchDTO.setFiles(files);
+        fileBatchDTO.setAccount(accountId);
+        fileBatchDTO.setContainer(containerId);
+
         try {
-            afBackUtils.getFileClient().deleteFiles(accountId, containerId, FbDTO);
+            afBackUtils.getFileClient().deleteFiles(accountId, containerId, fileBatchDTO);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la suppression du batch de fichiers : {}", StringUtils.join(fileList, "-"));
         }

@@ -31,7 +31,7 @@ pipeline {
                     def nexusIqStage = "develop"
 
                     if (env.TAG_NAME != null && env.TAG_NAME.length() > 0) {
-                        def matcher = env.TAG_NAME =~ /^[a-zA-Z]+-(?<version>\d+\.\d+\.\d+(?<prerelease>-[a-zA-Z0-9-_.]+)?)$/
+                        def matcher = env.TAG_NAME =~ /^[a-zA-Z]+-(?<version>\d+\.\d+\.\d+.\d+(?<prerelease>-[a-zA-Z0-9-_.]+)?)$/
                         if (matcher.matches()) {
                             mvnVersion = matcher.group("version")
                             if (matcher.group("prerelease")) {

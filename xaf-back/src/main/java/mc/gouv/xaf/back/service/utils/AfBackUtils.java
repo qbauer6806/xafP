@@ -28,6 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -844,24 +846,37 @@ public class AfBackUtils {
     }
 
     /**
-     * Convertit la syntaxe velocity vers thymeleaf (${dateDebut} vers <span th:text="${dateDebut}"></span>)
+     * Convertit la syntaxe velocity vers thymeleaf (${dateDebut} vers <th:block th:utext="${dateDebut}"></th:block>)
      * @param input
      * @return
      */
     public String convertToThymeleaf(String input) {
-        // 1ère règle: Remplacer les <a href="${gichuniFrontUrl}"> par <a th:href="${gichuniFrontUrl}">
-        String contenuIntermediaire = input.replaceAll(
-                "<a href=\"\\$\\{([^}]+)\\}\">",
-                "<a th:href=\"\\$\\{$1\\}\">"
+        // 1ère étape : ne pas toucher aux balises <a th:href="...">
+        // Rechercher les balises <a th:href="..."> et les stocker temporairement
+        String anchorPattern = "(<a\\s+th:href=\"[^\"]*\")";
+        List<String> anchorMatches = new ArrayList<>();
+
+        Matcher matcher = Pattern.compile(anchorPattern).matcher(input);
+        while (matcher.find()) {
+            anchorMatches.add(matcher.group(1));
+        }
+
+        // Remplacer temporairement les balises <a th:href="..."> par des placeholders
+        String tempInput = input.replaceAll(anchorPattern, "PLACEHOLDER");
+
+        // 2ème étape : remplacer les ${...} qui ne sont pas dans un <a th:href>
+        String output = tempInput.replaceAll(
+                "\\$\\{([^\\s}]+)\\}",
+                "<th:block th:utext=\"\\$\\{$1\\}\"></th:block>"
         );
 
-        // 2ème règle: Remplacer les ${...} non précédés de "th:href=" par <span th:text="${...}"></span>
-        String resultatFinal = contenuIntermediaire.replaceAll(
-                "(?<!th:href=\")\\$\\{([^}]+)\\}",
-                "<th:block th:text=\"\\$\\{$1\\}\"></th:block>"
-        );
+        // 3ème étape : restaurer les balises <a th:href="...">
+        for (String anchor : anchorMatches) {
+            // Utilisation de Matcher.quoteReplacement pour échapper les caractères spéciaux dans l'URL lors de la restauration
+            output = output.replaceFirst("PLACEHOLDER", Matcher.quoteReplacement(anchor));
+        }
 
-        return resultatFinal;
+        return output;
     }
 
     /**
@@ -882,7 +897,6 @@ public class AfBackUtils {
 
     /**
      * Utilisé dans les template doc
-     * @param date
      * @param pattern
      * @return
      */

@@ -839,7 +839,7 @@ public class AfBackUtils {
         String adresse2 = marqueurs.get(marqueurIdentifiant + "Ligne2");
         String adresse3 = marqueurs.get(marqueurIdentifiant + "Ligne3");
         if (!StringUtils.isEmpty(adresse2)) {
-            adresseComplete += "\n" + escapeChars(adresse3);
+            adresseComplete += "\n" + escapeChars(adresse2);
         }
         if (!StringUtils.isEmpty(adresse3)) {
             adresseComplete += "\n" + escapeChars(adresse3);

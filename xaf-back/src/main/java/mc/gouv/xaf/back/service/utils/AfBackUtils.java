@@ -423,11 +423,7 @@ public class AfBackUtils {
         String codeAppli = gouvPropertiesResolver.getDemarcheId();
         List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
         for (User agent : agents) {
-            boolean toAdd = false;
-            Set<Role> agentRoles = agent.getRoles();
-            for (Role role : agentRoles) {
-            	toAdd = hasRole(role, codeAppli, rolesList);
-            }
+            boolean toAdd = this.isToAdd(rolesList, codeAppli, agent);
             if (toAdd) {
                 destinataires.add(agent);
             }
@@ -435,17 +431,23 @@ public class AfBackUtils {
         return destinataires;
     }
 
-    private boolean hasRole(Role role, String codeAppli, String[] rolesList) {
-        if (role.getAppli().getCode().equals(codeAppli)) {
-            for (Droit droit : role.getDroits()) {
-                for (String roleFromList : rolesList) {
-                    if (roleFromList.trim().equals(droit.getCode())) {
-                        return true;
+    private boolean isToAdd(String[] rolesList, String codeAppli, User agent) {
+        boolean toAdd = false;
+        Set<Role> agentRoles = agent.getRoles();
+        for (Role role : agentRoles) {
+            if (role.getAppli().getCode().equals(codeAppli)) {
+                for (Droit droit : role.getDroits()) {
+                    for (String roleFromList : rolesList) {
+                        if (roleFromList.trim().equals(droit.getCode())) {
+                            toAdd = true;
+                            break;
+                        }
                     }
                 }
+
             }
         }
-        return false;
+        return toAdd;
     }
 
     public String convertDateToString(final Date date) {

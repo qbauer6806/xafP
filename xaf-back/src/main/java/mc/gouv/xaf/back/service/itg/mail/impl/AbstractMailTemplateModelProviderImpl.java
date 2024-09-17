@@ -89,7 +89,7 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
             
             setAgent(model, bpmVariables);
         }
-
+        model.put("marqueurs", demande.getMarqueurs());
         model.putAll(getGenericModel());
 
         return model;

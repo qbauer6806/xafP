@@ -62,14 +62,6 @@ public class AfBackConfig {
     public UsagersCache getUsagersCache(UsagersCacheDataProvider usagersCacheDataProvider) {
         return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
     }
-// todo spring
-//    @Bean
-//    public MultipartResolver multipartResolver() {
-//        StandardServletMultipartResolver resolver = new StandardServletMultipartResolver();
-//        resolver.setMaxUploadSize(16777216); // 16 MB
-//        resolver.setDefaultEncoding("utf-8");
-//        return resolver;
-//    }
 
     @Bean
     @Primary

@@ -853,29 +853,27 @@ public class AfBackUtils {
      * @return
      */
     public String convertToThymeleaf(String input) {
-        // 1ère étape : ne pas toucher aux balises <a th:href="...">
-        // Rechercher les balises <a th:href="..."> et les stocker temporairement
-        String anchorPattern = "(<a\\s+th:href=\"[^\"]*\")";
-        List<String> anchorMatches = new ArrayList<>();
+        // 1ère étape : Rechercher les balises <a th:href="${...}"> et autres avec des attributs th:href ou th:utext
+        String attributePattern = "(<a[^>]*\\s+(th:href|th:utext)=\"[^\"]*\")";
+        List<String> attributeMatches = new ArrayList<>();
 
-        Matcher matcher = Pattern.compile(anchorPattern).matcher(input);
+        Matcher matcher = Pattern.compile(attributePattern).matcher(input);
         while (matcher.find()) {
-            anchorMatches.add(matcher.group(1));
+            attributeMatches.add(matcher.group(1));
         }
 
-        // Remplacer temporairement les balises <a th:href="..."> par des placeholders
-        String tempInput = input.replaceAll(anchorPattern, "PLACEHOLDER");
+        // Remplacer temporairement les balises ayant th:href ou th:utext pour ne pas les toucher
+        String tempInput = input.replaceAll(attributePattern, "PLACEHOLDER");
 
-        // 2ème étape : remplacer les ${...} qui ne sont pas dans un <a th:href>
+        // 2ème étape : Remplacer les ${...} qui ne sont pas dans un attribut de balise
         String output = tempInput.replaceAll(
                 "\\$\\{([^\\s}]+)\\}",
                 "<th:block th:utext=\"\\$\\{$1\\}\"></th:block>"
         );
 
-        // 3ème étape : restaurer les balises <a th:href="...">
-        for (String anchor : anchorMatches) {
-            // Utilisation de Matcher.quoteReplacement pour échapper les caractères spéciaux dans l'URL lors de la restauration
-            output = output.replaceFirst("PLACEHOLDER", Matcher.quoteReplacement(anchor));
+        // 3ème étape : Restaurer les balises <a th:href="..."> ou th:utext="..." à leur place
+        for (String match : attributeMatches) {
+            output = output.replaceFirst("PLACEHOLDER", Matcher.quoteReplacement(match));
         }
 
         return output;

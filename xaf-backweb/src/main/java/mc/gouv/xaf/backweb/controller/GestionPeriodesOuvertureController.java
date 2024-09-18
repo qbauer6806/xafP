@@ -113,7 +113,7 @@ public class GestionPeriodesOuvertureController {
     public ModelAndView supprimerTous(final RedirectAttributes redirectAttributes) {
         LOGGER.info("======================= Appel de la page /gestion/periodesouverture/supprimertous");
         periodesOuvertureService.deleteAllPeriodeOuverture();
-        ModelAndView mav = new ModelAndView(RequestConstant.REDIRECT);
+        ModelAndView mav = new ModelAndView("redirect:/gestion/periodesouverture");
         List<String> messages = new ArrayList<>();
         messages.add(SUPPRIMER_TOUS_SUCCES);
         redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);

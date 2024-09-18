@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
@@ -106,6 +107,9 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 
     @Override
 	public List<String> getModelPaths(JsonNode modelPaths) {
+        if(modelPaths == null || modelPaths.isNull()) {
+            return new ArrayList<>();
+        }
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {});
 		try {

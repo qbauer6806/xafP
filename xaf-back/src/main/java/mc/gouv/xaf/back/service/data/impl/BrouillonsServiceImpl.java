@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
@@ -102,6 +103,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         BrouillonBO brouillonBo = BrouillonsTransformer.dto2Bo(brouillon);
         brouillonBo.setFkAccess(accessBo);
 
+        // on utilise la dernière config déjà présente en base
+        DemandeConfigBO config = demandesConfigService.getLastConfig();
+        brouillonBo.setConfig(config);
+
         LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
         brouillonBo = brouillonsRepository.save(brouillonBo);
 
@@ -126,8 +131,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         LOGGER.info("Transformation bo -> dto ...");
 
         List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
-        String lastBuildId = demandesConfigService.getLastBuildId();
-        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, lastBuildId, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
         return brouillonsDTO;
 
     }
@@ -276,7 +280,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     private boolean isFileDeletable(List<DemandesFilesBO> existingFilesDemandes, List<BrouillonsFilesBO> existingFilesBrouillons) {
-        // le fichier du brouillon est supprimable uniquement s'il n'est pas utilisé dans une autre demande, et s'il n'est pas utilisé dans une autre brouillon
+        // le fichier du brouillon est supprimable uniquement s'il n'est pas utilisé dans une autre demande, et s'il n'est pas utilisé dans un autre brouillon
         return existingFilesDemandes != null && existingFilesDemandes.isEmpty() && existingFilesBrouillons != null && existingFilesBrouillons.size() <= 1;
     }
     
@@ -304,8 +308,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         Page<BrouillonBO> bos = brouillonsRepository.findByFkAccess_UsagerIdAndFkAccess_Active(usagerId, true, pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        String lastBuildId = demandesConfigService.getLastBuildId();
-        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, lastBuildId, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
         return brouillonDTOS;
     }
 }

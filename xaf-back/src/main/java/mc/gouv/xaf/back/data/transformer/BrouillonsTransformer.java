@@ -52,7 +52,8 @@ public class BrouillonsTransformer {
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
-        dto.setBuildId(bo.getBuildId());
+        dto.setBuildId(bo.getConfig().getBuildId());
+        dto.setDernierModele(bo.getConfig().isDernierModele());
         dto.setRecapType(bo.getRecapType());
         return dto;
     }
@@ -77,7 +78,6 @@ public class BrouillonsTransformer {
         bo.setDateCreation(dto.getDateCreation());
         bo.setDateDerModif(dto.getDateDerModif());
         bo.setPkBrouillons(dto.getPkBrouillons());
-        bo.setBuildId(dto.getBuildId());
         bo.setRecapType(dto.getRecapType());
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -110,8 +110,8 @@ public class BrouillonsTransformer {
         return page;
     }
 
-    public static void setDernierStatut(BrouillonDTO brouillonDTO, String lastBuildId, String notTransmitted, String deprecated) {
-        if (brouillonDTO.getBuildId().equals(lastBuildId)) {
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated) {
+        if (brouillonDTO.isDernierModele()) {
             // statut not transmitted
             setDernierStatut(brouillonDTO, notTransmitted);
         } else {

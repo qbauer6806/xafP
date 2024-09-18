@@ -28,6 +28,7 @@ public class DemandesConfigTransformer {
         DemandeConfigBO bo = new DemandeConfigBO();
         bo.setBuildId(jsonNode.get("buildId").asText());
         bo.setContenu(jsonNode);
+        bo.setDernierModele(true);
         return bo;
     }
 }

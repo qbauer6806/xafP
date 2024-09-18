@@ -56,18 +56,42 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 		return demandesConfigRepository.findFirstByOrderByBuildIdDesc();
 	}
 
-	@Override
+    @Override
 	public JsonNode saveConfig(JsonNode config) {
 		String buildId = config.get("buildId").asText();
 		// si la config existe et que son contenu et != null, on ne la sauvegarde pas
 		DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
 		if (configBO == null || configBO.getContenu() == null) {
+            // on récupère tous les config avant d'ajouter le nouveau
+            List<DemandeConfigBO> configs = getConfigsBO();
 			String lastBuildId = getLastBuildId();
 			configBO = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(config));
+            // on recalcule les autres config pour vérifier si elles sont toujours le même modèle ou si le modèle a changé
+            checkIfDernierModele(configs, configBO);
+            // on génère les marqueurs pour la nouvelle config
 			marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId, getModelPaths(config.get("modelPaths").get("rechercheAvancee")));
 		}
 		return demandesConfigTransformer.bo2Json(configBO);
 	}
+
+    private void checkIfDernierModele(List<DemandeConfigBO> configs, DemandeConfigBO lastConfig) {
+        for (DemandeConfigBO config : configs) {
+            List<String> all = getModelPaths(config.getContenu().get("modelPaths").get("all"));
+            List<String> allLastConfig = getModelPaths(lastConfig.getContenu().get("modelPaths").get("all"));
+            config.setDernierModele(false);
+            // Vérifier si les deux listes ont la même taille
+            if (all.size() == allLastConfig.size()) {
+                // Créer des copies pour ne pas modifier les listes originales
+                List<String> sortedList1 = all.stream().sorted().toList();
+                List<String> sortedList2 = allLastConfig.stream().sorted().toList();
+                if (sortedList1.equals(sortedList2)) {
+                    // même modèle
+                    config.setDernierModele(true);
+                }
+            }
+            demandesConfigRepository.save(config);
+        }
+    }
 
     @Override
     public List<String> getModelPathsRechercheAvancee() {

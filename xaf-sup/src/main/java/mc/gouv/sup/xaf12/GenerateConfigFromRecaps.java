@@ -22,6 +22,7 @@ public class GenerateConfigFromRecaps {
 
     public static void main(String[] args) {
         System.out.println("------ Requête à copier -------");
+        System.out.println();
         String resourceFolder = "xaf12";
         List<String> fileNames = getFileNamesInResourceFolder(resourceFolder);
         for (String buildId : extractBuildIds(fileNames)) {
@@ -43,6 +44,7 @@ public class GenerateConfigFromRecaps {
 
             // modelPaths
             JsonNode modelPaths = mapper.createObjectNode();
+            // rechercheAvancee
             ArrayNode rechercheAvancee = mapper.createArrayNode();
             JsonNode displayFields = recapFront.get("initDonnees").get("projectDemande").get("displayFields");
             for (JsonNode displayField : displayFields) {
@@ -57,6 +59,20 @@ public class GenerateConfigFromRecaps {
                 }
             }
             ((ObjectNode) modelPaths).put("rechercheAvancee", rechercheAvancee);
+            // all
+            ArrayNode all = mapper.createArrayNode();
+            for (JsonNode displayField : displayFields) {
+                String type = displayField.get("type").asText();
+                JsonNode data = displayField.get("data");
+                if (type.equals("adresse") || type.equals("adresseMc") || type.equals("iban") || type.equals("telephone")) {
+                    for (JsonNode d : data) {
+                        all.add(d.asText());
+                    }
+                } else if (data.asText().startsWith("contenu.")) {
+                    all.add(data.asText());
+                }
+            }
+            ((ObjectNode) modelPaths).put("all", all);
             ((ObjectNode) config).put("modelPaths", modelPaths);
 
             JsonNode properties = recapFront.get("properties");
@@ -182,9 +198,7 @@ public class GenerateConfigFromRecaps {
                 }
             }
             System.out.println(
-                    "INSERT INTO TSCode.DEM_DEMANDES_CONFIG (build_id, contenu) values (" + config.get(
-                            "buildId").asText() + ",'" + config.toString().replace("'", "''")
-                            + "') ON CONFLICT (build_id) DO UPDATE SET contenu = EXCLUDED.contenu;");
+                    "INSERT INTO TSCode.DEM_DEMANDES_CONFIG (build_id, contenu, dernier_modele) values (" + config.get("buildId").asText() + ",'" + config.toString().replace("'", "''") + "', false) ON CONFLICT (build_id) DO UPDATE SET contenu = EXCLUDED.contenu;");
             System.out.println();
         }
 

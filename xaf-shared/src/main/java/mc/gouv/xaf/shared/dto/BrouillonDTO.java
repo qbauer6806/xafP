@@ -44,6 +44,7 @@ public class BrouillonDTO {
 
 	private DemandeStatutDTO dernierStatut;
 	private JsonNode contenuInitial;
+	private boolean dernierModele;
 
 
 }

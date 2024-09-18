@@ -55,9 +55,9 @@ public class BrouillonBO {
     @OneToMany(mappedBy = "fkBrouillons", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BrouillonsFilesBO> files;
 
-    @Column(name = "BUILD_ID", length = 32)
-    @Size(max = 32)
-    private String buildId;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "FK_CONFIG")
+    private DemandeConfigBO config;
 
     @Column(name = "RECAP_TYPE", length = 256)
     @Size(max = 256)

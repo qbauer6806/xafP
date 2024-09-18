@@ -249,16 +249,17 @@
 		    		$(".suppressionOk").show();
 		    		$(".demandesAffectees").hide();
 		    	}
-
-		        $("#lienpopuptransfert").click(function(e) {
-			        e.preventDefault();
-			        $('.modal').modal('hide');
-			        $("[data-usagerid=" + usagerId + "][class=transferer]").click();
-		        });
 		    	
 				return true;
 	        	
 	        });
+
+
+      $("#lienpopuptransfert").click(function(e) {
+        e.preventDefault();
+        $('.modal').modal('hide');
+        $("[data-usagerid=" + $(".usagerId").val() + "][class=transferer]").click();
+      });
 	        
  	    	$(".transferer").click(function(e) {
 	    		e.preventDefault();

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -151,9 +152,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
         AtomicBoolean success = new AtomicBoolean(true);
         if (!changes.isEmpty() || !checkboxes.isEmpty()) {
-            List<Integer> keys = changes.keySet().stream()
+            List<Integer> keys = new ArrayList<>(changes.keySet().stream()
                     .map(Integer::parseInt)
-                    .toList();
+                    .toList());
             checkboxes.keySet().forEach(k -> {
                 Integer parsed = Integer.parseInt(k);
                 if (!keys.contains(parsed)) {

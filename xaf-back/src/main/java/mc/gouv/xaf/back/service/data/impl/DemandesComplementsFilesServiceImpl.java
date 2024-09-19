@@ -1,12 +1,11 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import org.apache.commons.lang3.StringUtils;
@@ -58,9 +57,9 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 		LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
 		AtomicBoolean success = new AtomicBoolean(true);
 		if (!changes.isEmpty() || !checkboxes.isEmpty()) {
-			List<Integer> keys = changes.keySet().stream()
+            List<Integer> keys = new ArrayList<>(changes.keySet().stream()
 					.map(Integer::parseInt)
-					.toList();
+					.toList());
 			checkboxes.keySet().forEach(k -> {
 				Integer parsed = Integer.parseInt(k);
 				if (!keys.contains(parsed)) {

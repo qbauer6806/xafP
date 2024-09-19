@@ -34,6 +34,7 @@ import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -443,9 +444,16 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void deleteFiles(String containerId, List<String> fileList) {
+        if (CollectionUtils.isEmpty(fileList)) {
+            LOGGER.info("La liste des fichiers à supprimer est vide. Pas d'appel à FILE");
+            return;
+        }
         String accountId = gouvPropertiesResolver.getDemarcheId();
         FileBatchDTO fileBatchDTO = new FileBatchDTO();
-        fileBatchDTO.setFiles(fileList);
+        // Remplacement des espaces par des "+" sur le nom des fichiers
+        List<String> files = fileList.stream().map(file -> StringUtils.replace(file, StringUtils.SPACE, "+"))
+                .toList();
+        fileBatchDTO.setFiles(files);
         fileBatchDTO.setAccount(accountId);
         fileBatchDTO.setContainer(containerId);
         try {

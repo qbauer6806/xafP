@@ -489,7 +489,7 @@ public abstract class AfApiService extends AbstractAfApiService {
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
 
-        String[] tab = preparerMailUsager(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO);
+        String[] tab = getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO);
         String demandesImpacteesIdentifiants = tab[0];
         String demandesImpacteesPk = tab[1];
 
@@ -533,7 +533,7 @@ public abstract class AfApiService extends AbstractAfApiService {
      * Constitution de la liste des demandes impactées (celles qui passent au statut ANNULEE) pour l'envoi de l'email
      *
      */
-    private String[] preparerMailUsager(List<DemandeDTO> demandes, List<Integer> demandesAPasserEnAnnulee, List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
+    private String[] getDemandesImpactees(List<DemandeDTO> demandes, List<Integer> demandesAPasserEnAnnulee, List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
 
         StringBuilder demandesImpacteesIdentifiants = new StringBuilder();
         StringBuilder demandesImpacteesPk = new StringBuilder();
@@ -553,7 +553,7 @@ public abstract class AfApiService extends AbstractAfApiService {
                     first = false;
                 }
 
-                String libelleStatut = demande.getDernierStatut().getName();
+                String libelleStatut = demande.getDernierStatut().getLibelle();
 
                 demandesImpacteesIdentifiants.append(demande.getIdentifiant()).append(" - ").append(libelleStatut);
                 demandesImpacteesPk.append(demande.getPkDemandes());
@@ -568,8 +568,7 @@ public abstract class AfApiService extends AbstractAfApiService {
             }
         }
 
-        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "" :
-                "Par conséquent, les demandes suivantes sont passées à l'état \"Annulée\" :<br/>" + demandesImpacteesIdentifiants + "<br/><br/>";
+        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "" : demandesImpacteesIdentifiants.toString();
         return new String[]{demandesAnnuleesPhrase, demandesImpacteesPk.toString()};
     }
 

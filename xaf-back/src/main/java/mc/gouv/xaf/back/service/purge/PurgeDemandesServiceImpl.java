@@ -147,7 +147,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 				// Ajout à la liste des demandes à envoyer
             demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
-                    .append(demandeDTO.getDernierStatut().getName()).append("<br/>");
+                    .append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
         }
 
 		// Envois mail agent pour suppression

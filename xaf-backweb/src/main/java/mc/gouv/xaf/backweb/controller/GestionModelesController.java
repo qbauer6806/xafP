@@ -65,7 +65,7 @@ public class GestionModelesController {
         
         List<FileDTO> courriers = new ArrayList<>();
         List<FileDTO> justificatifs = new ArrayList<>();
-        FileDTO exportExcel = null;
+        List<FileDTO> exportExcel = new ArrayList<>();
         List<FileDTO> autres = new ArrayList<>();
         for (FileDTO file : files) {
         	if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.COURRIER.name())) {
@@ -73,7 +73,7 @@ public class GestionModelesController {
         	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.JUSTIFICATIF.name())) {
         		justificatifs.add(file);
         	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.EXPORT_EXCEL.name())) {
-        		exportExcel = file;
+        		exportExcel.add(file);
         	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.AUTRES.name())) {
                 autres.add(file);
             }
@@ -81,6 +81,7 @@ public class GestionModelesController {
         
         courriers.sort(new FileComparator());
         justificatifs.sort(new FileComparator());
+        exportExcel.sort(new FileComparator());
         autres.sort(new FileComparator());
 
         mav.addObject("courriers", courriers);

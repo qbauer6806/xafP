@@ -162,26 +162,28 @@
           </div>
           <div role="tabpanel" class="tab-pane" id="tab3"
                th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''">
-            <div class="sectiondemande" th:if="${exportExcel}">
-              <h2>Modèle <span th:text="${exportExcel.name}"></span></h2>
-              <div class="row">
-                <div class="col-xs-12 col-md-12">
-                  <span>Dernière modification : </span><span th:text="${#dates.format(exportExcel.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+            <div th:each="export : ${exportExcel}">
+              <div class="sectiondemande">
+                <h2>Modèle <span th:text="${export.name}"></span></h2>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <span>Dernière modification : </span><span th:text="${#dates.format(export.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+                  </div>
                 </div>
-              </div>
-              <br/>
-              <div class="row">
-                <div class="col-xs-12 col-md-12">
-                  <form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
-                    <a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${exportExcel.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${exportExcel.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${exportExcel.name}" disabled="disabled"/>
-                    <input type="hidden" name="filename" th:value="${exportExcel.name}" />
-                    <input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
-                  </form>
-                  <a href="#" class="btn btn-action ripple-effect supprimer" id="btnSupprimer" th:data="${exportExcel.name}" th:attr="data-filename=${exportExcel.name},data-typeModele=EXPORT_EXCEL">
-                    <span class="icon-action_supprimer"></span> Supprimer le modèle
-                  </a>
+                <br/>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                      <a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${export.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${export.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${export.name}" disabled="disabled"/>
+                      <input type="hidden" name="filename" th:value="${export.name}" />
+                      <input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
+                    </form>
+                    <a href="#" class="btn btn-action ripple-effect supprimer" id="btnSupprimer" th:data="${export.name}" th:attr="data-filename=${export.name},data-typeModele=EXPORT_EXCEL">
+                      <span class="icon-action_supprimer"></span> Supprimer le modèle
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

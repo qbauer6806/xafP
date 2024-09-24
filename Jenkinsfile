@@ -19,7 +19,7 @@ pipeline {
     }
     tools {
         maven 'Maven'
-        jdk 'JDK17'
+        jdk 'JDK21'
     }
     stages {
         stage ('Determine build version') {

@@ -2,6 +2,8 @@ package mc.gouv.xaf.backweb.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -133,10 +135,12 @@ public class GestionModelesController {
         
         Map<String,String> meta = new HashMap<>();
         meta.put("X-MC-TypeModele", typeModele);
+
+        String newFilename = URLEncoder.encode(fileToUpload.getOriginalFilename(), StandardCharsets.UTF_8);
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-        	afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), filename, fileToUpload.getContentType(), meta, outputStream);
+        	afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), newFilename, fileToUpload.getContentType(), meta, outputStream);
     		messages.add(LE_MODELE + filename + " a été mis à jour avec succès.");
     		redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
         } catch (Exception e) {
@@ -195,11 +199,13 @@ public class GestionModelesController {
             return mav;
         }
 
+        String newFilename = URLEncoder.encode(fileToUpload.getOriginalFilename(), StandardCharsets.UTF_8);
+
         try {
             try(ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 Map<String,String> meta = new HashMap<>();
                 meta.put("X-MC-TypeModele", typeModele);
-                afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), filename, fileToUpload.getContentType(), meta, bos);
+                afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), newFilename, fileToUpload.getContentType(), meta, bos);
             }
             messages.add(LE_MODELE + filename + " a été ajouté avec succès.");
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);

@@ -75,7 +75,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.key}")
     private String frontserverKey;
 
-    @Value("${mc.gouv.${application.name}.frontserver.url}")
+    @Value("${mc.gouv.${application.name}.frontserver.back.url}")
     private String backUrl;
 
     @Value("${mc.gouv.${application.name}.frontserver.redirectToBo.url}")

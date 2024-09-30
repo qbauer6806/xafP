@@ -1,11 +1,17 @@
 package mc.gouv.xaf.backweb.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
@@ -15,6 +21,9 @@ import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -73,7 +83,7 @@ public class MarqueursController extends AbstractController {
             versionModeleDTOS.add(versionModeleDTO);
         }
 
-        String currentBuildId = buildId != null ? buildId : buildIds.get(0);
+        String currentBuildId = buildId != null ? buildId : buildIds.getFirst();
 
         List<String> chemins = demandesConfigService.getModelPathsRechercheAvancee(currentBuildId);
         List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(currentBuildId);
@@ -131,11 +141,53 @@ public class MarqueursController extends AbstractController {
     }
 
     private ModelAndView redirectSuccess(RedirectAttributes redirectAttributes, String message, String buildId) {
-        ModelAndView mav = new ModelAndView(REDIRECT + "/" + buildId);
+        String complementUrl = buildId != null ? "/" + buildId : "";
+        ModelAndView mav = new ModelAndView(REDIRECT + complementUrl);
         List<String> messages = new ArrayList<>();
         messages.add(message);
         redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
         return mav;
+    }
+
+    private ModelAndView redirectError(RedirectAttributes redirectAttributes, String message) {
+        ModelAndView mav = new ModelAndView(REDIRECT);
+        List<String> messages = new ArrayList<>();
+        messages.add(message);
+        redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+        return mav;
+    }
+
+    @GetMapping(path = "/export")
+    public ResponseEntity<InputStreamResource> exportConfig(HttpServletRequest request) throws IOException {
+        String jsonFile = marqueursService.exportConfig();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=marqueurs-config-"
+                + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(new Date()) + ".json");
+        responseHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
+        responseHeaders.add("Content-Transfer-Encoding", "binary");
+
+        InputStreamResource isr = new InputStreamResource(
+                new ByteArrayInputStream(jsonFile.getBytes(StandardCharsets.UTF_8)));
+
+        return ResponseEntity.ok().headers(responseHeaders).body(isr);
+    }
+
+    @PostMapping("/import")
+    public ModelAndView handleFileUpload(@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) {
+        // Ici vous traitez l'importation du fichier
+        if (file.isEmpty()) {
+            return redirectError(redirectAttributes, "Aucun fichier sélectionné");
+        } else {
+            // Logique d'importation du fichier JSON
+            try {
+                marqueursService.importConfig(file.getBytes());
+                return redirectSuccess(redirectAttributes, "L'import a été correctement effectué", null);
+            } catch (IOException e) {
+                LOGGER.error("Erreur lors de l'import", e);
+                return redirectError(redirectAttributes, "Un problème est survenu lors de l'import");
+            }
+        }
+
     }
 
 }

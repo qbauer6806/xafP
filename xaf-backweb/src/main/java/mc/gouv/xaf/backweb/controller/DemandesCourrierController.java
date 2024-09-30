@@ -111,7 +111,7 @@ public class DemandesCourrierController extends AbstractController {
 		    novalidate = "&novalidate=true";
 		}
 
-		URIBuilder ub = new URIBuilder(gouvPropertiesResolver.getFrontUrl() + "acces_teleservice.html");
+		URIBuilder ub = new URIBuilder(gouvPropertiesResolver.getFrontUrl() + "/acces_teleservice.html");
 		ub.addParameter("id", id);
 		ub.addParameter("international", "fr"+novalidate);
 		ub.addParameter("canal", demandesCourrierFormBean.getCanal());

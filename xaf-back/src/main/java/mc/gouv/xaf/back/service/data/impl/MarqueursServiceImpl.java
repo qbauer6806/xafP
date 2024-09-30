@@ -1,11 +1,24 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.BadRequestException;
 import mc.gouv.xaf.back.data.dao.MarqueursRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
+import mc.gouv.xaf.back.data.entity.RechercheCatConfigBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.model.ExportImportCategoryDTO;
+import mc.gouv.xaf.back.data.model.ExportImportConfigDTO;
+import mc.gouv.xaf.back.data.model.ExportImportConfigPropertyDTO;
 import mc.gouv.xaf.back.data.transformer.MarqueursTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
@@ -140,6 +153,31 @@ public class MarqueursServiceImpl implements MarqueursService {
         }
 
         return result.toString();
+    }
+
+    @Override
+    public String exportConfig() throws IOException {
+        Iterable<MarqueurBO> marqueurs = marqueursRepository.findAll();
+        List<MarqueurDTO> list = new ArrayList<>();
+        for (MarqueurBO marqueur : marqueurs) {
+            list.add(marqueursTransformer.bo2Dto(marqueur));
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(list);
+    }
+
+    @Override
+    public void importConfig(byte[] file) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<MarqueurDTO> marqueurList = mapper.readValue(file, new TypeReference<>() {});
+        if (marqueurList != null) {
+            marqueursRepository.deleteAll();
+            marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurList));
+        }
+
+
     }
 
 }

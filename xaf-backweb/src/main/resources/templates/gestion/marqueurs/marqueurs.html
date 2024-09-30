@@ -88,11 +88,27 @@
         </select>
       </div>
       <div class="col-md-3">
-      </div>
-      <div class="col-md-6 text-right">
         <button class="btn btn-action ripple-effect" id="boutonAjouter">
           <i class="icon-action_plus"></i><span>Ajouter un marqueur</span>
         </button>
+      </div>
+
+      <div class="col-md-6 text-right">
+        <form th:action="@{/gestion/marqueurs/import}" method="post" enctype="multipart/form-data">
+          <a th:href="@{/gestion/marqueurs/export}" id="exportConfigButton"
+             style="float: right; margin-left: 10px"
+             class="btn btn-action ripple-effect pull-right"><i
+              class="icon-action_telecharger"></i> <span>Exporter</span></a>
+
+          <input type="submit" value="Valider l'import"
+                 style="float: right; margin-left: 10px"
+                 id="submitImportConfigButtonButton"
+                 class="btn btn-action ripple-effect pull-right" disabled />
+
+          <input type="file" name="file" value="Importer" style="margin-left: 10px"
+                 id="importConfigButtonButton" accept=".json"
+                 class="btn btn-action ripple-effect pull-right"/>
+        </form>
       </div>
 
       <div class="col-xs-12">
@@ -243,7 +259,7 @@
     },
     {
       orderable: false,
-      keyword: false,
+      searchable: false,
       render: function (data, type, marqueur) {
         return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" style="margin-right: 8px" data-toggle="tooltip"'
             + ' data-placement="bottom" data-original-title="Modifier le marqueur" data-pkmarqueur="'
@@ -264,9 +280,10 @@
     var table = $('#datatable-marqueurs');
     table.DataTable({
       paging: false,
-      searching: false,
+      searching: true,
       select: false,
       bInfo: false,
+      order: [ [2, 'asc'] ],
       columns: columnsMarqueurs,
       data: marqueurs,
       language: frenchTranslation
@@ -362,6 +379,16 @@
     $('#selectBuildId').change(function(){
       var value = $(this).val();
       window.location.href = APP.getContextPath()+'/gestion/marqueurs/' + value;
+    });
+
+    $('#importConfigButtonButton').change(function(){
+      const fileInput = document.getElementById('importConfigButtonButton');
+
+      if (fileInput.files.length > 0) {
+        $('#submitImportConfigButtonButton').prop('disabled', false);// Active le bouton si un fichier est sélectionné
+      } else {
+        $('#submitImportConfigButtonButton').prop('disabled', true); // Désactive le bouton si aucun fichier n'est sélectionné
+      }
     });
 
 

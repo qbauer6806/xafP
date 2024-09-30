@@ -174,11 +174,9 @@ public class MarqueursController extends AbstractController {
 
     @PostMapping("/import")
     public ModelAndView handleFileUpload(@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) {
-        // Ici vous traitez l'importation du fichier
         if (file.isEmpty()) {
             return redirectError(redirectAttributes, "Aucun fichier sélectionné");
         } else {
-            // Logique d'importation du fichier JSON
             try {
                 marqueursService.importConfig(file.getBytes());
                 return redirectSuccess(redirectAttributes, "L'import a été correctement effectué", null);

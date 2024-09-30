@@ -1,12 +1,16 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
+import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.transformer.DemarchesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -56,6 +63,26 @@ public class DemarchesServiceImpl implements DemarchesService {
             throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
         return demarcheBoOp.get();
+    }
+
+    @Override
+    public String exportConfig() throws IOException {
+        DemarcheDTO demarcheDTO = getDemarche();
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(demarcheDTO);
+    }
+
+    @Override
+    public void importConfig(byte[] file) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        DemarcheDTO demarche = mapper.readValue(file, DemarcheDTO.class);
+        if (demarche != null) {
+            updateDemarche(demarche);
+        }
+
+
     }
 
 }

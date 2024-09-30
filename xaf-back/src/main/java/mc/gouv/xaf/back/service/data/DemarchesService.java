@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.data;
 
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import java.io.IOException;
 
 /**
  * Service permettant la manipulation des démarches.
@@ -32,5 +33,9 @@ public interface DemarchesService {
      * @return La démarche modifiée
      */
     DemarcheDTO updateDemarche(DemarcheDTO demarche);
+
+    String exportConfig() throws IOException;
+
+    void importConfig(byte[] file) throws IOException;
 
 }

@@ -51,6 +51,10 @@ public class FrontGouvPropertiesResolver {
     private String vscanUrl;
 
     @Getter
+    @Value("${mc.gouv.vscan.activated}")
+    private boolean vscanActivated;
+
+    @Getter
     @Value("${mc.gouv.gichkey.url}")
     private String gichkeyUrl;
 

@@ -72,7 +72,6 @@ public class FileServiceImpl implements FileService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
 
 	private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
-	private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
 	private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
 	private static final String AUTHORIZATION_PREFIX = "Bearer ";
 	private static final String FILENAME_DONNER_FILE_LOG_MESSAGE = "Filename à donner à FILE : {}";
@@ -232,8 +231,7 @@ public class FileServiceImpl implements FileService {
 		}
 
 		// Appel à VSCAN pour vérifier la virulance du fichier
-		PropertiesDTO vscanActivationProp = propertiesService.getProperty(VSCAN_ACTIVATION);
-		boolean vscanActivation = Boolean.parseBoolean(vscanActivationProp.getValue());
+		boolean vscanActivation = gouvPropertiesResolver.isVscanActivated();
 
 		LOGGER.info("Activation de VSCAN: {}", vscanActivation);
 		if (vscanActivation) {

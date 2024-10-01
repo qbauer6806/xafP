@@ -30,6 +30,7 @@ public interface GouvPropertiesResolver {
     String getGouvSharedLogonRestUrl();
 
     String getVScanUrl();
+    boolean isVscanActivated();
 
     String getVscanJwt();
 

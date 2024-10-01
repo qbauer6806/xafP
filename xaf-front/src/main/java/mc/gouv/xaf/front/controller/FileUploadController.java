@@ -66,7 +66,6 @@ public class FileUploadController extends AbstractXafController {
 
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
-    private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
     private static final String SLASH = "/";
 
     // Enregistre l'historique d'upload par session
@@ -231,14 +230,8 @@ public class FileUploadController extends AbstractXafController {
      * Méthode permettant d'appeler VSCAN afin d'effectuer le scan antivirus.
      */
     private boolean vscan(Part part0, String filename, HttpPost postRequest) throws IOException {
-        // Varification de l'activation de VSCAN
-        PropertiesDTO propActivationVscan = propertiesCache.getFrontProperty(VSCAN_ACTIVATION);
-        if (propActivationVscan == null) {
-            return false;
-        }
-
         // Constitution de la requête
-        boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
+        boolean activationVscan = propertiesResolver.isVscanActivated();
         // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
         postRequest.setHeader(XafFrontserverUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
         LOGGER.info("Activation de VSCAN: {}", activationVscan);

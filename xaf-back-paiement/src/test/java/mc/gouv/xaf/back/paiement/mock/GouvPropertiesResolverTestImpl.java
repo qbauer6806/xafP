@@ -68,6 +68,11 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public boolean isVscanActivated() {
+        return true;
+    }
+
+    @Override
     public String getVscanJwt() {
         return null;
     }

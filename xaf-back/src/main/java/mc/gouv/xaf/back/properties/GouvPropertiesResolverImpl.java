@@ -62,6 +62,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.vscan.api.url}")
     private String vscanUrl;
 
+    @Getter
+    @Value("${mc.gouv.vscan.activated}")
+    private boolean vscanActivated;
+
     @Value("${mc.gouv.servicerest.api.pays.url}")
     private String paysRestUrl;
 

@@ -65,7 +65,6 @@ public class FileControllerUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileControllerUtils.class);
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
-    private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
     private static final String SLASH = "/";
     private static final String BEARER = "Bearer ";
 
@@ -77,9 +76,6 @@ public class FileControllerUtils {
 
     @Autowired
     private FrontControllerPropertiesCache propertiesCache;
-    
-    @Autowired
-    private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
 
     public boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");
@@ -121,15 +117,9 @@ public class FileControllerUtils {
     }
 
     public boolean vscan(Part part0, String filename, HttpPost postRequest, ServletContext servletContext) throws IOException {
-        // Varification de l'activation de VSCAN
-        PropertiesDTO propActivationVscan = propertiesCache.getFrontProperty(VSCAN_ACTIVATION);
-        if (propActivationVscan == null) {
-            LOGGER.error("La propriété obligatoire VSCAN_ACTIVATION ne semble pas définie");
-            return false;
-        }
-
         // Constitution de la requête
-        boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
+        boolean activationVscan = propertiesResolver.isVscanActivated();
+
         // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
         postRequest.setHeader(XafFrontserverUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
         LOGGER.info("Activation de VSCAN: {}", activationVscan);
@@ -137,7 +127,7 @@ public class FileControllerUtils {
         if (activationVscan) {
             LOGGER.info("Appel à VSCAN...");
 
-            String urlVscan = frontGouvPropertiesResolver.getVscanUrl();
+            String urlVscan = propertiesResolver.getVscanUrl();
             LOGGER.info("URL = {}", urlVscan);
             try (CloseableHttpClient clientVscan = HttpClientBuilder.create().build()) {
                 MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
@@ -155,7 +145,7 @@ public class FileControllerUtils {
                 HttpEntity multipartVscan = builderVscan.build();
                 HttpPost postRequestVscan = new HttpPost(urlVscan);
                 postRequestVscan.setEntity(multipartVscan);
-                postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, BEARER + frontGouvPropertiesResolver.getVscanJwt());
+                postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, BEARER + propertiesResolver.getVscanJwt());
 
                 ClassicHttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
                 String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent(), StandardCharsets.UTF_8);
@@ -183,8 +173,8 @@ public class FileControllerUtils {
         FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
         if (compteurUpload != null) {
             Duration duration = Duration.between(compteurUpload.getDatePremierUpload(), LocalDateTime.now());
-            int tempsParIntervalle = Integer.parseInt(frontGouvPropertiesResolver.getTempsIntervalleUpload());
-            int maxUploadParIntervalle = Integer.parseInt(frontGouvPropertiesResolver.getMaxUploadParIntervalle());
+            int tempsParIntervalle = Integer.parseInt(propertiesResolver.getTempsIntervalleUpload());
+            int maxUploadParIntervalle = Integer.parseInt(propertiesResolver.getMaxUploadParIntervalle());
 
             if (compteurUpload.getCompteur() >= maxUploadParIntervalle && duration.toMillis() < tempsParIntervalle) {
                 return true;
@@ -217,7 +207,7 @@ public class FileControllerUtils {
             Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
             LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
             Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
-            int tempsParIntervalle = Integer.parseInt(frontGouvPropertiesResolver.getTempsIntervalleUpload());
+            int tempsParIntervalle = Integer.parseInt(propertiesResolver.getTempsIntervalleUpload());
             if (duration.toMillis() > tempsParIntervalle) {
                 it.remove();
             }
@@ -265,7 +255,7 @@ public class FileControllerUtils {
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
-            URL url = new URL(frontGouvPropertiesResolver.getFileUrl() + virtualPath);
+            URL url = new URL(propertiesResolver.getFileUrl() + virtualPath);
             LOGGER.info("URL d'appel : {}", url);
 
             // Constitution de la requête
@@ -440,6 +430,6 @@ public class FileControllerUtils {
         LOGGER.info("Chemin virtuel : {}", virtualPath);
 
         // Constitution de l'URL d'appel
-        return new URI(frontGouvPropertiesResolver.getFileUrl() + virtualPath);
+        return new URI(propertiesResolver.getFileUrl() + virtualPath);
     }
 }

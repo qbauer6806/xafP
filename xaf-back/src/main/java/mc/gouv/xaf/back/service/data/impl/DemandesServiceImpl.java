@@ -894,84 +894,6 @@ public class DemandesServiceImpl implements DemandesService {
 		return demandesTransformer.bo2Dto(newDemandeBo);
 	}
 
-	private Predicate genererPredicate(DemandeRechercheDTO demandeRecherche, Root<DemandeBO> root, CriteriaBuilder builder) {
-		List<Predicate> predicats = new ArrayList<>();
-
-		// Créer des prédicats pour la recherche textuelle
-		List<Predicate> predicatsTexte = new ArrayList<>();
-		if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
-			predicatsTexte.add(builder.like(root.get("observations"), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte.add(builder.like(root.get(IDENTIFIANT), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte.add(builder.like(root.get("courrierRefInterne"), "%" + demandeRecherche.getTexte() + "%"));
-			predicats.add(builder.or(predicatsTexte.toArray(Predicate[]::new)));
-		}
-
-		// Créer des prédicats pour les statuts recherchés
-		List<Predicate> predicatsStatuts = new ArrayList<>();
-		Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join(DERNIER_STATUT);
-		if (demandeRecherche.getStatuts() != null) {
-			for (String statut : demandeRecherche.getStatuts()) {
-				predicatsStatuts.add(builder.equal(dernierStatut.<String>get(LIBELLE), statut));
-			}
-			predicats.add(builder.or(predicatsStatuts.toArray(Predicate[]::new)));
-		}
-
-		// Créer des prédicats pour les canaux recherchés
-		List<Predicate> predicatsCanaux = new ArrayList<>();
-		if (demandeRecherche.getCanaux() != null) {
-			for (DemandeCanalEnum canal : demandeRecherche.getCanaux()) {
-				predicatsCanaux.add(builder.equal(root.<String>get(CANAL), canal.name()));
-			}
-			predicats.add(builder.or(predicatsCanaux.toArray(Predicate[]::new)));
-		}
-
-		// Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
-		Join<DemandeBO, AccessBO> access = root.join(FK_ACCESS);
-		// Pour le front on remonte que des actifs
-		if (DemarchesUtils.isFrontUser()) {
-			predicats.add(builder.equal(access.<String>get("active"), true));
-		}
-
-		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
-		// précédemment car info dans AccessBO)
-		if (demandeRecherche.getUsagerId() != null) {
-			predicats.add(builder.equal(access.<Integer>get(USAGER_ID), demandeRecherche.getUsagerId()));
-		}
-
-		// Créer un prédicat pour l'agent affecté
-		Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT);
-		if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
-			predicats.add(builder.equal(agent.<String>get("agentAffecteId"), demandeRecherche.getAgentAffecteId()));
-		}
-
-		// Créer un prédicat pour le creationStartDate
-		if (demandeRecherche.getCreationStartDate() != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(demandeRecherche.getCreationStartDate());
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			predicats.add(builder.greaterThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
-		}
-
-		// Créer un prédicat pour le creationEndDate
-		if (demandeRecherche.getCreationEndDate() != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(demandeRecherche.getCreationEndDate());
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			predicats.add(builder.lessThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
-		}
-
-		// Créer un prédicat pour l'identifiant de la demande
-		if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
-			predicats.add(builder.equal(root.<String>get(IDENTIFIANT), demandeRecherche.getIdentifiant()));
-		}
-
-		return builder.and(predicats.toArray(Predicate[]::new));
-	}
-
 	@Override
 	@SuppressWarnings({"rawtypes"})
 	public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
@@ -1105,7 +1027,7 @@ public class DemandesServiceImpl implements DemandesService {
 						predicates.add(cb.equal(root.get(searchField), new Date()));
 					}
 				} else {
-					// pas de champ date, recherche classique
+					// pas de champ date, recherche classique (par exemple observations)
 					predicates.add(cb.like(cb.upper(root.get(searchField)), "%" + texte.toUpperCase() + "%"));
 				}
 			}
@@ -1242,10 +1164,11 @@ public class DemandesServiceImpl implements DemandesService {
 	public List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche) {
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
-		Root<DemandeBO> root = cquery.from(DemandeBO.class);
-		Predicate pAttributs = genererPredicate(demandeRecherche, root, builder);
-		CriteriaQuery<DemandeBO> select = cquery.select(root).where(pAttributs);
-		TypedQuery<DemandeBO> typedQuery = em.createQuery(select);
+        Root<DemandeBO> root = buildQuery(cquery, demandeRecherche, builder);
+        List<Expression<?>> groupBy = new ArrayList<>();
+        groupBy.add(root.get("pkDemandes"));
+        cquery.groupBy(groupBy);
+        TypedQuery<DemandeBO> typedQuery = em.createQuery(cquery);
 		List<DemandeBO> demandes = typedQuery.getResultList();
 		return demandesTransformer.bo2Dto(demandes);
 	}

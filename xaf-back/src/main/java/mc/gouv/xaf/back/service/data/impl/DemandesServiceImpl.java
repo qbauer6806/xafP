@@ -1141,10 +1141,25 @@ public class DemandesServiceImpl implements DemandesService {
 
     private void setFTSPredicates(List<Path> roots, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
         List<Predicate> predicatFTS = new ArrayList<>();
+        String searchTerm = texte.trim().replaceAll("\\s+", ":* ") + ":*"; // Préfixe pour le full-text search
+        String ilikePattern = "%" + texte.trim() + "%"; // Pattern pour le ILIKE
+
         for (Path root : roots) {
-            predicatFTS.add(cb.isTrue(cb.function("tsvector_match", Boolean.class, root,
-                    cb.function("plainto_tsquery", String.class, cb.literal(texte)))));
+            // Full-text search
+            predicatFTS.add(cb.isTrue(cb.function(
+                    "tsvector_match",
+                    Boolean.class,
+                    root,
+                    cb.function(
+                            "to_tsquery", String.class, cb.literal(searchTerm)
+                    )
+            )));
+
+            // ILIKE search for matching anywhere in the text
+            predicatFTS.add(cb.like(cb.lower(root), ilikePattern.toLowerCase()));
         }
+
+        // Combine the FTS and ILIKE conditions
         predicates.add(cb.or(predicatFTS.toArray(Predicate[]::new)));
     }
 

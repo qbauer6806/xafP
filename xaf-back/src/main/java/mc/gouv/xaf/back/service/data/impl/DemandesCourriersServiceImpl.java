@@ -271,18 +271,21 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         return root;
     }
 
-    private void setFTSPredicates(List<Path> roots, List<Predicate> predicates, CriteriaBuilder cb, String texte){
+    private void setFTSPredicates(List<Path> roots, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
         List<Predicate> predicatFTS = new ArrayList<>();
-        for(Path root : roots) {
+        String searchTerm = texte.trim().replaceAll("\\s+", ":* ") + ":*"; // Utilise le préfixe :*
+
+        for (Path root : roots) {
             predicatFTS.add(cb.isTrue(cb.function(
                     "tsvector_match",
                     Boolean.class,
                     root,
                     cb.function(
-                            "plainto_tsquery", String.class, cb.literal(texte)
+                            "to_tsquery", String.class, cb.literal(searchTerm)
                     )
             )));
         }
+
         predicates.add(cb.or(predicatFTS.toArray(Predicate[]::new)));
     }
 }

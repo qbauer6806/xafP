@@ -989,21 +989,21 @@ public class DemandesServiceImpl implements DemandesService {
 			// cas agent
 			Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
 			// use String.class to cover the id type of Integer in agent table
-			predicates.add(cb.like(cb.upper(agent.get(searchField.replace("agent.", "")).as(String.class)), "%" + texte.toUpperCase() + "%"));
+			predicates.add(cb.like(cb.upper(agent.get(searchField.replace("agent.", "")).as(String.class)), texte.toUpperCase() + "%"));
 		} else if (searchField.startsWith("usager.")) {
 			// cas usager
 			Join<DemandeBO, DemandesUsagersBO> usager = root.join("usager", JoinType.LEFT);
-			predicates.add(cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), "%" + texte.toUpperCase() + "%"));
+			predicates.add(cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), texte.toUpperCase() + "%"));
 		} else if (searchField.startsWith("complement.")) {
 			// cas complements fichiers
 			SetJoin<DemandeBO, DemandesComplementsBO> demandesComplements = root.joinSet("demandesComplements", JoinType.LEFT);
 			SetJoin<DemandesComplementsBO, DemandesComplementsFilesBO> files = demandesComplements.joinSet(FILES, JoinType.LEFT);
-			predicates.add(cb.like(cb.upper(files.get(searchField.replace("complement.", ""))), "%" + texte.toUpperCase() + "%"));
+			predicates.add(cb.like(cb.upper(files.get(searchField.replace("complement.", ""))), texte.toUpperCase() + "%"));
 		}
 		else if (searchField.startsWith("fichiers.")) {
 			// cas pièces jointes
 			SetJoin<DemandeBO, DemandesFilesBO> files = root.joinSet(FILES, JoinType.LEFT);
-			predicates.add(cb.like(cb.upper(files.get(searchField.replace("fichiers.", ""))), "%" + texte.toUpperCase() + "%"));
+			predicates.add(cb.like(cb.upper(files.get(searchField.replace("fichiers.", ""))), texte.toUpperCase() + "%"));
 		}
 		else if (!searchField.contains(".")) {
 			// cas colonnes classiques de dem_demandes
@@ -1028,7 +1028,7 @@ public class DemandesServiceImpl implements DemandesService {
 					}
 				} else {
 					// pas de champ date, recherche classique (par exemple observations)
-					predicates.add(cb.like(cb.upper(root.get(searchField)), "%" + texte.toUpperCase() + "%"));
+					predicates.add(cb.like(cb.upper(root.get(searchField)), texte.toUpperCase() + "%"));
 				}
 			}
 

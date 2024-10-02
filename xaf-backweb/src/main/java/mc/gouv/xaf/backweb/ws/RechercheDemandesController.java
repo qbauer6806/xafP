@@ -37,9 +37,6 @@ public class RechercheDemandesController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheDemandesController.class);
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DemandesService demandesService;
 
     @Autowired

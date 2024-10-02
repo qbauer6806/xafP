@@ -33,10 +33,7 @@ public class RecapGenerationController {
 	@Autowired
 	private DemandesService demandesService;
 
-	@Autowired
-	private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-	@Autowired
+    @Autowired
 	private DemandeRecapHTMLService demandeRecapHTMLService;
 
 	@Secured({"ROLE_LECTURE"})

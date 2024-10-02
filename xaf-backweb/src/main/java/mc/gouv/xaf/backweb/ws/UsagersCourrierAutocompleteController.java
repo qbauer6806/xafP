@@ -33,9 +33,6 @@ public class UsagersCourrierAutocompleteController {
     @Autowired
     private UsagersCourrierService usagersCourrierService;
 
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
     @GetMapping(value = "/usagers", produces = "application/json")
     public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(@RequestParam String query) {
         LOGGER.info("======================= Appel de /ws/demandesCourrierAutocomplete/usagers");

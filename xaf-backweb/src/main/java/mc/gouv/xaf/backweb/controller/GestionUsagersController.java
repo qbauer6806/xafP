@@ -67,9 +67,6 @@ public class GestionUsagersController extends AbstractController {
     private PaysCache paysCache;
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private AfBackUtils afBackUtils;
 
     @Autowired

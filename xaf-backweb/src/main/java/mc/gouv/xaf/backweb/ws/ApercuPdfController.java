@@ -39,9 +39,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 public class ApercuPdfController extends AbstractController {
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DemandesService demandesService;
 
     @Autowired

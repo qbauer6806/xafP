@@ -36,11 +36,8 @@ public class AbstractTraitementController extends AbstractController {
 	
 	@Autowired
 	private DemandesService demandesService;
-	
-	@Autowired
-	private BackGouvPropertiesResolver gouvPropertiesResolver;
-	
-	@Autowired
+
+    @Autowired
 	private MessageSource messageSource;
 	
 	@Autowired

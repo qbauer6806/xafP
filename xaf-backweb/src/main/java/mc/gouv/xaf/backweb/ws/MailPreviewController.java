@@ -47,10 +47,7 @@ public class MailPreviewController extends AbstractController {
 	@Autowired
 	private DemandesService demandesService;
 
-	@Autowired
-	private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-	@Autowired
+    @Autowired
 	private GouvBPM gouvBPM;
 
 	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)

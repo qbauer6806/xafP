@@ -26,9 +26,6 @@ public class RechercheCourriersController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheCourriersController.class);
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DemandesCourriersService demandesCourriersService;
 
     @GetMapping(value = "/pageable")

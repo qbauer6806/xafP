@@ -69,7 +69,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.xml.sax.SAXException;
 
-public abstract class AfApiService extends AbstractAfApiService {
+public abstract class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
@@ -144,7 +144,6 @@ public abstract class AfApiService extends AbstractAfApiService {
     @Autowired
     private DemandesUsagersTransformer demandesUsagersTransformer;
 
-    @Override
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
 
@@ -168,7 +167,6 @@ public abstract class AfApiService extends AbstractAfApiService {
 
     }
 
-    @Override
     @Transactional
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException {
 
@@ -258,7 +256,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         }
     }
 
-    @Override
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
             throws JsonProcessingException {
@@ -322,7 +319,6 @@ public abstract class AfApiService extends AbstractAfApiService {
      * - Les périodes en cours
      * - Les périodes futures
      */
-    @Override
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         List<PeriodeOuvertureDTO> periodes = new ArrayList<>();
         PeriodeOuvertureDTO derniere = periodesOuvertureService.getDernierePeriodeOuvertureTerminee();
@@ -334,7 +330,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         return periodes;
     }
 
-    @Override
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
                                                             DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
@@ -389,7 +384,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         return demandeComplementsDto;
     }
 
-    @Override
     @Transactional
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
 
@@ -455,27 +449,22 @@ public abstract class AfApiService extends AbstractAfApiService {
         }
     }
 
-    @Override
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
         return demandesService.getDemandeFilterFiles(demandeId, usagerId);
     }
 
-    @Override
     public List<DemandeDTO> getDemandes(Integer usagerId) {
         return demandesService.getDemandesFilterFiles(usagerId);
     }
 
-    @Override
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
         return demandesComplementsService.getDemandesComplements(demandeId);
     }
 
-    @Override
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
         return demandesComplementsService.getDemandeComplements(demandeId, icId);
     }
 
-    @Override
     @Transactional
     public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
 
@@ -657,7 +646,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         }
     }
 
-    @Override
     @Transactional
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
         AccessDTO accessDto = new AccessDTO();
@@ -666,27 +654,22 @@ public abstract class AfApiService extends AbstractAfApiService {
         return accessService.saveOrUpdateAccess(usagerId, accessDto);
     }
 
-    @Override
     public AccessDTO getAccess(Integer usagerId) {
         return accessService.getAccessActive(usagerId);
     }
 
-    @Override
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
         return usagersCourrierService.getUsagerCourrier(usagerCourrierId);
     }
 
-    @Override
     public List<MotifDTO> getMotifs() {
         return motifsService.getMotifs();
     }
 
-    @Override
     public List<PropertiesDTO> getFrontProperties() {
         return propertiesService.getFrontProperties();
     }
 
-	@Override
 	public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
         String[] statusArray = paramDTO.getStatusArray();
         if (statusArray.length == 0) {
@@ -695,7 +678,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         return demandesService.getDemandesPageable(usagerID, statusArray, paramDTO);
 	}
 
-	@Override
 	public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         BrouillonDTO brouillonDto = null;
         try {
@@ -717,7 +699,6 @@ public abstract class AfApiService extends AbstractAfApiService {
         return brouillonDto;
 	}
 
-	@Override
 	public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         BrouillonDTO brouillonDto = null;
         try {
@@ -732,27 +713,22 @@ public abstract class AfApiService extends AbstractAfApiService {
         return brouillonDto;
 	}
 
-	@Override
 	public List<BrouillonDTO> getBrouillons(Integer usagerId) {
 		return brouillonsService.getBrouillons(usagerId);
 	}
-	
-	@Override
+
 	public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
 		return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
 	}
 
-	@Override
 	public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
 		return brouillonsService.getBrouillon(pkBrouillons, usagerId);
 	}
 
-	@Override
 	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
 		brouillonsService.deleteBrouillon(pkBrouillons, usagerId);
 	}
 
-    @Override
     @Transactional
     public JsonNode creerConfig(JsonNode config) {
         return demandesConfigService.saveConfig(config);

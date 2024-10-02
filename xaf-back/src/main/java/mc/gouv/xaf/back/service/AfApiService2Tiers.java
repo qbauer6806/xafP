@@ -53,7 +53,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
-public abstract class AfApiService2Tiers extends AbstractAfApiService implements AfApiController2Tiers {
+public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService2Tiers.class);
 
@@ -80,76 +80,64 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
     
     @Autowired
     private AfBackUtils afBackUtils;
-	
-	@Override
+
 	public void annulerDemande(Integer demandeId, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.annulerDemande({}, {})", demandeId, usagerId);
 		afBackUtils.getAfApiClient2Tiers().annulerDemande(demandeId, usagerId);
 	}
 
-	@Override
 	public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
 			DemandeComplementsReponseDTO reponse) throws IOException, SAXException {
 		LOGGER.info("AfApiService2Tiers.repondreDemandeComplements({}, {}, {})", demandeId, icId, reponse);
 		return afBackUtils.getAfApiClient2Tiers().repondreDemandeComplements(demandeId, icId, reponse);
 	}
 
-	@Override
 	public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
 		LOGGER.info("AfApiService2Tiers.getDemande({}, {})", usagerId, demandeId);
 		return afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
 	}
 
-	@Override
 	public List<DemandeDTO> getDemandes(Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.getDemandes({})", usagerId);
 		return afBackUtils.getAfApiClient2Tiers().getDemandes(usagerId);
 	}
 
-	@Override
 	public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
 		LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
 		return afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
 	}
 
-	@Override
 	public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
 		LOGGER.info("AfApiService2Tiers.getDemandeComplements({})", demandeId);
 		return afBackUtils.getAfApiClient2Tiers().getDemandesComplements(demandeId);
 	}
 
-	@Override
 	public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
 		LOGGER.info("AfApiService2Tiers.getDemandeComplements({}, {})", demandeId, icId);
 		return afBackUtils.getAfApiClient2Tiers().getDemandeComplements(demandeId, icId);
 	}
 
-	@Override
 	public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.associerDemandeCourrier({}, {}, {})", identifiantDemande, stringToCheck,
                 usagerId);
 		return afBackUtils.getAfApiClient2Tiers().associerDemandeCourrier(identifiantDemande, stringToCheck, usagerId);
 	}
 
-	@Override
 	public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
 		LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, langue);
 		afBackUtils.getAfApiClient2Tiers().desinscriptionUsager(usagerId, langue);
 	}
 
-	@Override
 	public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
 		LOGGER.info("AfApiService2Tiers.createOrUpdateAccess({}, +dto)", usagerId);
 		return afBackUtils.getAfApiClient2Tiers().createOrUpdateAccess(usagerId, dto);
 	}
 
-	@Override
 	public AccessDTO getAccess(Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.getAccess({})", usagerId);
 		return afBackUtils.getAfApiClient2Tiers().getAccess(usagerId);
 	}
 
-	@Override
 	public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
 		LOGGER.info("AfApiService2Tiers.getUsagerCourrier({})", usagerCourrierId);
 		return afBackUtils.getAfApiClient2Tiers().getUsagerCourrier(usagerCourrierId);
@@ -161,7 +149,6 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 		return motifsService.getMotifs();
 	}
 
-	@Override
 	public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException {
 		LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
 		return afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
@@ -173,67 +160,56 @@ public abstract class AfApiService2Tiers extends AbstractAfApiService implements
 		return periodesOuvertureService.getPeriodesOuverture();
 	}
 
-	@Override
 	public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.getCustom()");
 		return null;
 	}
 
-	@Override
 	public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.postCustom()");
 		return null;
 	}
 
-	@Override
 	public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.putCustom()");
 		return null;
 	}
 
-	@Override
 	public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.deleteCustom()");
 		return null;
 	}
 
-	@Override
 	public List<PropertiesDTO> getFrontProperties() {
 		LOGGER.info("AfApiService2Tiers.getFrontProperties()");
 		return propertiesService.getProperties();
 	}
 
-	@Override
 	public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.creerBrouillon({}, {})", brouillon, usagerId);
 		return afBackUtils.getAfApiClient2Tiers().creerBrouillon(brouillon, usagerId);
 	}
 
-	@Override
 	public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.updateBrouillon({}, {})", brouillon, usagerId);
 		return afBackUtils.getAfApiClient2Tiers().updateBrouillon(brouillon, brouillon.getPkBrouillons(), usagerId);
 	}
 
-	@Override
 	public List<BrouillonDTO> getBrouillons(Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.getBrouillons({})", usagerId);
 		return afBackUtils.getAfApiClient2Tiers().getBrouillons(usagerId);
 	}
 
-	@Override
 	public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
 		LOGGER.info("AfApiService2Tiers.getBrouillonsPageable({})", usagerId);
 		return afBackUtils.getAfApiClient2Tiers().getBrouillonsPageable(usagerId, paramDTO);
 	}
 
-	@Override
 	public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.getBrouillon({}, {})", pkBrouillons, usagerId);
 		return afBackUtils.getAfApiClient2Tiers().getBrouillon(pkBrouillons, usagerId);
 	}
 
-	@Override
 	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException {
 		LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
 		afBackUtils.getAfApiClient2Tiers().deleteBrouillon(pkBrouillons, usagerId);

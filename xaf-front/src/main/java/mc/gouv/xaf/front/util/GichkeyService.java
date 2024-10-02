@@ -93,7 +93,7 @@ public class GichkeyService {
         nvps.add(new BasicNameValuePair("code", code));
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, propertiesResolver.getGichkeyClientId()));
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, propertiesResolver.getGichkeyClientSecret()));
-        nvps.add(new BasicNameValuePair("redirect_uri", propertiesResolver.getGichkeyKeycloakRedirectUri()));
+        nvps.add(new BasicNameValuePair("redirect_uri", propertiesResolver.getGichkeyKeycloakRedirectUrl()));
         nvps.add(new BasicNameValuePair("grant_type", "authorization_code"));
         nvps.add(new BasicNameValuePair(RequestConstant.SCOPE_PARAM, "openid mconnect monguichet"));
 
@@ -326,7 +326,7 @@ public class GichkeyService {
         nvps.add(new BasicNameValuePair(RequestConstant.REFRESH_TOKEN_PARAM, tokenInfo.getRefreshToken()));
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, propertiesResolver.getGichkeyClientId()));
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, propertiesResolver.getGichkeyClientSecret()));
-        nvps.add(new BasicNameValuePair("redirect_uri", propertiesResolver.getGichkeyKeycloakRedirectUri()));
+        nvps.add(new BasicNameValuePair("redirect_uri", propertiesResolver.getGichkeyKeycloakRedirectUrl()));
         nvps.add(new BasicNameValuePair("grant_type", RequestConstant.REFRESH_TOKEN_PARAM));
         nvps.add(new BasicNameValuePair(RequestConstant.SCOPE_PARAM, "openid mconnect monguichet"));
 

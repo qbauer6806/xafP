@@ -228,7 +228,7 @@ public abstract class AfApiService {
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
 
-        gouvBPM.startProcessInstance(gouvPropertiesResolver.getProcessDefinitionKey(), user, demandeDto.getPkDemandes(),
+        gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(),
                 gouvPropertiesResolver.getDemarcheId(), variables);
 
         LOGGER.info("Envoi du message au Guichet Unique via Kafka (création demande)...");

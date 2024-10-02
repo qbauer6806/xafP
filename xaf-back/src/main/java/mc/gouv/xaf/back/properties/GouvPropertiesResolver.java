@@ -15,8 +15,6 @@ public interface GouvPropertiesResolver {
 
     String getMailJwt();
 
-    String getProcessDefinitionKey();
-
     String getDemarcheId();
 
     String getPaysRestUrl();

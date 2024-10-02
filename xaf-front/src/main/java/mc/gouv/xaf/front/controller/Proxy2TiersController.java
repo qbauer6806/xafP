@@ -78,7 +78,7 @@ public class Proxy2TiersController extends AbstractXafController {
             
             // Remplacer le header Authorization donné par le client appelant le FO par le nôtre pour appeler l'API
             if ("Authorization".equals(headerName)) {
-            	headers.add(headerName, "Bearer " + propertiesResolver.getApiJwt());
+            	headers.add(headerName, "Bearer " + propertiesResolver.getFrontserverJwt());
             }
             else {
             	headers.add(headerName, request.getHeader(headerName));

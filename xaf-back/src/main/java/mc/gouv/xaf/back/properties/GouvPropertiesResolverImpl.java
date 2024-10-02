@@ -80,9 +80,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.file.containerId}")
     private String containerId;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.activiti.processDefinitionKey}")
-    private String processDefinitionKey;
-
     @Value("${mc.gouv.${application.name}.shared.backapi.usagerscache.duration}")
     private String usagersCacheDuration;
 
@@ -152,14 +149,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
             // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
             // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
-            boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
-                    || (method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty && sslEnabled);
+            boolean pasIgnorerSSL = method.getDeclaredAnnotation(GouvSSLProperty.class) == null
+                    || (method.getDeclaredAnnotation(GouvSSLProperty.class) != null && sslEnabled);
 
             // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
             // archivage.enabled=false ou pas présente
-            boolean pasIgnorerArchivage = !(method
-                    .getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
-                    || (method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty
+            boolean pasIgnorerArchivage = method.getDeclaredAnnotation(GouvArchivageProperty.class) == null
+                    || (method.getDeclaredAnnotation(GouvArchivageProperty.class) != null
                     && archivageEnabled);
 
             if (pasIgnorerSSL && pasIgnorerArchivage) {
@@ -218,11 +214,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getDemarcheId() {
         return demarcheId;
-    }
-
-    @Override
-    public String getProcessDefinitionKey() {
-        return processDefinitionKey;
     }
 
     @Override

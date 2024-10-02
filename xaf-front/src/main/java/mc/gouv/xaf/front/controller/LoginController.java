@@ -238,7 +238,7 @@ public class LoginController extends AbstractXafController {
         StringTokenizer strToken = new StringTokenizer(sig, ":");
         String signature = strToken.nextToken();
         String currentMilli = strToken.nextToken();
-        String signatureComputed = DigestUtils.sha256Hex(propertiesResolver.getSharedKey() + sessionId + currentMilli);
+        String signatureComputed = DigestUtils.sha256Hex(propertiesResolver.getFrontserverKey() + sessionId + currentMilli);
         LOGGER.info("Sig calculé : {}", signatureComputed);
         if (!StringUtils.equals(signature, signatureComputed)) {
             LOGGER.info("SIGS DIFFERENT");

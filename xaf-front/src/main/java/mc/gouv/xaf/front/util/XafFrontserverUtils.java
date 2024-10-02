@@ -192,7 +192,7 @@ public class XafFrontserverUtils {
     }
 
     public AfApiClient getAfApiClient() {
-        return new AfApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getApiJwt());
+        return new AfApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getFrontserverJwt());
     }
 
     public JsonNode getConfig() throws IOException {

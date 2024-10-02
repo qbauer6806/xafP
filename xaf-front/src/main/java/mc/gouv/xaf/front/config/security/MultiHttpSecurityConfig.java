@@ -45,7 +45,7 @@ public class MultiHttpSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authentication) {
-        if (frontGouvPropertiesResolver.getProxy2TiersActivation()) {
+        if (frontGouvPropertiesResolver.isProxy2tiersActivation()) {
             LOGGER.info("Activation du proxy 2 tiers, donc définition du JwtAuthenticationProvider");
             String secretProp = "mc.gouv.api." + applicationName + ".security.jwt.secret";
             LOGGER.info("Vérification de la présence d'une valeur pour la propriété : {}", secretProp);
@@ -70,7 +70,7 @@ public class MultiHttpSecurityConfig {
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        if (frontGouvPropertiesResolver.getProxy2TiersActivation()) {
+        if (frontGouvPropertiesResolver.isProxy2tiersActivation()) {
             LOGGER.info("Activation du proxy 2 tiers, donc ouverture et sécurisation de l'endpoint /api2tiers/** en JWT");
             http.securityMatcher("/api2tiers/**")
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()

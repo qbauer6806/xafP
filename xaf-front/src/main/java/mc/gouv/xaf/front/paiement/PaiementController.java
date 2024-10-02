@@ -40,7 +40,7 @@ public class PaiementController extends AbstractXafController {
     private FrontGouvPropertiesResolver propertiesResolver;
 
     protected PaiementApiClient getStcApiClient() {
-        return new PaiementApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getApiJwt());
+        return new PaiementApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getFrontserverJwt());
     }
 
     /**

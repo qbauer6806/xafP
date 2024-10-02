@@ -55,12 +55,12 @@ public class RedirectToBackOfficeController extends AbstractXafController {
 
         try {
             //redirection par default sur l'accueil car le lien abandon a été cliqué
-            String urlDemande = propertiesResolver.getBackOfficeUrl();
+            String urlDemande = propertiesResolver.getBackUrl();
             //dans le cas de la fin de la création
             String idDemandeStr = request.getParameter("id");
             if (StringUtils.isNotBlank(idDemandeStr)) {
                 int idDemande = Integer.parseInt(idDemandeStr);
-                urlDemande = propertiesResolver.getBackOfficeDemandeUrl();
+                urlDemande = propertiesResolver.getDemandeUrl();
                 urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande + "");
             }
             LOGGER.info("Redirection vers : {}", urlDemande);

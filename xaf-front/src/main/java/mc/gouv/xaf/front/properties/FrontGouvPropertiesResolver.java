@@ -24,6 +24,7 @@ import java.util.List;
  * @author qdeme
  *
  */
+@Getter
 @Component
 public class FrontGouvPropertiesResolver {
 
@@ -32,38 +33,32 @@ public class FrontGouvPropertiesResolver {
     private static final String APPFACTORY_PREFIX = "mc.gouv.appfactory";
 
     @Value("${application.name}")
-    private String applicationName;
+    private String demarcheId;
 
     // GLOBAL
-    @Getter
     @Value("${mc.gouv.servicerest.api.pays.url}")
     private String paysUrl;
 
-    @Getter
     @Value("${mc.gouv.file.api.url}")
     private String fileUrl;
 
-    @Value("${mc.gouv.tgf.api.url}")
+    @Value("${mc.gouv.tgf.api.url:}")
     private String tgfApiUrl;
 
-    @Getter
     @Value("${mc.gouv.vscan.api.url}")
     private String vscanUrl;
 
-    @Getter
     @Value("${mc.gouv.vscan.activated}")
     private boolean vscanActivated;
 
-    @Getter
     @Value("${mc.gouv.gichkey.url}")
     private String gichkeyUrl;
 
-    @Getter
     @Value("${mc.gouv.gichuni.api.url}")
     private String gichuniUrl;
 
     @Value("${mc.gouv.matomo.api.url}")
-    private String piwikUrl;
+    private String matomoUrl;
 
     @Value("${mc.gouv.monetico.url:}")
     private String moneticoUrl;
@@ -74,7 +69,7 @@ public class FrontGouvPropertiesResolver {
     private String copyrightYears;
 
     @Value("${mc.gouv.${application.name}.frontserver.matomo.site_id}")
-    private String piwikSiteId;
+    private String matomoSiteId;
 
     @Value("${mc.gouv.${application.name}.frontserver.key}")
     private String frontserverKey;
@@ -85,29 +80,24 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.redirectToBo.url}")
     private String demandeUrl;
 
-    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.api.url}")
     private String apiUrl;
 
     @Value("${mc.gouv.${application.name}.frontserver.jwt}")
     private String frontserverJwt;
 
-    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.file.jwt}")
     private String fileJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.tgf.jwt}")
+    @Value("${mc.gouv.${application.name}.frontserver.tgf.jwt:}")
     private String tgfApiJwt;
 
-    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
     private String vscanJwt;
 
-    @Getter
     @Value("${mc.gouv.frontserver.max.upload.intervalle}")
     private String maxUploadParIntervalle;
 
-    @Getter
     @Value("${mc.gouv.frontserver.temps.upload.intervalle}")
     private String tempsIntervalleUpload;
 
@@ -117,26 +107,18 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.keycloak.redirect.uri}")
     private String gichkeyKeycloakRedirectUrl;
 
-    @Getter
     @Value("${mc.gouv.gichuni.profil.particulier.url}")
     private String gichuniProfilIndividualUrl;
 
-    @Getter
     @Value("${mc.gouv.gichuni.profil.entreprise.url}")
     private String gichuniProfilCompanyUrl;
 
-    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_id}")
     private String gichkeyClientId;
 
-    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
 
-    @Value("${mc.gouv.${application.name}.frontserver.paiement.provider:}")
-    private String paiementProvider;
-
-    @Getter
     @Value("${mc.gouv.gichuni.front.url}")
     private String gichuniFrontUrl;
 
@@ -151,20 +133,49 @@ public class FrontGouvPropertiesResolver {
     private String pubMconnectUrlEn;
 
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
-    private String proxy2tiersActivation;
+    private boolean proxy2tiersActivation;
 
-    @Getter
-    @Value("${mc.gouv.gichuni.demarche.particulier.url.fr:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.demarche.particulier.url.fr:}")
     private String gichuniDemarcheParticulierUrlFr;
-    @Getter
-    @Value("${mc.gouv.gichuni.demarche.particulier.url.en:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.demarche.particulier.url.en:}")
     private String gichuniDemarcheParticulierUrlEn;
-    @Getter
-    @Value("${mc.gouv.gichuni.demarche.entreprise.url.fr:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.demarche.entreprise.url.fr:}")
     private String gichuniDemarcheEntrepriseUrlFr;
-    @Getter
-    @Value("${mc.gouv.gichuni.demarche.entreprise.url.en:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.demarche.entreprise.url.en:}")
     private String gichuniDemarcheEntrepriseUrlEn;
+
+    @Value("${mc.gouv.appfactory.servicepublic.particulier.url.fr:}")
+    private String servicePublicParticulierUrlFr;
+    @Value("${mc.gouv.appfactory.servicepublic.particulier.url.en:}")
+    private String servicePublicParticulierUrlEn;
+    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.fr:}")
+    private String servicePublicProfessionnelUrlFr;
+    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.en:}")
+    private String servicePublicProfessionnelUrlEn;
+    @Value("${mc.gouv.appfactory.cookies.url.fr:}")
+    private String cookiesUrlFr;
+    @Value("${mc.gouv.appfactory.cookies.url.en:}")
+    private String cookiesUrlEn;
+    @Value("${mc.gouv.appfactory.mconnect.help.url.fr:}")
+    private String mconnectHelpUrlFr;
+    @Value("${mc.gouv.appfactory.mconnect.help.url.en:}")
+    private String mconnectHelpUrlEn;
+    @Value("${mc.gouv.appfactory.support.url.fr:}")
+    private String supportUrlFr;
+    @Value("${mc.gouv.appfactory.support.url.en:}")
+    private String supportUrlEn;
+    @Value("${mc.gouv.appfactory.compte.particulier.url.fr:}")
+    private String compteParticulierUrlFr;
+    @Value("${mc.gouv.appfactory.compte.particulier.url.fr:}")
+    private String compteParticulierUrlEn;
+    @Value("${mc.gouv.appfactory.compte.professionnel.url.fr:}")
+    private String compteProfessionnelUrlFr;
+    @Value("${mc.gouv.appfactory.compte.professionnel.url.en:}")
+    private String compteProfessionnelUrlEn;
+    @Value("${mc.gouv.appfactory.monguichet.cgu.url.fr:}")
+    private String monguichetCguUrlFr;
+    @Value("${mc.gouv.appfactory.monguichet.cgu.url.en:}")
+    private String monguichetCguUrlEn;
 
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
@@ -221,140 +232,49 @@ public class FrontGouvPropertiesResolver {
         }
     }
 
-    public String getDemarcheId() {
-        return applicationName;
-    }
-
-    public String getGichkeyRedirectUrl() {
-        return gichkeyRedirectUrl.replace("<redirect_uri>", getGichkeyKeycloakRedirectUri());
-    }
-
-    public String getGichkeyKeycloakRedirectUri() {
-        return gichkeyKeycloakRedirectUrl;
-    }
-
     /* Properties propres à la démarche */
-
-    public String getBackOfficeUrl() {
-        return backUrl;
-    }
-
-    public String getBackOfficeDemandeUrl() {
-        return demandeUrl;
-    }
-
-    public String getSharedKey() {
-        return frontserverKey;
-    }
-
-    public String getApiJwt() {
-        return frontserverJwt;
-    }
-
-    public String getTgfApiUrl() {
-        return StringUtils.isBlank(tgfApiUrl) ? "vide" : tgfApiUrl;
-    }
-
-    public String getTgfApiJwt() {
-        return StringUtils.isBlank(tgfApiJwt) ? "vide" : tgfApiJwt;
-    }
-
-    public String getFrontofficeCopyrightYears() {
-        return copyrightYears;
-    }
-
-    public String getFrontofficePiwikSiteId() {
-        return piwikSiteId;
-    }
-
-    public String getFrontofficePiwikURL() {
-        return piwikUrl;
-    }
-
-    public String getPaiementProvider() {
-        String value = paiementProvider;
-        return StringUtils.isBlank(value) ? "vide" : value;
-    }
-
-    public String getMoneticoUrl() {
-        String value = moneticoUrl;
-        return StringUtils.isBlank(value) ? "vide" : value;
-    }
 
     public String getPorteDocUrl() {
         String value = getGichuniUrl();
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
-    public String getLienRevocationCertifsElectroniquesFr() {
-        return StringUtils.isBlank(lienRevocationCertifsElectroniquesFr) ? "vide" : lienRevocationCertifsElectroniquesFr;
-    }
-    public String getLienRevocationCertifsElectroniquesEn() {
-        return StringUtils.isBlank(lienRevocationCertifsElectroniquesEn) ? "vide" : lienRevocationCertifsElectroniquesEn;
-    }
-    public String getPubMconnectUrlFr() {
-        return StringUtils.isBlank(pubMconnectUrlFr) ? "vide" : pubMconnectUrlFr;
-    }
-
-    public String getPubMconnectUrlEn() {
-        return StringUtils.isBlank(pubMconnectUrlEn) ? "vide" : pubMconnectUrlEn;
-    }
-
-    public boolean getProxy2TiersActivation() {
-        String value = proxy2tiersActivation;
-        return StringUtils.isNotBlank(value) && value.equals("true");
-    }
-
     public List<PropertiesDTO> getFrontProperties() {
-        // TODO refactor le nom de ces properties une fois que le premier WYSI xaf12 sera prêt
-        final String LOGIN_KEEP_ALIVE = APPFACTORY_PREFIX + ".front.login.keepalive.url";
-        final String GICHKEY_REDIRECT_URL = APPFACTORY_PREFIX + "." + applicationName + ".gichkey.redirect.url";
-        final String GICHUNI_PROFIL_INDIVIDUAL_URL = APPFACTORY_PREFIX + ".front.gichuni.profil.individual.url";
-        final String GICHUNI_PROFIL_COMPANY_URL = APPFACTORY_PREFIX + ".front.gichuni.profil.company.url";
-        final String FRONTOFFICE_CONTACT_URL = APPFACTORY_PREFIX + "." + applicationName + ".front.login.contact.url";
-        final String FRONTOFFICE_COPYRIGHT_YEARS = APPFACTORY_PREFIX + "." + applicationName + ".front.copyright.years";
-        final String FRONTOFFICE_PIWIK_SITE_ID = "mc.gouv.piwik.external." + applicationName + ".piwikSiteId";
-        final String FRONTOFFICE_PIWIK_URL = "mc.gouv.piwik.external.piwikUrl";
-        final String PAIEMENT_PROVIDER = APPFACTORY_PREFIX + "." + applicationName + ".paiement.provider";
-        final String MONETICO_URL = APPFACTORY_PREFIX + "." + applicationName + ".monetico.url";
-        final String GICHUNI_FRONT_URL = APPFACTORY_PREFIX + ".front.gichuni.url";
-
-        // #58046 - Ajout de propriétés partagées par tous les Front office
-        final String GICHUNI_USAGER_PARTICULER_URL_FR = "mc.gouv.gichuni.particulier.url.fr";
-        final String GICHUNI_USAGER_PARTICULER_URL_EN = "mc.gouv.gichuni.particulier.url.en";
-        final String GICHUNI_USAGER_ENTREPRISE_URL_FR = "mc.gouv.gichuni.entreprise.url.fr";
-        final String GICHUNI_USAGER_ENTREPRISE_URL_EN = "mc.gouv.gichuni.entreprise.url.en";
-
-        // #58041 - [BO] Clé BO pour lien vers le formulaire de révocation des certificats électroniques
-        final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR = "mc.gouv.mconnect.revocation.certificats.url.fr";
-        final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN = "mc.gouv.mconnect.revocation.certificats.url.en";
-
-        final String PUB_MCONNECT_URL_FR = "mc.gouv.gichuni.pub.mconnect.url.fr";
-        final String PUB_MCONNECT_URL_EN = "mc.gouv.gichuni.pub.mconnect.url.en";
 
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
-        propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, ""));
-        propertiesDTOS.add(new PropertiesDTO(GICHKEY_REDIRECT_URL, getGichkeyRedirectUrl()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_PROFIL_INDIVIDUAL_URL, getGichuniProfilIndividualUrl()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_PROFIL_COMPANY_URL, getGichuniProfilCompanyUrl()));
-        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_CONTACT_URL, ""));
-        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_COPYRIGHT_YEARS, getFrontofficeCopyrightYears()));
-        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_SITE_ID, getFrontofficePiwikSiteId()));
-        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
-        propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
-        propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
 
-        //merge depuis la 11.3.0
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_FRONT_URL, getGichuniFrontUrl()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getGichuniDemarcheParticulierUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getGichuniDemarcheParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_FR, getGichuniDemarcheEntrepriseUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getGichuniDemarcheEntrepriseUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, getLienRevocationCertifsElectroniquesFr()));
-        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, getLienRevocationCertifsElectroniquesEn()));
-
-        propertiesDTOS.add(new PropertiesDTO(PUB_MCONNECT_URL_FR, getPubMconnectUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO(PUB_MCONNECT_URL_EN, getPubMconnectUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.gichkey.redirect.url", getGichkeyRedirectUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.copyright.years", getCopyrightYears()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.matomo.site_id", getMatomoSiteId()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.matomo.api.url", getMatomoUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.monetico.url", getMoneticoUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.fr", getLienRevocationCertifsElectroniquesFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.en", getLienRevocationCertifsElectroniquesEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.profil.particulier.url", getGichuniProfilIndividualUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.profil.entreprise.url", getGichuniProfilCompanyUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.front.url", getGichuniFrontUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.fr", getGichuniDemarcheParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.en", getGichuniDemarcheParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.entreprise.url.fr", getGichuniDemarcheEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.entreprise.url.en", getGichuniDemarcheEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.pub.mconnect.url.fr", getPubMconnectUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.pub.mconnect.url.en", getPubMconnectUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.fr", getServicePublicParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.en", getServicePublicParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.professionnel.url.fr", getServicePublicProfessionnelUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.professionnel.url.en", getServicePublicProfessionnelUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.url.fr", getCookiesUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.url.en", getCookiesUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.mconnect.help.url.fr", getMconnectHelpUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.mconnect.help.url.en", getMconnectHelpUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.support.url.fr", getSupportUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.support.url.en", getSupportUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.fr", getCompteParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.en", getCompteParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.professionnel.url.fr", getCompteProfessionnelUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.professionnel.url.en", getCompteProfessionnelUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.fr", getMonguichetCguUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.en", getMonguichetCguUrlEn()));
 
         return propertiesDTOS;
     }

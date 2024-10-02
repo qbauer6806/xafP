@@ -113,7 +113,7 @@ public class CustomRequestController extends AbstractXafController {
             LOGGER.error("Situation anormale : serviceRequest == null");
             return ResponseEntity.internalServerError().build();
         }
-        serviceRequest.setHeader("Authorization", "Bearer " + propertiesResolver.getApiJwt());
+        serviceRequest.setHeader("Authorization", "Bearer " + propertiesResolver.getFrontserverJwt());
 
         // Copier les headers
         Enumeration<String> headers = request.getHeaderNames();

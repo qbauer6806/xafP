@@ -28,11 +28,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getProcessDefinitionKey() {
-        return null;
-    }
-
-    @Override
     public String getDemarcheId() {
         return null;
     }

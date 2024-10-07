@@ -18,8 +18,6 @@ import lombok.ToString;
 @ToString
 public class DemandeStatutDTO {
 
-    public static final String LIBELLE_FIELD_NAME = "libelle";
-
     private Integer pkStatut;
 
     private String libelle;

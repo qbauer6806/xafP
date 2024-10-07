@@ -30,8 +30,6 @@ public class FrontGouvPropertiesResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontGouvPropertiesResolver.class);
 
-    private static final String APPFACTORY_PREFIX = "mc.gouv.appfactory";
-
     @Value("${application.name}")
     private String demarcheId;
 
@@ -127,54 +125,54 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.mconnect.revocation.certificats.url.en:}")
     private String lienRevocationCertifsElectroniquesEn;
 
-    @Value("${mc.gouv.gichuni.pub.mconnect.url.fr:}")
+    @Value("${mc.gouv.gichuni.pub.mconnect.url.fr}")
     private String pubMconnectUrlFr;
-    @Value("${mc.gouv.gichuni.pub.mconnect.url.en:}")
+    @Value("${mc.gouv.gichuni.pub.mconnect.url.en}")
     private String pubMconnectUrlEn;
 
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
     private boolean proxy2tiersActivation;
 
-    @Value("${mc.gouv.gichuni.demarche.particulier.url.fr:}")
+    @Value("${mc.gouv.gichuni.demarche.particulier.url.fr}")
     private String gichuniDemarcheParticulierUrlFr;
-    @Value("${mc.gouv.gichuni.demarche.particulier.url.en:}")
+    @Value("${mc.gouv.gichuni.demarche.particulier.url.en}")
     private String gichuniDemarcheParticulierUrlEn;
-    @Value("${mc.gouv.gichuni.demarche.entreprise.url.fr:}")
+    @Value("${mc.gouv.gichuni.demarche.entreprise.url.fr}")
     private String gichuniDemarcheEntrepriseUrlFr;
-    @Value("${mc.gouv.gichuni.demarche.entreprise.url.en:}")
+    @Value("${mc.gouv.gichuni.demarche.entreprise.url.en}")
     private String gichuniDemarcheEntrepriseUrlEn;
 
-    @Value("${mc.gouv.appfactory.servicepublic.particulier.url.fr:}")
+    @Value("${mc.gouv.appfactory.servicepublic.particulier.url.fr}")
     private String servicePublicParticulierUrlFr;
-    @Value("${mc.gouv.appfactory.servicepublic.particulier.url.en:}")
+    @Value("${mc.gouv.appfactory.servicepublic.particulier.url.en}")
     private String servicePublicParticulierUrlEn;
-    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.fr:}")
+    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.fr}")
     private String servicePublicProfessionnelUrlFr;
-    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.en:}")
+    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.en}")
     private String servicePublicProfessionnelUrlEn;
-    @Value("${mc.gouv.appfactory.cookies.url.fr:}")
+    @Value("${mc.gouv.appfactory.cookies.url.fr}")
     private String cookiesUrlFr;
-    @Value("${mc.gouv.appfactory.cookies.url.en:}")
+    @Value("${mc.gouv.appfactory.cookies.url.en}")
     private String cookiesUrlEn;
-    @Value("${mc.gouv.appfactory.mconnect.help.url.fr:}")
+    @Value("${mc.gouv.appfactory.mconnect.help.url.fr}")
     private String mconnectHelpUrlFr;
-    @Value("${mc.gouv.appfactory.mconnect.help.url.en:}")
+    @Value("${mc.gouv.appfactory.mconnect.help.url.en}")
     private String mconnectHelpUrlEn;
-    @Value("${mc.gouv.appfactory.support.url.fr:}")
+    @Value("${mc.gouv.appfactory.support.url.fr}")
     private String supportUrlFr;
-    @Value("${mc.gouv.appfactory.support.url.en:}")
+    @Value("${mc.gouv.appfactory.support.url.en}")
     private String supportUrlEn;
-    @Value("${mc.gouv.appfactory.compte.particulier.url.fr:}")
+    @Value("${mc.gouv.appfactory.compte.particulier.url.fr}")
     private String compteParticulierUrlFr;
-    @Value("${mc.gouv.appfactory.compte.particulier.url.fr:}")
+    @Value("${mc.gouv.appfactory.compte.particulier.url.fr}")
     private String compteParticulierUrlEn;
-    @Value("${mc.gouv.appfactory.compte.professionnel.url.fr:}")
+    @Value("${mc.gouv.appfactory.compte.professionnel.url.fr}")
     private String compteProfessionnelUrlFr;
-    @Value("${mc.gouv.appfactory.compte.professionnel.url.en:}")
+    @Value("${mc.gouv.appfactory.compte.professionnel.url.en}")
     private String compteProfessionnelUrlEn;
-    @Value("${mc.gouv.appfactory.monguichet.cgu.url.fr:}")
+    @Value("${mc.gouv.appfactory.monguichet.cgu.url.fr}")
     private String monguichetCguUrlFr;
-    @Value("${mc.gouv.appfactory.monguichet.cgu.url.en:}")
+    @Value("${mc.gouv.appfactory.monguichet.cgu.url.en}")
     private String monguichetCguUrlEn;
 
     @PostConstruct
@@ -219,11 +217,7 @@ public class FrontGouvPropertiesResolver {
     private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor) throws InvocationTargetException, IllegalAccessException {
         try {
             Object value = method.invoke(this);
-            if (value instanceof String s) {
-                if (StringUtils.isBlank(s)) {
-                    propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-                }
-            } else if (value == null) {
+            if (value == null) {
                 propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
             }
         } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {

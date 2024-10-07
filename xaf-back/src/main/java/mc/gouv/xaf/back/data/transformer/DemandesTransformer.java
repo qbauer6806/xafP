@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -21,6 +24,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
@@ -57,6 +61,9 @@ public class DemandesTransformer {
 
     @Autowired
     private DemandesConfigTransformer demandesConfigTransformer;
+
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -180,6 +187,21 @@ public class DemandesTransformer {
             if (DemarchesUtils.isFrontUser()) {
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
+                Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
+                // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
+                if (privateStatus.get(statutDto.getName()) != null) {
+                    List<DemandeStatutDTO> allStatus = DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()));
+                    allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
+                    for (DemandeStatutDTO demandeStatutDTO : allStatus) {
+                        // si on tombe sur un statut public, on utilise celui-là
+                        if (privateStatus.get(demandeStatutDTO.getName()) == null) {
+                            statutDto.setName(demandeStatutDTO.getName());
+                            statutDto.setLibelle(demandeStatutDTO.getLibelle());
+                            break;
+                        }
+                    }
+                    statutDto.setCodeMotif(null);
+                }
             }
             dto.setDernierStatut(statutDto);
         }
@@ -227,19 +249,8 @@ public class DemandesTransformer {
 
     private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {
         // Mapper les statuts
-        if (addStatutsField) {
-            if (DemarchesUtils.isFrontUser()) {
-                // Front Office : remonter uniquement le dernier statut de la demande
-                DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(bo);
-                DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
-                // Cacher l'agentId au Front Office
-                statutDto.setAgentId(null);
-                dto.setStatuts(new DemandeStatutDTO[] { statutDto });
-            } else {
-                // Back Office : tout remonter
-                dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
-                        .toArray(DemandeStatutDTO[]::new));
-            }
+        if (addStatutsField && !DemarchesUtils.isFrontUser()) {
+            dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts())).toArray(DemandeStatutDTO[]::new));
         }
         return dto;
     }

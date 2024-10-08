@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -155,25 +157,50 @@ public class GestionConfigJsonController {
 			@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) throws IOException {
 		LOGGER.info("Appel du webservice /gestion/configjson/import");
 		PropertiesDTO property = propertiesService.getProperty(key);
+        String oldValue = property.getValue();
+        PropertiesListEntityDTO[] oldValues;
+        PropertiesListEntityDTO[] newValues = new PropertiesListEntityDTO[0];
 		property.setValue(new String(file.getBytes()));
 		// Vérification du fichier donné
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			if (!StringUtils.isEmpty(property.getValue())) {
-				mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class);
+				newValues  = mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class);
 			}
+            oldValues = mapper.readValue(oldValue, PropertiesListEntityDTO[].class);
         } catch (JsonParseException | JsonMappingException e) {
             throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
         }
-		propertiesService.saveOrUpdateProperties(property);
-		List<String> messages = new ArrayList<>();
-		messages.add(IMPORT_SUCCESS);
-		redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-		ModelAndView mav = new ModelAndView("redirect:/gestion/configjson?key="+key);
+        // vérifier s'l n'y a pas de suppression de propriété
+        if (containsAllLabels(oldValues, newValues)) {
+            propertiesService.saveOrUpdateProperties(property);
+            List<String> messages = new ArrayList<>();
+            messages.add(IMPORT_SUCCESS);
+            redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
+            ModelAndView mav = new ModelAndView("redirect:/gestion/configjson?key="+key);
 
-		LOGGER.info("======================= Fin /gestion/configjson/import");
-		return mav;
+            LOGGER.info("======================= Fin /gestion/configjson/import");
+            return mav;
+        }
+        throw new BadRequestException("Il n'est pas possible de supprimer des données");
 	}
+
+    private boolean containsAllLabels(PropertiesListEntityDTO[] oldValues, PropertiesListEntityDTO[] newValues) {
+        // Convert newValues labels into a Set
+        Set<String> newLabels = new HashSet<>();
+        for (PropertiesListEntityDTO newValue : newValues) {
+            newLabels.add(newValue.getId());
+        }
+
+        // Check if all labels in oldValues are present in newValues
+        for (PropertiesListEntityDTO oldValue : oldValues) {
+            if (!newLabels.contains(oldValue.getId())) {
+                return false;  // At least one label from oldValues is missing in newValues
+            }
+        }
+
+        return true;  // All labels from oldValues are present in newValues
+    }
 	
 	@PostMapping(path = "/addlibelle")
 	public ModelAndView addLibelle(@RequestParam(name = "label") String label, @RequestParam(name = "cle") String cle, @RequestParam(name = "key") String key, final RedirectAttributes redirectAttributes) throws IOException {

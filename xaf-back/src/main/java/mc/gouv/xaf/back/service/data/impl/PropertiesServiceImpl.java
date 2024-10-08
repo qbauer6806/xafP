@@ -120,11 +120,15 @@ public class PropertiesServiceImpl implements PropertiesService {
 			try {
 				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
 				jsonObjectsToDisplay.sort((p1, p2) -> {
-                    // On veut laisser le libelle Autre en 1ere position dans la liste
-                    if (p1.getLabel().equals("AUTRE") || p2.getLabel().equals("AUTRE") || p1.getId().equals("AUTRE") || p2.getId().equals("AUTRE")) {
-                        // je retourne 1 si AUTRE commme ça il reste au début de la liste
+                    // Si p1 est "AUTRE", il doit être placé avant p2
+                    if (p1.getLabel().equalsIgnoreCase("AUTRE") || p1.getId().equalsIgnoreCase("AUTRE")) {
+                        return -1;
+                    }
+                    // Si p2 est "AUTRE", il doit être placé avant p1
+                    if (p2.getLabel().equalsIgnoreCase("AUTRE") || p2.getId().equalsIgnoreCase("AUTRE")) {
                         return 1;
                     }
+                    // Sinon, on compare les labels normalement (en majuscules pour être insensible à la casse)
                     return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
                 });
 				ByteArrayOutputStream out = new ByteArrayOutputStream();

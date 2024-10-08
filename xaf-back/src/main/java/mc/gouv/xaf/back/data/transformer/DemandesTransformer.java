@@ -137,7 +137,9 @@ public class DemandesTransformer {
         dto.setObservations(bo.getObservations());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
-        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
+        if (!DemarchesUtils.isFrontUser()) {
+            dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
+        }
         dto.setIdentifiant(bo.getIdentifiant());
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());

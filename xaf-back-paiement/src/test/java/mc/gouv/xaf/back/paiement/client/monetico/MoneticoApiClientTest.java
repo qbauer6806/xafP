@@ -20,7 +20,7 @@ import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
 
 public class MoneticoApiClientTest {
 	MoneticoApiClient moneticoApiClient = new MoneticoApiClient(new PaiementPropertiesResolverTestImpl(),
-			new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null);
+			new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null);
 
     @Test
     public void testCapture() throws Exception {

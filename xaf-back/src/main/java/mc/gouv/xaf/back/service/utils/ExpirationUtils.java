@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.utils;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.expiration.settings.ExpirationStatutDemandeConf;
@@ -24,8 +23,6 @@ public class ExpirationUtils {
     private DemandesService demandesService;
     @Autowired
     private PropertiesService propertiesService;
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     public Map<DemandeDTO, String> getDemandesAExpirer(List<ExpirationStatutDemandeConf> expirationDemandeSettings) {
         Map<DemandeDTO, String> result = new HashMap<>();

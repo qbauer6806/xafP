@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.DemandeStatutComparator;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
@@ -25,12 +24,7 @@ import java.util.List;
 @Component
 public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
-    // voir pour l'autowiring dans les javaDelegate
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMRestorePreviousStatusDelegate.class);
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;

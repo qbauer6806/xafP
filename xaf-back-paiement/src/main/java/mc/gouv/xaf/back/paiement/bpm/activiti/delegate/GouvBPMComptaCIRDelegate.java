@@ -32,9 +32,6 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
     private AfHistoService histoService;
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DemandesDataService demandesDataService;
 
     @Override

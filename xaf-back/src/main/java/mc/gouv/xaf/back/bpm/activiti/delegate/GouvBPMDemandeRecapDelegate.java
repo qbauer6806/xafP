@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -26,9 +25,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeRecapDelegate.class);
-
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
 	private DemandesService demandesService;

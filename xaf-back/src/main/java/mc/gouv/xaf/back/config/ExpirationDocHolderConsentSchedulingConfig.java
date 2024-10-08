@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.config;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.scheduling.ExpirationDocHolderConsentSchedulingJob;
@@ -22,9 +21,6 @@ public class ExpirationDocHolderConsentSchedulingConfig {
 
     @Autowired
     private PropertiesService propertiesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @PostConstruct
     private void init() throws SchedulerException {

@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -46,9 +45,6 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     
     @Autowired
     private DemandesService demandesService;
-    
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;

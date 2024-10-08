@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.properties;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolver {
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private PropertiesService propertiesService;

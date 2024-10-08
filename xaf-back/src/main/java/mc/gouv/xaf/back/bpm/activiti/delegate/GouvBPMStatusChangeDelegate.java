@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.StatutInputDTO;
@@ -36,9 +35,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
     @Setter
     @Getter
     private Expression targetState;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;

@@ -372,7 +372,7 @@ public class FileController {
 	 * @throws IOException
 	 */
 	public List<DemandeComplementsFileDTO> saveFilesWithMeta(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
-		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
+		LOGGER.info(LOG_APPEL);
 		DemandeDTO demande = demandesService.getDemande(demandeId);
 		List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
@@ -398,7 +398,7 @@ public class FileController {
 	 */
 	public String saveFilesPublication(String codePublication, MultipartFile[] files) throws IOException {
 
-		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
+		LOGGER.info(LOG_APPEL);
 
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {

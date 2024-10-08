@@ -36,7 +36,6 @@ import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -58,7 +57,6 @@ public class MoneticoApiClient implements PaiementApiClient {
     private final OperationHelper operationHelper;
     private final MailService mailService;
     private final PropertiesService propertiesService;
-    private final GouvPropertiesResolver gouvPropertiesResolver;
     private final PaiementSecurityService paiementSecurityService;
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -68,7 +66,6 @@ public class MoneticoApiClient implements PaiementApiClient {
                              OperationHelper operationHelper,
                              MailService mailService,
                              PropertiesService propertiesService,
-                             GouvPropertiesResolver gouvPropertiesResolver,
                              PaiementSecurityService paiementSecurityService) {
 
         ClientConfig config = new ClientConfig();
@@ -86,7 +83,6 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.operationHelper = operationHelper;
         this.mailService = mailService;
         this.propertiesService = propertiesService;
-        this.gouvPropertiesResolver = gouvPropertiesResolver;
         this.paiementSecurityService = paiementSecurityService;
     }
 

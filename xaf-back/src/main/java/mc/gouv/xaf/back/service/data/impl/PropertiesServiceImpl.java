@@ -7,12 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
 import mc.gouv.xaf.back.data.entity.PropertiesBO;
 import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -43,11 +41,10 @@ public class PropertiesServiceImpl implements PropertiesService {
     private static final PropertiesTypeEnum[] AF_PROPERTIES = {PropertiesTypeEnum.FRONT_AF,
             PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACK_AF};
 
-    @Autowired
-    private PropertiesRepository propertiesRepository;
+    private static final String AUTRE = "AUTRE";
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private PropertiesRepository propertiesRepository;
 
     /**
      * Récupère toute les Properties liées à une démarche
@@ -121,11 +118,11 @@ public class PropertiesServiceImpl implements PropertiesService {
 				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
 				jsonObjectsToDisplay.sort((p1, p2) -> {
                     // Si p1 est "AUTRE", il doit être placé avant p2
-                    if (p1.getLabel().equalsIgnoreCase("AUTRE") || p1.getId().equalsIgnoreCase("AUTRE")) {
+                    if (p1.getLabel().equalsIgnoreCase(AUTRE) || p1.getId().equalsIgnoreCase(AUTRE)) {
                         return -1;
                     }
                     // Si p2 est "AUTRE", il doit être placé avant p1
-                    if (p2.getLabel().equalsIgnoreCase("AUTRE") || p2.getId().equalsIgnoreCase("AUTRE")) {
+                    if (p2.getLabel().equalsIgnoreCase(AUTRE) || p2.getId().equalsIgnoreCase(AUTRE)) {
                         return 1;
                     }
                     // Sinon, on compare les labels normalement (en majuscules pour être insensible à la casse)

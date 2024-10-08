@@ -36,6 +36,8 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 	@Autowired
 	private DemandesConfigTransformer demandesConfigTransformer;
 
+    private static final String MODEL_PATH = "modelPaths";
+
 	@Override
 	public List<String> getBuildIds() {
 		return getConfigsBO().stream().map(DemandeConfigBO::getBuildId).toList();
@@ -70,15 +72,15 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             // on recalcule les autres config pour vérifier si elles sont toujours le même modèle ou si le modèle a changé
             checkIfDernierModele(configs, configBO);
             // on génère les marqueurs pour la nouvelle config
-			marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId, getModelPaths(config.get("modelPaths").get("rechercheAvancee")));
+			marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId, getModelPaths(config.get(MODEL_PATH).get("rechercheAvancee")));
 		}
 		return demandesConfigTransformer.bo2Json(configBO);
 	}
 
     private void checkIfDernierModele(List<DemandeConfigBO> configs, DemandeConfigBO lastConfig) {
         for (DemandeConfigBO config : configs) {
-            List<String> all = getModelPaths(config.getContenu().get("modelPaths").get("all"));
-            List<String> allLastConfig = getModelPaths(lastConfig.getContenu().get("modelPaths").get("all"));
+            List<String> all = getModelPaths(config.getContenu().get(MODEL_PATH).get("all"));
+            List<String> allLastConfig = getModelPaths(lastConfig.getContenu().get(MODEL_PATH).get("all"));
             config.setDernierModele(false);
             // Vérifier si les deux listes ont la même taille
             if (all.size() == allLastConfig.size()) {
@@ -102,7 +104,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 	@Override
 	public List<String> getModelPathsRechercheAvancee(String buildId) {
         DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
-        return getModelPaths(configBO.getContenu().get("modelPaths").get("rechercheAvancee"));
+        return getModelPaths(configBO.getContenu().get(MODEL_PATH).get("rechercheAvancee"));
     }
 
     @Override

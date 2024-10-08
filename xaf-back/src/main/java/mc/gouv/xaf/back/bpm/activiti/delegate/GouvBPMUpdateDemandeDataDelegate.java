@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.bpm.GouvBPMException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 
 @Component
@@ -30,9 +29,6 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
     @Setter
     @Getter
     private Expression dataValue;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesDataService demandesDataService;

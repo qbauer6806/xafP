@@ -257,8 +257,7 @@ public abstract class AfApiService {
     }
 
     @Transactional
-    public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException {
+    public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
 
         DemandeDTO demandeEnBase = demandesService.getDemande(demandeId);
         if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {

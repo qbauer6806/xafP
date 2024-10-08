@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -38,9 +37,6 @@ public class RelancesUtils {
 
 	@Autowired
 	private PropertiesService propertiesService;
-
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
 	private AfBackUtils afBackUtils;

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -33,9 +32,6 @@ public class PurgeDemandesSchedulingJob implements Job {
 
     @Autowired
     private PropertiesService propertiesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     /**
      * @return La valeur de la propriété d'activation de la purge

@@ -21,11 +21,6 @@ public class JwtAuthFilter implements Filter {
 	public static final String JWT_PREFIX = "Bearer ";
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO document why this method is empty
-    }
-
-    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
@@ -37,11 +32,6 @@ public class JwtAuthFilter implements Filter {
             SecurityContextHolder.getContext().setAuthentication(token);
         }
         chain.doFilter(request, response);
-    }
-
-    @Override
-    public void destroy() {
-        // TODO document why this method is empty
     }
 
 }

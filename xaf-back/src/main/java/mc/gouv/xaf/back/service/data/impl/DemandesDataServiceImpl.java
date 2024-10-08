@@ -1,15 +1,10 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
-import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -147,7 +147,7 @@ public class MailClient extends ApiClient {
     }
 
     /**
-     * TODO
+     *
      * @param emailId
      * @return
      */
@@ -172,7 +172,6 @@ public class MailClient extends ApiClient {
             mailDTO.setFrom(mailAddrOnlyDTO.getFrom());
         }
 
-        // TODO Quand les pièces jointes seront stockées (dans FILE), les télécharger puis les
         // renvoyer
         return sendEmail(mailDTO);
     }

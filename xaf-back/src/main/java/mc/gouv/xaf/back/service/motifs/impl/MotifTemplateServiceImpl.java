@@ -23,7 +23,6 @@ import org.thymeleaf.exceptions.TemplateProcessingException;
 @Component
 public class MotifTemplateServiceImpl implements MotifTemplateService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MotifTemplateServiceImpl.class);
     private static final String ECHEC_THYMELEAF = "Thymeleaf template processing failed.";
 
     @Autowired

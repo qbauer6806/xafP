@@ -30,9 +30,6 @@ import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
  */
 @Component
 public class DemarchesUtils {
-    
-    @Value("${application.name}")
-    private String applicationName;
 
     public static final String METADATA_HTTPMETHODOVERRIDE = "X-HTTP-Method-Override";
     public static final int USAGERID_OFFSET = 1000000000;

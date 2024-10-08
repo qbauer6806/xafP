@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -29,9 +28,6 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
     @Setter
     @Getter
     private Expression targetState;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private AfHistoService histoService;

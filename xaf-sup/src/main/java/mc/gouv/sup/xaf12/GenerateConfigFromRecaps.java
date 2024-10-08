@@ -219,7 +219,7 @@ public class GenerateConfigFromRecaps {
             } else if (valueNode.isTextual()) {
                 // Si le champ est une chaîne de caractères, on nettoie les apostrophes
                 String value = valueNode.asText();
-                String cleanedValue = value.replaceAll("^'|'$", "");
+                String cleanedValue = value.replaceAll("(^')|('$)", "");
                 node.put(field.getKey(), cleanedValue);
             }
         }

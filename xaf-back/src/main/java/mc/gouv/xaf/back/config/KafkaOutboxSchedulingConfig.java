@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.config;
 
 import jakarta.annotation.PostConstruct;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
@@ -13,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.impl.KafkaOutboxSchedulingJobImpl;
@@ -38,8 +38,10 @@ public class KafkaOutboxSchedulingConfig {
 
     public static final String XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION = "XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION";
     public static final String XAF_KAFKA_OUTBOX_RETRY_NB = "XAF_KAFKA_OUTBOX_RETRY_NB";
+    @Getter
     private Integer retryNb = null;
     public static final String XAF_KAFKA_OUTBOX_RETRY_INTERVAL = "XAF_KAFKA_OUTBOX_RETRY_INTERVAL";
+    @Getter
     private Integer retryInterval = null;
 
     @Autowired
@@ -47,9 +49,6 @@ public class KafkaOutboxSchedulingConfig {
 
     @Autowired
     private PropertiesService propertiesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @PostConstruct
     private void init() throws SchedulerException, DemPropertyNotFoundException {
@@ -86,14 +85,6 @@ public class KafkaOutboxSchedulingConfig {
             throw new DemPropertyNotFoundException(XAF_KAFKA_OUTBOX_RETRY_INTERVAL);
         }
         return Integer.parseInt(propertiesDTO.getValue());
-    }
-
-    public Integer getRetryNb() {
-        return retryNb;
-    }
-
-    public Integer getRetryInterval() {
-        return retryInterval;
     }
 
 }

@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -55,9 +54,6 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
     @Autowired
     private DemandesFilesService demandesFileService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandeRecapHTMLService demandeRecapHTMLService;

@@ -8,7 +8,6 @@ import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -25,9 +24,6 @@ public class PurgeDemandesSchedulingConfig {
     @Autowired
     private PropertiesService propertiesService;
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-    
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 

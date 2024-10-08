@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
@@ -22,9 +21,6 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
 
     @Autowired
     private DemandesStatistiquesInternesRepository demandesStatInternesRepository;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;

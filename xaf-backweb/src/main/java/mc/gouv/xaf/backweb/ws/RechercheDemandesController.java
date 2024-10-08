@@ -9,7 +9,6 @@ import mc.gouv.xaf.back.service.data.RechercheAdminService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.dto.AfBackDemandeDTO;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;

@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -32,9 +31,6 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
 
     @Autowired
     private PdfGenerationService pdfGenerationService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesService demandesService;

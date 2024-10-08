@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -43,10 +42,7 @@ public class GUKafkaUtils {
 	
 	@Autowired
 	private PropertiesService propertiesService;
-	
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
-	
+
 	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
 	

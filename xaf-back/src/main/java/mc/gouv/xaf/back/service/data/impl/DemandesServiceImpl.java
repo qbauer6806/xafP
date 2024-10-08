@@ -819,7 +819,7 @@ public class DemandesServiceImpl implements DemandesService {
         purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
 
         DemandesAgentsBO agent = demandeBo.getAgent();
-        DemandesUsagersBO usager = demandeBo.getUsager();
+//        DemandesUsagersBO usager = demandeBo.getUsager();
         /*** Suppression de la demande. */
 		LOGGER.info("Appel du répo pour la suppression...");
 		demandesRepository.delete(demandeBo);

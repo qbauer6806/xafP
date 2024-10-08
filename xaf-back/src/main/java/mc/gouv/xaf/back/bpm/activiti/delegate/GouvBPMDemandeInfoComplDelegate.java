@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
@@ -27,9 +26,6 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
     // voir pour l'autowiring dans les javaDelegate
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeInfoComplDelegate.class);
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesComplementsService demandesComplementsService;

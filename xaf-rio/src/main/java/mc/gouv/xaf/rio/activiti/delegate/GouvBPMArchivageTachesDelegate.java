@@ -2,7 +2,6 @@ package mc.gouv.xaf.rio.activiti.delegate;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.TachesService;
@@ -38,9 +37,6 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesService demandesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private ArchivageService archivageService;

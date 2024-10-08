@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service.scheduling;
 
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +24,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ExpirationDocHolderConsentSchedulingJobTest {
-    @Mock
-    GouvPropertiesResolver gouvPropertiesResolver;
     @Mock
     AccessRepository accessRepository;
     @Mock

@@ -21,7 +21,6 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -60,9 +59,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private FileService fileService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandeFileTransformer demandeFileTransformer;

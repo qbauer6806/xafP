@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
@@ -43,9 +42,6 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 
 	@Autowired
 	private PropertiesService propertiesService;
-	
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
 	
 	@Autowired
 	private DemandesDataService demandesDataService;

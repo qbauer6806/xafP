@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.ws;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -51,7 +52,7 @@ public class MailPreviewController extends AbstractController {
 	private GouvBPM gouvBPM;
 
 	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
-			throws Exception {
+            throws IOException {
 		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action, pkDemande);
 		String bodyTemplateCode = templateCodes.getKey();
 		String subjectTemplateCode = templateCodes.getValue();

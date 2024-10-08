@@ -4,7 +4,6 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -46,9 +45,6 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesService demandesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;

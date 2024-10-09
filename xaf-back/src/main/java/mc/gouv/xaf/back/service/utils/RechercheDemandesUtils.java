@@ -148,7 +148,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
         String[] searchFields = demandeRecherche.getSearchFields();
         // Créer des prédicats pour la recherche avec facet cliqué
         if (searchFields != null && searchFields.length > 0 && texte != null && !texte.isEmpty()) {
-            LOGGER.info("Recherche avancée - texte, facet: {}, {}", texte, searchFields[0]);
+            LOGGER.info("Recherche avancée - texte, facet : {}, {}", texte, searchFields[0]);
             setFacetPredicates(searchFields[0], root, predicates, cb, texte);
         } else if (!StringUtils.isBlank(texte)) {
             LOGGER.info("Recherche avancée - texte: {}", texte);

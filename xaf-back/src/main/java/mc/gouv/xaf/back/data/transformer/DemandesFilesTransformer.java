@@ -25,6 +25,7 @@ public class DemandesFilesTransformer {
         dto.setDate(bo.getDate());
         dto.setTypedoc(bo.getTypedoc());
         dto.setVerification(bo.isVerification());
+        dto.setContenu(bo.getContenu());
         return dto;
     }
 

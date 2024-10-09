@@ -37,7 +37,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Disabled
 @ExtendWith(MockitoExtension.class)
-public class CaptureServiceTest {
+class CaptureServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceTest.class);
 
@@ -63,7 +63,7 @@ public class CaptureServiceTest {
     private CommandeOperationRepository commandeOperationRepository;
 
     @BeforeEach
-    public void cleanData() {
+    void cleanData() {
         commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
         commandeDemandeArticleRepository.deleteAll();
@@ -75,7 +75,7 @@ public class CaptureServiceTest {
 
     @Transactional
     @Test
-    public void captureOk() {
+    void captureOk() {
         ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
         try {

@@ -19,12 +19,12 @@ import java.util.Map.Entry;
  * @author qdeme, asouabni
  *
  */
-public class GouvCacheTest {
+class GouvCacheTest {
 
     private static final long CACHE_DURATION = 3000;
 
     @Test
-    public void testCache() throws Exception {
+    void testCache() throws Exception {
 
         GouvCacheDataTestingProvider gcdp = new GouvCacheDataTestingProvider();
         gcdp = spy(gcdp);

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Disabled
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest
-public class PaiementHistoriqueRepositoryTest {
+class PaiementHistoriqueRepositoryTest {
 
     @Autowired
     private DemandesRepository demandesRepository;
@@ -59,19 +59,19 @@ public class PaiementHistoriqueRepositoryTest {
 
     @Test
     @Transactional
-    public void findHistoriqueByFkDemandesTest() {
+    void findHistoriqueByFkDemandesTest() {
         DemandeBO demandeBO = createDemande();
         PaiementHistoriqueBO paiementHistoriqueBO = createHistorique(demandeBO);
         Set<Integer> pkDemandes = new HashSet<>();
         pkDemandes.add(demandeBO.getPkDemandes());
         List<PaiementHistoriqueBO> result = paiementHistoriqueRepository.findByFkDemandes_PkDemandesIn(pkDemandes);
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getPkHistorique()).isEqualTo(paiementHistoriqueBO.getPkHistorique());
+        assertThat(result.getFirst().getPkHistorique()).isEqualTo(paiementHistoriqueBO.getPkHistorique());
     }
 
     @Test
     @Transactional
-    public void findHistoriqueByFkDemandesLesHistoPlusBonTest() {
+    void findHistoriqueByFkDemandesLesHistoPlusBonTest() {
         DemandeBO demandeBO1 = createDemande();
         PaiementHistoriqueBO paiementHistoriqueBO1 = createHistorique(demandeBO1);
         Set<Integer> pkDemandes = new HashSet<>();
@@ -85,7 +85,7 @@ public class PaiementHistoriqueRepositoryTest {
 
     @Test
     @Transactional
-    public void deleteHistoriqueTest() {
+    void deleteHistoriqueTest() {
         DemandeBO demandeBO = createDemande();
         createHistorique(demandeBO);
         Set<Integer> pkDemandes = new HashSet<>();
@@ -97,7 +97,7 @@ public class PaiementHistoriqueRepositoryTest {
 
     @Test
     @Transactional
-    public void deleteHistoriquePlusBonTest() {
+    void deleteHistoriquePlusBonTest() {
         DemandeBO demandeBO1 = createDemande();
         createHistorique(demandeBO1);
         Set<Integer> pkDemandes = new HashSet<>();
@@ -107,7 +107,7 @@ public class PaiementHistoriqueRepositoryTest {
         paiementHistoriqueRepository.deleteByFkDemandes_PkDemandesIn(pkDemandes);
         List<PaiementHistoriqueBO> result = paiementHistoriqueRepository.findAll();
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getPkHistorique()).isEqualTo(paiementHistoriqueBO.getPkHistorique());
+        assertThat(result.getFirst().getPkHistorique()).isEqualTo(paiementHistoriqueBO.getPkHistorique());
     }
 
 }

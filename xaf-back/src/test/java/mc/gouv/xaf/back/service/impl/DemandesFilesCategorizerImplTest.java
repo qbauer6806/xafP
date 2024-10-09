@@ -49,7 +49,7 @@ public class DemandesFilesCategorizerImplTest {
     }
 
     @Test
-    public void getCategoriesAndFilesTest() {
+    void getCategoriesAndFilesTest() {
         DemandeDTO demande = new DemandeDTO();
 
         DemandeFileDTO[] files = new DemandeFileDTO[4];
@@ -72,32 +72,32 @@ public class DemandesFilesCategorizerImplTest {
         List<FileCategoryDTO> result = demandeFilesCategorizer.getCategoriesAndFiles(demande);
 
         assertEquals(4, result.size());
-        assertEquals("Fichiers de la demande initiale", result.get(0).getName());
-        List<DemandeFileDTO> fileList = result.get(0).getFiles();
+        assertEquals("Fichiers de la demande initiale", result.getFirst().getName());
+        List<DemandeFileDTO> fileList = result.getFirst().getFiles();
         assertEquals(2, fileList.size());
         assertEquals("vide", fileList.get(0).getName());
         assertEquals("file", fileList.get(1).getName());
         assertEquals("Fichiers complémentaires", result.get(1).getName());
         fileList = result.get(1).getFiles();
         assertEquals(1, fileList.size());
-        assertEquals("complement", fileList.get(0).getName());
+        assertEquals("complement", fileList.getFirst().getName());
         assertEquals("Fichiers remis par l'Administration", result.get(2).getName());
         fileList = result.get(2).getFiles();
         assertEquals(1, fileList.size());
-        assertEquals("justif", fileList.get(0).getName());
+        assertEquals("justif", fileList.getFirst().getName());
         assertEquals("Fichiers internes", result.get(3).getName());
         fileList = result.get(3).getFiles();
         assertEquals(1, fileList.size());
-        assertEquals("interne", fileList.get(0).getName());
+        assertEquals("interne", fileList.getFirst().getName());
     }
 
     @Test
-    public void getCategoriesAndFilesTestPasDeFichiers() {
+    void getCategoriesAndFilesTestPasDeFichiers() {
         DemandeDTO demande = new DemandeDTO();
         List<FileCategoryDTO> result = demandeFilesCategorizer.getCategoriesAndFiles(demande);
 
         assertEquals(4, result.size());
-        assertEquals("Fichiers de la demande initiale", result.get(0).getName());
+        assertEquals("Fichiers de la demande initiale", result.getFirst().getName());
         List<DemandeFileDTO> fileList = result.get(0).getFiles();
         assertEquals(0, fileList.size());
         assertEquals("Fichiers complémentaires", result.get(1).getName());

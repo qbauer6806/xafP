@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Disabled
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest
-public class CommandeDemandeRepositoryTest {
+class CommandeDemandeRepositoryTest {
 
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
@@ -74,7 +74,7 @@ public class CommandeDemandeRepositoryTest {
     }
 
     @Test
-    public void findByDemande_PkDemandes_test() {
+    void findByDemande_PkDemandes_test() {
         DemandeBO demandeBO = createDemande("monIdentifiant");
         CommandeBO commandeBO = createCommande(100, 0, LocalDateTime.now());
 
@@ -89,7 +89,7 @@ public class CommandeDemandeRepositoryTest {
     }
 
     @Test
-    public void findDerniereCommandeDemande() {
+    void findDerniereCommandeDemande() {
         DemandeBO demandeBO = createDemande("monIdentifiant");
 
         CommandeBO commandeBO1 = createCommande(110, 0, LocalDateTime.now().plusDays(10));
@@ -120,7 +120,7 @@ public class CommandeDemandeRepositoryTest {
     }
 
     @Test
-    public void findDemandeCommandeToDelete() {
+    void findDemandeCommandeToDelete() {
         // 1: Demande annulée / Commande seule
         DemandeBO demandeBO1 = createDemande("1");
         LocalDateTime ldt = LocalDateTime.now().minusDays(10);

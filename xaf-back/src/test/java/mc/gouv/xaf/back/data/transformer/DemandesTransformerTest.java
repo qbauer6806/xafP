@@ -43,7 +43,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class DemandesTransformerTest {
+class DemandesTransformerTest {
 
     static Method getAllFields;
     static final String FIELD_COURRIER = "courriers";
@@ -65,7 +65,7 @@ public class DemandesTransformerTest {
     private DemarchesDataProvider demarchesDataProvider;
 
     @BeforeEach
-    public void beforeEach() throws NoSuchMethodException {
+    void beforeEach() throws NoSuchMethodException {
         getAllFields = DemandesTransformer.class.getDeclaredMethod("getAllFields", String[].class);
         getAllFields.setAccessible(true);
     }
@@ -90,7 +90,7 @@ public class DemandesTransformerTest {
     }
 
     @Test
-    public void bo2DtoMapDernierStatut() {
+    void bo2DtoMapDernierStatut() {
         String[] fields = new String[]{};
         DemandeBO demandeBO = makeDemandeBo();
         demandeBO.setDernierStatut(null);
@@ -174,7 +174,7 @@ public class DemandesTransformerTest {
     }
 
     @Test
-    public void bo2DtoNullTest() {
+    void bo2DtoNullTest() {
         DemandeDTO demande = demandesTransformer.bo2Dto((DemandeBO) null);
         assertNull(demande);
 

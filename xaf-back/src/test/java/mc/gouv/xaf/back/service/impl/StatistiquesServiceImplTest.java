@@ -17,7 +17,7 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class StatistiquesServiceImplTest {
+class StatistiquesServiceImplTest {
 
     private final static Long COUNT_ATTENTE_TRAITEMENT = 1L;
 
@@ -41,7 +41,7 @@ public class StatistiquesServiceImplTest {
     private DemarchesDataProvider demarchesDataProvider;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
 
         Mockito.lenient().when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_ATTENTE_TRAITENUM)).thenReturn(COUNT_ATTENTE_TRAITEMENT);
@@ -61,7 +61,7 @@ public class StatistiquesServiceImplTest {
     }
 
     @Test
-    public void getStatsModel_check_by_status() {
+    void getStatsModel_check_by_status() {
         Map<String, Map<String, Long>> map = statistiquesService.getNumberOfEachDemandes();
         Map<String, Long> mapGuichetVirtuel = map.get(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         Map<String, Long> mapGuichetPhysique = map.get(DemandeCanalEnum.GUICHET_PHYSIQUE.name());
@@ -82,7 +82,7 @@ public class StatistiquesServiceImplTest {
     }
 
     @Test
-    public void getStatsModel_check_totals() {
+    void getStatsModel_check_totals() {
         Map<String, Map<String, Long>> map = statistiquesService.getNumberOfEachDemandes();
         Map<String, Long> mapGuichetVirtuel = map.get(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         Map<String, Long> mapGuichetPhysique = map.get(DemandeCanalEnum.GUICHET_PHYSIQUE.name());

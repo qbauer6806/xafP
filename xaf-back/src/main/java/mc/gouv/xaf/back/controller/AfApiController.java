@@ -75,7 +75,7 @@ public class AfApiController {
 
     @PutMapping(value = "/demandes/{demandeId}")
     public DemandeDTO updateDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @Valid @RequestBody DemandeInputDTO demande, @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+            @Valid @RequestBody DemandeInputDTO demande, @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.updateDemande({}, {}, {})", demandeId, demande, usagerId);
         return afApiService.updateDemande(demandeId, demande, usagerId);
     }

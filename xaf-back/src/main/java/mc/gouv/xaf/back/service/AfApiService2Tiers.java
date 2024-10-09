@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.file.shared.dto.FileResponseDTO;
@@ -87,7 +86,7 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 	}
 
 	public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-			DemandeComplementsReponseDTO reponse) throws IOException, SAXException {
+			DemandeComplementsReponseDTO reponse) {
 		LOGGER.info("AfApiService2Tiers.repondreDemandeComplements({}, {}, {})", demandeId, icId, reponse);
 		return afBackUtils.getAfApiClient2Tiers().repondreDemandeComplements(demandeId, icId, reponse);
 	}
@@ -149,7 +148,7 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 		return motifsService.getMotifs();
 	}
 
-	public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException {
+	public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
 		return afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
 	}
@@ -210,7 +209,7 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 		return afBackUtils.getAfApiClient2Tiers().getBrouillon(pkBrouillons, usagerId);
 	}
 
-	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException {
+	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
 		LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
 		afBackUtils.getAfApiClient2Tiers().deleteBrouillon(pkBrouillons, usagerId);
 	}

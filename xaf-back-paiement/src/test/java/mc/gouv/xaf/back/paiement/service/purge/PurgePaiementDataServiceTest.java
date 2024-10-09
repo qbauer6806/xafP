@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
 @ExtendWith(MockitoExtension.class)
-public class PurgePaiementDataServiceTest {
+class PurgePaiementDataServiceTest {
 
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
@@ -81,7 +81,7 @@ public class PurgePaiementDataServiceTest {
     }
 
     @BeforeEach
-    public void cleanData() {
+    void cleanData() {
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();
         demandesStatutsRepository.deleteAll();
@@ -90,7 +90,7 @@ public class PurgePaiementDataServiceTest {
 
     @Test
     @Transactional
-    public void purgeCommandeUneSeuleCommandeAvecDemandeTermineeTest() {
+    void purgeCommandeUneSeuleCommandeAvecDemandeTermineeTest() {
         DemandeBO demandeBO = createDemande("1");
         LocalDateTime ldt = LocalDateTime.now().minusDays(10);
         Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
@@ -118,7 +118,7 @@ public class PurgePaiementDataServiceTest {
 
     @Test
     @Transactional
-    public void purgeCommandeUneSeuleCommandeAvecDeuxDemandesDontUneTerminee() {
+    void purgeCommandeUneSeuleCommandeAvecDeuxDemandesDontUneTerminee() {
         LocalDateTime ldt = LocalDateTime.now().minusDays(5);
         Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
         DemandeBO demandeBO1 = createDemande("1");
@@ -157,12 +157,12 @@ public class PurgePaiementDataServiceTest {
         assertThat(commandeDemandeBOS.get(1).getDemande().getPkDemandes()).isEqualTo(demandeBO2.getPkDemandes());
         List<CommandeBO> commandeBOS = commandeRepository.findAll();
         assertThat(commandeBOS).hasSize(1);
-        assertThat(commandeBOS.get(0).getPkCommandes()).isEqualTo(commandeBO.getPkCommandes());
+        assertThat(commandeBOS.getFirst().getPkCommandes()).isEqualTo(commandeBO.getPkCommandes());
     }
 
     @Test
     @Transactional
-    public void purgeCommandeUneSeuleCommandeAvecDeuxDemandesDontUneDejaPurgee() {
+    void purgeCommandeUneSeuleCommandeAvecDeuxDemandesDontUneDejaPurgee() {
         LocalDateTime ldt = LocalDateTime.now().minusDays(5);
         Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
         DemandeBO demandeBO = createDemande("2");
@@ -198,7 +198,7 @@ public class PurgePaiementDataServiceTest {
 
     @Test
     @Transactional
-    public void purgeCommandeTest() {
+    void purgeCommandeTest() {
         // 1: Demande annulée / Commande seule
         DemandeBO demandeBO1 = createDemande("1");
         LocalDateTime ldt = LocalDateTime.now().minusDays(10);

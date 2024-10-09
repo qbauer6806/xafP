@@ -5,16 +5,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class AutocompleteUsagerDTOTest {
+class AutocompleteUsagerDTOTest {
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         AutocompleteUsagerDTO dto = new AutocompleteUsagerDTO();
         assertEquals(dto, dto);
     }
 
     @Test
-    public void testEqualsDeuxObjets() {
+    void testEqualsDeuxObjets() {
         AutocompleteUsagerDTO dto1 = new AutocompleteUsagerDTO();
         AutocompleteUsagerDTO dto2 = new AutocompleteUsagerDTO();
         assertNotEquals(dto1, dto2);

@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PageParamDTOTest {
+class PageParamDTOTest {
 
     @Test
-    public void newPageParamDTOTest() {
+    void newPageParamDTOTest() {
         PageParamDTO paramDTO = new PageParamDTO();
         assertEquals(0, paramDTO.getPage());
         assertEquals(10, paramDTO.getSize());
@@ -20,7 +20,7 @@ public class PageParamDTOTest {
     }
 
     @Test
-    public void newPageParamDTOWithParamTest() {
+    void newPageParamDTOWithParamTest() {
         PageParamDTO paramDTO = new PageParamDTO(2, 2, "date", "DESC", "[\"REFUSEE\",\"VALIDEE\"]", "en");
         assertEquals(2, paramDTO.getPage());
         assertEquals(2, paramDTO.getSize());
@@ -36,28 +36,28 @@ public class PageParamDTOTest {
     }
 
     @Test
-    public void setDirectionTestNull() {
+    void setDirectionTestNull() {
         PageParamDTO paramDTO = new PageParamDTO();
         paramDTO.setDirection(null);
         assertEquals("ASC", paramDTO.getDirection());
     }
 
     @Test
-    public void setDirectionTestUnknown() {
+    void setDirectionTestUnknown() {
         PageParamDTO paramDTO = new PageParamDTO();
         paramDTO.setDirection("blablabla");
         assertEquals("ASC", paramDTO.getDirection());
     }
 
     @Test
-    public void setDirectionTestASC() {
+    void setDirectionTestASC() {
         PageParamDTO paramDTO = new PageParamDTO();
         paramDTO.setDirection("ASC");
         assertEquals("ASC", paramDTO.getDirection());
     }
 
     @Test
-    public void setDirectionTestLowerCase() {
+    void setDirectionTestLowerCase() {
         PageParamDTO paramDTO = new PageParamDTO();
         paramDTO.setDirection("desc");
         assertEquals("DESC", paramDTO.getDirection());

@@ -15,26 +15,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
 @ExtendWith(MockitoExtension.class)
-public class PaiementSecurityServiceTest {
+class PaiementSecurityServiceTest {
 
     @Autowired
     private PaiementSecurityService paiementSecurityService;
 
     @Test
-    public void contexteCommandeDTOtoBase64_Test() {
+    void contexteCommandeDTOtoBase64_Test() {
         String result = paiementSecurityService.contexteCommandeDTOtoBase64(new ContexteCommandeDTO());
         assertThat(result).isEqualTo("e30=");
     }
 
     @Test
-    public void getHmacString_Test() {
+    void getHmacString_Test() {
         String result = paiementSecurityService.getHmacStringInterfaceAller(new PaiementDTO());
         assertThat(result).isEqualTo("bb3cac15490e59ef100b4b34998dc765dd5bfb50");
     }
 
     @Test
     @Disabled("Resultat différent sur maven install dans intellij : CB0BD147C7FEAC57D1ABFEC970ECE7992341FE0E")
-    public void getHmacStringInterfaceRetourTest() {
+    void getHmacStringInterfaceRetourTest() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
         responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
@@ -62,7 +62,7 @@ public class PaiementSecurityServiceTest {
     }
 
     @Test
-    public void getHmacStringInterfaceRetourTest2() {
+    void getHmacStringInterfaceRetourTest2() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
         responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
@@ -90,7 +90,7 @@ public class PaiementSecurityServiceTest {
     }
 
     @Test
-    public void getHmacStringInterfaceRetourTest3() {
+    void getHmacStringInterfaceRetourTest3() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
         responseDTO.setDate("24/01/2023_a_13:47:08");

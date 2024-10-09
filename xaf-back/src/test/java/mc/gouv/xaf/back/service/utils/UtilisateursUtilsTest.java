@@ -12,10 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UtilisateursUtilsTest {
+class UtilisateursUtilsTest {
 
     private static final String MATRICULE = "1";
     private static final String PRENOM = "Toto";
@@ -59,7 +58,7 @@ public class UtilisateursUtilsTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user_monsieur = createUser(MATRICULE, PRENOM, NOM, NOM, NOM, Civilite.MONSIEUR);
         user_dame = createUser(MATRICULE_DAME, PRENOM_DAME, NOM_DAME, null, NOM_NAISSANCE, Civilite.MADAME);
         user_sc = createUser(MATRICULE_SC, PRENOM_SC, NOM_SC, NOM_SC, NOM_SC, Civilite.MONSIEUR);
@@ -67,33 +66,33 @@ public class UtilisateursUtilsTest {
 
 
     @Test
-    public void getUserNameFromIDTestMauvaisMatricule() {
+    void getUserNameFromIDTestMauvaisMatricule() {
         String nomPrenom = utilisateursUtils.getUserNameFromID(MAUVAIS_MATRICULE);
         assertNull(nomPrenom);
     }
 
     @Test
-    public void getUserFullNameFromUserTestBonUtilisateur() {
+    void getUserFullNameFromUserTestBonUtilisateur() {
         String expected = "M. " + PRENOM + " " + NOM;
         String fullname = utilisateursUtils.getUserFullNameFromUser(user_monsieur);
         assertEquals(expected, fullname);
     }
 
     @Test
-    public void getUserFullNameFromUserTestBonUtilisateurSpecialChars() {
+    void getUserFullNameFromUserTestBonUtilisateurSpecialChars() {
         String fullname = utilisateursUtils.getUserFullNameFromUser(user_sc);
         assertEquals("M. To to Ti ti", fullname);
     }
 
     @Test
-    public void getUserFullNameFromUserTestJeuneFille() {
+    void getUserFullNameFromUserTestJeuneFille() {
         String expected = "Mme. " + PRENOM_DAME + " " + NOM_NAISSANCE;
         String fullname = utilisateursUtils.getUserFullNameFromUser(user_dame);
         assertEquals(expected, fullname);
     }
 
     @Test
-    public void getUserFullNameFromUserTestMariee() {
+    void getUserFullNameFromUserTestMariee() {
         String expected = "Mme. " + PRENOM_DAME + " " + NOM_DAME;
         user_dame.setNomUsage(NOM_DAME);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user_dame);
@@ -101,7 +100,7 @@ public class UtilisateursUtilsTest {
     }
 
     @Test
-    public void getUserFullNameFromUserTestNull() {
+    void getUserFullNameFromUserTestNull() {
         String expected = "";
         User user = createUser(MATRICULE, null, null, null, null, null);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);
@@ -109,14 +108,14 @@ public class UtilisateursUtilsTest {
     }
 
     @Test
-    public void getUserFullNameFromUserTestNomSeulement() {
+    void getUserFullNameFromUserTestNomSeulement() {
         User user = createUser(MATRICULE, null, NOM, NOM, NOM, null);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);
         assertEquals(NOM, fullname);
     }
 
     @Test
-    public void getUserFullNameFromUserTestPrenomSeulement() {
+    void getUserFullNameFromUserTestPrenomSeulement() {
         String expected = PRENOM + " ";
         User user = createUser(MATRICULE, PRENOM, null, null, null, null);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);
@@ -124,7 +123,7 @@ public class UtilisateursUtilsTest {
     }
 
     @Test
-    public void getUserFullNameFromUserTestCivSeulement() {
+    void getUserFullNameFromUserTestCivSeulement() {
         String expected = "M. ";
         User user = createUser(MATRICULE, null, null, null, null, Civilite.MONSIEUR);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);
@@ -132,7 +131,7 @@ public class UtilisateursUtilsTest {
     }
 
     @Test
-    public void getUserFullNameFromUserTestPrenomNull() {
+    void getUserFullNameFromUserTestPrenomNull() {
         String expected = "M. " + NOM;
         User user = createUser(MATRICULE, null, NOM, NOM, NOM, Civilite.MONSIEUR);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);
@@ -140,7 +139,7 @@ public class UtilisateursUtilsTest {
     }
 
     @Test
-    public void getUserFullNameFromUserTestCivNull() {
+    void getUserFullNameFromUserTestCivNull() {
         String expected = PRENOM + " " + NOM;
         User user = createUser(MATRICULE, PRENOM, NOM, NOM, NOM, null);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);
@@ -148,7 +147,7 @@ public class UtilisateursUtilsTest {
     }
 
     @Test
-    public void getUserFullNameFromUserTestNomNull() {
+    void getUserFullNameFromUserTestNomNull() {
         String expected = "M. " + PRENOM + " ";
         User user = createUser(MATRICULE, PRENOM, null, null, null, Civilite.MONSIEUR);
         String fullname = utilisateursUtils.getUserFullNameFromUser(user);

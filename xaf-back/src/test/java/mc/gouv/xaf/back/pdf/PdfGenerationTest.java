@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class PdfGenerationTest {
+class PdfGenerationTest {
 
     private static final String CHECK_TIITLE_FAMILY_PATTERN = "(\\w*) (\\w*) (\\w*) qui aura lieu le";
     private static final String CHECK_IDENTIFIER_PATTERN = "Objet : Votre demande (\\w*)";
@@ -81,7 +81,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindCorrectUserIdentifier() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindCorrectUserIdentifier() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -95,7 +95,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindTittleFirstNameLastName() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindTittleFirstNameLastName() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_TIITLE_FAMILY_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -111,7 +111,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindCurrentDateField() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindCurrentDateField() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_CURRENT_DATE_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -125,7 +125,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindReference() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindReference() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_REFERENCE_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -139,7 +139,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindAdress() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindAdress() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(PDFServiceConstantsMock.ADDRESS);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -152,7 +152,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindMotif() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindMotif() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_MOTIF_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -166,7 +166,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindDepotDate() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindDepotDate() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_DATEDEPOT_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -180,7 +180,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindComment() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindComment() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(PDFServiceConstantsMock.COMMENT);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -193,7 +193,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindRaisonSocial() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindRaisonSocial() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(PDFServiceConstantsMock.RAISON_SOCIAL);
         Matcher matcher = pattern.matcher(extractPdfText());
         System.out.println(extractPdfText());
@@ -207,7 +207,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindStartDate() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindStartDate() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_BEGIN_DATE_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -222,7 +222,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldFindEndDate() throws IOException, XDocReportException {
+    void givenPdfContentShouldFindEndDate() throws IOException, XDocReportException {
         Pattern pattern = Pattern.compile(CHECK_END_DATE_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());
         assertTrue(matcher.find());
@@ -236,7 +236,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfcontentCheckTheCommentPosition() throws IOException, XDocReportException {
+    void givenPdfcontentCheckTheCommentPosition() throws IOException, XDocReportException {
 
         String[] lines = extractPdfText().split("\n");
         int begin = 0;
@@ -264,7 +264,7 @@ public class PdfGenerationTest {
      * @throws XDocReportException
      */
     @Test()
-    public void givenPdfContentShouldNotHaveBlankLigneForBlankField() throws IOException, XDocReportException {
+    void givenPdfContentShouldNotHaveBlankLigneForBlankField() throws IOException, XDocReportException {
 
         Pattern pattern = Pattern.compile(CHECK_BLANK_FIELD_ADJASMENT_PATTERN);
         Matcher matcher = pattern.matcher(extractPdfText());

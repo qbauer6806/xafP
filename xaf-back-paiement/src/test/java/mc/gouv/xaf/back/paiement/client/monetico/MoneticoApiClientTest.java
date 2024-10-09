@@ -17,12 +17,12 @@ import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
 import org.junit.jupiter.api.Test;
 
-public class MoneticoApiClientTest {
+class MoneticoApiClientTest {
 	MoneticoApiClient moneticoApiClient = new MoneticoApiClient(new PaiementPropertiesResolverTestImpl(),
 			new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null);
 
     @Test
-    public void testCapture() throws Exception {
+    void testCapture() throws Exception {
         CommandeDTO commandeDTO = new CommandeDTO();
         commandeDTO.setMontantInitial(90.0);
         commandeDTO.setMontantRestant(90.0);
@@ -38,7 +38,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
-    public void extractResultTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void extractResultTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
 
@@ -57,7 +57,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
-    public void extractResultAutStringTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void extractResultAutStringTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
 
@@ -76,7 +76,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
-    public void extractResultCaptureRefuseeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void extractResultCaptureRefuseeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
 
@@ -94,7 +94,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
-    public void extractResultErreurTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void extractResultErreurTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
 

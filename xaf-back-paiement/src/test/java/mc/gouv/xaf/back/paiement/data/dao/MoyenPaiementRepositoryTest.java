@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Disabled
 @ExtendWith(MockitoExtension.class)
 @DataJpaTest
-public class MoyenPaiementRepositoryTest {
+class MoyenPaiementRepositoryTest {
 
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
@@ -26,7 +26,7 @@ public class MoyenPaiementRepositoryTest {
     private CommandeRepository commandeRepository;
 
     @Test
-    public void findByCommande_Id_test() {
+    void findByCommande_Id_test() {
         CommandeBO commandeBO = new CommandeBO();
         commandeBO.setDateCreation(LocalDateTime.now());
         commandeBO =  commandeRepository.save(commandeBO);

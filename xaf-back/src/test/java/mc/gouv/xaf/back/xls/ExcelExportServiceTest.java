@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class ExcelExportServiceTest {
+class ExcelExportServiceTest {
 	
 	 @Autowired
 	    private ExcelExportModelProvider excelExportModelProvider;
@@ -63,7 +63,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	 @Test
-	 public void shouldHaveCorrectIdentifier() throws InvalidFormatException, IOException{
+	 void shouldHaveCorrectIdentifier() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(), 0).matches(ExcelMockData.IDENTIFIANT));
 	 }
 
@@ -73,7 +73,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectDate() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectDate() throws InvalidFormatException, IOException{
 		String datestring = new SimpleDateFormat("dd/MM/yyyy").format(ExcelMockData.DATE_CREATION);
 		assertTrue(getExcelCell(createExcel(), 1).matches(datestring));
 	}
@@ -84,7 +84,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectStatus() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectStatus() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(), 2).matches(ExcelMockData.DERNIER_STATUT));
 	}
 
@@ -94,7 +94,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectUsagerNom() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectUsagerNom() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),3).matches(ExcelMockData.USAGER_NOM));
 	}
 	
@@ -104,7 +104,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectUsagerPreNom() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectUsagerPreNom() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),4).matches(ExcelMockData.USAGER_PRENOM));
 	}
 
@@ -114,7 +114,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectUsagerEmail() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectUsagerEmail() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),5).matches(ExcelMockData.USAGER_EMAIL));
 	}
 	
@@ -124,7 +124,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectAgentAffecteNom() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectAgentAffecteNom() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),6).matches(ExcelMockData.AGENT_AFFECT_NAME));
 	}
 
@@ -134,7 +134,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectCanal() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectCanal() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),7).matches(ExcelMockData.CANAL));
 	}
 
@@ -144,7 +144,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectLangue() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectLangue() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),8).matches(ExcelMockData.LANGUE));
 	}
 	
@@ -154,7 +154,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectObservation() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectObservation() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),9).matches(ExcelMockData.OBSERVATIONS));
 	}
 	
@@ -164,7 +164,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectCourrierRefInterne() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectCourrierRefInterne() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),10).matches(ExcelMockData.COURRIER_REF_INTERNE));
 	}
 
@@ -174,7 +174,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test
-	public void shouldHaveCorrectCourrierCourrierDateDeModification() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectCourrierCourrierDateDeModification() throws InvalidFormatException, IOException{
 		String datestring = new SimpleDateFormat("dd/MM/yyyy").format(ExcelMockData.COURRIER_DATE_RECEPTION);
 		System.out.println("Date Courrier : " + datestring);
 		assertTrue(getExcelCell(createExcel(),11).matches(datestring));
@@ -186,7 +186,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectTitre() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectTitre() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),12).matches(ExcelMockData.USAGER_TITRE));
 	}
 	
@@ -196,7 +196,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectUsagerNomAtPersonalPart() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectUsagerNomAtPersonalPart() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),13).matches(ExcelMockData.USAGER_NOM));
 	}
 	
@@ -206,7 +206,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectAddressLine1() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectAddressLine1() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),14).matches(ExcelMockData.ADDRESS_LIGNE1));
 	}
 	
@@ -216,7 +216,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectAddressLine2() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectAddressLine2() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),15).matches(ExcelMockData.ADDRESS_LIGNE2));
 	}
 	
@@ -226,7 +226,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectAddressLine3() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectAddressLine3() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),16).matches(ExcelMockData.ADDRESS_LIGNE3));
 	}
 	
@@ -236,7 +236,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPostalCode() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPostalCode() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),17).matches(ExcelMockData.CODE_POSTAL));
 	}
 	
@@ -246,7 +246,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectCity() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectCity() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),18).matches(ExcelMockData.VILLE));
 	}
 	 
@@ -256,7 +256,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisA() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisA() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),19).matches("TRUE"));
 	}
 	
@@ -266,7 +266,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisCyclo() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisCyclo() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),20).matches("TRUE"));
 	}
 	 /**
@@ -275,7 +275,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisB() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisB() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),21).matches("TRUE"));
 	}
 	
@@ -285,7 +285,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisC() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisC() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),22).matches("FALSE"));
 	}
 	
@@ -295,7 +295,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisCE() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisCE() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),23).matches("FALSE"));
 	}
 
@@ -305,7 +305,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisD() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisD() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),24).matches("FALSE"));
 	}
 	
@@ -315,7 +315,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPermisDE() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPermisDE() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),25).matches("FALSE"));
 	}
 	
@@ -325,7 +325,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectPasDePermis() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectPasDePermis() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),26).matches("FALSE"));
 	}
 
@@ -335,7 +335,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectSuplementaryInformation() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectSuplementaryInformation() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),27).matches(ExcelMockData.INFO_SUPPL));
 	}
 
@@ -345,7 +345,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectDiploma() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectDiploma() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),28).matches(ExcelMockData.DIPLOME));
 	}
 	
@@ -355,7 +355,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectCompetence() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectCompetence() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),29).matches(ExcelMockData.SKILLS));
 	}
 	
@@ -365,7 +365,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectComment() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectComment() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),30).matches(ExcelMockData.COMMENT));
 	}
 	
@@ -375,7 +375,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectFonctionRecherchee() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectFonctionRecherchee() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),31).matches(ExcelMockData.VACANCY));
 	}
 	
@@ -385,7 +385,7 @@ public class ExcelExportServiceTest {
 	  * @throws IOException
 	  */
 	@Test 
-	public void shouldHaveCorrectLanguages() throws InvalidFormatException, IOException{
+	void shouldHaveCorrectLanguages() throws InvalidFormatException, IOException{
 		assertTrue(getExcelCell(createExcel(),32).matches(ExcelMockData.LANGUEUAGES));
 	}
 

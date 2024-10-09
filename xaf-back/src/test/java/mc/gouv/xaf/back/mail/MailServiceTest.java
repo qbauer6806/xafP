@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class MailServiceTest {
+class MailServiceTest {
 
     private final String FR_CHECK_TIITLE_FAMILY_NAME_PATTERN = "Bonjour (\\w*) (\\w*) (\\w*),";
     private final String FR_CHECK_MAILSUBJECT_IDENTIFIER_PATTERN = "Accusé de réception de votre candidature (\\w*)' ";
@@ -85,7 +85,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectIdentifierInSubject() throws Exception {
+    void shouldHaveCorrectIdentifierInSubject() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_MAILSUBJECT_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[1]);
 
@@ -100,7 +100,7 @@ public class MailServiceTest {
      */
 
     @Test
-    public void shouldHaveCorrectIdentifierInSubjectEN() throws Exception {
+    void shouldHaveCorrectIdentifierInSubjectEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_MAILSUBJECT_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[1]);
 
@@ -114,7 +114,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectIdentifierInBody() throws Exception {
+    void shouldHaveCorrectIdentifierInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_MAILBODY_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -128,7 +128,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectIdentifierInBodyEN() throws Exception {
+    void shouldHaveCorrectIdentifierInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_MAILBODY_IDENTIFIER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
         assertTrue(matcher.find());
@@ -141,7 +141,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectTitleLastFirstNameInBody() throws Exception {
+    void shouldHaveCorrectTitleLastFirstNameInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_TIITLE_FAMILY_NAME_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -157,7 +157,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectTitleLastFirstNameInBodyEN() throws Exception {
+    void shouldHaveCorrectTitleLastFirstNameInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_TIITLE_FAMILY_NAME_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -173,7 +173,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectPkDemandInBody() throws Exception {
+    void shouldHaveCorrectPkDemandInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_PK_DEMAND_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -187,7 +187,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectPkDemandInBodyEN() throws Exception {
+    void shouldHaveCorrectPkDemandInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_PK_DEMAND_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -201,7 +201,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectMotifInBody() throws Exception {
+    void shouldHaveCorrectMotifInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_MOTIF_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -215,7 +215,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shouldHaveCorrectMotifInBodyEN() throws Exception {
+    void shouldHaveCorrectMotifInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_MOTIF_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -229,7 +229,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectUtilisateurInBody() throws Exception {
+    void shoudlHaveCorrectUtilisateurInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_UTILISATEUR_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -243,7 +243,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectUtilisateurInBodyEN() throws Exception {
+    void shoudlHaveCorrectUtilisateurInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_UTILISATEUR_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -257,7 +257,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectUsagerInBody() throws Exception {
+    void shoudlHaveCorrectUsagerInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_USAGER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
         assertTrue(matcher.find());
@@ -270,7 +270,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectUsagerInBodyEN() throws Exception {
+    void shoudlHaveCorrectUsagerInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_USAGER_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -284,7 +284,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectFrontUlrInBody() throws Exception {
+    void shoudlHaveCorrectFrontUlrInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_URL_FRONT_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -298,7 +298,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectFrontUlrInBodyEN() throws Exception {
+    void shoudlHaveCorrectFrontUlrInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_URL_FRONT_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -312,7 +312,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectBackUlrInBody() throws Exception {
+    void shoudlHaveCorrectBackUlrInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_URL_BACK_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -326,7 +326,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectBackUlrInBodyEN() throws Exception {
+    void shoudlHaveCorrectBackUlrInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_URL_BACK_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 
@@ -340,7 +340,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectCommentInBody() throws Exception {
+    void shoudlHaveCorrectCommentInBody() throws Exception {
         Pattern pattern = Pattern.compile(FR_CHECK_COMMENT_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("fr")[0]);
 
@@ -354,7 +354,7 @@ public class MailServiceTest {
      * @throws Exception
      */
     @Test
-    public void shoudlHaveCorrectCommentInBodyEN() throws Exception {
+    void shoudlHaveCorrectCommentInBodyEN() throws Exception {
         Pattern pattern = Pattern.compile(EN_CHECK_COMMENT_PATTERN);
         Matcher matcher = pattern.matcher(getEmailPreview("en")[0]);
 

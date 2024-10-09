@@ -33,7 +33,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Disabled
 @ExtendWith(MockitoExtension.class)
-public class CommandesServiceTest {
+class CommandesServiceTest {
 
     @Autowired
     private DemandesRepository demandesRepository;
@@ -45,14 +45,14 @@ public class CommandesServiceTest {
     private CommandesService commandesService;
 
     @BeforeEach
-    public void cleanData() {
+    void cleanData() {
         commandeRepository.deleteAll();
         demandesRepository.deleteAll();
     }
 
     @Test
     @Transactional
-    public void getCommandeOk() {
+    void getCommandeOk() {
         ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
         try {

@@ -10,19 +10,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UsagersUtilsTest {
     @Test
-    public void titreToStringNullTest() {
+    void titreToStringNullTest() {
         String resultat = UsagersUtils.titreShortToString(null);
         assertEquals("Madame, Monsieur", resultat);
     }
 
     @Test
-    public void titreToAbbreviationTitreNull() {
+    void titreToAbbreviationTitreNull() {
         String resultat = UsagersUtils.titreToAbbreviation(null);
         assertNull(resultat);
     }
 
     @Test
-    public void titreToAbbreviationFakeData() {
+    void titreToAbbreviationFakeData() {
         String resultat = UsagersUtils.titreToAbbreviation(-1);
         assertNull(resultat);
     }

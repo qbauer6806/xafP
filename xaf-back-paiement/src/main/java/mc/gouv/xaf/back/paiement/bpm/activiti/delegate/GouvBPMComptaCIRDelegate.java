@@ -4,7 +4,6 @@ import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import org.flowable.engine.delegate.DelegateExecution;

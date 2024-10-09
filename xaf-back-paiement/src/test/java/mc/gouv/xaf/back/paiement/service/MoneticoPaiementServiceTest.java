@@ -56,13 +56,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Disabled
 @ExtendWith(SpringExtension.class)
-public class MoneticoPaiementServiceTest {
+class MoneticoPaiementServiceTest {
 
     @Autowired
     private DemandesRepository demandesRepository;
@@ -104,7 +103,7 @@ public class MoneticoPaiementServiceTest {
     private PaiementSecurityService paiementSecurityService;
 
     @BeforeEach
-    public void cleanData() {
+    void cleanData() {
         paiementHistoriqueRepository.deleteAll();
         commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
@@ -118,7 +117,7 @@ public class MoneticoPaiementServiceTest {
 
     @Test
     @Transactional
-    public void createOk() {
+    void createOk() {
         ObjectMapper mapper = new ObjectMapper();
         AccessBO accessBO = new AccessBO();
         accessBO.setActive(true);
@@ -213,7 +212,7 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    public void updateOk() throws InterruptedException {
+    void updateOk() throws InterruptedException {
 
         DemandeBO demandeBO = new DemandeBO();
 
@@ -326,7 +325,7 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    public void updateKoRefarenceTest() {
+    void updateKoRefarenceTest() {
         String status = "paiement";
         MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
         moneticoResponseDTO.setReference("AZERTYUIOPQS");
@@ -343,7 +342,7 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    public void updateKoMACTest() {
+    void updateKoMACTest() {
         DemandeBO demandeBO = new DemandeBO();
 
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
@@ -441,7 +440,7 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    public void testWhenDemandeNotAssignedUsagerThenThrowException() {
+    void testWhenDemandeNotAssignedUsagerThenThrowException() {
         DemandeBO demandeBO = new DemandeBO();
 
         AccessBO access = new AccessBO();
@@ -486,8 +485,7 @@ public class MoneticoPaiementServiceTest {
                 });
     }
     @Test
-    public void
-    testWhenUsagerDemandeNotActiveThenThrowException() {
+    void testWhenUsagerDemandeNotActiveThenThrowException() {
         DemandeBO demandeBO = new DemandeBO();
 
         AccessBO access = new AccessBO();

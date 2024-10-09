@@ -7,24 +7,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class HTMLEscapeUtilsTest {
+class HTMLEscapeUtilsTest {
     
     @Test
-    public void escapeTextTest() {
+    void escapeTextTest() {
         String txt = "coucou";
         String result = HTMLEscapeUtils.escape(txt);
         assertEquals(txt, result);
     }
     
     @Test
-    public void escapeNumbersTest() {
+    void escapeNumbersTest() {
         String txt = "123";
         String result = HTMLEscapeUtils.escape(txt);
         assertEquals(txt, result);
     }
     
     @Test
-    public void escapeHTMLTest() {
+    void escapeHTMLTest() {
         String txt = "<p>html</p>";
         String result = HTMLEscapeUtils.escape(txt);
         String expected = "&lt;p&gt;html&lt;/p&gt;";
@@ -32,7 +32,7 @@ public class HTMLEscapeUtilsTest {
     }
     
     @Test
-    public void escapeJavaScriptTest() {
+    void escapeJavaScriptTest() {
         String txt = "<script>alert(1);</script>";
         String result = HTMLEscapeUtils.escape(txt);
         String expected = "&lt;script&gt;alert(1)&semi;&lt;/script&gt;";

@@ -1,25 +1,24 @@
 package mc.gouv.xaf.back.mail;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import mc.gouv.xaf.back.AfBackServiceTestConfiguration;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test unitaire pour la classe MailService
@@ -27,10 +26,10 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  * @author dsaidiparto.ext
  *
  */
-@Ignore
+@Disabled
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = AfBackServiceTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class MailServiceTest {
 
     private final String FR_CHECK_TIITLE_FAMILY_NAME_PATTERN = "Bonjour (\\w*) (\\w*) (\\w*),";

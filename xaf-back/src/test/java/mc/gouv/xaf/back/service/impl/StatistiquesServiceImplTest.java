@@ -1,24 +1,22 @@
 package mc.gouv.xaf.back.service.impl;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class StatistiquesServiceImplTest {
 
     private final static Long COUNT_ATTENTE_TRAITEMENT = 1L;
@@ -33,8 +31,6 @@ public class StatistiquesServiceImplTest {
 
     private final static String EN_ATTENTE_COMPL_ENUM = "EN_ATTENTE_COMPL_ENUM";
 
-    private final static String DEMARCHE_ID = "DEM";
-
     @InjectMocks
     private StatistiquesInternesServiceImpl statistiquesService;
 
@@ -44,27 +40,24 @@ public class StatistiquesServiceImplTest {
     @Mock
     private DemarchesDataProvider demarchesDataProvider;
 
-    @Mock
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Before
+    @BeforeEach
     public void setUp() {
 
-        Mockito.when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
+        Mockito.lenient().when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_ATTENTE_TRAITENUM)).thenReturn(COUNT_ATTENTE_TRAITEMENT);
-        Mockito.when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
+        Mockito.lenient().when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
-        Mockito.when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
+        Mockito.lenient().when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
                 DemandeCanalEnum.GUICHET_PHYSIQUE.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
-        Mockito.when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
+        Mockito.lenient().when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
                 DemandeCanalEnum.COURRIER.name(), EN_ATTENTE_COMPL_ENUM)).thenReturn(COUNT_ATTENTE_INFOS);
+
 
         Map<String, String> statusMap = new HashMap<>();
         statusMap.put(EN_ATTENTE_TRAITENUM, EN_ATTENTE_TRAITENUM);
         statusMap.put(EN_COURS_TRAIT_ENUM, EN_COURS_TRAIT_ENUM);
         statusMap.put(EN_ATTENTE_COMPL_ENUM, EN_ATTENTE_COMPL_ENUM);
         Mockito.when(demarchesDataProvider.getStatusMap()).thenReturn(statusMap);
-        Mockito.when(gouvPropertiesResolver.getDemarcheId()).thenReturn(DEMARCHE_ID);
     }
 
     @Test

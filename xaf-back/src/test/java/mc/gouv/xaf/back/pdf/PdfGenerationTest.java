@@ -1,27 +1,26 @@
 package mc.gouv.xaf.back.pdf;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.parser.PdfTextExtractor;
 
 import fr.opensagres.xdocreport.core.XDocReportException;
-import mc.gouv.xaf.back.AfBackServiceTestConfiguration;
 import mc.gouv.xaf.back.service.pdf.impl.PdfGenerationServiceImpl;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Les tests unitaires pour le PdfGenerationService
@@ -29,10 +28,10 @@ import mc.gouv.xaf.back.service.pdf.impl.PdfGenerationServiceImpl;
  * @author dsaidiparto.ext
  *
  */
-@Ignore
+@Disabled
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = AfBackServiceTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class PdfGenerationTest {
 
     private static final String CHECK_TIITLE_FAMILY_PATTERN = "(\\w*) (\\w*) (\\w*) qui aura lieu le";

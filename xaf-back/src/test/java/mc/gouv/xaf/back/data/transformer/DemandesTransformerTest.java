@@ -22,6 +22,7 @@ import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -50,8 +52,17 @@ public class DemandesTransformerTest {
     static final String FIELD_DEM_COMPL = "demandesComplements";
     static final String FIELD_DATA = "data";
 
-    @Mock
+    @InjectMocks
     private DemandesTransformer demandesTransformer;
+
+    @Mock
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Mock
+    private DemandesAgentsTransformer demandesAgentsTransformer;
+
+    @Mock
+    private DemarchesDataProvider demarchesDataProvider;
 
     @BeforeEach
     public void beforeEach() throws NoSuchMethodException {
@@ -79,23 +90,17 @@ public class DemandesTransformerTest {
     }
 
     @Test
-    void bo2DtoMapDernierStatut() {
+    public void bo2DtoMapDernierStatut() {
         String[] fields = new String[]{};
         DemandeBO demandeBO = makeDemandeBo();
         demandeBO.setDernierStatut(null);
-
-        DemandeDTO demandeMockDTO = new DemandeDTO();
-        demandeMockDTO.setDernierStatut(null);
-
-        when(demandesTransformer.bo2Dto(any(DemandeBO.class), any(String[].class))).thenReturn(demandeMockDTO);
 
         // Si on a pas de statut dans le BO on ne mappe pas dans le DTO
         DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
         assertNull(demandeDTO.getDernierStatut());
 
         try (MockedStatic<DemarchesUtils> demarchesUtils = mockStatic(DemarchesUtils.class);
-             MockedStatic<DemandesStatutsTransformer> statutsTransformer = mockStatic(DemandesStatutsTransformer.class)) {
-
+                MockedStatic<DemandesStatutsTransformer> statutsTransformer = mockStatic(DemandesStatutsTransformer.class)) {
             DemandeStatutDTO statutDTO = new DemandeStatutDTO();
             statutDTO.setAgentId("agentId");
 
@@ -104,20 +109,20 @@ public class DemandesTransformerTest {
 
             // Si on a un statut, on le mappe...
             demandeBO.setDernierStatut(new DemandesStatutsBO());
-            demandeMockDTO.setDernierStatut(statutDTO);
             demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
             assertNotNull(demandeDTO.getDernierStatut());
             assertEquals("agentId", statutDTO.getAgentId());
 
             // Si on est un utilisateur front on cache l'agentId
-            demarchesUtils.when(DemarchesUtils::isFrontUser).thenReturn(true);
+            when(DemarchesUtils.isFrontUser()).thenReturn(true);
 
             demandeBO.setDernierStatut(new DemandesStatutsBO());
             demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
             assertNotNull(demandeDTO.getDernierStatut());
         }
+
 
     }
 
@@ -140,14 +145,6 @@ public class DemandesTransformerTest {
             complementsTransformer.when(() -> DemandesComplementsTransformer.bo2Dto((DemandesComplementsBO) any())).thenReturn(complementsDTO);
             filesTransformer.when(() -> DemandesFilesTransformer.bo2Dto((DemandesFilesBO) any())).thenReturn(demandeFileDTO);
             dataTransformer.when(() -> DemandesDataTransformer.bo2Dto((DemandesDataBO) any())).thenReturn(demandeDataDTO);
-
-            DemandeDTO demandeMockDTO = new DemandeDTO();
-            demandeMockDTO.setCourriers(new DemandeCourrierDTO[] { demandeCourrierDTO });
-            demandeMockDTO.setFichiers(new DemandeFileDTO[] { demandeFileDTO });
-            demandeMockDTO.setData(new DemandeDataDTO[] { demandeDataDTO });
-            demandeMockDTO.setComplements(new DemandeComplementsDTO[] { complementsDTO });
-
-            when(demandesTransformer.bo2Dto(any(DemandeBO.class), any(String[].class))).thenReturn(demandeMockDTO);
 
             DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
@@ -177,7 +174,7 @@ public class DemandesTransformerTest {
     }
 
     @Test
-    void bo2DtoNullTest() {
+    public void bo2DtoNullTest() {
         DemandeDTO demande = demandesTransformer.bo2Dto((DemandeBO) null);
         assertNull(demande);
 

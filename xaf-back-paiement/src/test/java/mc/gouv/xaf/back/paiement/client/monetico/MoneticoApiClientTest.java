@@ -1,14 +1,12 @@
 package mc.gouv.xaf.back.paiement.client.monetico;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
@@ -17,6 +15,7 @@ import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
+import org.junit.jupiter.api.Test;
 
 public class MoneticoApiClientTest {
 	MoneticoApiClient moneticoApiClient = new MoneticoApiClient(new PaiementPropertiesResolverTestImpl(),
@@ -34,8 +33,8 @@ public class MoneticoApiClientTest {
         operation.setMontant(90.0);
         commandeDTO.setMoyenPaiement(moyenPaiementDTO);
         commandeDTO.setOperations(Collections.singletonList(operation));
-        Boolean b = moneticoApiClient.capture(commandeDTO, operation, null);
-        Assert.assertFalse(b); // Pour satisfaire Sonar...
+        boolean b = moneticoApiClient.capture(commandeDTO, operation, null);
+        assertFalse(b); // Pour satisfaire Sonar...
     }
 
     @Test

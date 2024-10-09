@@ -1,33 +1,29 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GestionTemplateServiceImplTest {
 
     @InjectMocks
     private GestionTemplateServiceImpl gestionTemplateServiceImpl;
-
-    @Mock
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Mock
     private TemplatesService templatesService;
@@ -44,7 +40,7 @@ public class GestionTemplateServiceImplTest {
     private TemplateDTO templateCorps;
     private TemplateDTO templateObjet;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         templateCorps = new TemplateDTO();
         templateCorps.setPkTemplates(1);
@@ -60,7 +56,6 @@ public class GestionTemplateServiceImplTest {
         templateObjet.setDateModif(getDate("2021-12-09"));
         templateObjet.setContenu("ContenuObjet");
 
-        Mockito.when(gouvPropertiesResolver.getDemarcheId()).thenReturn(demarcheId);
         Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateCorps,langue)).thenReturn(templateCorps);
         Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateObjet,langue)).thenReturn(templateObjet);
     }

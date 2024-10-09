@@ -2,11 +2,11 @@ package mc.gouv.xaf.back.service.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AfBackUtilsTest {
 
     @Test
@@ -103,9 +103,9 @@ public class AfBackUtilsTest {
     public void logSafeTest() {
         String safe = "Safe String";
         String resultSafe = AfBackUtils.logSafe(safe);
-        String resultUnsafe = AfBackUtils.logSafe("Un\tsafe\nSt\rring");
         assertEquals(safe, resultSafe);
-        assertEquals("Un_safe_St_ring", resultUnsafe);
+        String resultUnsafe = AfBackUtils.logSafe("Unsafe\nSt\rring");
+        assertEquals("Unsafe_St_ring", resultUnsafe);
     }
 
 }

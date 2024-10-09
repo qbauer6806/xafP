@@ -1,8 +1,6 @@
 package mc.gouv.xaf.back.xls;
 
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,28 +12,28 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import mc.gouv.xaf.back.AfBackServiceTestConfiguration;
 import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test unitaire pour la classe ExcellExportService
  * @author dsaidiparto.ext
  *
  */
-@Ignore
+@Disabled
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes=AfBackServiceTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class ExcelExportServiceTest {
 	
 	 @Autowired

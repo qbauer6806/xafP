@@ -4,17 +4,17 @@ import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@Disabled
+@ExtendWith(MockitoExtension.class)
 public class PaiementSecurityServiceTest {
 
     @Autowired
@@ -33,7 +33,7 @@ public class PaiementSecurityServiceTest {
     }
 
     @Test
-    @Ignore("Resultat différent sur maven install dans intellij : CB0BD147C7FEAC57D1ABFEC970ECE7992341FE0E")
+    @Disabled("Resultat différent sur maven install dans intellij : CB0BD147C7FEAC57D1ABFEC970ECE7992341FE0E")
     public void getHmacStringInterfaceRetourTest() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");

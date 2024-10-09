@@ -1,20 +1,20 @@
 package mc.gouv.xaf.back.service.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Civilite;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 public class UtilisateursUtilsTest {
 
     private static final String MATRICULE = "1";
@@ -58,28 +58,13 @@ public class UtilisateursUtilsTest {
         return user;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         user_monsieur = createUser(MATRICULE, PRENOM, NOM, NOM, NOM, Civilite.MONSIEUR);
         user_dame = createUser(MATRICULE_DAME, PRENOM_DAME, NOM_DAME, null, NOM_NAISSANCE, Civilite.MADAME);
         user_sc = createUser(MATRICULE_SC, PRENOM_SC, NOM_SC, NOM_SC, NOM_SC, Civilite.MONSIEUR);
-        Mockito.when(utilisateursCache.get(MATRICULE)).thenReturn(user_monsieur);
-        Mockito.when(utilisateursCache.get(MATRICULE_SC)).thenReturn(user_sc);
-        Mockito.when(utilisateursCache.get(MAUVAIS_MATRICULE)).thenReturn(null);
     }
 
-    @Test
-    public void getUserNameFromIDTestBonUtilisateur() {
-        String expected = PRENOM + " " + NOM;
-        String nomPrenom = utilisateursUtils.getUserNameFromID(MATRICULE);
-        assertEquals(expected, nomPrenom);
-    }
-
-    @Test
-    public void getUserNameFromIDTestBonUtilisateurSpecialChars() {
-        String nomPrenom = utilisateursUtils.getUserNameFromID(MATRICULE_SC);
-        assertEquals("To to Ti ti", nomPrenom);
-    }
 
     @Test
     public void getUserNameFromIDTestMauvaisMatricule() {

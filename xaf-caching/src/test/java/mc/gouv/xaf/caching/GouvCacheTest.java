@@ -1,6 +1,8 @@
 package mc.gouv.xaf.caching;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -9,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Test;
 
 /**
  * 

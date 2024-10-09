@@ -854,7 +854,7 @@ public class AfBackUtils {
      */
     public String convertToThymeleaf(String input) {
         // 1ère étape : Rechercher les balises <a th:href="${...}"> et autres avec des attributs th:href ou th:utext
-        String attributePattern = "(<a[^>]*?\\s+(?:th:href|th:utext)=\"[^\"]*?\")"; // Utilisation de quantificateurs non-gourmands
+        String attributePattern = "(<a[^>]*\\s+(th:href|th:utext)=\"[^\"]*\")";
         List<String> attributeMatches = new ArrayList<>();
 
         Matcher matcher = Pattern.compile(attributePattern).matcher(input);

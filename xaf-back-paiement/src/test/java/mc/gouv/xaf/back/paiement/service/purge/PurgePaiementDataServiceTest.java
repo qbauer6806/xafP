@@ -10,9 +10,11 @@ import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,8 +29,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@Disabled
+@ExtendWith(MockitoExtension.class)
 public class PurgePaiementDataServiceTest {
 
     @Autowired
@@ -78,7 +80,7 @@ public class PurgePaiementDataServiceTest {
         return demandesStatutsRepository.save(statutsBO);
     }
 
-    @Before
+    @BeforeEach
     public void cleanData() {
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();

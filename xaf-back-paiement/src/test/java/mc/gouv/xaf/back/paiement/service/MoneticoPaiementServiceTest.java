@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.paiement.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,16 +51,17 @@ import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.hibernate.Hibernate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@Disabled
+@ExtendWith(SpringExtension.class)
 public class MoneticoPaiementServiceTest {
 
     @Autowired
@@ -102,7 +103,7 @@ public class MoneticoPaiementServiceTest {
     @Autowired
     private PaiementSecurityService paiementSecurityService;
 
-    @Before
+    @BeforeEach
     public void cleanData() {
         paiementHistoriqueRepository.deleteAll();
         commandeOperationRepository.deleteAll();

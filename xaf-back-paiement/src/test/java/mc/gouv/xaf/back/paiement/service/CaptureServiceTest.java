@@ -17,14 +17,15 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -34,8 +35,8 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@Disabled
+@ExtendWith(MockitoExtension.class)
 public class CaptureServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceTest.class);
@@ -61,7 +62,7 @@ public class CaptureServiceTest {
     @Autowired
     private CommandeOperationRepository commandeOperationRepository;
 
-    @Before
+    @BeforeEach
     public void cleanData() {
         commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();

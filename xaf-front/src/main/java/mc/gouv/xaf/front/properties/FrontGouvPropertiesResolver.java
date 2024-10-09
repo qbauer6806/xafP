@@ -146,14 +146,18 @@ public class FrontGouvPropertiesResolver {
     private String servicePublicParticulierUrlFr;
     @Value("${mc.gouv.appfactory.servicepublic.particulier.url.en}")
     private String servicePublicParticulierUrlEn;
-    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.fr}")
-    private String servicePublicProfessionnelUrlFr;
-    @Value("${mc.gouv.appfactory.servicepublic.professionnel.url.en}")
-    private String servicePublicProfessionnelUrlEn;
-    @Value("${mc.gouv.appfactory.cookies.url.fr}")
-    private String cookiesUrlFr;
-    @Value("${mc.gouv.appfactory.cookies.url.en}")
-    private String cookiesUrlEn;
+    @Value("${mc.gouv.appfactory.servicepublic.entreprise.url.fr}")
+    private String servicePublicEntrepriseUrlFr;
+    @Value("${mc.gouv.appfactory.servicepublic.entreprise.url.en}")
+    private String servicePublicEntrepriseUrlEn;
+    @Value("${mc.gouv.appfactory.cookies.particulier.url.fr}")
+    private String cookiesParticulierUrlFr;
+    @Value("${mc.gouv.appfactory.cookies.particulier.url.en}")
+    private String cookiesParticulierUrlEn;
+    @Value("${mc.gouv.appfactory.cookies.entreprise.url.fr}")
+    private String cookiesEntrepriseUrlFr;
+    @Value("${mc.gouv.appfactory.cookies.entreprise.url.en}")
+    private String cookiesEntrepriseUrlEn;
     @Value("${mc.gouv.appfactory.mconnect.help.url.fr}")
     private String mconnectHelpUrlFr;
     @Value("${mc.gouv.appfactory.mconnect.help.url.en}")
@@ -166,10 +170,10 @@ public class FrontGouvPropertiesResolver {
     private String compteParticulierUrlFr;
     @Value("${mc.gouv.appfactory.compte.particulier.url.fr}")
     private String compteParticulierUrlEn;
-    @Value("${mc.gouv.appfactory.compte.professionnel.url.fr}")
-    private String compteProfessionnelUrlFr;
-    @Value("${mc.gouv.appfactory.compte.professionnel.url.en}")
-    private String compteProfessionnelUrlEn;
+    @Value("${mc.gouv.appfactory.compte.entreprise.url.fr}")
+    private String compteEntrepriseUrlFr;
+    @Value("${mc.gouv.appfactory.compte.entreprise.url.en}")
+    private String compteEntrepriseUrlEn;
     @Value("${mc.gouv.appfactory.monguichet.cgu.url.fr}")
     private String monguichetCguUrlFr;
     @Value("${mc.gouv.appfactory.monguichet.cgu.url.en}")
@@ -255,18 +259,20 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.pub.mconnect.url.en", getPubMconnectUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.fr", getServicePublicParticulierUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.en", getServicePublicParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.professionnel.url.fr", getServicePublicProfessionnelUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.professionnel.url.en", getServicePublicProfessionnelUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.url.fr", getCookiesUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.url.en", getCookiesUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.entreprise.url.fr", getServicePublicEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.entreprise.url.en", getServicePublicEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.particulier.url.fr", getCookiesParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.particulier.url.en", getCookiesParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.entreprise.url.fr", getCookiesEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.entreprise.url.en", getCookiesEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.mconnect.help.url.fr", getMconnectHelpUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.mconnect.help.url.en", getMconnectHelpUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.support.url.fr", getSupportUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.support.url.en", getSupportUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.fr", getCompteParticulierUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.en", getCompteParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.professionnel.url.fr", getCompteProfessionnelUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.professionnel.url.en", getCompteProfessionnelUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.fr", getCompteEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.en", getCompteEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.fr", getMonguichetCguUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.en", getMonguichetCguUrlEn()));
 

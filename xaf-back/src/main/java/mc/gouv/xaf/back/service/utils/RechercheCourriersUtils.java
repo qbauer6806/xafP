@@ -95,9 +95,6 @@ public class RechercheCourriersUtils extends RechercheUtils {
             paths.add(root.get("searchVector"));
             // permettre de chercher sur les caractéristiques de la demande (identifiant...)
             paths.add(root.join("fkDemandes", JoinType.LEFT).get("searchVector"));
-            // permettre de chercher sur les fichiers et compléments fichiers
-            paths.add(root.join("fkDemandes", JoinType.LEFT).join("files", JoinType.LEFT).get("searchVector"));
-            paths.add(root.join("fkDemandes", JoinType.LEFT).join("demandesComplements", JoinType.LEFT).join("files", JoinType.LEFT).get("searchVector"));
             setFTSPredicates(paths, predicates, cb, texte);
         }
 

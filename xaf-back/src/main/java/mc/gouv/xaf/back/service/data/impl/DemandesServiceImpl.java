@@ -3,30 +3,15 @@ package mc.gouv.xaf.back.service.data.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.SetJoin;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
@@ -38,12 +23,8 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
@@ -69,8 +50,8 @@ import mc.gouv.xaf.back.service.itg.rest.PaysCache;
 import mc.gouv.xaf.back.service.postprocessing.PostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
@@ -89,8 +70,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,17 +87,6 @@ public class DemandesServiceImpl implements DemandesService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesServiceImpl.class);
 	private static final String RECUPERATION_DEMANDES = "Récupération en base des demandes...";
 	private static final String RECUPERATION_DEMANDE = "Récupération en base de la demande...";
-	private static final String IDENTIFIANT = "identifiant";
-	private static final String DERNIER_STATUT = "dernierStatut";
-	private static final String LIBELLE = "libelle";
-	private static final String CANAL = "canal";
-	private static final String FK_ACCESS = "fkAccess";
-	private static final String USAGER_ID = "usagerId";
-	private static final String AGENT = "agent";
-	private static final String DATE_CREATION = "dateCreation";
-	private static final String CONTENU = "contenu.";
-	private static final String FILES = "files";
-	private static final String SEARCH_VECTOR = "searchVector";
 
 	@Autowired
 	private DemandesRepository demandesRepository;
@@ -130,28 +98,28 @@ public class DemandesServiceImpl implements DemandesService {
     private DemandesUsagersRepository demandesUsagersRepository;
 
     @Autowired
-	private AccessRepository accessRepository;
+    private AccessRepository accessRepository;
 
-	@Autowired
-	private AccessService accessService;
+    @Autowired
+    private AccessService accessService;
 
-  @Autowired
+    @Autowired
     private PurgeFilesRepository purgeFilesRepository;
 
-  @Autowired
-  private PostProcessingProvider postProcessingProvider;
+    @Autowired
+    private PostProcessingProvider postProcessingProvider;
 
-  @Autowired
-	private DemandesStatutsService demandesStatutsService;
+    @Autowired
+    private DemandesStatutsService demandesStatutsService;
 
-	@Autowired
-	private DemandesHistoriqueRepository demandesHistoriqueRepository;
+    @Autowired
+    private DemandesHistoriqueRepository demandesHistoriqueRepository;
 
-	@Autowired
-	private DemarchesService demarchesService;
+    @Autowired
+    private DemarchesService demarchesService;
 
-	@Autowired
-	private FileService fileService;
+    @Autowired
+    private FileService fileService;
 
 	@Autowired
 	private DemandesFilesService demandesFilesService;
@@ -187,10 +155,10 @@ public class DemandesServiceImpl implements DemandesService {
 	private PaysCache paysCache;
 
     @Autowired
-	private EntityManager em;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private RechercheDemandesUtils rechercheDemandesUtils;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -895,267 +863,14 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	@Override
-	@SuppressWarnings({"rawtypes"})
 	public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
 
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-
-		//count query
-		CriteriaQuery<Long> cqCount = cb.createQuery(Long.class);
-		Root<DemandeBO> rootCount = buildQuery(cqCount, demandeRecherche, cb);
-		cqCount.select(cb.countDistinct(rootCount));
-		Long totalCount = em.createQuery(cqCount).getSingleResult();
-
-		//actual query
-		CriteriaQuery<DemandeBO> cq = cb.createQuery(DemandeBO.class);
-		Root<DemandeBO> root = buildQuery(cq, demandeRecherche, cb);
-
-		// Ajout du order
-		pageable.getSort();
-		Order order = pageable.getSort().iterator().next();
-
-		// groupBy obligé lorsqu'il y a des joins pour ne pas avoir de doublons + il faut donc ajouter les conditions dans le group by lorsqu'il y a un order sur des propriétés des joins
-		List<Expression<?>> groupBy = new ArrayList<>();
-		groupBy.add(root.get("pkDemandes"));
-		if (order != null) {
-			String property = order.getProperty();
-			// Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
-			Expression e = null;
-			if (StringUtils.equalsIgnoreCase(order.getProperty(), USAGER_ID)) {
-				Join<DemandeBO,AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
-				e = f.get(property);
-			} else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
-				Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
-				e = f.get(LIBELLE);
-				groupBy.add(f.get(LIBELLE));
-			} else if (StringUtils.equalsIgnoreCase(order.getProperty(), "agent.nomAffichage")) {
-				Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
-				e = f.get("nomAffichage");
-				groupBy.add(f.get("nomAffichage"));
-			} else if (order.getProperty().startsWith(CONTENU)) {
-				String[] jsonKeys = order.getProperty().replace(CONTENU, "").split("\\.");
-				List<Expression<?>> expressions = new ArrayList<>();
-				expressions.add(root.<String>get("contenuTrad"));
-				for (String jsonKey : jsonKeys) {
-					expressions.add(cb.literal(jsonKey));
-				}
-				e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
-			}
-			if (e == null) {
-				e = root.get(property);
-			}
-			if (order.getDirection() == Direction.ASC) {
-				cq.orderBy(cb.asc(e));
-			} else {
-				cq.orderBy(cb.desc(e));
-			}
-		}
-		cq.groupBy(groupBy);
-		TypedQuery<DemandeBO> typedQuery = em.createQuery(cq);
-		typedQuery.setFirstResult((pageable.getPageNumber()) * pageable.getPageSize());
-		typedQuery.setMaxResults(pageable.getPageSize());
-
-		List<DemandeBO> demandes = typedQuery.getResultList();
+        Long totalCount = rechercheDemandesUtils.getDemandesCount(demandeRecherche);
+		List<DemandeBO> demandes = rechercheDemandesUtils.getDemandesPageable(demandeRecherche, pageable);
 		List<DemandeDTO> demandesDto = demandesTransformer.bo2Dto(demandes, fields);
 
 		return new PageImpl<>(demandesDto, pageable, totalCount);
 	}
-
-	private Calendar getDate(String s) {
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
-		try {
-			cal.setTime(sdf.parse(s));
-		} catch (ParseException e) {
-			return null;
-		}
-		return cal;
-	}
-
-	private void setPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
-		// cas contenu de la demande
-		if (searchField.startsWith(CONTENU)) {
-			String[] jsonKeys = searchField.replace(CONTENU, "").split("\\.");
-			List<Expression<?>> expressions = new ArrayList<>();
-			expressions.add(root.<String>get("contenuTrad"));
-			for (String jsonKey : jsonKeys) {
-				expressions.add(cb.literal(jsonKey));
-			}
-			predicates.add(cb.equal(
-					cb.upper(cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new))),
-					texte.toUpperCase()
-			));
-		} else if (searchField.startsWith("agent.")) {
-			// cas agent
-			Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
-			// use String.class to cover the id type of Integer in agent table
-			predicates.add(cb.like(cb.upper(agent.get(searchField.replace("agent.", "")).as(String.class)), texte.toUpperCase() + "%"));
-		} else if (searchField.startsWith("usager.")) {
-			// cas usager
-			Join<DemandeBO, DemandesUsagersBO> usager = root.join("usager", JoinType.LEFT);
-			predicates.add(cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), texte.toUpperCase() + "%"));
-		} else if (searchField.startsWith("complement.")) {
-			// cas complements fichiers
-			SetJoin<DemandeBO, DemandesComplementsBO> demandesComplements = root.joinSet("demandesComplements", JoinType.LEFT);
-			SetJoin<DemandesComplementsBO, DemandesComplementsFilesBO> files = demandesComplements.joinSet(FILES, JoinType.LEFT);
-			predicates.add(cb.like(cb.upper(files.get(searchField.replace("complement.", ""))), texte.toUpperCase() + "%"));
-		}
-		else if (searchField.startsWith("fichiers.")) {
-			// cas pièces jointes
-			SetJoin<DemandeBO, DemandesFilesBO> files = root.joinSet(FILES, JoinType.LEFT);
-			predicates.add(cb.like(cb.upper(files.get(searchField.replace("fichiers.", ""))), texte.toUpperCase() + "%"));
-		}
-		else if (!searchField.contains(".")) {
-			// cas colonnes classiques de dem_demandes
-			// récupérer tous les champs de DemandeBO pour vérifier si le facet cliqué est de type DATE
-			List<Field> fields = new ArrayList<>(Arrays.asList(DemandeBO.class.getDeclaredFields()));
-			Optional<Field> optionalField = fields.stream().filter(f -> f.getName().equals(searchField)).findFirst();
-			if (optionalField.isPresent()) {
-				Field field = optionalField.get();
-				Class<?> fieldType = field.getType();
-				if (fieldType.isAssignableFrom(Date.class)) {
-					Calendar dateBegin = getDate(texte);
-					if (dateBegin != null) {
-						// le texte recherché est bien écrit en format date
-						Calendar dateEnd = (Calendar) dateBegin.clone();
-						dateEnd.set(Calendar.HOUR_OF_DAY, 23);
-						dateEnd.set(Calendar.MINUTE, 59);
-						dateEnd.set(Calendar.SECOND, 59);
-						predicates.add(cb.between(root.get(searchField), dateBegin.getTime(), dateEnd.getTime()));
-					} else {
-						// fake date pour éviter les problèmes de match type
-						predicates.add(cb.equal(root.get(searchField), new Date()));
-					}
-				} else {
-					// pas de champ date, recherche classique (par exemple observations)
-					predicates.add(cb.like(cb.upper(root.get(searchField)), texte.toUpperCase() + "%"));
-				}
-			}
-
-		}
-	}
-
-	private Root<DemandeBO> buildQuery(CriteriaQuery<?> cq, DemandeRechercheDTO demandeRecherche, CriteriaBuilder cb) {
-		Root<DemandeBO> root = cq.from(DemandeBO.class);
-
-		List<Predicate> predicates = new ArrayList<>();
-
-		String texte = demandeRecherche.getTexte();
-		String[] searchFields = demandeRecherche.getSearchFields();
-		// Créer des prédicats pour la recherche avec facet cliqué
-		if (searchFields != null && searchFields.length > 0 && texte != null && !texte.isEmpty()) {
-			setPredicates(searchFields[0], root, predicates, cb, texte);
-		} else if (!StringUtils.isBlank(texte)) {
-			// Créer des prédicats pour la recherche textuelle (sans facet cliqué)
-			// process du full text search
-			List<Path> paths = new ArrayList<>();
-			paths.add(root.get(SEARCH_VECTOR));
-			paths.add(root.get("searchVectorContenu"));
-			paths.add(root.join("usager", JoinType.LEFT).get(SEARCH_VECTOR));
-			paths.add(root.join(AGENT, JoinType.LEFT).get(SEARCH_VECTOR));
-			paths.add(root.join(FILES, JoinType.LEFT).get(SEARCH_VECTOR));
-			paths.add(root.join("demandesComplements", JoinType.LEFT).join(FILES, JoinType.LEFT).get(SEARCH_VECTOR));
-			setFTSPredicates(paths, predicates, cb, texte);
-		}
-
-		// Créer des prédicats pour les statuts recherchés
-		List<Predicate> predicatsStatuts = new ArrayList<>();
-		Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join(DERNIER_STATUT);
-		if (demandeRecherche.getStatuts() != null) {
-			for (String statut : demandeRecherche.getStatuts()) {
-				predicatsStatuts.add(cb.equal(dernierStatut.<String>get("name"), statut));
-			}
-			predicates.add(cb.or(predicatsStatuts.toArray(Predicate[]::new)));
-		} else if (demandeRecherche.getAucunStatut()) {
-			predicates.add(cb.and(cb.equal(dernierStatut.<String>get("name"), "")));
-		}
-
-		// Créer des prédicats pour les canaux recherchés
-		List<Predicate> predicatsCanaux = new ArrayList<>();
-		if (demandeRecherche.getCanaux() != null) {
-			for (DemandeCanalEnum canal : demandeRecherche.getCanaux()) {
-				predicatsCanaux.add(cb.equal(root.<String>get(CANAL), canal.name()));
-			}
-			predicates.add(cb.or(predicatsCanaux.toArray(Predicate[]::new)));
-		} else if(demandeRecherche.getAucunCanal()) {
-			predicates.add(cb.and(cb.equal(root.<String>get(CANAL), "")));
-		}
-
-		// Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
-		Join<DemandeBO, AccessBO> access = root.join(FK_ACCESS);
-		// Pour le front on remonte que des actifs
-		if (DemarchesUtils.isFrontUser()) {
-			predicates.add(cb.equal(access.<String>get("active"), true));
-		}
-
-		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
-		// précédemment car info dans AccessBO)
-		if (demandeRecherche.getUsagerId() != null) {
-			predicates.add(cb.equal(access.<Integer>get(USAGER_ID), demandeRecherche.getUsagerId()));
-		}
-
-		// Créer un prédicat pour l'agent affecté
-		if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
-			Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
-			predicates.add(cb.equal(agent.<String>get("id"), demandeRecherche.getAgentAffecteId()));
-		}
-
-		// Créer un prédicat pour le creationStartDate
-		if (demandeRecherche.getCreationStartDate() != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(demandeRecherche.getCreationStartDate());
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			predicates.add(cb.greaterThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
-		}
-
-		// Créer un prédicat pour le creationEndDate
-		if (demandeRecherche.getCreationEndDate() != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(demandeRecherche.getCreationEndDate());
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			predicates.add(cb.lessThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
-		}
-
-		// Créer un prédicat pour l'identifiant de la demande
-		if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
-			predicates.add(cb.equal(root.<String>get(IDENTIFIANT), demandeRecherche.getIdentifiant()));
-		}
-
-		// Créer un prédicat pour data
-		DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
-		if (dataRechercheDTO != null) {
-			SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
-			predicates.add(cb.and(
-					cb.equal(demandesData.<String>get("value"), dataRechercheDTO.getValue()),
-					cb.equal(demandesData.<String>get("key"), dataRechercheDTO.getKey())));
-		}
-
-		cq.where(predicates.toArray(Predicate[]::new));
-
-		return root;
-	}
-
-    private void setFTSPredicates(List<Path> roots, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
-        List<Predicate> predicatFTS = new ArrayList<>();
-        String searchTerm = texte.trim().replaceAll("\\s+", ":* ") + ":*"; // Utilise le préfixe :*
-
-        for (Path root : roots) {
-            predicatFTS.add(cb.isTrue(cb.function(
-                    "tsvector_match",
-                    Boolean.class,
-                    root,
-                    cb.function(
-                            "to_tsquery", String.class, cb.literal(searchTerm)
-                    )
-            )));
-        }
-
-        predicates.add(cb.or(predicatFTS.toArray(Predicate[]::new)));
-    }
 
 	@Override
 	public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId,
@@ -1170,14 +885,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Override
 	public List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche) {
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
-        Root<DemandeBO> root = buildQuery(cquery, demandeRecherche, builder);
-        List<Expression<?>> groupBy = new ArrayList<>();
-        groupBy.add(root.get("pkDemandes"));
-        cquery.groupBy(groupBy);
-        TypedQuery<DemandeBO> typedQuery = em.createQuery(cquery);
-		List<DemandeBO> demandes = typedQuery.getResultList();
+        List<DemandeBO> demandes = rechercheDemandesUtils.getDemandes(demandeRecherche);
 		return demandesTransformer.bo2Dto(demandes);
 	}
 

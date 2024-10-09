@@ -26,17 +26,7 @@ public class DemandesComplementsFilesTransformer {
         dto.setMeta(bo.getMeta());
         dto.setTypedoc(bo.getTypedoc());
         dto.setVerification(bo.isVerification());
-        return dto;
-    }
-
-    public static DemandeFileDTO toDemandeFileDTO(DemandesComplementsFilesBO bo) {
-        DemandeFileDTO dto = new DemandeFileDTO();
-        dto.setPkDemandesComplementsFiles(bo.getPkDemandesComplementsFiles());
-        dto.setName(bo.getName());
-        dto.setUrl(bo.getUrl());
-        dto.setMeta(bo.getMeta());
-        dto.setTypedoc(bo.getTypedoc());
-        dto.setVerification(bo.isVerification());
+        dto.setContenu(bo.getContenu());
         return dto;
     }
 
@@ -71,16 +61,6 @@ public class DemandesComplementsFilesTransformer {
         ArrayList<DemandeComplementsFileDTO> dtos = new ArrayList<>();
         for (DemandesComplementsFilesBO bo : bos) {
             dtos.add(bo2Dto(bo));
-        }
-        return dtos;
-    }
-
-    public static List<DemandeFileDTO> toDemandeFileDTO(Set<DemandesComplementsFilesBO> bos) {
-        ArrayList<DemandeFileDTO> dtos = new ArrayList<>();
-        if (bos != null) {
-            for (DemandesComplementsFilesBO bo : bos) {
-                dtos.add(toDemandeFileDTO(bo));
-            }
         }
         return dtos;
     }

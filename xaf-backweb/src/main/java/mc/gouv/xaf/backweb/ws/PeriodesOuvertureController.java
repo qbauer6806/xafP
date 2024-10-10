@@ -6,10 +6,12 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @GouvRestController
+@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
 @RequestMapping("/ws/periodesouverture")
 public class PeriodesOuvertureController {
 

@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,14 +43,12 @@ import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 
 @GouvRestController
 @Controller
+@Secured("ROLE_CONFIGURATION")
 @RequestMapping("/gestion/configjson")
 public class GestionConfigJsonController {
 
 	@Autowired
 	private PropertiesService propertiesService;
-
-	@Autowired
-	private AfBackUtils afBackUtils;
 
 	private static final String REDIRECT = "redirect:/gestion/properties";
 	private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";
@@ -74,9 +73,9 @@ public class GestionConfigJsonController {
 		PropertiesDTO property = propertiesService.getProperty(key);
 		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
 		// Récupération du json représentant le fichier
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			if (!StringUtils.isEmpty(property.getValue())) {
+			if (property != null && !StringUtils.isEmpty(property.getValue())) {
+				ObjectMapper mapper = new ObjectMapper();
 				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
 			}
         } catch (JsonParseException | JsonMappingException e) {

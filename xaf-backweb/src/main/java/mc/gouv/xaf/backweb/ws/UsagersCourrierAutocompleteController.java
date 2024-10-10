@@ -9,9 +9,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
@@ -25,6 +25,7 @@ import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
  * 
  */
 @GouvRestController
+@Secured("ROLE_SAISIE")
 @RequestMapping(value = "/ws/usagersCourrierAutocomplete", produces = "application/json")
 public class UsagersCourrierAutocompleteController {
 

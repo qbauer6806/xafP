@@ -14,11 +14,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @GouvRestController
+@Secured("ROLE_SAISIE")
 @RequestMapping("/ws/courriers")
 public class RechercheCourriersController extends AbstractController {
 
@@ -28,7 +30,6 @@ public class RechercheCourriersController extends AbstractController {
     private DemandesCourriersService demandesCourriersService;
 
     @GetMapping(value = "/pageable")
-
     public Page<DemandeCourrierDTO> getDemandesCourriers(@RequestParam(value = "texte", required = false) String texte,
                                                          @RequestParam(value = "imprime", required = false) boolean imprime, Pageable pageable) {
 

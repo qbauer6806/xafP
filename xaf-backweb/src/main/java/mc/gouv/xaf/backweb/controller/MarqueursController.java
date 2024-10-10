@@ -42,7 +42,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @RequestMapping("/gestion/marqueurs")
-//@Secured("ROLE_LECTURE")
+@Secured("ROLE_CONFIGURATION")
 public class MarqueursController extends AbstractController {
 
     private static final String AJOUTER_SUCCES = "Le marqueur a été ajouté.";
@@ -61,7 +61,6 @@ public class MarqueursController extends AbstractController {
     @Autowired
     private MarqueursService marqueursService;
 
-    @Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {
         return loadMarqueurs(null);

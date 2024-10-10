@@ -51,6 +51,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -85,9 +86,9 @@ public class FileController {
 	private DemarchesDataProvider demarchesDataProvider;
 
 	public static final int DEFAULT_BUFFER_SIZE = 8192;
-	private static final String LOG_APPEL = "Appel de DEM afin de récupérer la demande pour le calcul...";
 	private static final String LOG_PART = "Part à traiter : {}";
 
+	@Secured("ROLE_LECTURE")
 	@GetMapping(value = "/get/**")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -105,6 +106,7 @@ public class FileController {
 		LOGGER.info("====================== getFile() terminé, retour au client...");
 	}
 
+	@Secured("ROLE_LECTURE")
 	@GetMapping(value = "/get/files/{demandeId}")
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getFiles(@PathVariable(value = "demandeId") String demandeId,
@@ -133,6 +135,7 @@ public class FileController {
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
 
+	@Secured("ROLE_LECTURE")
 	@GetMapping(value = "/get/pdf/files/{demandeId}")
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getFilesPdf(@PathVariable(value = "demandeId") String demandeId,
@@ -319,7 +322,7 @@ public class FileController {
 			}
 		}
 	}
-
+	@Secured("ROLE_LECTURE")
 	@GetMapping(value = "/get/apercu/**")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public void getApercuFile(HttpServletRequest request, HttpServletResponse response) {
@@ -348,7 +351,7 @@ public class FileController {
 	 * MultiPart Retourne une Map correspondant aux fichiers (fileName, fileUrl)
 	 */
 	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
-		LOGGER.info(LOG_APPEL);
+		LOGGER.info("Appel de DEM afin de sauvegarder différents fichiers contenus dans la request");
 		DemandeDTO demande = demandesService.getDemande(demandeId);
 		Map<String, String> fileNames = new HashMap<>();
 		for (MultipartFile file : files) {
@@ -372,7 +375,7 @@ public class FileController {
 	 * @throws IOException
 	 */
 	public List<DemandeComplementsFileDTO> saveFilesWithMeta(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
-		LOGGER.info(LOG_APPEL);
+		LOGGER.info("Appel de DEM afin de sauvegarder différents fichiers contenus dans la request avec Meta");
 		DemandeDTO demande = demandesService.getDemande(demandeId);
 		List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
@@ -398,7 +401,7 @@ public class FileController {
 	 */
 	public String saveFilesPublication(String codePublication, MultipartFile[] files) throws IOException {
 
-		LOGGER.info(LOG_APPEL);
+		LOGGER.info("Appel de DEM afin de sauvegarder différents fichiers liée à une publication");
 
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {

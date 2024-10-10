@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -35,6 +35,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  * 
  */
 @Controller
+@Secured("ROLE_LECTURE")
 @RequestMapping("/ws/pdf")
 public class ApercuPdfController extends AbstractController {
 

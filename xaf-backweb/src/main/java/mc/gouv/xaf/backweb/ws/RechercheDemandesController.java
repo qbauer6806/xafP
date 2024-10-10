@@ -25,11 +25,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @GouvRestController
+@Secured("ROLE_LECTURE")
 @RequestMapping("/ws/demandes")
 public class RechercheDemandesController extends AbstractController {
 

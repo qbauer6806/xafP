@@ -7,10 +7,10 @@ import java.util.Map.Entry;
 import jakarta.validation.Valid;
 
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
@@ -34,6 +33,7 @@ import mc.gouv.xaf.backweb.formbean.PreviewFormBean;
  *
  */
 @Controller
+@Secured("ROLE_LECTURE")
 @RequestMapping("/ws/mailpreview")
 public class MailPreviewController extends AbstractController {
 
@@ -52,7 +52,7 @@ public class MailPreviewController extends AbstractController {
 	private GouvBPM gouvBPM;
 
 	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
-            throws IOException {
+			throws IOException {
 		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action, pkDemande);
 		String bodyTemplateCode = templateCodes.getKey();
 		String subjectTemplateCode = templateCodes.getValue();
@@ -76,7 +76,7 @@ public class MailPreviewController extends AbstractController {
 	}
 
 	@PostMapping(consumes = "application/json")
-	public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws Exception {
+	public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws IOException {
 		String action = mailPreviewFormBean.getAction();
 		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
 		Integer pkDemande = mailPreviewFormBean.getPkDemande();

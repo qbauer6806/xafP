@@ -348,16 +348,20 @@
       $('#formSubmit').val('ajouter');
       $('#saveBtn').html('ajouter');
 
+      $('#description').val('');
+      $('#identifiant').val('');
+      $('#chemin').val('');
+
       $('#editionModal').modal();
 
       return true;
     });
 
     $('#saveBtn').click(function (e) {
-      var description = $('#description').val();
       var identifiant = $('#identifiant').val();
+      var chemin = $('#chemin').val();
 
-      if (description === '' && identifiant === '') {
+      if (identifiant === '' || chemin === '') {
         $('#formError').html('Veuillez renseigner les champs.');
       } else {
         $('#formError').html('');

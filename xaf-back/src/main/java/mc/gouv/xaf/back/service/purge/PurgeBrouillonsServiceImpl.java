@@ -35,7 +35,7 @@ public class PurgeBrouillonsServiceImpl implements PurgeBrouillonsService {
 
     /*
      * on sauvegarde les urls des fichiers des brouillons directement de la table DEM_BROUILLONS_FILES pour les
-     * supprimer de file par la suite Les enregitrements de cette table ne sont pas supprimés en cascade lors de la
+     * supprimer de file par la suite Les enregistrements de cette table ne sont pas supprimés en cascade lors de la
      * suppression des brouillons car on delete par query, donc il faut supprimer les fichiers explicitement avant la
      * suppression du brouillon
      * 
@@ -63,8 +63,8 @@ public class PurgeBrouillonsServiceImpl implements PurgeBrouillonsService {
         LOGGER.info("Fin purge des Brouillons et fichiers en {} secondes",
                 (finFichier.getTime() - debut.getTime()) / 1000);
 
-        sb.append(totalBrouillons + " brouillons(s) supprimé(s)<br>");
-        sb.append(result.getLeft() + " fichier(s) supprimé(s)<br>");
+        sb.append(totalBrouillons).append(" brouillons(s) supprimé(s)<br>");
+        sb.append(result.getLeft()).append(" fichier(s) supprimé(s)<br>");
 
         LOGGER.info("fin");
         return sb.toString();

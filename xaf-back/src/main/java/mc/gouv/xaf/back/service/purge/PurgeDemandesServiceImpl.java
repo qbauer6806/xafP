@@ -186,10 +186,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 			PurgeFilesBO cf = all.next();
 
-			if (demandesFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-					&& demandesCourriersRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-					&& demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-					&& brouillonsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
+			if (demandesFilesRepository.countByUrl(cf.getUrl()) == 0
+					&& demandesCourriersRepository.countByUrl(cf.getUrl()) == 0
+					&& demandesComplementsFilesRepository.countByUrl(cf.getUrl()) == 0
+					&& brouillonsFilesRepository.countByUrl(cf.getUrl()) == 0) {
 				LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
 
 				String url = cf.getUrl();

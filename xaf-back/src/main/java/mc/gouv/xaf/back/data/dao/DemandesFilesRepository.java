@@ -21,10 +21,9 @@ public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO,
 
     List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndMeta(Integer pkDemande, String meta);
 
-    @Query("select count(demFile) from DemandesFilesBO demFile where demFile.url = :url")
-    public Integer findHowManyTimeIsFileReferenced(String url);
+    Integer countByUrl(String url);
 
     @Query("select DF from DemandesFilesBO DF where DF.fkDemandes.pkDemandes not in (select D.pkDemandes from DemandeBO D)")
-    public List<DemandesFilesBO> findAllNonReferencedFiles();
+    List<DemandesFilesBO> findAllNonReferencedFiles();
 
 }

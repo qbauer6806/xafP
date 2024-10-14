@@ -257,7 +257,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 	@Override
 	public void deleteAllOrphans() {
         for (DemandesFilesBO fichierOrphelin : demandesFilesRepository.findAllNonReferencedFiles()) {
-            Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(fichierOrphelin.getUrl());
+            Integer refs = demandesFilesRepository.countByUrl(fichierOrphelin.getUrl());
             LOGGER.debug("L'url du fichier est utilisée par {}", refs);
             if (refs == 0) {
                 String url = URLEncoder.encode(fichierOrphelin.getUrl(), StandardCharsets.UTF_8);

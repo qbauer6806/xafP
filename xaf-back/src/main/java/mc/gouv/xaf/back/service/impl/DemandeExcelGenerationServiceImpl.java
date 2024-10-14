@@ -344,21 +344,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	                            || enumField.equals("null")) {
 	                    	return "";
 	                    }
-	                    else {
-
-		                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-		                    Class<?> klass;
-							try {
-								// todo enum
-								return "";
-//								klass = Class.forName(pojo + mapping + "Enum");
-//			                    Object value = klass.getMethod("forValue", String.class).invoke(klass, enumField);
-//			                    return value != null ? value.toString() : enumField;
-							} catch (Exception e) {
-								LOGGER.error("Erreur lors de la récupération d'un champ d'Enum", e);
-								return "ERREUR";
-							}
-	                    }
+	                    return enumField;
                     }
                 }
     		}
@@ -392,33 +378,18 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 if (n instanceof ObjectNode list) {
                     Iterator<Map.Entry<String, JsonNode>> it = list.fields();
                     StringBuilder ret = new StringBuilder();
-                    String mapping = jsonObject.get("mapping").toString();
                     while (it.hasNext()) {
                         Map.Entry<String, JsonNode> entry = it.next();
                         if (entry.getValue().asBoolean()) {
-                            mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-                            try {
-								// todo enum
-								//ret = " ";
-//								klass = Class.forName(pojo + mapping + "Enum");
-//	                            Object[] parameters = {entry.getKey().toUpperCase(), true};
-//	                            Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
-//	                            LOGGER.debug("n={}, path={}, klass={}, parameters={}, value={}", n, jsonObject.get("path"), klass, parameters, value);
-//	                            if (!ret.isEmpty()) {
-//	                                ret += ", ";
-//	                            }
-//	                            ret += value.toString();
-							} catch (Exception e) {
-								ret.append("ERREUR");
-								LOGGER.error("Erreur lors de la récupération d'un champ d'Enum", e);
-							}
+                            if (!ret.isEmpty()) {
+                                ret.append(", ");
+                            }
+                            ret.append(entry.getValue().asText());
                         }
                     }
                     return ret.toString();
                 }
-                else {
-                	return "";
-                }
+                return "";
         	}
         }
         else if ("adresse".equals(type)) {

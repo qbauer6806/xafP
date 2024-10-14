@@ -14,8 +14,7 @@ import java.util.List;
  */
 public interface BrouillonsFilesRepository extends CrudRepository<BrouillonsFilesBO, Integer> {
 
-    @Query("select count(demFile) from BrouillonsFilesBO demFile where demFile.url = :url")
-    public Integer findHowManyTimeIsFileReferenced(String url);
+    Integer countByUrl(String url);
 
     List<BrouillonsFilesBO> findAllByUrl(String url);
 

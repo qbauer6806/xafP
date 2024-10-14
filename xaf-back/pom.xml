@@ -356,11 +356,11 @@
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
 
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${commons-fileupload.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>${commons-fileupload.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>mc.gouv.xaf</groupId>

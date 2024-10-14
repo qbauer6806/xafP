@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author qdeme
@@ -14,7 +15,6 @@ import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 public interface DemandesCourriersRepository extends CrudRepository<DemandesCourriersBO, Integer> {
 
     List<DemandesCourriersBO> findAll();
-    
-    @Query("select count(demFile) from DemandesCourriersBO demFile where demFile.url = :url")
-    public Integer findHowManyTimeIsFileReferenced(String url);
+
+    Integer countByUrl(String url);
 }

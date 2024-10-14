@@ -15,6 +15,5 @@ public interface DemandesComplementsFilesRepository extends CrudRepository<Deman
 
 	List<DemandesComplementsFilesBO> findAllByUrl(String url);
 
-    @Query("select count(demFile) from DemandesComplementsFilesBO demFile where demFile.url = :url")
-    public Integer findHowManyTimeIsFileReferenced(String url);
+    Integer countByUrl(String url);
 }

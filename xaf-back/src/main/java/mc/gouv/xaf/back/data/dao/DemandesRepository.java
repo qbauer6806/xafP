@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -117,6 +118,5 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     boolean existsByAgent(DemandesAgentsBO agent);
 
-    boolean existsByUsager(DemandesAgentsBO agent);
-
+    boolean existsByUsager(DemandesUsagersBO usager);
 }

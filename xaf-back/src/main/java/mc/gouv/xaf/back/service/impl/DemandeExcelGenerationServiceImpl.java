@@ -6,14 +6,6 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.DemandeExcelGenerationService;
 import mc.gouv.xaf.back.service.DemandeExcelRechercheProvider;
@@ -34,9 +26,8 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -46,6 +37,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -61,7 +61,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExcelGenerationServiceImpl.class);
 
     private static final String LABEL = "label";
-    
+
     private static final String CONTENU = "contenu.";
 
     @Autowired
@@ -78,17 +78,17 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
-    
-    private static final List<byte[]> colorList = new ArrayList<>();
-    
+
+    private static final List<Short> colorListStr = new ArrayList<>();
+
     static {
-    	colorList.add(new byte[] { (byte)253, (byte)233, (byte)217 });
-    	colorList.add(new byte[] { (byte)235, (byte)241, (byte)222 });
-    	colorList.add(new byte[] { (byte)220, (byte)230, (byte)241 });
-    	colorList.add(new byte[] { (byte)242, (byte)220, (byte)219 });
-    	colorList.add(new byte[] { (byte)221, (byte)217, (byte)196 });
-    	colorList.add(new byte[] { (byte)216, (byte)228, (byte)188 });
-    	colorList.add(new byte[] { (byte)218, (byte)238, (byte)243 });
+        colorListStr.add(IndexedColors.TAN.index);
+        colorListStr.add(IndexedColors.LIGHT_GREEN.index);
+        colorListStr.add(IndexedColors.LIGHT_CORNFLOWER_BLUE.index);
+        colorListStr.add(IndexedColors.ROSE.index);
+        colorListStr.add(IndexedColors.LEMON_CHIFFON.index);
+        colorListStr.add(IndexedColors.LIME.index);
+        colorListStr.add(IndexedColors.PALE_BLUE.index);
     }
 
 	@Override
@@ -116,9 +116,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 			Sheet sheet = workbook.createSheet(sheetName);
 			sheet.setColumnWidth(0, 6000);
 			sheet.setColumnWidth(1, 4000);
-			
+
 			Row headerRow = sheet.createRow(0);
-			
+
 			// Écriture de la ligne de header
 			LOGGER.info("Ecriture de la ligne de header...");
 	        writeRow(workbook, sections, headerRow, null, true);
@@ -133,7 +133,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	        		n++;
 	        	}
 	        }
-	        
+
 	        LOGGER.info("Redimensionnement des colonnes et des lignes...");
 	        // Elargissement des colonnes
 	        for (int i = 0; i < headerRow.getLastCellNum(); i++) {
@@ -150,12 +150,12 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 		workbook.write(outputStream);
 		workbook.close();
 	}
-	
+
 	private void writeRow(XSSFWorkbook workbook, JSONArray sections, Row row, DemandeDTO demande, boolean header) {
 		// 2 premières colonnes, qui ne concernent pas le contenu de la demande
 		if (header) {
     		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
-    		XSSFCellStyle cellStyle = workbook.createCellStyle();
+            CellStyle cellStyle = workbook.createCellStyle();
     		setCellStyle(cellStyle, header, 0);
     		cell.setCellValue("Identifiant de la demande");
     		cell.setCellStyle(cellStyle);
@@ -165,19 +165,14 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 		}
 		else {
     		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
-    		XSSFCellStyle cellStyle = workbook.createCellStyle();
-    		setCellStyle(cellStyle, header, 0);
     		cell.setCellValue(demande.getIdentifiant());
-    		cell.setCellStyle(cellStyle);
     		cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
     		cell.setCellValue(afBackUtils.getStatutPublicOuInterne(demande).getLibelle());
-    		cell.setCellStyle(cellStyle);
 		}
-		
 		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
         genererColonnes(workbook, sections, row, demande, header);
 	}
-	
+
 	private void genererColonnes(XSSFWorkbook workbook, JSONArray sections, Row row, DemandeDTO demande, boolean header) {
 		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
 		for (int i = 0; i < sections.size(); i++) {
@@ -256,17 +251,17 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         String ligne1 = getNode(node, champ, "ligne1").textValue();
         String ligne2 = getNode(node, champ, "ligne2").textValue();
         String ligne3 = getNode(node, champ, "ligne3").textValue();
-        String ret = "";
+        StringBuilder ret = new StringBuilder("");
         if (StringUtils.isNotEmpty(ligne1)) {
-            ret = ligne1;
+            ret.append(ligne1);
         }
         if (StringUtils.isNotBlank(ligne2)) {
-            ret += "\n" + ligne2;
+            ret.append("\n" + ligne2);
         }
         if (StringUtils.isNotBlank(ligne3)) {
-            ret += "\n" + ligne3;
+            ret.append("\n" + ligne3);
         }
-        return ret;
+        return ret.toString();
     }
     
     private String getFieldValue(JSONObject jsonObject, JsonNode node, boolean header) {
@@ -350,6 +345,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	                    	return "";
 	                    }
 	                    else {
+
 		                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
 		                    Class<?> klass;
 							try {
@@ -485,9 +481,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
 	}
     
-	private void setCellStyle(XSSFCellStyle cellStyle, boolean header, int sectionIndex) {
+    private void setCellStyle(CellStyle cellStyle, boolean header, int sectionIndex) {
 		if (header) {
-        	cellStyle.setFillForegroundColor(getColorFromSectionIndex(sectionIndex+1));
+            cellStyle.setFillForegroundColor(colorListStr.get(sectionIndex % colorListStr.size()));
         	cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         	cellStyle.setWrapText(true);
         	cellStyle.setBorderTop(BorderStyle.THIN);
@@ -501,9 +497,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 			cellStyle.setWrapText(true);
 		}
 	}
-	
-	private XSSFColor getColorFromSectionIndex(int sectionIndex) {
-		return new XSSFColor(colorList.get(sectionIndex % colorList.size()), new DefaultIndexedColorMap());
-	}
+
 
 }

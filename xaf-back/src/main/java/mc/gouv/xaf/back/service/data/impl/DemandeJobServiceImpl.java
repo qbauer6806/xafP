@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
+import mc.gouv.xaf.back.service.purge.PurgeBrouillonsService;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 import mc.gouv.xaf.shared.enums.JobNamesEnum;
 import mc.gouv.xaf.shared.enums.JobStatutsEnum;
@@ -56,6 +57,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     
     @Autowired
     private KafkaOutboxService kafkaOutboxService;
+
+    @Autowired
+    private PurgeBrouillonsService purgeBrouillonsService;
 
     @Autowired
     private MarqueursService marqueursService;
@@ -122,6 +126,10 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     else {
                         msg += " message.";
                     }
+                    break;
+                case PURGE_BROUILLONS:
+                    String res = purgeBrouillonsService.purgerBrouillons();
+                    msg = "Purge des brouillons terminée.<br>" + res;
                     break;
                 case RESET_MARQUEURS:
                     marqueursService.resetMarqueurs();

@@ -433,6 +433,16 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return ulisProperties.getUlisFunctionalAccount();
     }
 
+    @Override
+    public String getApiUlisWorkflowUrl() {
+        return ulisProperties.getUlisUrlWorkflow();
+    }
+
+    @Override
+    public String getApiUlisCommercialisationUrl() {
+        return ulisProperties.getUlisUrlCommercialisation();
+    }
+
 	@Override
 	public String get2TiersBoUrl() {
 		return _2tiersBoUrl;

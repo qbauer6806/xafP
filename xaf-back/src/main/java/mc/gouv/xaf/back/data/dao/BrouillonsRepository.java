@@ -4,6 +4,8 @@ import java.util.List;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -25,4 +27,11 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
      * Récupération brouillons de l'usager FRONT
      */
     List<BrouillonBO> findByFkAccess_UsagerId(Integer usagerId);
+
+    @Modifying
+    @Query("delete from BrouillonBO b where b.config.buildId != :buildIdCourant")
+    void deleteBrouillonsWithBuildIdOtherThan(String buildIdCourant);
+
+    @Query("select count(BBO) from BrouillonBO BBO where BBO.config.buildId != :buildIdCourant")
+    Long getCountBrouillonsWithBuildIdOtherThan(String buildIdCourant);
 }

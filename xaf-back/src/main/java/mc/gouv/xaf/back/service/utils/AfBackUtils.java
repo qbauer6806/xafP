@@ -60,6 +60,7 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -69,6 +70,9 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -906,4 +910,21 @@ public class AfBackUtils {
     }
 
 
+    /**
+     * Permets de déterminer le type de connexion à partir d'une demande
+     *
+     * @param demande
+     * @return
+     */
+    public static TypeConnexionUsagerEnum getTypeConnexion(DemandeDTO demande) {
+        if (demande == null) {
+            return null;
+        }
+        if (demande.getDonneesMConnect() != null) {
+            return TypeConnexionUsagerEnum.MCONNECT;
+        }
+        //Par défaut, c'est AUTHENTIFICATION_FAIBLE
+        return COURRIER.equals(demande.getCanal()) || GUICHET_PHYSIQUE.equals(demande.getCanal()) ?
+                TypeConnexionUsagerEnum.AGENT : TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE;
+    }
 }

@@ -1,9 +1,10 @@
 package mc.gouv.xaf.back.data.transformer;
 
+import org.apache.commons.lang3.StringUtils;
+
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.lang3.StringUtils;
 
 public class StatistiqueTransformer {
 
@@ -22,11 +23,9 @@ public class StatistiqueTransformer {
         dto.setDemarcheId(bo.getDemarcheId());
         dto.setStatutPublic(bo.getStatutPublic());
         dto.setIdentifiantDemande(bo.getIdentifiantDemande());
-
         if(!StringUtils.isEmpty(bo.getTypeConnexionUsager())) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
-
         return dto;
     }
     
@@ -42,7 +41,6 @@ public class StatistiqueTransformer {
         bo.setDemarcheId(dto.getDemarcheId());
         bo.setStatutPublic(dto.getStatutPublic());
         bo.setIdentifiantDemande(dto.getIdentifiantDemande());
-
         if(dto.getTypeConnexionUsager() != null) {
             bo.setTypeConnexionUsager(dto.getTypeConnexionUsager().name());
         }

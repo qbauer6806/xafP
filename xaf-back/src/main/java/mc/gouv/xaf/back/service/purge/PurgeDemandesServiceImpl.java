@@ -95,8 +95,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private GouvSchedulerService gouvSchedulerService;
 
-    @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+	@Autowired
+	private MailTemplateModelProvider mailTemplateModelProvider;
 	@Autowired
 	private FileService fileService;
 
@@ -143,7 +143,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 dateFinPurge, statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
-			envoisMailUsagerPurge(demandeDTO, delaiEnvoiEmailProp.getValue());
+			envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
             demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
@@ -172,7 +172,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         LOGGER.info("fin");
     }
 
-    private Triple<Integer, Integer, Integer> executerPurgeFichiers() {
+    @Override
+	public Triple<Integer, Integer, Integer> executerPurgeFichiers() {
 
 		Integer compteGlobalFichiers = 0;
 		Integer compteGlobalAppelsFile = 0;
@@ -221,7 +222,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
 	}
 
-	private void envoisMailUsagerPurge(DemandeDTO demandeDTO, String delai) {
+    private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
@@ -310,6 +311,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		return emailInfo;
 	}
 
+	@Override
     public List<StatistiqueSubsetDTO> getDemandesPurgees() {
 		LOGGER.info("Récupération des demandes purgées à moins {} mois", OFFSET_MOIS_DATE_PURGE);
 		Date dateDebutOffset = Date.from(LocalDateTime.now().minusMonths(OFFSET_MOIS_DATE_PURGE).atZone(ZoneId.systemDefault()).toInstant());

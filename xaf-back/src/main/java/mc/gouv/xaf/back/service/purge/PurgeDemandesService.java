@@ -3,7 +3,10 @@ package mc.gouv.xaf.back.service.purge;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Date;
 import java.util.List;
+
 import mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO;
+import org.apache.commons.lang3.tuple.Triple;
+
 
 public interface PurgeDemandesService {
 
@@ -27,5 +30,7 @@ public interface PurgeDemandesService {
 	 * Récupère la dernière execution du job de purge
 	 */
 	Date getDateDerniereExecution();
-	
+
+    Triple<Integer, Integer, Integer> executerPurgeFichiers();
+
 }

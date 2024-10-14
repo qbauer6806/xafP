@@ -143,7 +143,7 @@ public class FileServiceImpl implements FileService {
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@Override
 	public String saveFile(DemandeDTO demande, String containerId, MultipartFile file, HttpServletResponse response) throws IOException {
 		String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
@@ -437,7 +437,7 @@ public class FileServiceImpl implements FileService {
 			LOGGER.error(e.getMessage());
 		}
 		LOGGER.info("Fin suppression du fichier : {}", fileName);
-		
+
 	}
 
     @Override

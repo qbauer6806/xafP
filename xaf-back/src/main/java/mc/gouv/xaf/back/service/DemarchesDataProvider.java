@@ -207,4 +207,13 @@ public interface DemarchesDataProvider {
         return true;
     }
 
+    /**
+     * Permets de définir la taile du texte sur les entetes des tableaux du PDF récap.
+     * Valeur par défaut est 12
+     * @return
+     */
+    default int getTaileTexteEnteteTableauxRecapPdf() {
+        return 12;
+    }
+
 }

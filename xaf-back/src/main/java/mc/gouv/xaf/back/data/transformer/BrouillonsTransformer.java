@@ -53,7 +53,6 @@ public class BrouillonsTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
         dto.setBuildId(bo.getConfig().getBuildId());
-        dto.setDernierModele(bo.getConfig().isDernierModele());
         dto.setRecapType(bo.getRecapType());
         return dto;
     }
@@ -110,8 +109,8 @@ public class BrouillonsTransformer {
         return page;
     }
 
-    public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated) {
-        if (brouillonDTO.isDernierModele()) {
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated, String lastBuildId) {
+        if (brouillonDTO.getBuildId().equals(lastBuildId)) {
             // statut not transmitted
             setDernierStatut(brouillonDTO, notTransmitted);
         } else {

@@ -198,7 +198,7 @@ public class GenerateConfigFromRecaps {
                 }
             }
             System.out.println(
-                    "INSERT INTO TSCode.DEM_DEMANDES_CONFIG (build_id, contenu, dernier_modele) values (" + config.get("buildId").asText() + ",'" + config.toString().replace("'", "''") + "', false) ON CONFLICT (build_id) DO UPDATE SET contenu = EXCLUDED.contenu;");
+                    "INSERT INTO TSCode.DEM_DEMANDES_CONFIG (build_id, contenu) values (" + config.get("buildId").asText() + ",'" + config.toString().replace("'", "''") + "') ON CONFLICT (build_id) DO UPDATE SET contenu = EXCLUDED.contenu;");
             System.out.println();
         }
 

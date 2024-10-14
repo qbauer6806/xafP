@@ -28,9 +28,6 @@ public class DemandeConfigBO {
     @Type(JsonType.class)
     private JsonNode contenu;
 
-    @Column(name = "DERNIER_MODELE", nullable = false)
-    private boolean dernierModele;
-
     @OneToMany(mappedBy = "buildId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<MarqueurBO> marqueurs;
 

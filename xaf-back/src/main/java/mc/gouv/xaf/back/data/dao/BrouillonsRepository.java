@@ -34,4 +34,8 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
 
     @Query("select count(BBO) from BrouillonBO BBO where BBO.config.buildId != :buildIdCourant")
     Long getCountBrouillonsWithBuildIdOtherThan(String buildIdCourant);
+
+    @Modifying
+    @Query("UPDATE BrouillonBO b SET b.config.buildId = :newBuildId WHERE b.config.buildId = :oldBuildId")
+    void updateBuildIdForBrouillons(String oldBuildId, String newBuildId);
 }

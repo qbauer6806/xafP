@@ -11,6 +11,7 @@ import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.transformer.DemandesConfigTransformer;
 import mc.gouv.xaf.back.exception.DemarcheException;
+import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 
 	@Autowired
 	private MarqueursService marqueursService;
+
+    @Autowired
+    private BrouillonsService brouillonsService;
 
 	@Autowired
 	private DemandesConfigTransformer demandesConfigTransformer;
@@ -81,15 +85,15 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         for (DemandeConfigBO config : configs) {
             List<String> all = getModelPaths(config.getContenu().get(MODEL_PATH).get("all"));
             List<String> allLastConfig = getModelPaths(lastConfig.getContenu().get(MODEL_PATH).get("all"));
-            config.setDernierModele(false);
             // Vérifier si les deux listes ont la même taille
             if (all.size() == allLastConfig.size()) {
                 // Créer des copies pour ne pas modifier les listes originales
                 List<String> sortedList1 = all.stream().sorted().toList();
                 List<String> sortedList2 = allLastConfig.stream().sorted().toList();
                 if (sortedList1.equals(sortedList2)) {
-                    // même modèle
-                    config.setDernierModele(true);
+                    // même modèle, on se permet de mettre tous les brouillons associés à ce buildId au nouveau buildId
+                    // utile notamment pour savoir si un brouillon est obsolète
+                    brouillonsService.updateBrouillonsBuildId(config.getBuildId(), lastConfig.getBuildId());
                 }
             }
             demandesConfigRepository.save(config);

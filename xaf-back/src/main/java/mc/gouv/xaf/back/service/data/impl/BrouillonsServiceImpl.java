@@ -131,7 +131,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         LOGGER.info("Transformation bo -> dto ...");
 
         List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
-        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        String lastBuildId = demandesConfigService.getLastBuildId();
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
         return brouillonsDTO;
 
     }
@@ -300,6 +301,11 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
+    public void updateBrouillonsBuildId(String buildId, String lastBuildId) {
+        brouillonsRepository.updateBuildIdForBrouillons(buildId, lastBuildId);
+    }
+
+    @Override
     public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
     	// b.dateDerModif ?
         String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" :  paramDTO.getSort();
@@ -308,7 +314,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         Page<BrouillonBO> bos = brouillonsRepository.findByFkAccess_UsagerIdAndFkAccess_Active(usagerId, true, pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        String lastBuildId = demandesConfigService.getLastBuildId();
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
         return brouillonDTOS;
     }
 }

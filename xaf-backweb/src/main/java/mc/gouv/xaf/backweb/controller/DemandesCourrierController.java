@@ -46,10 +46,10 @@ public class DemandesCourrierController extends AbstractController {
 
 	@Autowired
 	private BackGouvPropertiesResolver gouvPropertiesResolver;
-	
+
 	@Autowired
 	private AfBackUtils afBackUtils;
-	
+
 	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
 
@@ -121,6 +121,8 @@ public class DemandesCourrierController extends AbstractController {
 		ub.addParameter("target", "/" + gouvPropertiesResolver.getFrontFormStartPage());
 		ub.addParameter("creeParAgentId", AfBackUtils.getAuthenticatedAgentId());
 		ub.addParameter("sig", sig);
+        if (demandesCourrierFormBean.getDuplicationKeyId() != null)
+            ub.addParameter("duplicationKeyId", demandesCourrierFormBean.getDuplicationKeyId());
 
 		String redirect = "redirect:" + ub;
 		

@@ -223,6 +223,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		// Création d'une nouvelle demande, ignorer les champs suivants (ils seront mis à jour plus tard lors du traitement d'une demande) :
 		demande.setObservations(null);
+		demande.setTypeConnexionUsager(AfBackUtils.getTypeConnexion(demande));
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
 		DemandeBO demandeBo = demandesTransformer.dto2Bo(demande);
@@ -550,7 +551,7 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive) {
 
-		LOGGER.info(RECUPERATION_DEMANDE);
+        LOGGER.debug(RECUPERATION_DEMANDE);
 
 		Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
 
@@ -729,10 +730,9 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-	    if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
-	      stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
-	    }
-
+		if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
+		      stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
+		}
 		AccessBO access = demandeBo.getFkAccess();
 		access.getDemandes().remove(demandeBo);
 		access = accessRepository.save(access);
@@ -937,7 +937,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeDTO getDemande(String identifiant) {
-		LOGGER.info(RECUPERATION_DEMANDE);
+        LOGGER.debug(RECUPERATION_DEMANDE);
 		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
 		return demandesTransformer.bo2Dto(demandeBo);
 	}

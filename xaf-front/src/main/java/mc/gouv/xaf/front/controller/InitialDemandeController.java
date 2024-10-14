@@ -50,6 +50,8 @@ public class InitialDemandeController extends AbstractXafController {
     private static final String MCONNECT_PARAM_BIRTHCOUNTRY = "birthPlaceCountry";
     private static final String USAGER_INFO_EMAIL = "usagerInfoEmail";
     private static final String USAGER_INFO_TITRE = "usagerInfoTitre";
+    private static final String USAGER_INFO_NOM = "usagerInfoNom";
+    private static final String USAGER_INFO_PRENOM = "usagerInfoPrenom";
 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
@@ -92,26 +94,25 @@ public class InitialDemandeController extends AbstractXafController {
 
         try {
             if (usagerInfosDTO.isMConnect()) {
-                DonneesExternesDTO donneesMConnectDTO;
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
-                donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
-                data.put("usagerId", new String[] { usagerInfosDTO.getId() + "" });
+                DonneesExternesDTO donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
                 data.put(MCONNECT_PARAM_FAMILYNAME,
-                        new String[] { donneesMConnectDTO.getMconnect().getFamilyName().toUpperCase() });
-                data.put(MCONNECT_PARAM_GIVENNAME, new String[] { donneesMConnectDTO.getMconnect().getGivenName() });
-                data.put(MCONNECT_PARAM_BIRTHDATE, new String[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-                        .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });
-                data.put(MCONNECT_PARAM_BIRTHNAME, new String[] { donneesMConnectDTO.getMconnect().getBirthName() });
-                data.put(MCONNECT_PARAM_BIRTHPLACE, new String[] { donneesMConnectDTO.getMconnect().getBirthPlace() });
+                        new String[]{donneesMConnectDTO.getMconnect().getFamilyName().toUpperCase()});
+                data.put(MCONNECT_PARAM_GIVENNAME, new String[]{donneesMConnectDTO.getMconnect().getGivenName()});
+                data.put(MCONNECT_PARAM_BIRTHDATE, new String[]{new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                        .format(donneesMConnectDTO.getMconnect().getBirthDatetime())});
+                data.put(MCONNECT_PARAM_BIRTHNAME, new String[]{donneesMConnectDTO.getMconnect().getBirthName()});
+                data.put(MCONNECT_PARAM_BIRTHPLACE, new String[]{donneesMConnectDTO.getMconnect().getBirthPlace()});
                 data.put(MCONNECT_PARAM_BIRTHCITY,
-                        new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCity() });
+                        new String[]{donneesMConnectDTO.getMconnect().getBirthPlaceCity()});
                 data.put(MCONNECT_PARAM_BIRTHCOUNTRY,
-                        new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCountry() });
-                data.put(USAGER_INFO_EMAIL,
-                        new String[] { usagerInfosDTO.getEmail() });
-                data.put(USAGER_INFO_TITRE, new String[] { String.valueOf(usagerInfosDTO.getTitre()) });
-
+                        new String[]{donneesMConnectDTO.getMconnect().getBirthPlaceCountry()});
+            } else{
+                data.put(USAGER_INFO_NOM, new String[]{usagerInfosDTO.getNom()});
+                data.put(USAGER_INFO_PRENOM, new String[]{usagerInfosDTO.getPrenom()});
             }
+            data.put(USAGER_INFO_EMAIL, new String[]{usagerInfosDTO.getEmail()});
+            data.put(USAGER_INFO_TITRE, new String[]{String.valueOf(usagerInfosDTO.getTitre())});
 
             JsonNode retour = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
             ObjectMapper mapper = new ObjectMapper();

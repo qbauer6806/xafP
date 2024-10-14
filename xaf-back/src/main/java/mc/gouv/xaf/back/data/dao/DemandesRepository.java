@@ -118,4 +118,5 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     boolean existsByAgent(DemandesAgentsBO agent);
 
     boolean existsByUsager(DemandesAgentsBO agent);
+
 }

@@ -86,6 +86,10 @@ public interface GouvPropertiesResolver {
 
     String getApiUlisTiersOrganisationUrl();
 
+    String getApiUlisWorkflowUrl();
+
+    String getApiUlisCommercialisationUrl();
+
     String getApiUlisAuthenticationUser();
 
     String getApiUlisAuthenticationPassword();

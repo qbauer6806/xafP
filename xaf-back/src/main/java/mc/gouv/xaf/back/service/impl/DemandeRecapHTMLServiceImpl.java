@@ -372,7 +372,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         // Pour mettre une icône s'il s'agit d'une donnée certifiée
         String path = (String) champ.get("path");
         String idPrefix = (String) champ.get(ID_PREFIX);
-        String source = this.getSourceDonneesFiable(champ, demande, donneesCertifiees, type, path);
+        String sourceDonneesFiable = this.getSourceDonneesFiable(champ, demande, donneesCertifiees, type, path);
 
         // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
         boolean champAMarquer = spansIdAMarquer.contains(idPrefix);
@@ -388,7 +388,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String imgTag = this.getImgTag(isPdfRecap);
 
         String valueSource = getSourceValue(demandeSource, champ, isPdfRecap, donneesCertifiees);
-        if (demandeSource != null && !value.equalsIgnoreCase(valueSource) && demarchesDataProvider.isAfficheDemandeSource()) {
+        if (demandeSource != null && !value.equalsIgnoreCase(valueSource) && demarchesDataProvider.isAfficheDemandeSource()
+                && StringUtils.isBlank(sourceDonneesFiable)) {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
             }
@@ -413,7 +414,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         } else {
             Object obj = champ.get(LABEL);
             html.append("<dt><span>").append(obj).append(SPAN_CLOSE);
-            this.addImmageDonneesSourceFiable(html, source, imgTag);
+            this.addImmageDonneesSourceFiable(html, sourceDonneesFiable, imgTag);
             html.append(DT);
             html.append("<dd>").append(idTag1).append(this.getValue(champAMarquer, value)).append(idTag2);
         }
@@ -473,7 +474,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 					"<dd style=\"width: 100%\"><table id=\"datatable-demandes-recap\" class=\"table table-striped recaptable")
 					.append(classPdfRecap).append("\">");
 			JSONArray columns = (JSONArray) section.get(COLUMNS);
-			html.append("<thead><tr onclick=\"switchTS()\">");
+            String style = isPdfRecap ?
+                    String.format(" style=\"font-size: %spx\"", demarchesDataProvider.getTaileTexteEnteteTableauxRecapPdf()) : "";
+			html.append("<thead><tr onclick=\"switchTS()\"").append(style).append(">");
 			for (Object column : columns.toArray()) {
 				html.append("<th>").append(((JSONObject) column).get(LABEL)).append("</th>");
 			}
@@ -539,8 +542,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 					html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
 							.append(CLOSING_TD);
 				}
+                html.append(CLOSING_TR);
 			}
-			html.append(CLOSING_TR);
 		}
 		html.append("</tbody></table></dd>");
 	}
@@ -551,7 +554,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 valueSource = "N/A";
             }
             String newValue = StringUtils.isNoneBlank(value) ? value : "";
-            html.append("<td  onclick=\"switchTS()\"class='nouvelledonnee-contenu'>").append(newValue)
+            html.append("<td  onclick=\"switchTS()\" class='nouvelledonnee-contenu'>").append(newValue)
                     .append(CLOSING_TD);
             String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
             html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>")

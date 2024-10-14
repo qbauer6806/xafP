@@ -47,4 +47,9 @@ public class DemandeDTO extends AbstractDemandeDTO {
 
     private TypeConnexionUsagerEnum typeConnexionUsager;
 
+    public void setTypeConnexionUsager(TypeConnexionUsagerEnum typeConnexionUsager) {
+        this.typeConnexionUsager = typeConnexionUsager;
+    }
+
+
 }

@@ -25,4 +25,8 @@ public interface PurgeFilesRepository extends CrudRepository<PurgeFilesBO, Integ
     @Query("insert into PurgeFilesBO(url) select DCBO.url from DemandesCourriersBO DCBO inner join DCBO.fkDemandes DBO "
             + " where DBO.pkDemandes =:pkDemandes")
     void insertFilesCourrierToPurge(Integer pkDemandes);
+
+    @Modifying
+    @Query("insert into PurgeFilesBO(url) select BFBO.url from BrouillonBO BBO inner join BBO.files BFBO where BBO.buildId != :buildIdCourant")
+    void insertFilesBrouillonsToPurgeWithBuildIdOtherThan(String buildIdCourant);
 }

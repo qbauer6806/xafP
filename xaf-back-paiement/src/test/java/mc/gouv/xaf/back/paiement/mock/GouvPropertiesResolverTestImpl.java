@@ -207,6 +207,22 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
         return null;
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public String getApiUlisWorkflowUrl() {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String getApiUlisCommercialisationUrl() {
+        return null;
+    }
+
     @Override
     public String getApiUlisAuthenticationUser() {
         return null;

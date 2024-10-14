@@ -82,9 +82,13 @@
 											<span>Fichier</span>
 										</dt>
 										<dd>
-											<span style="padding-right: 5px;" th:text="${fichier.name}" /> <a class="nopadding"
-												th:href="@{/ws/file/get}+${fichier.url}"><span
-												class="btn btn-action icon-action_telecharger" /></a>
+											<span style="padding-right: 5px;" th:text="${fichier.name}" />
+											<a class="nopadding" th:href="@{/ws/file/get}+${fichier.url}">
+												<button class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
+														data-placement="bottom" data-toggle="tooltip" title="" type="button">
+													<i class="icon-action_telecharger"></i>
+												</button>
+											</a>
 										</dd>
 									</div>
 								</dl>

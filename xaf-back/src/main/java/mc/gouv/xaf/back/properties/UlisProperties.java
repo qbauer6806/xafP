@@ -25,4 +25,10 @@ public class UlisProperties {
     @Value("${mc.gouv.${application.name}.shared.backapi.ulis.account:OPTIONAL}")
     private String ulisFunctionalAccount;
 
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.workflow:OPTIONAL}")
+    private String ulisUrlWorkflow;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.commercialisation:OPTIONAL}")
+    private String ulisUrlCommercialisation;
+
 }

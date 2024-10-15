@@ -69,7 +69,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
 
-        LOGGER.info("saveFiles({}, {})", demandeFiles, demandeBo);
+        LOGGER.debug("saveFiles({}, {})", demandeFiles, demandeBo);
 
         if (demandeFiles != null && demandeFiles.length > 0) {
             List<DemandeFileDTO> demandeFileDTOS = Arrays.asList(demandeFiles);

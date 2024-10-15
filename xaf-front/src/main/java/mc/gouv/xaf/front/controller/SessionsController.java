@@ -41,7 +41,7 @@ public class SessionsController extends AbstractXafController {
 
             // On tente de récupérer une session existante sans en créer une
             HttpSession session = request.getSession(false);
-            LOGGER.info("SESSION : {}", session);
+            LOGGER.debug("SESSION : {}", session);
             if (session == null) {
                 // Pas de session trouvée
                 LOGGER.info("Aucune session trouvée");
@@ -64,7 +64,7 @@ public class SessionsController extends AbstractXafController {
 
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
-            LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
+            LOGGER.debug("usagerInfosDTO : {}", usagerInfosDTO);
 
             LOGGER.info("====================== Fin /sessions doGet()");
 
@@ -83,7 +83,7 @@ public class SessionsController extends AbstractXafController {
         try {
             // On tente de récupérer une session existante sans en créer une
             HttpSession session = request.getSession(false);
-            LOGGER.info("SESSION : {}", session);
+            LOGGER.debug("SESSION : {}", session);
             if (session == null) {
                 // Pas de session trouvée
                 LOGGER.info("Aucune session trouvée");
@@ -91,12 +91,12 @@ public class SessionsController extends AbstractXafController {
             }
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
-            LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}", usagerInfosDTO, usagerInfosDTO.getId(),
+            LOGGER.debug("usagerInfosDTO : {}, userId={}, accessId={}", usagerInfosDTO, usagerInfosDTO.getId(),
                     usagerInfosDTO.getAccessId());
 
             // On ne met pas à jour s'il s'agit d'un usager courrier
             if (XafFrontserverUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
-                LOGGER.info("On ne met pas à jour s'il s'agit d'un usager courrier");
+                LOGGER.debug("On ne met pas à jour s'il s'agit d'un usager courrier");
                 return ResponseEntity.ok().build();
             }
             usagerInfosDTO = gichkeyService.checkTokens(usagerInfosDTO, true);

@@ -89,7 +89,7 @@ public class MailServiceImpl implements MailService {
      */
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments, MailAudienceEnum audienceMail) throws JsonProcessingException {
-        LOGGER.info("MailServiceImpl.sendMail({}, {}, {}, {})", emailInfo, model, attachments, audienceMail);
+        LOGGER.debug("MailServiceImpl.sendMail({}, {}, {}, {})", emailInfo, model, attachments, audienceMail);
         if (MailAudienceEnum.AGENT.equals(audienceMail) && !notificationMailAgentProperty()) {
             LOGGER.info("PAS d'envoi email aux agents du service");
             return;

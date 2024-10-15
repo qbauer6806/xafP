@@ -128,7 +128,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private Method getMethod(PropertyDescriptor propertyDescriptor) {
         Method method;
         try {
-            LOGGER.info("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
+            LOGGER.debug("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
             method = propertyDescriptor.getReadMethod();
         } catch (SecurityException e) {
             LOGGER.error("Erreur lors de la récupération de la méthode");

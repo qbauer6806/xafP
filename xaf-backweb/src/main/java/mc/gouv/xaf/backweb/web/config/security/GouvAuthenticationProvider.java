@@ -41,7 +41,7 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        LOGGER.info("GouvAuthenticationProvider.authenticate({})", authentication);
+        LOGGER.debug("GouvAuthenticationProvider.authenticate({})", authentication);
 
         var auth = (LogonAuthenticationToken) authentication;
 
@@ -62,7 +62,7 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
             LOGGER.info(AUCUN_UTILISATEUR_ERREUR);
             throw new AccessDeniedException(AUCUN_UTILISATEUR_ERREUR);
         }
-        LOGGER.info("Utilisateur retrouvé suite à l'appel à Logon : {}", user);
+        LOGGER.debug("Utilisateur retrouvé suite à l'appel à Logon : {}", user);
 
         // Constitution de l'Authentication Spring à l'aide des données obtenues de Logon
 

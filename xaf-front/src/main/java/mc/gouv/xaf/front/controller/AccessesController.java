@@ -51,7 +51,7 @@ public class AccessesController extends AbstractXafController {
         LOGGER.info("Appel à la démarche pour créer l'accès...");
         AccessDTO access = getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInput);
 
-        LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
+        LOGGER.debug("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
         usagerInfosDTO.setAccessId(access.getPkAccess());
         request.getSession().setAttribute("login", usagerInfosDTO);
 
@@ -122,7 +122,7 @@ public class AccessesController extends AbstractXafController {
         }
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-        LOGGER.info("UsagerID={}", usagerId);
+        LOGGER.debug("UsagerID={}", usagerId);
         return usagerInfosDTO;
     }
 }

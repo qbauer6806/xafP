@@ -51,13 +51,13 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     }
 
     protected void beforeRequest(ContentCachingRequestWrapper request) {
-        if (LOGGER.isInfoEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             logRequestHeader(request, request.getRemoteAddr() + "|>");
         }
     }
 
     protected void afterRequest(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
-        if (LOGGER.isInfoEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             logRequestBody(request, request.getRemoteAddr() + "|>");
             logResponse(response, request.getRemoteAddr() + "|<");
         }

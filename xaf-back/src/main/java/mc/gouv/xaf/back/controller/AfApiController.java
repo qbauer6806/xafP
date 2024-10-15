@@ -69,7 +69,7 @@ public class AfApiController {
     public DemandeDTO creerDemandeRequest(@Valid @RequestBody DemandeInputDTO demande,
             @RequestParam(value = "usagerId") Integer usagerId)
             throws JsonProcessingException {
-        LOGGER.info("AbstractAfApiController.creerDemande({}, {})", demande, usagerId);
+        LOGGER.debug("AbstractAfApiController.creerDemande({}, {})", demande, usagerId);
         return afApiService.creerDemande(demande, usagerId);
     }
 

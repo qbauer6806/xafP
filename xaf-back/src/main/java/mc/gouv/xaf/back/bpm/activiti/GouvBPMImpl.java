@@ -182,7 +182,7 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     @Transactional(noRollbackFor = { FlowableTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class})
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
-        LOGGER.info("claimTask({}, {})", task, user);
+        LOGGER.debug("claimTask({}, {})", task, user);
 
         if (null == task || null == user) {
             LOGGER.error("La tâche ou le user est null.");

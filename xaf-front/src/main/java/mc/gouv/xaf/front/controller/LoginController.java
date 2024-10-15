@@ -68,7 +68,7 @@ public class LoginController extends AbstractXafController {
         }
 
         String safe = sessionId != null ? sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
-        LOGGER.info("SessionID = {}", safe);
+        LOGGER.debug("SessionID = {}", safe);
 
         if (StringUtils.isBlank(sessionId)) {
             return ResponseEntity.badRequest().build();
@@ -77,7 +77,7 @@ public class LoginController extends AbstractXafController {
         if (!sessionId.startsWith("c_")) {
             // Le sessionId ne commence pas par "c_", donc appel du service ts-login
 
-            LOGGER.info("<Usager classique>");
+            LOGGER.debug("<Usager classique>");
             logParams(request);
             KeycloakTokenInfo tokenInfo = gichkeyService.getTokenFromAuthCode(sessionId);
             
@@ -105,7 +105,7 @@ public class LoginController extends AbstractXafController {
                 return ResponseEntity.status(sigStatus).build();
             }
 
-            LOGGER.info("<Usager courrier>");
+            LOGGER.debug("<Usager courrier>");
 
             int usagerCourrierId;
             try {
@@ -114,9 +114,9 @@ public class LoginController extends AbstractXafController {
                 LOGGER.error("Impossible de parser l'id de l'usager courrier", e);
                 return ResponseEntity.internalServerError().build();
             }
-            LOGGER.info("UsagerCourrierId : {}", usagerCourrierId);
+            LOGGER.debug("UsagerCourrierId : {}", usagerCourrierId);
 
-            LOGGER.info("Appel de la démarche pour récupérer l'usager courrier...");
+            LOGGER.debug("Appel de la démarche pour récupérer l'usager courrier...");
             UsagerCourrierDTO usagerCourrier = getAfApiClient().getUsagerCourrier(usagerCourrierId);
 
             if (usagerCourrier == null) {
@@ -124,7 +124,7 @@ public class LoginController extends AbstractXafController {
                 return ResponseEntity.notFound().build();
             }
 
-            LOGGER.info("Stockage des informations usager dans la session...");
+            LOGGER.debug("Stockage des informations usager dans la session...");
             UsagerInfosDTO uinfos = this.getUsagerInfosDTO(usagerCourrier);
             AccessDTO accessDTO = getAfApiClient().getAccess(usagerCourrierId);
             if(accessDTO != null){
@@ -214,18 +214,18 @@ public class LoginController extends AbstractXafController {
 
 
     private void logParams(HttpServletRequest request) {
-        LOGGER.info("RemoteAddr : {}", request.getRemoteAddr());
+        LOGGER.debug("RemoteAddr : {}", request.getRemoteAddr());
         Enumeration<String> headerNames = request.getHeaderNames();
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {
                 String header = headerNames.nextElement();
-                LOGGER.info("Header: {} = {}", header, request.getHeader(header));
+                LOGGER.debug("Header: {} = {}", header, request.getHeader(header));
             }
         }
-        LOGGER.info("Scheme : {}", request.getScheme());
-        LOGGER.info("ServerName : {}", request.getServerName());
-        LOGGER.info("ServerPort : {}", request.getServerPort());
-        LOGGER.info("isSecure : {}", request.isSecure());
+        LOGGER.debug("Scheme : {}", request.getScheme());
+        LOGGER.debug("ServerName : {}", request.getServerName());
+        LOGGER.debug("ServerPort : {}", request.getServerPort());
+        LOGGER.debug("isSecure : {}", request.isSecure());
     }
 
     private HttpStatus checkSig(HttpServletRequest request, String sessionId) {

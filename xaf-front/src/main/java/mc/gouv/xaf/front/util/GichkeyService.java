@@ -74,7 +74,7 @@ public class GichkeyService {
         } catch (MalformedURLException e) {
             LOGGER.error("Erreur lors de la constitution de l'URL d'appel à GICHKEY", e);
         }
-        LOGGER.info("URL d'appel : {}", url);
+        LOGGER.debug("URL d'appel : {}", url);
         return url;
     }
 
@@ -102,19 +102,19 @@ public class GichkeyService {
         postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
         postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
 
-        LOGGER.info("Paramètres de la requête : {}", nvps);
+        LOGGER.debug("Paramètres de la requête : {}", nvps);
 
         LOGGER.info(APPEL_GICHKEY);
         try {
             ClassicHttpResponse postResponse = (ClassicHttpResponse) client.execute(postRequest);
-            LOGGER.info("resp : {}", postResponse.getCode());
+            LOGGER.debug("resp : {}", postResponse.getCode());
             String resp = IOUtils.toString(postResponse.getEntity().getContent());
-            LOGGER.info("resp = {}", resp);
+            LOGGER.debug("resp = {}", resp);
 
             KeycloakTokenInfo tokenInfo = jsonToTokenInfo(resp);
 
-            LOGGER.info("Access token: {}", tokenInfo.getAccessToken());
-            LOGGER.info("Refresh token: {}", tokenInfo.getRefreshToken());
+            LOGGER.debug("Access token: {}", tokenInfo.getAccessToken());
+            LOGGER.debug("Refresh token: {}", tokenInfo.getRefreshToken());
 
             return tokenInfo;
         } catch (IOException e) {
@@ -159,7 +159,7 @@ public class GichkeyService {
 
         String payload = new String(decoder.decode(chunks[1]));
 
-        LOGGER.info("payload={}", payload);
+        LOGGER.debug("payload={}", payload);
 
         ObjectNode node = null;
         try {
@@ -185,7 +185,7 @@ public class GichkeyService {
             type = typeNode.asText();
         }
 
-        LOGGER.info("Usager : {} {} ({})", usagerPrenom, usagerNom, usagerEmail);
+        LOGGER.debug("Usager : {} {} ({})", usagerPrenom, usagerNom, usagerEmail);
 
         UsagerInfosDTO uinfos = new UsagerInfosDTO();
         uinfos.setEmail(usagerEmail);
@@ -228,7 +228,7 @@ public class GichkeyService {
                 ObjectNode donneesExternes = mapper.createObjectNode();
                 donneesExternes.put("mconnect", mapper.valueToTree(mConnectUInfos));
                 uinfos.setDonneesExternes(donneesExternes);
-                LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
+                LOGGER.debug("Informations MConnect disponibles : {}", mConnectUInfos);
                 uinfos.setMConnect(true);
                 // Mettre login à "" si usager MConnect
                 uinfos.setLogin("");
@@ -273,7 +273,7 @@ public class GichkeyService {
 
     public UsagerInfosDTO checkTokens(UsagerInfosDTO usagerInfosDTO, boolean forceRefresh) {
 
-        LOGGER.info("==================== KeycloakService.checkTokens() ...");
+        LOGGER.debug("==================== KeycloakService.checkTokens() ...");
         UsagerInfosDTO ret;
         Date derniereObtention = usagerInfosDTO.getTokenInfo().getDateObtention();
         Calendar calendar = Calendar.getInstance();
@@ -282,9 +282,9 @@ public class GichkeyService {
         calendar.add(Calendar.SECOND, usagerInfosDTO.getTokenInfo().getExpiresIn() - 30);
         Date expiration = calendar.getTime();
         Date now = new Date();
-        LOGGER.info("Dernière obtention = {}, expiration = {}, date courante = {}", derniereObtention, expiration, now);
+        LOGGER.debug("Dernière obtention = {}, expiration = {}, date courante = {}", derniereObtention, expiration, now);
         if (now.after(expiration) || forceRefresh) {
-            LOGGER.info("Il faut rafraîchir les tokens");
+            LOGGER.debug("Il faut rafraîchir les tokens");
 
             // On n'oublie pas de réincorporer l'accessId s'il était présent
             Integer accessId = usagerInfosDTO.getAccessId();
@@ -301,11 +301,11 @@ public class GichkeyService {
                 ret.setAccessId(accessId);
             }
         } else {
-            LOGGER.info("Pas besoin de rafraîchir les tokens");
+            LOGGER.debug("Pas besoin de rafraîchir les tokens");
             ret = usagerInfosDTO;
         }
 
-        LOGGER.info("==================== FIN KeycloakService.checkTokens()");
+        LOGGER.debug("==================== FIN KeycloakService.checkTokens()");
         return ret;
     }
 
@@ -320,7 +320,7 @@ public class GichkeyService {
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost postRequest = new HttpPost(url.toString());
 
-        LOGGER.info("refreshToken utilisé pour appel : {}", tokenInfo.getRefreshToken());
+        LOGGER.debug("refreshToken utilisé pour appel : {}", tokenInfo.getRefreshToken());
 
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(RequestConstant.REFRESH_TOKEN_PARAM, tokenInfo.getRefreshToken()));
@@ -345,15 +345,15 @@ public class GichkeyService {
                 LOGGER.error("Erreur lors de l'appel à GICHKEY : {}", resp);
                 return null;
             }
-            LOGGER.info("Status code = {}, resp = {}", statusCode, resp);
+            LOGGER.debug("Status code = {}, resp = {}", statusCode, resp);
 
             tokenInfo = jsonToTokenInfo(resp);
             tokenInfo.setDateObtention(new Date());
 
-            LOGGER.info("Nouvel accessToken={}", tokenInfo.getAccessToken());
-            LOGGER.info("Nouveau refreshToken={}", tokenInfo.getRefreshToken());
+            LOGGER.debug("Nouvel accessToken={}", tokenInfo.getAccessToken());
+            LOGGER.debug("Nouveau refreshToken={}", tokenInfo.getRefreshToken());
 
-            LOGGER.info("==================== FIN KeycloakService.checkTokens()");
+            LOGGER.debug("==================== FIN KeycloakService.checkTokens()");
             return tokenInfo;
         } catch (IOException e) {
             LOGGER.error(ERREUR_GICHKEY, e);

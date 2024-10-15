@@ -42,7 +42,7 @@ public class GichuniService {
         } catch (MalformedURLException e) {
             LOGGER.error("Erreur lors de la constitution de l'URL d'appel à GICHUNI");
         }
-        LOGGER.info("URL d'appel : {}", url);
+        LOGGER.debug("URL d'appel : {}", url);
         return url;
     }
 
@@ -65,7 +65,7 @@ public class GichuniService {
         try {
             ClassicHttpResponse getResponse = (ClassicHttpResponse)client.execute(getRequest);
             String resp = IOUtils.toString(getResponse.getEntity().getContent());
-            LOGGER.info("Status : {}, resp = {}", getResponse.getCode(), resp);
+            LOGGER.debug("Status : {}, resp = {}", getResponse.getCode(), resp);
             ArrayNode anode = new ObjectMapper().readValue(resp, ArrayNode.class);
             return setupUsagerInfos(anode, uinfos);
         } catch (IOException e) {

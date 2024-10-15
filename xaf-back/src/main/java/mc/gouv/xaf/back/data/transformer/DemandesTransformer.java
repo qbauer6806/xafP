@@ -167,7 +167,17 @@ public class DemandesTransformer {
             dto.setConfig(demandesConfigTransformer.bo2Json(config));
 
             // mapper les marqueurs
-            dto.setMarqueurs(config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant, marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()))));
+            dto.setMarqueurs(
+                    config.getMarqueurs().stream()
+                            .collect(Collectors.toMap(
+                                    MarqueurBO::getIdentifiant,
+                                    marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()),
+                                    (existing, replacement) -> {
+                                        // en cas de doublon d'identifiant, on utilise la 1ère valeur
+                                        return existing;
+                                    }
+                            ))
+            );
         }
 
         // Mapper les demandes d'informations complémentaires

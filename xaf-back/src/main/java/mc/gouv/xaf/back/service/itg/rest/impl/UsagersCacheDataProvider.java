@@ -135,7 +135,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         }
         // Ajout des usagers courriers à la liste
         usagers.addAll(usagersCourriers);
-        LOGGER.info("Liste des usagers : {}", usagers);
+        LOGGER.debug("Liste des usagers : {}", usagers);
         
         // Transformation de la liste vers la ConcurrentHashMap
         ConcurrentHashMap<Integer, GichuniUsagerDTO> usagersMap = new ConcurrentHashMap<>();

@@ -54,7 +54,7 @@ public class PaysController extends AbstractXafController {
 
         try {
             URI uri = new URIBuilder(propertiesResolver.getPaysUrl()).addParameter("locale", locale).build();
-            LOGGER.info("Appel à {}", uri);
+            LOGGER.debug("Appel à {}", uri);
             Request serviceRequest = Request.get(uri);
             serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.getType());
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();

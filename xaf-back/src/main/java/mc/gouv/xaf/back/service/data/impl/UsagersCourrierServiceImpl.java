@@ -88,7 +88,6 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             return null;
         }
 
-        LOGGER.info(SharedMessages.SUCCESS_MESSAGES);
         UsagerCourrierDTO usagerCourrierDto = UsagerCourrierTransformer.bo2Dto(usagersCourrierBO);
         LOGGER.info("Récupération du nombre de demandes effectuées par cet usager courrier...");
         Integer nbDemandes = usagersService.getNbDemandesUsager(usagersCourrierBO.getPkUsagersCourrier());

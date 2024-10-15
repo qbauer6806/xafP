@@ -59,7 +59,7 @@ public class RechercheDemandesController extends AbstractController {
             Pageable pageable) {
         String safeAgent = AfBackUtils.logSafe(agentId);
         String safeTexte = AfBackUtils.logSafe(texte);
-        LOGGER.info(
+        LOGGER.debug(
                 "======================= Appel de /ws/demandes/pageable (canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})", canaux, safeAgent, creationStartDate, creationEndDate, safeTexte, data);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();

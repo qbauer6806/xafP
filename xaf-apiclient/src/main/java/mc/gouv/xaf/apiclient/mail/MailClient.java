@@ -60,7 +60,7 @@ public class MailClient extends ApiClient {
      */
     public MailSentDTO sendEmail(MailDTO mailDTO, Map<String, InputStream> attachments) {
 
-        LOGGER.info("sendEmail({},{})", mailDTO, attachments);
+        LOGGER.debug("sendEmail({},{})", mailDTO, attachments);
 
         boolean pj = attachments != null;
         
@@ -85,7 +85,7 @@ public class MailClient extends ApiClient {
                     multiPartEntity.bodyPart(fileDataBodyPart);
                 }
 
-                LOGGER.info("Appel ({}, pj={})...", getServiceUrl(), pj);
+                LOGGER.debug("Appel ({}, pj={})...", getServiceUrl(), pj);
 
                 return getTarget().request()
                         .header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
@@ -96,7 +96,7 @@ public class MailClient extends ApiClient {
         }
         else {
 
-            LOGGER.info("Appel ({}, pj={})...", getServiceUrl(), pj);
+            LOGGER.debug("Appel ({}, pj={})...", getServiceUrl(), pj);
             
             return getTarget().request()
                     .header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
@@ -111,7 +111,7 @@ public class MailClient extends ApiClient {
      */
     public MailSentDTO sendEmail(MailDTO mailDTO) {
 
-        LOGGER.info("sendEmail({})", mailDTO);
+        LOGGER.debug("sendEmail({})", mailDTO);
 
         return sendEmail(mailDTO, null);
     }

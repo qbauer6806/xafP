@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.config.security;
 
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.shared.exception.XafException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class MultiHttpSecurityConfig {
                 secretProp = "mc.gouv." + applicationName + ".frontserver.2tiers.security.jwt.secret";
                 secretKey = env.getProperty(secretProp);
                 if (StringUtils.isBlank(secretKey)) {
-                    throw new XafException(LANCEMENT_IMPOSSIBLE_MSG + secretProp);
+                    throw new DemarcheException(LANCEMENT_IMPOSSIBLE_MSG + secretProp);
                 }
             }
 

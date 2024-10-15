@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.exception;
+package mc.gouv.xaf.shared.exception;
 
 import java.io.Serial;
 

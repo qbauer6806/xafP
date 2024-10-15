@@ -14,7 +14,7 @@ import mc.gouv.xaf.apiclient.client.ApiClient;
 import mc.gouv.xaf.shared.dto.mail.MailAddrOnlyDTO;
 import mc.gouv.xaf.shared.dto.mail.MailDTO;
 import mc.gouv.xaf.shared.dto.mail.MailSentDTO;
-import mc.gouv.xaf.shared.exception.XafException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
@@ -91,7 +91,7 @@ public class MailClient extends ApiClient {
                         .header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                         .post(Entity.entity(multiPartEntity, multiPartEntity.getMediaType()), MailSentDTO.class);
             } catch (IOException e) {
-                throw new XafException(e);
+                throw new DemarcheException(e);
             }
         }
         else {

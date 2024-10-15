@@ -16,7 +16,7 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
-import mc.gouv.xaf.back.exception.DemarcheException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;

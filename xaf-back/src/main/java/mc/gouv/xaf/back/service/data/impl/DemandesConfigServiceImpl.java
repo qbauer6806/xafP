@@ -10,7 +10,7 @@ import java.util.List;
 import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.transformer.DemandesConfigTransformer;
-import mc.gouv.xaf.back.exception.DemarcheException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;

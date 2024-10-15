@@ -9,7 +9,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-import mc.gouv.xaf.back.config.utils.XafSpringUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -24,7 +23,7 @@ public class JwtAuthFilter implements Filter {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
         String authorization = servletRequest.getHeader("Authorization");
         if (authorization != null) {
-            var token = new JwtAuthToken(authorization.replace(XafSpringUtils.JWT_PREFIX, ""));
+            var token = new JwtAuthToken(authorization.replace("Bearer ", ""));
             //Nous n'avons pas encore vérifié le token
             token.setAuthenticated(false);
             SecurityContextHolder.getContext().setAuthentication(token);

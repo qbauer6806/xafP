@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 import java.io.IOException;
 import lombok.Getter;
 import lombok.Setter;
-import mc.gouv.xaf.back.exception.DemarcheException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.common.engine.api.delegate.Expression;

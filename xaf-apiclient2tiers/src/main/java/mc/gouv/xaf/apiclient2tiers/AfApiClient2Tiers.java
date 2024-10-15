@@ -25,7 +25,7 @@ import mc.gouv.xaf.apiclient2tiers.dto.RecapDemandesDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.StatutSimplifieEnum;
 import mc.gouv.xaf.apiclient2tiers.dto.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.apiclient2tiers.exception.ExceptionManager;
-import mc.gouv.xaf.shared.exception.XafException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
@@ -189,7 +189,7 @@ public class AfApiClient2Tiers extends ApiClient {
 			int statusCode = postResponse.getStatus();
 			if (statusCode != Response.Status.CREATED.getStatusCode()) {
 				String errorMessage = postResponse.readEntity(String.class);
-				throw new XafException(errorMessage);
+				throw new DemarcheException(errorMessage);
 			}
 		}
 
@@ -220,7 +220,7 @@ public class AfApiClient2Tiers extends ApiClient {
         try {
             IOUtils.copy(remoteResponse.readEntity(InputStream.class), response.getOutputStream());
         } catch (IOException e) {
-            throw new XafException("Erreur lors de la copie du contenu de l'entité de réponse : " + e.getMessage());
+            throw new DemarcheException("Erreur lors de la copie du contenu de l'entité de réponse : " + e.getMessage());
         }
     }
 
@@ -234,7 +234,7 @@ public class AfApiClient2Tiers extends ApiClient {
 			int statusCode = remoteResponse.getStatus();
 			if (statusCode != Response.Status.OK.getStatusCode()) {
 				String errorMessage = remoteResponse.readEntity(String.class);
-				throw new XafException(errorMessage);
+				throw new DemarcheException(errorMessage);
 			}
 		}
 

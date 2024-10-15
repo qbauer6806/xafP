@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.shared.exception.XafException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
             config = xafFrontserverUtils.getConfig();
         } catch (IOException e) {
             LOGGER.error("Impossible de lire le fichier config.json");
-            throw new XafException(e);
+            throw new DemarcheException(e);
         }
         // suppression du noeud donneesExternes car pas utile à sauvegarder dans la bdd
         ((ObjectNode) config).remove("donneesExternes");
@@ -39,7 +39,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new XafException(e);
+                throw new DemarcheException(e);
             }
         }
         LOGGER.info("API joignable");

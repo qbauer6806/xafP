@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Setter;
-import mc.gouv.xaf.shared.exception.XafException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +144,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             secretKey = environment.getProperty(secretProp);
         }
         if (secretKey == null) {
-            throw new XafException("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
+            throw new DemarcheException("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
         }
         return Jwts.parser().setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token);
     }

@@ -6,7 +6,7 @@ import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.util.HashMap;
 import java.util.Map;
-import mc.gouv.xaf.back.exception.DemarcheException;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;

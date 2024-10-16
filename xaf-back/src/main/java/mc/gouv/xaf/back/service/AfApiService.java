@@ -478,7 +478,7 @@ public abstract class AfApiService {
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
 
         String[] tab = getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO);
-        String demandesImpacteesIdentifiants = tab[0];
+        String demandesImpacteesPhrase = tab[0];
         String demandesImpacteesPk = tab[1];
 
         LOGGER.info(
@@ -491,7 +491,7 @@ public abstract class AfApiService {
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes qui passent à l'état Annulée suite à la désinscription...");
-        envoiEmailAgents(demandesImpacteesPk, demandesImpacteesIdentifiants, usager);
+        envoiEmailAgents(demandesImpacteesPk, demandesImpacteesPhrase, usager);
 
         LOGGER.info("Envoi d'un email à l'usager suite à la désinscription...");
         envoiEmailUsager(demandesImpacteesPk, usager, langue);
@@ -556,7 +556,8 @@ public abstract class AfApiService {
             }
         }
 
-        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "" : demandesImpacteesIdentifiants.toString();
+        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "<br/><br/>" :
+                "Par conséquent, les demandes suivantes sont passées à l'état \"Annulée\" :<br/>" + demandesImpacteesIdentifiants + "<br/><br/>";
         return new String[]{demandesAnnuleesPhrase, demandesImpacteesPk.toString()};
     }
 
@@ -612,7 +613,7 @@ public abstract class AfApiService {
         }
     }
 
-    private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesIdentifiants, GichuniUsagerDTO usager) {
+    private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourAgents());
         emailInfo.setSubjectTemplateCode(demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents());
@@ -637,7 +638,7 @@ public abstract class AfApiService {
         emailInfo.setLangue("fr");
         Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
-        model.put("demandes", demandesImpacteesIdentifiants);
+        model.put("demandesAnnuleesPhrase", demandesImpacteesPhrase);
         try {
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {

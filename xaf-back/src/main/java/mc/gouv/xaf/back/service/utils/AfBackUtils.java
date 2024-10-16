@@ -212,7 +212,7 @@ public class AfBackUtils {
 	public static String getAlpha2Code(String alpha3Code) {
 		Map<String, String> isoCodeMap = new HashMap<>();
 		for (String currentCountry : Locale.getISOCountries()) {
-			Locale currentCountryLocaleFr = new Locale("fr", currentCountry);
+			Locale currentCountryLocaleFr = Locale.of("fr", currentCountry);
 			isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
 		}
 		return isoCodeMap.get(alpha3Code);
@@ -413,7 +413,7 @@ public class AfBackUtils {
     }
 
     public String getCivilite(Short titre, String locale) {
-        return messageSource.getMessage("civilite." + titre, null, new Locale(locale));
+        return messageSource.getMessage("civilite." + titre, null, Locale.of(locale));
     }
 
     /**

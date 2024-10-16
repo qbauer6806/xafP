@@ -603,7 +603,7 @@ public abstract class AfApiService {
         model.put("identifiant_usager", usager.getLogin());
         String cguProp = StringUtils.equals("fr", langue) ? "XAF_CGU_URL_FR" : "XAF_CGU_URL_EN";
         model.put("cguUrl", propertiesService.getProperty(cguProp).getValue());
-        String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(langue));
+        String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, Locale.of(langue));
         model.put("titre", titre);
         try {
             mailService.sendMail(emailInfo, model);

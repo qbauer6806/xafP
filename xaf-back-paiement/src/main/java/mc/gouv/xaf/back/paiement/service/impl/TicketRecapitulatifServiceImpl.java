@@ -101,7 +101,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
                 : SharedMessages.DEFAULT_TITRE_MAIL_EN;
         String titre = usager.getTitre() != null
-                ? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()))
+                ? messageSource.getMessage("civilite." + usager.getTitre(), null, Locale.of(demande.getLangue()))
                 : defaultMailTitre;
 		model.put("numTPE", paiementPropertiesResolver.getTpe());
 		model.put("pkOperation", operation.getPkOperations());

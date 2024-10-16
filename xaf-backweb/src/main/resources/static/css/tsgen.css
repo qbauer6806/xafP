@@ -566,6 +566,7 @@ dd span {
 #annulerDemandeConfirm > .modal-dialog,
 #transferer-box > .modal-dialog,
 #supprimer-box > .modal-dialog,
+#preview-container-second > .modal-dialog,
 #print-box > .modal-dialog {
   width: auto;
 }

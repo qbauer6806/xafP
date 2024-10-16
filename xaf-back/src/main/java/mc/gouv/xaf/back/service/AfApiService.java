@@ -556,7 +556,7 @@ public abstract class AfApiService {
             }
         }
 
-        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "<br/><br/>" :
+        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "" :
                 "Par conséquent, les demandes suivantes sont passées à l'état \"Annulée\" :<br/>" + demandesImpacteesIdentifiants + "<br/><br/>";
         return new String[]{demandesAnnuleesPhrase, demandesImpacteesPk.toString()};
     }

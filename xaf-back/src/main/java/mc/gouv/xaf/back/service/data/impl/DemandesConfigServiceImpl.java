@@ -43,11 +43,6 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     private static final String MODEL_PATH = "modelPaths";
 
 	@Override
-	public List<String> getBuildIds() {
-		return getConfigsBO().stream().map(DemandeConfigBO::getBuildId).toList();
-	}
-
-	@Override
 	public List<DemandeConfigBO> getConfigsBO() {
 		return demandesConfigRepository.findAllByOrderByBuildIdDesc();
 	}

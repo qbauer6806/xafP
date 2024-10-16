@@ -13,9 +13,10 @@ import java.util.Date;
 import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
-import mc.gouv.xaf.backweb.dto.VersionModeleDTO;
+import mc.gouv.xaf.backweb.dto.ConfigDTO;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.slf4j.Logger;
@@ -70,26 +71,26 @@ public class MarqueursController extends AbstractController {
         LOGGER.info("======================= Appel de la page /marqueurs");
 
         ModelAndView mav = new ModelAndView("gestion/marqueurs/marqueurs");
+        List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
 
-        List<String> buildIds = demandesConfigService.getBuildIds();
-
-        List<VersionModeleDTO> versionModeleDTOS = new ArrayList<>();
-        for (String b : buildIds) {
-            VersionModeleDTO versionModeleDTO = new VersionModeleDTO();
-            versionModeleDTO.setBuildId(b);
-            ZonedDateTime dateTime = Instant.ofEpochMilli(Long.parseLong(b)).atZone(ZoneId.systemDefault());
-            versionModeleDTO.setDate(dateTime.format(formatter));
-            versionModeleDTOS.add(versionModeleDTO);
+        List<ConfigDTO> configDTOS = new ArrayList<>();
+        for (DemandeConfigBO config : configs) {
+            ConfigDTO configDTO = new ConfigDTO();
+            configDTO.setBuildId(config.getBuildId());
+            ZonedDateTime dateTime = Instant.ofEpochMilli(Long.parseLong(config.getBuildId())).atZone(ZoneId.systemDefault());
+            configDTO.setDate(dateTime.format(formatter));
+            configDTO.setVersion(config.getVersion() != null ? config.getVersion() : "");
+            configDTOS.add(configDTO);
         }
 
-        String currentBuildId = buildId != null ? buildId : buildIds.getFirst();
+        String currentBuildId = buildId != null ? buildId : configs.getFirst().getBuildId();
 
         List<String> chemins = demandesConfigService.getModelPathsRechercheAvancee(currentBuildId);
         List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(currentBuildId);
 
         mav.addObject("marqueurs", marqueurs);
         mav.addObject("chemins", chemins);
-        mav.addObject("versions", versionModeleDTOS);
+        mav.addObject("configs", configDTOS);
         mav.addObject("buildId", currentBuildId);
 
         LOGGER.info("======================= Fin /marqueurs");

@@ -10,8 +10,8 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class VersionModeleDTO {
+public class ConfigDTO {
   private String buildId;
   private String date;
-
+  private String version;
 }

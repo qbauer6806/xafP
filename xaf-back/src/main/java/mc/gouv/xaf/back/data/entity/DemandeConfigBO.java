@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.Set;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
@@ -27,6 +28,10 @@ public class DemandeConfigBO {
     @Column(name = "CONTENU", columnDefinition = "JSONB", nullable = false)
     @Type(JsonType.class)
     private JsonNode contenu;
+
+    @Column(name = "VERSION", length = 128)
+    @Size(max = 128)
+    private String version;
 
     @OneToMany(mappedBy = "buildId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<MarqueurBO> marqueurs;

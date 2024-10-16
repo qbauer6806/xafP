@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.data.transformer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DemandesConfigTransformer {
+
+    @Value("${maven.version}")
+    private String mavenVersion;
 
     private DemandesConfigTransformer() {}
 
@@ -28,6 +32,7 @@ public class DemandesConfigTransformer {
         DemandeConfigBO bo = new DemandeConfigBO();
         bo.setBuildId(jsonNode.get("buildId").asText());
         bo.setContenu(jsonNode);
+        bo.setVersion(mavenVersion);
         return bo;
     }
 }

@@ -6,7 +6,6 @@ import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 
 public interface DemandesConfigService {
 
-    List<String> getBuildIds();
     List<String> getModelPathsRechercheAvancee();
     List<String> getModelPathsRechercheAvancee(String buildId);
     List<DemandeConfigBO> getConfigsBO();

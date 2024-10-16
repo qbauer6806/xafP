@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class IndexController extends AbstractController {
         LOGGER.info("======================= Appel de la page /index");
 
         ModelAndView mav = indexControllerInterface.formIndex();
-        
+        mav.addObject("agentId", AfBackUtils.getAuthenticatedAgentId());
         LOGGER.info("======================= Fin /index");
         return mav;
     }

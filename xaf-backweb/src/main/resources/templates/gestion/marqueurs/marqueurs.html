@@ -83,8 +83,8 @@
       </div>
       <div class="col-md-3">
         <select class="form-control" id="selectBuildId">
-          <option th:each="version : ${versions}" th:selected="${version.buildId} == ${buildId}" th:value="${version.buildId}"
-                  th:text="${version.buildId}+' ('+${version.date}+')'"></option>
+          <option th:each="config : ${configs}" th:selected="${config.buildId} == ${buildId}" th:value="${config.buildId}"
+                  th:text="${config.buildId}+' | '+${config.date}+' | '+${config.version}"></option>
         </select>
       </div>
       <div class="col-md-3">

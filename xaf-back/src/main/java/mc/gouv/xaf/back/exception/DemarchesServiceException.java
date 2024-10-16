@@ -1,10 +1,12 @@
 package mc.gouv.xaf.back.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
  * @author qdeme
  */
+@Getter
 public class DemarchesServiceException extends RuntimeException {
 
     /**
@@ -22,10 +24,6 @@ public class DemarchesServiceException extends RuntimeException {
     public DemarchesServiceException(String message, HttpStatus httpStatus, Throwable throwable) {
         super(message, throwable);
         this.httpStatus = httpStatus;
-    }
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
     }
 
     @Override

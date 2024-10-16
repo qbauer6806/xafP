@@ -278,7 +278,7 @@ public class AfApiController {
         return afApiService.getBrouillonsPageable(usagerId, new PageParamDTO(page, size, sort, direction, null, null));
     }
 
-    @ExceptionHandler({WebException.class, DemarchesServiceException.class})
+    @ExceptionHandler({WebException.class})
     public @ResponseBody ErrorsDTO handleException(HttpServletResponse res, WebException ex) {
         LOGGER.error("Exception : {}", ex.getMessage(), ex);
         ErrorsDTO errorsDTO = new ErrorsDTO();
@@ -286,6 +286,16 @@ public class AfApiController {
         errorsDTO.setMessage(ex.getMessage());
         errorsDTO.setErrors(ex.getErrors());
         res.setStatus(ex.getHttpStatus());
+        return errorsDTO;
+    }
+
+    @ExceptionHandler(DemarchesServiceException.class)
+    public @ResponseBody ErrorsDTO handleDemarchesException(DemarchesServiceException dse, HttpServletResponse resp) {
+        LOGGER.info("Exception :", dse);
+        ErrorsDTO errorsDTO = new ErrorsDTO();
+        errorsDTO.setHttpStatus(dse.getHttpStatus().value());
+        errorsDTO.setMessage(dse.getMessage());
+        resp.setStatus(dse.getHttpStatus().value());
         return errorsDTO;
     }
 

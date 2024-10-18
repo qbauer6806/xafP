@@ -280,11 +280,11 @@ public class BatchConfig {
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .start(demandesStep(null))
-//                .next(complementsFilesStep(null))
-//                .next(demandesStep(null))
-//                .next(agentsStep(null))
-//                .next(usagersStep(null))
+                .start(filesStep(null))
+                .next(complementsFilesStep(null))
+                .next(demandesStep(null))
+                .next(agentsStep(null))
+                .next(usagersStep(null))
                 .build();
     }
 

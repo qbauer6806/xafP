@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -70,6 +69,7 @@ public class FileUploadController extends AbstractXafController {
 
     // Enregistre l'historique d'upload par session
     private static final Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
+    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9.\\-_]";
 
     // Compteur permettant de trigger un refresh des sessions et supprimer celles qui ne sont plus utilisées
     private static int compteurCleanSessions;
@@ -107,11 +107,12 @@ public class FileUploadController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                     "Erreur: nom du fichier manquant");
         }
-
+        // On remplace les caractères spéciaux dans le nom du fichier, à l'exception des points, tirets et underscores, par des underscores.
+        String safeFileName = filename.replaceAll(FILE_NAME_REGEX, "_");
         // ---  Vérification de la conformité du fichier
         // Vérification du type du fichier
-        LOGGER.info("Vérification du type pour le fichier {} ...", filename);
-        if (!estExtensionDansWhitelist(filename)) {
+        LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);
+        if (!estExtensionDansWhitelist(safeFileName)) {
             LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
                     "Erreur: le type/extension du fichier soumis n'est pas valide");
@@ -157,7 +158,7 @@ public class FileUploadController extends AbstractXafController {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
+            String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + safeFileName;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
@@ -166,7 +167,7 @@ public class FileUploadController extends AbstractXafController {
             HttpPost postRequest = new HttpPost(url);
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
-            if (!vscan(part, filename, postRequest)) {
+            if (!vscan(part, safeFileName, postRequest)) {
                 return ResponseEntity.badRequest().build();
             }
 
@@ -197,7 +198,7 @@ public class FileUploadController extends AbstractXafController {
 
             // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
             LOGGER.info("Constitution de la réponse pour retour au client");
-            return constituerReponse(filename, uuid, accessId, postResponse);
+            return constituerReponse(safeFileName, uuid, accessId, postResponse);
 
         } catch (Exception e) {
             LOGGER.error("FileUploadServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);

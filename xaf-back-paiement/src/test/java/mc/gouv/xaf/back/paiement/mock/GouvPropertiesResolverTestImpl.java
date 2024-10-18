@@ -158,16 +158,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getProxyUrl() {
-        return null;
-    }
-
-    @Override
-    public String getProxyPort() {
-        return null;
-    }
-
-    @Override
     public String getApiRioUrl() {
         return null;
     }

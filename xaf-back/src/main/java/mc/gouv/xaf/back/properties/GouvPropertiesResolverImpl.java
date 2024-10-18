@@ -114,9 +114,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private KafkaProperties kafkaProperties;
 
     @Autowired
-    private ProxyProperties proxyProperties;
-
-    @Autowired
     private ArchivageProperties archivageProperties;
 
     @Autowired
@@ -362,16 +359,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getGUKafkaConsumerMaxPartitionFetchBytes() {
 
         return kafkaProperties.getMaxPartitionFetchBytes();
-    }
-
-    @Override
-    public String getProxyUrl() {
-        return proxyProperties.getProxyUrl();
-    }
-
-    @Override
-    public String getProxyPort() {
-        return proxyProperties.getProxyPort();
     }
 
     @GouvArchivageProperty

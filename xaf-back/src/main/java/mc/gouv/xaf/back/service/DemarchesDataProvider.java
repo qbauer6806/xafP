@@ -24,6 +24,16 @@ public interface DemarchesDataProvider {
 
     String getStatusColorClass(String statutName);
 
+    default String getStatusColorClassFromMap(String statutName, Map<String, String> map) {
+        if (statutName != null) {
+            String statusColor = map.get(statutName);
+            if (statusColor != null) {
+                return statusColor;
+            }
+        }
+        return "default-status-color";
+    }
+
     String getDemandeur(DemandeDTO contenuDemandeDTO);
 
     /**

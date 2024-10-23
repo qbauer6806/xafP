@@ -8,10 +8,13 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.WebApplicationException;
 
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
@@ -125,11 +128,29 @@ public class BackApiExceptionHandler {
         return errorsDTO;
 
     }
-
-    @ExceptionHandler({ Exception.class, RuntimeException.class })
-    public @ResponseBody ErrorsDTO handleException(HttpServletRequest req, HttpServletResponse res, Exception ex) {
+    @ExceptionHandler({DemarcheException.class, DemarchesServiceException.class})
+    public @ResponseBody ErrorsDTO handleDemarcheException(HttpServletRequest req, HttpServletResponse res, Exception ex) {
         LOGGER.error(ERROR_MESSAGE, req.getPathInfo(), ex);
         return handleMetierWebException(res, new InternalErrorWebException(ex));
+    }
+
+    /**
+     * Pour les toutes les exceptions non gérées, on retourne un message générique pour éviter d'afficher des informations techniques
+     * @param req
+     * @param res
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler({Exception.class, RuntimeException.class})
+    public @ResponseBody ErrorsDTO handleException(HttpServletRequest req, HttpServletResponse res, Exception ex) {
+        LOGGER.error(ERROR_MESSAGE, req.getPathInfo(), ex);
+        var errorsDTO = new ErrorsDTO();
+        int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        errorsDTO.setHttpStatus(status);
+        errorsDTO.setMessage("Le système a rencontré une erreur technique.");
+        res.setStatus(status);
+
+        return errorsDTO;
     }
 
 }

@@ -4,10 +4,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.utils.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 
 /**
  * Controller pour les pages d'erreur
@@ -35,10 +35,14 @@ public class BackErrorController implements org.springframework.boot.web.servlet
     public static final String URL_ERROR_403 = "error/403";
     public static final String URL_ERROR_404 = "error/404";
     public static final String URL_ERROR_500 = "error/500";
-    
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
+	@Value("${mc.gouv.backserver.env.name}")
+	private String sharedEnv;
+	@Value("${mc.gouv.backserver.env.displaystacktrace:false}")
+	private String sharedEnvdisplayStackTrace;
+	@Value("${application.name}")
+	private String applicationName;
+    
     @GetMapping(path = "/403")
     public ModelAndView error403(Model model, HttpServletRequest request) {
     	return getModelAndViewForError(403, request);
@@ -66,11 +70,11 @@ public class BackErrorController implements org.springframework.boot.web.servlet
     		mav.setViewName(URL_ERROR_500);
     	}
     	
-    	String env = gouvPropertiesResolver.getGouvSharedEnv();
-    	
-    	mav.addObject("tsCode", gouvPropertiesResolver.getDemarcheId());
-    	mav.addObject("environnement", env);
-    	mav.addObject("displayStackTrace", gouvPropertiesResolver.getGouvSharedEnvDisplayStackTrace());
+		String demarcheId = StringUtils.upperCase(applicationName);
+		mav.addObject("tsCode", demarcheId);
+    	mav.addObject("environnement", sharedEnv);
+		boolean gouvSharedEnvDisplayStackTrace = Boolean.parseBoolean(sharedEnvdisplayStackTrace);
+		mav.addObject("displayStackTrace", gouvSharedEnvDisplayStackTrace);
     	mav.addObject("matricule", AfBackUtils.getAuthenticatedAgentId());
     	mav.addObject("errCode", errCode);
     	DateFormat dateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT);
@@ -82,7 +86,7 @@ public class BackErrorController implements org.springframework.boot.web.servlet
     	mav.addObject("errId", errId);
     	
     	// Affichage de la stacktrace à l'utilisateur si displayStackTrace=true
-    	if (errCode == 500 && gouvPropertiesResolver.getGouvSharedEnvDisplayStackTrace()) {
+    	if (errCode == 500 && gouvSharedEnvDisplayStackTrace) {
 	    	Exception e = (Exception) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
 	    	if (e != null) {
 	    		mav.addObject("stacktrace", ExceptionUtils.getStackTrace(e));

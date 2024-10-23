@@ -42,12 +42,12 @@
 		<div id="header">
 			<div class="headerContent">
 				<div class="headerTitle">
-					<a th:href="${AfBackUtils.getLogonUrl()}+'/menu.jsp'"> <img class="img img-responsive"
-						th:alt="${AfBackUtils.getDemarcheNom()}"
+					<a th:href="${logonUrl}+'/menu.jsp'"> <img class="img img-responsive"
+						th:alt="${nomDemarche}"
 						th:src="@{/img/logo_TS.svg}" />
 					</a>
 				</div>
-				<div class="headerSubtitle hidden-sm-down"><span th:text="${AfBackUtils.getDemarcheNom()}"></span></div>
+				<div class="headerSubtitle hidden-sm-down"><span th:text="${nomDemarche}"></span></div>
 			</div>
 		</div>
 

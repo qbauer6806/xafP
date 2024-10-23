@@ -48,6 +48,11 @@ APP.getConfigurationDataTableCourriers = function(columns, imprimes) {
 					$("#numberEnAttente").html(json.totalElements);
 				}
 				return json.content;
+			},
+			"error": function(xhr, error, thrown) {
+				if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
+					window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+				}
 			}
 		},
 
@@ -81,6 +86,11 @@ APP.getConfigurationDataTable = function(columns) {
 				//json['data'] = json['content'];
 				$("#demandesSize").html(json.totalElements)
 				return json.content;
+			},
+			"error": function(xhr, error, thrown) {
+				if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
+					window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+				}
 			}
 		},
 
@@ -144,4 +154,11 @@ var configurationSpinner = {
 		, position: 'absolute' // Element positioning
 }
 
-
+//en cas d'erreur lors des appels AJAX, on redirige vers la page des erreurs
+$.ajaxSetup({
+	error: function (xhr) {
+		if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403 || xhr.status === 405) {
+			window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+		}
+	}
+});

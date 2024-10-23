@@ -196,7 +196,7 @@ public class XafFrontserverUtils {
     }
 
     public JsonNode getConfig() throws IOException {
-        InputStream inputStream = new ClassPathResource("/static/config.json").getInputStream();
+        InputStream inputStream = new ClassPathResource("config.json").getInputStream();
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(inputStream, JsonNode.class);
     }

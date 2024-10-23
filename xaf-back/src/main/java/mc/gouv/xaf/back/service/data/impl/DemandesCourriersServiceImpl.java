@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;

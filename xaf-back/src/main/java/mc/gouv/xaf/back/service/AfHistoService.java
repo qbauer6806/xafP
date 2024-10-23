@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service;
 
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Interface à implémenter par la démarche, lui permettant de fournir

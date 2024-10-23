@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class GestionTemplateServiceImplTest {
+class GestionTemplateServiceImplTest {
 
     @InjectMocks
     private GestionTemplateServiceImpl gestionTemplateServiceImpl;
@@ -41,7 +41,7 @@ public class GestionTemplateServiceImplTest {
     private TemplateDTO templateObjet;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         templateCorps = new TemplateDTO();
         templateCorps.setPkTemplates(1);
         templateCorps.setCode("CODE_TEMPLATE_CORPS");
@@ -61,7 +61,7 @@ public class GestionTemplateServiceImplTest {
     }
 
     @Test
-    public void retrieveTemplateForm() {
+    void retrieveTemplateForm() {
         TemplateFormBean formBean = new TemplateFormBean();
         formBean.setCode("CODE_TEMPLATE");
         formBean.setLangue("fr");
@@ -74,7 +74,7 @@ public class GestionTemplateServiceImplTest {
     }
 
     @Test
-    public void saveTemplateForm() {
+    void saveTemplateForm() {
         TemplateFormBean formBean = new TemplateFormBean();
         formBean.setCode("CODE_TEMPLATE");
         formBean.setCorps("Corps Modifié");

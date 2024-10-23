@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DemandesFilesCategorizerImplTest {
+class DemandesFilesCategorizerImplTest {
 
     private static final String FRONT_FILE = "FRONT_FILE";
     private static final String JUSTIFICATIF_DEMANDE = "JUSTIFICATIF_DEMANDE";

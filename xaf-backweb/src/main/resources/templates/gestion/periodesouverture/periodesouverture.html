@@ -302,6 +302,11 @@
                     $("#periodesSize").html(periodesSize);
                     return json.content;
                 },
+                error: function(xhr, error, thrown) {
+                    if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
+                        window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+                    }
+                },
                 data: function (params) {
                     //Suppression de toutes les valeurs renvoyées par datatable
                     params.columns = null;

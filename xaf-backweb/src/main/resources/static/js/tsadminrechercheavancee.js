@@ -42,6 +42,11 @@ var configurationDataTableFacets = {
 			// json['data'] = json['content'];
 			$("#propertiesSize").html(json.length)
 			return json;
+		},
+		"error": function(xhr, error, thrown) {
+			if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
+				window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+			}
 		}
 	},
 
@@ -297,6 +302,11 @@ var configurationDataTableCategories = {
 			// json['data'] = json['content'];
 			$("#categoriesSize").html(json.length)
 			return json;
+		},
+		"error": function(xhr, error, thrown) {
+			if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
+				window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+			}
 		}
 	},
 

@@ -18,11 +18,9 @@ import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour générer un courrier PDF.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMPdfDelegate implements JavaDelegate {
@@ -47,19 +45,18 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
         LOGGER.info("==== xaf-back PDF SERVICE ...");
 
         DemandeDTO demandeDto = demandesService.getDemande(Integer.parseInt(execution.getProcessInstanceBusinessKey()));
-        
+
         PdfTypeEnum pdfType;
         if (pdfTypeCodeExpr == null) {
-        	pdfType = PdfTypeEnum.COURRIER;
+            pdfType = PdfTypeEnum.COURRIER;
+        } else {
+            String pdfTypeCodeStr = (String) pdfTypeCodeExpr.getValue(execution);
+            pdfType = PdfTypeEnum.valueOf(pdfTypeCodeStr);
         }
-        else {
-        	String pdfTypeCodeStr = (String) pdfTypeCodeExpr.getValue(execution);
-        	pdfType = PdfTypeEnum.valueOf(pdfTypeCodeStr);
-        }
-        
+
         String metaStr = null;
         if (meta != null) {
-        	metaStr = (String)meta.getValue(execution);
+            metaStr = (String) meta.getValue(execution);
         }
 
         try {

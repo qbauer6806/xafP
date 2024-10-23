@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
@@ -110,7 +109,9 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     /**
      * Génère des PDF à partir des docx
-     * @param is Fichier d'entrée DocX
+     *
+     * @param is
+     *         Fichier d'entrée DocX
      * @return Fichier PDF converti
      */
     private InputStream generatePdfFromDocx(InputStream is) throws IOException {
@@ -130,7 +131,9 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     /**
      * Génère un/plusieurs fichier tiff à partir d'un PDF (éventuellement multipages)
-     * @param is Fichier PDF d'entée
+     *
+     * @param is
+     *         Fichier PDF d'entée
      * @return Liste de fichiers tiff
      */
     private List<InputStream> generateTiffsFromPDF(InputStream is) throws IOException {
@@ -138,24 +141,24 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
         // Chargement du document PDF
         try (PDDocument document = Loader.loadPDF(IOUtils.toByteArray(is))) {
-	        PDFRenderer pdfRenderer = new PDFRenderer(document);
-	
-	        // Parcours du PDF multipages
-	        for (int page = 0; page < document.getNumberOfPages(); ++page) {
-	
-	            // Conversion de l'image en tiff
-	            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
-	            imagesIS.add(writeImageCCITTT4(bim));
-	        }
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+
+            // Parcours du PDF multipages
+            for (int page = 0; page < document.getNumberOfPages(); ++page) {
+
+                // Conversion de l'image en tiff
+                BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
+                imagesIS.add(writeImageCCITTT4(bim));
+            }
         }
         return imagesIS;
     }
 
     public BufferedImage generateTiffFromImage(BufferedImage inputImage) {
 
-    	// Downscale du PDF si besoin
-    	BufferedImage bim;
-    	if (inputImage.getWidth() > 2560 || inputImage.getHeight() > 1440) {
+        // Downscale du PDF si besoin
+        BufferedImage bim;
+        if (inputImage.getWidth() > 2560 || inputImage.getHeight() > 1440) {
             bim = scaleImage(2560, 1440, inputImage);
         } else {
             bim = inputImage;
@@ -166,9 +169,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
         // Conversion d'une image indexée sur 32 bits à 1 bit (noir et blanc)
         // Chaque pixel ce n'est plus un hexadécimal, mais un bit 1 (blanc) ou 0 (noir)
-        BufferedImage myBWImage = new BufferedImage(
-                output.getWidth(),
-                output.getHeight(),
+        BufferedImage myBWImage = new BufferedImage(output.getWidth(), output.getHeight(),
                 BufferedImage.TYPE_BYTE_BINARY);
 
         Graphics2D graphic = myBWImage.createGraphics();
@@ -187,7 +188,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     }
 
     private Map<String, InputStream> createNewFileDTOs(List<InputStream> isList, String filename) {
-        Map<String, InputStream> filesMap= new LinkedHashMap<>();
+        Map<String, InputStream> filesMap = new LinkedHashMap<>();
 
         for (int i = 0; i < isList.size(); i++) {
             InputStream is = isList.get(i);
@@ -199,35 +200,41 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     /**
      * Redimensionne une image en préservant le ratio
-     * @param scaledWidth Largeur souhaitée
-     * @param scaledHeight Hauteur souhaitée
-     * @param img Image initiale
+     *
+     * @param scaledWidth
+     *         Largeur souhaitée
+     * @param scaledHeight
+     *         Hauteur souhaitée
+     * @param img
+     *         Image initiale
      * @return Image redimentsionnée
      */
-    private BufferedImage scaleImage(int scaledWidth, int scaledHeight, BufferedImage img){
+    private BufferedImage scaleImage(int scaledWidth, int scaledHeight, BufferedImage img) {
         Image im = img;
         double scale;
         double imWidth = img.getWidth();
         double imHeight = img.getHeight();
-        if(scaledWidth/imWidth < scaledHeight/imHeight){
-            scale = scaledWidth/imWidth;
-            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
-        } else if (scaledWidth/imWidth > scaledHeight/imHeight){
-            scale = scaledHeight/imHeight;
-            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
-        } else if (scaledWidth/imWidth == scaledHeight/imHeight){
-            scale = scaledWidth/imWidth;
-            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        if (scaledWidth / imWidth < scaledHeight / imHeight) {
+            scale = scaledWidth / imWidth;
+            im = img.getScaledInstance((int) (scale * imWidth), (int) (scale * imHeight), Image.SCALE_SMOOTH);
+        } else if (scaledWidth / imWidth > scaledHeight / imHeight) {
+            scale = scaledHeight / imHeight;
+            im = img.getScaledInstance((int) (scale * imWidth), (int) (scale * imHeight), Image.SCALE_SMOOTH);
+        } else if (scaledWidth / imWidth == scaledHeight / imHeight) {
+            scale = scaledWidth / imWidth;
+            im = img.getScaledInstance((int) (scale * imWidth), (int) (scale * imHeight), Image.SCALE_SMOOTH);
         }
         return toBufferedImage(im);
     }
 
     /**
      * Convert Image to BufferedImage
-     * @param img Image à convertir
+     *
+     * @param img
+     *         Image à convertir
      * @return Image bufferisée
      */
-    public BufferedImage toBufferedImage(Image img){
+    public BufferedImage toBufferedImage(Image img) {
         if (img instanceof BufferedImage bufferedImage) {
             return bufferedImage;
         }

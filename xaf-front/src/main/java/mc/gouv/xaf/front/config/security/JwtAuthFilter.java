@@ -13,11 +13,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Filter pour l'authorisation via JWT
+ *
  * @author fgaujous
  */
 public class JwtAuthFilter implements Filter {
 
-	public static final String JWT_PREFIX = "Bearer ";
+    public static final String JWT_PREFIX = "Bearer ";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

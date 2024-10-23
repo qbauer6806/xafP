@@ -4,11 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Classe permettant de représenter une association entre action et son statut
- * cible
- * 
- * @author qdeme
+ * Classe permettant de représenter une association entre action et son statut cible
  *
+ * @author qdeme
  */
 @Setter
 @Getter

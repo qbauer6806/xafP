@@ -14,16 +14,16 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 @EnableScheduling
 public class UpdateTarifsServiceImpl implements UpdateTarifsService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UpdateTarifsServiceImpl.class);
-	
-	@Autowired
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateTarifsServiceImpl.class);
+
+    @Autowired
     private PropertiesService propertiesService;
-    
-	@Override
-	public void updateTarifs(String tarifToUpdateKey) {
-		PropertiesDTO tarifToUpdate = propertiesService.getProperty(tarifToUpdateKey);
-		String newValue = propertiesService.getProperty(tarifToUpdateKey + "_NEW").getValue();
-		LOGGER.info("Mise à jour du tarif {}, nouvelle valeur : {}", tarifToUpdateKey, newValue);
-		propertiesService.updatePropertyValue(tarifToUpdate.getPkProperties(), newValue);
-	}
+
+    @Override
+    public void updateTarifs(String tarifToUpdateKey) {
+        PropertiesDTO tarifToUpdate = propertiesService.getProperty(tarifToUpdateKey);
+        String newValue = propertiesService.getProperty(tarifToUpdateKey + "_NEW").getValue();
+        LOGGER.info("Mise à jour du tarif {}, nouvelle valeur : {}", tarifToUpdateKey, newValue);
+        propertiesService.updatePropertyValue(tarifToUpdate.getPkProperties(), newValue);
+    }
 }

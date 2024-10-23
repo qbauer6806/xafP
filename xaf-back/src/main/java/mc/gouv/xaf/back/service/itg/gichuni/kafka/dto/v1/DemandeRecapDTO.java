@@ -6,54 +6,52 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * 
  * Bloc "demandeRecap" de certain messages envoyés au Guichet Unique
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeRecapDTO {
 
-	private Integer demandeId;
-	
-	private String identifiant;
-	
-	@JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-	private Date dateCreation;
-	
-	private String statutSimplifie;
+    private Integer demandeId;
 
-	public Integer getDemandeId() {
-		return demandeId;
-	}
+    private String identifiant;
 
-	public void setDemandeId(Integer demandeId) {
-		this.demandeId = demandeId;
-	}
+    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    private Date dateCreation;
 
-	public String getIdentifiant() {
-		return identifiant;
-	}
+    private String statutSimplifie;
 
-	public void setIdentifiant(String identifiant) {
-		this.identifiant = identifiant;
-	}
+    public Integer getDemandeId() {
+        return demandeId;
+    }
 
-	public Date getDateCreation() {
-		return dateCreation;
-	}
+    public void setDemandeId(Integer demandeId) {
+        this.demandeId = demandeId;
+    }
 
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
-	}
+    public String getIdentifiant() {
+        return identifiant;
+    }
 
-	public String getStatutSimplifie() {
-		return statutSimplifie;
-	}
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
+    }
 
-	public void setStatutSimplifie(String statutSimplifie) {
-		this.statutSimplifie = statutSimplifie;
-	}
-	
+    public Date getDateCreation() {
+        return dateCreation;
+    }
+
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
+
+    public String getStatutSimplifie() {
+        return statutSimplifie;
+    }
+
+    public void setStatutSimplifie(String statutSimplifie) {
+        this.statutSimplifie = statutSimplifie;
+    }
+
 }

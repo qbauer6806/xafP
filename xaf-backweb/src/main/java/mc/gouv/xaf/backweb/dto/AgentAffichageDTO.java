@@ -8,7 +8,7 @@ import lombok.Setter;
 public class AgentAffichageDTO {
 
     private String displayName;
-    
+
     private String matricule;
 
 }

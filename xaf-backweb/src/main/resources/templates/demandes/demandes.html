@@ -1,504 +1,508 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
-	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 
 <head>
-<meta charset="utf-8" />
-<meta http-equiv="x-ua-compatible" content="ie=edge" />
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-<title th:text="${nomDemarche}"></title>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title th:text="${nomDemarche}"></title>
 
-<!-- Import FONTS -->
-<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
 
-<!-- Import CSS -->
-<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-	rel="stylesheet" type="text/css" />
-<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
-	rel="stylesheet" />
-<link
-	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
-	rel="stylesheet" />
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+  <link
+      th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
+      rel="stylesheet"/>
 
-<link rel="shortcut icon" type="image/x-icon"
-	th:href="@{/img/favicon.ico}" />
-<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
 </head>
 
 <body th:with="pageDemandesActive='active'">
 
-	<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-	<div id="wrapper">
+<div id="wrapper">
 
-		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-		<!-- DEBUT CONTENU -->
-		<div id="page-content-wrapper">
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
 
-			<div class="breadcrumbContent">
-				<div class="breadcrumb">
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
 					<span> <a id="ariane0" th:href="@{/}"
-						class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp; <a
-						id="ariane1" th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
+                    class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp; <a
+              id="ariane1" th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
 						&gt;
 					</span>
-				</div>
-				<div class="triangleTopright"></div>
-			</div>
+      </div>
+      <div class="triangleTopright"></div>
+    </div>
 
-			<div class="container-fluid">
-				<form id="rechercheForm">
-					<div class="row">
-						<div class="col-xs-12">
-							<h1>Toutes les demandes</h1>
+    <div class="container-fluid">
+      <form id="rechercheForm">
+        <div class="row">
+          <div class="col-xs-12">
+            <h1>Toutes les demandes</h1>
 
 
-							<div class="panel panel-simple">
-								<h4 class="titre">Recherche</h4>
-								<div id="txtRechercheDemandeFormGroup" class="form-group">
-									<label for="txtRechercheDemande">Saisissez un terme</label>
-									<div class="row">
-										<div class="col-xs-8">
-											<input type="text" th:value="${texte}" name="texte"
-												class="form-control" id="txtRechercheDemande"
-												maxlength="160"></input>
-										</div>
-										<div class="col-xs-4 nopadding">
-											<button type="submit" class="btn btn-action ripple-effect"
-												name="action" value="Rechercher" id="btnRechercherDemande">
-												<i class="icon-action_chercher"></i>
-											</button>
-										</div>
-									</div>
+            <div class="panel panel-simple">
+              <h4 class="titre">Recherche</h4>
+              <div id="txtRechercheDemandeFormGroup" class="form-group">
+                <label for="txtRechercheDemande">Saisissez un terme</label>
+                <div class="row">
+                  <div class="col-xs-8">
+                    <input type="text" th:value="${texte}" name="texte"
+                           class="form-control" id="txtRechercheDemande"
+                           maxlength="160"></input>
+                  </div>
+                  <div class="col-xs-4 nopadding">
+                    <button type="submit" class="btn btn-action ripple-effect"
+                            name="action" value="Rechercher" id="btnRechercherDemande">
+                      <i class="icon-action_chercher"></i>
+                    </button>
+                  </div>
+                </div>
 
-								</div>
-								<div class="row">
-									<div class="col-xs-12">
+              </div>
+              <div class="row">
+                <div class="col-xs-12">
 
-										<div class="panel-group accordion" aria-multiselectable="true">
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingOne">
-													<h4 class="panel-title">
-														<a role="button" data-toggle="collapse"
-															data-parent="#accordion" href="#panelFiltreDemande"
-															aria-expanded="false" aria-controls="panelFiltreDemande"
-															class="collapsed"> <i
-															class="pannelState icon-action_accordeon-ferme"></i>
-															Filtres
-														</a>
-													</h4>
-												</div>
-												<div id="panelFiltreDemande"
-													class="sectionrecherche panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingOne">
-													<div class="panel-body">
-														<h3>
-															<div class="row">
-																<div class="col-xs-12 col-md-10">
-																	<span>Mode de réception</span>
-																</div>
-																<div class="col-xs-12 col-md-2">
-																	<a id="tousModeTr" href="#"><span>TOUS</span></a><span>
+                  <div class="panel-group accordion" aria-multiselectable="true">
+                    <div class="panel panel-default">
+                      <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                          <a role="button" data-toggle="collapse"
+                             data-parent="#accordion" href="#panelFiltreDemande"
+                             aria-expanded="false" aria-controls="panelFiltreDemande"
+                             class="collapsed"> <i
+                              class="pannelState icon-action_accordeon-ferme"></i>
+                            Filtres
+                          </a>
+                        </h4>
+                      </div>
+                      <div id="panelFiltreDemande"
+                           class="sectionrecherche panel-collapse collapse"
+                           role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                          <h3>
+                            <div class="row">
+                              <div class="col-xs-12 col-md-10">
+                                <span>Mode de réception</span>
+                              </div>
+                              <div class="col-xs-12 col-md-2">
+                                <a id="tousModeTr" href="#"><span>TOUS</span></a><span>
 																		/ </span><a id="aucunModeTr" href="#"><span>AUCUN</span></a>
-																</div>
-															</div>
-														</h3>
-														<div class="row">
-															<div class="col-xs-12 col-md-3">
-																<div class="toggle">
-																	<label class="switch"> <input
-																		class="switch-input" id="switchTS" type="checkbox"
-																		checked="" name="canal" value="GUICHET_VIRTUEL" /> <input
-																		type="hidden" checked="" /> <span class="slider"></span>
-																	</label> <label class="toggleLabel">Téléservice</label>
+                              </div>
+                            </div>
+                          </h3>
+                          <div class="row">
+                            <div class="col-xs-12 col-md-3">
+                              <div class="toggle">
+                                <label class="switch"> <input
+                                    class="switch-input" id="switchTS" type="checkbox"
+                                    checked="" name="canal" value="GUICHET_VIRTUEL"/> <input
+                                    type="hidden" checked=""/> <span class="slider"></span>
+                                </label> <label class="toggleLabel">Téléservice</label>
 
-																</div>
-															</div>
+                              </div>
+                            </div>
 
-															<div class="col-xs-12 col-md-3">
-																<div class="toggle">
-																	<label class="switch"> <input
-																		class="switch-input" id="switchGuichet"
-																		type="checkbox" checked="" name="canal"
-																		value="GUICHET_PHYSIQUE" /> <input type="hidden"
-																		checked="" /> <span class="slider"></span>
-																	</label> <label class="toggleLabel">Au guichet</label>
-																</div>
-															</div>
+                            <div class="col-xs-12 col-md-3">
+                              <div class="toggle">
+                                <label class="switch"> <input
+                                    class="switch-input" id="switchGuichet"
+                                    type="checkbox" checked="" name="canal"
+                                    value="GUICHET_PHYSIQUE"/> <input type="hidden"
+                                                                      checked=""/> <span
+                                    class="slider"></span>
+                                </label> <label class="toggleLabel">Au guichet</label>
+                              </div>
+                            </div>
 
-															<div class="col-xs-12 col-md-3">
-																<div class="toggle">
-																	<label class="switch"> <input
-																		class="switch-input" id="switchCourrier"
-																		type="checkbox" checked="" name="canal"
-																		value="COURRIER" /> <input type="hidden" checked="" />
-																		<span class="slider"></span>
-																	</label> <label class="toggleLabel">Par courrier</label>
-																</div>
-															</div>
-														</div>
+                            <div class="col-xs-12 col-md-3">
+                              <div class="toggle">
+                                <label class="switch"> <input
+                                    class="switch-input" id="switchCourrier"
+                                    type="checkbox" checked="" name="canal"
+                                    value="COURRIER"/> <input type="hidden" checked=""/>
+                                  <span class="slider"></span>
+                                </label> <label class="toggleLabel">Par courrier</label>
+                              </div>
+                            </div>
+                          </div>
 
-														<br />
-														<h3>
-															<div class="row">
-																<div class="col-xs-12 col-md-10">
-																	<span>État de la demande</span>
-																</div>
-																<div class="col-xs-12 col-md-2">
-																	<a id="tousEtat" href="#"><span>TOUS</span></a><span>
+                          <br/>
+                          <h3>
+                            <div class="row">
+                              <div class="col-xs-12 col-md-10">
+                                <span>État de la demande</span>
+                              </div>
+                              <div class="col-xs-12 col-md-2">
+                                <a id="tousEtat" href="#"><span>TOUS</span></a><span>
 																		/ </span><a id="aucunEtat" href="#"><span>AUCUN</span></a>
-																</div>
-															</div>
-														</h3>
+                              </div>
+                            </div>
+                          </h3>
 
-														<div>
-															<div class="row">
-																<div class="col-xs-12 col-md-3"
-																	th:each="statut,iter: ${statuts}"
-																	th:style="${iter.index}>
+                          <div>
+                            <div class="row">
+                              <div class="col-xs-12 col-md-3"
+                                   th:each="statut,iter: ${statuts}"
+                                   th:style="${iter.index}>
 																	3? 'margin-top:1em': ''">
-																	<div class="toggle">
-																		<label class="switch"> <input
-																			class="switch-input" th:id="'switch' + ${statut.key}"
-																			type="checkbox" checked="" name="statut"
-																			th:value="${statut.key}" /> <input type="hidden"
-																			checked="" /> <span class="slider"></span>
-																		</label> <label class="toggleLabel" th:text="${statut.value}"></label>
-																	</div>
-																</div>
-															</div>
+                                <div class="toggle">
+                                  <label class="switch"> <input
+                                      class="switch-input" th:id="'switch' + ${statut.key}"
+                                      type="checkbox" checked="" name="statut"
+                                      th:value="${statut.key}"/> <input type="hidden"
+                                                                        checked=""/> <span
+                                      class="slider"></span>
+                                  </label> <label class="toggleLabel"
+                                                  th:text="${statut.value}"></label>
+                                </div>
+                              </div>
+                            </div>
 
 
-														</div>
+                          </div>
 
 
-														<br />
-														<div class="row text-center">
-															<div class="form-inline  ">
-																<div class="form-group">
-																	<label for="agentId">Responsable</label> <select
-																		style="margin-left: 1em" name="agentId" id="agentId"
-																		class="form-control">
-																		<option th:value="null" th:text="Tous" />
-																		<option th:each="agent : ${agentsInit}"
-																			th:text="${agent.displayName}"
-																			th:value="${agent.matricule}" />
-																	</select>
-																</div>
+                          <br/>
+                          <div class="row text-center">
+                            <div class="form-inline  ">
+                              <div class="form-group">
+                                <label for="agentId">Responsable</label> <select
+                                  style="margin-left: 1em" name="agentId" id="agentId"
+                                  class="form-control">
+                                <option th:value="null" th:text="Tous"/>
+                                <option th:each="agent : ${agentsInit}"
+                                        th:text="${agent.displayName}"
+                                        th:value="${agent.matricule}"/>
+                              </select>
+                              </div>
 
-																<div class="form-group" style="margin-left: 2em">
-																	<label for="creationStartDate">Après le</label>
-																	<div class="input-group date" style="margin-left: 1em">
-																		<input type="text" id="creationStartDate"
-																			name="creationStartDate" placeholder="__/__/____"
-																			class="form-control" /> <span
-																			class="input-group-addon"><i
-																			class="icon-action_calendrier"></i></span>
-																	</div>
-																</div>
-																<div class="form-group" style="margin-left: 2em">
-																	<label for="creationEndDate">Avant le</label>
-																	<div class="input-group date" style="margin-left: 1em">
-																		<input type="text" id="creationEndDate"
-																			name="creationEndDate" placeholder="__/__/____"
-																			class="form-control" /> <span
-																			class="input-group-addon"><i
-																			class="icon-action_calendrier"></i></span>
-																	</div>
-																</div>
-															</div>
-														</div>
+                              <div class="form-group" style="margin-left: 2em">
+                                <label for="creationStartDate">Après le</label>
+                                <div class="input-group date" style="margin-left: 1em">
+                                  <input type="text" id="creationStartDate"
+                                         name="creationStartDate" placeholder="__/__/____"
+                                         class="form-control"/> <span
+                                    class="input-group-addon"><i
+                                    class="icon-action_calendrier"></i></span>
+                                </div>
+                              </div>
+                              <div class="form-group" style="margin-left: 2em">
+                                <label for="creationEndDate">Avant le</label>
+                                <div class="input-group date" style="margin-left: 1em">
+                                  <input type="text" id="creationEndDate"
+                                         name="creationEndDate" placeholder="__/__/____"
+                                         class="form-control"/> <span
+                                    class="input-group-addon"><i
+                                    class="icon-action_calendrier"></i></span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
 
-														<br />
+                          <br/>
 
-														<div class="row">
-															<div class="col-xs-12 text-center">
-																<button id="rechercherButton2"
-																	class="btn btn-action ripple-effect">Appliquer le
-																	filtre</button>
-															</div>
-														</div>
+                          <div class="row">
+                            <div class="col-xs-12 text-center">
+                              <button id="rechercherButton2"
+                                      class="btn btn-action ripple-effect">Appliquer le
+                                filtre
+                              </button>
+                            </div>
+                          </div>
 
-													</div>
-												</div>
-											</div>
-										</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-									</div>
-								</div>
+                </div>
+              </div>
 
-								<div class="row" id="affinerDiv">
-									<div class="col-xs-12">
+              <div class="row" id="affinerDiv">
+                <div class="col-xs-12">
 
-										<div class="panel-group accordion" aria-multiselectable="true">
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingOne">
-													<h4 class="panel-title">
-														<a role="button" data-toggle="collapse" id="affinerLink"
-															data-parent="#accordion" href="#collapseAffiner"
-															aria-expanded="false" aria-controls="collapseAffiner"
-															class="collapsed"> <i
-															class="pannelState icon-action_accordeon-ferme"></i>
-															Affiner
-														</a>
-													</h4>
-												</div>
-												<div id="collapseAffiner"
-													class="sectionrecherche panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingOne">
-													<div class="panel-body">
+                  <div class="panel-group accordion" aria-multiselectable="true">
+                    <div class="panel panel-default">
+                      <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                          <a role="button" data-toggle="collapse" id="affinerLink"
+                             data-parent="#accordion" href="#collapseAffiner"
+                             aria-expanded="false" aria-controls="collapseAffiner"
+                             class="collapsed"> <i
+                              class="pannelState icon-action_accordeon-ferme"></i>
+                            Affiner
+                          </a>
+                        </h4>
+                      </div>
+                      <div id="collapseAffiner"
+                           class="sectionrecherche panel-collapse collapse"
+                           role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body">
 
 
-														<div>
+                          <div>
 
-															<div id="facets">
-																<div id="facetCategory" style='display: none'
-																	class="col-xs-12 col-sm-2">
-																	<h2 id="facetCategoryName">category</h2>
-																	<div id="facet"
-																		style='display: none; margin-bottom: 0.5em'>
-																		<a href="javascript:;" class="greyTooltip"
-																			data-toggle="tooltip" id="facetLink">
-																			<span id="facetName">name </span>
-																		</a>
-																	</div>
-																</div>
-															</div>
+                            <div id="facets">
+                              <div id="facetCategory" style='display: none'
+                                   class="col-xs-12 col-sm-2">
+                                <h2 id="facetCategoryName">category</h2>
+                                <div id="facet"
+                                     style='display: none; margin-bottom: 0.5em'>
+                                  <a href="javascript:;" class="greyTooltip"
+                                     data-toggle="tooltip" id="facetLink">
+                                    <span id="facetName">name </span>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
 
-															<div id="rechercheavancee"
-																style="padding-left: 3em; padding-top: 1em;"></div>
-														</div>
+                            <div id="rechercheavancee"
+                                 style="padding-left: 3em; padding-top: 1em;"></div>
+                          </div>
 
-													</div>
-												</div>
-											</div>
-										</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</form>
-				
-				<div id="pagedropdown" style="margin-left: auto; margin-right: 0; margin-top: 10px" class="input-group">
-					<select name="pagelist" style="height: 32px" id="pagelist" class="form-control"></select>
-				</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
 
-				<div class="row">
-					<div class="col-xs-12">
-						<div id="demandesTable" th:insert="~{demandes/demandetable}"></div>
-					</div>
-				</div>
+      <div id="pagedropdown" style="margin-left: auto; margin-right: 0; margin-top: 10px"
+           class="input-group">
+        <select name="pagelist" style="height: 32px" id="pagelist" class="form-control"></select>
+      </div>
 
-			</div>
+      <div class="row">
+        <div class="col-xs-12">
+          <div id="demandesTable" th:insert="~{demandes/demandetable}"></div>
+        </div>
+      </div>
 
-		</div>
+    </div>
 
-		<!-- FIN CONTENU -->
+  </div>
 
-	</div>
+  <!-- FIN CONTENU -->
 
-	<div th:replace="~{fragments/footer :: footer}"></div>
+</div>
 
-	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
-	<script type="text/javascript" th:inline="javascript">
-		/*<![CDATA[*/
+<div th:replace="~{fragments/footer :: footer}"></div>
 
-		var buildFacetsSerachData = function(params) {
-			if (params === undefined) {
-				params = {}
-			}
+<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+  /*<![CDATA[*/
 
-			var rechercheParams = $("#rechercheForm").serializeArray();
+  var buildFacetsSerachData = function (params) {
+    if (params === undefined) {
+      params = {}
+    }
 
-			$.each(rechercheParams, function(i, o) {
-				var n = o.name, v = o.value;
+    var rechercheParams = $("#rechercheForm").serializeArray();
 
-				if (v !== '') {
+    $.each(rechercheParams, function (i, o) {
+      var n = o.name, v = o.value;
 
-					params[n] = params[n] === undefined ? v : $
-							.isArray(params[n]) ? params[n].concat(v) : [
-							params[n], v ];
-				}
+      if (v !== '') {
 
-			});
+        params[n] = params[n] === undefined ? v : $
+            .isArray(params[n]) ? params[n].concat(v) : [
+          params[n], v];
+      }
 
-			return params
-		}
+    });
 
-		var buildSearchDatafunction = function(params) {
+    return params
+  }
 
-			//Ajout des champs de recherche
-			self.buildFacetsSerachData(params)
+  var buildSearchDatafunction = function (params) {
 
-			//Suppression de toutes les valeurs renvoyées par datatable
-			params.columns = null;
-			params.search = null;
-			params.searchFields = APP.selectedField
+    //Ajout des champs de recherche
+    self.buildFacetsSerachData(params)
 
-			//conversion des params pour Pageable Spring MVC
-			params.size = params.length;
-			params.page = params.start / params.length;
+    //Suppression de toutes les valeurs renvoyées par datatable
+    params.columns = null;
+    params.search = null;
+    params.searchFields = APP.selectedField
 
-			if ($("input[name='canal']:checked").length === 0) {
-				params.aucunCanal = true;
-			}
+    //conversion des params pour Pageable Spring MVC
+    params.size = params.length;
+    params.page = params.start / params.length;
 
-			if ($("input[name='statut']:checked").length === 0) {
-				params.aucunStatut = true;
-			}
+    if ($("input[name='canal']:checked").length === 0) {
+      params.aucunCanal = true;
+    }
 
-      params.sort = columns[params.order[0].column].data
-          + "," + params.order[0].dir;
+    if ($("input[name='statut']:checked").length === 0) {
+      params.aucunStatut = true;
+    }
 
-		}
+    params.sort = columns[params.order[0].column].data
+        + "," + params.order[0].dir;
 
-		var self = this
-		self.buildFacetsSerachData = buildFacetsSerachData
-		self.buildSearchDatafunction = buildSearchDatafunction
-		self.facets = {}
-		
-		// Action du sélecteur de pages
-		$('#pagelist').change(function(){
-			var page_number = parseInt($('#pagelist').val());
-			var test_table = $('#datatable-demandes').dataTable();
-			test_table.fnPageChange(page_number);
-		});
+  }
 
-		$(document).ready(
-				function() {
-					APP.buildFacets();
-					// Cacher le tooltip au chargement de la page
-					$("#txtRechercheDemande").tooltip("hide");
-					$("#txtRechercheDemande").tooltip("disable");
+  var self = this
+  self.buildFacetsSerachData = buildFacetsSerachData
+  self.buildSearchDatafunction = buildSearchDatafunction
+  self.facets = {}
 
-					// Sélection d'une date dans un calendrier
-					$('#creationStartDate, #creationEndDate').datepicker({
-						format : "dd/mm/yyyy",
-						weekStart : 1,
-						language : "fr",
-						todayHighlight : true
-					});
+  // Action du sélecteur de pages
+  $('#pagelist').change(function () {
+    var page_number = parseInt($('#pagelist').val());
+    var test_table = $('#datatable-demandes').dataTable();
+    test_table.fnPageChange(page_number);
+  });
 
-					$('.input-group-addon').click(function() {
-						var $input = $(this).closest('div').find(':input');
-						$input.focus();
-					});
+  $(document).ready(
+      function () {
+        APP.buildFacets();
+        // Cacher le tooltip au chargement de la page
+        $("#txtRechercheDemande").tooltip("hide");
+        $("#txtRechercheDemande").tooltip("disable");
 
-					$('#btnRechercherDemande').click(function(e) {
-						e.preventDefault();
-						$('#rechercherButton2').click();
-					});
+        // Sélection d'une date dans un calendrier
+        $('#creationStartDate, #creationEndDate').datepicker({
+          format: "dd/mm/yyyy",
+          weekStart: 1,
+          language: "fr",
+          todayHighlight: true
+        });
 
-					$('#rechercheButton1, #rechercherButton2').click(
-							function(e) {
-								// Désactiver champs de recherche pendant la requête
-                                rechercheEnCours(true);
-                                APP.selectedField = null;
-								$('#datatable-demandes').DataTable().ajax.reload(rechercheTerminee, true);
-								APP.buildFacets();
-							});
+        $('.input-group-addon').click(function () {
+          var $input = $(this).closest('div').find(':input');
+          $input.focus();
+        });
 
-					if ($("#txtRechercheDemande").val() !== '') {
-						APP.buildFacets();
-					}
+        $('#btnRechercherDemande').click(function (e) {
+          e.preventDefault();
+          $('#rechercherButton2').click();
+        });
 
-					configurationDataTable.ajax.data = buildSearchDatafunction;
-					if (typeof searchDefaultSort !== 'undefined') {
-						configurationDataTable.order = searchDefaultSort;
-					}
-					
-					// Configuration du drawCallback de Datatables afin d'afficher un dropdown permettant de changer de page
-					function callback() {
-						$('[data-toggle="tooltip"]').tooltip();
-			          	 
-			            var page_info = table.page.info();
-			            $('#totalpages').text(page_info.pages);
-			            var html = '';
-			            var start = 0;
-			            var length = page_info.length;
-			            for(var count = 1; count <= page_info.pages; count++)
-			            {                  
-			                var page_number = count - 1;
-			                html += '<option value="'+page_number+'" data-start="'+start+'" data-length="'+length+'">'+count+'</option>';
-			                start = start + page_info.length;
-			            }
-			            $('#pagelist').html(html);
-			            $('#pagelist').val(page_info.page);
-					}
-					
-					configurationDataTable.drawCallback = callback;
-					configurationDataTable.dom = 'lfrt<"footer">ip';
-					configurationDataTable.fnInitComplete = function(){
-				           $('div.footer').html($('#pagedropdown'));
-			         }
-					var table = $('#datatable-demandes').DataTable(configurationDataTable);
+        $('#rechercheButton1, #rechercherButton2').click(
+            function (e) {
+              // Désactiver champs de recherche pendant la requête
+              rechercheEnCours(true);
+              APP.selectedField = null;
+              $('#datatable-demandes').DataTable().ajax.reload(rechercheTerminee, true);
+              APP.buildFacets();
+            });
 
-					$('#tousModeTr').click(function(e) {
-						e.preventDefault();
-						$("input[name='canal']").prop('checked', true);
-					});
+        if ($("#txtRechercheDemande").val() !== '') {
+          APP.buildFacets();
+        }
 
-					$('#aucunModeTr').click(function(e) {
-						e.preventDefault();
-						$("input[name='canal']").prop('checked', false);
-					});
+        configurationDataTable.ajax.data = buildSearchDatafunction;
+        if (typeof searchDefaultSort !== 'undefined') {
+          configurationDataTable.order = searchDefaultSort;
+        }
 
-					$('#tousEtat').click(function(e) {
-						e.preventDefault();
-						$("input[name='statut']").prop('checked', true);
-					});
+        // Configuration du drawCallback de Datatables afin d'afficher un dropdown permettant de changer de page
+        function callback() {
+          $('[data-toggle="tooltip"]').tooltip();
 
-					$('#aucunEtat').click(function(e) {
-						e.preventDefault();
-						$("input[name='statut']").prop('checked', false);
-					});
-					$('#datatable-demandes').on('click', 'tbody td', function(){
-						const lien = $(this).closest('tr').find('td:eq(1) a').attr('href');
-						if(lien) {
-							window.location = lien;
-						}
-					});
-				});
+          var page_info = table.page.info();
+          $('#totalpages').text(page_info.pages);
+          var html = '';
+          var start = 0;
+          var length = page_info.length;
+          for (var count = 1; count <= page_info.pages; count++) {
+            var page_number = count - 1;
+            html += '<option value="' + page_number + '" data-start="' + start + '" data-length="' + length + '">' + count + '</option>';
+            start = start + page_info.length;
+          }
+          $('#pagelist').html(html);
+          $('#pagelist').val(page_info.page);
+        }
 
-		$("body").tooltip({
-			selector : '[data-toggle=tooltip]'
-		}).tooltip();
+        configurationDataTable.drawCallback = callback;
+        configurationDataTable.dom = 'lfrt<"footer">ip';
+        configurationDataTable.fnInitComplete = function () {
+          $('div.footer').html($('#pagedropdown'));
+        }
+        var table = $('#datatable-demandes').DataTable(configurationDataTable);
 
-		function rechercheTerminee() {
-			rechercheEnCours(false);
-			// #44100: On focus le tableau des demandes
-			document.getElementById("demandesTable").scrollIntoView();
-		}
+        $('#tousModeTr').click(function (e) {
+          e.preventDefault();
+          $("input[name='canal']").prop('checked', true);
+        });
 
-		function rechercheEnCours(desactiverChamps) {
-			if(desactiverChamps) {
-				$('#btnRechercherDemande, #rechercherButton2').addClass("loading");
-			} else {
-				$('#btnRechercherDemande, #rechercherButton2').removeClass("loading");
-			}
-			$('#btnRechercherDemande, #rechercherButton2').prop('disabled',desactiverChamps);
-		}
+        $('#aucunModeTr').click(function (e) {
+          e.preventDefault();
+          $("input[name='canal']").prop('checked', false);
+        });
 
-		function escapeHtml(unsafe) {
-			return unsafe
-					.replace(/&/g, "&amp;")
-					.replace(/</g, "&lt;")
-					.replace(/>/g, "&gt;")
-					.replace(/"/g, "&quot;")
-					.replace(/'/g, "&#039;");
-		}
+        $('#tousEtat').click(function (e) {
+          e.preventDefault();
+          $("input[name='statut']").prop('checked', true);
+        });
 
-		/*]]>*/
-	</script>
+        $('#aucunEtat').click(function (e) {
+          e.preventDefault();
+          $("input[name='statut']").prop('checked', false);
+        });
+        $('#datatable-demandes').on('click', 'tbody td', function () {
+          const lien = $(this).closest('tr').find('td:eq(1) a').attr('href');
+          if (lien) {
+            window.location = lien;
+          }
+        });
+      });
+
+  $("body").tooltip({
+    selector: '[data-toggle=tooltip]'
+  }).tooltip();
+
+  function rechercheTerminee() {
+    rechercheEnCours(false);
+    // #44100: On focus le tableau des demandes
+    document.getElementById("demandesTable").scrollIntoView();
+  }
+
+  function rechercheEnCours(desactiverChamps) {
+    if (desactiverChamps) {
+      $('#btnRechercherDemande, #rechercherButton2').addClass("loading");
+    } else {
+      $('#btnRechercherDemande, #rechercherButton2').removeClass("loading");
+    }
+    $('#btnRechercherDemande, #rechercherButton2').prop('disabled', desactiverChamps);
+  }
+
+  function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+  }
+
+  /*]]>*/
+</script>
 </body>
 </html>

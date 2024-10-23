@@ -6,6 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class CommandeDemandeArticleDTO {
+
     private Integer pkCommandesDemandesArticles;
 
     private Integer fkCommandeDemande;

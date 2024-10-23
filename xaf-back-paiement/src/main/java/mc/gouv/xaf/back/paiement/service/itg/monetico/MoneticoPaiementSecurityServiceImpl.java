@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementSecurityServiceImpl.class);
     private static final String MONETICO_DATE_FORMAT = "dd/MM/yyyy:HH:mm:ss";
     private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
@@ -83,33 +84,20 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
     @Override
     public String getHmacStringInterfaceAller(PaiementDTO paiementDTO) {
         logStartMethod(LOGGER);
-        String sChaineMAC = String.join("*",
-                "TPE=" + paiementDTO.getTPE(),
+        String sChaineMAC = String.join("*", "TPE=" + paiementDTO.getTPE(),
                 "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
-                "contexte_commande=" + paiementDTO.getContexte_commande(),
-                "date=" + paiementDTO.getDate(),
-                "dateech1=" + paiementDTO.getDateech1(),
-                "dateech2=" + paiementDTO.getDateech2(),
-                "dateech3=" + paiementDTO.getDateech3(),
-                "dateech4=" + paiementDTO.getDateech4(),
-                "lgue=" + paiementDTO.getLgue(),
-                "libelleMonetique=" + paiementDTO.getLibelleMonetique(),
+                "contexte_commande=" + paiementDTO.getContexte_commande(), "date=" + paiementDTO.getDate(),
+                "dateech1=" + paiementDTO.getDateech1(), "dateech2=" + paiementDTO.getDateech2(),
+                "dateech3=" + paiementDTO.getDateech3(), "dateech4=" + paiementDTO.getDateech4(),
+                "lgue=" + paiementDTO.getLgue(), "libelleMonetique=" + paiementDTO.getLibelleMonetique(),
                 "libelleMonetiqueLocalite=" + paiementDTO.getLibelleMonetiqueLocalite(),
-                "mail=" + paiementDTO.getMail(),
-                "mode_affichage=" + paiementDTO.getMode_affichage(),
-                "montant=" + paiementDTO.getMontant(),
-                "montantech1=" + paiementDTO.getMontantech1(),
-                "montantech2=" + paiementDTO.getMontantech2(),
-                "montantech3=" + paiementDTO.getMontantech3(),
-                "montantech4=" + paiementDTO.getMontantech4(),
-                "nbrech=" + paiementDTO.getNbrech(),
-                "reference=" + paiementDTO.getReference(),
-                "societe=" + paiementDTO.getSociete(),
-                "texte-libre=" + paiementDTO.getTexteLibre(),
-                "url_retour_err=" + paiementDTO.getUrlRetourErr(),
-                "url_retour_ok=" + paiementDTO.getUrlRetourOk(),
-                "version=" + paiementDTO.getVersion()
-        );
+                "mail=" + paiementDTO.getMail(), "mode_affichage=" + paiementDTO.getMode_affichage(),
+                "montant=" + paiementDTO.getMontant(), "montantech1=" + paiementDTO.getMontantech1(),
+                "montantech2=" + paiementDTO.getMontantech2(), "montantech3=" + paiementDTO.getMontantech3(),
+                "montantech4=" + paiementDTO.getMontantech4(), "nbrech=" + paiementDTO.getNbrech(),
+                "reference=" + paiementDTO.getReference(), "societe=" + paiementDTO.getSociete(),
+                "texte-libre=" + paiementDTO.getTexteLibre(), "url_retour_err=" + paiementDTO.getUrlRetourErr(),
+                "url_retour_ok=" + paiementDTO.getUrlRetourOk(), "version=" + paiementDTO.getVersion());
         LOGGER.info(CHIANE_POUR_HMAC, sChaineMAC);
 
         MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());

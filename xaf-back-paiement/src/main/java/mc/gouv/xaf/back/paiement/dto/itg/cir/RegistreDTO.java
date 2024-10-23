@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class RegistreDTO {
-	
-	private List<VehiculeDTO> vehicules;
+
+    private List<VehiculeDTO> vehicules;
 
 }

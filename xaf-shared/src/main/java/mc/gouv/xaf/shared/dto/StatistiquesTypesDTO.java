@@ -9,9 +9,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StatistiquesTypesDTO {
 
-	private Integer pkStatistiquesTypes;
-	
-	private String identifiantDemande;
+    private Integer pkStatistiquesTypes;
+
+    private String identifiantDemande;
 
     private String value;
 

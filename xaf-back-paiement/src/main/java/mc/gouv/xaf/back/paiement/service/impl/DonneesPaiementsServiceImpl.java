@@ -39,14 +39,16 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
     public void chargerDonneesPaiement(ModelAndView mav, DemandeDTO demande) {
         Integer demandeId = demande.getPkDemandes();
 
-        DemandeDataDTO statutPaiement = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
+        DemandeDataDTO statutPaiement = demandesDataService.getDemandeData(demandeId,
+                PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
         if (statutPaiement != null && StringUtils.isNotBlank(statutPaiement.getValue())) {
             PaiementStatutEnum statutEnum = PaiementStatutEnum.valueOf(statutPaiement.getValue());
             mav.addObject("statutPaiementCode", statutEnum.name());
             mav.addObject("statutPaiement", statutEnum.getLibelle());
             mav.addObject("statutPaiementColor", demarchesDataProvider.getStatusColorClass(statutEnum.name()));
         }
-        DemandeDataDTO dateExpirationEmpreinte = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name());
+        DemandeDataDTO dateExpirationEmpreinte = demandesDataService.getDemandeData(demandeId,
+                PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name());
         if (dateExpirationEmpreinte != null && StringUtils.isNotBlank(dateExpirationEmpreinte.getValue())) {
             mav.addObject("dateExpirationEmpreinte",
                     LocalDate.parse(dateExpirationEmpreinte.getValue(), DateTimeFormatter.ofPattern("yyyy/MM/dd"))
@@ -55,20 +57,23 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
 
         mav.addObject("montantPaiement", getMontant(demande));
 
-        DemandeDataDTO datePaiement = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name());
+        DemandeDataDTO datePaiement = demandesDataService.getDemandeData(demandeId,
+                PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name());
         if (datePaiement != null && StringUtils.isNotBlank(datePaiement.getValue())) {
             mav.addObject("datePaiement",
                     LocalDate.parse(datePaiement.getValue(), DateTimeFormatter.ofPattern("yyyy/MM/dd"))
                             .format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
         }
-        DemandeDataDTO numeroFacture = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name());
+        DemandeDataDTO numeroFacture = demandesDataService.getDemandeData(demandeId,
+                PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name());
         if (numeroFacture != null && StringUtils.isNotBlank(numeroFacture.getValue())) {
             mav.addObject("numeroFacture", numeroFacture.getValue());
         }
         mav.addObject("paiementHisto", paiementHistoriqueService.findAllByDemandeId(demandeId));
         mav.addObject("formatDate", DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
 
-        DemandeDataDTO moyenPaiement = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name());
+        DemandeDataDTO moyenPaiement = demandesDataService.getDemandeData(demandeId,
+                PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name());
         if (moyenPaiement != null && StringUtils.isNotBlank(moyenPaiement.getValue())) {
             mav.addObject("moyenPaiement", moyenPaiement.getValue());
         }
@@ -77,12 +82,14 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
     private String getMontant(DemandeDTO demandeDTO) {
         NumberFormat format = NumberFormat.getCurrencyInstance(Locale.FRANCE);
         if (demarchesDataProvider.getDemarcheCanHandleTaches()) {
-            DemandeDataDTO dataMontant = demandesDataService.getDemandeData(demandeDTO.getPkDemandes(), PaiementDemandeDataKeysEnum.MONTANT_PAYE.name());
+            DemandeDataDTO dataMontant = demandesDataService.getDemandeData(demandeDTO.getPkDemandes(),
+                    PaiementDemandeDataKeysEnum.MONTANT_PAYE.name());
             if (null != dataMontant) {
                 return format.format(Double.parseDouble(dataMontant.getValue()));
             }
         }
-        CommandeDemandeDTO commandeDemandeDTO = commandesDemandesService.getDerniereCommandeDemande(demandeDTO.getPkDemandes());
+        CommandeDemandeDTO commandeDemandeDTO = commandesDemandesService.getDerniereCommandeDemande(
+                demandeDTO.getPkDemandes());
         if (null != commandeDemandeDTO) {
             return format.format(commandeDemandeDTO.getMontant());
         }

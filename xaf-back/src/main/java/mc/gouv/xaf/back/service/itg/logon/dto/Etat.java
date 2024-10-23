@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
 public enum Etat {
-    @JsonProperty("a")
-    ACTIF('a', "Actif"),
-    @JsonProperty("i")
-    INACTIF('i', "Inactif");
+    @JsonProperty("a") ACTIF('a', "Actif"),
+    @JsonProperty("i") INACTIF('i', "Inactif");
 
     private char code;
     private String libelle;

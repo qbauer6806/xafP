@@ -43,9 +43,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Service permettant la manipulation des demandes d'informations complémentaires.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -130,9 +129,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     private DemandesComplementsBO getDemandeComplementsBO(Integer pkDemande, Integer pkDemandeComplements) {
         LOGGER.info("Récupération en base de la demande d'informations complémentaires correspondante...");
 
-        DemandesComplementsBO demandesComplementsBO = demandesComplementsRepository
-                .findByPkDemandesComplementsAndFkDemandesPkDemandes(pkDemandeComplements,
-                        pkDemande);
+        DemandesComplementsBO demandesComplementsBO = demandesComplementsRepository.findByPkDemandesComplementsAndFkDemandesPkDemandes(
+                pkDemandeComplements, pkDemande);
 
         // Gérer les accès désactivés
         if (demandesComplementsBO != null && !demandesComplementsBO.getFkDemandes().getFkAccess().isActive()) {
@@ -162,8 +160,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO updateDemandeComplements(Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) {
+    public DemandeComplementsDTO updateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
+            DemandeComplementsQuestionDTO demandeComplements) {
 
         DemandeComplementsDTO demandeComplementsDto = new DemandeComplementsDTO();
         demandeComplementsDto.setDemandeId(pkDemande);
@@ -194,20 +192,20 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) {
+    public DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
+            DemandeComplementsReponseDTO demandeComplementsReponse) {
 
         // L'UsagerID OU l'AgentID doivent être remplis
-        if ((demandeComplementsReponse.getUsagerId() == null)
-                && StringUtils.isBlank(demandeComplementsReponse.getAgentId())) {
+        if ((demandeComplementsReponse.getUsagerId() == null) && StringUtils.isBlank(
+                demandeComplementsReponse.getAgentId())) {
             throw new DemarchesServiceException("L'UsagerID ou l'AgentID doivent être remplis", HttpStatus.BAD_REQUEST);
         }
 
         DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
 
         // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
-        if (demandeComplementsReponse.getUsagerId() != null
-                && !demandeComplementsReponse.getUsagerId().equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
+        if (demandeComplementsReponse.getUsagerId() != null && !demandeComplementsReponse.getUsagerId()
+                .equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
@@ -228,7 +226,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
         // Prise en charge des pièces jointes
         if (demandeComplementsReponse.getFichiers() != null) {
-            List<DemandeComplementsFileDTO> demandeComplementsFileDTOS = Arrays.asList(demandeComplementsReponse.getFichiers());
+            List<DemandeComplementsFileDTO> demandeComplementsFileDTOS = Arrays.asList(
+                    demandeComplementsReponse.getFichiers());
             // set contenu
             try {
                 this.demandeFileTransformer.setComplementsFileContenu(demandeComplementsFileDTOS);
@@ -236,7 +235,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
                 LOGGER.error("Impossible de lire le contenu du fichier {}", demandeComplementsFileDTOS, e);
             }
 
-            List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer.dto2Bo(demandeComplementsFileDTOS);
+            List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer.dto2Bo(
+                    demandeComplementsFileDTOS);
             for (DemandesComplementsFilesBO fichier : fichiers) {
                 fichier.setFkDemandesComplements(demandesComplementsBO);
             }
@@ -283,8 +283,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Override
     @Transactional
-    public DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) {
+    public DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
+            DemandeComplementsQuestionDTO demandeComplements) {
 
         if (pkDemandeComplements != null) {
             // ID de la demande d'informations complémentaires fourni, il faut donc mettre à jour une demande
@@ -300,7 +300,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     public void clonerDemandeComplements(DemandeBO demandeBo, DemandeBO newDemandeBo) {
         if (demandeBo.getDemandesComplements() != null) {
             LOGGER.info("Duplication des demandes d'informations complémentaires");
-            List<DemandeComplementsDTO> dcsDto = DemandesComplementsTransformer.bo2Dto(new ArrayList<>(demandeBo.getDemandesComplements()));
+            List<DemandeComplementsDTO> dcsDto = DemandesComplementsTransformer.bo2Dto(
+                    new ArrayList<>(demandeBo.getDemandesComplements()));
             List<DemandesComplementsBO> dcsBo = DemandesComplementsTransformer.dto2Bo(dcsDto);
             for (DemandesComplementsBO dcBo : dcsBo) {
                 dcBo.setPkDemandesComplements(null);
@@ -313,8 +314,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
                 // Fichiers des demandes d'informations complémentaires des demandes
                 if (dcBoFiles != null) {
                     LOGGER.info("Duplication des pièces jointes des demandes d'informations complémentaires");
-                    List<DemandeComplementsFileDTO> dcfilesDto = DemandesComplementsFilesTransformer
-                            .bo2Dto(new ArrayList<>(dcBoFiles));
+                    List<DemandeComplementsFileDTO> dcfilesDto = DemandesComplementsFilesTransformer.bo2Dto(
+                            new ArrayList<>(dcBoFiles));
                     List<DemandesComplementsFilesBO> dcfilesBo = DemandesComplementsFilesTransformer.dto2Bo(dcfilesDto);
                     for (DemandesComplementsFilesBO dcfileBo : dcfilesBo) {
                         dcfileBo.setPkDemandesComplementsFiles(null);
@@ -331,10 +332,12 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     }
 
     @Override
-    public void suppressionDesFichiersDesDemandesComplementaires(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours) {
+    public void suppressionDesFichiersDesDemandesComplementaires(DemandeDTO demandeDTO, boolean statutCheck,
+            List<String> statuts, int jours) {
         if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
             for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
-                Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository.findById(demandeComplementsDTO.getPkDemandeComplements());
+                Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository.findById(
+                        demandeComplementsDTO.getPkDemandeComplements());
                 if (demandeComplementBO.isPresent()) {
                     Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
                     if (null != files && !files.isEmpty()) {
@@ -345,9 +348,11 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         }
     }
 
-    private void suppressionDesFichiersComplementaires(Set<DemandesComplementsFilesBO> files, boolean statutCheck, List<String> statuts, int jours) {
+    private void suppressionDesFichiersComplementaires(Set<DemandesComplementsFilesBO> files, boolean statutCheck,
+            List<String> statuts, int jours) {
         for (DemandesComplementsFilesBO currentFileToDelete : files) {
-            List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+            List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository.findAllByUrl(
+                    currentFileToDelete.getUrl());
             if (null != existingFiles && isComplementsFileDeletable(existingFiles, statutCheck, statuts, jours)) {
                 // Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
                 // à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
@@ -365,7 +370,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         fileService.deleteFile("ROOT", url);
     }
 
-    private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, boolean statutCheck, List<String> statuts, int jours) {
+    private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, boolean statutCheck,
+            List<String> statuts, int jours) {
         boolean isComplementFileDeletable = false;
         if (existingFiles.size() <= 1) {
             if (statutCheck) {
@@ -373,18 +379,21 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
                     DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
                     DemandeDTO concernedDemandeDTO = demandesTransformer.bo2Dto(concernedDemandeBO);
                     isComplementFileDeletable = isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-                    LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
+                    LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise",
+                            demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
                 }
             } else {
                 return true;
             }
         }
-        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
+        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande",
+                existingFiles.get(0).getName());
         return isComplementFileDeletable;
     }
 
     private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
-        long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
+        long diffInMillies = Math.abs(
+                new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
         long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
         return statuts.contains(concernedDemandeDTO.getDernierStatut().getName()) && diff >= jours;
     }

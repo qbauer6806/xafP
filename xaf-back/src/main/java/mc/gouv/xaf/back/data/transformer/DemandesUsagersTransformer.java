@@ -7,14 +7,13 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * @author uek
- *
  */
 @Service
 public class DemandesUsagersTransformer {
 
-    private DemandesUsagersTransformer() {}
+    private DemandesUsagersTransformer() {
+    }
 
     public DemandesUsagersBO dto2Bo(DemandeUsagerDTO dto) {
         if (dto == null) {

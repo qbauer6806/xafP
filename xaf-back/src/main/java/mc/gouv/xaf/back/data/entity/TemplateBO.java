@@ -9,19 +9,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.TEMPLATE
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
 @Entity
-@Table(
-        name = "DEM_TEMPLATES", 
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"CODE", "LANGUE"})}
-     )
+@Table(name = "DEM_TEMPLATES", uniqueConstraints = { @UniqueConstraint(columnNames = { "CODE", "LANGUE" }) })
 public class TemplateBO {
 
     @Id

@@ -44,6 +44,4 @@ public class UtilisateursCache {
         // pas besoin de faire du traitement
     }
 
-
-
 }

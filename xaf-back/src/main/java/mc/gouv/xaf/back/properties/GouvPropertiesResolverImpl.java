@@ -45,7 +45,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Getter
     private String applicationPrefix = StringUtils.EMPTY;
 
-
     ///// GLOBAL PROPERTIES
     @Value("${mc.gouv.logon.url:OPTIONAL}")
     private String logonUrl;
@@ -74,7 +73,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.gichuni.api.url}")
     private String gichuniUrl;
-
 
     ///// SHARED PROPERTIES
     @Value("${mc.gouv.${application.name}.shared.backapi.file.containerId}")
@@ -146,14 +144,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
             // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
             // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
-            boolean pasIgnorerSSL = method.getDeclaredAnnotation(GouvSSLProperty.class) == null
-                    || (method.getDeclaredAnnotation(GouvSSLProperty.class) != null && sslEnabled);
+            boolean pasIgnorerSSL = method.getDeclaredAnnotation(GouvSSLProperty.class) == null || (
+                    method.getDeclaredAnnotation(GouvSSLProperty.class) != null && sslEnabled);
 
             // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
             // archivage.enabled=false ou pas présente
-            boolean pasIgnorerArchivage = method.getDeclaredAnnotation(GouvArchivageProperty.class) == null
-                    || (method.getDeclaredAnnotation(GouvArchivageProperty.class) != null
-                    && archivageEnabled);
+            boolean pasIgnorerArchivage = method.getDeclaredAnnotation(GouvArchivageProperty.class) == null || (
+                    method.getDeclaredAnnotation(GouvArchivageProperty.class) != null && archivageEnabled);
 
             if (pasIgnorerSSL && pasIgnorerArchivage) {
                 Object value = method.invoke(this);
@@ -184,8 +181,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         List<String> propertiesNotFound = new ArrayList<>();
         try {
 
-            for (PropertyDescriptor propertyDescriptor : Introspector
-                    .getBeanInfo(GouvPropertiesResolverImpl.class, Object.class).getPropertyDescriptors()) {
+            for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(GouvPropertiesResolverImpl.class,
+                    Object.class).getPropertyDescriptors()) {
 
                 Method method = getMethod(propertyDescriptor);
 
@@ -270,8 +267,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public long getUsagersCacheDuration() {
-        return Long
-                .parseLong(usagersCacheDuration);
+        return Long.parseLong(usagersCacheDuration);
     }
 
     @Override
@@ -430,13 +426,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return ulisProperties.getUlisUrlCommercialisation();
     }
 
-	@Override
-	public String get2TiersBoUrl() {
-		return _2tiersBoUrl;
-	}
+    @Override
+    public String get2TiersBoUrl() {
+        return _2tiersBoUrl;
+    }
 
-	@Override
-	public String get2TiersBoJwt() {
-		return _2tiersBoJwt;
-	}
+    @Override
+    public String get2TiersBoJwt() {
+        return _2tiersBoJwt;
+    }
 }

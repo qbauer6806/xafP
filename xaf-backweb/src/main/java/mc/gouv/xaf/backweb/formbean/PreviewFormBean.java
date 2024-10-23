@@ -6,22 +6,21 @@ import lombok.Setter;
 
 /**
  * Formulaire pour le preview des emails
- * 
- * @author mboutelier.ext
  *
+ * @author mboutelier.ext
  */
 @Setter
 @Getter
 public class PreviewFormBean {
 
-	@NotNull
-	private String action;
+    @NotNull
+    private String action;
 
-	private String codeMotifChoisi;
+    private String codeMotifChoisi;
 
-	@NotNull
-	private Integer pkDemande;
+    @NotNull
+    private Integer pkDemande;
 
-	private String commentaire;
+    private String commentaire;
 
 }

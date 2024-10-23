@@ -10,9 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Formulaire de la page de gestion des motifs
- * 
+ *
  * @author tverdoyan
- * 
  */
 @Getter
 public class MotifsFormBean {

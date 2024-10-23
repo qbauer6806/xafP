@@ -7,23 +7,22 @@ import lombok.Setter;
 
 /**
  * Modélise une demande simplifiée, à plat, à destination notamment de l'export Excel
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeFlatDTO {
-    
+
     private Integer pkDemandes;
-    
+
     private Integer usagerId;
-    
+
     private String usagerPrenom;
-    
+
     private String usagerNom;
-    
+
     private String usagerEmail;
 
     private String dateCreation;
@@ -35,7 +34,7 @@ public class DemandeFlatDTO {
     private String observations;
 
     private String agentAffecteId;
-    
+
     private String agentAffecteNom;
 
     private String dernierStatut;

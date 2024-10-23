@@ -41,19 +41,21 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @Configuration
 @ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaProducerConfig {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerConfig.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerConfig.class);
 
     @Bean
     public ProducerFactory<String, String> producerFactory(GouvPropertiesResolver gouvPropertiesResolver) {
         LOGGER.info("Création du GUKafkaProducer...");
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         // Messages jusqu'à 20MB (rajouter aussi message.max.bytes=20971520 dans server.properties de Kafka sinon :
         // org.apache.kafka.common.errors.RecordTooLargeException: The request included a message larger than the max message size the server will accept.
-        configProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, gouvPropertiesResolver.getGUKafkaProducerMaxRequestSize());
+        configProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
+                gouvPropertiesResolver.getGUKafkaProducerMaxRequestSize());
 
         boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
         if (sslEnabled) {
@@ -71,7 +73,8 @@ public class GUKafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(GUKafkaProducerListener guKafkaProducerListener, GouvPropertiesResolver gouvPropertiesResolver) {
+    public KafkaTemplate<String, String> kafkaTemplate(GUKafkaProducerListener guKafkaProducerListener,
+            GouvPropertiesResolver gouvPropertiesResolver) {
         KafkaTemplate<String, String> kt = new KafkaTemplate<>(producerFactory(gouvPropertiesResolver));
         kt.setProducerListener(guKafkaProducerListener);
         return kt;

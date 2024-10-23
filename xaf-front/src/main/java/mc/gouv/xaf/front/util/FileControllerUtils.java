@@ -70,7 +70,7 @@ public class FileControllerUtils {
 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
-    
+
     @Autowired
     private FrontGouvPropertiesResolver propertiesResolver;
 
@@ -116,7 +116,8 @@ public class FileControllerUtils {
         return part.getSize() <= tailleMaxFichierMB;
     }
 
-    public boolean vscan(Part part0, String filename, HttpPost postRequest, ServletContext servletContext) throws IOException {
+    public boolean vscan(Part part0, String filename, HttpPost postRequest, ServletContext servletContext)
+            throws IOException {
         // Constitution de la requête
         boolean activationVscan = propertiesResolver.isVscanActivated();
 
@@ -131,12 +132,16 @@ public class FileControllerUtils {
             LOGGER.info("URL = {}", urlVscan);
             try (CloseableHttpClient clientVscan = HttpClientBuilder.create().build()) {
                 MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
-                builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), ContentType.create(part0.getContentType()), part0.getSubmittedFileName()));
+                builderVscan.addPart("file",
+                        new InputStreamBody(part0.getInputStream(), ContentType.create(part0.getContentType()),
+                                part0.getSubmittedFileName()));
 
                 ScanRequestDTO scanRequest = new ScanRequestDTO();
                 scanRequest.setCodeAppli(servletContext.getInitParameter(XafFrontserverUtils.DEMARCHEID_KEY));
                 scanRequest.setFilename(filename);
-                scanRequest.setEnduserAppModule(servletContext.getInitParameter(XafFrontserverUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+                scanRequest.setEnduserAppModule(
+                        servletContext.getInitParameter(XafFrontserverUtils.DEMARCHEID_KEY).toLowerCase()
+                                + "-frontserver");
 
                 ObjectMapper mapper = new ObjectMapper();
                 String scanRequestStr = mapper.writeValueAsString(scanRequest);
@@ -154,7 +159,8 @@ public class FileControllerUtils {
                 ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
                 if (!scanDto.isResult()) {
                     LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-                    xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, "Erreur: le fichier soumis semble corrompu");
+                    xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                            "Erreur: le fichier soumis semble corrompu");
                     return false;
                 }
             }
@@ -169,7 +175,8 @@ public class FileControllerUtils {
      *
      * @return true si la limite a été atteinte, false si il est toujours possible d'uploader
      */
-    public synchronized boolean limiteUploadAtteinte(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs, HttpSession session) {
+    public synchronized boolean limiteUploadAtteinte(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs,
+            HttpSession session) {
         FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
         if (compteurUpload != null) {
             Duration duration = Duration.between(compteurUpload.getDatePremierUpload(), LocalDateTime.now());
@@ -186,7 +193,8 @@ public class FileControllerUtils {
         return false;
     }
 
-    public synchronized void ajouterCompteurUpload(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs, HttpSession session) {
+    public synchronized void ajouterCompteurUpload(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs,
+            HttpSession session) {
         FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
         if (compteurUpload == null) {
             compteurUpload = new FileUploadCompteurDTO();
@@ -199,11 +207,13 @@ public class FileControllerUtils {
     }
 
     /**
-     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex:
-     * Une session dont la date du premier upload > x secondes
+     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex: Une session
+     * dont la date du premier upload > x secondes
      */
-    public synchronized void reinitialierSessionsInutilisees(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs) {
-        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet().iterator(); it.hasNext(); ) {
+    public synchronized void reinitialierSessionsInutilisees(
+            Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs) {
+        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet()
+                .iterator(); it.hasNext(); ) {
             Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
             LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
             Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
@@ -215,14 +225,15 @@ public class FileControllerUtils {
     }
 
     /**
-     * Obtiens un {@link InputStream} d'un fichier distant.
-     * Important, le pathInfo doit être au format non encodé et en UTF8 ex :
-     * carte d'identité.png (valide)
-     * carte+d%27identit%C3%A9.png (invalide)
+     * Obtiens un {@link InputStream} d'un fichier distant. Important, le pathInfo doit être au format non encodé et en
+     * UTF8 ex : carte d'identité.png (valide) carte+d%27identit%C3%A9.png (invalide)
      *
-     * @param pathInfo           nom du fichier à récupérer (Format: /accessId/uuid/filename)
-     * @param isPreview          si vrai remplace dans l'entête Content-disposition-header la valeur attachment par inline
-     * @param usagerInfoAccessId usagerInfosDTO.getAccessId()
+     * @param pathInfo
+     *         nom du fichier à récupérer (Format: /accessId/uuid/filename)
+     * @param isPreview
+     *         si vrai remplace dans l'entête Content-disposition-header la valeur attachment par inline
+     * @param usagerInfoAccessId
+     *         usagerInfosDTO.getAccessId()
      * @return Un flux correspondant aux données du fichier demandé ou null.
      */
     public ResponseEntity<InputStream> downloadFile(String pathInfo, boolean isPreview, Integer usagerInfoAccessId) {
@@ -233,15 +244,18 @@ public class FileControllerUtils {
             if (pathInfo != null && pathInfo.length() > 1) {
                 String[] pathElems = pathInfo.split("/");
                 accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
-                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], StandardCharsets.UTF_8);
+                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3],
+                        StandardCharsets.UTF_8);
             }
 
             if (StringUtils.isBlank(filename)) {
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, "Erreur: nom ou ID du fichier manquant");
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                        "Erreur: nom ou ID du fichier manquant");
             }
 
             if (accessId != null && (usagerInfoAccessId == null || !usagerInfoAccessId.equals(accessId))) {
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN, "Erreur: accès à ce fichier non autorisé");
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                        "Erreur: accès à ce fichier non autorisé");
             }
 
             String accountId = propertiesResolver.getDemarcheId().toUpperCase();
@@ -262,20 +276,23 @@ public class FileControllerUtils {
             HttpClient client = HttpClientBuilder.create().build();
             HttpGet getRequest = new HttpGet(url.toString());
 
-            getRequest.setHeader(HttpHeaders.AUTHORIZATION, xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION,
+                    xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
             ClassicHttpResponse getResponse = (ClassicHttpResponse) client.execute(getRequest);
 
             LOGGER.info("Constitution de la réponse pour retour au client");
             ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getCode())
-                            .contentType(MediaType.valueOf(getResponse.getEntity().getContentType()));
+                    .contentType(MediaType.valueOf(getResponse.getEntity().getContentType()));
             // Ajout de la métadonnée indiquant le demandeId lié
             for (Header header : getResponse.getHeaders()) {
                 if (header.getName().startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                     response.header(header.getName(), header.getValue());
                 } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
-                    String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
+                    String headerValue = isPreview
+                            ? header.getValue().replace("attachment;", "inline;")
+                            : header.getValue();
                     response.header(header.getName(), URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
                 }
             }
@@ -288,12 +305,18 @@ public class FileControllerUtils {
     }
 
     /**
-     * @param docHolderUrl l'adresse à laquelle envoyer la requête
-     * @param pathInfo     le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
-     * @param accessToken  le token d'accès à l'API, du compte connecté
+     * @param docHolderUrl
+     *         l'adresse à laquelle envoyer la requête
+     * @param pathInfo
+     *         le nom du fichier à télécharger dans le portedocument ex :
+     *         d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
+     * @param accessToken
+     *         le token d'accès à l'API, du compte connecté
      */
-    public HttpResponse downloadFromDocHolder(String docHolderUrl, String pathInfo, String accessToken) throws IOException {
-        MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addPart("filename", new StringBody(pathInfo, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")));
+    public HttpResponse downloadFromDocHolder(String docHolderUrl, String pathInfo, String accessToken)
+            throws IOException {
+        MultipartEntityBuilder multipart = MultipartEntityBuilder.create()
+                .addPart("filename", new StringBody(pathInfo, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")));
 
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet request = new HttpGet(URI.create(docHolderUrl));
@@ -303,13 +326,12 @@ public class FileControllerUtils {
         return client.execute(request);
     }
 
-    public HttpResponse uploadToDocHolder(String docHolderUrl, InputStream filestream, String accessToken, String filename, String typedoc, String preferredName, String endOfValidity) throws IOException {
-        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
-                .setCharset(StandardCharsets.UTF_8)
-                .addPart("file", new InputStreamBody(filestream, filename))
-                .addPart("preferredName", new StringBody(preferredName, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")))
-                .addTextBody("typedoc", typedoc)
-                .setMode(HttpMultipartMode.EXTENDED);
+    public HttpResponse uploadToDocHolder(String docHolderUrl, InputStream filestream, String accessToken,
+            String filename, String typedoc, String preferredName, String endOfValidity) throws IOException {
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create().setCharset(StandardCharsets.UTF_8)
+                .addPart("file", new InputStreamBody(filestream, filename)).addPart("preferredName",
+                        new StringBody(preferredName, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")))
+                .addTextBody("typedoc", typedoc).setMode(HttpMultipartMode.EXTENDED);
 
         if (!StringUtils.isEmpty(endOfValidity)) {
             entityBuilder.addTextBody("endOfValidity", endOfValidity);
@@ -327,11 +349,15 @@ public class FileControllerUtils {
      * Upload un fichier dans FILE.
      * <b>/!\ Attention : aucune validation vscan/taille n'est faite dans la méthode !</b>
      *
-     * @param filename       le nom du fichier à envoyer
-     * @param typeModele     le type de modèle de document, valeur de l'en-tête X-MC-TypeModele
-     * @param filestream     le flux du fichier à envoyer
+     * @param filename
+     *         le nom du fichier à envoyer
+     * @param typeModele
+     *         le type de modèle de document, valeur de l'en-tête X-MC-TypeModele
+     * @param filestream
+     *         le flux du fichier à envoyer
      */
-    public ResponseEntity uploadToFILE(UsagerInfosDTO usagerInfosDTO, String filename, String typeModele, InputStream filestream) throws URISyntaxException, IOException {
+    public ResponseEntity uploadToFILE(UsagerInfosDTO usagerInfosDTO, String filename, String typeModele,
+            InputStream filestream) throws URISyntaxException, IOException {
         // Génération de l'UUID
         UUID uuid = XafFrontserverUtils.generateUUID();
         LOGGER.debug("UUID généré : {}", uuid);
@@ -342,7 +368,8 @@ public class FileControllerUtils {
         Integer accessId = access.getPkAccess();
         LOGGER.debug("AccessID = {}", accessId);
         if (accessId == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.NOT_FOUND, "Erreur : impossible de récupérer l'accès");
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.NOT_FOUND,
+                    "Erreur : impossible de récupérer l'accès");
         }
 
         URI uri = generateFileUrl(uuid, accessId, filename);
@@ -358,7 +385,8 @@ public class FileControllerUtils {
         builder.addPart("data", new InputStreamBody(filestream, filename));
         HttpEntity multipart = builder.build();
         postRequest.setEntity(multipart);
-        postRequest.setHeader(HttpHeaders.AUTHORIZATION, xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
+        postRequest.setHeader(HttpHeaders.AUTHORIZATION,
+                xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
 
         LOGGER.info("Appel du WS FILE");
         HttpResponse postResponse = client.execute(postRequest);
@@ -371,18 +399,22 @@ public class FileControllerUtils {
     /**
      * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
      */
-    public ResponseEntity constituerReponse(String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
+    public ResponseEntity constituerReponse(String filename, UUID uuid, Integer accessId, HttpResponse postResponse)
+            throws IOException {
         int statusCode = postResponse.getCode();
         ResponseEntity.BodyBuilder response = ResponseEntity.status(statusCode);
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
             // Répondre /accessId/uuid/nomDuFichier
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(SLASH + accessId + SLASH + uuid + SLASH + filename);
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(
+                    SLASH + accessId + SLASH + uuid + SLASH + filename);
             return response.body(responseObj);
         } else {
             LOGGER.error("Status code : {}", statusCode);
             // S'il y a eu un problème, alors on retourne le message d'erreur au client
-            return response.body(new String(((ClassicHttpResponse)postResponse).getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+            return response.body(
+                    new String(((ClassicHttpResponse) postResponse).getEntity().getContent().readAllBytes(),
+                            StandardCharsets.UTF_8));
         }
     }
 
@@ -406,7 +438,8 @@ public class FileControllerUtils {
     /**
      * Permet de parser le nom du fichier depuis le Path Info de la requête
      *
-     * @param pathInfo ex : /2/8a9b43f1-5de1-11ee-b33e-9efce89c72aa/docholderwishlist.png
+     * @param pathInfo
+     *         ex : /2/8a9b43f1-5de1-11ee-b33e-9efce89c72aa/docholderwishlist.png
      * @return null ou le nom du fichier (docholderwishlist.png selon l'exemple)
      */
     public String getFilename(String pathInfo) {
@@ -426,7 +459,9 @@ public class FileControllerUtils {
 
         // Constitution du chemin virtuel du fichier
         // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-        String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
+        String virtualPath =
+                SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + URLEncoder.encode(
+                        filename, StandardCharsets.UTF_8);
         LOGGER.info("Chemin virtuel : {}", virtualPath);
 
         // Constitution de l'URL d'appel

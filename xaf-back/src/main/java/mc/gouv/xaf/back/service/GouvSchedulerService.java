@@ -7,6 +7,7 @@ import org.quartz.Trigger;
 
 /**
  * Service permettant une gestion des jobs Quartz
+ *
  * @author mpavone.ext
  */
 public interface GouvSchedulerService {

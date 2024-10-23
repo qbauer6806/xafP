@@ -24,9 +24,9 @@ public class RestitutionStatistiqueServiceImpl implements RestitutionStatistique
     @Autowired
     private RestitutionStatistiquesRepository restitutionStatRepository;
 
-	public void saveRestitutionStatistique(RestitutionStatistiquesDTO restitutionStat) {
-		LOGGER.info("Création d'une ligne de statistique pour l'usager {}", restitutionStat.getUsagerId());
-		RestitutionStatistiquesBO bo = RestitutionStatistiquesTransformer.dto2Bo(restitutionStat);
-		restitutionStatRepository.save(bo);
-	}
+    public void saveRestitutionStatistique(RestitutionStatistiquesDTO restitutionStat) {
+        LOGGER.info("Création d'une ligne de statistique pour l'usager {}", restitutionStat.getUsagerId());
+        RestitutionStatistiquesBO bo = RestitutionStatistiquesTransformer.dto2Bo(restitutionStat);
+        restitutionStatRepository.save(bo);
+    }
 }

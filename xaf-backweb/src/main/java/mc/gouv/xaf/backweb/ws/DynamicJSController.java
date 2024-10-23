@@ -11,14 +11,13 @@ import mc.gouv.xaf.back.service.DynamicJSService;
 
 /**
  * Contrôleur permettant de retourner le fichier dynamicjs.js généré
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @GouvRestController
 @RequestMapping("/dynamicjs")
 public class DynamicJSController {
-    
+
     @Autowired
     private DynamicJSService dynamicJSService;
 
@@ -27,5 +26,5 @@ public class DynamicJSController {
         String js = dynamicJSService.getResponse();
         return new ResponseEntity<>(js, null, HttpStatus.OK);
     }
-    
+
 }

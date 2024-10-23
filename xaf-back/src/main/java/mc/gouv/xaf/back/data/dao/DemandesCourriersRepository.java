@@ -8,7 +8,6 @@ import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 
 /**
  * @author qdeme
- *
  */
 public interface DemandesCourriersRepository extends CrudRepository<DemandesCourriersBO, Integer> {
 

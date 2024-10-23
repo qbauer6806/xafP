@@ -6,6 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class DocHolderFilePostDTO {
+
     private String url;
     private String typedoc;
     private String preferredName;

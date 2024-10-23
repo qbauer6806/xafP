@@ -7,9 +7,7 @@ import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class BrouillonsFilesTransformer {
 

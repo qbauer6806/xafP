@@ -11,9 +11,8 @@ import lombok.Setter;
 
 /**
  * Modélise un accès
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -31,7 +30,7 @@ public class AccessDTO {
     private Date dateDerModif;
 
     private JsonNode contenu;
-    
+
     @JsonIgnore
     private boolean updated = false;
 

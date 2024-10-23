@@ -16,7 +16,7 @@ public class FrontConfig {
 
     @PostConstruct
     public void loadProperties() {
-        System.setProperty("MC_LOGDIR", loggingFile) ;
-        System.setProperty("MC_APPNAME", displayName) ;
+        System.setProperty("MC_LOGDIR", loggingFile);
+        System.setProperty("MC_APPNAME", displayName);
     }
 }

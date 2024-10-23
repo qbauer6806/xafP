@@ -17,11 +17,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * @author ttorreze.ext
- * Filtre permettant de vérifier si l'usager a consenti (côté TS) à l'utilisation du porte-documents.
+ * @author ttorreze.ext Filtre permettant de vérifier si l'usager a consenti (côté TS) à l'utilisation du
+ *         porte-documents.
  */
 @Component
 public class DocHolderConsentFilter extends OncePerRequestFilter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderConsentFilter.class);
 
     @Autowired
@@ -38,7 +39,7 @@ public class DocHolderConsentFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest servletRequest,
-                                    @NonNull HttpServletResponse servletResponse, @NonNull FilterChain filterChain)
+            @NonNull HttpServletResponse servletResponse, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(servletRequest);

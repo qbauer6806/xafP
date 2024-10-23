@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @ToString
 @Table(name = "PMNT_MOYENS_PAIEMENTS")
 public class MoyenPaiementBO {
+
     @Id
     @Column(name = "PK_MOYENS_PAIEMENTS", nullable = false)
     private String pkMoyensPaiements;
@@ -34,7 +35,6 @@ public class MoyenPaiementBO {
     private MoyenPaiementStatutEnum moyenPaiementStatut;
 
     private LocalDateTime dateDerniereModification;
-
 
     private String cvx;
     private String vld;

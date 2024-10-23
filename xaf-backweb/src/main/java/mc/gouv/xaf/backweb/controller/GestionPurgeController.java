@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Controller pour la page /purge
- * 
+ *
  * @author mpavone.Ext
  */
 @Controller

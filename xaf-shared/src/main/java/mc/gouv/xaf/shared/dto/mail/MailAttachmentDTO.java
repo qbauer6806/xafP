@@ -8,9 +8,8 @@ import lombok.Setter;
 
 /**
  * Classe modélisant une pièce jointe.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -19,11 +18,11 @@ import lombok.Setter;
 public class MailAttachmentDTO {
 
     private InputStream inputStream;
-    
+
     private String filename;
-    
+
     private String contentType;
-    
+
     private long size;
 
 }

@@ -22,65 +22,62 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 /**
  * Service permettant la manipulation des données d'une demande.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class DemandesDataServiceImpl implements DemandesDataService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesDataServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemandesDataServiceImpl.class);
 
-	@Autowired
-	private DemandesDataRepository demandesDataRepository;
+    @Autowired
+    private DemandesDataRepository demandesDataRepository;
 
+    @Autowired
+    private DemandesService demandesService;
 
-	@Autowired
-	private DemandesService demandesService;
+    @Override
+    public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
+        return getDemandeData(demandeId, key, true);
+    }
 
+    @Override
+    public DemandeDataDTO getDemandeData(Integer demandeId, String key, boolean checkActive) {
 
-	@Override
-	public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
-		return getDemandeData(demandeId, key, true);
-	}
+        // Jette une exception si la demande n'existe pas
+        if (checkActive) {
+            demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
+        }
 
-	@Override
-	public DemandeDataDTO getDemandeData(Integer demandeId, String key, boolean checkActive) {
+        DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return DemandesDataTransformer.bo2Dto(demandesDataBo);
+    }
 
-		// Jette une exception si la demande n'existe pas
-		if(checkActive) {
-			demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
-		}
+    private DemandesDataBO getDemandeDataBO(Integer demandeId, String key) {
+        LOGGER.info("Récupération en base de la donnée de demande...");
+        return demandesDataRepository.findByFkDemandesPkDemandesAndKey(demandeId, key);
+    }
 
-		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
-		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesDataTransformer.bo2Dto(demandesDataBo);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDataDTO> getDemandeDatas(Integer demandeId) {
 
-	private DemandesDataBO getDemandeDataBO(Integer demandeId, String key) {
-		LOGGER.info("Récupération en base de la donnée de demande...");
-		return demandesDataRepository.findByFkDemandesPkDemandesAndKey(demandeId, key);
-	}
+        // Jette une exception si la demande n'existe pas
+        demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<DemandeDataDTO> getDemandeDatas(Integer demandeId) {
+        LOGGER.info("Récupération en base de la donnée de demande...");
 
-		// Jette une exception si la demande n'existe pas
-		demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
+        List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByFkDemandesPkDemandes(demandeId);
 
-		LOGGER.info("Récupération en base de la donnée de demande...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
-		List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByFkDemandesPkDemandes(demandeId);
+        return DemandesDataTransformer.bo2Dto(demandesDatasBo);
+    }
 
-		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-
-		return DemandesDataTransformer.bo2Dto(demandesDatasBo);
-	}
-	
     /**
      * {@inheritDoc}
      */
@@ -99,125 +96,125 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     public List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value,
             List<DemandeBO> demandeIds) {
         LOGGER.info("Récupération en base des IDs des demandes...");
-        List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByKeyAndValueAndFkDemandesIn(key, value, demandeIds);
+        List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByKeyAndValueAndFkDemandesIn(key, value,
+                demandeIds);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesDataTransformer.bo2Dto(demandesDatasBo);
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value) {
-		return saveOrUpdateDemandeData(demandeId, key, value,true);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value) {
+        return saveOrUpdateDemandeData(demandeId, key, value, true);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value, boolean checkActive) {
-		// Jette une exception si la demande n'existe pas
-		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, checkActive);
-		return saveOrUpdateDemandeDatas(demandeBo, key, value);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value, boolean checkActive) {
+        // Jette une exception si la demande n'existe pas
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, checkActive);
+        return saveOrUpdateDemandeDatas(demandeBo, key, value);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas) {
 
-		// Jette une exception si la demande n'existe pas
-		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+        // Jette une exception si la demande n'existe pas
+        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
 
-		if (datas != null) {
-			for (Map.Entry<String, String> entry : datas.entrySet()) {
-				saveOrUpdateDemandeDatas(demandeBo, entry.getKey(), entry.getValue());
-			}
-		}
-	}
+        if (datas != null) {
+            for (Map.Entry<String, String> entry : datas.entrySet()) {
+                saveOrUpdateDemandeDatas(demandeBo, entry.getKey(), entry.getValue());
+            }
+        }
+    }
 
-	private DemandeDataDTO saveOrUpdateDemandeDatas(DemandeBO demandeBo, String key, String value) {
-		// Est-ce que cette donnée de demande existe déjà ?
-		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeBo.getPkDemandes(), key);
+    private DemandeDataDTO saveOrUpdateDemandeDatas(DemandeBO demandeBo, String key, String value) {
+        // Est-ce que cette donnée de demande existe déjà ?
+        DemandesDataBO demandesDataBo = getDemandeDataBO(demandeBo.getPkDemandes(), key);
 
-		if (demandesDataBo == null) {
-			// Création
-			LOGGER.info("Création de la donnée de demande...");
-			demandesDataBo = new DemandesDataBO();
-			demandesDataBo.setFkDemandes(demandeBo);
-			demandesDataBo.setKey(key);
-			demandesDataBo.setValue(value);
-			if (demandeBo.getData() == null) {
-				demandeBo.setData(new HashSet<>());
-			}
+        if (demandesDataBo == null) {
+            // Création
+            LOGGER.info("Création de la donnée de demande...");
+            demandesDataBo = new DemandesDataBO();
+            demandesDataBo.setFkDemandes(demandeBo);
+            demandesDataBo.setKey(key);
+            demandesDataBo.setValue(value);
+            if (demandeBo.getData() == null) {
+                demandeBo.setData(new HashSet<>());
+            }
 
-			demandeBo.getData().add(demandesDataBo);
-			demandesDataBo = demandesDataRepository.save(demandesDataBo);
-		} else {
-			// Mise à jour
-			LOGGER.info("Mise à jour de la donnée de demande...");
+            demandeBo.getData().add(demandesDataBo);
+            demandesDataBo = demandesDataRepository.save(demandesDataBo);
+        } else {
+            // Mise à jour
+            LOGGER.info("Mise à jour de la donnée de demande...");
 
-			if (demandeBo.getData() != null) {
-				for (DemandesDataBO data : demandeBo.getData()) {
-					if (data.getKey().equals(key)) {
-						data.setValue(value);
-					}
-				}
-			}
-			demandesDataBo.setValue(value);
-			demandesDataBo = demandesDataRepository.save(demandesDataBo);
-		}
+            if (demandeBo.getData() != null) {
+                for (DemandesDataBO data : demandeBo.getData()) {
+                    if (data.getKey().equals(key)) {
+                        data.setValue(value);
+                    }
+                }
+            }
+            demandesDataBo.setValue(value);
+            demandesDataBo = demandesDataRepository.save(demandesDataBo);
+        }
 
-		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
-		return DemandesDataTransformer.bo2Dto(demandesDataBo);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public DemandeDataDTO updateDemandeData(DemandeDataDTO dataDTO) {
-	    DemandesDataBO dataBO = DemandesDataTransformer.dto2Bo(dataDTO);
-	    DemandeBO demande = new DemandeBO();
-	    demande.setPkDemandes(dataDTO.getDemandeId());
-	    dataBO.setFkDemandes(demande);
-	    dataBO = demandesDataRepository.save(dataBO);
-	    return DemandesDataTransformer.bo2Dto(dataBO);
-	}
+        return DemandesDataTransformer.bo2Dto(demandesDataBo);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void deleteDemandeData(Integer demandeId, String key) {
+    /**
+     * {@inheritDoc}
+     */
+    public DemandeDataDTO updateDemandeData(DemandeDataDTO dataDTO) {
+        DemandesDataBO dataBO = DemandesDataTransformer.dto2Bo(dataDTO);
+        DemandeBO demande = new DemandeBO();
+        demande.setPkDemandes(dataDTO.getDemandeId());
+        dataBO.setFkDemandes(demande);
+        dataBO = demandesDataRepository.save(dataBO);
+        return DemandesDataTransformer.bo2Dto(dataBO);
+    }
 
-		// Jette une exception si la demande n'existe pas
-		demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteDemandeData(Integer demandeId, String key) {
 
-		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
+        // Jette une exception si la demande n'existe pas
+        demandesService.getCheckDemarcheDemandeBO(demandeId, true);
 
-		LOGGER.info("Suppression de la donnée de demande...");
-		if (demandesDataBo != null) {
-			demandesDataBo.getFkDemandes().getData().remove(demandesDataBo);
-			demandesDataRepository.delete(demandesDataBo);
-		}
-	}
+        DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
 
-	public void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo) {
-		if (demandeBo.getData() != null) {
-			LOGGER.info("Dupliquer des données de la demande");
-			List<DemandeDataDTO> datasDto = DemandesDataTransformer
-					.bo2Dto(new ArrayList<>(demandeBo.getData()));
-			List<DemandesDataBO> datasBo = DemandesDataTransformer.dto2Bo(datasDto);
-			for (DemandesDataBO dataBo : datasBo) {
-				dataBo.setPkDemandesData(null);
-				dataBo.setFkDemandes(newDemandeBo);
-				demandesDataRepository.save(dataBo);
-			}
-			newDemandeBo.setData(new HashSet<>(datasBo));
-		}
-	}
+        LOGGER.info("Suppression de la donnée de demande...");
+        if (demandesDataBo != null) {
+            demandesDataBo.getFkDemandes().getData().remove(demandesDataBo);
+            demandesDataRepository.delete(demandesDataBo);
+        }
+    }
+
+    public void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+        if (demandeBo.getData() != null) {
+            LOGGER.info("Dupliquer des données de la demande");
+            List<DemandeDataDTO> datasDto = DemandesDataTransformer.bo2Dto(new ArrayList<>(demandeBo.getData()));
+            List<DemandesDataBO> datasBo = DemandesDataTransformer.dto2Bo(datasDto);
+            for (DemandesDataBO dataBo : datasBo) {
+                dataBo.setPkDemandesData(null);
+                dataBo.setFkDemandes(newDemandeBo);
+                demandesDataRepository.save(dataBo);
+            }
+            newDemandeBo.setData(new HashSet<>(datasBo));
+        }
+    }
 
 }

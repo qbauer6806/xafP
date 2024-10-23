@@ -75,7 +75,7 @@ public abstract class AfApiService {
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
     private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
@@ -122,13 +122,13 @@ public abstract class AfApiService {
 
     @Autowired
     private PropertiesService propertiesService;
-    
+
     @Autowired
     private GUKafkaProducer guKafkaProducer;
-    
+
     @Autowired
     private GUKafkaUtils guKafkaUtils;
-    
+
     @Autowired
     private BrouillonsService brouillonsService;
 
@@ -161,8 +161,8 @@ public abstract class AfApiService {
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
                 demarchesDataProvider.getStatutAnnulee());
 
-        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee(), null,
-                usagerId, null);
+        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee(),
+                null, usagerId, null);
         this.saveHistorique(demandeId, histo);
 
     }
@@ -240,8 +240,7 @@ public abstract class AfApiService {
         // Suppression du brouillon éventuel
         if (demande.getBrouillonId() != null) {
             LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
-            brouillonsService.deleteBrouillon(demande.getBrouillonId(),
-                    usagerId);
+            brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId);
         }
         return demandeDto;
     }
@@ -281,10 +280,10 @@ public abstract class AfApiService {
             LOGGER.info("DTO après sauvegarde en base : {}", demandeDto);
 
             // Utiliser le BPM afin d'exécuter les tâches qui suivent la rectification
-            if (demandeEnBase.getDernierStatut().getName().equals(demarchesDataProvider.getStatutEnAttenteRectification())) {
+            if (demandeEnBase.getDernierStatut().getName()
+                    .equals(demarchesDataProvider.getStatutEnAttenteRectification())) {
                 gouvBPM.reponseRectification(demandeId, usagerId);
-            }
-            else {
+            } else {
                 gouvBPM.rectificationSpontanee(demandeId);
             }
 
@@ -296,8 +295,8 @@ public abstract class AfApiService {
             demandeEnBase = demandesService.getDemande(demandeId);
             DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
 
-            DemandeHistoriqueDTO histo = histoService.updateDemande(demandeDto, usagerId,
-                    demande.getCreeParAgentId(), statut.getLibelle());
+            DemandeHistoriqueDTO histo = histoService.updateDemande(demandeDto, usagerId, demande.getCreeParAgentId(),
+                    statut.getLibelle());
 
             if (histo != null) {
                 this.saveHistorique(demandeDto.getPkDemandes(), histo);
@@ -309,8 +308,6 @@ public abstract class AfApiService {
         }
         return demandeDto;
     }
-
-
 
     /**
      * On souhaite récupérer une liste avec les périodes suivantes :
@@ -331,14 +328,14 @@ public abstract class AfApiService {
 
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-                                                            DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
+            DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
 
         LOGGER.info("Appel à demandesService pour récupération de la demande concernée...");
         DemandeDTO demande = demandesService.getDemande(demandeId);
 
         LOGGER.info("Appel à demandesComplementsService pour répondre à la demande d'informations complémentaires...");
-        DemandeComplementsDTO demandeComplementsDto = demandesComplementsService
-                .repondreDemandeComplements(demandeId, icId, reponse);
+        DemandeComplementsDTO demandeComplementsDto = demandesComplementsService.repondreDemandeComplements(demandeId,
+                icId, reponse);
 
         Integer usagerId = reponse.getUsagerId();
         String agentId = reponse.getAgentId();
@@ -369,15 +366,15 @@ public abstract class AfApiService {
         try {
             gouvBPM.claimTask(task, user);
         } catch (TaskAlreadyClaimedException e1) {
-            throw new DemarcheException("Erreur lors du claim de la tache",e1);
+            throw new DemarcheException("Erreur lors du claim de la tache", e1);
         }
         gouvBPM.completeTask(task, demandeId);
 
         // Ajout d'une ligne à l'historique
         LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
-        DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId,
-                demande.getDernierStatut().getName(), usagerId, agentId, demande.getAgent() != null ? demande.getAgent().getId() : null);
+        DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId, demande.getDernierStatut().getName(),
+                usagerId, agentId, demande.getAgent() != null ? demande.getAgent().getId() : null);
         this.saveHistorique(demandeId, histo);
 
         return demandeComplementsDto;
@@ -411,10 +408,10 @@ public abstract class AfApiService {
 
             if (demarchesDataProvider.checkAssociationCourrier(demande, stringToCheck)) {
 
-                LOGGER.info("La chaîne de caractères de vérification pour l'association d'une demande courrier correspond bien à la demande, effectuer l'association...");
+                LOGGER.info(
+                        "La chaîne de caractères de vérification pour l'association d'une demande courrier correspond bien à la demande, effectuer l'association...");
 
-                demande = demandesService.associerDemandeCourrier(
-                        demande.getPkDemandes(), access.getPkAccess());
+                demande = demandesService.associerDemandeCourrier(demande.getPkDemandes(), access.getPkAccess());
 
                 LOGGER.info("Mise à jour de la variable MC_DEMANDE_CANAL dans le BPM...");
                 gouvBPM.setProcessBusinessVariable(demande.getPkDemandes(),
@@ -438,7 +435,8 @@ public abstract class AfApiService {
                 return demande;
 
             } else {
-                LOGGER.info("La chaîne de caractères de vérification pour l'association d'une demande courrier ne correspond pas à la demande, fin du traitement.");
+                LOGGER.info(
+                        "La chaîne de caractères de vérification pour l'association d'une demande courrier ne correspond pas à la demande, fin du traitement.");
                 throw new BadRequestWebException(
                         "La chaîne de caractères de vérification pour l'association d'une demande courrier ne correspond pas à la demande, fin du traitement.");
             }
@@ -486,7 +484,8 @@ public abstract class AfApiService {
         miseAJourDesVariablesBPM(demandesAPasserEnAnnuleeDTO, usagerId);
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
-        usagersService.desinscriptionUsager(usagerId, demarchesDataProvider.getStatutAnnulee(), demarchesDataProvider.getCodeMotifAnnulationDesinscription());
+        usagersService.desinscriptionUsager(usagerId, demarchesDataProvider.getStatutAnnulee(),
+                demarchesDataProvider.getCodeMotifAnnulationDesinscription());
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes qui passent à l'état Annulée suite à la désinscription...");
@@ -505,29 +504,29 @@ public abstract class AfApiService {
                 this.saveHistorique(demande.getPkDemandes(), histo);
             }
         }
-        
+
         if (!fromGU) {
-	        LOGGER.info("Envoi du message au Guichet Unique via Kafka (désinscription usager TS)...");
-	        guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
-        }
-        else {
-        	LOGGER.info("Pas de message à envoyer au Guichet Unique via Kafka car la désinscription émane du GU");
+            LOGGER.info("Envoi du message au Guichet Unique via Kafka (désinscription usager TS)...");
+            guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
+        } else {
+            LOGGER.info("Pas de message à envoyer au Guichet Unique via Kafka car la désinscription émane du GU");
         }
 
     }
 
     /**
      * Constitution de la liste des demandes impactées (celles qui passent au statut ANNULEE) pour l'envoi de l'email
-     *
      */
-    private String[] getDemandesImpactees(List<DemandeDTO> demandes, List<Integer> demandesAPasserEnAnnulee, List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
+    private String[] getDemandesImpactees(List<DemandeDTO> demandes, List<Integer> demandesAPasserEnAnnulee,
+            List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
 
         StringBuilder demandesImpacteesIdentifiants = new StringBuilder();
         StringBuilder demandesImpacteesPk = new StringBuilder();
         boolean first = true;
         String statutAnnuleeName = demarchesDataProvider.getStatutAnnulee();
         for (DemandeDTO demande : demandes) {
-            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()).equals(StatutSimplifieEnum.TERMINEE);
+            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName())
+                    .equals(StatutSimplifieEnum.TERMINEE);
 
             if (!isFinal && !statutAnnuleeName.equals(demande.getDernierStatut().getName())) {
 
@@ -555,9 +554,11 @@ public abstract class AfApiService {
             }
         }
 
-        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty() ? "" :
-                "Par conséquent, les demandes suivantes sont passées à l'état \"Annulée\" :<br/>" + demandesImpacteesIdentifiants + "<br/><br/>";
-        return new String[]{demandesAnnuleesPhrase, demandesImpacteesPk.toString()};
+        String demandesAnnuleesPhrase = demandesImpacteesIdentifiants.isEmpty()
+                ? ""
+                : "Par conséquent, les demandes suivantes sont passées à l'état \"Annulée\" :<br/>"
+                        + demandesImpacteesIdentifiants + "<br/><br/>";
+        return new String[] { demandesAnnuleesPhrase, demandesImpacteesPk.toString() };
     }
 
     private void miseAJourDesVariablesBPM(List<DemandeDTO> demandesAPasserEnAnnuleeDTO, Integer usagerId) {
@@ -575,14 +576,16 @@ public abstract class AfApiService {
             }
 
             gouvBPM.annulerDemande(demande.getPkDemandes(), null, user,
-                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, demarchesDataProvider.getStatutAnnulee());
+                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null,
+                    demarchesDataProvider.getStatutAnnulee());
         }
     }
 
     private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourUsager());
-        emailInfo.setSubjectTemplateCode(demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager());
+        emailInfo.setSubjectTemplateCode(
+                demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager());
         emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
                 afBackUtils.getDemarcheInfos().getEmailFromNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
@@ -599,11 +602,11 @@ public abstract class AfApiService {
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
         emailInfo.setLangue(langue);
 
-        Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
+        Map<String, Object> model = mailTemplateModelProvider.getGenericModel();
         model.put("identifiant_usager", usager.getLogin());
         String cguProp = StringUtils.equals("fr", langue) ? "XAF_CGU_URL_FR" : "XAF_CGU_URL_EN";
         model.put("cguUrl", propertiesService.getProperty(cguProp).getValue());
-        String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, Locale.of(langue));
+        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, Locale.of(langue));
         model.put("titre", titre);
         try {
             mailService.sendMail(emailInfo, model);
@@ -615,19 +618,21 @@ public abstract class AfApiService {
     private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourAgents());
-        emailInfo.setSubjectTemplateCode(demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents());
+        emailInfo.setSubjectTemplateCode(
+                demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents());
         emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
                 afBackUtils.getDemarcheInfos().getEmailFromNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
                 afBackUtils.getDemarcheInfos().getEmailReplytoNom());
 
-        Set<User> destinataires = afBackUtils.getAgentsWithRoles(new String[]{"TRAITEMENT"});
+        Set<User> destinataires = afBackUtils.getAgentsWithRoles(new String[] { "TRAITEMENT" });
         if (destinataires != null && !destinataires.isEmpty()) {
             for (User dest : destinataires) {
                 if (dest.getMail() != null) {
                     emailInfo.addTo(dest.getMail(), dest.getNom());
                 } else {
-                    LOGGER.warn("Attention : l'utilisateur {} n'a pas d'adresse email associée. Pas d'envoi d'email.", dest.getMatricule());
+                    LOGGER.warn("Attention : l'utilisateur {} n'a pas d'adresse email associée. Pas d'envoi d'email.",
+                            dest.getMatricule());
                 }
             }
             LOGGER.info("Liste de destinataires calculée pour le rôle TRAITEMENT : {}", emailInfo.getTo());
@@ -635,7 +640,7 @@ public abstract class AfApiService {
 
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
         emailInfo.setLangue("fr");
-        Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
+        Map<String, Object> model = mailTemplateModelProvider.getGenericModel();
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
         model.put("demandesAnnuleesPhrase", demandesImpacteesPhrase);
         try {
@@ -669,15 +674,15 @@ public abstract class AfApiService {
         return propertiesService.getFrontProperties();
     }
 
-	public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
+    public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
         String[] statusArray = paramDTO.getStatusArray();
         if (statusArray.length == 0) {
             statusArray = demarchesDataProvider.getStatusMap().keySet().toArray(String[]::new);
         }
         return demandesService.getDemandesPageable(usagerID, statusArray, paramDTO);
-	}
+    }
 
-	public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
+    public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         BrouillonDTO brouillonDto = null;
         try {
 
@@ -696,9 +701,9 @@ public abstract class AfApiService {
             throw new DemarcheException("Erreur lors de la création d'un brouillon", e);
         }
         return brouillonDto;
-	}
+    }
 
-	public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         BrouillonDTO brouillonDto = null;
         try {
 
@@ -710,23 +715,23 @@ public abstract class AfApiService {
             throw new DemarcheException("Erreur lors de la mise à jour d'un brouillon", e);
         }
         return brouillonDto;
-	}
+    }
 
-	public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-		return brouillonsService.getBrouillons(usagerId);
-	}
+    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
+        return brouillonsService.getBrouillons(usagerId);
+    }
 
-	public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
-		return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
-	}
+    public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
+        return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
+    }
 
-	public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
-		return brouillonsService.getBrouillon(pkBrouillons, usagerId);
-	}
+    public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
+        return brouillonsService.getBrouillon(pkBrouillons, usagerId);
+    }
 
-	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
-		brouillonsService.deleteBrouillon(pkBrouillons, usagerId);
-	}
+    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
+        brouillonsService.deleteBrouillon(pkBrouillons, usagerId);
+    }
 
     @Transactional
     public JsonNode creerConfig(JsonNode config) {

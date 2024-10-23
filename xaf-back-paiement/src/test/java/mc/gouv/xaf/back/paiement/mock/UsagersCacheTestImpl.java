@@ -9,6 +9,7 @@ import java.util.Map;
 
 @Component
 public class UsagersCacheTestImpl implements UsagersCache {
+
     @Override
     public Map<Integer, GichuniUsagerDTO> getAll() {
         return null;

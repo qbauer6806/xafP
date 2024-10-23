@@ -19,9 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Controller pour la page /demandes
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Controller
 @RequestMapping("/demandes")

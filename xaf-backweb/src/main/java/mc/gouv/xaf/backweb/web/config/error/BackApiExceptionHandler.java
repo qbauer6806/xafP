@@ -38,6 +38,7 @@ import mc.gouv.xapi.error.exception.client.NotAcceptableWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import mc.gouv.xapi.error.exception.client.UnsupportedMediaTypeWebException;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
+
 @ControllerAdvice(annotations = GouvRestController.class)
 public class BackApiExceptionHandler {
 
@@ -128,20 +129,24 @@ public class BackApiExceptionHandler {
         return errorsDTO;
 
     }
-    @ExceptionHandler({DemarcheException.class, DemarchesServiceException.class})
-    public @ResponseBody ErrorsDTO handleDemarcheException(HttpServletRequest req, HttpServletResponse res, Exception ex) {
+
+    @ExceptionHandler({ DemarcheException.class, DemarchesServiceException.class })
+    public @ResponseBody ErrorsDTO handleDemarcheException(HttpServletRequest req, HttpServletResponse res,
+            Exception ex) {
         LOGGER.error(ERROR_MESSAGE, req.getPathInfo(), ex);
         return handleMetierWebException(res, new InternalErrorWebException(ex));
     }
 
     /**
-     * Pour les toutes les exceptions non gérées, on retourne un message générique pour éviter d'afficher des informations techniques
+     * Pour les toutes les exceptions non gérées, on retourne un message générique pour éviter d'afficher des
+     * informations techniques
+     *
      * @param req
      * @param res
      * @param ex
      * @return
      */
-    @ExceptionHandler({Exception.class, RuntimeException.class})
+    @ExceptionHandler({ Exception.class, RuntimeException.class })
     public @ResponseBody ErrorsDTO handleException(HttpServletRequest req, HttpServletResponse res, Exception ex) {
         LOGGER.error(ERROR_MESSAGE, req.getPathInfo(), ex);
         var errorsDTO = new ErrorsDTO();

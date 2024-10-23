@@ -13,11 +13,9 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * Classe utilitaire pour traiter les fichiers
- * 
- * @author asouabni.ext
  *
+ * @author asouabni.ext
  */
 @Component
 public class FileUtilsResid {
@@ -25,7 +23,7 @@ public class FileUtilsResid {
     public static List<DemandeFileDTO> getAllFileDemande(DemandeDTO demandeDTO) {
         List<DemandeFileDTO> files = new ArrayList<>();
         // Fichiers de la demande
-        if(demandeDTO.getFichiers() != null) {
+        if (demandeDTO.getFichiers() != null) {
             files.addAll(Arrays.asList(demandeDTO.getFichiers()));
         }
 
@@ -33,7 +31,8 @@ public class FileUtilsResid {
         if (demandeDTO.getComplements() != null) {
             for (DemandeComplementsDTO compl : demandeDTO.getComplements()) {
                 if (compl.getReponse() != null && compl.getReponse().getFichiers() != null) {
-                    files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(Arrays.asList(compl.getReponse().getFichiers())));
+                    files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(
+                            Arrays.asList(compl.getReponse().getFichiers())));
                 }
             }
         }
@@ -43,7 +42,7 @@ public class FileUtilsResid {
     public static Map<Integer, DemandeFileDTO> getAllFilesAEnvoyerResid(DemandeDTO demandeDTO) {
         Map<Integer, DemandeFileDTO> filesResid = new HashMap<>();
         List<DemandeFileDTO> files = getAllFileDemande(demandeDTO);
-        for (int i=0; i<files.size(); i++ ) {
+        for (int i = 0; i < files.size(); i++) {
             DemandeFileDTO fileDTO = files.get(i);
             // Check si non applicable côté TS
             if (!isTransmiseAResid(fileDTO)) {
@@ -52,21 +51,22 @@ public class FileUtilsResid {
         }
         return filesResid;
     }
+
     public static String removeSpecialChars(String filename) {
         String[] filenameExtensionSplit = filename.split("\\.");
-        String extension = filenameExtensionSplit[filenameExtensionSplit.length-1];
+        String extension = filenameExtensionSplit[filenameExtensionSplit.length - 1];
         // On supprime l'exension du split
-        String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length-1);
+        String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length - 1);
         String filenameConcat = String.join("", filenameSplit);
         return filenameConcat.replaceAll("\\W", "_") + "." + extension;
     }
-    
-	public static boolean isTransmiseAResid(DemandeFileDTO fileDTO) {
-		return (fileDTO.getTypedoc() != null
-				&& (ResidPieceJustificativeTypeEnum.NON_APPLICABLE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.MANDATAIRE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.AUTRE.name().equals(fileDTO.getTypedoc())));
 
-	}
+    public static boolean isTransmiseAResid(DemandeFileDTO fileDTO) {
+        return (fileDTO.getTypedoc() != null && (
+                ResidPieceJustificativeTypeEnum.NON_APPLICABLE.name().equals(fileDTO.getTypedoc())
+                        || ResidPieceJustificativeTypeEnum.MANDATAIRE.name().equals(fileDTO.getTypedoc())
+                        || ResidPieceJustificativeTypeEnum.AUTRE.name().equals(fileDTO.getTypedoc())));
+
+    }
 
 }

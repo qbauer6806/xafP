@@ -17,20 +17,19 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Controller pour la page /gestioncourrier
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Controller
 @RequestMapping("/gestion/courriers")
 public class GestionCourrierController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionCourrierController.class);
-    
+
     @Autowired
     private DemandesCourriersService demandesCourrierService;
 
-    @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping
     public ModelAndView form() {
         LOGGER.info("======================= Appel de la page /gestion/courriers");
@@ -39,12 +38,13 @@ public class GestionCourrierController extends AbstractController {
         return mav;
     }
 
-    @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @PostMapping(value = "/print")
     public ModelAndView print(@RequestParam Integer demandeId, @RequestParam Integer courrierId,
-                              @RequestParam(required = false) String refCourrier) {
+            @RequestParam(required = false) String refCourrier) {
 
-        LOGGER.info("======================= Appel de la page /gestion/courriers/print ({}, {})", demandeId, courrierId);
+        LOGGER.info("======================= Appel de la page /gestion/courriers/print ({}, {})", demandeId,
+                courrierId);
 
         LOGGER.info("Appels à DEM pour mettre à jour la référence courrier...");
         DemandeCourrierDTO courrier = demandesCourrierService.getCourrier(demandeId, courrierId);

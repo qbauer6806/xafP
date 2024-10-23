@@ -6,19 +6,18 @@ import lombok.ToString;
 
 /**
  * Représente un groupe du BPM du gouvernement
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @ToString
 @Setter
 @Getter
 public class GouvBPMGroup {
-    
+
     private String id;
-    
+
     private String name;
-    
+
     private String type;
-    
+
 }

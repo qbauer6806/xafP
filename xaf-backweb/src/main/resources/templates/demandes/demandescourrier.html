@@ -1,110 +1,109 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
-	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 
 <head>
-<meta charset="utf-8" />
-<meta http-equiv="x-ua-compatible" content="ie=edge" />
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-<title th:text="${nomDemarche}"></title>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title th:text="${nomDemarche}"></title>
 
-<!-- Import FONTS -->
-<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
 
-<!-- Import CSS -->
-<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-	rel="stylesheet" type="text/css" />
-<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
-	rel="stylesheet" />
-<link
-	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
-	rel="stylesheet" />
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+  <link
+      th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
+      rel="stylesheet"/>
 
-<link rel="shortcut icon" type="image/x-icon"
-	th:href="@{/img/favicon.ico}" />
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
 
-<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
 
 </head>
 
 <body th:with="pageDemandesActive='active'">
 
-	<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-	<div id="wrapper">
+<div id="wrapper">
 
-		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-		<!-- DEBUT CONTENU -->
-		<div id="page-content-wrapper">
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
 
-			<div class="breadcrumbContent">
-				<div class="breadcrumb">
-					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp;
-					<a id="ariane1" th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
-					&gt; Nouvelle demande
-				</div>
-				<div class="triangleTopright"></div>
-			</div>
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+        <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp;
+        <a id="ariane1" th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
+        &gt; Nouvelle demande
+      </div>
+      <div class="triangleTopright"></div>
+    </div>
 
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-xs-12">
-						<h1>Nouvelle demande</h1>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>Nouvelle demande</h1>
 
-						<span class="titre">Sélection d'un usager courrier</span>
-						<div class="panel panel-simple">
+          <span class="titre">Sélection d'un usager courrier</span>
+          <div class="panel panel-simple">
 
 
 							<span>Sélectionner un usager après avoir saisi les
 								premières lettres ou cliquez sur "Créer un usager courrier"</span>
 
-							<div class="form-group">
-								<label for="autocomplete">Nom ou raison sociale</label> <input
-									class="form-control" id="autocomplete" type="text"
-									th:value="${usagerInput}" name="usagerInput" />
-							</div>
+            <div class="form-group">
+              <label for="autocomplete">Nom ou raison sociale</label> <input
+                class="form-control" id="autocomplete" type="text"
+                th:value="${usagerInput}" name="usagerInput"/>
+            </div>
 
-							<div align="right">
-								<a id="btnCreerUsager" th:href="@{/gestion/usagers/creer}"
-									class="btn btn-action ripple-effect"> <span
-									class="icon-action_plus"></span>&nbsp;&nbsp;Créer un usager
-									courrier
-								</a>
-							</div>
-						</div>
+            <div align="right">
+              <a id="btnCreerUsager" th:href="@{/gestion/usagers/creer}"
+                 class="btn btn-action ripple-effect"> <span
+                  class="icon-action_plus"></span>&nbsp;&nbsp;Créer un usager
+                courrier
+              </a>
+            </div>
+          </div>
 
-					</div>
-				</div>
-			</div>
+        </div>
+      </div>
+    </div>
 
-			<!-- FIN CONTENU -->
+    <!-- FIN CONTENU -->
 
-		</div>
-	</div>
+  </div>
+</div>
 
 
-	<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
-	<script th:inline="javascript">
-	
-		$('#autocomplete').autocomplete({
-			serviceUrl: APP.getContextPath()+'/ws/usagersCourrierAutocomplete/usagers',
-		    onSelect: function (suggestion) {
-		    	window.location.href = APP.getContextPath()+'/demandes/courriers/creer/' + suggestion.data;
-		    }
-		});
-		
-		
+<script th:inline="javascript">
 
-	</script>
+  $('#autocomplete').autocomplete({
+    serviceUrl: APP.getContextPath() + '/ws/usagersCourrierAutocomplete/usagers',
+    onSelect: function (suggestion) {
+      window.location.href = APP.getContextPath() + '/demandes/courriers/creer/' + suggestion.data;
+    }
+  });
+
+
+</script>
 
 </body>
 </html>

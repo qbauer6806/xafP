@@ -44,7 +44,8 @@ class ResidInitialDemandeServiceImplTest {
     }
 
     @Test
-    void testGetInitialDemandeWhenParamIsEmptyThenReturnNOK() throws ParseException, JsonProcessingException, ResidHttpResponseException {
+    void testGetInitialDemandeWhenParamIsEmptyThenReturnNOK()
+            throws ParseException, JsonProcessingException, ResidHttpResponseException {
 
         // Call the method to test
         JsonNode result = residInitialDemandeService.getInitialDemande(1, new HashMap<>());
@@ -52,20 +53,18 @@ class ResidInitialDemandeServiceImplTest {
         // Assert the result or perform other necessary validations
         assertEquals(1, result.size());
         assertEquals("NOK", result.get("statut").asText());
-        verify(residApiService, Mockito.never())
-                .getUsagerDln1f(any(), any(), any(), any());
+        verify(residApiService, Mockito.never()).getUsagerDln1f(any(), any(), any(), any());
     }
+
     @Test
-    void testGetInitialDemandeWhenTokenIsEmptyThenThrowException() throws ParseException, JsonProcessingException{
+    void testGetInitialDemandeWhenTokenIsEmptyThenThrowException() throws ParseException, JsonProcessingException {
 
         when(residPropertiesResolver.getResidApiJwt()).thenReturn(null);
 
-        assertThrows(
-                ResidHttpResponseException.class,
-                () -> {
-                    // When
-                    residInitialDemandeService.getInitialDemande(1, getParams());
-                });
+        assertThrows(ResidHttpResponseException.class, () -> {
+            // When
+            residInitialDemandeService.getInitialDemande(1, getParams());
+        });
 
         verify(residPropertiesResolver, Mockito.never()).getResidApiUrlV2();
         verify(residApiService, Mockito.never()).getUsagerDln1f(any(), any(), any(), any());
@@ -73,30 +72,27 @@ class ResidInitialDemandeServiceImplTest {
     }
 
     @Test
-    void testGetInitialDemandeWhenUrlResidIsEmptyThenThrowException() throws ParseException, JsonProcessingException{
+    void testGetInitialDemandeWhenUrlResidIsEmptyThenThrowException() throws ParseException, JsonProcessingException {
 
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
         when(residPropertiesResolver.getResidApiUrlV2()).thenReturn(null);
 
-        assertThrows(
-                ResidHttpResponseException.class,
-                () -> {
-                    // When
-                    residInitialDemandeService.getInitialDemande(1, getParams());
-                });
+        assertThrows(ResidHttpResponseException.class, () -> {
+            // When
+            residInitialDemandeService.getInitialDemande(1, getParams());
+        });
 
         verify(residApiService, Mockito.never()).getUsagerDln1f(any(), any(), any(), any());
         verify(residInitialDemandeMapper, Mockito.never()).mapperDonneesResid(any(), any(), any());
     }
 
     @Test
-    void testGetInitialDemandeWhenResidReturnNullThenReturnNOK() throws ParseException, JsonProcessingException,
-            ResidHttpResponseException {
+    void testGetInitialDemandeWhenResidReturnNullThenReturnNOK()
+            throws ParseException, JsonProcessingException, ResidHttpResponseException {
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
         when(residPropertiesResolver.getResidApiUrlV2()).thenReturn("mocked_url");
         // Mocking ResidApiService response
-        when(residApiService.getUsagerDln1f(any(), any(), any(), any()))
-                .thenReturn(null);
+        when(residApiService.getUsagerDln1f(any(), any(), any(), any())).thenReturn(null);
 
         // Prepare parameters for the method
         Map<String, String[]> params = getParams();
@@ -111,7 +107,8 @@ class ResidInitialDemandeServiceImplTest {
     }
 
     @Test
-    void testGetInitialDemandeWhenResidIsOKThenReturnStatusOK() throws ParseException, JsonProcessingException, ResidHttpResponseException {
+    void testGetInitialDemandeWhenResidIsOKThenReturnStatusOK()
+            throws ParseException, JsonProcessingException, ResidHttpResponseException {
         // Mocking external services
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
         when(residPropertiesResolver.getResidApiUrlV2()).thenReturn("mocked_url");
@@ -131,15 +128,18 @@ class ResidInitialDemandeServiceImplTest {
 
     private Map<String, String[]> getParams() {
         Map<String, String[]> params = new HashMap<>();
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHDATE, new String[]{"1990-01-01T00:00:00+01:00"});
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_FAMILYNAME, new String[]{"FAMILYNAME"});
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHDATE,
+                new String[] { "1990-01-01T00:00:00+01:00" });
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_FAMILYNAME, new String[] { "FAMILYNAME" });
 
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHNAME, new String[]{"BIRTHNAME"});
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_GIVENNAME, new String[]{"GIVENNAME"});
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY, new String[]{"BIRTHPLACECITY"});
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY, new String[]{"BIRTHPLACECOUNTRY"});
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_USAGER_INFO_EMAIL, new String[]{"EMAIL"});
-        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_USAGER_INFO_TITRE, new String[]{"TITRE"});
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHNAME, new String[] { "BIRTHNAME" });
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_GIVENNAME, new String[] { "GIVENNAME" });
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY,
+                new String[] { "BIRTHPLACECITY" });
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY,
+                new String[] { "BIRTHPLACECOUNTRY" });
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_USAGER_INFO_EMAIL, new String[] { "EMAIL" });
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_USAGER_INFO_TITRE, new String[] { "TITRE" });
 
         return params;
     }

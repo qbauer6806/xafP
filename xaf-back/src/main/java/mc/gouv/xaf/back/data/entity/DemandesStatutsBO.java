@@ -17,11 +17,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.STATUTS
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -71,7 +69,8 @@ public class DemandesStatutsBO {
     @Override
     public String toString() {
         return "DemandesStatutsBO [libelle=" + libelle + ", date=" + date + ", agentId=" + agentId + ", usagerId="
-                + usagerId + ", codeMotif=" + codeMotif + ", commentaire=" + commentaire+ ", textAEnvoyer=" + texteAEnvoyer + "]";
+                + usagerId + ", codeMotif=" + codeMotif + ", commentaire=" + commentaire + ", textAEnvoyer="
+                + texteAEnvoyer + "]";
     }
 
 }

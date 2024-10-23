@@ -6,10 +6,10 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 
 /**
  * @author qdeme
- *
  */
 public interface DemandesComplementsRepository extends CrudRepository<DemandesComplementsBO, Integer> {
 
-    DemandesComplementsBO findByPkDemandesComplementsAndFkDemandesPkDemandes(Integer pkDemandesComplements, Integer pkDemandes);
-    
+    DemandesComplementsBO findByPkDemandesComplementsAndFkDemandesPkDemandes(Integer pkDemandesComplements,
+            Integer pkDemandes);
+
 }

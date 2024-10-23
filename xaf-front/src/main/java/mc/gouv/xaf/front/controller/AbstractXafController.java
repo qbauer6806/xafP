@@ -21,8 +21,9 @@ public class AbstractXafController {
     }
 
     protected int getCodeErreur(Exception exception) {
-        return exception instanceof WebException webException ? webException.getHttpStatus() :
-                HttpStatus.INTERNAL_SERVER_ERROR.value();
+        return exception instanceof WebException webException
+                ? webException.getHttpStatus()
+                : HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
 }

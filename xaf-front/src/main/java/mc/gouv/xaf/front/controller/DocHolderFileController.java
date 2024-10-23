@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/doc-holder/file")
 @MultipartConfig
 public class DocHolderFileController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileController.class);
     private static final String SERVICE_URL = "/file";
     public static final String VERIFICATION_USAGER_CONNECTE = "Vérification usager connecté";
@@ -56,7 +57,6 @@ public class DocHolderFileController extends AbstractXafController {
     public static final String IMPOSSIBLE_MAJ = "Impossible de mettre à jour la date de consentement TS du porte-documents";
     public static final String VERIFICATION = "Vérification des paramètres envoyés";
     public static final String FILENAME = "filename";
-
 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
@@ -70,7 +70,6 @@ public class DocHolderFileController extends AbstractXafController {
     @Autowired
     private DocHolderUtils docHolderUtils;
 
-
     /**
      * Méthode pour l'opération <b>getFile</b>
      */
@@ -81,13 +80,15 @@ public class DocHolderFileController extends AbstractXafController {
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         LOGGER.info("Récupération du paramètre 'filename' dans l'url");
         String filename = req.getParameter(FILENAME);
         if (StringUtils.isEmpty(filename)) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         try {
@@ -95,13 +96,16 @@ public class DocHolderFileController extends AbstractXafController {
             uriBuilder.addParameter(FILENAME, filename);
 
             LOGGER.info("Envoi de la requête porte-document");
-            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) fileControllerUtils.downloadFromDocHolder(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) fileControllerUtils.downloadFromDocHolder(
+                    frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL, filename,
+                    usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Constitution de la réponse pour retour au client");
             int statusCode = serviceResponse.getCode();
             ResponseEntity.BodyBuilder response = ResponseEntity.status(serviceResponse.getCode());
             if (statusCode == 200) {
-                Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
+                Header contentDispositionHeader = serviceResponse.getFirstHeader(
+                        RequestConstant.CONTENT_DISPOSITION_HEADER);
 
                 LOGGER.info(MAJ);
                 if (!docHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
@@ -116,15 +120,16 @@ public class DocHolderFileController extends AbstractXafController {
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (URISyntaxException e) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         } catch (UnsupportedOperationException | IOException e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, "Erreur interne");
         }
     }
 
     /**
-     * Méthode pour l'opération <b>saveFile</b>
-     * Elle permet de sauvegarder un fichier dans le porte-document de l'utilisateur connecté
+     * Méthode pour l'opération <b>saveFile</b> Elle permet de sauvegarder un fichier dans le porte-document de
+     * l'utilisateur connecté
      */
     @PostMapping
     protected ResponseEntity doPost(HttpServletRequest req) throws IOException {
@@ -135,7 +140,8 @@ public class DocHolderFileController extends AbstractXafController {
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         LOGGER.info(VERIFICATION);
@@ -144,30 +150,30 @@ public class DocHolderFileController extends AbstractXafController {
             filePostDTO = mapper.readValue(req.getInputStream(), DocHolderFilePostDTO.class);
         } catch (IOException ioe) {
             LOGGER.error("Erreur lors de la déserialisation de la requête", ioe);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
-        if (StringUtils.isBlank(filePostDTO.getUrl()) || StringUtils.isBlank(filePostDTO.getPreferredName()) || StringUtils.isBlank(filePostDTO.getTypedoc())) {
+        if (StringUtils.isBlank(filePostDTO.getUrl()) || StringUtils.isBlank(filePostDTO.getPreferredName())
+                || StringUtils.isBlank(filePostDTO.getTypedoc())) {
             LOGGER.error("Champs manquant dans la requête");
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         LOGGER.info("Téléchargement du fichier depuis FILE, url = " + filePostDTO.getUrl());
         try {
-            ResponseEntity<InputStream> responseFile = fileControllerUtils.downloadFile(filePostDTO.getUrl(), false, usagerInfosDTO.getAccessId());
+            ResponseEntity<InputStream> responseFile = fileControllerUtils.downloadFile(filePostDTO.getUrl(), false,
+                    usagerInfosDTO.getAccessId());
             try (InputStream filestream = responseFile.getBody()) {
                 if (responseFile.getStatusCode() == HttpStatus.OK && filestream != null) {
                     LOGGER.info("Téléchargement réussi");
                     String filename = fileControllerUtils.getFilename(filePostDTO.getUrl());
                     LOGGER.info("Upload du fichier vers PorteDocument");
                     ClassicHttpResponse uploadResponse = (ClassicHttpResponse) fileControllerUtils.uploadToDocHolder(
-                            frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL,
-                            filestream,
-                            usagerInfosDTO.getTokenInfo().getAccessToken(),
-                            filename,
-                            filePostDTO.getTypedoc(),
-                            filePostDTO.getPreferredName(),
-                            filePostDTO.getEndOfValidity());
+                            frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL, filestream,
+                            usagerInfosDTO.getTokenInfo().getAccessToken(), filename, filePostDTO.getTypedoc(),
+                            filePostDTO.getPreferredName(), filePostDTO.getEndOfValidity());
 
                     int statusCode = uploadResponse.getCode();
 
@@ -179,7 +185,9 @@ public class DocHolderFileController extends AbstractXafController {
                     }
                     LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
 
-                    return ResponseEntity.status(statusCode).body(new String(uploadResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+                    return ResponseEntity.status(statusCode)
+                            .body(new String(uploadResponse.getEntity().getContent().readAllBytes(),
+                                    StandardCharsets.UTF_8));
                 } else {
                     LOGGER.info("Erreur sur le téléchargement du fichier");
                     return ResponseEntity.internalServerError().build();
@@ -203,7 +211,8 @@ public class DocHolderFileController extends AbstractXafController {
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         LOGGER.info(VERIFICATION);
@@ -212,22 +221,26 @@ public class DocHolderFileController extends AbstractXafController {
             fileDTO = mapper.readValue(req.getInputStream(), DocHolderFileDTO.class);
         } catch (IOException e) {
             LOGGER.error("Impossible de déserialiser la requête", e);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         if (fileDTO == null || StringUtils.isEmpty(fileDTO.getFilename())) {
             LOGGER.error("L'objet de requête est null");
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         LOGGER.info("Préparation de la requête");
         HttpClient client = HttpClientBuilder.create().build();
 
-        HttpDelete serviceRequest = new HttpDelete(URI.create(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL));
+        HttpDelete serviceRequest = new HttpDelete(
+                URI.create(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL));
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, fileDTO.getFilename())), StandardCharsets.UTF_8);
+            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, fileDTO.getFilename())),
+                    StandardCharsets.UTF_8);
             serviceRequest.setEntity(entity);
             serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
 
@@ -243,7 +256,8 @@ public class DocHolderFileController extends AbstractXafController {
             }
 
             LOGGER.info("====================== Fin {} doDelete()", req.getServletPath());
-            return ResponseEntity.status(statusCode).body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+            return ResponseEntity.status(statusCode)
+                    .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (UnsupportedOperationException | IOException e) {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents deleteFile", e);
@@ -264,7 +278,8 @@ public class DocHolderFileController extends AbstractXafController {
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         LOGGER.info(VERIFICATION);
@@ -273,19 +288,23 @@ public class DocHolderFileController extends AbstractXafController {
             fileUpdateDTO = mapper.readValue(req.getInputStream(), DocHolderFileUpdateDTO.class);
         } catch (IOException e) {
             LOGGER.error("Impossible de déserialiser la requête", e);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         if (fileUpdateDTO == null) {
             LOGGER.error("L'objet de requête est null");
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         try {
             LOGGER.info("Préparation de la requête");
             Request serviceRequest = Request.patch(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL);
-            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
-            serviceRequest.bodyString(new ObjectMapper().writeValueAsString(fileUpdateDTO), ContentType.APPLICATION_JSON);
+            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION,
+                    "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
+            serviceRequest.bodyString(new ObjectMapper().writeValueAsString(fileUpdateDTO),
+                    ContentType.APPLICATION_JSON);
 
             LOGGER.info("Envoi de la requête");
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
@@ -298,7 +317,8 @@ public class DocHolderFileController extends AbstractXafController {
                 }
             }
             LOGGER.info("====================== Fin {} doPatch()", req.getServletPath());
-            return ResponseEntity.status(statusCode).body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+            return ResponseEntity.status(statusCode)
+                    .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (JsonProcessingException jpe) {
             LOGGER.info("Erreur lors de la conversion des paramètres en json");

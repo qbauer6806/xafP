@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Controller pour les fonctionnalites (onglets) Indicateurs
- * 
+ *
  * @author tverdoyan
  */
 @Controller

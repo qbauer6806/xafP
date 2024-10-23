@@ -58,8 +58,9 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
     }
 
     /**
-     * Compute the totals for each status by canal
-     * This is a post computing method and should be called when the entire map is already populated
+     * Compute the totals for each status by canal This is a post computing method and should be called when the entire
+     * map is already populated
+     *
      * @param map
      * @param totalByStatus
      */

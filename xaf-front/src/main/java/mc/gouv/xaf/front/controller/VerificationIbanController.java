@@ -54,7 +54,7 @@ public class VerificationIbanController extends AbstractXafController {
 
         try {
             serviceRequest.bodyStream(request.getInputStream());
-            ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
             ResponseEntity.BodyBuilder response = ResponseEntity.status(statusCode);
 

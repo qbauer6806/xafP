@@ -1,18 +1,16 @@
 package mc.gouv.xaf.caching;
 
 /**
- * 
  * Donnée de test
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class GouvCacheData {
 
     private Integer id;
-    
+
     private String texte;
-    
+
     public GouvCacheData(Integer id, String texte) {
         this.id = id;
         this.texte = texte;
@@ -21,7 +19,7 @@ public class GouvCacheData {
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -29,7 +27,7 @@ public class GouvCacheData {
     public String getTexte() {
         return texte;
     }
-    
+
     public void setTexte(String texte) {
         this.texte = texte;
     }
@@ -45,23 +43,30 @@ public class GouvCacheData {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GouvCacheData other = (GouvCacheData) obj;
         if (id == null) {
-            if (other.id != null)
+            if (other.id != null) {
                 return false;
-        } else if (!id.equals(other.id))
+            }
+        } else if (!id.equals(other.id)) {
             return false;
+        }
         if (texte == null) {
-            if (other.texte != null)
+            if (other.texte != null) {
                 return false;
-        } else if (!texte.equals(other.texte))
+            }
+        } else if (!texte.equals(other.texte)) {
             return false;
+        }
         return true;
     }
 
@@ -69,5 +74,5 @@ public class GouvCacheData {
     public String toString() {
         return "GouvCacheData [id=" + id + ", texte=" + texte + "]";
     }
-    
+
 }

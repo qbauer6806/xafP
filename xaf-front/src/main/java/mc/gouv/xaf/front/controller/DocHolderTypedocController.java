@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/doc-holder/typedoc")
 public class DocHolderTypedocController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderTypedocController.class);
     private static final String SERVICE_URL = "/typedoc";
 
@@ -35,8 +36,8 @@ public class DocHolderTypedocController extends AbstractXafController {
     private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
 
     /**
-     * Méthode pour l'opération <b>getDocTypedoc</b>
-     * Elle permet de récupérer toutes les catégories de documents disponibles pour le porte-documents
+     * Méthode pour l'opération <b>getDocTypedoc</b> Elle permet de récupérer toutes les catégories de documents
+     * disponibles pour le porte-documents
      */
     @GetMapping
     protected ResponseEntity doGet(HttpServletRequest req) throws ServletException, IOException {
@@ -44,14 +45,15 @@ public class DocHolderTypedocController extends AbstractXafController {
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.SC_UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         Request serviceRequest = Request.get(frontGouvPropertiesResolver.getPorteDocUrl() + SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
 
             LOGGER.info("====================== Fin {} doGet()", req.getServletPath());

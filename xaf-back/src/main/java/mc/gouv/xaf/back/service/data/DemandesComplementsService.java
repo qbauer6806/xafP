@@ -41,7 +41,8 @@ public interface DemandesComplementsService {
      *
      * @return La demande d'informations complémentaires modifiée
      */
-    DemandeComplementsDTO updateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
+    DemandeComplementsDTO updateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
+            DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de supprimer une demande d'informations complémentaires à partir de l'UsagerID
@@ -58,28 +59,39 @@ public interface DemandesComplementsService {
      *
      * @return La demande d'informations complémentaires sauvegardée ou mise à jour
      */
-    DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
+    DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
+            DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de répondre à une demande d'informations complémentaires
      *
      * @return La demande d'informations complémentaires mise à jour
      */
-    DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande, Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse);
+    DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
+            DemandeComplementsReponseDTO demandeComplementsReponse);
 
     /**
      * Permet de dupliquer les demandes complémentaires d'une demande à l'autre
-     * @param demandeBo L'objet Bo de la demande à dupliquer
-     * @param newDemandeBo Le nouvel objet BO
+     *
+     * @param demandeBo
+     *         L'objet Bo de la demande à dupliquer
+     * @param newDemandeBo
+     *         Le nouvel objet BO
      */
     void clonerDemandeComplements(DemandeBO demandeBo, DemandeBO newDemandeBo);
 
     /**
      * Suppression des fichiers complémentaires de la demande
-     * @param demandeDTO La demande à supprimer
-     * @param statutCheck Flag permettant de savoir si on fait un check des statuts ou pas
-     * @param statuts Liste des statuts à check
-     * @param jours nombre de jour avant la suppression
+     *
+     * @param demandeDTO
+     *         La demande à supprimer
+     * @param statutCheck
+     *         Flag permettant de savoir si on fait un check des statuts ou pas
+     * @param statuts
+     *         Liste des statuts à check
+     * @param jours
+     *         nombre de jour avant la suppression
      */
-    void suppressionDesFichiersDesDemandesComplementaires(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours);
+    void suppressionDesFichiersDesDemandesComplementaires(DemandeDTO demandeDTO, boolean statutCheck,
+            List<String> statuts, int jours);
 }

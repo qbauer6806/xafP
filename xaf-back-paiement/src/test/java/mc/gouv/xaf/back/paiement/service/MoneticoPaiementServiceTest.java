@@ -90,10 +90,10 @@ class MoneticoPaiementServiceTest {
     @Autowired
     private AccessRepository accessRepository;
 
-  @Autowired
-  private DemandesConfigRepository demandesConfigRepository;
+    @Autowired
+    private DemandesConfigRepository demandesConfigRepository;
 
-  @Autowired
+    @Autowired
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
     @Autowired
@@ -135,7 +135,8 @@ class MoneticoPaiementServiceTest {
         demandesDataBO.setValue("123456");
         demandesDataBOS.add(demandesDataBO);
         try {
-            demandeBO.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
+            demandeBO.setContenu(mapper.readTree(
+                    "{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -144,17 +145,17 @@ class MoneticoPaiementServiceTest {
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
         demandeBO.setData(demandesDataBOS);
-      DemandeConfigBO configBO = new DemandeConfigBO();
-      configBO.setBuildId("1695305061010");
-      try {
-        configBO.setContenu(mapper.readTree("{}"));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      demandesConfigRepository.save(configBO);
-      demandeBO.setConfig(configBO);
+        DemandeConfigBO configBO = new DemandeConfigBO();
+        configBO.setBuildId("1695305061010");
+        try {
+            configBO.setContenu(mapper.readTree("{}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        demandesConfigRepository.save(configBO);
+        demandeBO.setConfig(configBO);
 
-      demandeBO = demandesRepository.save(demandeBO);
+        demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
         demandeBO2.setFkAccess(accessBO);
@@ -164,7 +165,8 @@ class MoneticoPaiementServiceTest {
         demandesDataBO2.setValue("123456");
         demandesDataBOS2.add(demandesDataBO2);
         try {
-            demandeBO2.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
+            demandeBO2.setContenu(mapper.readTree(
+                    "{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -173,15 +175,15 @@ class MoneticoPaiementServiceTest {
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());
         demandeBO2.setData(demandesDataBOS2);
-      DemandeConfigBO configBO2 = new DemandeConfigBO();
-      configBO2.setBuildId("1695305061010");
-      try {
-        configBO2.setContenu(mapper.readTree("{}"));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      demandesConfigRepository.save(configBO2);
-      demandeBO2.setConfig(configBO2);
+        DemandeConfigBO configBO2 = new DemandeConfigBO();
+        configBO2.setBuildId("1695305061010");
+        try {
+            configBO2.setContenu(mapper.readTree("{}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        demandesConfigRepository.save(configBO2);
+        demandeBO2.setConfig(configBO2);
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
@@ -218,7 +220,7 @@ class MoneticoPaiementServiceTest {
 
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
         Paiement paiement = new Paiement();
-        paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});
+        paiement.setTableau(new Tableau[] { new Tableau("objet", "80") });
         contenuTestDTO.setPaiement(paiement);
         contenuTestDTO.setTitre(new Titre("123456"));
         ObjectMapper mapper = new ObjectMapper();
@@ -248,20 +250,21 @@ class MoneticoPaiementServiceTest {
         dernierStatut.setDate(new Date());
         demandesStatutsRepository.save(dernierStatut);
         demandeBO.setDernierStatut(dernierStatut);
-      DemandeConfigBO configBO = new DemandeConfigBO();
-      configBO.setBuildId("1695305061010");
-      try {
-        configBO.setContenu(mapper.readTree("{}"));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      demandesConfigRepository.save(configBO);
-      demandeBO.setConfig(configBO);
+        DemandeConfigBO configBO = new DemandeConfigBO();
+        configBO.setBuildId("1695305061010");
+        try {
+            configBO.setContenu(mapper.readTree("{}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        demandesConfigRepository.save(configBO);
+        demandeBO.setConfig(configBO);
         demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
         try {
-            demandeBO2.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
+            demandeBO2.setContenu(mapper.readTree(
+                    "{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -280,25 +283,24 @@ class MoneticoPaiementServiceTest {
         dernierStatut2.setDate(new Date());
         demandesStatutsRepository.save(dernierStatut2);
         demandeBO2.setDernierStatut(dernierStatut2);
-      DemandeConfigBO configBO2 = new DemandeConfigBO();
-      configBO2.setBuildId("1695305061010");
-      try {
-        configBO2.setContenu(mapper.readTree("{}"));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      demandesConfigRepository.save(configBO2);
-      demandeBO2.setConfig(configBO2);
+        DemandeConfigBO configBO2 = new DemandeConfigBO();
+        configBO2.setBuildId("1695305061010");
+        try {
+            configBO2.setContenu(mapper.readTree("{}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        demandesConfigRepository.save(configBO2);
+        demandeBO2.setConfig(configBO2);
 
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
-        demandesRepository.findAll().stream()
-                .map(DemandeBO::getDernierStatut)
-                .map(DemandesStatutsBO::getLibelle)
-                .toList().forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle)
+                .toList()
+                .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
 
         String status = "paiement";
         MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
@@ -311,13 +313,14 @@ class MoneticoPaiementServiceTest {
 
         TimeUnit.SECONDS.sleep(1);
 
-        Optional<MoyenPaiementBO> optionalMoyenPaiementBO = moyenPaiementRepository.findById(paiementDTO.getReference());
+        Optional<MoyenPaiementBO> optionalMoyenPaiementBO = moyenPaiementRepository.findById(
+                paiementDTO.getReference());
         assertThat(optionalMoyenPaiementBO).isPresent();
         MoyenPaiementBO moyenPaiementBO = optionalMoyenPaiementBO.get();
         assertThat(moyenPaiementBO.getMoyenPaiementStatut()).isEqualTo(MoyenPaiementStatutEnum.VALIDE);
 
-        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).toList()
-                .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
+        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle)
+                .toList().forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
         paiementHistoriqueRepository.findAll().forEach(histo -> {
             assertThat(histo.getContenu()).isEqualTo("Usager Jon Doe : Effectue une empreinte bancaire");
             assertThat(histo.getStatut()).isEqualTo(PaiementStatutEnum.EMPREINTE_VALIDE.name());
@@ -347,7 +350,7 @@ class MoneticoPaiementServiceTest {
 
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
         Paiement paiement = new Paiement();
-        paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});
+        paiement.setTableau(new Tableau[] { new Tableau("objet", "80") });
         contenuTestDTO.setPaiement(paiement);
         contenuTestDTO.setTitre(new Titre("123456"));
         ObjectMapper mapper = new ObjectMapper();
@@ -377,20 +380,21 @@ class MoneticoPaiementServiceTest {
         dernierStatut.setDate(new Date());
         demandesStatutsRepository.save(dernierStatut);
         demandeBO.setDernierStatut(dernierStatut);
-      DemandeConfigBO configBO = new DemandeConfigBO();
-      configBO.setBuildId("1695305061010");
-      try {
-        configBO.setContenu(mapper.readTree("{}"));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      demandesConfigRepository.save(configBO);
-      demandeBO.setConfig(configBO);
+        DemandeConfigBO configBO = new DemandeConfigBO();
+        configBO.setBuildId("1695305061010");
+        try {
+            configBO.setContenu(mapper.readTree("{}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        demandesConfigRepository.save(configBO);
+        demandeBO.setConfig(configBO);
         demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
         try {
-            demandeBO2.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
+            demandeBO2.setContenu(mapper.readTree(
+                    "{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}"));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -408,15 +412,15 @@ class MoneticoPaiementServiceTest {
         dernierStatut2.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
         dernierStatut2.setDate(new Date());
         demandesStatutsRepository.save(dernierStatut2);
-      DemandeConfigBO configBO2 = new DemandeConfigBO();
-      configBO2.setBuildId("1695305061010");
-      try {
-        configBO2.setContenu(mapper.readTree("{}"));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      demandesConfigRepository.save(configBO2);
-      demandeBO2.setConfig(configBO2);
+        DemandeConfigBO configBO2 = new DemandeConfigBO();
+        configBO2.setBuildId("1695305061010");
+        try {
+            configBO2.setContenu(mapper.readTree("{}"));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        demandesConfigRepository.save(configBO2);
+        demandeBO2.setConfig(configBO2);
         demandeBO2.setDernierStatut(dernierStatut2);
 
         demandeBO2 = demandesRepository.save(demandeBO2);
@@ -424,10 +428,9 @@ class MoneticoPaiementServiceTest {
         String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
-        demandesRepository.findAll().stream()
-                .map(DemandeBO::getDernierStatut)
-                .map(DemandesStatutsBO::getLibelle)
-                .toList().forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle)
+                .toList()
+                .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
 
         String status = "paiement";
         MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
@@ -477,13 +480,12 @@ class MoneticoPaiementServiceTest {
         String langue = "FR";
         String demandesId = demandeBO.getPkDemandes().toString();
 
-        assertThrows(
-                DemarchesServiceException.class,
-                () -> {
-                    // When
-                    moneticoPaiementService.create(demandesId, langue, 2, true);
-                });
+        assertThrows(DemarchesServiceException.class, () -> {
+            // When
+            moneticoPaiementService.create(demandesId, langue, 2, true);
+        });
     }
+
     @Test
     void testWhenUsagerDemandeNotActiveThenThrowException() {
         DemandeBO demandeBO = new DemandeBO();
@@ -522,11 +524,9 @@ class MoneticoPaiementServiceTest {
         String langue = "FR";
         String demandesId = demandeBO.getPkDemandes().toString();
 
-        assertThrows(
-                DemarchesServiceException.class,
-                () -> {
-                    // When
-                    moneticoPaiementService.create(demandesId, langue, 1, true);
-                });
+        assertThrows(DemarchesServiceException.class, () -> {
+            // When
+            moneticoPaiementService.create(demandesId, langue, 1, true);
+        });
     }
 }

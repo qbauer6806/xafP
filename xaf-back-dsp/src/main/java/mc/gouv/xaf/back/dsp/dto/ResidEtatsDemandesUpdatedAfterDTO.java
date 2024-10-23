@@ -15,12 +15,12 @@ import lombok.ToString;
 @ToString
 public class ResidEtatsDemandesUpdatedAfterDTO implements Serializable {
 
-	private static final long serialVersionUID = -4873508865715945892L;
+    private static final long serialVersionUID = -4873508865715945892L;
 
-	private List<ResidStatutDemandeDTO> etatsDemandes;
+    private List<ResidStatutDemandeDTO> etatsDemandes;
 
-	private String lastUpdateHorodatage;
+    private String lastUpdateHorodatage;
 
-	private Boolean moreUpdates;
+    private Boolean moreUpdates;
 
 }

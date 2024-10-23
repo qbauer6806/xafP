@@ -33,9 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * 
  * @author qdeme
- *
  */
 @Controller
 @RequestMapping("/login")
@@ -58,13 +56,12 @@ public class LoginController extends AbstractXafController {
 
     @PostMapping
     public ResponseEntity<String> doPost(@RequestParam(name = "id", required = false) String sessionId,
-                                         @RequestParam(required = false) String code,
-                                         HttpServletRequest request) {
+            @RequestParam(required = false) String code, HttpServletRequest request) {
         LOGGER.info("====================== /login doPost()");
 
         // Si pas de sessionId, il se peut que le code provienne de Keycloak (GICHKEY)
         if (StringUtils.isBlank(sessionId)) {
-        	sessionId = code;
+            sessionId = code;
         }
 
         String safe = sessionId != null ? sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
@@ -80,20 +77,21 @@ public class LoginController extends AbstractXafController {
             LOGGER.debug("<Usager classique>");
             logParams(request);
             KeycloakTokenInfo tokenInfo = gichkeyService.getTokenFromAuthCode(sessionId);
-            
+
             if (tokenInfo != null) {
-            	UsagerInfosDTO uinfos = gichkeyService.getUsagerInfosFromToken(tokenInfo);
-            	tokenInfo.setDateObtention(new Date());
-            	
-            	// Appel à GICHUNI pour obtenir des informations de profil complémentaires
-            	uinfos = gichuniService.getGichuniApiProfileData(uinfos);
-            	
+                UsagerInfosDTO uinfos = gichkeyService.getUsagerInfosFromToken(tokenInfo);
+                tokenInfo.setDateObtention(new Date());
+
+                // Appel à GICHUNI pour obtenir des informations de profil complémentaires
+                uinfos = gichuniService.getGichuniApiProfileData(uinfos);
+
                 // Stockage de cet objet d'infos d'usager dans la session HTTP
                 HttpSession session = request.getSession();
                 session.setAttribute(LOGIN, uinfos);
-                session.setAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE, XafFrontserverUtils.createXsrfToken(session));
+                session.setAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE,
+                        XafFrontserverUtils.createXsrfToken(session));
             } else {
-            	LOGGER.error("Impossible d'obtenir les tokens");
+                LOGGER.error("Impossible d'obtenir les tokens");
                 return ResponseEntity.internalServerError().build();
             }
         } else {
@@ -127,13 +125,14 @@ public class LoginController extends AbstractXafController {
             LOGGER.debug("Stockage des informations usager dans la session...");
             UsagerInfosDTO uinfos = this.getUsagerInfosDTO(usagerCourrier);
             AccessDTO accessDTO = getAfApiClient().getAccess(usagerCourrierId);
-            if(accessDTO != null){
+            if (accessDTO != null) {
                 uinfos.setAccessId(accessDTO.getPkAccess());
             }
             // Stockage de cet objet d'infos d'usager dans la session HTTP
             HttpSession session = request.getSession();
             session.setAttribute(LOGIN, uinfos);
-            session.setAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE, XafFrontserverUtils.createXsrfToken(session));
+            session.setAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE,
+                    XafFrontserverUtils.createXsrfToken(session));
         }
 
         LOGGER.info("====================== Fin /login doPost()");
@@ -149,8 +148,8 @@ public class LoginController extends AbstractXafController {
         uinfos.setComplementAdresse(usagerCourrier.getAdresseComplement());
         uinfos.setEmail(usagerCourrier.getEmail());
         uinfos.setId(usagerCourrier.getPkUsagersCourrier());
-        uinfos.setLogin(StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom()
-                + " (courrier)");
+        uinfos.setLogin(
+                StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom() + " (courrier)");
         uinfos.setNom(usagerCourrier.getNom());
         uinfos.setPaysCode(usagerCourrier.getPays());
         uinfos.setPrenom(usagerCourrier.getPrenom());
@@ -177,28 +176,29 @@ public class LoginController extends AbstractXafController {
 
         if (StringUtils.isBlank(sessionId)) {
             LOGGER.info("Pas d'ID donné en paramètre, donc appel à GICHKEY pour faire le logout");
-        	UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-            ClassicHttpResponse postResponse = (ClassicHttpResponse)gichkeyService.logout(usagerInfosDTO);
-        	int statusCode = postResponse.getCode();
-        	
-			// Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
-			if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
-				LOGGER.info("Retour 204 OK No Content, destruction de la session côté af-servlet...");
-				request.getSession().removeAttribute(LOGIN);
-				request.getSession().invalidate();
+            UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
+            ClassicHttpResponse postResponse = (ClassicHttpResponse) gichkeyService.logout(usagerInfosDTO);
+            int statusCode = postResponse.getCode();
+
+            // Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
+            if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
+                LOGGER.info("Retour 204 OK No Content, destruction de la session côté af-servlet...");
+                request.getSession().removeAttribute(LOGIN);
+                request.getSession().invalidate();
                 return ResponseEntity.ok().build();
-			}
+            }
             if (postResponse.getEntity() != null) {
                 try {
                     return xafFrontserverUtils.logAndSendError(LOGGER, statusCode,
-                            "Erreur: GICHKEY a retourné le code " + statusCode + " ("
-                                    + EntityUtils.toString(postResponse.getEntity()) + ")");
+                            "Erreur: GICHKEY a retourné le code " + statusCode + " (" + EntityUtils.toString(
+                                    postResponse.getEntity()) + ")");
                 } catch (ParseException | IOException e) {
                     LOGGER.error("Erreur lors du EntityUtils.toString()", e);
                     return ResponseEntity.internalServerError().build();
                 }
             }
-            return xafFrontserverUtils.logAndSendError(LOGGER, statusCode, "Erreur: GICHKEY a retourné le code " + statusCode);
+            return xafFrontserverUtils.logAndSendError(LOGGER, statusCode,
+                    "Erreur: GICHKEY a retourné le code " + statusCode);
         } else if (!sessionId.startsWith("c_")) {
             // Usager courrier, pas d'appel à GICHKEY pour faire un logout Juste destruction de la session
             LOGGER.info("Usager courrier : suppression de la session sans appel à GICHKEY...");
@@ -211,7 +211,6 @@ public class LoginController extends AbstractXafController {
 
         return ResponseEntity.noContent().build();
     }
-
 
     private void logParams(HttpServletRequest request) {
         LOGGER.debug("RemoteAddr : {}", request.getRemoteAddr());
@@ -238,7 +237,8 @@ public class LoginController extends AbstractXafController {
         StringTokenizer strToken = new StringTokenizer(sig, ":");
         String signature = strToken.nextToken();
         String currentMilli = strToken.nextToken();
-        String signatureComputed = DigestUtils.sha256Hex(propertiesResolver.getFrontserverKey() + sessionId + currentMilli);
+        String signatureComputed = DigestUtils.sha256Hex(
+                propertiesResolver.getFrontserverKey() + sessionId + currentMilli);
         LOGGER.info("Sig calculé : {}", signatureComputed);
         if (!StringUtils.equals(signature, signatureComputed)) {
             LOGGER.info("SIGS DIFFERENT");

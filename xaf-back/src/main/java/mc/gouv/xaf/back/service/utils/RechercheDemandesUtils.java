@@ -102,7 +102,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
             // Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
             Expression e = null;
             if (StringUtils.equalsIgnoreCase(order.getProperty(), USAGER_ID)) {
-                Join<DemandeBO,AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
+                Join<DemandeBO, AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
                 e = f.get(property);
             } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
                 Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
@@ -115,7 +115,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
             } else if (order.getProperty().startsWith(CONTENU)) {
                 String[] jsonKeys = order.getProperty().replace(CONTENU, "").split("\\.");
                 List<Expression<?>> expressions = new ArrayList<>();
-                expressions.add(root.<String>get("contenuTrad"));
+                expressions.add(root.<String> get("contenuTrad"));
                 for (String jsonKey : jsonKeys) {
                     expressions.add(cb.literal(jsonKey));
                 }
@@ -136,7 +136,6 @@ public class RechercheDemandesUtils extends RechercheUtils {
         typedQuery.setMaxResults(pageable.getPageSize());
         return typedQuery.getResultList();
     }
-
 
     private Root<DemandeBO> buildQuery(CriteriaQuery<?> cq, DemandeRechercheDTO demandeRecherche, CriteriaBuilder cb) {
         Root<DemandeBO> root = cq.from(DemandeBO.class);
@@ -169,41 +168,41 @@ public class RechercheDemandesUtils extends RechercheUtils {
         Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join(DERNIER_STATUT);
         if (demandeRecherche.getStatuts() != null) {
             for (String statut : demandeRecherche.getStatuts()) {
-                predicatsStatuts.add(cb.equal(dernierStatut.<String>get("name"), statut));
+                predicatsStatuts.add(cb.equal(dernierStatut.<String> get("name"), statut));
             }
             predicates.add(cb.or(predicatsStatuts.toArray(Predicate[]::new)));
         } else if (demandeRecherche.getAucunStatut()) {
-            predicates.add(cb.and(cb.equal(dernierStatut.<String>get("name"), "")));
+            predicates.add(cb.and(cb.equal(dernierStatut.<String> get("name"), "")));
         }
 
         // Créer des prédicats pour les canaux recherchés
         List<Predicate> predicatsCanaux = new ArrayList<>();
         if (demandeRecherche.getCanaux() != null) {
             for (DemandeCanalEnum canal : demandeRecherche.getCanaux()) {
-                predicatsCanaux.add(cb.equal(root.<String>get(CANAL), canal.name()));
+                predicatsCanaux.add(cb.equal(root.<String> get(CANAL), canal.name()));
             }
             predicates.add(cb.or(predicatsCanaux.toArray(Predicate[]::new)));
-        } else if(demandeRecherche.getAucunCanal()) {
-            predicates.add(cb.and(cb.equal(root.<String>get(CANAL), "")));
+        } else if (demandeRecherche.getAucunCanal()) {
+            predicates.add(cb.and(cb.equal(root.<String> get(CANAL), "")));
         }
 
         // Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
         Join<DemandeBO, AccessBO> access = root.join(FK_ACCESS);
         // Pour le front on remonte que des actifs
         if (DemarchesUtils.isFrontUser()) {
-            predicates.add(cb.equal(access.<String>get("active"), true));
+            predicates.add(cb.equal(access.<String> get("active"), true));
         }
 
         // Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
         // précédemment car info dans AccessBO)
         if (demandeRecherche.getUsagerId() != null) {
-            predicates.add(cb.equal(access.<Integer>get(USAGER_ID), demandeRecherche.getUsagerId()));
+            predicates.add(cb.equal(access.<Integer> get(USAGER_ID), demandeRecherche.getUsagerId()));
         }
 
         // Créer un prédicat pour l'agent affecté
         if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
             Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
-            predicates.add(cb.equal(agent.<String>get("id"), demandeRecherche.getAgentAffecteId()));
+            predicates.add(cb.equal(agent.<String> get("id"), demandeRecherche.getAgentAffecteId()));
         }
 
         // Créer un prédicat pour le creationStartDate
@@ -228,16 +227,15 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
         // Créer un prédicat pour l'identifiant de la demande
         if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
-            predicates.add(cb.equal(root.<String>get(IDENTIFIANT), demandeRecherche.getIdentifiant()));
+            predicates.add(cb.equal(root.<String> get(IDENTIFIANT), demandeRecherche.getIdentifiant()));
         }
 
         // Créer un prédicat pour data
         DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
         if (dataRechercheDTO != null) {
             SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
-            predicates.add(cb.and(
-                    cb.equal(demandesData.<String>get("value"), dataRechercheDTO.getValue()),
-                    cb.equal(demandesData.<String>get("key"), dataRechercheDTO.getKey())));
+            predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), dataRechercheDTO.getValue()),
+                    cb.equal(demandesData.<String> get("key"), dataRechercheDTO.getKey())));
         }
 
         cq.where(predicates.toArray(Predicate[]::new));
@@ -245,40 +243,44 @@ public class RechercheDemandesUtils extends RechercheUtils {
         return root;
     }
 
-    private void setFacetPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
+    private void setFacetPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates,
+            CriteriaBuilder cb, String texte) {
         // cas contenu de la demande
         if (searchField.startsWith(CONTENU)) {
             String[] jsonKeys = searchField.replace(CONTENU, "").split("\\.");
             List<Expression<?>> expressions = new ArrayList<>();
-            expressions.add(root.<String>get("contenuTrad"));
+            expressions.add(root.<String> get("contenuTrad"));
             for (String jsonKey : jsonKeys) {
                 expressions.add(cb.literal(jsonKey));
             }
-            predicates.add(cb.equal(
-                    cb.upper(cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new))),
-                    texte.toUpperCase()
-            ));
+            predicates.add(cb.equal(cb.upper(
+                            cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new))),
+                    texte.toUpperCase()));
         } else if (searchField.startsWith("agent.")) {
             // cas agent
             Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
             // use String.class to cover the id type of Integer in agent table
-            predicates.add(cb.like(cb.upper(agent.get(searchField.replace("agent.", "")).as(String.class)), texte.toUpperCase() + "%"));
+            predicates.add(cb.like(cb.upper(agent.get(searchField.replace("agent.", "")).as(String.class)),
+                    texte.toUpperCase() + "%"));
         } else if (searchField.startsWith("usager.")) {
             // cas usager
             Join<DemandeBO, DemandesUsagersBO> usager = root.join("usager", JoinType.LEFT);
-            predicates.add(cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), texte.toUpperCase() + "%"));
+            predicates.add(
+                    cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), texte.toUpperCase() + "%"));
         } else if (searchField.startsWith("complement.")) {
             // cas complements fichiers
-            SetJoin<DemandeBO, DemandesComplementsBO> demandesComplements = root.joinSet("demandesComplements", JoinType.LEFT);
-            SetJoin<DemandesComplementsBO, DemandesComplementsFilesBO> files = demandesComplements.joinSet(FILES, JoinType.LEFT);
-            predicates.add(cb.like(cb.upper(files.get(searchField.replace("complement.", ""))), "%" + texte.toUpperCase() + "%"));
-        }
-        else if (searchField.startsWith("fichiers.")) {
+            SetJoin<DemandeBO, DemandesComplementsBO> demandesComplements = root.joinSet("demandesComplements",
+                    JoinType.LEFT);
+            SetJoin<DemandesComplementsBO, DemandesComplementsFilesBO> files = demandesComplements.joinSet(FILES,
+                    JoinType.LEFT);
+            predicates.add(cb.like(cb.upper(files.get(searchField.replace("complement.", ""))),
+                    "%" + texte.toUpperCase() + "%"));
+        } else if (searchField.startsWith("fichiers.")) {
             // cas pièces jointes
             SetJoin<DemandeBO, DemandesFilesBO> files = root.joinSet(FILES, JoinType.LEFT);
-            predicates.add(cb.like(cb.upper(files.get(searchField.replace("fichiers.", ""))), "%" + texte.toUpperCase() + "%"));
-        }
-        else if (!searchField.contains(".")) {
+            predicates.add(cb.like(cb.upper(files.get(searchField.replace("fichiers.", ""))),
+                    "%" + texte.toUpperCase() + "%"));
+        } else if (!searchField.contains(".")) {
             // cas colonnes classiques de dem_demandes
             // récupérer tous les champs de DemandeBO pour vérifier si le facet cliqué est de type DATE
             List<Field> fields = new ArrayList<>(Arrays.asList(DemandeBO.class.getDeclaredFields()));
@@ -318,8 +320,5 @@ public class RechercheDemandesUtils extends RechercheUtils {
         }
         return cal;
     }
-
-
-
 
 }

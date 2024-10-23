@@ -7,11 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Modélise un template
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -26,7 +24,7 @@ public class TemplateDTO {
     private String langue;
 
     private Date dateModif;
-    
+
     @JsonIgnore
     private boolean updated = false;
 

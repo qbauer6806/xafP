@@ -1,77 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	  class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 <head>
-	<meta charset="utf-8"/>
-	<meta http-equiv="x-ua-compatible" content="ie=edge"/>
-	<meta name="viewport"
-		  content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-	<meta name="description" content=""/>
-	<meta name="author" content=""/>
-	<meta th:name="_csrf" th:content="${_csrf.token}"/>
-	<meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 
-	<title th:text="${nomDemarche}"></title>
+  <title th:text="${nomDemarche}"></title>
 
-	<!-- Import FONTS -->
-	<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
 
-	<!-- Import CSS -->
-	<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-		  rel="stylesheet" type="text/css"/>
-	<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
-	<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
-	<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
-	<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
-		  rel="stylesheet"/>
-	<link rel="shortcut icon" type="image/x-icon"
-		  th:href="@{/img/favicon.ico}"/>
-	<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-		  rel="stylesheet"/>
-	<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-		  rel="stylesheet"/>
-    <style>
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <style>
 
-		/* Hack charte graphique pour une datable avec une barre de recherche et la pagination qui s'affiche correctement*/
-        .dataTables_wrapper .dataTables_length {
-            display:inline-block;
-            padding: 12px;
-            width: 50%;
-            text-align: left;
-            border-right: none;
-            border-left: 2px solid #068BAD;
-            background: #E7F4F8;
-            color: #068BAD;
-            filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
-            -webkit-box-shadow: none;
-            box-shadow: none;
-        }
+    /* Hack charte graphique pour une datable avec une barre de recherche et la pagination qui s'affiche correctement*/
+    .dataTables_wrapper .dataTables_length {
+      display: inline-block;
+      padding: 12px;
+      width: 50%;
+      text-align: left;
+      border-right: none;
+      border-left: 2px solid #068BAD;
+      background: #E7F4F8;
+      color: #068BAD;
+      filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
 
-        .dataTables_wrapper .dataTables_filter {
-            display:inline-block;
-            padding: 10px;
-            width: 50%;
-            text-align: right;
-            border-right: 2px solid #068BAD;
-            background: #E7F4F8;
-            color: #068BAD;
-            filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
-        }
+    .dataTables_wrapper .dataTables_filter {
+      display: inline-block;
+      padding: 10px;
+      width: 50%;
+      text-align: right;
+      border-right: 2px solid #068BAD;
+      background: #E7F4F8;
+      color: #068BAD;
+      filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+    }
 
-        .tableContent .table {
-            -webkit-box-shadow: none;
-            box-shadow: none;
-        }
+    .tableContent .table {
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
 
-		/* Hack charte graphique pour avoir un toggle toujours bleu */
-		input:checked + .slider, input + input[type="hidden"] + .slider {
-			outline: 3px solid #0F607C;
-		}
+    /* Hack charte graphique pour avoir un toggle toujours bleu */
+    input:checked + .slider, input + input[type="hidden"] + .slider {
+      outline: 3px solid #0F607C;
+    }
 
-		input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
-			background-color: #0F607C;
-		}
-	</style>
+    input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
+      background-color: #0F607C;
+    }
+  </style>
 
 </head>
 <body th:with="pageConfigurationActive='active'">
@@ -80,30 +80,31 @@
 
 <div id="wrapper">
 
-	<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-	<!-- DEBUT CONTENU -->
-	<div id="page-content-wrapper">
-		<div class="breadcrumbContent">
-			<div class="breadcrumb">
-				<a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MODÈLES DE COURRIELS</span>
-			</div>
-			<div class="triangleTopright"></div>
-		</div>
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+        <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MODÈLES DE COURRIELS</span>
+      </div>
+      <div class="triangleTopright"></div>
+    </div>
 
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-xs-6">
-					<h1>administration des modèles de courriels</h1>
-				</div>
-                <div class="col-xs-6 text-right">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-6">
+          <h1>administration des modèles de courriels</h1>
+        </div>
+        <div class="col-xs-6 text-right">
 
 					<span th:if="${!frOnly}">
 						<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
 						<div class="toggle" style="display:inline-block; transform: translateY(35%);">
 							<label class="switch">
-								<input class="switch-input" id="switchLangue" type="checkbox" checked="" name="langue" value="LANGUE" />
-								<input type="hidden" checked="" />
+								<input class="switch-input" id="switchLangue" type="checkbox" checked=""
+                       name="langue" value="LANGUE"/>
+								<input type="hidden" checked=""/>
 								<span class="slider"></span>
 							</label>
 
@@ -111,52 +112,55 @@
 						<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
 					</span>
 
-					<button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
-							name="exportSql" type="button"
-							value="Export SQL" style="margin-left: 30px">
-						Export SQL
-					</button>
-				</div>
-            </div>
-            <div class="row">
-				<div class="col-xs-12 tableContent">
-					<div class="tableTitle">modèles de courriels<span
-							class="badge badgeState" id="templatesCounter">0</span></div>
-					<table id="datatable-templates" class="table table-striped" style="width: 100%">
-						<thead>
-						<tr>
-							<th>Code</th>
-							<th>Objet du mail</th>
-							<th>Contenu du mail</th>
-							<th>Langue</th>
-							<th>Date de dernière modification</th>
-							<th>Actions</th>
-						</tr>
-						</thead>
-					</table>
-				</div>
-			</div>
-		</div>
+          <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
+                  name="exportSql" type="button"
+                  value="Export SQL" style="margin-left: 30px">
+            Export SQL
+          </button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 tableContent">
+          <div class="tableTitle">modèles de courriels<span
+              class="badge badgeState" id="templatesCounter">0</span></div>
+          <table id="datatable-templates" class="table table-striped" style="width: 100%">
+            <thead>
+            <tr>
+              <th>Code</th>
+              <th>Objet du mail</th>
+              <th>Contenu du mail</th>
+              <th>Langue</th>
+              <th>Date de dernière modification</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
 
-	</div>
-	<!-- FIN CONTENU -->
+  </div>
+  <!-- FIN CONTENU -->
 
-	<!-- EDITION MODAL -->
-	<div id="visualisationModal" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-body">
-					<h1>Prévisualisation du template de mail</h1>
-					<p>***********************************************************************************************************************************</p>
-					<p><span style="font-weight: bold; text-decoration: underline">Titre de l'email :</span> <span id="objetMailModal"></span></p>
+  <!-- EDITION MODAL -->
+  <div id="visualisationModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h1>Prévisualisation du template de mail</h1>
+          <p>
+            ***********************************************************************************************************************************</p>
+          <p><span style="font-weight: bold; text-decoration: underline">Titre de l'email :</span>
+            <span id="objetMailModal"></span></p>
 
-					<p><span id="corpsMailModal"></span></p>
-					<p>***********************************************************************************************************************************</p>
-				</div>
-			</div><!-- /.modal-content -->
-		</div><!-- /.modal-dialog -->
-	</div><!-- /.modal -->
-	<!-- FIN EDITION MODAL -->
+          <p><span id="corpsMailModal"></span></p>
+          <p>
+            ***********************************************************************************************************************************</p>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN EDITION MODAL -->
 
 </div>
 
@@ -165,187 +169,187 @@
 
 <script th:inline="javascript">
 
-	$.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+  $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
 
-	var columnsProperties = [
-		{
-			data: "code",
-			keyword: false,
-			render: function (data, type, template) {
-				return textRenderer(template.code);
-			}
-		},
-		{
-			data: "objet",
-			keyword: false,
-			render: function (data, type, template) {
-				if ( type !== 'display' ) {
-					return template.objet;
-				}
-				return textRenderer(template.objet).substring(0, 70) + "...";
-			}
-		},
-		{
-			data: "corps",
-			keyword: false,
-			render: function (data, type, template) {
-				if ( type !== 'display' ) {
-					return template.corps;
-				}
-				return textRenderer(template.corps).substring(0, 70) + "...";
-			},
-			width:"20%"
-		},
-		{
-			data: "langue",
-			keyword: false,
-			render: function (data, type, template) {
-				return textRenderer(template.langue);
-			}
-		},
-		{
-			data: "date",
-			keyword: false,
-			render: function (data, type, template) {
-				return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(template.date)
-						.format("DD/MM/YYYY HH:mm:ss") + '</span>';
-			}
-		},
-		{
-			"orderable": false,
-			"keyword": false,
-			render: function (data, type, template, meta) {
-				return '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
-						'<i class="icon-action_editer"></i></button>' +
-						'<a href="' + APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue + '">' +
-						'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Modifier">' +
-						'<i class="icon-action_modifier"></i></a>';
-			}
-		}];
+  var columnsProperties = [
+    {
+      data: "code",
+      keyword: false,
+      render: function (data, type, template) {
+        return textRenderer(template.code);
+      }
+    },
+    {
+      data: "objet",
+      keyword: false,
+      render: function (data, type, template) {
+        if (type !== 'display') {
+          return template.objet;
+        }
+        return textRenderer(template.objet).substring(0, 70) + "...";
+      }
+    },
+    {
+      data: "corps",
+      keyword: false,
+      render: function (data, type, template) {
+        if (type !== 'display') {
+          return template.corps;
+        }
+        return textRenderer(template.corps).substring(0, 70) + "...";
+      },
+      width: "20%"
+    },
+    {
+      data: "langue",
+      keyword: false,
+      render: function (data, type, template) {
+        return textRenderer(template.langue);
+      }
+    },
+    {
+      data: "date",
+      keyword: false,
+      render: function (data, type, template) {
+        return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(template.date)
+            .format("DD/MM/YYYY HH:mm:ss") + '</span>';
+      }
+    },
+    {
+      "orderable": false,
+      "keyword": false,
+      render: function (data, type, template, meta) {
+        return '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
+            '<i class="icon-action_editer"></i></button>' +
+            '<a href="' + APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue + '">' +
+            '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Modifier">' +
+            '<i class="icon-action_modifier"></i></a>';
+      }
+    }];
 
-	var getIndexOfTemplate = function(templateListRegrouped, templateCode, langue) {
-		var indexTemplate = -1;
-		templateListRegrouped.forEach(function (template, index) {
-			if (template.code === templateCode && template.langue === langue) {
-				return indexTemplate = index;
-			}
-		});
-		return indexTemplate;
-	};
+  var getIndexOfTemplate = function (templateListRegrouped, templateCode, langue) {
+    var indexTemplate = -1;
+    templateListRegrouped.forEach(function (template, index) {
+      if (template.code === templateCode && template.langue === langue) {
+        return indexTemplate = index;
+      }
+    });
+    return indexTemplate;
+  };
 
-	function download(filename, text) {
-		var element = document.createElement('a');
-		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-		element.setAttribute('download', filename);
+  function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
 
-		element.style.display = 'none';
-		document.body.appendChild(element);
+    element.style.display = 'none';
+    document.body.appendChild(element);
 
-		element.click();
+    element.click();
 
-		document.body.removeChild(element);
-	}
+    document.body.removeChild(element);
+  }
 
-	var exportSQLGlobal = function(templateList, tsCode) {
-		var sqlFinal = "";
-		templateList.forEach(function(template) {
-			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
-			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
-			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
-			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
-		});
-		return sqlFinal;
-	};
+  var exportSQLGlobal = function (templateList, tsCode) {
+    var sqlFinal = "";
+    templateList.forEach(function (template) {
+      sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
+      sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
+      sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
+      sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
+    });
+    return sqlFinal;
+  };
 
-	/*<![CDATA[*/
-	$(document).ready(function () {
-		var urlModif = /*[[@{/gestion/template/update}]]*/[];
-		var templateList = /*[[${templateList}]]*/[];
-		var tsCode = /*[[(${tsCode})]]*/;
+  /*<![CDATA[*/
+  $(document).ready(function () {
+    var urlModif = /*[[@{/gestion/template/update}]]*/[];
+    var templateList = /*[[${templateList}]]*/[];
+    var tsCode = /*[[(${tsCode})]]*/;
 
-		// Ici nous transformons la liste des DTO des templates en une liste compréhensible par les gestionnaires
-		// On regroupera donc les templates objet + corps
+    // Ici nous transformons la liste des DTO des templates en une liste compréhensible par les gestionnaires
+    // On regroupera donc les templates objet + corps
 
-		var templateListRegrouped = [];
+    var templateListRegrouped = [];
 
-		// Les codes dans un templateDTO ont deux formes possibles (par convention)
-		// XXXX_CORPS ou XXXX_OBJET. Qui sont respectivement le contenu et l'objet d'un mail
-		// Le but de cette itération est de regrouper les deux en un seul objet. Nous faisons ça en deux boucles pour que le code soit plus clean, même si c'est moins opti
-		templateList.forEach(function(template, index) {
-			var indexObjet = template.code.indexOf("_OBJET");
-			if (indexObjet >= 0) {
-				var templateCode = template.code.substring(0, indexObjet);
-				templateListRegrouped.push({
-					code: templateCode,
-					objet: template.contenu,
-					corps: "",
-					langue: template.langue,
-					date: template.dateModif
-				});
-			}
-		});
+    // Les codes dans un templateDTO ont deux formes possibles (par convention)
+    // XXXX_CORPS ou XXXX_OBJET. Qui sont respectivement le contenu et l'objet d'un mail
+    // Le but de cette itération est de regrouper les deux en un seul objet. Nous faisons ça en deux boucles pour que le code soit plus clean, même si c'est moins opti
+    templateList.forEach(function (template, index) {
+      var indexObjet = template.code.indexOf("_OBJET");
+      if (indexObjet >= 0) {
+        var templateCode = template.code.substring(0, indexObjet);
+        templateListRegrouped.push({
+          code: templateCode,
+          objet: template.contenu,
+          corps: "",
+          langue: template.langue,
+          date: template.dateModif
+        });
+      }
+    });
 
-		// Recherche des corps
-		templateList.forEach(function(template, index) {
-			var indexObjet = template.code.indexOf("_CORPS");
-			if (indexObjet >= 0) {
-				var templateCode = template.code.substring(0, indexObjet);
-				var indexDuTemplate = getIndexOfTemplate(templateListRegrouped, templateCode, template.langue)
-				if(templateListRegrouped[indexDuTemplate]) {
-					templateListRegrouped[indexDuTemplate].corps = template.contenu;
-				}
-			}
-		});
-
-
-		$("#templatesCounter").text(templateListRegrouped.length);
-		var table = $('#datatable-templates').DataTable({
-			paging: true,
-			pageLength: 10,
-			searching: true,
-			select: false,
-			bInfo: false,
-			order: [ [ 0, "desc" ] ],
-			columns: columnsProperties,
-			data: templateListRegrouped,
-			language: frenchTranslation
-		});
-
-		// Filtrer par FR au départ
-		table.columns(3).search('fr', true, false).draw();
+    // Recherche des corps
+    templateList.forEach(function (template, index) {
+      var indexObjet = template.code.indexOf("_CORPS");
+      if (indexObjet >= 0) {
+        var templateCode = template.code.substring(0, indexObjet);
+        var indexDuTemplate = getIndexOfTemplate(templateListRegrouped, templateCode, template.langue)
+        if (templateListRegrouped[indexDuTemplate]) {
+          templateListRegrouped[indexDuTemplate].corps = template.contenu;
+        }
+      }
+    });
 
 
-		table.on('click', 'button.boutonVisualiser', function (e) {
-			e.preventDefault();
-			isCreate = false;
+    $("#templatesCounter").text(templateListRegrouped.length);
+    var table = $('#datatable-templates').DataTable({
+      paging: true,
+      pageLength: 10,
+      searching: true,
+      select: false,
+      bInfo: false,
+      order: [[0, "desc"]],
+      columns: columnsProperties,
+      data: templateListRegrouped,
+      language: frenchTranslation
+    });
 
-			var ligne = $(this).data("ligne");
-			var contenuMail = table.row(ligne).data();
-
-			$('#objetMailModal').html(contenuMail.objet);
-			$('#corpsMailModal').html(contenuMail.corps);
-
-			$('#visualisationModal').modal();
-
-			return true;
-		});
+    // Filtrer par FR au départ
+    table.columns(3).search('fr', true, false).draw();
 
 
-		$("#switchLangue").click(function() {
-			// false == anglais --- true == francais
-			if(this.checked) {
-				table.columns(3).search('fr', true, false).draw();
-			} else {
-				table.columns(3).search('en', true, false).draw();
-			}
-		});
+    table.on('click', 'button.boutonVisualiser', function (e) {
+      e.preventDefault();
+      isCreate = false;
 
-		$("#exportSqlBouton").click(function() {
-			var sqlGenere = exportSQLGlobal(templateListRegrouped, tsCode);
-			download("exportSQL-global.sql", sqlGenere);
-		});
-	});
-	/*]]>*/
+      var ligne = $(this).data("ligne");
+      var contenuMail = table.row(ligne).data();
+
+      $('#objetMailModal').html(contenuMail.objet);
+      $('#corpsMailModal').html(contenuMail.corps);
+
+      $('#visualisationModal').modal();
+
+      return true;
+    });
+
+
+    $("#switchLangue").click(function () {
+      // false == anglais --- true == francais
+      if (this.checked) {
+        table.columns(3).search('fr', true, false).draw();
+      } else {
+        table.columns(3).search('en', true, false).draw();
+      }
+    });
+
+    $("#exportSqlBouton").click(function () {
+      var sqlGenere = exportSQLGlobal(templateListRegrouped, tsCode);
+      download("exportSQL-global.sql", sqlGenere);
+    });
+  });
+  /*]]>*/
 </script>
 
 </body>

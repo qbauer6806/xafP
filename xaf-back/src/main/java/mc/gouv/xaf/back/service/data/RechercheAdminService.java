@@ -20,7 +20,9 @@ public interface RechercheAdminService {
     /**
      * <p>Enregistre les changements apportés à la page administration de la reecherche avancée.</p>
      * <p>Met à jour les propriétés de la recherche avancée.</p>
-     * @param rechercheChampDTOS objet contenant la liste des propriétés éditées
+     *
+     * @param rechercheChampDTOS
+     *         objet contenant la liste des propriétés éditées
      */
     void updateRechercheChamps(List<RechercheChampDTO> rechercheChampDTOS);
 
@@ -28,7 +30,9 @@ public interface RechercheAdminService {
      * <p>Sauvegarde en base de données de la propriété en paramètre.</p>
      * <p>Créé une nouvelle propriété si celle-ci n'est pas trouvée.</p>
      * <p>Associe une catégorie à la propriété si précisée.</p>
-     * @param rechercheChampDTO la propriété à sauvegarder
+     *
+     * @param rechercheChampDTO
+     *         la propriété à sauvegarder
      */
     void updateRechercheChamp(RechercheChampDTO rechercheChampDTO);
 

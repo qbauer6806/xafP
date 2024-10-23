@@ -6,12 +6,10 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 
 /**
- * 
  * Correspond au paragraphe "Ajouter le filtre mc.gouv.tools.monitor.filters.MDCLogFilter dans le fichier web.xml" de
  * http://redmine/projects/tracabilite/wiki/Mise_aux_normes_des_applications
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class FilterConfig implements ServletContextInitializer {
 

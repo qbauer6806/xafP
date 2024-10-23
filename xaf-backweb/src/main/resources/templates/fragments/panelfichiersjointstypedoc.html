@@ -4,125 +4,131 @@
 
 <div id="panelfichiersjointstypedoc"
      th:fragment="panelfichiersjointstypedoc" th:remove="tag">
-    <div class="tab-pane" id="tab2" role="tabpanel">
-        <form action="#" method="post"
-              th:action="@{/demandes/typageDocuments}">
-            <div th:each="cat : ${categories}">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="col-xs-9">
-                            <h3 th:text="${cat.name}"></h3>
-                        </div>
-                        <div class="dropdown col-xs-3 text-right" style="padding: 0"
-                             th:if="${cat.name == 'Fichiers de la demande initiale'}">
-                            <button class="btn btn-action dropdown-toggle"
-                                    data-toggle="dropdown" th:if="(${isGenerationZipActive or isGenerationPdfActive})"
-                                    type="button">
-                                Télécharger <span class="icon-action_accordeon-ouvert"></span>
-                            </button>
-                            <ul aria-labelledby="dropdownMenu"
-                                class="dropdown-menu-custom dropdown-menu multi-level" role="menu">
-                                <li class="dropdown-submenu dropdown-item"><a
-                                        href="#" tabindex="-1">Tous les documents</a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-											<a class="dropdown-item dropdown-item-custom"
-                                               id="allDownloadButton"
-                                               th:if="${isGenerationZipActive}">Sous format zip</a>
-										</li>
-                                        <li>
-											<a class="dropdown-item dropdown-item-custom"
-                                               id="allDownloadButtonPdf"
-                                               th:if="${isGenerationPdfActive}">Sous format PDF</a>
-										</li>
-                                    </ul>
-                                </li>
-                                <li class="dropdown-submenu dropdown-item"
-                                        th:classappend="!${isDocumentsValidesActif} ? disabled : enable">
-									<a href="#" tabindex="-1">Les documents valides</a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-											<a class="dropdown-item dropdown-item-custom"
-                                               id="validesDownloadButton"
-                                               th:classappend="!${isDocumentsValidesActif} ? disabled : enable"
-                                               th:if="${isGenerationZipActive}">Sous format ZIP</a>
-										</li>
-                                        <li>
-											<a class="dropdown-item dropdown-item-custom"
-                                               id="validesDownloadButtonPdf"
-                                               th:classappend="!${isDocumentsValidesActif} ? disabled : enable"
-                                               th:if="${isGenerationPdfActive}">Sous format PDF</a>
-										</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <!-- Affichage des sous-sections éventuelles -->
-                <div class="tab-pane" role="tabpanel"
-                     th:each="subcat,iter : ${cat.subCategories}" th:id="'subcats'+${iter.index}"
-                     th:if="${cat.subCategories.size() > 0}">
-                    <div aria-multiselectable="true" class="panel-group subcataccordion">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" role="tab"
-                                 th:id="'heading' + ${iter.index}">
-                                <h4 class="panel-title">
-                                    <a data-parent="#subcataccordion"
-                                    th:class="${isPanelTypeFichierOuvert} ? '' : collapsed "
-                                       data-toggle="collapse" role="button"
-                                       th:attr="aria-controls='subcat'+${iter.index},aria-expanded=${isPanelTypeFichierOuvert}?'true':'false'"
-                                       th:href="${'#subcat'+iter.index}">
-										<i class="pannelState"
-										th:classappend="${isPanelTypeFichierOuvert} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"
-										></i>
-										<span th:text="${subcat.name}"></span>
-									</a>
-                                </h4>
-                            </div>
-
-                            <div class="panel-body sectionic panel-collapse collapse"
-                            th:classappend="${isPanelTypeFichierOuvert} ? in : out"
-                                 role="tabpanel"
-                                 th:attr="aria-labelledby='heading' + ${iter.index}"
-                                 th:id="${'subcat'+iter.index}">
-                                <!-- On appelle le tableau sous forme de fragment, en lui passant en paramètre la sous-catégorie -->
-                                <div th:replace="~{fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable(cat=${subcat})}"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div th:if="${cat.subCategories == null}">
-                    <div th:replace="~{fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable}"></div>
-                </div>
-
-                <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and ((${cat.files != null} and ${cat.files.size() > 0}) or (${cat.subCategories != null} and ${cat.subCategories.size() > 0}))">
-                    <input class="btn btn-action ripple-effect"
-                           disabled="disabled" id="typedoc-files-button"
-                           style="float: right;"
-                           type="button" value="Enregistrer">
-                </div>
-                <div th:if="${cat.name} == 'Fichiers complémentaires de l\'usager' and ${editionTypedocActive} and ${cat.files.size() > 0}">
-                    <input class="btn btn-action ripple-effect"
-                           disabled="disabled" id="typedoc-complements-button"
-                           style="float: right;"
-                           type="button" value="Enregistrer">
-                </div>
-                <br/>
+  <div class="tab-pane" id="tab2" role="tabpanel">
+    <form action="#" method="post"
+          th:action="@{/demandes/typageDocuments}">
+      <div th:each="cat : ${categories}">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="col-xs-9">
+              <h3 th:text="${cat.name}"></h3>
             </div>
-            <input id="typedoc-files" th:field="${typedocFormBean.files}" type="hidden"/>
-            <input id="typedoc-files-checkbox" th:field="${typedocFormBean.filesCheckbox}" type="hidden"/>
-			<input id="typedoc-complements" th:field="${typedocFormBean.complements}" type="hidden"/>
-            <input id="typedoc-complements-checkbox" th:field="${typedocFormBean.complementsCheckbox}" type="hidden"/>
-			<input name="pkDemande" th:value="${demandeDTO.pkDemandes}" type="hidden"/>
-            <input id="confirmer-typedoc-button" style="display: none" type="submit"/>
-        </form>
-    </div>
-    <h2>
-        <i class="hide" id="loaderMessage">Téléchargement en cours, veuillez patienter ...</i>
-    </h2>
-    <div class="tab-pane loader" id="tabLoader" role="tabpanel"></div>
+            <div class="dropdown col-xs-3 text-right" style="padding: 0"
+                 th:if="${cat.name == 'Fichiers de la demande initiale'}">
+              <button class="btn btn-action dropdown-toggle"
+                      data-toggle="dropdown"
+                      th:if="(${isGenerationZipActive or isGenerationPdfActive})"
+                      type="button">
+                Télécharger <span class="icon-action_accordeon-ouvert"></span>
+              </button>
+              <ul aria-labelledby="dropdownMenu"
+                  class="dropdown-menu-custom dropdown-menu multi-level" role="menu">
+                <li class="dropdown-submenu dropdown-item"><a
+                    href="#" tabindex="-1">Tous les documents</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item dropdown-item-custom"
+                         id="allDownloadButton"
+                         th:if="${isGenerationZipActive}">Sous format zip</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item dropdown-item-custom"
+                         id="allDownloadButtonPdf"
+                         th:if="${isGenerationPdfActive}">Sous format PDF</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu dropdown-item"
+                    th:classappend="!${isDocumentsValidesActif} ? disabled : enable">
+                  <a href="#" tabindex="-1">Les documents valides</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item dropdown-item-custom"
+                         id="validesDownloadButton"
+                         th:classappend="!${isDocumentsValidesActif} ? disabled : enable"
+                         th:if="${isGenerationZipActive}">Sous format ZIP</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item dropdown-item-custom"
+                         id="validesDownloadButtonPdf"
+                         th:classappend="!${isDocumentsValidesActif} ? disabled : enable"
+                         th:if="${isGenerationPdfActive}">Sous format PDF</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- Affichage des sous-sections éventuelles -->
+        <div class="tab-pane" role="tabpanel"
+             th:each="subcat,iter : ${cat.subCategories}" th:id="'subcats'+${iter.index}"
+             th:if="${cat.subCategories.size() > 0}">
+          <div aria-multiselectable="true" class="panel-group subcataccordion">
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab"
+                   th:id="'heading' + ${iter.index}">
+                <h4 class="panel-title">
+                  <a data-parent="#subcataccordion"
+                     th:class="${isPanelTypeFichierOuvert} ? '' : collapsed "
+                     data-toggle="collapse" role="button"
+                     th:attr="aria-controls='subcat'+${iter.index},aria-expanded=${isPanelTypeFichierOuvert}?'true':'false'"
+                     th:href="${'#subcat'+iter.index}">
+                    <i class="pannelState"
+                       th:classappend="${isPanelTypeFichierOuvert} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"
+                    ></i>
+                    <span th:text="${subcat.name}"></span>
+                  </a>
+                </h4>
+              </div>
+
+              <div class="panel-body sectionic panel-collapse collapse"
+                   th:classappend="${isPanelTypeFichierOuvert} ? in : out"
+                   role="tabpanel"
+                   th:attr="aria-labelledby='heading' + ${iter.index}"
+                   th:id="${'subcat'+iter.index}">
+                <!-- On appelle le tableau sous forme de fragment, en lui passant en paramètre la sous-catégorie -->
+                <div
+                    th:replace="~{fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable(cat=${subcat})}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div th:if="${cat.subCategories == null}">
+          <div
+              th:replace="~{fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable}"></div>
+        </div>
+
+        <div
+            th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and ((${cat.files != null} and ${cat.files.size() > 0}) or (${cat.subCategories != null} and ${cat.subCategories.size() > 0}))">
+          <input class="btn btn-action ripple-effect"
+                 disabled="disabled" id="typedoc-files-button"
+                 style="float: right;"
+                 type="button" value="Enregistrer">
+        </div>
+        <div
+            th:if="${cat.name} == 'Fichiers complémentaires de l\'usager' and ${editionTypedocActive} and ${cat.files.size() > 0}">
+          <input class="btn btn-action ripple-effect"
+                 disabled="disabled" id="typedoc-complements-button"
+                 style="float: right;"
+                 type="button" value="Enregistrer">
+        </div>
+        <br/>
+      </div>
+      <input id="typedoc-files" th:field="${typedocFormBean.files}" type="hidden"/>
+      <input id="typedoc-files-checkbox" th:field="${typedocFormBean.filesCheckbox}" type="hidden"/>
+      <input id="typedoc-complements" th:field="${typedocFormBean.complements}" type="hidden"/>
+      <input id="typedoc-complements-checkbox" th:field="${typedocFormBean.complementsCheckbox}"
+             type="hidden"/>
+      <input name="pkDemande" th:value="${demandeDTO.pkDemandes}" type="hidden"/>
+      <input id="confirmer-typedoc-button" style="display: none" type="submit"/>
+    </form>
+  </div>
+  <h2>
+    <i class="hide" id="loaderMessage">Téléchargement en cours, veuillez patienter ...</i>
+  </h2>
+  <div class="tab-pane loader" id="tabLoader" role="tabpanel"></div>
 </div>
 </body>
 </html>

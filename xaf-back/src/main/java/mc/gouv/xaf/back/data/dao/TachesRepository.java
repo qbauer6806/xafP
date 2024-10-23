@@ -21,7 +21,8 @@ public interface TachesRepository extends CrudRepository<TacheBO, Integer> {
      * <br>
      * On tri par pkTaches pour éviter que la liste ne change d'ordre après une modification.
      *
-     * @param pkDemandes, l'id de la demande
+     * @param pkDemandes,
+     *         l'id de la demande
      * @return une liste de tâches liées à la demande demandée
      */
     @Query("SELECT t FROM TacheBO t WHERE t.demande.pkDemandes = ?1 ORDER BY t.locked, t.pkTaches")
@@ -30,7 +31,8 @@ public interface TachesRepository extends CrudRepository<TacheBO, Integer> {
     /**
      * Méthode pour bloquer les tâches liées à une demande
      *
-     * @param pkDemandes, l'id de la demande
+     * @param pkDemandes,
+     *         l'id de la demande
      */
     @Modifying
     @Query("UPDATE TacheBO t SET t.locked = true WHERE t.demande.pkDemandes = ?1")
@@ -39,7 +41,8 @@ public interface TachesRepository extends CrudRepository<TacheBO, Integer> {
     /**
      * Purge des tâches liées à une demande
      *
-     * @param pkDemande, l'id de la demande
+     * @param pkDemande,
+     *         l'id de la demande
      */
     void deleteByDemande_PkDemandes(Integer pkDemande);
 }

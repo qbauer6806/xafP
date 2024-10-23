@@ -11,16 +11,15 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Controller pour la page d'accueil /
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Controller
 @RequestMapping("/")
 public class IndexController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexController.class);
-    
+
     @Autowired
     private IndexControllerInterface indexControllerInterface;
     @Autowired
@@ -38,7 +37,7 @@ public class IndexController extends AbstractController {
         LOGGER.info("======================= Fin /");
         return mav;
     }
-    
+
     @GetMapping(value = "/index")
     public ModelAndView formIndex() {
 

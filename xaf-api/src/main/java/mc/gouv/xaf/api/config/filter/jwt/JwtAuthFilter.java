@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Filter pour l'authorisation via JWT
+ *
  * @author fgaujous
  */
 public class JwtAuthFilter implements Filter {

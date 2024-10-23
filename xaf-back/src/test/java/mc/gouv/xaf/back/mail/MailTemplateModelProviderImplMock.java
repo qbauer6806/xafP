@@ -46,7 +46,8 @@ public class MailTemplateModelProviderImplMock implements MailTemplateModelProvi
     }
 
     @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, Map<String, Object> bpmVariables) {
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+            Map<String, Object> bpmVariables) {
         return null;
     }
 

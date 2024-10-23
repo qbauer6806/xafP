@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
- * Modélise une donnée de paiement pour l'interface Monetico
- * Pour plus d'informations se reporter à la doc technique de Monetico
+ * Modélise une donnée de paiement pour l'interface Monetico Pour plus d'informations se reporter à la doc technique de
+ * Monetico
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MoneticoDTO {
@@ -298,53 +298,32 @@ public class MoneticoDTO {
 
     @Override
     public String toString() {
-        return "PaiementDTO{" +
-                "TPE='" + tpe + '\'' +
-                ", version='" + version + '\'' +
-                ", date='" + date + '\'' +
-                ", montant='" + montant + '\'' +
-                ", reference='" + reference + '\'' +
-                ", lgue='" + lgue + '\'' +
-                ", MAC='" + mac + '\'' +
-                ", contexte_commande='" + contexte_commande + '\'' +
-                ", societe='" + societe + '\'' +
-                ", texteLibre='" + texteLibre + '\'' +
-                ", mail='" + mail + '\'' +
-                ", urlRetourOk='" + urlRetourOk + '\'' +
-                ", urlRetourErr='" + urlRetourErr + '\'' +
+        return "PaiementDTO{" + "TPE='" + tpe + '\'' + ", version='" + version + '\'' + ", date='" + date + '\''
+                + ", montant='" + montant + '\'' + ", reference='" + reference + '\'' + ", lgue='" + lgue + '\''
+                + ", MAC='" + mac + '\'' + ", contexte_commande='" + contexte_commande + '\'' + ", societe='" + societe
+                + '\'' + ", texteLibre='" + texteLibre + '\'' + ", mail='" + mail + '\'' + ", urlRetourOk='"
+                + urlRetourOk + '\'' + ", urlRetourErr='" + urlRetourErr + '\'' +
                 //", ThreeDSecureChallenge='" + ThreeDSecureChallenge + '\'' +
-                ", mode_affichage='" + mode_affichage + '\'' +
-                ", nbrech='" + nbrech + '\'' +
-                ", dateech1='" + dateech1 + '\'' +
-                ", montantech1='" + montantech1 + '\'' +
-                ", dateech2='" + dateech2 + '\'' +
-                ", montantech2='" + montantech2 + '\'' +
-                ", dateech3='" + dateech3 + '\'' +
-                ", montantech3='" + montantech3 + '\'' +
-                ", dateech4='" + dateech4 + '\'' +
-                ", montantech4='" + montantech4 + '\'' +
-                ", libelleMonetique='" + libelleMonetique + '\'' +
-                ", libelleMonetiqueLocalite='" + libelleMonetiqueLocalite + '\'' +
-                '}';
+                ", mode_affichage='" + mode_affichage + '\'' + ", nbrech='" + nbrech + '\'' + ", dateech1='" + dateech1
+                + '\'' + ", montantech1='" + montantech1 + '\'' + ", dateech2='" + dateech2 + '\'' + ", montantech2='"
+                + montantech2 + '\'' + ", dateech3='" + dateech3 + '\'' + ", montantech3='" + montantech3 + '\''
+                + ", dateech4='" + dateech4 + '\'' + ", montantech4='" + montantech4 + '\'' + ", libelleMonetique='"
+                + libelleMonetique + '\'' + ", libelleMonetiqueLocalite='" + libelleMonetiqueLocalite + '\'' + '}';
     }
 
+    public String getLibelleMonetique() {
+        return libelleMonetique;
+    }
 
-	public String getLibelleMonetique() {
-		return libelleMonetique;
-	}
+    public void setLibelleMonetique(String libelleMonetique) {
+        this.libelleMonetique = libelleMonetique;
+    }
 
+    public String getLibelleMonetiqueLocalite() {
+        return libelleMonetiqueLocalite;
+    }
 
-	public void setLibelleMonetique(String libelleMonetique) {
-		this.libelleMonetique = libelleMonetique;
-	}
-
-
-	public String getLibelleMonetiqueLocalite() {
-		return libelleMonetiqueLocalite;
-	}
-
-
-	public void setLibelleMonetiqueLocalite(String libelleMonetiqueLocalite) {
-		this.libelleMonetiqueLocalite = libelleMonetiqueLocalite;
-	}
+    public void setLibelleMonetiqueLocalite(String libelleMonetiqueLocalite) {
+        this.libelleMonetiqueLocalite = libelleMonetiqueLocalite;
+    }
 }

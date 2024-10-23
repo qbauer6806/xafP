@@ -8,13 +8,13 @@ import com.fasterxml.jackson.databind.util.ISO8601Utils;
 
 /**
  * https://stackoverflow.com/questions/45276807/iso8601-with-milliseconds-in-json-using-jackson
- * @author fgaujous
  *
+ * @author fgaujous
  */
 public class ISO8601WithMillisDateFormat extends ISO8601DateFormat {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1623437518082844753L;
 

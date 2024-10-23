@@ -61,7 +61,7 @@ public class DemandesComplementsFilesBO {
     private String contenu;
 
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 
 }

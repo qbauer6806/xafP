@@ -11,7 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Service implémenté par la démarche permettant de fournir à xaf-back-paiement des informations propres à chaque démarche pour la partie paiement.
+ * Service implémenté par la démarche permettant de fournir à xaf-back-paiement des informations propres à chaque
+ * démarche pour la partie paiement.
  *
  * @author mboutelier.ext
  */
@@ -23,19 +24,21 @@ public interface PaiementsDataProvider {
     InformationFacturationDTO getInfosFacturation(DemandeDTO demandeDTO);
 
     /**
-     * Récupère le montant à capturer en fonction du nombre de tâches validées.
-     * Par défaut, c'est le montant de la commande
+     * Récupère le montant à capturer en fonction du nombre de tâches validées. Par défaut, c'est le montant de la
+     * commande
      *
-     * @param demandeDTO, la demande à capturer
+     * @param demandeDTO,
+     *         la demande à capturer
      * @return un double contenant le montant à captuer
      */
-    default double getMontantCapture(DemandeDTO demandeDTO, @NotNull CommandeDemandeDTO commandeDemandeDTO){
+    default double getMontantCapture(DemandeDTO demandeDTO, @NotNull CommandeDemandeDTO commandeDemandeDTO) {
         return commandeDemandeDTO.getMontant();
     }
 
     /**
      * Création des données à envoyer à CIR pour les lignes de la facture
      */
-    List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation, CommandeDTO commandeDTO);
+    List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation,
+            CommandeDTO commandeDTO);
 
 }

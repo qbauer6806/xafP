@@ -37,7 +37,8 @@ class PaiementSecurityServiceTest {
     void getHmacStringInterfaceRetourTest() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
-        responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
+        responseDTO.setAuthentification(
+                "ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
         responseDTO.setBincb("00000100");
         responseDTO.setBrand("VI");
         responseDTO.setCbmasquee("00000100******02");
@@ -53,7 +54,8 @@ class PaiementSecurityServiceTest {
         responseDTO.setOriginecb("FRA");
         responseDTO.setOriginetr("MCO");
         responseDTO.setReference("OsU7xquP8DTU");
-        responseDTO.setTexteLibre("Demander l’échange d’un permis de conduire étranger - 26/09/2022:12:41:55 - demandes [PEC-20220926-TPBP]");
+        responseDTO.setTexteLibre(
+                "Demander l’échange d’un permis de conduire étranger - 26/09/2022:12:41:55 - demandes [PEC-20220926-TPBP]");
         responseDTO.setTypecompte("inconnu");
         responseDTO.setUsage("inconnu");
         responseDTO.setVld("1222");
@@ -65,7 +67,8 @@ class PaiementSecurityServiceTest {
     void getHmacStringInterfaceRetourTest2() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
-        responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
+        responseDTO.setAuthentification(
+                "ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
         responseDTO.setBincb("00000100");
         responseDTO.setBrand("VI");
         responseDTO.setCbmasquee("00000100******02");
@@ -81,7 +84,8 @@ class PaiementSecurityServiceTest {
         responseDTO.setOriginecb("FRA");
         responseDTO.setOriginetr("MCO");
         responseDTO.setReference("KFTETuyvrf9G");
-        responseDTO.setTexteLibre("Demander l echange d un permis de conduire etranger - Commande du 04/10/2022:10:34:52 - demandes [PEC-20221004-6VBJ]");
+        responseDTO.setTexteLibre(
+                "Demander l echange d un permis de conduire etranger - Commande du 04/10/2022:10:34:52 - demandes [PEC-20221004-6VBJ]");
         responseDTO.setTypecompte("inconnu");
         responseDTO.setUsage("inconnu");
         responseDTO.setVld("0125");
@@ -96,13 +100,15 @@ class PaiementSecurityServiceTest {
         responseDTO.setDate("24/01/2023_a_13:47:08");
         responseDTO.setMontant("0.11EUR");
         responseDTO.setReference("S4QBaERt4SVa");
-        responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
+        responseDTO.setAuthentification(
+                "ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
         responseDTO.setBrand("VI");
         responseDTO.setCbmasquee("00000100******01");
         responseDTO.setCodeRetour("Annulation");
         responseDTO.setCvx("oui");
         responseDTO.setVld("1223");
-        responseDTO.setTexteLibre("Demander l echange d un permis de conduire etranger - Commande du 24/01/2023:13:46:36 - demandes [PEC-20230124-6B5V]");
+        responseDTO.setTexteLibre(
+                "Demander l echange d un permis de conduire etranger - Commande du 24/01/2023:13:46:36 - demandes [PEC-20230124-6B5V]");
         responseDTO.setMotifrefus("Refus");
         responseDTO.setMotifrefusautorisation("Refus test");
         responseDTO.setTypecompte("inconnu");

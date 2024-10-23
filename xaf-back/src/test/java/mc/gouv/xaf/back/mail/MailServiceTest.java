@@ -22,9 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test unitaire pour la classe MailService
- * 
- * @author dsaidiparto.ext
  *
+ * @author dsaidiparto.ext
  */
 @Disabled
 @ActiveProfiles("test")
@@ -62,7 +61,7 @@ class MailServiceTest {
 
     /**
      * En fournissant le template il retourne un array de String conentant le contenu de email et le sujet d'email.
-     * 
+     *
      * @param lang
      * @return Stting[] email preview text
      * @throws Exception
@@ -81,7 +80,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en fraçais verifie que l'identifiant de usager est bien placé dans le sujet
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -95,7 +94,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que l'identifiant de usager est bien placé dans le sujet
-     * 
+     *
      * @throws Exception
      */
 
@@ -110,7 +109,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en fraçais verifie que l'identifiant de usager est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -124,7 +123,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que l'identifiant de usager est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -137,7 +136,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en fraçais verifie que le Titre,Nom et prénom de usager sont bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -153,7 +152,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le Titre,Nom et prénom de usager sont bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -169,7 +168,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en frnaçais verifie que le code de demarche de usager est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -183,7 +182,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le code de demarche de usager est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -197,7 +196,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en frnaçais verifie que le motif de email envoyé est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -211,7 +210,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le motif de email envoyé est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -225,7 +224,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en français verifie que le nom d'utilisateur est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -239,7 +238,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le nom d'utilisateur est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -253,7 +252,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en français verifie que le nom d'usager est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -266,7 +265,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le nom d'usager est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -280,7 +279,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en français verifie que le lien FRONT_URL est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -294,7 +293,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le lien FRONT_URL est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -308,7 +307,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en français verifie que le lien BACK_URL est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -322,7 +321,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que le lien BACK_URL est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -336,7 +335,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en français verifie que Commentaire est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -350,7 +349,7 @@ class MailServiceTest {
 
     /**
      * Pour un email en anglais verifie que Commentaire est bien placé dans le contenu
-     * 
+     *
      * @throws Exception
      */
     @Test

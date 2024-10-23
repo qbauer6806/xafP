@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class BrouillonsTransformer {
 
@@ -45,10 +43,11 @@ public class BrouillonsTransformer {
         try {
             dto.setContenu(mapper.readTree(bo.getContenu()));
             if (bo.getMeta() != null) {
-            	dto.setMeta(mapper.readTree(bo.getMeta()));
+                dto.setMeta(mapper.readTree(bo.getMeta()));
             }
-            if (bo.getContenuInitial() != null)
+            if (bo.getContenuInitial() != null) {
                 dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
+            }
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -66,8 +65,8 @@ public class BrouillonsTransformer {
     }
 
     /**
-     * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction
-     * Mapper les fichiers attachés après appel à cette fonction, si besoin
+     * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction Mapper les fichiers attachés
+     * après appel à cette fonction, si besoin
      */
     public static BrouillonBO dto2Bo(BrouillonDTO dto) {
         if (dto == null) {
@@ -87,7 +86,7 @@ public class BrouillonsTransformer {
             bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
             // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
             if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
-            	bo.setContenuInitial(null);
+                bo.setContenuInitial(null);
             }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
@@ -109,7 +108,8 @@ public class BrouillonsTransformer {
         return page;
     }
 
-    public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated, String lastBuildId) {
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated,
+            String lastBuildId) {
         if (brouillonDTO.getBuildId().equals(lastBuildId)) {
             // statut not transmitted
             setDernierStatut(brouillonDTO, notTransmitted);

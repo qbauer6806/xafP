@@ -29,7 +29,8 @@ public interface DemarchesService {
     /**
      * Permet de modifier une démarche
      *
-     * @param demarche l'objet de la démarche à modifier
+     * @param demarche
+     *         l'objet de la démarche à modifier
      * @return La démarche modifiée
      */
     DemarcheDTO updateDemarche(DemarcheDTO demarche);

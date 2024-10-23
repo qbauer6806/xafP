@@ -39,11 +39,11 @@ public class AfApiClient extends ApiClient {
      * Crée une instance du client avec sécurisation Basic Auth
      *
      * @param serviceUrl
-     *            URL du WS à appeler
+     *         URL du WS à appeler
      * @param user
-     *            User à utiliser pour l'authentification
+     *         User à utiliser pour l'authentification
      * @param password
-     *            Mot de passe à utiliser pour l'authentification
+     *         Mot de passe à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String user, String password) {
         super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password), true);
@@ -53,9 +53,9 @@ public class AfApiClient extends ApiClient {
      * Crée une instance du client avec sécurisation JWT
      *
      * @param serviceUrl
-     *            URL du WS à appeler
+     *         URL du WS à appeler
      * @param jwtToken
-     *            JWT à utiliser pour l'authentification
+     *         JWT à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String jwtToken) {
         super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken), true);
@@ -83,8 +83,7 @@ public class AfApiClient extends ApiClient {
 
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
         Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId)
-                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
-                .request(MediaType.APPLICATION_JSON)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
 
@@ -146,6 +145,7 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<DemandeDTO>>() {
+
         });
     }
 
@@ -158,6 +158,7 @@ public class AfApiClient extends ApiClient {
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
         ExceptionManager.checkExceptionResponse(res);
         return res.readEntity(new GenericType<Page<DemandeDTO>>() {
+
         });
     }
 
@@ -179,6 +180,7 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<DemandeComplementsDTO>>() {
+
         });
     }
 
@@ -239,6 +241,7 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<MotifDTO>>() {
+
         });
     }
 
@@ -249,19 +252,22 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<PeriodeOuvertureDTO>>() {
+
         });
     }
 
     public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) {
 
         WebTarget webTarget = getTarget();
-        if (params != null)
+        if (params != null) {
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
                 if (entry.getValue() != null) {
-                    for (String str : entry.getValue())
+                    for (String str : entry.getValue()) {
                         webTarget = webTarget.queryParam(entry.getKey(), str);
+                    }
                 }
             }
+        }
 
         Response res = webTarget.path("/donneesexternes").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
@@ -270,6 +276,7 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<JsonNode>() {
+
         });
     }
 
@@ -280,6 +287,7 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<PropertiesDTO>>() {
+
         });
     }
 
@@ -313,6 +321,7 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<BrouillonDTO>>() {
+
         });
     }
 
@@ -342,6 +351,7 @@ public class AfApiClient extends ApiClient {
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
         ExceptionManager.checkExceptionResponse(res);
         return res.readEntity(new GenericType<Page<BrouillonDTO>>() {
+
         });
     }
 

@@ -69,6 +69,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
+
     public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementServiceImpl.class);
     private static final String CODE_RETOUR_OK = "0";
@@ -137,8 +138,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         String safeLangue = AfBackUtils.logSafe(langue);
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", safeDemandeId, safeLangue, usagerId);
 
-        String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
-        List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).toList();
+        String codeSociete = iframe
+                ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe()
+                : paiementPropertiesResolver.getCodeSiteStandard();
+        List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt)
+                .toList();
         StringJoiner listeIdentifiantsDemandes = new StringJoiner(",");
         BigDecimal totalCommande = BigDecimal.ZERO;
         Map<Integer, BigDecimal> totauxDemandes = new HashMap<>();
@@ -146,21 +150,25 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
 
         for (Integer demandeId : demandesIdList) {
-            DemandeBO demandeBO = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(usagerId, demandeId);
+            DemandeBO demandeBO = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(
+                    usagerId, demandeId);
             if (demandeBO == null) {
-                throw new DemarchesServiceException("La demande " + demandeId + " est introuvable pour l'usager id " +
-                        usagerId, HttpStatus.NOT_FOUND);
+                throw new DemarchesServiceException(
+                        "La demande " + demandeId + " est introuvable pour l'usager id " + usagerId,
+                        HttpStatus.NOT_FOUND);
             }
             demandes.put(demandeId, demandeBO);
             listeIdentifiantsDemandes.add(demandeBO.getIdentifiant());
 
             // TODO Changer le moyen de récupérer le statut d'un paiement
-            DemandeDataDTO data = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
+            DemandeDataDTO data = demandesDataService.getDemandeData(demandeId,
+                    PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
             if (data != null && StringUtils.equals(data.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
-                throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
+                throw new DemarchesServiceException(
+                        "La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
             }
 
-            var articlesDemande = montantService.getArticles(demandesTransformer.bo2Dto(demandeBO, new String[]{}));
+            var articlesDemande = montantService.getArticles(demandesTransformer.bo2Dto(demandeBO, new String[] {}));
             BigDecimal montantdemande = BigDecimal.ZERO;
             for (CommandeDemandeArticleBO article : articlesDemande) {
                 BigDecimal montantArticle = BigDecimal.valueOf(article.getMontant());
@@ -237,7 +245,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
         paiementDTO.setSociete(codeSociete);
         paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
-        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + date + " - demandes [" + listeIdentifiantsDemandes + "]");
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + date + " - demandes ["
+                + listeIdentifiantsDemandes + "]");
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());
@@ -262,11 +271,13 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     private BillingDTO createBillingDTO(GichuniUsagerDTO usager) {
         BillingDTO billingDTO = new BillingDTO();
-        String prenom = usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom();
+        String prenom =
+                usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom();
         billingDTO.setFirstName(couperSiTropGrand(prenom, TAILLE_MAX_NOMS));
         String nom = usager.getNom() == null ? paiementPropertiesResolver.getNomParDefaut() : usager.getNom();
         billingDTO.setLastName(couperSiTropGrand(nom, TAILLE_MAX_NOMS));
-        String adresse1 = usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1();
+        String adresse1 =
+                usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1();
         billingDTO.setAddressLine1(couperSiTropGrand(adresse1, TAILLE_MAX_OBJETS));
         String adresse2 = usager.getAdresse2();
         if (StringUtils.isNotEmpty(adresse2)) {
@@ -278,8 +289,12 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
         String ville = usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille();
         billingDTO.setCity(couperSiTropGrand(ville, TAILLE_MAX_OBJETS));
-        billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : couperSiTropGrand(usager.getCodePostal(), TAILLE_MAX_CODE_POSTAL));
-        billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
+        billingDTO.setPostalCode(usager.getCodePostal() == null
+                ? paiementPropertiesResolver.getCodePostalParDefaut()
+                : couperSiTropGrand(usager.getCodePostal(), TAILLE_MAX_CODE_POSTAL));
+        billingDTO.setCountry(usager.getPaysCode() == null
+                ? paiementPropertiesResolver.getCodePaysParDefaut()
+                : usager.getPaysCode());
         return billingDTO;
     }
 
@@ -297,12 +312,14 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         String reference = moneticoResponseDTO.getReference();
         String safeReference = AfBackUtils.logSafe(reference);
         LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", safeReference);
-        MoyenPaiementBO moyenPaiementBO = moyenPaiementRepository.findById(reference)
-                .orElseThrow(() -> new DemarchesServiceException("Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND));
+        MoyenPaiementBO moyenPaiementBO = moyenPaiementRepository.findById(reference).orElseThrow(
+                () -> new DemarchesServiceException(
+                        "Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
         YearMonth yeaMonthValidite = YearMonth.parse(moneticoResponseDTO.getVld(), formatter);
-        LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(), yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
+        LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(),
+                yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
         if (dateValidite.isBefore(moyenPaiementBO.getDateLimite())) {
             LOGGER.info("Changement date limite moyen paiement [ dateValidite {}] ", dateValidite);
             moyenPaiementBO.setDateLimite(dateValidite);
@@ -312,7 +329,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
         if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-            List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBO.getCommande().getPkCommandes());
+            List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(
+                    moyenPaiementBO.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandeData(demandes, dateValidite, moneticoResponseDTO);
         } else {
@@ -348,7 +366,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<DemandeDTO> demandes, LocalDateTime dateValidite, MoneticoResponseDTO moneticoResponseDTO) {
+    void updateDemandeData(List<DemandeDTO> demandes, LocalDateTime dateValidite,
+            MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
             for (DemandeDTO demande : demandes) {
@@ -361,10 +380,13 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 LOGGER.info("========== Mise à jour des données de la demande {}...", pkDemande);
                 Map<String, String> datas = new HashMap<>();
                 datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
-                datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(DTF_AAAA_MM_JJ));
-                datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
+                datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(),
+                        dateValidite.format(DTF_AAAA_MM_JJ));
+                datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(),
+                        PaiementStatutEnum.EMPREINTE_VALIDE.name());
                 datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moneticoResponseDTO.getModepaiement());
-                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moneticoResponseDTO.getReference());
+                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(),
+                        moneticoResponseDTO.getReference());
                 demandesDataService.saveOrUpdateDemandeDatas(pkDemande, datas);
 
                 LOGGER.info("Ajout de l'historique de paiement...");
@@ -372,7 +394,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 historique.setFkDemandes(demandesTransformer.dto2Bo(demande));
                 DemandeUsagerDTO usager = demande.getUsager();
                 if (usager != null) {
-                    historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom() + " : Effectue une empreinte bancaire");
+                    historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
+                            + " : Effectue une empreinte bancaire");
                 }
                 historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
                 historique.setDate(date);
@@ -381,7 +404,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
                 LOGGER.info("Progression dans le BPM...");
                 Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
+                        usagerId.toString());
                 variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
                 gouvBPM.setProcessBusinessVariables(pkDemande, variables);
 

@@ -10,12 +10,11 @@ import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 
 /**
  * @author qdeme
- *
  */
 public interface DemandesHistoriqueRepository extends CrudRepository<DemandesHistoriqueBO, Integer> {
 
     List<DemandesHistoriqueBO> findByFkDemandesPkDemandes(Integer pkDemandes);
-    
+
     @Modifying
     @Query("delete from DemandesHistoriqueBO histo where histo.fkDemandes.pkDemandes =:pkDemandes ")
     public void deleteHistoForGivenPkDemandes(Integer pkDemandes);

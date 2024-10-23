@@ -16,7 +16,7 @@ import java.io.Serializable;
 public class ResidDemandeCertificatResidenceDTO implements Serializable {
 
     private static final long serialVersionUID = 7717984948087024605L;
-    
+
     private ResidDemandeBaseDTO demandeBase;
 
     @Getter

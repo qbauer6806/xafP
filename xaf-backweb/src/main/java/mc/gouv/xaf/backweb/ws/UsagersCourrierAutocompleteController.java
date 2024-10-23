@@ -18,11 +18,9 @@ import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
 
 /**
- * 
  * WS d'autocomplete pour les usagers courrier
- * 
+ *
  * @author qdeme
- * 
  */
 @GouvRestController
 @Secured("ROLE_SAISIE")
@@ -41,7 +39,7 @@ public class UsagersCourrierAutocompleteController {
         LOGGER.info("======================= Fin appel de /ws/demandesCourrierAutocomplete/usagers");
         return ret;
     }
-    
+
     @GetMapping(value = "/usagersFullText", produces = "application/json")
     public @ResponseBody AutocompleteUsagerListeDTO usagersAutoCompleteFullText(@RequestParam String query,
             @RequestParam Integer usagerSourceId) {
@@ -61,11 +59,11 @@ public class UsagersCourrierAutocompleteController {
         LOGGER.info("======================= Fin appel de /ws/demandesCourrierAutocomplete/usagersFullText");
         return ret;
     }
-    
+
     private AutocompleteUsagerListeDTO usagersAutoComplete(String query, boolean fullText) {
 
         List<UsagerCourrierDTO> usagers = usagersCourrierService.getUsagersCourrier(query);
-        
+
         List<AutocompleteUsagerDTO> liste = new ArrayList<>();
         for (UsagerCourrierDTO usager : usagers) {
             AutocompleteUsagerDTO u = new AutocompleteUsagerDTO();
@@ -80,7 +78,7 @@ public class UsagersCourrierAutocompleteController {
             if (StringUtils.isNotBlank(usager.getRaisonSociale())) {
                 nomRaisonSoc = nomRaisonSoc + " (" + usager.getRaisonSociale() + ")";
             }
-            
+
             // Si fullText, afficher aussi l'adresse, le code postal et la ville
             if (fullText) {
                 nomRaisonSoc += " - " + usager.getAdresse1() + " " + usager.getCodePostal() + " " + usager.getVille();

@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
  * Implémentation en mémoire vive du cache générique pour les applications du gouvernement
- * 
- * @author qdeme
  *
- * @param <K> clé
- * @param <V> valeur
+ * @param <K>
+ *         clé
+ * @param <V>
+ *         valeur
+ * @author qdeme
  */
 public class GouvMemoryCache<K, V> implements GouvCache<K, V> {
 
@@ -32,9 +32,11 @@ public class GouvMemoryCache<K, V> implements GouvCache<K, V> {
 
     /**
      * Constructeur du GouvMemoryCache
-     * 
-     * @param gouvCacheDataProvider DataProvider permettant au cache de récupérer les objets à gérer
-     * @param cacheDuration Durée en millisecondes à partir de laquelle une donnée est considérée comme obsolète
+     *
+     * @param gouvCacheDataProvider
+     *         DataProvider permettant au cache de récupérer les objets à gérer
+     * @param cacheDuration
+     *         Durée en millisecondes à partir de laquelle une donnée est considérée comme obsolète
      */
     public GouvMemoryCache(GouvCacheDataProvider<K, V> gouvCacheDataProvider, long cacheDuration) {
         this.gouvCacheDataProvider = gouvCacheDataProvider;

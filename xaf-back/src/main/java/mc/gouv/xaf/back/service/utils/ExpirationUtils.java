@@ -28,7 +28,8 @@ public class ExpirationUtils {
         Map<DemandeDTO, String> result = new HashMap<>();
         for (ExpirationStatutDemandeConf expirationDemandeSetting : expirationDemandeSettings) {
             String currentStatut = expirationDemandeSetting.getStatutAExpirer();
-            int nombreJourAvantExpiration = Integer.parseInt(propertiesService.getProperty(expirationDemandeSetting.getCleDelaiExpiration()).getValue());
+            int nombreJourAvantExpiration = Integer.parseInt(
+                    propertiesService.getProperty(expirationDemandeSetting.getCleDelaiExpiration()).getValue());
             // On va chercher toutes les demandes dans le status à expirer
             List<DemandeDTO> demandes = demandesService.getAllDemandesFilteredByStatut(currentStatut);
             if (null != demandes && !demandes.isEmpty()) {
@@ -37,7 +38,8 @@ public class ExpirationUtils {
                     Date datePassageStatutAExpirer = demandeDTO.getDernierStatut().getDate();
                     ZonedDateTime now = ZonedDateTime.now();
                     ZonedDateTime xDaysAgoForExpiration = now.plusDays(-nombreJourAvantExpiration);
-                    boolean doitEtreExpiree = datePassageStatutAExpirer.toInstant().isBefore(xDaysAgoForExpiration.toInstant());
+                    boolean doitEtreExpiree = datePassageStatutAExpirer.toInstant()
+                            .isBefore(xDaysAgoForExpiration.toInstant());
                     if (doitEtreExpiree) {
                         LOGGER.info(
                                 "La demande non répondue {} est plus ancienne que {} jours : ordonner l'expiration de la demande",
@@ -51,6 +53,5 @@ public class ExpirationUtils {
         }
         return result;
     }
-
 
 }

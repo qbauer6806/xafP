@@ -9,15 +9,14 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import java.io.Serializable;
 
 /**
- * 
  * Classe contenant les informations de l'usager dans xaf-servlet
- * 	- Informations issues de GICHUNI (par héritage de xaf-shared)
- *  - Informations pour la session de l'usager
- *  	- Infos de Tokens GICHKEY
- *  	- Infos certifiées / MConnect
- *  	- accessId
- *  	- ...
- * 
+ * - Informations issues de GICHUNI (par héritage de xaf-shared)
+ * - Informations pour la session de l'usager
+ * - Infos de Tokens GICHKEY
+ * - Infos certifiées / MConnect
+ * - accessId
+ * - ...
+ *
  * @author qdeme
  */
 
@@ -32,15 +31,15 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
     public static final short GENDER_MLLE_INDEX = 2;
 
     protected boolean isUsagerCourrier = false;
-    
+
     @Setter
     @Getter
     protected Integer accessId;
-    
+
     @Setter
     @Getter
     protected KeycloakTokenInfo tokenInfo;
-    
+
     @Setter
     @Getter
     protected boolean mConnect = false;

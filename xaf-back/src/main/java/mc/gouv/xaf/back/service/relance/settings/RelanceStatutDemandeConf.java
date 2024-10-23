@@ -19,7 +19,8 @@ public class RelanceStatutDemandeConf implements Serializable {
     private String cleDelaiEntreDeuxRelances;
     private String clefMailPrefix;
 
-    public RelanceStatutDemandeConf(String statutARelancer, String cleDelaiAvantPremiereRelance, String cleDelaiEntreDeuxRelances, String clefMailPrefix) {
+    public RelanceStatutDemandeConf(String statutARelancer, String cleDelaiAvantPremiereRelance,
+            String cleDelaiEntreDeuxRelances, String clefMailPrefix) {
         this.statutARelancer = statutARelancer;
         this.cleDelaiAvantPremiereRelance = cleDelaiAvantPremiereRelance;
         this.cleDelaiEntreDeuxRelances = cleDelaiEntreDeuxRelances;

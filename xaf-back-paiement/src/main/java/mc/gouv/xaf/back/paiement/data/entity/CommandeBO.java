@@ -13,6 +13,7 @@ import lombok.ToString;
 @Table(name = "PMNT_COMMANDES")
 @ToString
 public class CommandeBO {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK_COMMANDES", nullable = false)

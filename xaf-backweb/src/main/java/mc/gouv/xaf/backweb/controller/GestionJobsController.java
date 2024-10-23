@@ -22,7 +22,7 @@ import mc.gouv.xaf.shared.enums.JobNamesEnum;
 public class GestionJobsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionJobsController.class);
-    
+
     @Autowired
     private BackGouvPropertiesResolver gouvPropertiesResolver;
 
@@ -34,22 +34,23 @@ public class GestionJobsController {
         LOGGER.info("======================= Fin gestion/jobs. Méthode form");
         return mav;
     }
-    
+
     // Ne pas afficher dans la liste des jobs, ceux concernant Kafka, si kafkaEnabled=false
     private List<JobNamesEnum> filterJobList(List<JobNamesEnum> jobList) {
-    	List<JobNamesEnum> newList = new ArrayList<>();
-    	boolean kafkaEnabled = gouvPropertiesResolver.getKafkaEnabled();
-    	for (JobNamesEnum job : jobList) {
-    		if (JobNamesEnum.SYNCHRONISATION_GLOBALE_GU.name().equals(job.name()) || JobNamesEnum.TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA.name().equals(job.name())
-    				|| JobNamesEnum.TRAITEMENT_OUTBOX_KAFKA.name().equals(job.name())) {
-    			if (kafkaEnabled) {
-    				newList.add(job);
-    			}
-    		} else {
-    			newList.add(job);
-    		}
-    	}
-    	return newList;
+        List<JobNamesEnum> newList = new ArrayList<>();
+        boolean kafkaEnabled = gouvPropertiesResolver.getKafkaEnabled();
+        for (JobNamesEnum job : jobList) {
+            if (JobNamesEnum.SYNCHRONISATION_GLOBALE_GU.name().equals(job.name())
+                    || JobNamesEnum.TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA.name().equals(job.name())
+                    || JobNamesEnum.TRAITEMENT_OUTBOX_KAFKA.name().equals(job.name())) {
+                if (kafkaEnabled) {
+                    newList.add(job);
+                }
+            } else {
+                newList.add(job);
+            }
+        }
+        return newList;
     }
 
 }

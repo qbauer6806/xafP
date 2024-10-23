@@ -26,8 +26,8 @@ public class ApiConfig {
 
     @PostConstruct
     public void loadProperties() {
-        System.setProperty("MC_LOGDIR", loggingFile) ;
-        System.setProperty("MC_APPNAME", displayName) ;
+        System.setProperty("MC_LOGDIR", loggingFile);
+        System.setProperty("MC_APPNAME", displayName);
     }
 
     @Bean
@@ -63,6 +63,7 @@ public class ApiConfig {
             }
         }
     }
+
     @Bean
     public WebServerFactoryCustomizer<JettyServletWebServerFactory> webServerFactoryCustomizer() {
         return factory -> {

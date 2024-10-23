@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author tverdoyan
  */
 @Controller
-@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
+@Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/utilisateurs")
 public class GestionUtilisateursController extends AbstractController {
 

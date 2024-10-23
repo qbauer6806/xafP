@@ -24,19 +24,21 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
 
     @Override
     public CommandeDemandeDTO getDerniereCommandeDemande(Integer demandeId) {
-        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findByDemande_PkDemandesOrderByCommande_DateCreationDesc(demandeId);
+        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findByDemande_PkDemandesOrderByCommande_DateCreationDesc(
+                demandeId);
         if (!commandeDemandeBOS.isEmpty()) {
-        	return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.get(0));
-        } 
+            return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.get(0));
+        }
         return null;
     }
 
     @Override
     public List<DemandeDTO> getDemandesFromCommande(Integer pkCommandes) {
         List<DemandeDTO> demandes = new ArrayList<>();
-        List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(pkCommandes);
+        List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(
+                pkCommandes);
         for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
-            demandes.add(demandesTransformer.bo2Dto(commandeDemandeBO.getDemande(), new String[]{}));
+            demandes.add(demandesTransformer.bo2Dto(commandeDemandeBO.getDemande(), new String[] {}));
         }
         return demandes;
     }

@@ -30,9 +30,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Controller pour le service de génération d'aperçu PDF
- * 
+ *
  * @author qdeme
- * 
  */
 @GouvRestController
 @Secured("ROLE_LECTURE")
@@ -47,10 +46,8 @@ public class ApercuPdfController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApercuPdfController.class);
 
-
     @PostMapping(value = "/apercu", produces = MediaType.APPLICATION_PDF_VALUE)
-    public void apercuPdf(HttpServletResponse response,
-                          @Valid @RequestBody PdfPreviewFormBean pdfPreviewFormBean) {
+    public void apercuPdf(HttpServletResponse response, @Valid @RequestBody PdfPreviewFormBean pdfPreviewFormBean) {
 
         LOGGER.info("======================= /pdf/apercu Génération d'aperçu PDF");
 
@@ -77,9 +74,9 @@ public class ApercuPdfController extends AbstractController {
             LOGGER.error("Erreur lors de l'écriture du PDF dans l'OutputStream", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        
-		// Supprimer le fichier temporaire car il n'est plus utile
-		LOGGER.info("Suppression du fichier temporaire...");
+
+        // Supprimer le fichier temporaire car il n'est plus utile
+        LOGGER.info("Suppression du fichier temporaire...");
         try {
             Files.delete(Paths.get(file.getPath()));
         } catch (IOException e) {

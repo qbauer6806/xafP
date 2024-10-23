@@ -81,7 +81,8 @@ public class HistoriqueServiceTestImpl implements AfHistoService {
     }
 
     @Override
-    public DemandeHistoriqueDTO historiqueDuplicationAncienneDemande(Integer demandeId, Integer oldDemandeId, String agentId) {
+    public DemandeHistoriqueDTO historiqueDuplicationAncienneDemande(Integer demandeId, Integer oldDemandeId,
+            String agentId) {
         return null;
     }
 

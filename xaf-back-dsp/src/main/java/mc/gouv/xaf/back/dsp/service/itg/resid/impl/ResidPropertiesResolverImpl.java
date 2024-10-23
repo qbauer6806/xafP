@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResidPropertiesResolverImpl implements ResidPropertiesResolver {
 
-
     @Value("${mc.gouv.${application.name}.shared.backapi.resid.api.jwt}")
     private String residApiJwt;
 

@@ -1,83 +1,83 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 
 <head>
 
-<meta charset="utf-8" />
-<meta http-equiv="x-ua-compatible" content="ie=edge" />
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-<meta name="description" content="" />
-<meta name="author" content="" />
-<title th:text="${nomDemarche}"></title>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <title th:text="${nomDemarche}"></title>
 
-<!-- Import FONTS -->
-<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
 
-<!-- Import CSS -->
-<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-	rel="stylesheet" type="text/css" />
-<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
-	rel="stylesheet" />
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
 
-<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
 
 </head>
 
 
 <body th:with="pageAccueilActive='active'">
 
-	<div th:replace="~{fragments/header :: header}" />
+<div th:replace="~{fragments/header :: header}"/>
 
-	<div id="wrapper">
+<div id="wrapper">
 
-		<!-- DEBUT CONTENU -->
-		<div id="page-content-wrapper">
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
 
-			<div class="container">
-				<br/>
+    <div class="container">
+      <br/>
 
-				<div class="row">
-					<div class="col-xs-12">
-						<div class="row ">
-							<div class="col-xs-12">
-								<h2>Erreur 500 : Problème technique rencontré</h2>
-							</div>
-							<div class="col-xs-12">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="row ">
+            <div class="col-xs-12">
+              <h2>Erreur 500 : Problème technique rencontré</h2>
+            </div>
+            <div class="col-xs-12">
 								<span>Si cette erreur persiste, veuillez déclarer un
 									incident auprès du Centre de Service en fournissant les
 									informations suivantes.</span>
-							</div>
-							<div class="col-xs-12" style="margin-top: 20px">
-								<div th:replace="~{fragments/encartinfoerreur :: encartinfoerreur}"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div style="text-align: center" class="row">
-					<a target="blank" th:href="${contactSupportUrl}"
-						class="btn btn-action ripple-effect">Déclarer un incident</a>
-						<a th:href="@{/}" class="btn btn-action ripple-effect ">Retour à l'accueil</a>
-			</div>
-			<br/>
-		</div>
+            </div>
+            <div class="col-xs-12" style="margin-top: 20px">
+              <div th:replace="~{fragments/encartinfoerreur :: encartinfoerreur}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align: center" class="row">
+      <a target="blank" th:href="${contactSupportUrl}"
+         class="btn btn-action ripple-effect">Déclarer un incident</a>
+      <a th:href="@{/}" class="btn btn-action ripple-effect ">Retour à l'accueil</a>
+    </div>
+    <br/>
+  </div>
 
-		<!-- FIN CONTENU -->
-	</div>
+  <!-- FIN CONTENU -->
+</div>
 
 
-	<div th:replace="~{fragments/footer :: footer}" />
-	<script th:src="@{/js/errorpages.js(${applicationBuildTimestamp})}"></script>
+<div th:replace="~{fragments/footer :: footer}"/>
+<script th:src="@{/js/errorpages.js(${applicationBuildTimestamp})}"></script>
 
 </body>
 </html>

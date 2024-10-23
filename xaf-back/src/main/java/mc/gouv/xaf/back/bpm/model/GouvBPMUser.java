@@ -6,9 +6,8 @@ import lombok.ToString;
 
 /**
  * Représente un utilisateur du BPM du gouvernement
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @ToString
 @Setter
@@ -16,13 +15,13 @@ import lombok.ToString;
 public class GouvBPMUser {
 
     private String id;
-    
+
     private String email;
-    
+
     private String firstName;
-    
+
     private String lastName;
-    
+
     private String password;
-    
+
 }

@@ -9,11 +9,9 @@ import java.time.ZoneId;
 import java.util.Date;
 
 /**
- * 
  * Classe utilitaire pour traiter les données RESID
- * 
- * @author amdiallo.ext
  *
+ * @author amdiallo.ext
  */
 public class ResidUtils {
 
@@ -28,10 +26,10 @@ public class ResidUtils {
     }
 
     /**
-     * Calcul la date de naissance en fonction de la date donnée en entrée par
-     * MConnect
+     * Calcul la date de naissance en fonction de la date donnée en entrée par MConnect
      *
-     * @param mConnectDate format MConnect (1991-12-26T13:30:00+01:00)
+     * @param mConnectDate
+     *         format MConnect (1991-12-26T13:30:00+01:00)
      * @return : la date de naissance au format compliant avec l'API de resid (YYYY-MM-dd)
      * @throws ParseException
      */
@@ -45,10 +43,10 @@ public class ResidUtils {
     }
 
     /**
-     * Calcul l'heure de naissance en fonction de la date donnée en entrée par
-     * MConnect
+     * Calcul l'heure de naissance en fonction de la date donnée en entrée par MConnect
      *
-     * @param mConnectDateStr format MConnect (1991-12-26T13:30:00+01:00)
+     * @param mConnectDateStr
+     *         format MConnect (1991-12-26T13:30:00+01:00)
      * @return : l'heure de naissance au format compliant avec l'API de resid (HH:mm)
      * @throws ParseException
      */
@@ -57,8 +55,8 @@ public class ResidUtils {
             return StringUtils.EMPTY;
         }
         // Date MConnect donnée en +1h, mise à l'heure 0 à faire avant conversion
-        LocalDateTime mConnectDateMinus1 = LocalDateTime
-                .ofInstant(new SimpleDateFormat(DATE_TIME_FORMAT).parse(mConnectDateStr).toInstant(), ZoneId.systemDefault());
+        LocalDateTime mConnectDateMinus1 = LocalDateTime.ofInstant(
+                new SimpleDateFormat(DATE_TIME_FORMAT).parse(mConnectDateStr).toInstant(), ZoneId.systemDefault());
         Date mConnectDate = Date.from(mConnectDateMinus1.atZone(ZoneId.systemDefault()).toInstant());
         return new SimpleDateFormat(FULL_HOUR_MIN).format(mConnectDate);
     }

@@ -38,7 +38,9 @@ public class PurgeDemandesPaiementsSchedulingJob extends PurgeDemandesScheduling
             try {
                 List<String> statuts = getStatuts(jobExecutionContext);
                 Integer delaiPurge = getDelaiPurge();
-                LOGGER.info("PURGE: Suppression des commandes dont les demandes sont dans les états finaux à moins de {} jours", delaiPurge);
+                LOGGER.info(
+                        "PURGE: Suppression des commandes dont les demandes sont dans les états finaux à moins de {} jours",
+                        delaiPurge);
                 purgePaiementDataService.purgeData(statuts, delaiPurge);
                 LOGGER.info("PURGE: Suppression des demandes dans les états finaux à moins de {} jours", delaiPurge);
                 purgeDemandesService.purgerDemandesDansStatuts(statuts, delaiPurge);
@@ -46,7 +48,8 @@ public class PurgeDemandesPaiementsSchedulingJob extends PurgeDemandesScheduling
                 LOGGER.error("Erreur lors de la purge des demandes", e);
             }
         } else {
-            LOGGER.info("PURGE: La fonctionnalité de la purge est désactivée, changez la propriété ACTIVATION_PURGE pour activer.");
+            LOGGER.info(
+                    "PURGE: La fonctionnalité de la purge est désactivée, changez la propriété ACTIVATION_PURGE pour activer.");
         }
     }
 }

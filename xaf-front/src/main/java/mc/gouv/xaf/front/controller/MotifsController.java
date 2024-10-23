@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * Servlet mettant à disposition le service /motifs avec uniquement la méthode GET pour le front.
- * Cette servlet récupère le DemarcheID et appelle le WS dans le back-end générique.
+ * Servlet mettant à disposition le service /motifs avec uniquement la méthode GET pour le front. Cette servlet récupère
+ * le DemarcheID et appelle le WS dans le back-end générique.
  *
  * @author qdeme
  */
@@ -37,7 +37,8 @@ public class MotifsController extends AbstractXafController {
         // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.SC_UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         try {

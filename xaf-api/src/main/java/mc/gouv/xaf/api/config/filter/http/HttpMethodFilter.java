@@ -16,14 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 
 /**
- * ServletFilter servant à intercepter le header d'override de méthode HTTP, afin de
- * pouvoir permettre à certains clients d'envoyer des PATCH via des méthodes POST
- * 
- * @author qdeme
+ * ServletFilter servant à intercepter le header d'override de méthode HTTP, afin de pouvoir permettre à certains
+ * clients d'envoyer des PATCH via des méthodes POST
  *
+ * @author qdeme
  */
 public class HttpMethodFilter implements Filter {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpMethodFilter.class);
 
     private static final String HTTP_METHOD_OVERRIDE_HEADER = "X-HTTP-Method-Override";
@@ -41,11 +40,12 @@ public class HttpMethodFilter implements Filter {
             String header = httpServletRequest.getHeader(HTTP_METHOD_OVERRIDE_HEADER);
             if (HttpMethod.PATCH.name().equals(header) && HttpMethod.POST.name()
                     .equals(((HttpServletRequest) request).getMethod())) {
-                
+
                 LOGGER.info("HttpMethodFilter: POST intercepté en tant que PATCH");
                 // On ne peut pas modifier directement l'attribut "method" de la request courante, il faut
                 // passer par un RequestWrapper que l'on donne au FilterChain
                 ServletRequest requestModified = new HttpServletRequestWrapper((HttpServletRequest) request) {
+
                     @Override
                     public String getMethod() {
                         return HttpMethod.PATCH.name();

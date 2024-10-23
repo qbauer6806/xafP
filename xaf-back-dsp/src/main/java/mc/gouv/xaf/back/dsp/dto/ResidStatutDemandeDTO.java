@@ -23,7 +23,7 @@ public class ResidStatutDemandeDTO implements Serializable {
     private String idTS;
 
     private ResidEtatEnum etat;
-    
+
     // TODO Resid à supprimer car le timestamp sera connu de resid, mais pour le moment j'ai besoin d'un élément de comparaison
     private String timestamp;
 

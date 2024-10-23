@@ -11,6 +11,7 @@ import java.util.List;
 
 @Component
 public class PropertiesTestServiceImpl implements PropertiesService {
+
     @Override
     public List<PropertiesDTO> getProperties() {
         return null;
@@ -48,8 +49,9 @@ public class PropertiesTestServiceImpl implements PropertiesService {
 
     @Override
     public PropertiesDTO getProperty(String key) {
-        if ("XAF_TARIF_ECHANGE".equals(key))
+        if ("XAF_TARIF_ECHANGE".equals(key)) {
             return new PropertiesDTO("amount", "80.00");
+        }
         return null;
     }
 

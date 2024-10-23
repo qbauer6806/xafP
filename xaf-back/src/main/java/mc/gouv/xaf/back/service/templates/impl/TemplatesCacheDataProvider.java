@@ -14,7 +14,7 @@ import mc.gouv.xaf.caching.GouvCacheDataProvider;
 @Profile("gouv")
 @Component
 public class TemplatesCacheDataProvider implements GouvCacheDataProvider<Integer, TemplateDTO> {
-    
+
     @Autowired
     private TemplatesService templatesService;
 
@@ -32,5 +32,5 @@ public class TemplatesCacheDataProvider implements GouvCacheDataProvider<Integer
     public TemplateDTO get(Integer key) {
         return templatesService.getTemplate(key);
     }
-    
+
 }

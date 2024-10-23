@@ -3,35 +3,35 @@
       dir="ltr" lang="fr" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="utf-8"/>
-    <meta content="ie=edge" http-equiv="x-ua-compatible"/>
-    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no"
-          name="viewport"/>
-    <meta content="" name="description"/>
-    <meta content="" name="author"/>
-    <meta th:content="${_csrf.token}" th:name="_csrf"/>
-    <meta th:content="${_csrf.headerName}" th:name="_csrf_header"/>
+  <meta charset="utf-8"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        name="viewport"/>
+  <meta content="" name="description"/>
+  <meta content="" name="author"/>
+  <meta th:content="${_csrf.token}" th:name="_csrf"/>
+  <meta th:content="${_csrf.headerName}" th:name="_csrf_header"/>
 
 
-    <title th:text="${titre}"></title>
+  <title th:text="${titre}"></title>
 
-    <!-- Import FONTS -->
-    <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
+  <!-- Import FONTS -->
+  <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
 
-    <!-- Import CSS -->
-    <link rel="stylesheet"
-          th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css"/>
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/template.css}"/>
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/sidebar.css}"/>
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/element.css}"/>
-    <link rel="stylesheet"
-          th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
-    <link rel="shortcut icon" th:href="@{/img/favicon.ico}"
-          type="image/x-icon"/>
-    <link rel="stylesheet"
-          th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"/>
-    <link rel="stylesheet"
-          th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"/>
+  <!-- Import CSS -->
+  <link rel="stylesheet"
+        th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css"/>
+  <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/template.css}"/>
+  <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/sidebar.css}"/>
+  <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/element.css}"/>
+  <link rel="stylesheet"
+        th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+  <link rel="shortcut icon" th:href="@{/img/favicon.ico}"
+        type="image/x-icon"/>
+  <link rel="stylesheet"
+        th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"/>
+  <link rel="stylesheet"
+        th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"/>
 
 </head>
 
@@ -41,459 +41,469 @@
 
 <div id="wrapper">
 
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <!-- DEBUT CONTENU -->
-    <div id="page-content-wrapper">
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
 
-        <div class="breadcrumbContent">
-            <div class="breadcrumb">
-                <a class="breadcrumb-item active" id="ariane0" th:href="@{/}">Accueil</a>&nbsp;&gt;&nbsp;
-                <a class="breadcrumb-item active" id="ariane1" th:href="@{/gestion/periodesouverture}">PÉRIODES
-                    D'OUVERTURE</a>
-            </div>
-            <div class="triangleTopright"></div>
-        </div>
-
-        <div class="container-fluid">
-
-            <div class="row">
-                <h2 class="col-xs-12">Gestion des périodes d'ouverture</h2>
-
-                <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
-                    <div class="col-xs-12">
-                        Par défaut, si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des
-                        nouvelles demandes dans le téléservice sans limite de temps.
-                    </div>
-
-                    <div class="col-xs-12 text-right">
-                        <button class="btn btn-action ripple-effect" id="boutonSupprTous">
-                            <i class="icon-action_supprimer"></i><span>Supprimer toutes les périodes d'ouverture</span>
-                        </button>
-                        <button class="btn btn-action ripple-effect" id="boutonAjouter">
-                            <i class="icon-action_plus"></i><span>Ajouter une période d'ouverture</span>
-                        </button>
-                    </div>
-
-                    <div class="col-xs-12">
-                        <div class="tableContent">
-                            <div class="tableTitle">
-                                Liste des périodes d'ouverture
-                                <span class="badge" id="periodesSize">0</span>
-                            </div>
-                            <table class="table table-striped" id="datatable-periodes-page"
-                                   style="width: 100%;-webkit-box-shadow: none;"
-                                   th:attr="data-href=@{/ws/periodesouverture}">
-                                <thead>
-                                <tr>
-                                    <th>Date de début</th>
-                                    <th>Date de fin</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div th:unless="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
-                    Cette page n'est pas accessible.
-                </div>
-
-            </div>
-        </div>
-
-        <!-- FIN CONTENU -->
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+        <a class="breadcrumb-item active" id="ariane0" th:href="@{/}">Accueil</a>&nbsp;&gt;&nbsp;
+        <a class="breadcrumb-item active" id="ariane1" th:href="@{/gestion/periodesouverture}">PÉRIODES
+          D'OUVERTURE</a>
+      </div>
+      <div class="triangleTopright"></div>
     </div>
 
-    <!-- EDITION MODAL -->
-    <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document" style="width:450px;">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <form id="editionPeriodesForm" method="POST" th:action="@{/gestion/periodesouverture/edit}">
-                        <!-- input cachée pour insérer la pk de la properties à modifier -->
-                        <input id="pkPeriodesOuverture" name="pkPeriodesOuverture" type="hidden"/>
-                        <!-- input cachée pour insérer le nombre d'éléments par page -->
-                        <input id="pageLengthNumber" name="pageLengthNumber" type="hidden"/>
-                        <div class="row no-margin-row">
-                            <div class="col-xs-12 text-center">
-                                <h2 id="saveTitle">SAVE_TITLE</h2>
-                            </div>
-                            <div class="col-xs-12 text-center form-group" id="formWarning"></div>
-                            <div class="col-xs-12 col-md-6 form-group">
-                                <label for="periodeStartDatePicker">Date de début</label>
-                                <div class="input-group date" id="periodeStartDatePicker">
-                                    <input class="form-control" id="periodeStartDate" name="periodeStartDate" type="text"/>
-                                    <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-md-6 form-group">
-                                <label for="periodeEndDatePicker">Date de fin</label>
-                                <div class="input-group date" id="periodeEndDatePicker">
-                                    <input class="form-control" id="periodeEndDate" name="periodeEndDate" type="text"/>
-                                    <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 text-center form-group error" id="formError"></div>
-                            <div class="col-xs-12 text-center">
-                                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerEditBouton"
-                                        name="annuler" type="button"
-                                        value="annuler">
-                                    annuler
-                                </button>
-                                <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
-                                <button class="btn btn-action ripple-effect" id="saveBtn" type="button">
-                                    SAVE_BTN
-                                </button>
-                                <!-- Input pour submit le formulaire -->
-                                <input id="formSubmit" name="action" style="display: none" type="submit" value="save"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- FIN EDITION MODAL -->
+    <div class="container-fluid">
 
-    <!-- SUPRESSION MODAL -->
-    <div id="supressionModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document" style="width:400px;">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <form id="suppressionForm" method="POST" th:action="@{/gestion/periodesouverture/supprimer}">
-                        <!-- input cachée pour insérer la pk de la properties à modifier -->
-                        <input id="pkPropertiesSuppr" name="pkPeriodesOuverture" type="hidden"/>
-                        <!-- input cachée pour insérer le nombre d'éléments par page -->
-                        <input id="pageLengthNumberSuppr" name="pageLengthNumber" type="hidden"/>
-                        <div class="row no-margin-row text-center">
-                            <div class="col-xs-12">
-                                <h2>Supprimer une période d'ouverture</h2>
-                            </div>
-                            <div class="col-xs-12">
-                                <span id="suppressionMessage">SUPPRESSION_MESSAGE</span>
-                            </div>
-                            <div class="col-xs-12 margin-top">
-                                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprBouton"
-                                        name="annuler" type="button"
-                                        value="annuler">
-                                    annuler
-                                </button>
-                                <button class="btn btn-action ripple-effect" id="supprBtn" type="submit">
-                                    supprimer
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- FIN SUPPRESSION MODAL -->
+      <div class="row">
+        <h2 class="col-xs-12">Gestion des périodes d'ouverture</h2>
 
-    <!-- SUPPRIMER TOUS MODAL -->
-    <div id="supressionTousModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document" style="width:400px;">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <form id="suppressionTousForm" method="POST" th:action="@{/gestion/periodesouverture/supprimertous}">
-                        <div class="row no-margin-row text-center">
-                            <div class="col-xs-12">
-                                <h2>Supprimer toutes les périodes d'ouverture</h2>
-                            </div>
-                            <div class="col-xs-12 form-group">
+        <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
+          <div class="col-xs-12">
+            Par défaut, si aucune période d’ouverture n’est définie alors les usagers peuvent
+            déposer des
+            nouvelles demandes dans le téléservice sans limite de temps.
+          </div>
+
+          <div class="col-xs-12 text-right">
+            <button class="btn btn-action ripple-effect" id="boutonSupprTous">
+              <i class="icon-action_supprimer"></i><span>Supprimer toutes les périodes d'ouverture</span>
+            </button>
+            <button class="btn btn-action ripple-effect" id="boutonAjouter">
+              <i class="icon-action_plus"></i><span>Ajouter une période d'ouverture</span>
+            </button>
+          </div>
+
+          <div class="col-xs-12">
+            <div class="tableContent">
+              <div class="tableTitle">
+                Liste des périodes d'ouverture
+                <span class="badge" id="periodesSize">0</span>
+              </div>
+              <table class="table table-striped" id="datatable-periodes-page"
+                     style="width: 100%;-webkit-box-shadow: none;"
+                     th:attr="data-href=@{/ws/periodesouverture}">
+                <thead>
+                <tr>
+                  <th>Date de début</th>
+                  <th>Date de fin</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div th:unless="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
+          Cette page n'est pas accessible.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FIN CONTENU -->
+  </div>
+
+  <!-- EDITION MODAL -->
+  <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:450px;">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form id="editionPeriodesForm" method="POST"
+                th:action="@{/gestion/periodesouverture/edit}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input id="pkPeriodesOuverture" name="pkPeriodesOuverture" type="hidden"/>
+            <!-- input cachée pour insérer le nombre d'éléments par page -->
+            <input id="pageLengthNumber" name="pageLengthNumber" type="hidden"/>
+            <div class="row no-margin-row">
+              <div class="col-xs-12 text-center">
+                <h2 id="saveTitle">SAVE_TITLE</h2>
+              </div>
+              <div class="col-xs-12 text-center form-group" id="formWarning"></div>
+              <div class="col-xs-12 col-md-6 form-group">
+                <label for="periodeStartDatePicker">Date de début</label>
+                <div class="input-group date" id="periodeStartDatePicker">
+                  <input class="form-control" id="periodeStartDate" name="periodeStartDate"
+                         type="text"/>
+                  <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
+                </div>
+              </div>
+              <div class="col-xs-12 col-md-6 form-group">
+                <label for="periodeEndDatePicker">Date de fin</label>
+                <div class="input-group date" id="periodeEndDatePicker">
+                  <input class="form-control" id="periodeEndDate" name="periodeEndDate"
+                         type="text"/>
+                  <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
+                </div>
+              </div>
+              <div class="col-xs-12 text-center form-group error" id="formError"></div>
+              <div class="col-xs-12 text-center">
+                <button class="btn btn-action-second ripple-effect annulerBouton"
+                        id="annulerEditBouton"
+                        name="annuler" type="button"
+                        value="annuler">
+                  annuler
+                </button>
+                <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
+                <button class="btn btn-action ripple-effect" id="saveBtn" type="button">
+                  SAVE_BTN
+                </button>
+                <!-- Input pour submit le formulaire -->
+                <input id="formSubmit" name="action" style="display: none" type="submit"
+                       value="save"/>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN EDITION MODAL -->
+
+  <!-- SUPRESSION MODAL -->
+  <div id="supressionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:400px;">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form id="suppressionForm" method="POST"
+                th:action="@{/gestion/periodesouverture/supprimer}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input id="pkPropertiesSuppr" name="pkPeriodesOuverture" type="hidden"/>
+            <!-- input cachée pour insérer le nombre d'éléments par page -->
+            <input id="pageLengthNumberSuppr" name="pageLengthNumber" type="hidden"/>
+            <div class="row no-margin-row text-center">
+              <div class="col-xs-12">
+                <h2>Supprimer une période d'ouverture</h2>
+              </div>
+              <div class="col-xs-12">
+                <span id="suppressionMessage">SUPPRESSION_MESSAGE</span>
+              </div>
+              <div class="col-xs-12 margin-top">
+                <button class="btn btn-action-second ripple-effect annulerBouton"
+                        id="annulerSupprBouton"
+                        name="annuler" type="button"
+                        value="annuler">
+                  annuler
+                </button>
+                <button class="btn btn-action ripple-effect" id="supprBtn" type="submit">
+                  supprimer
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN SUPPRESSION MODAL -->
+
+  <!-- SUPPRIMER TOUS MODAL -->
+  <div id="supressionTousModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:400px;">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form id="suppressionTousForm" method="POST"
+                th:action="@{/gestion/periodesouverture/supprimertous}">
+            <div class="row no-margin-row text-center">
+              <div class="col-xs-12">
+                <h2>Supprimer toutes les périodes d'ouverture</h2>
+              </div>
+              <div class="col-xs-12 form-group">
                     <span>
                         Attention, vous êtes sur le point de supprimer toutes les périodes d’ouverture. Si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
                         <br/>
                         Êtes-vous sûr(e) de vouloir continuer ?
                     </span>
-                            </div>
-                            <div class="col-xs-12 margin-top">
-                                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprTousBouton"
-                                        name="annuler" type="button"
-                                        value="annuler">
-                                    annuler
-                                </button>
-                                <button class="btn btn-action ripple-effect" id="supprTousBtn" type="submit">
-                                    supprimer
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- FIN SUPPRESSION TOUS MODAL -->
+              </div>
+              <div class="col-xs-12 margin-top">
+                <button class="btn btn-action-second ripple-effect annulerBouton"
+                        id="annulerSupprTousBouton"
+                        name="annuler" type="button"
+                        value="annuler">
+                  annuler
+                </button>
+                <button class="btn btn-action ripple-effect" id="supprTousBtn" type="submit">
+                  supprimer
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN SUPPRESSION TOUS MODAL -->
 
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script th:inline="javascript">
-    var momentFormat = 'DD/MM/YYYY HH:mm';
-    var isCreate = false;
-    var savedStartMoment = null;
+  var momentFormat = 'DD/MM/YYYY HH:mm';
+  var isCreate = false;
+  var savedStartMoment = null;
 
-    var columnsPeriodes = [
-        {
-            data: "dateDebut",
-            keyword: false,
-            render: function (data, type, periode) {
-                // On ne format pas en STRING la date si l'accès à la donnée se fait pendant un SORT ou un TYPE
-                if (type === "sort" || type === "type") {
-                    return data;
-                }
-                return moment(periode.dateDebut).format(momentFormat);
-            }
+  var columnsPeriodes = [
+    {
+      data: "dateDebut",
+      keyword: false,
+      render: function (data, type, periode) {
+        // On ne format pas en STRING la date si l'accès à la donnée se fait pendant un SORT ou un TYPE
+        if (type === "sort" || type === "type") {
+          return data;
+        }
+        return moment(periode.dateDebut).format(momentFormat);
+      }
+    },
+    {
+      data: "dateFin",
+      keyword: false,
+      render: function (data, type, periode) {
+        // On ne format pas en STRING la date si l'accès à la donnée se fait pendant un SORT ou un TYPE
+        if (type === "sort" || type === "type") {
+          return data;
+        }
+        return moment(periode.dateFin).format(momentFormat);
+      }
+    },
+    {
+      orderable: false,
+      keyword: false,
+      render: function (data, type, periode) {
+        return '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" ' +
+            'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '"' +
+            'data-toggle="tooltip" data-placement="bottom"  data-original-title="Modifier la période">' +
+            '<i class="icon-action_modifier"></i></button>' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip"' +
+            'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '"' +
+            'data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer la période">' +
+            '<i class="icon-action_supprimer"></i></button>';
+      }
+    }
+  ];
+
+  /*<![CDATA[*/
+
+  $(document).ready(function () {
+    var pageLength = /*[[${pageLength}]]*/5;
+    var periodesSize = 0;
+    var table = $('#datatable-periodes-page');
+    table.DataTable({
+      paging: true,
+      processing: true,
+      serverSide: true,
+      searching: false,
+      select: false,
+      bInfo: false,
+      language: frenchTranslation,
+      ajax: {
+        url: table.data("href"),
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        traditional: true,
+        dataSrc: function (json) {
+          json['recordsTotal'] = json['totalElements'];
+          json['recordsFiltered'] = json['totalElements'];
+          periodesSize = json.totalElements;
+          $("#periodesSize").html(periodesSize);
+          return json.content;
         },
-        {
-            data: "dateFin",
-            keyword: false,
-            render: function (data, type, periode) {
-                // On ne format pas en STRING la date si l'accès à la donnée se fait pendant un SORT ou un TYPE
-                if (type === "sort" || type === "type") {
-                    return data;
-                }
-                return moment(periode.dateFin).format(momentFormat);
-            }
+        error: function (xhr, error, thrown) {
+          if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
+            window.location.href = APP.getContextPath() + '/error/' + xhr.status;
+          }
         },
-        {
-            orderable: false,
-            keyword: false,
-            render: function (data, type, periode) {
-                return '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" ' +
-                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '"' +
-                    'data-toggle="tooltip" data-placement="bottom"  data-original-title="Modifier la période">' +
-                    '<i class="icon-action_modifier"></i></button>' +
-                    '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip"' +
-                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '"' +
-                    'data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer la période">' +
-                    '<i class="icon-action_supprimer"></i></button>';
-            }
+        data: function (params) {
+          //Suppression de toutes les valeurs renvoyées par datatable
+          params.columns = null;
+          params.search = null;
+
+          //conversion des params pour Pageable Spring MVC
+          params.size = params.length;
+          params.page = params.start / params.length;
+          params.sort = columnsPeriodes[params.order[0].column].data + "," + params.order[0].dir;
         }
-    ];
-
-    /*<![CDATA[*/
-
-    $(document).ready(function () {
-        var pageLength = /*[[${pageLength}]]*/5;
-        var periodesSize = 0;
-        var table = $('#datatable-periodes-page');
-        table.DataTable({
-            paging: true,
-            processing: true,
-            serverSide: true,
-            searching: false,
-            select: false,
-            bInfo: false,
-            language: frenchTranslation,
-            ajax: {
-                url: table.data("href"),
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json",
-                traditional: true,
-                dataSrc: function (json) {
-                    json['recordsTotal'] = json['totalElements'];
-                    json['recordsFiltered'] = json['totalElements'];
-                    periodesSize = json.totalElements;
-                    $("#periodesSize").html(periodesSize);
-                    return json.content;
-                },
-                error: function(xhr, error, thrown) {
-                    if (xhr.status === 500 || xhr.status === 404 || xhr.status === 403) {
-                        window.location.href = APP.getContextPath() + '/error/' + xhr.status;
-                    }
-                },
-                data: function (params) {
-                    //Suppression de toutes les valeurs renvoyées par datatable
-                    params.columns = null;
-                    params.search = null;
-
-                    //conversion des params pour Pageable Spring MVC
-                    params.size = params.length;
-                    params.page = params.start / params.length;
-                    params.sort = columnsPeriodes[params.order[0].column].data + "," + params.order[0].dir;
-                }
-            },
-            order: [
-                [1, "asc"]
-            ],
-            columns: columnsPeriodes,
-            pageLength: pageLength,
-            lengthMenu: [5, 10, 25, 50, 100]
-        });
-
-        $('#periodeStartDatePicker, #periodeEndDatePicker').datetimepicker({
-            format: momentFormat,
-            locale: 'fr',
-            widgetPositioning: {
-                horizontal: 'auto',
-                vertical: 'top'
-            }
-            // ,debug: true // Permet de laisser ouvert le datepicker pour modifier le CSS
-        }).on('dp.show', function () {
-            $('.bootstrap-datetimepicker-widget a.btn').removeClass('btn');
-        });
-
-        var messagesSuccessList = /*[[${successMessages}]]*/'default';
-        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-            $.each(messagesSuccessList, function (key, msg) {
-                $.notify({
-                    message: msg
-                }, {
-                    type: 'success'
-                });
-            });
-        }
-
-        var messagesErrorList = /*[[${errorMessages}]]*/'default';
-        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-            $.each(messagesErrorList, function (key, msg) {
-                $.notify({
-                    message: msg
-                }, {
-                    type: 'danger'
-                });
-            });
-        }
-
-        $("#boutonAjouter").click(function (e) {
-            e.preventDefault();
-            isCreate = true;
-
-            var date = moment();
-            date.set({hour: 0, minute: 0, second: 0, millisecond: 0});
-            $('#pkPeriodesOuverture').val(null);
-            $('#periodeStartDate').val(date.format(momentFormat));
-            date.set({hour: 23, minute: 59, second: 0, millisecond: 0});
-            $('#periodeEndDate').val(date.format(momentFormat));
-
-            $('#formError').html('');
-            $('#formWarning').html('');
-            $('#saveTitle').html('Ajout d\'une période d\'ouverture');
-            $('#formSubmit').val('ajouter');
-            $('#saveBtn').html('ajouter');
-
-            $('#editionModal').modal();
-
-            return true;
-        });
-
-        table.on('click', 'button.boutonModifier', function (e) {
-            e.preventDefault();
-            isCreate = false;
-
-            var pkPeriodesOuverture = $(this).data("pkperiodesouverture");
-            var dateDebut = $(this).data("datedebut");
-            var dateFin = $(this).data("datefin");
-
-            $('#formError').html('');
-            $('#formWarning').html('');
-            $('#saveTitle').html('Modifier une période d\'ouverture');
-            $('#formSubmit').val('modifier');
-            $('#saveBtn').html('modifier');
-
-            savedStartMoment = moment(dateDebut);
-            var endMoment = moment(dateFin);
-            if (moment().isBetween(savedStartMoment, endMoment)) {
-                $('#formWarning').html("Attention, cette période d’ouverture est en cours.<br/>Êtes-vous sûr(e) de vouloir la modifier ?");
-            }
-
-            $('#periodeStartDate').val(savedStartMoment.format(momentFormat));
-            $('#periodeEndDate').val(endMoment.format(momentFormat));
-            $('#pkPeriodesOuverture').val(pkPeriodesOuverture);
-
-            $('#editionModal').modal();
-
-            return true;
-        });
-
-        table.on('click', 'button.boutonSupprimer', function (e) {
-            e.preventDefault();
-            var pk = $(this).data('pkperiodesouverture');
-            var dateDebut = moment($(this).data("datedebut"));
-            var dateFin = moment($(this).data("datefin"));
-            $('#pkPropertiesSuppr').val(pk);
-
-            var message = "Êtes-vous sûr(e) de vouloir supprimer cette période d’ouverture ?";
-            if (periodesSize === 1) {
-                message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
-            } else if (moment().isBetween(dateDebut, dateFin)) {
-                message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer des nouvelles demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
-            }
-            $('#suppressionMessage').html(message);
-
-            var pageLength = $("select[name='datatable-periodes-page_length'] option:selected").val();
-            if (pageLength) {
-                $('#pageLengthNumberSuppr').val(pageLength);
-            }
-            $('#supressionModal').modal();
-            return true;
-        });
-
-        $("#boutonSupprTous").click(function (e) {
-            e.preventDefault();
-            $('#supressionTousModal').modal();
-            return true;
-        });
-
-        $('.annulerBouton').click(function (e) {
-            e.preventDefault();
-            $('.modal').modal('hide');
-            return true;
-        });
-
-        $('#saveBtn').click(function (e) {
-            var startDate = $('#periodeStartDate').val();
-            var endDate = $('#periodeEndDate').val();
-
-            if (startDate === '' && endDate === '') {
-                $('#formError').html('Veuillez renseignner au moins une des deux dates.');
-            } else {
-                var today = moment();
-                today.set({hour: 0, minute: 0, second: 0, millisecond: 0});
-                var startMoment = (startDate !== '') ? moment(startDate, momentFormat) : today;
-                var endMoment = (endDate !== '') ? moment(endDate, momentFormat)
-                    : moment().set({hour: 23, minute: 59, second: 0, millisecond: 0}).add(100, 'years');
-
-                // On vérifie en cas de création ou de modification de la date de début,
-                // Si la périodes est après la date d'aujourd'hui
-                if ((isCreate || !startMoment.isSame(savedStartMoment)) && today.isAfter(startMoment)) {
-                    $('#formError').html('La date de début de la période doit être égale ou postérieure à la date d\'aujourd\'hui.');
-                } else if (!startMoment.isBefore(endMoment)) {
-                    $('#formError').html('La date de fin doit être postérieure à la date de début.');
-                } else {
-                    var pageLength = $("select[name='datatable-periodes-page_length'] option:selected").val();
-                    if (pageLength) {
-                        $('#pageLengthNumber').val(pageLength);
-                    }
-                    $('#periodeStartDate').val(startMoment.format(momentFormat));
-                    $('#periodeEndDate').val(endMoment.format(momentFormat));
-                    $('#formError').html('');
-                    $('#formSubmit').click();
-                    $('#saveBtn').prop('disabled', true);
-                    return true;
-                }
-            }
-
-            e.preventDefault();
-            return false;
-        });
-
-        $('#suppressionTousForm').submit(function () {
-            $('#supprTousBtn').prop('disabled', true);
-        });
-
-        $('#suppressionForm').submit(function () {
-            $('#supprBtn').prop('disabled', true);
-        });
-
+      },
+      order: [
+        [1, "asc"]
+      ],
+      columns: columnsPeriodes,
+      pageLength: pageLength,
+      lengthMenu: [5, 10, 25, 50, 100]
     });
 
-    /*]]>*/
+    $('#periodeStartDatePicker, #periodeEndDatePicker').datetimepicker({
+      format: momentFormat,
+      locale: 'fr',
+      widgetPositioning: {
+        horizontal: 'auto',
+        vertical: 'top'
+      }
+      // ,debug: true // Permet de laisser ouvert le datepicker pour modifier le CSS
+    }).on('dp.show', function () {
+      $('.bootstrap-datetimepicker-widget a.btn').removeClass('btn');
+    });
+
+    var messagesSuccessList = /*[[${successMessages}]]*/'default';
+    if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+      $.each(messagesSuccessList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'success'
+        });
+      });
+    }
+
+    var messagesErrorList = /*[[${errorMessages}]]*/'default';
+    if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+      $.each(messagesErrorList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'danger'
+        });
+      });
+    }
+
+    $("#boutonAjouter").click(function (e) {
+      e.preventDefault();
+      isCreate = true;
+
+      var date = moment();
+      date.set({hour: 0, minute: 0, second: 0, millisecond: 0});
+      $('#pkPeriodesOuverture').val(null);
+      $('#periodeStartDate').val(date.format(momentFormat));
+      date.set({hour: 23, minute: 59, second: 0, millisecond: 0});
+      $('#periodeEndDate').val(date.format(momentFormat));
+
+      $('#formError').html('');
+      $('#formWarning').html('');
+      $('#saveTitle').html('Ajout d\'une période d\'ouverture');
+      $('#formSubmit').val('ajouter');
+      $('#saveBtn').html('ajouter');
+
+      $('#editionModal').modal();
+
+      return true;
+    });
+
+    table.on('click', 'button.boutonModifier', function (e) {
+      e.preventDefault();
+      isCreate = false;
+
+      var pkPeriodesOuverture = $(this).data("pkperiodesouverture");
+      var dateDebut = $(this).data("datedebut");
+      var dateFin = $(this).data("datefin");
+
+      $('#formError').html('');
+      $('#formWarning').html('');
+      $('#saveTitle').html('Modifier une période d\'ouverture');
+      $('#formSubmit').val('modifier');
+      $('#saveBtn').html('modifier');
+
+      savedStartMoment = moment(dateDebut);
+      var endMoment = moment(dateFin);
+      if (moment().isBetween(savedStartMoment, endMoment)) {
+        $('#formWarning').html("Attention, cette période d’ouverture est en cours.<br/>Êtes-vous sûr(e) de vouloir la modifier ?");
+      }
+
+      $('#periodeStartDate').val(savedStartMoment.format(momentFormat));
+      $('#periodeEndDate').val(endMoment.format(momentFormat));
+      $('#pkPeriodesOuverture').val(pkPeriodesOuverture);
+
+      $('#editionModal').modal();
+
+      return true;
+    });
+
+    table.on('click', 'button.boutonSupprimer', function (e) {
+      e.preventDefault();
+      var pk = $(this).data('pkperiodesouverture');
+      var dateDebut = moment($(this).data("datedebut"));
+      var dateFin = moment($(this).data("datefin"));
+      $('#pkPropertiesSuppr').val(pk);
+
+      var message = "Êtes-vous sûr(e) de vouloir supprimer cette période d’ouverture ?";
+      if (periodesSize === 1) {
+        message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
+      } else if (moment().isBetween(dateDebut, dateFin)) {
+        message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer des nouvelles demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
+      }
+      $('#suppressionMessage').html(message);
+
+      var pageLength = $("select[name='datatable-periodes-page_length'] option:selected").val();
+      if (pageLength) {
+        $('#pageLengthNumberSuppr').val(pageLength);
+      }
+      $('#supressionModal').modal();
+      return true;
+    });
+
+    $("#boutonSupprTous").click(function (e) {
+      e.preventDefault();
+      $('#supressionTousModal').modal();
+      return true;
+    });
+
+    $('.annulerBouton').click(function (e) {
+      e.preventDefault();
+      $('.modal').modal('hide');
+      return true;
+    });
+
+    $('#saveBtn').click(function (e) {
+      var startDate = $('#periodeStartDate').val();
+      var endDate = $('#periodeEndDate').val();
+
+      if (startDate === '' && endDate === '') {
+        $('#formError').html('Veuillez renseignner au moins une des deux dates.');
+      } else {
+        var today = moment();
+        today.set({hour: 0, minute: 0, second: 0, millisecond: 0});
+        var startMoment = (startDate !== '') ? moment(startDate, momentFormat) : today;
+        var endMoment = (endDate !== '') ? moment(endDate, momentFormat)
+            : moment().set({hour: 23, minute: 59, second: 0, millisecond: 0}).add(100, 'years');
+
+        // On vérifie en cas de création ou de modification de la date de début,
+        // Si la périodes est après la date d'aujourd'hui
+        if ((isCreate || !startMoment.isSame(savedStartMoment)) && today.isAfter(startMoment)) {
+          $('#formError').html('La date de début de la période doit être égale ou postérieure à la date d\'aujourd\'hui.');
+        } else if (!startMoment.isBefore(endMoment)) {
+          $('#formError').html('La date de fin doit être postérieure à la date de début.');
+        } else {
+          var pageLength = $("select[name='datatable-periodes-page_length'] option:selected").val();
+          if (pageLength) {
+            $('#pageLengthNumber').val(pageLength);
+          }
+          $('#periodeStartDate').val(startMoment.format(momentFormat));
+          $('#periodeEndDate').val(endMoment.format(momentFormat));
+          $('#formError').html('');
+          $('#formSubmit').click();
+          $('#saveBtn').prop('disabled', true);
+          return true;
+        }
+      }
+
+      e.preventDefault();
+      return false;
+    });
+
+    $('#suppressionTousForm').submit(function () {
+      $('#supprTousBtn').prop('disabled', true);
+    });
+
+    $('#suppressionForm').submit(function () {
+      $('#supprBtn').prop('disabled', true);
+    });
+
+  });
+
+  /*]]>*/
 </script>
 </body>
 </html>

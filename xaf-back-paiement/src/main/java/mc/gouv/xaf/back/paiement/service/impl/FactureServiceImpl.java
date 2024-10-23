@@ -30,6 +30,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 @Service
 public class FactureServiceImpl implements FactureService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FactureServiceImpl.class);
 
     public static final String PREFIX_FACTURE = "Justificatif_Facture_";
@@ -62,14 +63,17 @@ public class FactureServiceImpl implements FactureService {
         Optional<InputStream> optionalFactureIS = factureApiClient.getFacture(reference, demande);
         if (optionalFactureIS.isPresent()) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            String fileName = PREFIX_FACTURE + demande.getIdentifiant() + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
-            String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", optionalFactureIS.get(), output);
+            String fileName =
+                    PREFIX_FACTURE + demande.getIdentifiant() + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
+            String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(),
+                    "application/pdf", optionalFactureIS.get(), output);
             output.close();
             optionalFactureIS.get().close();
             saveFichier(fileName, url, demande);
 
             // Sauvegarde du numéro de facture dans les données de la demande
-            demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), reference);
+            demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(),
+                    reference);
         }
     }
 

@@ -5,9 +5,8 @@ import lombok.Setter;
 
 /**
  * FormBean pour la page de gestion des agents
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

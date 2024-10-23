@@ -4,14 +4,12 @@ import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.caching.GouvCache;
 
 /**
- * 
  * Implémentation de l'interface UsagersCache
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public interface TemplatesCache extends GouvCache<Integer, TemplateDTO> {
-    
+
     TemplateDTO getTemplate(String codeTemplate, String langue);
-    
+
 }

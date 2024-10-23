@@ -23,175 +23,178 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 
 /**
- * Service permettant de gérer l'affectation des agents ou des demandes à des établissements, dans le cadre
- * des téléservices pour la DENJS
- * 
- * @author qdeme
+ * Service permettant de gérer l'affectation des agents ou des demandes à des établissements, dans le cadre des
+ * téléservices pour la DENJS
  *
+ * @author qdeme
  */
 @Component
 public class DenjsAffectationServiceImpl implements DenjsAffectationService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(DenjsAffectationServiceImpl.class);
-	
-	private static final String LISTE_AFFECTATIONS_KEY = "LISTE_AFFECTATIONS";
-	
-	private static final String LISTE_ETABLISSEMENTS_KEY = "LISTE_ETABLISSEMENTS";
-	
-	private static final String DEMANDE_AFFECTATION_ETABLISSEMENT_KEY = "AFFECTATION_ETABLISSEMENT";
 
-	@Autowired
-	private PropertiesService propertiesService;
-	
-	@Autowired
-	private DemandesDataService demandesDataService;
-	
-	@Override
-	public DenjsAffectationAgentDTO getAffectationAgent(String matricule) {
-		List<DenjsAffectationAgentDTO> liste = getAffectationsAgents();
-		for (DenjsAffectationAgentDTO aff : liste) {
-			if (matricule != null && aff.getAgentMatricule() != null && matricule.equals(aff.getAgentMatricule())) {
-				return aff;
-			}
-		}
-		return null;
-	}
-	
-	@Override
-	public List<DenjsAffectationAgentDTO> getAffectationsAgents() {
-		LOGGER.info("DenjsAffectationServiceImpl.getAffectationsAgents()");
-		PropertiesDTO affectations = propertiesService.getProperty(LISTE_AFFECTATIONS_KEY);
-		if (affectations == null) {
-			LOGGER.warn("ATTENTION : aucune liste d'affectations en base !");
-			return new ArrayList<>();
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			DenjsAffectationAgentDTO[] affsArray = mapper.readValue(affectations.getValue(), DenjsAffectationAgentDTO[].class);
-			return Arrays.asList(affsArray);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("Erreur pendant mapper.readValue() des affectations en base", e);
-		}
-		return new ArrayList<>();
-	}
+    private static final Logger LOGGER = LoggerFactory.getLogger(DenjsAffectationServiceImpl.class);
 
-	@Override
-	public List<DenjsEtablissementDTO> getEtablissements() {
-		LOGGER.info("DenjsAffectationServiceImpl.getEtablissements()");
-		PropertiesDTO etabs = propertiesService.getProperty(LISTE_ETABLISSEMENTS_KEY);
-		if (etabs == null) {
-			LOGGER.warn("ATTENTION : aucune liste d'établissements en base !");
-			return new ArrayList<>();
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			DenjsEtablissementDTO[] etabsArray = mapper.readValue(etabs.getValue(), DenjsEtablissementDTO[].class);
-			return Arrays.asList(etabsArray);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("Erreur pendant mapper.readValue() des établissements en base", e);
-		}
-		return new ArrayList<>();
-	}
+    private static final String LISTE_AFFECTATIONS_KEY = "LISTE_AFFECTATIONS";
 
-	private void deleteAffectation(List<DenjsAffectationAgentDTO> affs, DenjsAffectationAgentDTO affectation) {
-		DenjsAffectationAgentDTO toDelete = null;
-		for (DenjsAffectationAgentDTO aff : affs) {
-			if (StringUtils.equals(aff.getAgentMatricule(), affectation.getAgentMatricule())) {
-				toDelete = aff;
-			}
-		}
-		if (toDelete != null) {
-			affs.remove(toDelete);
-		}
-	}
+    private static final String LISTE_ETABLISSEMENTS_KEY = "LISTE_ETABLISSEMENTS";
 
-	private void ajoutModificationAffectation(List<DenjsAffectationAgentDTO> affs, DenjsAffectationAgentDTO affectation) {
-		boolean found = false;
-		for (DenjsAffectationAgentDTO aff : affs) {
-			if (aff.getAgentMatricule().equals(affectation.getAgentMatricule())) {
-				found = true;
-				// Modification
-				aff.setEtablissementCode(affectation.getEtablissementCode());
-			}
-		}
-		// Ajout
-		if (!found) {
-			affs.add(affectation);
-		}
-	}
+    private static final String DEMANDE_AFFECTATION_ETABLISSEMENT_KEY = "AFFECTATION_ETABLISSEMENT";
 
-	@Override
-	public List<DenjsAffectationAgentDTO> affecterAgentEtablissement(DenjsAffectationAgentDTO affectation) {
-		LOGGER.info("DenjsAffectationServiceImpl.affecterAgent()");
-		
-		List<DenjsAffectationAgentDTO> affs = getAffectationsAgents();
+    @Autowired
+    private PropertiesService propertiesService;
 
-		// Suppression
-		if (StringUtils.isBlank(affectation.getEtablissementCode())) {
-			deleteAffectation(affs, affectation);
-		}
-		// Ajout/modification
-		else {
-			ajoutModificationAffectation(affs, affectation);
-		}
-		
-		PropertiesDTO affectations = propertiesService.getProperty(LISTE_AFFECTATIONS_KEY);
-		if (affectations == null) {
-			affectations = new PropertiesDTO();
-			affectations.setKey(LISTE_AFFECTATIONS_KEY);
-			affectations.setType(PropertiesTypeEnum.BACK);
-		}
-		
+    @Autowired
+    private DemandesDataService demandesDataService;
+
+    @Override
+    public DenjsAffectationAgentDTO getAffectationAgent(String matricule) {
+        List<DenjsAffectationAgentDTO> liste = getAffectationsAgents();
+        for (DenjsAffectationAgentDTO aff : liste) {
+            if (matricule != null && aff.getAgentMatricule() != null && matricule.equals(aff.getAgentMatricule())) {
+                return aff;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<DenjsAffectationAgentDTO> getAffectationsAgents() {
+        LOGGER.info("DenjsAffectationServiceImpl.getAffectationsAgents()");
+        PropertiesDTO affectations = propertiesService.getProperty(LISTE_AFFECTATIONS_KEY);
+        if (affectations == null) {
+            LOGGER.warn("ATTENTION : aucune liste d'affectations en base !");
+            return new ArrayList<>();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            DenjsAffectationAgentDTO[] affsArray = mapper.readValue(affectations.getValue(),
+                    DenjsAffectationAgentDTO[].class);
+            return Arrays.asList(affsArray);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur pendant mapper.readValue() des affectations en base", e);
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<DenjsEtablissementDTO> getEtablissements() {
+        LOGGER.info("DenjsAffectationServiceImpl.getEtablissements()");
+        PropertiesDTO etabs = propertiesService.getProperty(LISTE_ETABLISSEMENTS_KEY);
+        if (etabs == null) {
+            LOGGER.warn("ATTENTION : aucune liste d'établissements en base !");
+            return new ArrayList<>();
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            DenjsEtablissementDTO[] etabsArray = mapper.readValue(etabs.getValue(), DenjsEtablissementDTO[].class);
+            return Arrays.asList(etabsArray);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur pendant mapper.readValue() des établissements en base", e);
+        }
+        return new ArrayList<>();
+    }
+
+    private void deleteAffectation(List<DenjsAffectationAgentDTO> affs, DenjsAffectationAgentDTO affectation) {
+        DenjsAffectationAgentDTO toDelete = null;
+        for (DenjsAffectationAgentDTO aff : affs) {
+            if (StringUtils.equals(aff.getAgentMatricule(), affectation.getAgentMatricule())) {
+                toDelete = aff;
+            }
+        }
+        if (toDelete != null) {
+            affs.remove(toDelete);
+        }
+    }
+
+    private void ajoutModificationAffectation(List<DenjsAffectationAgentDTO> affs,
+            DenjsAffectationAgentDTO affectation) {
+        boolean found = false;
+        for (DenjsAffectationAgentDTO aff : affs) {
+            if (aff.getAgentMatricule().equals(affectation.getAgentMatricule())) {
+                found = true;
+                // Modification
+                aff.setEtablissementCode(affectation.getEtablissementCode());
+            }
+        }
+        // Ajout
+        if (!found) {
+            affs.add(affectation);
+        }
+    }
+
+    @Override
+    public List<DenjsAffectationAgentDTO> affecterAgentEtablissement(DenjsAffectationAgentDTO affectation) {
+        LOGGER.info("DenjsAffectationServiceImpl.affecterAgent()");
+
+        List<DenjsAffectationAgentDTO> affs = getAffectationsAgents();
+
+        // Suppression
+        if (StringUtils.isBlank(affectation.getEtablissementCode())) {
+            deleteAffectation(affs, affectation);
+        }
+        // Ajout/modification
+        else {
+            ajoutModificationAffectation(affs, affectation);
+        }
+
+        PropertiesDTO affectations = propertiesService.getProperty(LISTE_AFFECTATIONS_KEY);
+        if (affectations == null) {
+            affectations = new PropertiesDTO();
+            affectations.setKey(LISTE_AFFECTATIONS_KEY);
+            affectations.setType(PropertiesTypeEnum.BACK);
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         String json = "";
         try {
-			json = mapper.writeValueAsString(affs);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("Erreur pendant le mapper.writeValueAsString() des affectations", e);
-		}
-		affectations.setValue(json);
-		propertiesService.saveOrUpdateProperties(affectations);
-		
-		return affs;
-	}
+            json = mapper.writeValueAsString(affs);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur pendant le mapper.writeValueAsString() des affectations", e);
+        }
+        affectations.setValue(json);
+        propertiesService.saveOrUpdateProperties(affectations);
 
-	@Override
-	public void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode) {
-		LOGGER.info("DenjsAffectationServiceImpl.affecterDemandeEtablissement({}, {})", pkDemande, etablissementCode);
-		try {
-			demandesDataService.saveOrUpdateDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY , etablissementCode);
-		} catch (Exception e) {
-			LOGGER.error("Erreur pendant la sauvegarde en base de l'affectation d'une demande à un établissement", e);
-		}
-	}
-
-	@Override
-	public String getAffectationDemandeEtablissement(Integer pkDemande) {
-		LOGGER.info("DenjsAffectationServiceImpl.getAffectationDemandeEtablissement({})", pkDemande);
-		DemandeDataDTO demandeData = demandesDataService.getDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
-		if (demandeData == null) {
-			return null;
-		}
-		return demandeData.getValue();
-	}
-	
-	@Override
-    public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs) {
-    	for (DenjsEtablissementDTO etab : etabs) {
-    		if (etab.getCode().equals(code)) {
-    			return etab;
-    		}
-    	}
-    	return null;
+        return affs;
     }
 
-	@Override
-	public void desaffecterDemandeEtablissement(Integer pkDemande) {
-		LOGGER.info("DenjsAffectationServiceImpl.desaffecterDemandeEtablissement({})", pkDemande);
-		try {
-			demandesDataService.deleteDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
-		} catch (Exception e) {
-			LOGGER.error("Erreur pendant la suppression en base de l'affectation d'une demande à un établissement", e);
-		}
-	}
+    @Override
+    public void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode) {
+        LOGGER.info("DenjsAffectationServiceImpl.affecterDemandeEtablissement({}, {})", pkDemande, etablissementCode);
+        try {
+            demandesDataService.saveOrUpdateDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY,
+                    etablissementCode);
+        } catch (Exception e) {
+            LOGGER.error("Erreur pendant la sauvegarde en base de l'affectation d'une demande à un établissement", e);
+        }
+    }
+
+    @Override
+    public String getAffectationDemandeEtablissement(Integer pkDemande) {
+        LOGGER.info("DenjsAffectationServiceImpl.getAffectationDemandeEtablissement({})", pkDemande);
+        DemandeDataDTO demandeData = demandesDataService.getDemandeData(pkDemande,
+                DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
+        if (demandeData == null) {
+            return null;
+        }
+        return demandeData.getValue();
+    }
+
+    @Override
+    public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs) {
+        for (DenjsEtablissementDTO etab : etabs) {
+            if (etab.getCode().equals(code)) {
+                return etab;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void desaffecterDemandeEtablissement(Integer pkDemande) {
+        LOGGER.info("DenjsAffectationServiceImpl.desaffecterDemandeEtablissement({})", pkDemande);
+        try {
+            demandesDataService.deleteDemandeData(pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
+        } catch (Exception e) {
+            LOGGER.error("Erreur pendant la suppression en base de l'affectation d'une demande à un établissement", e);
+        }
+    }
 }

@@ -87,7 +87,7 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Affichage de la page principale
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping
     public ModelAndView form(@RequestParam(name = "usagers", required = false) List<UsagerCourrierResultDTO> usagers) {
 
@@ -95,8 +95,7 @@ public class GestionUsagersController extends AbstractController {
 
         if (usagers == null) {
             LOGGER.info("Appel à DEM pour récupérer la liste des usagers courrier...");
-            List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService
-                    .getUsagersCourrier(null);
+            List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService.getUsagersCourrier(null);
 
             usagers = usagersDemToDemarche(usagersCourrierDTO);
         }
@@ -111,7 +110,7 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Bugfis
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping(value = "/rechercher")
     public ModelAndView test() {
         return new ModelAndView("redirect:");
@@ -120,15 +119,14 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Recherche d'un usager courrier depuis la page principale (POST)
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @PostMapping(value = "/rechercher")
     public ModelAndView print(@RequestParam String usagerInput) {
         String safeUsager = AfBackUtils.logSafe(usagerInput);
         LOGGER.info("======================= Appel de la page /gestion/usagers/rechercher ({})", safeUsager);
 
         LOGGER.info("Appel à DEM pour rechercher l'usager courrier...");
-        List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService
-                .getUsagersCourrier(usagerInput);
+        List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService.getUsagersCourrier(usagerInput);
 
         List<UsagerCourrierResultDTO> usagers = usagersDemToDemarche(usagersCourrierDTO);
 
@@ -144,7 +142,7 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Affichage du formulaire de création d'usager courrier (GET)
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping(value = "/creer")
     public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
 
@@ -160,7 +158,7 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Création de l'usager courrier depuis le formulaire de création (POST)
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @PostMapping(value = "/creer")
     public ModelAndView creerUsagerCourrier(
             @Valid @ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean,
@@ -184,8 +182,8 @@ public class GestionUsagersController extends AbstractController {
         usagerCourrier.setTitre(usagerCourrierFormBean.getTitre());
         usagerCourrier.setPays(usagerCourrierFormBean.getPaysChoisi());
 
-        if (StringUtils.isBlank(usagerCourrierFormBean.getNom())
-                && StringUtils.isBlank(usagerCourrierFormBean.getRaisonSociale())) {
+        if (StringUtils.isBlank(usagerCourrierFormBean.getNom()) && StringUtils.isBlank(
+                usagerCourrierFormBean.getRaisonSociale())) {
             FieldError fe1 = new FieldError("usagerCourrierFormBean", "nom",
                     "Au moins le nom OU la raison sociale doivent être renseignés");
             FieldError fe2 = new FieldError("usagerCourrierFormBean", "raisonSociale",
@@ -248,10 +246,10 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Affichage de la page d'un usager courrier
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping(value = "/{usagerId}")
     public ModelAndView visualiserUsager(@PathVariable(value = "usagerId") Integer usagerId,
-                                         @ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
+            @ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
 
         LOGGER.info("======================= Appel de la page /gestion/usagers/{}", usagerId);
 
@@ -279,7 +277,7 @@ public class GestionUsagersController extends AbstractController {
     /**
      * Suppression d'un usager courrier depuis la page principale (POST)
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @PostMapping(value = "/supprimer")
     public ModelAndView supprimer(@RequestParam Integer usagerId, final RedirectAttributes redirectAttributes) {
 
@@ -305,15 +303,15 @@ public class GestionUsagersController extends AbstractController {
     }
 
     /**
-     * Transfert de demandes tout court Permettre de sélectionner/déselectionner
-     * les demandes
+     * Transfert de demandes tout court Permettre de sélectionner/déselectionner les demandes
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping(value = "/transferer/{usagerSourceId}/{usagerCibleId}")
     public ModelAndView transferer(@PathVariable(value = "usagerSourceId") Integer usagerSourceId,
-                                   @PathVariable(value = "usagerCibleId") Integer usagerCibleId, final RedirectAttributes redirectAttributes) {
+            @PathVariable(value = "usagerCibleId") Integer usagerCibleId, final RedirectAttributes redirectAttributes) {
 
-        LOGGER.info("======================= Appel de la page /gestion/usagers/transferer ({}, {})", usagerSourceId, usagerCibleId);
+        LOGGER.info("======================= Appel de la page /gestion/usagers/transferer ({}, {})", usagerSourceId,
+                usagerCibleId);
 
         ModelAndView mav = transfererGeneric(usagerSourceId, usagerCibleId, redirectAttributes);
 
@@ -325,15 +323,15 @@ public class GestionUsagersController extends AbstractController {
     }
 
     /**
-     * Transfert de demandes suivi de la suppression de l'usager Ne pas
-     * permettre la désélection des demandes
+     * Transfert de demandes suivi de la suppression de l'usager Ne pas permettre la désélection des demandes
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping(value = "/transferersupprimer/{usagerSourceId}/{usagerCibleId}")
     public ModelAndView transfererSupprimer(@PathVariable(value = "usagerSourceId") Integer usagerSourceId,
-                                            @PathVariable(value = "usagerCibleId") Integer usagerCibleId, final RedirectAttributes redirectAttributes) {
+            @PathVariable(value = "usagerCibleId") Integer usagerCibleId, final RedirectAttributes redirectAttributes) {
 
-        LOGGER.info("======================= Appel de la page /gestion/usagers/transfererSupprimer ({}, {})", usagerSourceId, usagerCibleId);
+        LOGGER.info("======================= Appel de la page /gestion/usagers/transfererSupprimer ({}, {})",
+                usagerSourceId, usagerCibleId);
 
         ModelAndView mav = transfererGeneric(usagerSourceId, usagerCibleId, redirectAttributes);
 
@@ -345,7 +343,7 @@ public class GestionUsagersController extends AbstractController {
     }
 
     private ModelAndView transfererGeneric(Integer usagerSourceId, Integer usagerCibleId,
-                                           final RedirectAttributes redirectAttributes) {
+            final RedirectAttributes redirectAttributes) {
 
         if (usagerSourceId.equals(usagerCibleId)) {
             // L'usager cible doit être différent de l'usager source
@@ -360,8 +358,7 @@ public class GestionUsagersController extends AbstractController {
         List<DemandeDTO> demandes = demandesService.getDemandes(usagerSourceId);
 
         LOGGER.info("Appel à DEM afin de récupérer les infos de l'usager source...");
-        UsagerCourrierDTO usagerSourceDTO = usagersCourrierService
-                .getUsagerCourrier(usagerSourceId);
+        UsagerCourrierDTO usagerSourceDTO = usagersCourrierService.getUsagerCourrier(usagerSourceId);
 
         ModelAndView mav = new ModelAndView("gestion/usagers/transfertdemandes");
         mav.addObject("usagerSourceId", usagerSourceId);
@@ -378,10 +375,9 @@ public class GestionUsagersController extends AbstractController {
     }
 
     /**
-     * Transfert de demandes tout court ou suivi de la suppression de l'usager
-     * courrier
+     * Transfert de demandes tout court ou suivi de la suppression de l'usager courrier
      */
-    @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @PostMapping(value = "/transferer", params = "action=Valider")
     public ModelAndView transfererPost(
             @ModelAttribute("transfertDemandesFormBean") TransfertDemandesFormBean transfertDemandesFormBean,
@@ -393,9 +389,11 @@ public class GestionUsagersController extends AbstractController {
         LOGGER.info("Appel à DEM pour récupérer les demandes affectées à l'usager courrier source...");
         List<DemandeDTO> demandes = demandesService.getDemandes(usagerSourceId);
 
-        LOGGER.info("Appel à DEM pour transférer les demandes de l'usager courrier source {} vers l'usager courrier cible {} ({})... ",
+        LOGGER.info(
+                "Appel à DEM pour transférer les demandes de l'usager courrier source {} vers l'usager courrier cible {} ({})... ",
                 usagerSourceId, usagerCibleId, transfertDemandesFormBean.getCheckedDemandes());
-        usagersCourrierService.transferer(usagerSourceId, usagerCibleId, transfertDemandesFormBean.getCheckedDemandes());
+        usagersCourrierService.transferer(usagerSourceId, usagerCibleId,
+                transfertDemandesFormBean.getCheckedDemandes());
 
         LOGGER.info("Mise à jour des variables BPM concernant les demandes impactées...");
         for (DemandeDTO demande : demandes) {
@@ -411,16 +409,14 @@ public class GestionUsagersController extends AbstractController {
             List<String> messages = new ArrayList<>();
             messages.add(
                     messageSource.getMessage(I18N_TRANSFERTSUPPRESSION_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE,
-                            new Object[]{afBackUtils.getUsagerNameFromID(usagerSourceId),
-                                    afBackUtils.getUsagerNameFromID(usagerCibleId)},
-                            Locale.FRENCH));
+                            new Object[] { afBackUtils.getUsagerNameFromID(usagerSourceId),
+                                    afBackUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         } else {
             List<String> messages = new ArrayList<>();
             messages.add(messageSource.getMessage(I18N_TRANSFERT_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE,
-                    new Object[]{afBackUtils.getUsagerNameFromID(usagerSourceId),
-                            afBackUtils.getUsagerNameFromID(usagerCibleId)},
-                    Locale.FRENCH));
+                    new Object[] { afBackUtils.getUsagerNameFromID(usagerSourceId),
+                            afBackUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         }
 
@@ -442,8 +438,8 @@ public class GestionUsagersController extends AbstractController {
         if (StringUtils.isBlank(uDem.getNom()) && StringUtils.isBlank(uDem.getPrenom())) {
             uDemarche.setNomRaisonSociale(uDem.getRaisonSociale());
         } else if (!StringUtils.isBlank(uDem.getRaisonSociale())) {
-            uDemarche
-                    .setNomRaisonSociale(uDem.getNom() + " " + uDem.getPrenom() + " (" + uDem.getRaisonSociale() + ")");
+            uDemarche.setNomRaisonSociale(
+                    uDem.getNom() + " " + uDem.getPrenom() + " (" + uDem.getRaisonSociale() + ")");
         } else {
             uDemarche.setNomRaisonSociale(uDem.getNom() + " " + uDem.getPrenom());
         }

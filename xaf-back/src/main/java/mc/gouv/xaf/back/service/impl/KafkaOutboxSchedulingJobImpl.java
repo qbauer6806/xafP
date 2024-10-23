@@ -43,17 +43,22 @@ public class KafkaOutboxSchedulingJobImpl implements Job {
         LOGGER.debug("KafkaOutboxSchedulingJob.execute({})", jobExecutionContext);
         List<KafkaOutboxDTO> outbox = kafkaOutboxService.getOutboxElements();
         for (KafkaOutboxDTO obx : outbox) {
-            if (KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_NOUVEAU.equals(obx.getStatut()) ||
-                    (KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_ECHEC.equals(obx.getStatut()) && isRetryPossible(obx))) {
+            if (KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_NOUVEAU.equals(obx.getStatut()) || (
+                    KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_ECHEC.equals(obx.getStatut()) && isRetryPossible(
+                            obx))) {
 
                 if (KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_ECHEC.equals(obx.getStatut())) {
-                    LOGGER.info("KafkaOutboxSchedulingJob.execute() a trouvé un message à RENVOYER à Kafka ({}, tentative #{})", obx, (obx.getNbFailedAttempts() + 1));
+                    LOGGER.info(
+                            "KafkaOutboxSchedulingJob.execute() a trouvé un message à RENVOYER à Kafka ({}, tentative #{})",
+                            obx, (obx.getNbFailedAttempts() + 1));
                 } else {
                     LOGGER.info("KafkaOutboxSchedulingJob.execute() a trouvé un message à envoyer à Kafka ({})", obx);
                 }
                 LOGGER.info("Envoi dans Kafka (pkKafkaOutbox {})...", obx.getPkKafkaOutbox());
-                ProducerRecord<String, String> producerRecord = new ProducerRecord<>(obx.getTopic(), obx.getKey(), obx.getContenu());
-                producerRecord.headers().add(new RecordHeader(KafkaOutboxSchedulingConfig.PK_KAFKA_OUTBOX, obx.getPkKafkaOutbox().toString().getBytes()));
+                ProducerRecord<String, String> producerRecord = new ProducerRecord<>(obx.getTopic(), obx.getKey(),
+                        obx.getContenu());
+                producerRecord.headers().add(new RecordHeader(KafkaOutboxSchedulingConfig.PK_KAFKA_OUTBOX,
+                        obx.getPkKafkaOutbox().toString().getBytes()));
                 obx.setStatut(KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_EN_COURS);
                 obx.setDateLastAttempt(new Date());
                 kafkaOutboxService.updateOutboxElement(obx);

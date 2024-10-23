@@ -20,8 +20,10 @@ public class PaiementExportUtils {
         csvString.add("" + commandeDTO.getMontantInitial());
         csvString.add("" + commandeDTO.getMontantDejaCapture());
         csvString.add("" + commandeDTO.getMontantRestant());
-        csvString.add(moyenPaiementDTO.getMoyenPaiementType() == null ? "null" :moyenPaiementDTO.getMoyenPaiementType());
-        csvString.add(moyenPaiementDTO.getMoyenPaiementStatut()== null ? "null" :moyenPaiementDTO.getMoyenPaiementStatut());
+        csvString.add(
+                moyenPaiementDTO.getMoyenPaiementType() == null ? "null" : moyenPaiementDTO.getMoyenPaiementType());
+        csvString.add(
+                moyenPaiementDTO.getMoyenPaiementStatut() == null ? "null" : moyenPaiementDTO.getMoyenPaiementStatut());
         csvString.add(moyenPaiementDTO.getDateDerniereModification().toString());
         csvString.add(moyenPaiementDTO.getCvx());
         csvString.add(moyenPaiementDTO.getVld());
@@ -77,8 +79,10 @@ public class PaiementExportUtils {
     public static String toCSV(CommandeOperationDTO commandeOperationDTO) {
         StringJoiner csvString = new StringJoiner(";");
         csvString.add(commandeOperationDTO.getPkOperations());
-        csvString.add(commandeOperationDTO.getOperationType()== null ? "null" : commandeOperationDTO.getOperationType());
-        csvString.add(commandeOperationDTO.getOperationStatut()== null ? "null" : commandeOperationDTO.getOperationStatut());
+        csvString.add(
+                commandeOperationDTO.getOperationType() == null ? "null" : commandeOperationDTO.getOperationType());
+        csvString.add(
+                commandeOperationDTO.getOperationStatut() == null ? "null" : commandeOperationDTO.getOperationStatut());
         csvString.add(commandeOperationDTO.getDateCreation().toString());
         csvString.add(commandeOperationDTO.getDateDerniereModification().toString());
         csvString.add("" + commandeOperationDTO.getMontant());

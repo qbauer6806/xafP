@@ -16,7 +16,9 @@ public interface RioApiClient {
 
     RioDocumentDTO deleteDocument(String codeAppli, String refDocument, String codeNotice, String user);
 
-    RioFileDocumentDTO createFileDocument(String codeAppli, String refDocument, Long keyDocument, String codeNotice, String user, String filename, byte[] file);
+    RioFileDocumentDTO createFileDocument(String codeAppli, String refDocument, Long keyDocument, String codeNotice,
+            String user, String filename, byte[] file);
 
-    RioFileDocumentDTO getFileDocument(String codeAppli, String refDocument, Integer keyFile, String codeNotice, String user);
+    RioFileDocumentDTO getFileDocument(String codeAppli, String refDocument, Integer keyFile, String codeNotice,
+            String user);
 }

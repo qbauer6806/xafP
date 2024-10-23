@@ -10,12 +10,12 @@ import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Token d'identification via Logon
- * @author fgaujous
  *
+ * @author fgaujous
  */
 @Setter
 @Getter
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class LogonAuthenticationToken extends AbstractAuthenticationToken {
 
     @Serial

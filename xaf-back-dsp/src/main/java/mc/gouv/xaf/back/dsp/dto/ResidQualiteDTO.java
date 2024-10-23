@@ -15,10 +15,10 @@ import mc.gouv.xaf.back.dsp.enums.common.ResidQualiteEnum;
 @ToString
 public class ResidQualiteDTO implements Serializable {
 
-	private static final long serialVersionUID = 8728005393250425705L;
+    private static final long serialVersionUID = 8728005393250425705L;
 
-	private ResidQualiteEnum qualiteEnum;
+    private ResidQualiteEnum qualiteEnum;
 
-	private String autre;
+    private String autre;
 
 }

@@ -11,17 +11,15 @@ import org.springframework.web.bind.annotation.InitBinder;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
- * 
  * Controller pour gérer entre autre les exceptions survenues sur les pages web et pas les WS
- * 
- * @author fgaujous
  *
+ * @author fgaujous
  */
 public abstract class AbstractController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-    	DateFormat df = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
+        DateFormat df = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
         CustomDateEditor editor = new CustomDateEditor(df, true);
         binder.registerCustomEditor(Date.class, editor);
     }

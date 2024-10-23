@@ -7,8 +7,8 @@ public interface BackGouvPropertiesResolver extends GouvPropertiesResolver {
     String getGouvSharedEnv();
 
     String getGouvSharedEnvColor();
-    
-	boolean getGouvSharedEnvDisplayStackTrace();
+
+    boolean getGouvSharedEnvDisplayStackTrace();
 
     String getContactSupportUrl();
 

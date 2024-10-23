@@ -10,13 +10,12 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesComplementsFilesTransformer {
 
-    private DemandesComplementsFilesTransformer() {}
+    private DemandesComplementsFilesTransformer() {
+    }
 
     public static DemandeComplementsFileDTO bo2Dto(DemandesComplementsFilesBO bo) {
         DemandeComplementsFileDTO dto = new DemandeComplementsFileDTO();
@@ -75,7 +74,8 @@ public class DemandesComplementsFilesTransformer {
         return demandeFileDTOs;
     }
 
-    public static List<DemandeFileDTO> toDemandeFileDTOCategorizer(List<DemandeComplementsFileDTO> demandeComplementsFileDTOs, Date date) {
+    public static List<DemandeFileDTO> toDemandeFileDTOCategorizer(
+            List<DemandeComplementsFileDTO> demandeComplementsFileDTOs, Date date) {
         ArrayList<DemandeFileDTO> demandeFileDTOs = new ArrayList<>();
         if (demandeComplementsFileDTOs != null) {
             for (DemandeComplementsFileDTO demandeComplementsFileDTO : demandeComplementsFileDTOs) {

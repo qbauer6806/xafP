@@ -9,8 +9,7 @@ public class ListenerConfig {
 
     @Bean
     public ServletListenerRegistrationBean<DemandeLockSessionListener> sessionListenerWithMetrics() {
-        ServletListenerRegistrationBean<DemandeLockSessionListener> listenerRegBean =
-                new ServletListenerRegistrationBean<>();
+        ServletListenerRegistrationBean<DemandeLockSessionListener> listenerRegBean = new ServletListenerRegistrationBean<>();
 
         listenerRegBean.setListener(new DemandeLockSessionListener());
         return listenerRegBean;

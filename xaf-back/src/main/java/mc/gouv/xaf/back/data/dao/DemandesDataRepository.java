@@ -7,7 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 
 /**
  * @author qdeme
- *
  */
 public interface DemandesDataRepository extends CrudRepository<DemandesDataBO, Integer> {
 

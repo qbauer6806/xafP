@@ -14,8 +14,7 @@ import java.net.URL;
 @Component
 public class PdfHeaderProviderImpl implements PdfHeaderProvider {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PdfHeaderProviderImpl.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(PdfHeaderProviderImpl.class);
 
     @Override
     public File getHeader() {

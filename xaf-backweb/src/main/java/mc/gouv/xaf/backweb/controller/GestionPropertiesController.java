@@ -50,9 +50,11 @@ public class GestionPropertiesController {
 
     @PostMapping(value = "/edit")
     @Transactional
-    public ModelAndView modifier(@RequestParam Integer pkProperties, @RequestParam String value, final RedirectAttributes redirectAttributes) {
+    public ModelAndView modifier(@RequestParam Integer pkProperties, @RequestParam String value,
+            final RedirectAttributes redirectAttributes) {
         String safeValue = AfBackUtils.logSafe(value);
-        LOGGER.info("======================= Appel de la page /gestion/properties/modifier ({}, {})", pkProperties, safeValue);
+        LOGGER.info("======================= Appel de la page /gestion/properties/modifier ({}, {})", pkProperties,
+                safeValue);
         String valueSafe = StringEscapeUtils.escapeHtml4(value);
         propertiesService.updatePropertyValue(pkProperties, valueSafe);
         List<String> messages = new ArrayList<>();

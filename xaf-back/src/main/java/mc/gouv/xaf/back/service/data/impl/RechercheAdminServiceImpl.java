@@ -78,7 +78,6 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         return properties;
     }
 
-
     @Override
     public void updateRechercheChamps(List<RechercheChampDTO> rechercheChampDTOS) {
         LOGGER.info("Début de la maj des propriétés");
@@ -108,7 +107,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         // Association de la catégorie
         if (rechercheChampDTO.getCategoryId() != null) {
-            Optional<RechercheCatConfigBO> catBoOp = rechercheCatConfigRepository.findById(rechercheChampDTO.getCategoryId());
+            Optional<RechercheCatConfigBO> catBoOp = rechercheCatConfigRepository.findById(
+                    rechercheChampDTO.getCategoryId());
             if (catBoOp.isPresent()) {
                 champBo.setCategorie(catBoOp.get());
             }
@@ -277,8 +277,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             List<ExportImportCategoryDTO> categories = config.getCategories();
             if (categories != null) {
                 for (ExportImportCategoryDTO category : categories) {
-                    categoriesMap.put(category.getLabel(), rechercheCatConfigRepository
-                            .save(new RechercheCatConfigBO(category.getLabel(), category.isEditable())));
+                    categoriesMap.put(category.getLabel(), rechercheCatConfigRepository.save(
+                            new RechercheCatConfigBO(category.getLabel(), category.isEditable())));
                 }
             }
 

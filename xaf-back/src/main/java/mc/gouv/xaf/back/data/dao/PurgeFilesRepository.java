@@ -8,7 +8,6 @@ import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 
 /**
  * @author agaidi.ext
- *
  */
 public interface PurgeFilesRepository extends CrudRepository<PurgeFilesBO, Integer> {
 

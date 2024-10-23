@@ -11,29 +11,16 @@ import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class JwtAuthToken extends AbstractAuthenticationToken {
 
     @Serial
     private static final long serialVersionUID = -4751312158728240194L;
 
     /**
-     * Exemple de payload
-     * {
-    "sub": "INTRANET",
-    "gouv" : {
-    "shared" : {
-       "roles": [
-       "READER"
-       ]},
-    "tgf": {
-       "benefEmets" : ["test","test1"]  
-    }
-    },
-    "aud": "NOTIF",
-    "iat": "2017-07-20T16:56:07+0200",
-    "jti": "2f8e3fb3-8b94-4fc2-bf5a-87acaee8b9d3"
-    }
+     * Exemple de payload { "sub": "INTRANET", "gouv" : { "shared" : { "roles": [ "READER" ]}, "tgf": { "benefEmets" :
+     * ["test","test1"] } }, "aud": "NOTIF", "iat": "2017-07-20T16:56:07+0200", "jti":
+     * "2f8e3fb3-8b94-4fc2-bf5a-87acaee8b9d3" }
      */
     private static final String GOUV_PROPERTY = "gouv";
 
@@ -79,34 +66,18 @@ public class JwtAuthToken extends AbstractAuthenticationToken {
     }
 
     /**
-     * 
-     * @return une map comprenant les clés des champs contenu au sein du payload spécial pour le gouv
-     * Exemple : "gouv" : {
-    * "shared" : {
-    *    "roles": [
-    *   "READER"
-    *   ]},
-    *  "tgf": {
-    *   "benefEmets" : ["test","test1"]  
-    * }
-    * retourne une map avec les clés "shared" et "tgf"
+     * @return une map comprenant les clés des champs contenu au sein du payload spécial pour le gouv Exemple : "gouv" :
+     *         { "shared" : { "roles": [ "READER" ]}, "tgf": { "benefEmets" : ["test","test1"] } retourne une map avec
+     *         les clés "shared" et "tgf"
      */
     public Map<?, ?> getGouvProperties() {
         return (Map<?, ?>) jws.getBody().get(GOUV_PROPERTY);
     }
 
     /**
-     * 
-     * @return une map comprenant les clés des champs contenu au sein du payload spécial pour l'application
-      * Exemple : "gouv" : {
-    * "shared" : {
-    *    "roles": [
-    *   "READER"
-    *   ]},
-    *  "tgf": {
-    *   "benefEmets" : ["test","test1"]  
-    * }
-    * retourne une map avec la clé "benefEmets"
+     * @return une map comprenant les clés des champs contenu au sein du payload spécial pour l'application Exemple :
+     *         "gouv" : { "shared" : { "roles": [ "READER" ]}, "tgf": { "benefEmets" : ["test","test1"] } retourne une
+     *         map avec la clé "benefEmets"
      */
     public Map<?, ?> getApplicationProperties() {
         return (Map<?, ?>) getGouvProperties().get(applicationName);

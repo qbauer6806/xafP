@@ -7,27 +7,26 @@ import lombok.Setter;
 
 /**
  * Formulaire pour les demandes courrier
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
 public class DemandesCourrierFormBean {
 
-	private Integer usagerId;
+    private Integer usagerId;
 
-	@NotEmpty
-	private String dateReception;
+    @NotEmpty
+    private String dateReception;
 
     @Size(max = 128, message = "La référence interne ne peut contenir plus de 128 caractères")
     private String refInterne;
 
     @NotEmpty
-	private String canal;
+    private String canal;
 
     @NotEmpty
-	private String langue;
-	private String duplicationKeyId;
+    private String langue;
+    private String duplicationKeyId;
 
 }

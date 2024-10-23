@@ -8,9 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Représente le contenu d'une ligne d'historique de demande
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -19,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 public class DemandeHistoriqueContenuDTO {
 
     private String statutName;
-    
+
     private String html;
 
     public DemandeHistoriqueContenuDTO(String name, String role, String action, String statutName) {

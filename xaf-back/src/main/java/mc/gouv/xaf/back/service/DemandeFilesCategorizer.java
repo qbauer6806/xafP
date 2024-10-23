@@ -7,12 +7,11 @@ import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 
 /**
  * Service permettant de lister les catégories de fichiers ainsi que les fichiers associés
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public interface DemandeFilesCategorizer {
 
-	List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande);
+    List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande);
 
 }

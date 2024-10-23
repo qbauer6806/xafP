@@ -10,7 +10,6 @@ import java.util.List;
 
 /**
  * @author qdeme
- *
  */
 public interface BrouillonsFilesRepository extends CrudRepository<BrouillonsFilesBO, Integer> {
 

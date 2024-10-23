@@ -14,6 +14,7 @@ import java.util.List;
 
 @Component
 public class TestsPaiementsDataDelegate implements PaiementsDataProvider {
+
     @Override
     public InformationFacturationDTO getInfosFacturation(DemandeDTO demandeDTO) {
         return null;
@@ -25,7 +26,8 @@ public class TestsPaiementsDataDelegate implements PaiementsDataProvider {
     }
 
     @Override
-    public List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation, CommandeDTO commandeDTO) {
+    public List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation,
+            CommandeDTO commandeDTO) {
         return new ArrayList<>();
     }
 }

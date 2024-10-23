@@ -26,10 +26,9 @@ import mc.gouv.xaf.shared.formbean.TemplateFormBean;
  * Controller la modification de templates
  *
  * @author mpavone
- *
  */
 @Controller
-@Secured({"ROLE_CONFIGURATION"})
+@Secured({ "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/template")
 public class GestionTemplateController extends AbstractController {
 
@@ -41,7 +40,7 @@ public class GestionTemplateController extends AbstractController {
 
     @Autowired
     private TemplatesService templatesService;
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
 
@@ -60,8 +59,7 @@ public class GestionTemplateController extends AbstractController {
         boolean frOnly = isFrenchOnly();
         mav.addObject(TS_CODE_VAR, demarcheId);
         mav.addObject(FR_ONLY_VAR, frOnly);
-        List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates( "fr") :
-                templatesService.getTemplates();
+        List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates("fr") : templatesService.getTemplates();
         mav.addObject("templateList", templateList);
         LOGGER.info("======================= Fin /gestion/template. Méthode getTemplates");
         return mav;
@@ -94,7 +92,7 @@ public class GestionTemplateController extends AbstractController {
 
     private boolean isFrenchOnly() {
         // S'il n'y a qu'une langue on ne récupère que les templates FR
-    	Map<String, String> langues = afBackUtils.getLanguesDisponibles();
+        Map<String, String> langues = afBackUtils.getLanguesDisponibles();
         return langues.size() == 1 && langues.containsKey("fr");
     }
 }

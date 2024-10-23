@@ -52,7 +52,7 @@ public enum ResidPieceJustificativeTypeEnum {
     PENSION_RETRAITE("PENSION_RETRAITE"),
     NON_APPLICABLE("NON_APPLICABLE"),
 
-	// Nouvelles valeurs possibles de type de PJ
+    // Nouvelles valeurs possibles de type de PJ
     STATUT_SCI("STATUT_SCI"),
     JUSTIFICATIF_REVENUS("JUSTIFICATIF_REVENUS"),
     ACTE_MARIAGE("ACTE_MARIAGE"),
@@ -74,8 +74,7 @@ public enum ResidPieceJustificativeTypeEnum {
     ACTE_NATURALISATION("ACTE_NATURALISATION"),
     JUSTIFICATIF_PERTE_NATIONALITE("JUSTIFICATIF_PERTE_NATIONALITE"),
     SAISINE_ORIGINE_DEMANDE_CR("SAISINE_ORIGINE_DEMANDE_CR"),
-	AUTRE("AUTRE");
-
+    AUTRE("AUTRE");
 
     String value;
 

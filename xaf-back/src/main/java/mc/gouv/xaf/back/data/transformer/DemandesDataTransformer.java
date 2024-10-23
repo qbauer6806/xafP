@@ -9,18 +9,17 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesDataTransformer {
 
-    private DemandesDataTransformer() {}
+    private DemandesDataTransformer() {
+    }
 
     public static DemandeDataDTO bo2Dto(DemandesDataBO bo) {
-    	if (bo == null) {
-    		return null;
-    	}
+        if (bo == null) {
+            return null;
+        }
         DemandeDataDTO dto = new DemandeDataDTO();
         dto.setDemandeId(bo.getFkDemandes().getPkDemandes());
         dto.setKey(bo.getKey());
@@ -33,9 +32,9 @@ public class DemandesDataTransformer {
      * L'entité retournée est à rattacher à un DemandeBO après l'appel à cette fonction
      */
     public static DemandesDataBO dto2Bo(DemandeDataDTO dto) {
-    	if (dto == null) {
-    		return null;
-    	}
+        if (dto == null) {
+            return null;
+        }
         DemandesDataBO bo = new DemandesDataBO();
         bo.setKey(dto.getKey());
         bo.setValue(dto.getValue());

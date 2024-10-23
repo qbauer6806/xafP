@@ -7,9 +7,8 @@ import lombok.ToString;
 
 /**
  * Classe pour modélisation JSON d'une réponse du WS de mail
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -27,5 +26,4 @@ public class MailSentDTO {
      */
     private String statut;
 
-    
 }

@@ -5,20 +5,19 @@ import lombok.Setter;
 
 /**
  * DTO pour affichage des données du tableau de la page de gestion des agents
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
 public class DenjsAgentEtablissementDTO {
-	
-	private String agentNom;
-	
-	private String agentMatricule;
-	
-	private String etablissementCode;
-	
-	private String etablissementNom;
+
+    private String agentNom;
+
+    private String agentMatricule;
+
+    private String etablissementCode;
+
+    private String etablissementNom;
 
 }

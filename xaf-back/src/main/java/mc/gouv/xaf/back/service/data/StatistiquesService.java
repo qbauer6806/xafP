@@ -9,26 +9,28 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 public interface StatistiquesService {
 
     /**
-     * @param statistiqueId id à supprimer
+     * @param statistiqueId
+     *         id à supprimer
      */
     void deleteStatistique(Integer statistiqueId);
 
-
     /**
-     * @param stat objet à sauvegarder
+     * @param stat
+     *         objet à sauvegarder
      * @return objet sauvegardé
      */
     StatistiqueDTO saveStatistique(StatistiqueDTO stat);
 
     /**
-     * @param demandeDTO objet contenant l'information
+     * @param demandeDTO
+     *         objet contenant l'information
      * @return objet sauvegardé
      */
     StatistiqueDTO saveStatistique(DemandeDTO demandeDTO);
 
-	/**
-	 * Supprimer les statistiques liées à une demande
-	 */
-	void deleteStatistiques(Integer pkDemande);
+    /**
+     * Supprimer les statistiques liées à une demande
+     */
+    void deleteStatistiques(Integer pkDemande);
 
 }

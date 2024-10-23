@@ -7,15 +7,13 @@ import mc.gouv.xaf.back.data.entity.MotifBO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class MotifTransformer {
 
     private MotifTransformer() {
     }
-    
+
     public static MotifDTO bo2Dto(MotifBO bo) {
         MotifDTO dto = new MotifDTO();
         dto.setLangue(bo.getLangue());
@@ -28,7 +26,7 @@ public class MotifTransformer {
         dto.setTexteAEnvoyer(bo.getTexteAEnvoyer());
         return dto;
     }
-    
+
     public static MotifBO dto2Bo(MotifDTO dto) {
         MotifBO bo = new MotifBO();
         bo.setLangue(dto.getLangue());
@@ -41,7 +39,7 @@ public class MotifTransformer {
         bo.setTexteAEnvoyer(dto.getTexteAEnvoyer());
         return bo;
     }
-    
+
     public static List<MotifDTO> bo2Dto(List<MotifBO> bos) {
         ArrayList<MotifDTO> dtos = new ArrayList<>();
         for (MotifBO bo : bos) {
@@ -49,7 +47,7 @@ public class MotifTransformer {
         }
         return dtos;
     }
-    
+
     public static List<MotifBO> dto2Bo(List<MotifDTO> dtos) {
         ArrayList<MotifBO> bos = new ArrayList<>();
         for (MotifDTO dto : dtos) {
@@ -57,5 +55,5 @@ public class MotifTransformer {
         }
         return bos;
     }
-    
+
 }

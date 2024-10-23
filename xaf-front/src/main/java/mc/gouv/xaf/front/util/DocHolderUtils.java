@@ -19,12 +19,13 @@ import java.util.Date;
 
 @Component
 public class DocHolderUtils {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderUtils.class);
     public static final String DOCHOLDER_CONSENT_NODE = "docholderConsent";
     public static final String CONSENTING_NODE = "consenting";
     public static final String DATE_CREATION_NODE = "dateCreation";
     public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    
+
     private static final ZoneId zoneId = ZoneId.of("Europe/Monaco");
 
     @Autowired
@@ -33,16 +34,20 @@ public class DocHolderUtils {
     /**
      * Met à jour la date de consentement du porte-documents à la date de l'instant.
      *
-     * @param usagerId l'identifiant usager
+     * @param usagerId
+     *         l'identifiant usager
      * @return true si le consentement TS est valide et que la date pu être mise à jour. false sinon
      */
     public boolean updateConsentDate(Integer usagerId) {
         AccessDTO access = xafFrontserverUtils.getAfApiClient().getAccess(usagerId);
         if (access != null && access.getContenu() != null) {
-            boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE).asBoolean();
+            boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE)
+                    .asBoolean();
             if (consent) {
                 AccessInputDTO accessInputDTO = new AccessInputDTO();
-                ((ObjectNode) access.getContenu().findPath(DOCHOLDER_CONSENT_NODE)).put(DATE_CREATION_NODE, new SimpleDateFormat(JSON_DATE_FORMAT).format(Date.from(LocalDateTime.now().atZone(zoneId).toInstant())));
+                ((ObjectNode) access.getContenu().findPath(DOCHOLDER_CONSENT_NODE)).put(DATE_CREATION_NODE,
+                        new SimpleDateFormat(JSON_DATE_FORMAT).format(
+                                Date.from(LocalDateTime.now().atZone(zoneId).toInstant())));
                 accessInputDTO.setContenu(access.getContenu());
 
                 xafFrontserverUtils.getAfApiClient().createOrUpdateAccess(usagerId, accessInputDTO);
@@ -57,7 +62,8 @@ public class DocHolderUtils {
     /**
      * Permet de savoir si l'usager a consenti à l'utilisation du porte-documents côté TS
      *
-     * @param usagerId l'identifiant du compe usager
+     * @param usagerId
+     *         l'identifiant du compe usager
      * @return true si l'usager a consenti côté TS ET que sa date de consentement n'est pas arrivée à expiration
      */
     public boolean isConsenting(Integer usagerId) {
@@ -75,9 +81,11 @@ public class DocHolderUtils {
         }
 
         try {
-            boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE).asBoolean();
+            boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE)
+                    .asBoolean();
             Date dateConsent = dateFormat.parse(dateNode.asText());
-            Date oneYearPlusOneMonth = Date.from(dateConsent.toInstant().atZone(zoneId).plusYears(1).plusMonths(1).toInstant());
+            Date oneYearPlusOneMonth = Date.from(
+                    dateConsent.toInstant().atZone(zoneId).plusYears(1).plusMonths(1).toInstant());
             Date today = Date.from(Instant.now().atZone(zoneId).toInstant());
 
             return consent && (!oneYearPlusOneMonth.before(today));

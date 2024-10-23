@@ -8,9 +8,8 @@ import lombok.Setter;
 
 /**
  * Formulaire de la page de gestion des templates
- * 
+ *
  * @author mpavone
- * 
  */
 @Setter
 @Getter

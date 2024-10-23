@@ -58,7 +58,8 @@ public class KafkaOutboxSchedulingConfig {
         retryInterval = retrieveRetryInterval();
 
         LOGGER.info("Paramétrage du Job Quartz pour traitement de l'Outbox Kafka...");
-        JobDetail jobDetail = schedulerService.buildJobDetail(KafkaOutboxSchedulingJobImpl.class, "KafkaOutboxSchedulingJob");
+        JobDetail jobDetail = schedulerService.buildJobDetail(KafkaOutboxSchedulingJobImpl.class,
+                "KafkaOutboxSchedulingJob");
         Trigger trigger = schedulerService.buildJobTrigger(jobDetail, "KafkaOutboxSchedulingTrigger", cronExpression);
         schedulerService.startOrUpdateScheduledJob(jobDetail, trigger);
     }

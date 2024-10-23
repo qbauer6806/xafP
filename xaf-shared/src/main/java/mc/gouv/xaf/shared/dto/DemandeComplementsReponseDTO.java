@@ -12,9 +12,8 @@ import lombok.Setter;
 
 /**
  * Modélise la partie "Réponse" d'une demande d'informations complémentaires
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

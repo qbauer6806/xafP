@@ -57,13 +57,14 @@ public class PaysController extends AbstractXafController {
             LOGGER.debug("Appel à {}", uri);
             Request serviceRequest = Request.get(uri);
             serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.getType());
-            ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
 
             if (statusCode == HttpStatus.OK.value()) {
                 return ResponseEntity.status(statusCode)
                         .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
-                        .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+                        .body(new String(serviceResponse.getEntity().getContent().readAllBytes(),
+                                StandardCharsets.UTF_8));
             }
             LOGGER.info("====================== Fin /pays doGet()");
 
@@ -73,7 +74,6 @@ public class PaysController extends AbstractXafController {
             return ResponseEntity.status(getCodeErreur(e)).build();
         }
     }
-
 
     @GetMapping("/nationalites")
     public ResponseEntity doGetNationalites(@RequestParam(required = false) String locale, HttpServletRequest request) {
@@ -87,17 +87,19 @@ public class PaysController extends AbstractXafController {
         }
 
         try {
-            URI uri = new URIBuilder(propertiesResolver.getPaysUrl() + NATIONALITE_PATH).addParameter("locale", locale).build();
+            URI uri = new URIBuilder(propertiesResolver.getPaysUrl() + NATIONALITE_PATH).addParameter("locale", locale)
+                    .build();
             LOGGER.debug("Appel à {}", uri);
             Request serviceRequest = Request.get(uri);
             serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.getType());
-            ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
 
             if (statusCode == HttpStatus.OK.value()) {
                 return ResponseEntity.status(statusCode)
                         .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
-                        .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+                        .body(new String(serviceResponse.getEntity().getContent().readAllBytes(),
+                                StandardCharsets.UTF_8));
             }
             LOGGER.info("====================== Fin /pays doGet()");
 

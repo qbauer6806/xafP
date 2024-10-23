@@ -47,7 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Service permettant la manipulation des brouillons.
  *
  * @author qdeme
- *
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -57,7 +56,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private BrouillonsRepository brouillonsRepository;
-    
+
     @Autowired
     BrouillonsFilesService brouillonsFilesService;
 
@@ -132,7 +131,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
         String lastBuildId = demandesConfigService.getLastBuildId();
-        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
+                demarchesDataProvider.getBrouillonStatutNotTransmitted(),
+                demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
         return brouillonsDTO;
 
     }
@@ -142,7 +143,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate) {
-    	BrouillonDTO brouillonDTO;
+        BrouillonDTO brouillonDTO;
         if (brouillon.getPkBrouillons() != null) {
             // ID du brouillon fourni, il faut donc mettre à jour un brouillon
             brouillonDTO = updateBrouillon(brouillon, usagerId);
@@ -173,7 +174,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-	    LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 
@@ -212,7 +213,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         try {
             brouillonBo.setContenu(mapper.writeValueAsString(brouillon.getContenu()));
             if (brouillon.getMeta() != null) {
-            	brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
+                brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
             }
         } catch (JsonProcessingException e) {
             LOGGER.error("Problème lors de la conversion JSON", e);
@@ -224,20 +225,20 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         // Supprimer les pièces jointes déjà existantes
         brouillonsFilesRepository.deleteAll(brouillonBo.getFiles());
         brouillonBo.getFiles().clear();
-        
+
         // Mise à jour des dates des pièces jointes
         if (brouillon.getFichiers() != null) {
             for (BrouillonFileDTO file : brouillon.getFichiers()) {
-            	if (file.getDate() == null) {
-            		file.setDate(new Date());
-            	}
+                if (file.getDate() == null) {
+                    file.setDate(new Date());
+                }
             }
         }
-        
+
         if (brouillon.getFichiers() != null && brouillon.getFichiers().length > 0) {
             // Ajouter la nouvelle image
-            brouillonBo.setFiles(new HashSet<>(
-                    BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillon.getFichiers()))));
+            brouillonBo.setFiles(
+                    new HashSet<>(BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillon.getFichiers()))));
             for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
                 bo.setFkBrouillons(brouillonBo);
             }
@@ -266,8 +267,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
         if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
             for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
-                List<DemandesFilesBO> existingFilesDemandes = demandesFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
-                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+                List<DemandesFilesBO> existingFilesDemandes = demandesFilesRepository.findAllByUrl(
+                        currentFileToDelete.getUrl());
+                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(
+                        currentFileToDelete.getUrl());
                 if (isFileDeletable(existingFilesDemandes, existingFilesBrouillons)) {
                     String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
                     fileService.deleteFile("ROOT", url);
@@ -280,11 +283,13 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         brouillonsRepository.delete(brouillonBo);
     }
 
-    private boolean isFileDeletable(List<DemandesFilesBO> existingFilesDemandes, List<BrouillonsFilesBO> existingFilesBrouillons) {
+    private boolean isFileDeletable(List<DemandesFilesBO> existingFilesDemandes,
+            List<BrouillonsFilesBO> existingFilesBrouillons) {
         // le fichier du brouillon est supprimable uniquement s'il n'est pas utilisé dans une autre demande, et s'il n'est pas utilisé dans un autre brouillon
-        return existingFilesDemandes != null && existingFilesDemandes.isEmpty() && existingFilesBrouillons != null && existingFilesBrouillons.size() <= 1;
+        return existingFilesDemandes != null && existingFilesDemandes.isEmpty() && existingFilesBrouillons != null
+                && existingFilesBrouillons.size() <= 1;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -307,15 +312,18 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Override
     public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
-    	// b.dateDerModif ?
-        String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" :  paramDTO.getSort();
+        // b.dateDerModif ?
+        String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" : paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<BrouillonBO> bos = brouillonsRepository.findByFkAccess_UsagerIdAndFkAccess_Active(usagerId, true, pageable);
+        Page<BrouillonBO> bos = brouillonsRepository.findByFkAccess_UsagerIdAndFkAccess_Active(usagerId, true,
+                pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
         String lastBuildId = demandesConfigService.getLastBuildId();
-        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
+                demarchesDataProvider.getBrouillonStatutNotTransmitted(),
+                demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
         return brouillonDTOS;
     }
 }

@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/doc-holder")
 public class DocHolderController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderController.class);
     private static final String BEARER = "Bearer ";
 
@@ -49,7 +50,8 @@ public class DocHolderController extends AbstractXafController {
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         Request serviceRequest = Request.get(frontGouvPropertiesResolver.getPorteDocUrl());
@@ -71,8 +73,8 @@ public class DocHolderController extends AbstractXafController {
     }
 
     /**
-     * Methode pour l'opération <b>createDocumentHolder</b>
-     * Elle permet la création d'un nouveau "document-holder" ou "porte-document"
+     * Methode pour l'opération <b>createDocumentHolder</b> Elle permet la création d'un nouveau "document-holder" ou
+     * "porte-document"
      */
     @PostMapping
     protected ResponseEntity doPost(HttpServletRequest req) {
@@ -80,7 +82,8 @@ public class DocHolderController extends AbstractXafController {
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         Request serviceRequest = Request.post(frontGouvPropertiesResolver.getPorteDocUrl());
@@ -102,8 +105,8 @@ public class DocHolderController extends AbstractXafController {
     }
 
     /**
-     * Méthode pour l'opération <b>deleteDocumentHolder</b>
-     * Elle permet la destruction d'un porte-document et la suppression des données de consentement TS.
+     * Méthode pour l'opération <b>deleteDocumentHolder</b> Elle permet la destruction d'un porte-document et la
+     * suppression des données de consentement TS.
      */
     @DeleteMapping
     protected ResponseEntity doDelete(HttpServletRequest req) {
@@ -111,7 +114,8 @@ public class DocHolderController extends AbstractXafController {
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         Request serviceRequest = Request.delete(frontGouvPropertiesResolver.getPorteDocUrl());
@@ -123,7 +127,8 @@ public class DocHolderController extends AbstractXafController {
             AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
             if (access == null) {
                 LOGGER.error("Impossible de récupérer l'AccessDTO pour l'utilisateur id {}", usagerInfosDTO.getId());
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                        SharedMessages.ERREUR_INTERNE);
             }
 
             JsonNode docholderConsentNode = access.getContenu().get(DOCHOLDER_CONSENT_NODE);

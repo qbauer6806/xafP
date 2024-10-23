@@ -23,9 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des accès.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -101,8 +100,8 @@ public class AccessServiceImpl implements AccessService {
         bo = accessRepository.save(bo);
 
         if (!isUsagerCourrier) {
-	        LOGGER.info("Envoi d'un message au GU via Kafka...");
-	        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
+            LOGGER.info("Envoi d'un message au GU via Kafka...");
+            guKafkaProducer.sendCreationAccesTSMessage(usagerId);
         }
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 

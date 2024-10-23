@@ -13,7 +13,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidIdTSDTO implements Serializable {
 
-	private static final long serialVersionUID = -2237650305268115825L;
-	private String idTS;
+    private static final long serialVersionUID = -2237650305268115825L;
+    private String idTS;
 
 }

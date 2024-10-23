@@ -19,13 +19,13 @@ import lombok.ToString;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BrouillonDTO {
-	
+
     protected Integer pkBrouillons;
-    
+
     private Integer fkAccess;
-    
+
     private Integer usagerId;
-    
+
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     protected Date dateCreation;
 
@@ -37,13 +37,12 @@ public class BrouillonDTO {
     private BrouillonFileDTO[] fichiers;
 
     private String buildId;
-    
+
     private String recapType;
-    
+
     private JsonNode meta;
 
-	private DemandeStatutDTO dernierStatut;
-	private JsonNode contenuInitial;
-
+    private DemandeStatutDTO dernierStatut;
+    private JsonNode contenuInitial;
 
 }

@@ -19,38 +19,38 @@ import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
- *
  * @author qdeme
- *
  */
 @GouvRestController
 @RequestMapping(value = "/ws/recap")
 public class RecapGenerationController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RecapGenerationController.class);
-
-	@Autowired
-	private DemandesService demandesService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecapGenerationController.class);
 
     @Autowired
-	private DemandeRecapHTMLService demandeRecapHTMLService;
+    private DemandesService demandesService;
 
-	@Secured({"ROLE_LECTURE"})
-	@GetMapping(value = "/{pkDemande}", produces = "text/html")
-	public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande) throws IOException, ParseException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-		LOGGER.info("======================= Appel de /ws/recap/{}", pkDemande);
-		DemandeDTO demande = demandesService.getDemande(pkDemande);
-		String ret = "";
-		if (demande != null) {
-			ret = getHTML(demande);
-		}
-		LOGGER.info("======================= Fin appel de /ws/recap/{}", pkDemande);
-		return ret;
-	}
+    @Autowired
+    private DemandeRecapHTMLService demandeRecapHTMLService;
 
-	public String getHTML(DemandeDTO demande)
-			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		return demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, false);
-	}
+    @Secured({ "ROLE_LECTURE" })
+    @GetMapping(value = "/{pkDemande}", produces = "text/html")
+    public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande)
+            throws IOException, ParseException, ClassNotFoundException, InvocationTargetException,
+            IllegalAccessException, NoSuchMethodException {
+        LOGGER.info("======================= Appel de /ws/recap/{}", pkDemande);
+        DemandeDTO demande = demandesService.getDemande(pkDemande);
+        String ret = "";
+        if (demande != null) {
+            ret = getHTML(demande);
+        }
+        LOGGER.info("======================= Fin appel de /ws/recap/{}", pkDemande);
+        return ret;
+    }
+
+    public String getHTML(DemandeDTO demande)
+            throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        return demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, false);
+    }
 }

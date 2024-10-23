@@ -7,12 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemarchesTransformer {
-    
+
     private DemarchesTransformer() {
     }
 
@@ -63,7 +61,7 @@ public class DemarchesTransformer {
         bo.setNomSousDirectionComplementEn(dto.getNomSousDirectionComplementEn());
         return bo;
     }
-    
+
     public static List<DemarcheDTO> bo2Dto(List<DemarchesBO> bos) {
         ArrayList<DemarcheDTO> dtos = new ArrayList<>();
         for (DemarchesBO bo : bos) {
@@ -71,7 +69,7 @@ public class DemarchesTransformer {
         }
         return dtos;
     }
-    
+
     public static List<DemarchesBO> dto2Bo(List<DemarcheDTO> dtos) {
         ArrayList<DemarchesBO> bos = new ArrayList<>();
         for (DemarcheDTO dto : dtos) {
@@ -79,5 +77,5 @@ public class DemarchesTransformer {
         }
         return bos;
     }
-    
+
 }

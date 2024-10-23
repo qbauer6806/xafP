@@ -8,12 +8,12 @@ import lombok.Setter;
 @Getter
 public class FileCategoryDTO {
 
-	private String name;
+    private String name;
 
-	private List<DemandeFileDTO> files;
-	
-	private List<FileSubCategoryDTO> subCategories;
+    private List<DemandeFileDTO> files;
 
-	private boolean typedoc;
+    private List<FileSubCategoryDTO> subCategories;
+
+    private boolean typedoc;
 
 }

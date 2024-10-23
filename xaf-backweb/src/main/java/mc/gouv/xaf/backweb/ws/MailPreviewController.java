@@ -26,70 +26,69 @@ import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.formbean.PreviewFormBean;
 
 /**
- * 
  * Sert à générer la preview des emails
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @GouvRestController
 @Secured("ROLE_LECTURE")
 @RequestMapping("/ws/mailpreview")
 public class MailPreviewController extends AbstractController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MailPreviewController.class);
-
-	@Autowired
-	private MailService mailService;
-
-	@Autowired
-	private MailTemplateModelProvider mailTemplateModelProvider;
-
-	@Autowired
-	private DemandesService demandesService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailPreviewController.class);
 
     @Autowired
-	private GouvBPM gouvBPM;
+    private MailService mailService;
 
-	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
-			throws IOException {
-		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action, pkDemande);
-		String bodyTemplateCode = templateCodes.getKey();
-		String subjectTemplateCode = templateCodes.getValue();
+    @Autowired
+    private MailTemplateModelProvider mailTemplateModelProvider;
 
-		Map<String, Object> bpmVariables = gouvBPM.getProcessBusinessVariables(pkDemande);
+    @Autowired
+    private DemandesService demandesService;
 
-		DemandeDTO demande = demandesService.getDemande(pkDemande);
+    @Autowired
+    private GouvBPM gouvBPM;
 
-		Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
-				bpmVariables, codeMotifChoisi, commentaire);
+    private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
+            throws IOException {
+        Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action,
+                pkDemande);
+        String bodyTemplateCode = templateCodes.getKey();
+        String subjectTemplateCode = templateCodes.getValue();
 
-		LOGGER.info("Génération de l'aperçu de l'email...");
-		String[] preview = mailService.getMailPreview(bodyTemplateCode, subjectTemplateCode, demande.getLangue(),
-				model);
+        Map<String, Object> bpmVariables = gouvBPM.getProcessBusinessVariables(pkDemande);
 
-		ModelAndView mav = new ModelAndView("misc/mailpreview");
-		mav.addObject("mailSubject", preview[0]);
-		mav.addObject("mailBody", preview[1]);
+        DemandeDTO demande = demandesService.getDemande(pkDemande);
 
-		return mav;
-	}
+        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+                bpmVariables, codeMotifChoisi, commentaire);
 
-	@PostMapping(consumes = "application/json")
-	public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws IOException {
-		String action = mailPreviewFormBean.getAction();
-		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
-		Integer pkDemande = mailPreviewFormBean.getPkDemande();
-		String commentaire = mailPreviewFormBean.getCommentaire();
-		String safeAction = AfBackUtils.logSafe(action);
-		String safeCodeMotifChoisi = AfBackUtils.logSafe(codeMotifChoisi);
-		String safeCommentaire = AfBackUtils.logSafe(commentaire);
-		LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", safeAction, safeCodeMotifChoisi,
-				pkDemande, safeCommentaire);
-		ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
-		LOGGER.info("======================= Fin /ws/mailpreview");
-		return mav;
+        LOGGER.info("Génération de l'aperçu de l'email...");
+        String[] preview = mailService.getMailPreview(bodyTemplateCode, subjectTemplateCode, demande.getLangue(),
+                model);
 
-	}
+        ModelAndView mav = new ModelAndView("misc/mailpreview");
+        mav.addObject("mailSubject", preview[0]);
+        mav.addObject("mailBody", preview[1]);
+
+        return mav;
+    }
+
+    @PostMapping(consumes = "application/json")
+    public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws IOException {
+        String action = mailPreviewFormBean.getAction();
+        String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
+        Integer pkDemande = mailPreviewFormBean.getPkDemande();
+        String commentaire = mailPreviewFormBean.getCommentaire();
+        String safeAction = AfBackUtils.logSafe(action);
+        String safeCodeMotifChoisi = AfBackUtils.logSafe(codeMotifChoisi);
+        String safeCommentaire = AfBackUtils.logSafe(commentaire);
+        LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", safeAction,
+                safeCodeMotifChoisi, pkDemande, safeCommentaire);
+        ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
+        LOGGER.info("======================= Fin /ws/mailpreview");
+        return mav;
+
+    }
 
 }

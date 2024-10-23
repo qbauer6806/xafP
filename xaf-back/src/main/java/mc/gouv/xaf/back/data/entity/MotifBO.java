@@ -15,11 +15,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.MOTIFS
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -54,7 +52,7 @@ public class MotifBO {
 
     @Column(name = "DATE_ARCHIVE")
     private Date dateArchive;
-    
+
     @Column(name = "COMMENTAIRE_PREREMPLI", length = 2048)
     @Size(max = 2048)
     private String commentairePrerempli;

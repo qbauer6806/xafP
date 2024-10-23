@@ -60,7 +60,7 @@ public class GestionParametrageController {
 
     @GetMapping
     public ModelAndView form(@ModelAttribute("parametrageFormBean") ParametrageFormBean parametrageFormBean,
-                             final RedirectAttributes redirectAttributes) {
+            final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de la page /gestion/parametrage. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/parametrage/parametrage");
         if (afBackUtils.getDemarcheCanHandleProperties()) {
@@ -96,16 +96,15 @@ public class GestionParametrageController {
     /**
      * Création de l'usager courrier depuis le formulaire de création (POST)
      */
-    @Secured({"ROLE_CONFIGURATION"})
+    @Secured({ "ROLE_CONFIGURATION" })
     @PostMapping(value = "/sauvegarder", params = "action=Sauvegarder")
     public ModelAndView sauvegarderParametrage(
             @Valid @ModelAttribute("parametrageFormBean") ParametrageFormBean parametrageFormBean,
-            BindingResult bindingResult,
-            final RedirectAttributes redirectAttributes) {
+            BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
 
         ModelAndView mav;
         LOGGER.info("======================= Appel de la page /gestion/parametrage/save (POST)");
-        
+
         mav = new ModelAndView(REDIRECT);
 
         DemarcheDTO demarche = afBackUtils.getDemarcheInfos();
@@ -134,7 +133,7 @@ public class GestionParametrageController {
         redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
 
         LOGGER.info("======================= Fin /gestion/parametrage/save (POST)");
-        
+
         return mav;
     }
 
@@ -158,8 +157,9 @@ public class GestionParametrageController {
     public ResponseEntity<InputStreamResource> exportConfig(HttpServletRequest request) throws IOException {
         String jsonFile = demarchesService.exportConfig();
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=parametrage-config-"
-                + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(new Date()) + ".json");
+        responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=parametrage-config-" + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(
+                        new Date()) + ".json");
         responseHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
         responseHeaders.add("Content-Transfer-Encoding", "binary");
 
@@ -170,7 +170,8 @@ public class GestionParametrageController {
     }
 
     @PostMapping("/import")
-    public ModelAndView handleFileUpload(@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) {
+    public ModelAndView handleFileUpload(@RequestParam("file") MultipartFile file,
+            final RedirectAttributes redirectAttributes) {
         if (file.isEmpty()) {
             return redirectError(redirectAttributes, "Aucun fichier sélectionné");
         } else {
@@ -185,5 +186,5 @@ public class GestionParametrageController {
         }
 
     }
-    
+
 }

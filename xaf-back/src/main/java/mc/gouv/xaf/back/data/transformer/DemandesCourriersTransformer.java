@@ -9,13 +9,12 @@ import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesCourriersTransformer {
 
-    private DemandesCourriersTransformer() {}
+    private DemandesCourriersTransformer() {
+    }
 
     public static DemandeCourrierDTO bo2Dto(DemandesCourriersBO bo) {
         if (bo == null) {

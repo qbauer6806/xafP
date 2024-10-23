@@ -6,9 +6,8 @@ import lombok.Setter;
 
 /**
  * Formulaire pour le transfert de demandes
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

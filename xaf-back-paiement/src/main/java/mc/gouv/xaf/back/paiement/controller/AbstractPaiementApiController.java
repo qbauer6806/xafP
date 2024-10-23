@@ -29,24 +29,29 @@ public abstract class AbstractPaiementApiController {
 
     /**
      * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
-     * @param demandesId demande à payer
-     * @param langue langue pour la page de paiement
-     * @param usagerId usager à l'origine de la requête
-     * @param iframe format iframe ou page
+     *
+     * @param demandesId
+     *         demande à payer
+     * @param langue
+     *         langue pour la page de paiement
+     * @param usagerId
+     *         usager à l'origine de la requête
+     * @param iframe
+     *         format iframe ou page
      * @return DTO permettant d'initialiser le paiement
      */
     @GetMapping
-    public PaiementDTO getPaiement(@RequestParam String demandesId,
-                                   @RequestParam String langue,
-                                   @RequestParam Integer usagerId,
-                                   @RequestParam boolean iframe) {
+    public PaiementDTO getPaiement(@RequestParam String demandesId, @RequestParam String langue,
+            @RequestParam Integer usagerId, @RequestParam boolean iframe) {
 
         return moneticoPaiementService.create(demandesId, langue, usagerId, iframe);
     }
 
     /**
      * Mise à jour du status de paiement suite à une action utilisateur
-     * @param moneticoResponseDTO Représentation d'un retour de PSP
+     *
+     * @param moneticoResponseDTO
+     *         Représentation d'un retour de PSP
      * @return une chaine de caractère contenant le résultat de la vérification de la clé MAC
      */
     @PostMapping
@@ -56,7 +61,9 @@ public abstract class AbstractPaiementApiController {
 
     /**
      * Récupération des stats sur les opérations
-     * @param response réponse à renvoyer
+     *
+     * @param response
+     *         réponse à renvoyer
      */
     @GetMapping("stats/operation")
     public void getStatsOperation(HttpServletResponse response) {
@@ -68,13 +75,16 @@ public abstract class AbstractPaiementApiController {
             }
             response.getWriter().close();
         } catch (IOException ex) {
-            throw new DemarchesServiceException("IOError writing file to output stream", HttpStatus.INTERNAL_SERVER_ERROR, ex);
+            throw new DemarchesServiceException("IOError writing file to output stream",
+                    HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
     }
 
     /**
      * Récupération des stats sur les paiements
-     * @param response réponse à renvoyer
+     *
+     * @param response
+     *         réponse à renvoyer
      */
     @GetMapping("stats/moyen-paiement")
     public void getStatsMoyenPaiement(HttpServletResponse response) {
@@ -86,15 +96,18 @@ public abstract class AbstractPaiementApiController {
             }
             response.getWriter().close();
         } catch (IOException ex) {
-            throw new DemarchesServiceException("IOError writing file to output stream", HttpStatus.INTERNAL_SERVER_ERROR, ex);
+            throw new DemarchesServiceException("IOError writing file to output stream",
+                    HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
     }
 
     /**
      * Permet de traiter une exception
      *
-     * @param dse  L'exception DemarchesServiceExceptionStatistiquesModelProviderImplTest
-     * @param resp Permet de définir nous-même le HttpStatus de la réponse
+     * @param dse
+     *         L'exception DemarchesServiceExceptionStatistiquesModelProviderImplTest
+     * @param resp
+     *         Permet de définir nous-même le HttpStatus de la réponse
      * @return Le JSON décrivant l'erreur pour le client
      */
     @ExceptionHandler(DemarchesServiceException.class)

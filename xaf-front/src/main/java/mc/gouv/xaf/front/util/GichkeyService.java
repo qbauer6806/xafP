@@ -40,8 +40,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 /**
- * Classe permettant d'appeler GICHKEY afin de gérer le login/logout de l'usager, le rafraîchissement
- * des tokens, etc.
+ * Classe permettant d'appeler GICHKEY afin de gérer le login/logout de l'usager, le rafraîchissement des tokens, etc.
  *
  * @author qdeme
  */
@@ -92,7 +91,8 @@ public class GichkeyService {
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("code", code));
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, propertiesResolver.getGichkeyClientId()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, propertiesResolver.getGichkeyClientSecret()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM,
+                propertiesResolver.getGichkeyClientSecret()));
         nvps.add(new BasicNameValuePair("redirect_uri", propertiesResolver.getGichkeyKeycloakRedirectUrl()));
         nvps.add(new BasicNameValuePair("grant_type", "authorization_code"));
         nvps.add(new BasicNameValuePair(RequestConstant.SCOPE_PARAM, "openid mconnect monguichet"));
@@ -220,7 +220,8 @@ public class GichkeyService {
                 mConnectUInfos.setBirthName(birthNameNode.asText());
                 mConnectUInfos.setGender(genderNode.asText());
                 mConnectUInfos.setBirthPlace(birthPlaceNode.asText());
-                mConnectUInfos.setBirthDatetime(new SimpleDateFormat("yyyyMMddHHmmss").parse(birthDatetimeNode.asText()));
+                mConnectUInfos.setBirthDatetime(
+                        new SimpleDateFormat("yyyyMMddHHmmss").parse(birthDatetimeNode.asText()));
                 mConnectUInfos.setAuthority(authorityNode.asText());
                 mConnectUInfos.setBirthPlaceCountry(birthPlaceCountryNode.asText());
                 mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asText());
@@ -252,14 +253,15 @@ public class GichkeyService {
 
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, propertiesResolver.getGichkeyClientId()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, propertiesResolver.getGichkeyClientSecret()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM,
+                propertiesResolver.getGichkeyClientSecret()));
         nvps.add(new BasicNameValuePair(RequestConstant.REFRESH_TOKEN_PARAM, uinfos.getTokenInfo().getRefreshToken()));
 
         postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
         postRequest.setHeader(HttpHeaders.CONNECTION, KEEP_ALIVE);
-		postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
-		postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
+        postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
+        postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
         postRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + uinfos.getTokenInfo().getAccessToken());
 
         LOGGER.info(APPEL_GICHKEY);
@@ -282,7 +284,8 @@ public class GichkeyService {
         calendar.add(Calendar.SECOND, usagerInfosDTO.getTokenInfo().getExpiresIn() - 30);
         Date expiration = calendar.getTime();
         Date now = new Date();
-        LOGGER.debug("Dernière obtention = {}, expiration = {}, date courante = {}", derniereObtention, expiration, now);
+        LOGGER.debug("Dernière obtention = {}, expiration = {}, date courante = {}", derniereObtention, expiration,
+                now);
         if (now.after(expiration) || forceRefresh) {
             LOGGER.debug("Il faut rafraîchir les tokens");
 
@@ -325,16 +328,17 @@ public class GichkeyService {
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(RequestConstant.REFRESH_TOKEN_PARAM, tokenInfo.getRefreshToken()));
         nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, propertiesResolver.getGichkeyClientId()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, propertiesResolver.getGichkeyClientSecret()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM,
+                propertiesResolver.getGichkeyClientSecret()));
         nvps.add(new BasicNameValuePair("redirect_uri", propertiesResolver.getGichkeyKeycloakRedirectUrl()));
         nvps.add(new BasicNameValuePair("grant_type", RequestConstant.REFRESH_TOKEN_PARAM));
         nvps.add(new BasicNameValuePair(RequestConstant.SCOPE_PARAM, "openid mconnect monguichet"));
 
         postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
-		postRequest.setHeader(HttpHeaders.CONNECTION, KEEP_ALIVE);
-		postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
-		postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
+        postRequest.setHeader(HttpHeaders.CONNECTION, KEEP_ALIVE);
+        postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
+        postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
 
         LOGGER.info(APPEL_GICHKEY);
         try {

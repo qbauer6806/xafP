@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ConfigDTO {
-  private String buildId;
-  private String date;
-  private String version;
+
+    private String buildId;
+    private String date;
+    private String version;
 }

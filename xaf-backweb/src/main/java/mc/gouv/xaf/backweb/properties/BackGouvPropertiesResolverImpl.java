@@ -36,7 +36,7 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
 
     @Value("${mc.gouv.backserver.env.color}")
     private String sharedEnvColor;
-    
+
     @Value("${mc.gouv.backserver.env.displaystacktrace:false}")
     private String sharedEnvdisplayStackTrace;
 
@@ -76,7 +76,7 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
     public String getGouvSharedEnvColor() {
         return sharedEnvColor;
     }
-    
+
     @Override
     public boolean getGouvSharedEnvDisplayStackTrace() {
         return Boolean.parseBoolean(sharedEnvdisplayStackTrace);

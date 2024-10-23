@@ -23,7 +23,7 @@ public interface UsagersCourrierService {
      * Permet de récupérer les usagers courrier correspondant
      *
      * @param query
-     *            Optionnel : permet de rechercher par nom
+     *         Optionnel : permet de rechercher par nom
      * @return Les usagers courrier demandés
      */
     List<UsagerCourrierDTO> getUsagersCourrier(String query);
@@ -57,12 +57,10 @@ public interface UsagersCourrierService {
     /**
      * Permet de transférer des demandes d'un usager courrier à un autre.
      */
-    void transferer(Integer usagerCourrierSourceId, Integer usagerCourrierCibleId,
-            List<Integer> demandeIds);
+    void transferer(Integer usagerCourrierSourceId, Integer usagerCourrierCibleId, List<Integer> demandeIds);
 
     /**
      * Permet de récupérer la derniere demande connue selon les statuts definis
      */
-    DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
-            List<String> buildIds);
+    DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds);
 }

@@ -8,9 +8,8 @@ import lombok.Setter;
 
 /**
  * Formulaire pour les usagers courrier
- * 
+ *
  * @author qdeme
- * 
  */
 @Setter
 @Getter

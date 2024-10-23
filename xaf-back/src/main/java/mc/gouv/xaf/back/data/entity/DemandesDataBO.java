@@ -16,11 +16,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.DEMANDES_DATA
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

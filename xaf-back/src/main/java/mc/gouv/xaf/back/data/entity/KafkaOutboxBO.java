@@ -15,11 +15,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM_KAFKA_OUTBOX
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -39,20 +37,20 @@ public class KafkaOutboxBO {
     @Column(name = "\"KEY\"", length = 256, nullable = false)
     @Size(max = 256)
     private String key;
-    
+
     @Column(name = "CONTENU", columnDefinition = "TEXT", nullable = false)
     @NotBlank
     private String contenu;
 
     @Column(name = "DATE_CREATION", nullable = false)
     private Date dateCreation;
-    
+
     @Column(name = "DATE_LAST_ATTEMPT")
     private Date dateLastAttempt;
 
     @Column(name = "NB_FAILED_ATTEMPTS", nullable = false)
     private Integer nbFailedAttempts;
-    
+
     @Column(name = "STATUT", length = 128, nullable = false)
     @Size(min = 1, max = 128)
     private String statut;

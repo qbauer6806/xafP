@@ -12,7 +12,8 @@ public interface CommandeRepository extends JpaRepository<CommandeBO, Integer> {
     /**
      * Récupère la liste des commandes liées à une demande
      *
-     * @param demandeId, la clé primaire de la demande
+     * @param demandeId,
+     *         la clé primaire de la demande
      * @return une liste contenant les commandes de la demande
      */
     List<CommandeBO> findByCommandesDemandes_Demande_PkDemandesOrderByDateCreationDesc(Integer demandeId);

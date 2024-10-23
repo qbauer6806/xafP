@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.service;
 
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
 public class ReferenceFactoryService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
 
     public String createSimpleReference12Digits() {

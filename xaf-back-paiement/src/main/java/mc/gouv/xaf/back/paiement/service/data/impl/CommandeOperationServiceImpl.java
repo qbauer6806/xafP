@@ -19,39 +19,41 @@ import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 
 @Component
 public class CommandeOperationServiceImpl implements CommandeOperationService {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CommandeOperationServiceImpl.class);
-	
-	@Autowired
-	private CommandeOperationRepository commandeOperationRepository;
 
-	@Override
-	public List<CommandeOperationDTO> getAllCommandeOperationsAccepteeFilteredByDate(Date startDate, Date endDate) {
-		LOGGER.info("Récupération en base des commandes operations filtrées par date...");
-		LocalDateTime startDateLdt = null;
-		LocalDateTime endDateLdt = null;
-		OperationStatutEnum statutAccepte = OperationStatutEnum.ACCEPTEE;
-		// Conversion des dates en LocalDateTime pour respecter les données en base
-		if (startDate != null) {
-			startDateLdt = LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
-		}
-		if (endDate != null) {
-			endDateLdt = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault());
-		}
-		
-		List<CommandeOperationBO> commandeOperations;
-		if (startDate != null && endDate != null) {
-			commandeOperations = commandeOperationRepository.findAllCommandeOperationBetween(startDateLdt, endDateLdt, statutAccepte);
-		} else if (startDate != null) {
-			commandeOperations = commandeOperationRepository.findAllCommandeOperationFrom(startDateLdt, statutAccepte);
-		} else if (endDate != null) {
-			commandeOperations = commandeOperationRepository.findAllCommandeOperationUntil(endDateLdt, statutAccepte);
-		} else {
-			commandeOperations = commandeOperationRepository.findAllCommandeOperation(statutAccepte);
-		}
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandeOperationServiceImpl.class);
 
-		LOGGER.info("Transformation bo -> dto ...");
+    @Autowired
+    private CommandeOperationRepository commandeOperationRepository;
 
-		return CommandeOperationTransformer.bos2Dtos(commandeOperations);
-	}
+    @Override
+    public List<CommandeOperationDTO> getAllCommandeOperationsAccepteeFilteredByDate(Date startDate, Date endDate) {
+        LOGGER.info("Récupération en base des commandes operations filtrées par date...");
+        LocalDateTime startDateLdt = null;
+        LocalDateTime endDateLdt = null;
+        OperationStatutEnum statutAccepte = OperationStatutEnum.ACCEPTEE;
+        // Conversion des dates en LocalDateTime pour respecter les données en base
+        if (startDate != null) {
+            startDateLdt = LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+        }
+        if (endDate != null) {
+            endDateLdt = LocalDateTime.ofInstant(endDate.toInstant(), ZoneId.systemDefault());
+        }
+
+        List<CommandeOperationBO> commandeOperations;
+        if (startDate != null && endDate != null) {
+            commandeOperations = commandeOperationRepository.findAllCommandeOperationBetween(startDateLdt, endDateLdt,
+                    statutAccepte);
+        } else if (startDate != null) {
+            commandeOperations = commandeOperationRepository.findAllCommandeOperationFrom(startDateLdt, statutAccepte);
+        } else if (endDate != null) {
+            commandeOperations = commandeOperationRepository.findAllCommandeOperationUntil(endDateLdt, statutAccepte);
+        } else {
+            commandeOperations = commandeOperationRepository.findAllCommandeOperation(statutAccepte);
+        }
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return CommandeOperationTransformer.bos2Dtos(commandeOperations);
+    }
 
 }

@@ -20,9 +20,8 @@ import java.util.Optional;
 
 /**
  * Service permettant la manipulation des démarches.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -76,7 +75,6 @@ public class DemarchesServiceImpl implements DemarchesService {
         if (demarche != null) {
             updateDemarche(demarche);
         }
-
 
     }
 

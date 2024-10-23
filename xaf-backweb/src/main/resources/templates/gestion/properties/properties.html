@@ -2,50 +2,50 @@
 <html xmlns:th="http://www.thymeleaf.org"
       class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="description" content=""/>
-    <meta name="author" content=""/>
-    <meta th:name="_csrf" th:content="${_csrf.token}"/>
-    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 
-    <title th:text="${titre}"></title>
+  <title th:text="${titre}"></title>
 
-    <!-- Import FONTS -->
-    <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
 
-    <!-- Import CSS -->
-    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-          rel="stylesheet" type="text/css"/>
-    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
-          rel="stylesheet"/>
-    <link rel="shortcut icon" type="image/x-icon"
-          th:href="@{/img/favicon.ico}"/>
-    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-          rel="stylesheet"/>
-    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-          rel="stylesheet"/>
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
 
-    <style>
-        .dataTables_wrapper .dataTables_filter {
-            padding: 10px;
-            border-left: 2px solid #068BAD;
-            border-right: 2px solid #068BAD;
-            background: #E7F4F8;
-            color: #068BAD;
-            filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
-        }
+  <style>
+    .dataTables_wrapper .dataTables_filter {
+      padding: 10px;
+      border-left: 2px solid #068BAD;
+      border-right: 2px solid #068BAD;
+      background: #E7F4F8;
+      color: #068BAD;
+      filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+    }
 
-        .tableContent .table {
-            -webkit-box-shadow: none;
-            box-shadow: none;
-        }
-    </style>
+    .tableContent .table {
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+  </style>
 </head>
 <body th:with="pageConfigurationActive='active'">
 
@@ -53,97 +53,99 @@
 
 <div id="wrapper">
 
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-    <!-- DEBUT CONTENU -->
-    <div id="page-content-wrapper">
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
 
-        <div class="breadcrumbContent">
-            <div class="breadcrumb">
-                <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
-                <a id="ariane1" th:href="@{/gestion/properties}" class="breadcrumb-item active">PROPRIÉTÉS</a>
-            </div>
-            <div class="triangleTopright"></div>
-        </div>
-
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xs-12">
-                    <h1>Administration des propriétés</h1>
-                </div>
-
-                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
-                    <div class="tableContent">
-                        <div class="tableTitle">
-                            Liste des propriétés
-                            <span class="badge" id="propertiesTableCounter">0</span>
-                        </div>
-                        <table id="datatable-properties" class="table table-striped" style="width: 100%">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Type</th>
-                                <th>Clé</th>
-                                <th>Descriptif</th>
-                                <th>Valeur</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-
-                <div th:unless="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
-                    Cette page n'est pas accessible.
-                </div>
-            </div>
-        </div>
-
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+        <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+        <a id="ariane1" th:href="@{/gestion/properties}"
+           class="breadcrumb-item active">PROPRIÉTÉS</a>
+      </div>
+      <div class="triangleTopright"></div>
     </div>
-    <!-- FIN CONTENU -->
 
-    <!-- EDITION MODAL -->
-    <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document" style="width:450px">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}">
-                        <!-- input cachée pour insérer la pk de la properties à modifier -->
-                        <input type="hidden" id="pkProperties" name="pkProperties"/>
-                        <div class="row no-margin-row">
-                            <div class="col-xs-12 text-center">
-                                <h2>Modification d'une propriété</h2>
-                            </div>
-                            <div class="col-xs-12">
-                                <strong>Type :</strong>&nbsp;<span id="propertiesType"></span>
-                            </div>
-                            <div class="col-xs-12 mt-15">
-                                <strong>Clé :</strong>&nbsp;<span id="propertiesKey"></span>
-                            </div>
-                            <div class="col-xs-12 mt-15">
-                                <strong>Descriptif :</strong>&nbsp;<span id="propertiesDescriptif"></span>
-                            </div>
-                            <div class="col-xs-12 mt-15 form-group">
-                                <label for="propertiesValue">Valeur</label>
-                                <textarea id="propertiesValue" name="value" class="form-control"
-                                          style="overflow: auto; max-height: 500px"></textarea>
-                            </div>
-                            <div class="col-xs-12 text-center">
-                                <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
-                                        type="button" name="annuler" value="annuler">
-                                    annuler
-                                </button>
-                                <button id="saveBtn" class="btn btn-action ripple-effect" type="submit">
-                                    modifier
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- FIN EDITION MODAL -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>Administration des propriétés</h1>
+        </div>
+
+        <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
+          <div class="tableContent">
+            <div class="tableTitle">
+              Liste des propriétés
+              <span class="badge" id="propertiesTableCounter">0</span>
+            </div>
+            <table id="datatable-properties" class="table table-striped" style="width: 100%">
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Clé</th>
+                <th>Descriptif</th>
+                <th>Valeur</th>
+                <th>Action</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+
+        <div th:unless="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
+          Cette page n'est pas accessible.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- FIN CONTENU -->
+
+  <!-- EDITION MODAL -->
+  <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:450px">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input type="hidden" id="pkProperties" name="pkProperties"/>
+            <div class="row no-margin-row">
+              <div class="col-xs-12 text-center">
+                <h2>Modification d'une propriété</h2>
+              </div>
+              <div class="col-xs-12">
+                <strong>Type :</strong>&nbsp;<span id="propertiesType"></span>
+              </div>
+              <div class="col-xs-12 mt-15">
+                <strong>Clé :</strong>&nbsp;<span id="propertiesKey"></span>
+              </div>
+              <div class="col-xs-12 mt-15">
+                <strong>Descriptif :</strong>&nbsp;<span id="propertiesDescriptif"></span>
+              </div>
+              <div class="col-xs-12 mt-15 form-group">
+                <label for="propertiesValue">Valeur</label>
+                <textarea id="propertiesValue" name="value" class="form-control"
+                          style="overflow: auto; max-height: 500px"></textarea>
+              </div>
+              <div class="col-xs-12 text-center">
+                <button id="annulerEditBouton"
+                        class="btn btn-action-second ripple-effect annulerBouton"
+                        type="button" name="annuler" value="annuler">
+                  annuler
+                </button>
+                <button id="saveBtn" class="btn btn-action ripple-effect" type="submit">
+                  modifier
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN EDITION MODAL -->
 
 </div>
 
@@ -151,125 +153,125 @@
 
 <script th:inline="javascript">
 
-    var columnsProperties = [
-        {
-            data: "pkProperties",
-            keyword: false,
-            visible: false,
-            render: function (data, type, property) {
-                return property.pkProperties;
-            }
-        },
-        {
-            data: "type",
-            keyword: false,
-            render: function (data, type, property) {
-                return property.type;
-            }
-        },
-        {
-            data: "key",
-            keyword: false,
-            render: function (data, type, property) {
-                return property.key;
-            }
-        },
-        {
-            data: "descriptif",
-            keyword: false,
-            render: function (data, type, property) {
-                return property.descriptif;
-            }
-        },
-        {
-            data: "value",
-            keyword: false,
-            render: function (data, type, property) {
-                return textRenderer(property.value);
-            }
-        },
-        {
-            orderable: false,
-            keyword: false,
-            render: function (data, type, property) {
-                return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" data-toggle="tooltip"'
-                    + ' data-placement="bottom" data-original-title="Modifier la propriété" data-pkproperties="' + property.pkProperties
-                    + '" data-type="' + property.type + '" data-key="' + property.key + '" data-descriptif="' + property.descriptif
-                    + '" data-value="' + property.value + '"><i class="icon-action_modifier"></i></button>';
-            }
-        }];
+  var columnsProperties = [
+    {
+      data: "pkProperties",
+      keyword: false,
+      visible: false,
+      render: function (data, type, property) {
+        return property.pkProperties;
+      }
+    },
+    {
+      data: "type",
+      keyword: false,
+      render: function (data, type, property) {
+        return property.type;
+      }
+    },
+    {
+      data: "key",
+      keyword: false,
+      render: function (data, type, property) {
+        return property.key;
+      }
+    },
+    {
+      data: "descriptif",
+      keyword: false,
+      render: function (data, type, property) {
+        return property.descriptif;
+      }
+    },
+    {
+      data: "value",
+      keyword: false,
+      render: function (data, type, property) {
+        return textRenderer(property.value);
+      }
+    },
+    {
+      orderable: false,
+      keyword: false,
+      render: function (data, type, property) {
+        return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" data-toggle="tooltip"'
+            + ' data-placement="bottom" data-original-title="Modifier la propriété" data-pkproperties="' + property.pkProperties
+            + '" data-type="' + property.type + '" data-key="' + property.key + '" data-descriptif="' + property.descriptif
+            + '" data-value="' + property.value + '"><i class="icon-action_modifier"></i></button>';
+      }
+    }];
 
-    var textRenderer = $.fn.dataTable.render.text().display;
-    /*<![CDATA[*/
-    $(document).ready(function () {
-        var properties = /*[[${properties}]]*/'default';
-        $('#datatable-properties').DataTable({
-            paging: false,
-            //searching: false,
-            select: false,
-            bInfo: false,
-            columns: columnsProperties,
-            data: properties,
-            language: frenchTranslation
-        });
-        $("#propertiesTableCounter").text(properties.length);
-
-        autosize($("#propertiesValue"));
-
-        var messagesSuccessList = /*[[${successMessages}]]*/'default';
-        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-            $.each(messagesSuccessList, function (key, msg) {
-                $.notify({
-                    message: msg
-                }, {
-                    type: 'success'
-                });
-            });
-        }
-
-        var messagesErrorList = /*[[${errorMessages}]]*/'default';
-        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-            $.each(messagesErrorList, function (key, msg) {
-                $.notify({
-                    message: msg
-                }, {
-                    type: 'danger'
-                });
-            });
-        }
-
-        $(".boutonModifier").click(function (e) {
-            e.preventDefault();
-
-            $('#pkProperties').val($(this).data('pkproperties'));
-            $('#propertiesType').text($(this).data('type'));
-            $('#propertiesKey').text($(this).data('key'));
-            $('#propertiesDescriptif').text($(this).data('descriptif'));
-            $('#propertiesValue').val($(this).data('value'));
-            
-            if($(this).data('key').startsWith("LISTE_")) {
-            	// Redirection vers IHM d'édition du json
-            	document.location.href = "configjson?key="+$(this).data('key');
-            } else {
-                $('#editionModal').modal();
-            }
-
-            autosize.update($('#propertiesValue'));
-            return true;
-        });
-
-        $('.annulerBouton').click(function (e) {
-            e.preventDefault();
-            $('.modal').modal('hide');
-            return true;
-        });
-
-        $('#editionPropertiesForm').submit(function () {
-            $('#saveBtn').prop('disabled', true);
-        });
-
+  var textRenderer = $.fn.dataTable.render.text().display;
+  /*<![CDATA[*/
+  $(document).ready(function () {
+    var properties = /*[[${properties}]]*/'default';
+    $('#datatable-properties').DataTable({
+      paging: false,
+      //searching: false,
+      select: false,
+      bInfo: false,
+      columns: columnsProperties,
+      data: properties,
+      language: frenchTranslation
     });
-    /*]]>*/
+    $("#propertiesTableCounter").text(properties.length);
+
+    autosize($("#propertiesValue"));
+
+    var messagesSuccessList = /*[[${successMessages}]]*/'default';
+    if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+      $.each(messagesSuccessList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'success'
+        });
+      });
+    }
+
+    var messagesErrorList = /*[[${errorMessages}]]*/'default';
+    if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+      $.each(messagesErrorList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'danger'
+        });
+      });
+    }
+
+    $(".boutonModifier").click(function (e) {
+      e.preventDefault();
+
+      $('#pkProperties').val($(this).data('pkproperties'));
+      $('#propertiesType').text($(this).data('type'));
+      $('#propertiesKey').text($(this).data('key'));
+      $('#propertiesDescriptif').text($(this).data('descriptif'));
+      $('#propertiesValue').val($(this).data('value'));
+
+      if ($(this).data('key').startsWith("LISTE_")) {
+        // Redirection vers IHM d'édition du json
+        document.location.href = "configjson?key=" + $(this).data('key');
+      } else {
+        $('#editionModal').modal();
+      }
+
+      autosize.update($('#propertiesValue'));
+      return true;
+    });
+
+    $('.annulerBouton').click(function (e) {
+      e.preventDefault();
+      $('.modal').modal('hide');
+      return true;
+    });
+
+    $('#editionPropertiesForm').submit(function () {
+      $('#saveBtn').prop('disabled', true);
+    });
+
+  });
+  /*]]>*/
 </script>
 
 </body>

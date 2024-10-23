@@ -62,11 +62,9 @@ public class MoneticoApiClient implements PaiementApiClient {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
 
-    public MoneticoApiClient(PaiementPropertiesResolver paiementPropertiesResolver,
-                             OperationHelper operationHelper,
-                             MailService mailService,
-                             PropertiesService propertiesService,
-                             PaiementSecurityService paiementSecurityService) {
+    public MoneticoApiClient(PaiementPropertiesResolver paiementPropertiesResolver, OperationHelper operationHelper,
+            MailService mailService, PropertiesService propertiesService,
+            PaiementSecurityService paiementSecurityService) {
 
         ClientConfig config = new ClientConfig();
 
@@ -74,7 +72,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         config.connectorProvider(cp);
         cp.connectionFactory(url -> (HttpURLConnection) url.openConnection());
         config.register(JacksonJsonProvider.class);
-        try(Client client = ClientBuilder.newClient(config)){
+        try (Client client = ClientBuilder.newClient(config)) {
             this.target = client.target(paiementPropertiesResolver.getCaptureUrl());
         }
 
@@ -119,10 +117,12 @@ public class MoneticoApiClient implements PaiementApiClient {
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
         String bodyTemplateCode = "MAIL_CAPTURE_ECHEC_CORPS";
         String subjectTemplateCode = "MAIL_CAPTURE_ECHEC_OBJET";
-        Set<String> mailingLists = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name());
+        Set<String> mailingLists = mailService.getMailingLists(
+                MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name());
         Map<String, Object> model = new HashMap<>();
         model.put("resultat", operation == null ? null : operation.getResult());
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), incident, model, null);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(),
+                demandeDTO.getIdentifiant(), incident, model, null);
     }
 
     private void extractResult(String responseString, CommandeOperationDTO operation) {
@@ -152,7 +152,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                 }
             }
         }
-        if(StringUtils.equals(UN, operation.getCodeRetour()) && StringUtils.isBlank(operation.getNumeroAutorisation())){
+        if (StringUtils.equals(UN, operation.getCodeRetour()) && StringUtils.isBlank(
+                operation.getNumeroAutorisation())) {
             operation.setOperationStatut(OperationStatutEnum.INCIDENT.name());
         }
     }
@@ -167,6 +168,7 @@ public class MoneticoApiClient implements PaiementApiClient {
 
     private Operation<String> buildOperation(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO) {
         return new Operation<>() {
+
             @Override
             public void execute() throws HttpResponseException {
                 String currency = paiementPropertiesResolver.getCurrency();
@@ -192,35 +194,35 @@ public class MoneticoApiClient implements PaiementApiClient {
                 String mac = paiementSecurityService.getHmacStringCapture(captureDTO);
 
                 // Permet de désactiver la capture en simulant monetico injoignable
-                PropertiesDTO errorProp = propertiesService.getProperty("TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
+                PropertiesDTO errorProp = propertiesService.getProperty(
+                        "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
                 if (errorProp != null && "true".equals(errorProp.getValue())) {
                     // On met le statut 400 pour éviter de faire plusieurs tentatives
-                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
+                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(),
+                            "Capture du paiement désactivé");
                 }
 
                 // Permet de désactiver la capture en simulant un code retour 0
-                PropertiesDTO errorProp2 = propertiesService.getProperty("TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+                PropertiesDTO errorProp2 = propertiesService.getProperty(
+                        "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
                 int statutCode;
                 String responseString;
                 if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
-                    responseString = "version=1.0\n" +
-                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
-                            "cdr=0\n" +
-                            "lib=autorisation refusee";
+                    responseString =
+                            "version=1.0\n" + "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' + "cdr=0\n"
+                                    + "lib=autorisation refusee";
                     statutCode = 200;
                 } else {
                     Response response = getTarget().queryParam("TPE", captureDTO.getTpe())
                             .queryParam("date", captureDTO.getDate())
                             .queryParam("date_commande", captureDTO.getDateCommande())
-                            .queryParam("lgue", captureDTO.getLgue())
-                            .queryParam("montant", captureDTO.getMontant())
+                            .queryParam("lgue", captureDTO.getLgue()).queryParam("montant", captureDTO.getMontant())
                             .queryParam("montant_a_capturer", captureDTO.getMontantACapturer())
                             .queryParam("montant_deja_capture", captureDTO.getMontantDejaCapture())
                             .queryParam("montant_restant", captureDTO.getMontantRestant())
                             .queryParam("reference", captureDTO.getReference())
                             .queryParam("societe", captureDTO.getSociete())
-                            .queryParam("version", captureDTO.getVersion())
-                            .queryParam("MAC", mac)
+                            .queryParam("version", captureDTO.getVersion()).queryParam("MAC", mac)
                             .request(MediaType.APPLICATION_JSON).get();
 
                     responseString = response.readEntity(String.class);
@@ -231,8 +233,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                 extractResult(responseString, commandeOperationDTO);
 
                 String statut = commandeOperationDTO.getOperationStatut();
-                if (StringUtils.equals(statut, OperationStatutEnum.ERREUR.name())
-                        || StringUtils.equals(statut, OperationStatutEnum.INCIDENT.name()) || statutCode != 200) {
+                if (StringUtils.equals(statut, OperationStatutEnum.ERREUR.name()) || StringUtils.equals(statut,
+                        OperationStatutEnum.INCIDENT.name()) || statutCode != 200) {
                     throw new HttpResponseException(statutCode, "Operation non acceptee");
                 }
             }

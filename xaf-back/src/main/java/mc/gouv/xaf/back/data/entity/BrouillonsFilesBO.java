@@ -18,11 +18,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.BROUILLONS_FILES
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -48,14 +46,14 @@ public class BrouillonsFilesBO {
     @NotBlank
     @Size(min = 1, max = 1024)
     private String url;
-    
+
     @Column(name = "meta", length = 512)
     @Size(min = 0, max = 512)
     private String meta;
-    
+
     @Column(name = "DATE")
     private Date date;
-    
+
     @Column(name = "TYPEDOC", length = 128)
     private String typedoc;
 

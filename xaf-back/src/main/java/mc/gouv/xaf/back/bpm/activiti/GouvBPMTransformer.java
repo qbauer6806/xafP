@@ -12,18 +12,16 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 
 /**
- * 
  * Transformer pour les classes métier du gouvernement vs. celles d'Activiti
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class GouvBPMTransformer {
 
     private GouvBPMTransformer() {
         throw new IllegalStateException("Utility class");
     }
-    
+
     public static GouvBPMTask toGouvModelTask(Task task) {
         GouvBPMTask gouvTask = new GouvBPMTask();
         gouvTask.setId(task.getId());
@@ -32,7 +30,7 @@ public class GouvBPMTransformer {
         gouvTask.setTaskDefinitionKey(task.getTaskDefinitionKey());
         return gouvTask;
     }
-    
+
     public static List<GouvBPMTask> toGouvModelTasks(List<Task> tasks) {
         ArrayList<GouvBPMTask> gouvTasks = new ArrayList<>();
         for (Task task : tasks) {
@@ -40,7 +38,7 @@ public class GouvBPMTransformer {
         }
         return gouvTasks;
     }
-    
+
     public static GouvBPMUser toGouvModelUser(User user) {
         GouvBPMUser gouvUser = new GouvBPMUser();
         gouvUser.setId(user.getId());
@@ -50,7 +48,7 @@ public class GouvBPMTransformer {
         gouvUser.setPassword(user.getPassword());
         return gouvUser;
     }
-    
+
     public static List<GouvBPMUser> toGouvModelUsers(List<User> users) {
         ArrayList<GouvBPMUser> gouvUsers = new ArrayList<>();
         for (User user : users) {
@@ -58,7 +56,7 @@ public class GouvBPMTransformer {
         }
         return gouvUsers;
     }
-    
+
     public static GouvBPMGroup toGouvModelGroup(Group group) {
         GouvBPMGroup gouvGroup = new GouvBPMGroup();
         gouvGroup.setId(group.getId());
@@ -66,7 +64,7 @@ public class GouvBPMTransformer {
         gouvGroup.setType(group.getType());
         return gouvGroup;
     }
-    
+
     public static List<GouvBPMGroup> toGouvModelGroups(List<Group> groups) {
         ArrayList<GouvBPMGroup> gouvGroups = new ArrayList<>();
         for (Group group : groups) {

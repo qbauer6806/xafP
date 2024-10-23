@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/doc-holder/search")
 public class DocHolderSearchController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderSearchController.class);
     private static final String SERVICE_URL = "/search";
-
 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
@@ -38,8 +38,8 @@ public class DocHolderSearchController extends AbstractXafController {
     private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
 
     /**
-     * Méthode pour l'opération <b>searchFiles</b>
-     * Elle permet de récupérer la liste de tous les documents enregistrés dans le porte-document de l'utilisateur connecté
+     * Méthode pour l'opération <b>searchFiles</b> Elle permet de récupérer la liste de tous les documents enregistrés
+     * dans le porte-document de l'utilisateur connecté
      */
     @PostMapping
     protected ResponseEntity doPost(HttpServletRequest req) throws IOException {
@@ -50,7 +50,8 @@ public class DocHolderSearchController extends AbstractXafController {
         LOGGER.info("Vérification usager connecté");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         DocHolderFileSearchDTO fileSearchDTO;
@@ -59,7 +60,8 @@ public class DocHolderSearchController extends AbstractXafController {
             fileSearchDTO = mapper.readValue(req.getInputStream(), DocHolderFileSearchDTO.class);
         } catch (IOException ioe) {
             LOGGER.error("Impossible de déserialiser la requête", ioe);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         // Si aucun opérateur n'est donné, on utilise AND par défaut
@@ -73,7 +75,7 @@ public class DocHolderSearchController extends AbstractXafController {
 
         try {
             serviceRequest.bodyString(mapper.writeValueAsString(fileSearchDTO), ContentType.APPLICATION_JSON);
-            ClassicHttpResponse serviceResponse = (ClassicHttpResponse)serviceRequest.execute().returnResponse();
+            ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
 
             LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
             return ResponseEntity.status(serviceResponse.getCode())

@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class FileUploadLimitFilter extends OncePerRequestFilter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadLimitFilter.class);
     private static final Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
     private static int compteurCleanSessions;
@@ -37,9 +38,11 @@ public class FileUploadLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest servletRequest,
-                                    @NonNull HttpServletResponse servletResponse, @NonNull FilterChain filterChain) throws ServletException, IOException {
+            @NonNull HttpServletResponse servletResponse, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
 
-        if (servletRequest.getMethod().equalsIgnoreCase(HttpMethod.POST) || servletRequest.getMethod().equalsIgnoreCase(HttpMethod.PATCH)) {
+        if (servletRequest.getMethod().equalsIgnoreCase(HttpMethod.POST) || servletRequest.getMethod()
+                .equalsIgnoreCase(HttpMethod.PATCH)) {
             LOGGER.info("Vérification du nombre de fichiers déjà uploadés...");
             HttpSession session = servletRequest.getSession();
             if (fileControllerUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session)) {

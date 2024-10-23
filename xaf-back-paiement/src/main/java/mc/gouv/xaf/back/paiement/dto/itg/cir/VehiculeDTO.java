@@ -9,7 +9,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VehiculeDTO {
 
-	private String numImmat;
+    private String numImmat;
 
     private String nomPropr;
 
@@ -24,7 +24,7 @@ public class VehiculeDTO {
     private String lieuNaissance;
 
     private String dateNaissance;
-    
+
     private Integer registre;
 
 }

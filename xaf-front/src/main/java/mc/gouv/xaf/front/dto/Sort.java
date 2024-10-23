@@ -6,6 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class Sort {
+
     private Boolean empty;
     private Boolean sorted;
     private Boolean unsorted;

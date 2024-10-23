@@ -7,13 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class TemplatesTransformer {
 
-    private TemplatesTransformer() {}
+    private TemplatesTransformer() {
+    }
 
     public static TemplateDTO bo2Dto(TemplateBO bo) {
         TemplateDTO dto = new TemplateDTO();
@@ -24,7 +23,7 @@ public class TemplatesTransformer {
         dto.setDateModif(bo.getDateModif());
         return dto;
     }
-    
+
     public static TemplateBO dto2Bo(TemplateDTO dto) {
         TemplateBO bo = new TemplateBO();
         bo.setCode(dto.getCode());
@@ -34,7 +33,7 @@ public class TemplatesTransformer {
         bo.setDateModif(dto.getDateModif());
         return bo;
     }
-    
+
     public static List<TemplateDTO> bo2Dto(List<TemplateBO> bos) {
         ArrayList<TemplateDTO> dtos = new ArrayList<>();
         for (TemplateBO bo : bos) {
@@ -42,7 +41,7 @@ public class TemplatesTransformer {
         }
         return dtos;
     }
-    
+
     public static List<TemplateBO> dto2Bo(List<TemplateDTO> dtos) {
         ArrayList<TemplateBO> bos = new ArrayList<>();
         for (TemplateDTO dto : dtos) {
@@ -50,5 +49,5 @@ public class TemplatesTransformer {
         }
         return bos;
     }
-    
+
 }

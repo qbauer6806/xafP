@@ -12,16 +12,16 @@ import lombok.Setter;
 @Getter
 public class TypedocDTO {
 
-	private String key;
+    private String key;
 
-	private String value;
+    private String value;
 
-	private boolean enabled;
+    private boolean enabled;
 
-	public TypedocDTO(String key, String value, boolean enabled) {
-		this.key = key;
-		this.value = value;
-		this.enabled = enabled;
-	}
+    public TypedocDTO(String key, String value, boolean enabled) {
+        this.key = key;
+        this.value = value;
+        this.enabled = enabled;
+    }
 
 }

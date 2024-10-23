@@ -9,6 +9,7 @@ public class DitheringUtils {
     }
 
     private static class C3 {
+
         int r;
         int g;
         int b;
@@ -72,8 +73,7 @@ public class DitheringUtils {
 
     public static BufferedImage floydSteinbergDithering(BufferedImage img) {
 
-        C3[] palette = new C3[] {
-                new C3(  0,   0,   0), // black
+        C3[] palette = new C3[] { new C3(0, 0, 0), // black
                 new C3(255, 255, 255)  // white
         };
 

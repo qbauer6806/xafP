@@ -27,18 +27,17 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
- * Authentification via la vérification du token JWT
- * Le principal sera lié à la valeur du payload "sub"
- * @author fgaujous, qdeme
+ * Authentification via la vérification du token JWT Le principal sera lié à la valeur du payload "sub"
  *
+ * @author fgaujous, qdeme
  */
 @Setter
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationProvider.class);
-    
+
     public static final String MC_GOUV = "mc.gouv.";
-    
+
     //Header définissant l'algo de signature utilisé
     private static final String JWT_HEADER_ALG = "alg";
 
@@ -130,8 +129,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     }
 
     /**
-     * utilisation de la librairie https://github.com/jwtk/jjwt
-     * Vérification du token avec la signature
+     * utilisation de la librairie https://github.com/jwtk/jjwt Vérification du token avec la signature
+     *
      * @param token
      * @return
      */
@@ -144,7 +143,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             secretKey = environment.getProperty(secretProp);
         }
         if (secretKey == null) {
-            throw new DemarcheException("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
+            throw new DemarcheException(
+                    "Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
         }
         return Jwts.parser().setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token);
     }

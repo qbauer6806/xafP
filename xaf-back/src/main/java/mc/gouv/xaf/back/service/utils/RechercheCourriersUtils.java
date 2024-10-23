@@ -81,7 +81,8 @@ public class RechercheCourriersUtils extends RechercheUtils {
         return typedQuery.getResultList();
     }
 
-    private Root<DemandesCourriersBO> buildQuery(CriteriaQuery<?> cq, DemandeCourrierRechercheDTO demandeRecherche, CriteriaBuilder cb) {
+    private Root<DemandesCourriersBO> buildQuery(CriteriaQuery<?> cq, DemandeCourrierRechercheDTO demandeRecherche,
+            CriteriaBuilder cb) {
         Root<DemandesCourriersBO> root = cq.from(DemandesCourriersBO.class);
 
         List<Predicate> predicates = new ArrayList<>();
@@ -109,7 +110,5 @@ public class RechercheCourriersUtils extends RechercheUtils {
 
         return root;
     }
-
-
 
 }

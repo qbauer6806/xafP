@@ -13,7 +13,8 @@ import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 
 public class DemandeJobTransformer {
 
-    private DemandeJobTransformer() {}
+    private DemandeJobTransformer() {
+    }
 
     public static DemandeJobDTO bo2Dto(DemandeJobBO jobBO) {
         if (jobBO == null) {

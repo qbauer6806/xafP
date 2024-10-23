@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import java.util.Optional;
 
 public abstract class Operation<T> {
+
     private T result;
 
     public abstract void execute() throws HttpResponseException;

@@ -12,28 +12,33 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MailServiceTestImpl implements MailService {
+
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
 
     }
 
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail)
+            throws JsonProcessingException {
 
     }
 
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments)
+            throws JsonProcessingException {
 
     }
 
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments, MailAudienceEnum audienceMail) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments,
+            MailAudienceEnum audienceMail) throws JsonProcessingException {
 
     }
 
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws IOException {
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
+            Map<String, Object> model) throws IOException {
         return new String[0];
     }
 
@@ -43,8 +48,9 @@ public class MailServiceTestImpl implements MailService {
     }
 
     @Override
-    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists, Integer pkDemande,
-                                String identifiantDemande,  int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists,
+            Integer pkDemande, String identifiantDemande, int incident, Map<String, Object> modelAdd,
+            Map<String, InputStream> attachments) {
 
     }
 
@@ -52,6 +58,5 @@ public class MailServiceTestImpl implements MailService {
     public Set<String> getMailingLists(String... mailingListProps) {
         return null;
     }
-
 
 }

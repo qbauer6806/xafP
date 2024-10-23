@@ -79,7 +79,6 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     @Value("mc.gouv.${application.name}.shared.backapi.monetico.echecurl")
     private String moneticoEchecUrl;
 
-
     @Override
     public String getXafMoneticoTexteAller() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_MONETICO_TEXTE_ALLER);

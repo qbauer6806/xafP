@@ -52,8 +52,7 @@ class FileControllerUtilsTest {
     void testExtensionsWhitelist() {
         PropertiesDTO extensionsProperty = mock(PropertiesDTO.class);
         when(extensionsProperty.getValue()).thenReturn("*.pdf,*.png, *.*, *., .*");
-        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST))
-                .thenReturn(extensionsProperty);
+        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(extensionsProperty);
 
         List<String> extensionsWhitelist = fileControllerUtils.getExtensionsWhitelist();
         assertEquals(extensionsWhitelist, List.of("pdf", "png", "*", "", ".*"));
@@ -63,8 +62,7 @@ class FileControllerUtilsTest {
     void testEstExtensionWhitelist() {
         PropertiesDTO extensionsProperty = mock(PropertiesDTO.class);
         when(extensionsProperty.getValue()).thenReturn("*.doc, *.docx, *.rtf, *.pdf, *.jpg, *.jpeg, *.png, *.tif");
-        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST))
-                .thenReturn(extensionsProperty);
+        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(extensionsProperty);
 
         assertTrue(fileControllerUtils.estExtensionDansWhitelist("carteidentite.pdf"));
         assertTrue(fileControllerUtils.estExtensionDansWhitelist("carteidentite.tif"));
@@ -74,7 +72,8 @@ class FileControllerUtilsTest {
         assertFalse(fileControllerUtils.estExtensionDansWhitelist("carteidentite.pdaf"));
         assertFalse(fileControllerUtils.estExtensionDansWhitelist("carteidentite."));
         assertFalse(fileControllerUtils.estExtensionDansWhitelist("carteidentite"));
-        assertFalse(fileControllerUtils.estExtensionDansWhitelist("pdf")); // Fichier simplement nommé "pdf" pourrait être un fichier .txt déguisé!
+        assertFalse(fileControllerUtils.estExtensionDansWhitelist(
+                "pdf")); // Fichier simplement nommé "pdf" pourrait être un fichier .txt déguisé!
         assertFalse(fileControllerUtils.estExtensionDansWhitelist(""));
         assertFalse(fileControllerUtils.estExtensionDansWhitelist(" "));
         assertFalse(fileControllerUtils.estExtensionDansWhitelist("."));
@@ -82,8 +81,7 @@ class FileControllerUtilsTest {
 
     @Test
     void testExtensionWhiteListNonTrouvee() {
-        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST))
-                .thenReturn(null);
+        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(null);
         assertTrue(fileControllerUtils.getExtensionsWhitelist().isEmpty());
     }
 
@@ -91,8 +89,7 @@ class FileControllerUtilsTest {
     void testTailleFichierValide() {
         PropertiesDTO tailleMaxProperty = mock(PropertiesDTO.class);
         when(tailleMaxProperty.getValue()).thenReturn("3"); // 3 MB
-        when(frontControllerPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER))
-                .thenReturn(tailleMaxProperty);
+        when(frontControllerPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER)).thenReturn(tailleMaxProperty);
 
         Part bigfile = mock(Part.class);
         when(bigfile.getSize()).thenReturn(4L * 1_000_000L); // 4 MB
@@ -110,8 +107,7 @@ class FileControllerUtilsTest {
 
     @Test
     void testTailleFichierProprtyNotFoundException() {
-        when(frontControllerPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER))
-                .thenReturn(null);
+        when(frontControllerPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER)).thenReturn(null);
 
         assertThrows(PropertyNotFoundException.class, () -> fileControllerUtils.tailleFichierValide(null));
     }
@@ -119,42 +115,37 @@ class FileControllerUtilsTest {
     private static Stream<Arguments> testLimiteUploadAtteinte() {
         return Stream.of(
                 // Upload fait <= la limite d'intervale
-                Arguments.of(100, 2, 0, 1, false),
-                Arguments.of(100, 2, -100, 1, false),
+                Arguments.of(100, 2, 0, 1, false), Arguments.of(100, 2, -100, 1, false),
                 Arguments.of(100, 2, -100, 3, false),
 
                 // Upload fait >= la limite d'intervale
-                Arguments.of(100, 2, 0, 1, false),
-                Arguments.of(100, 2, 100, 1, false),
+                Arguments.of(100, 2, 0, 1, false), Arguments.of(100, 2, 100, 1, false),
                 Arguments.of(100, 2, 101, 1, false),
 
-                Arguments.of(100, 2, 0, 2, true),
-                Arguments.of(100, 2, 100, 2, true),
+                Arguments.of(100, 2, 0, 2, true), Arguments.of(100, 2, 100, 2, true),
                 Arguments.of(100, 2, 101, 2, true),
 
-                Arguments.of(100, 2, 0, 3, true),
-                Arguments.of(100, 2, 100, 3, true),
-                Arguments.of(100, 2, 101, 3, true)
-        );
+                Arguments.of(100, 2, 0, 3, true), Arguments.of(100, 2, 100, 3, true),
+                Arguments.of(100, 2, 101, 3, true));
     }
 
     @ParameterizedTest
     @MethodSource("testLimiteUploadAtteinte")
     void testLimiteUploadAtteinte(int tempsParIntervalle, int maxUploadParIntervalle, int tempsIntervaleActuel,
-                                  int maxUploadActuel, boolean conditionAttendue) {
+            int maxUploadActuel, boolean conditionAttendue) {
         @SuppressWarnings("unchecked") // À cause du mock d'un objet générique
         Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = mock(HashMap.class);
         HttpSession session = mock(HttpSession.class);
         FileUploadCompteurDTO compteurUpload = mock(FileUploadCompteurDTO.class);
 
-        when(compteurUpload.getDatePremierUpload()).thenReturn(LocalDateTime.now().plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
+        when(compteurUpload.getDatePremierUpload()).thenReturn(
+                LocalDateTime.now().plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
         when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
 
-        when(frontGouvPropertiesResolver.getTempsIntervalleUpload())
-                .thenReturn(String.valueOf(tempsParIntervalle));
-        when(frontGouvPropertiesResolver.getMaxUploadParIntervalle())
-                .thenReturn(String.valueOf(maxUploadParIntervalle));
+        when(frontGouvPropertiesResolver.getTempsIntervalleUpload()).thenReturn(String.valueOf(tempsParIntervalle));
+        when(frontGouvPropertiesResolver.getMaxUploadParIntervalle()).thenReturn(
+                String.valueOf(maxUploadParIntervalle));
 
         boolean conditionActuelle = fileControllerUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
         assertEquals(conditionActuelle, conditionAttendue);
@@ -163,31 +154,28 @@ class FileControllerUtilsTest {
     private static Stream<Arguments> testSupprimeCompteurSiDepasse() {
         return Stream.of(
                 // Upload fait <= la limite d'intervale
-                Arguments.of(100, 2, 100, 1, false),
-                Arguments.of(100, 2, -101, 1, true),
+                Arguments.of(100, 2, 100, 1, false), Arguments.of(100, 2, -101, 1, true),
 
                 // Upload fait >= à la limite d'intervale
-                Arguments.of(100, 2, 0, 1, false),
-                Arguments.of(100, 2, 101, 1, false)
-        );
+                Arguments.of(100, 2, 0, 1, false), Arguments.of(100, 2, 101, 1, false));
     }
 
     @ParameterizedTest
     @MethodSource("testSupprimeCompteurSiDepasse")
     void testSupprimeCompteurSiDepasse(int tempsParIntervalle, int maxUploadParIntervalle, int tempsIntervaleActuel,
-                                       int maxUploadActuel, boolean verifieSupprime) {
+            int maxUploadActuel, boolean verifieSupprime) {
         @SuppressWarnings("unchecked") // À cause du mock d'un objet générique
         Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = mock(HashMap.class);
         HttpSession session = mock(HttpSession.class);
         FileUploadCompteurDTO compteurUpload = mock(FileUploadCompteurDTO.class);
 
-        when(compteurUpload.getDatePremierUpload()).thenReturn(LocalDateTime.now().plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
+        when(compteurUpload.getDatePremierUpload()).thenReturn(
+                LocalDateTime.now().plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
         when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-        when(frontGouvPropertiesResolver.getTempsIntervalleUpload()).
-                thenReturn(String.valueOf(tempsParIntervalle));
-        when(frontGouvPropertiesResolver.getMaxUploadParIntervalle()).
-                thenReturn(String.valueOf(maxUploadParIntervalle));
+        when(frontGouvPropertiesResolver.getTempsIntervalleUpload()).thenReturn(String.valueOf(tempsParIntervalle));
+        when(frontGouvPropertiesResolver.getMaxUploadParIntervalle()).thenReturn(
+                String.valueOf(maxUploadParIntervalle));
 
         fileControllerUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
 
@@ -213,11 +201,8 @@ class FileControllerUtilsTest {
         FileUploadCompteurDTO compteur3 = new FileUploadCompteurDTO();
         compteur3.setDatePremierUpload(LocalDateTime.now().plusMinutes(100));
 
-        Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>(Map.of(
-                session1, compteur1,
-                session2, compteur2,
-                session3, compteur3
-        ));
+        Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>(
+                Map.of(session1, compteur1, session2, compteur2, session3, compteur3));
 
         when(frontGouvPropertiesResolver.getTempsIntervalleUpload()).thenReturn("100");
 

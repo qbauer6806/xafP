@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Classe service appelée par le process Activiti afin de remettre le statut d'avant (dans une
- * nouvelle instance de statut évidemment).
+ * Classe service appelée par le process Activiti afin de remettre le statut d'avant (dans une nouvelle instance de
+ * statut évidemment).
  *
  * @author qdeme
  */
@@ -39,15 +39,14 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
         LOGGER.info("Demande : {}", demandeId);
 
         // Récupération du commentaire usager, du texte à envoyer et du code motif si besoin plus tard dans le traitement
-        String commentaireUsager = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        String texteAEnvoyer = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TEXTE_A_ENVOYER.name());
+        String commentaireUsager = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        String texteAEnvoyer = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_TEXTE_A_ENVOYER.name());
 
         String codeMotifStr = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
-        String usagerId = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+        String usagerId = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
         if (null == usagerId) {
             throw new DemarchesServiceException("UsagerID null !", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -66,8 +65,8 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
         LOGGER.info("Appel à demandesStatutsService.updateStatut()...");
 
-        demandesStatutsService.updateStatut(demandeId, statut.getName(), null,
-                Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
+        demandesStatutsService.updateStatut(demandeId, statut.getName(), null, Integer.parseInt(usagerId), codeMotifStr,
+                commentaireUsager, texteAEnvoyer);
 
         LOGGER.info("==== xaf-back RESTORE PREVIOUS STATUS DELEGATE <fin>");
     }

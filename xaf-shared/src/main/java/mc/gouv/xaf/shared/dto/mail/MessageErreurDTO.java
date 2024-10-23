@@ -5,7 +5,6 @@ import lombok.Getter;
 
 /**
  * @author qdeme
- *
  */
 @Getter
 @AllArgsConstructor

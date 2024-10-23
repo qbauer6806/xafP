@@ -56,8 +56,8 @@ class GestionTemplateServiceImplTest {
         templateObjet.setDateModif(getDate("2021-12-09"));
         templateObjet.setContenu("ContenuObjet");
 
-        Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateCorps,langue)).thenReturn(templateCorps);
-        Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateObjet,langue)).thenReturn(templateObjet);
+        Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateCorps, langue)).thenReturn(templateCorps);
+        Mockito.when(templatesService.getTemplateByCodeAndLangue(codeTemplateObjet, langue)).thenReturn(templateObjet);
     }
 
     @Test

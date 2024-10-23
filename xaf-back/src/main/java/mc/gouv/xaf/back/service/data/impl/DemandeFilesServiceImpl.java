@@ -123,7 +123,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         LOGGER.info("Fin saveFile()");
     }
 
-    private void updateMetadata(DemandesFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes, AtomicBoolean success) {
+    private void updateMetadata(DemandesFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes,
+            AtomicBoolean success) {
         String pk = "" + file.getPkDemandesFiles();
         if (changes.containsKey(pk)) {
             String typedoc = changes.get(pk);
@@ -132,7 +133,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                 try {
                     fileService.updateFileMetadata(file.getUrl(), FileService.FILE_METADATA_TYPEDOC, typedoc);
                 } catch (Exception e) {
-                    LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+                    LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(),
+                            file.getUrl(), e);
                 }
             } else if (success.get()) {
                 success.set(false);
@@ -148,9 +150,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
         AtomicBoolean success = new AtomicBoolean(true);
         if (!changes.isEmpty() || !checkboxes.isEmpty()) {
-            List<Integer> keys = new ArrayList<>(changes.keySet().stream()
-                    .map(Integer::parseInt)
-                    .toList());
+            List<Integer> keys = new ArrayList<>(changes.keySet().stream().map(Integer::parseInt).toList());
             checkboxes.keySet().forEach(k -> {
                 Integer parsed = Integer.parseInt(k);
                 if (!keys.contains(parsed)) {
@@ -167,12 +167,14 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndTypedoc(Integer pkDemande, String typedoc) {
-        return DemandesFilesTransformer.bo2Dto(demandesFilesRepository.findAllByFkDemandes_PkDemandesAndTypedoc(pkDemande, typedoc));
+        return DemandesFilesTransformer.bo2Dto(
+                demandesFilesRepository.findAllByFkDemandes_PkDemandesAndTypedoc(pkDemande, typedoc));
     }
 
     @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
-        return DemandesFilesTransformer.bo2Dto(demandesFilesRepository.findAllByFkDemandes_PkDemandesAndMeta(pkDemande, meta));
+        return DemandesFilesTransformer.bo2Dto(
+                demandesFilesRepository.findAllByFkDemandes_PkDemandesAndMeta(pkDemande, meta));
     }
 
     private List<DemandesFilesBO> getFichiersUsager(DemandeBO demandeBo) {
@@ -203,8 +205,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         // Mise à jour des pièces jointes
         if (fichiers != null && fichiers.length > 0) {
             // Ajouter la nouvelle image
-            demandeBo.setFiles(new HashSet<>(
-                    DemandesFilesTransformer.dto2Bo(Arrays.asList(fichiers))));
+            demandeBo.setFiles(new HashSet<>(DemandesFilesTransformer.dto2Bo(Arrays.asList(fichiers))));
             for (DemandesFilesBO bo : demandeBo.getFiles()) {
                 bo.setFkDemandes(demandeBo);
                 bo.setDate(new Date());
@@ -220,9 +221,12 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                 // On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
                 // demande ou ses enfants (ie les demandes dupliquées qui découlent de cette demande)
                 // On vérifie également si le fichier est présent dans un brouillon, dans ce cas on ne supprime pas
-                List<DemandesFilesBO> existingFiles = demandesFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
-                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
-                if (null != existingFiles && isFileDeletable(existingFiles, existingFilesBrouillons, statutCheck, statuts, jours)) {
+                List<DemandesFilesBO> existingFiles = demandesFilesRepository.findAllByUrl(
+                        currentFileToDelete.getUrl());
+                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(
+                        currentFileToDelete.getUrl());
+                if (null != existingFiles && isFileDeletable(existingFiles, existingFilesBrouillons, statutCheck,
+                        statuts, jours)) {
                     String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
                     fileService.deleteFile("ROOT", url);
                 }
@@ -230,7 +234,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
-    private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<BrouillonsFilesBO> existingFilesBrouillons, boolean statutCheck, List<String> statuts, int jours) {
+    private boolean isFileDeletable(List<DemandesFilesBO> existingFiles,
+            List<BrouillonsFilesBO> existingFilesBrouillons, boolean statutCheck, List<String> statuts, int jours) {
         boolean isFileDeletable = false;
         if (existingFiles.size() <= 1 && (existingFilesBrouillons == null || existingFilesBrouillons.isEmpty())) {
             if (statutCheck) {
@@ -238,24 +243,27 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                     DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
                     DemandeDTO concernedDemandeDTO = demandesTransformer.bo2Dto(concernedDemandeBO);
                     isFileDeletable = isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-                    LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
+                    LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise",
+                            demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
                 }
             } else {
                 return true;
             }
         }
-        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
+        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande",
+                existingFiles.get(0).getName());
         return isFileDeletable;
     }
 
-	private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
-		long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
-		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-		return statuts.contains(concernedDemandeDTO.getDernierStatut().getName()) && diff >= jours;
-	}
+    private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
+        long diffInMillies = Math.abs(
+                new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
+        long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        return statuts.contains(concernedDemandeDTO.getDernierStatut().getName()) && diff >= jours;
+    }
 
-	@Override
-	public void deleteAllOrphans() {
+    @Override
+    public void deleteAllOrphans() {
         for (DemandesFilesBO fichierOrphelin : demandesFilesRepository.findAllNonReferencedFiles()) {
             Integer refs = demandesFilesRepository.countByUrl(fichierOrphelin.getUrl());
             LOGGER.debug("L'url du fichier est utilisée par {}", refs);
@@ -267,5 +275,5 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             demandesFilesRepository.delete(fichierOrphelin);
         }
 
-	}
+    }
 }

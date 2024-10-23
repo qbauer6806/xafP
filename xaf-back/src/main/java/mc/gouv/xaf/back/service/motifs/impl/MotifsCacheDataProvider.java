@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Profile("gouv")
 @Component
 public class MotifsCacheDataProvider implements GouvCacheDataProvider<Integer, MotifDTO> {
-    
+
     @Autowired
     private MotifsService motifsService;
 
@@ -30,5 +30,5 @@ public class MotifsCacheDataProvider implements GouvCacheDataProvider<Integer, M
     public MotifDTO get(Integer key) {
         return motifsService.getMotif(key);
     }
-    
+
 }

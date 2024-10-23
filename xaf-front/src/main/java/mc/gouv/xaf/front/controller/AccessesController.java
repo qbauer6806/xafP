@@ -38,7 +38,8 @@ public class AccessesController extends AbstractXafController {
     /**
      * Traitement des méthodes POST
      *
-     * @param request Requête initiale de la Servlet
+     * @param request
+     *         Requête initiale de la Servlet
      */
     @PostMapping
     public ResponseEntity<AccessDTO> doPost(@RequestBody AccessInputDTO accessInput, HttpServletRequest request) {
@@ -51,7 +52,8 @@ public class AccessesController extends AbstractXafController {
         LOGGER.info("Appel à la démarche pour créer l'accès...");
         AccessDTO access = getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInput);
 
-        LOGGER.debug("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
+        LOGGER.debug("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}",
+                access.getPkAccess());
         usagerInfosDTO.setAccessId(access.getPkAccess());
         request.getSession().setAttribute("login", usagerInfosDTO);
 
@@ -63,7 +65,8 @@ public class AccessesController extends AbstractXafController {
     /**
      * Traitement des méthodes GET
      *
-     * @param request Requête initiale de la Servlet
+     * @param request
+     *         Requête initiale de la Servlet
      */
     @GetMapping
     public ResponseEntity doGet(HttpServletRequest request) {
@@ -80,7 +83,8 @@ public class AccessesController extends AbstractXafController {
         } catch (NotFoundWebException e) {
             return ResponseEntity.notFound().build();
         }
-        LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
+        LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}",
+                access.getPkAccess());
         HttpSession session = request.getSession();
         usagerInfosDTO.setAccessId(access.getPkAccess());
         session.setAttribute("login", usagerInfosDTO);
@@ -93,7 +97,8 @@ public class AccessesController extends AbstractXafController {
     /**
      * Traitement des méthodes DELETE
      *
-     * @param request Requête initiale de la Servlet
+     * @param request
+     *         Requête initiale de la Servlet
      */
     @DeleteMapping
     public ResponseEntity doDelete(HttpServletRequest request) {
@@ -111,7 +116,6 @@ public class AccessesController extends AbstractXafController {
         LOGGER.info("====================== Fin /accesses doDelete()");
         return ResponseEntity.ok().build();
     }
-
 
     private UsagerInfosDTO getUsagerId(HttpServletRequest request) {
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);

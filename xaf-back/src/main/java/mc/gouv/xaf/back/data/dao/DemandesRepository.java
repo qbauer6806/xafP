@@ -74,31 +74,30 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      * @param canaux
      * @return
      */
-    List<DemandeBO> findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(Date dernierStatutDateDebut, List<String> dernierStatutList, List<String> canaux);
+    List<DemandeBO> findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
 
-    @Query("SELECT d.pkDemandes FROM DemandeBO d "
-            + "JOIN d.dernierStatut ds "
-            + "WHERE ds.date < :dernierStatutDateDebut "
-            + "AND ds.name IN :dernierStatutList "
+    @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
+            + "WHERE ds.date < :dernierStatutDateDebut " + "AND ds.name IN :dernierStatutList "
             + "AND d.canal IN :canaux")
     List<Integer> findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(
             @Param("dernierStatutDateDebut") Date dernierStatutDateDebut,
-            @Param("dernierStatutList") List<String> dernierStatutList,
-            @Param("canaux") List<String> canaux
-    );
+            @Param("dernierStatutList") List<String> dernierStatutList, @Param("canaux") List<String> canaux);
 
     /**
      * Permet de récupérer les demandes à purger dans un intervalle donné. Utile pour la relance par mail avant purge.
      * Permet de faire plusieurs relances par ex.
-     * 
+     *
      * @param dernierStatutDateDebut
      * @param dernierStatutDateFin
      * @param dernierStatutList
      * @return
      */
-    List<DemandeBO> findByDernierStatut_DateBetweenAndDernierStatut_NameIn(Date dernierStatutDateDebut, Date dernierStatutDateFin, List<String> dernierStatutList);
+    List<DemandeBO> findByDernierStatut_DateBetweenAndDernierStatut_NameIn(Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
 
-    List<Integer> findPkDemandesByDernierStatut_DateBetweenAndDernierStatut_NameIn(Date dernierStatutDateDebut, Date dernierStatutDateFin, List<String> dernierStatutList);
+    List<Integer> findPkDemandesByDernierStatut_DateBetweenAndDernierStatut_NameIn(Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
 
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
@@ -110,8 +109,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      */
     @Query("select d from DemandeBO d inner join d.fkAccess fa inner join TraductionBO t on (d.dernierStatut.name = t.cle and t.langue = :langue) "
             + "where fa.usagerId = :usagerId and fa.active = true and d.dernierStatut.name in :status")
-    Page<DemandeBO> findByUsagerIdAndStatuts(@Param("usagerId") Integer usagerId, @Param("status") String[] status, @Param("langue") String langue,
-            Pageable pageRequest);
+    Page<DemandeBO> findByUsagerIdAndStatuts(@Param("usagerId") Integer usagerId, @Param("status") String[] status,
+            @Param("langue") String langue, Pageable pageRequest);
 
     @Query("select d.pkDemandes as pkDemandes, d.identifiant as identifiant, d.dateCreation as dateCreation, s.name as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.active = true and s.fkDemandes.pkDemandes = d.pkDemandes")
     List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("usagerId") Integer usagerId);

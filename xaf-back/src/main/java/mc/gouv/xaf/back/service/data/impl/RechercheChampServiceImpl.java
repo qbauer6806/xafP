@@ -14,69 +14,68 @@ public class RechercheChampServiceImpl implements RechercheChampService {
     @Autowired
     private DemandesConfigService demandesConfigService;
 
-	@Override
-	public List<RechercheChampDTO> getRechercheChamps() {
+    @Override
+    public List<RechercheChampDTO> getRechercheChamps() {
         List<RechercheChampDTO> rechercheChamps = new ArrayList<>();
-		// agent
-		rechercheChamps.add(new RechercheChampDTO("agent.mail"));
-		rechercheChamps.add(new RechercheChampDTO("agent.id"));
-		rechercheChamps.add(new RechercheChampDTO("agent.nom"));
-		rechercheChamps.add(new RechercheChampDTO("agent.nomNaissance"));
-		rechercheChamps.add(new RechercheChampDTO("agent.nomUsage"));
-		rechercheChamps.add(new RechercheChampDTO("agent.prenom"));
+        // agent
+        rechercheChamps.add(new RechercheChampDTO("agent.mail"));
+        rechercheChamps.add(new RechercheChampDTO("agent.id"));
+        rechercheChamps.add(new RechercheChampDTO("agent.nom"));
+        rechercheChamps.add(new RechercheChampDTO("agent.nomNaissance"));
+        rechercheChamps.add(new RechercheChampDTO("agent.nomUsage"));
+        rechercheChamps.add(new RechercheChampDTO("agent.prenom"));
 
-		// complement
-		rechercheChamps.add(new RechercheChampDTO("complement.contenu"));
-		rechercheChamps.add(new RechercheChampDTO("complement.name"));
+        // complement
+        rechercheChamps.add(new RechercheChampDTO("complement.contenu"));
+        rechercheChamps.add(new RechercheChampDTO("complement.name"));
 
-		// courrier ?
-//		demandesFacets.add(new DemandesFacet("dateCreation", 1));
-//		demandesFacets.add(new DemandesFacet("dateDerModif", 1));
+        // courrier ?
+        //		demandesFacets.add(new DemandesFacet("dateCreation", 1));
+        //		demandesFacets.add(new DemandesFacet("dateDerModif", 1));
 
-		// demande
-		rechercheChamps.add(new RechercheChampDTO("identifiant"));
-		rechercheChamps.add(new RechercheChampDTO("langue"));
+        // demande
+        rechercheChamps.add(new RechercheChampDTO("identifiant"));
+        rechercheChamps.add(new RechercheChampDTO("langue"));
 
-		// dernier statut utile ?
-//		demandesFacets.add(new DemandesFacet("dernierStatut.libelle", 1));
-//		demandesFacets.add(new DemandesFacet("dernierStatut.date", 1));
-//		demandesFacets.add(new DemandesFacet("dernierStatut.commentaire", 1));
-//		demandesFacets.add(new DemandesFacet("dernierStatut.libelleMotif", 1));
+        // dernier statut utile ?
+        //		demandesFacets.add(new DemandesFacet("dernierStatut.libelle", 1));
+        //		demandesFacets.add(new DemandesFacet("dernierStatut.date", 1));
+        //		demandesFacets.add(new DemandesFacet("dernierStatut.commentaire", 1));
+        //		demandesFacets.add(new DemandesFacet("dernierStatut.libelleMotif", 1));
 
-		// fichiers internes utile ? doublon de "pièces jointes"
-//		demandesFacets.add(new DemandesFacet("fichierinterne.contenu", 1));
-//		demandesFacets.add(new DemandesFacet("fichierinterne.name", 1));
+        // fichiers internes utile ? doublon de "pièces jointes"
+        //		demandesFacets.add(new DemandesFacet("fichierinterne.contenu", 1));
+        //		demandesFacets.add(new DemandesFacet("fichierinterne.name", 1));
 
-		// historique des statuts utile ?
+        // historique des statuts utile ?
 
-		// contenu
+        // contenu
         for (String chemin : demandesConfigService.getModelPathsRechercheAvancee()) {
             rechercheChamps.add(new RechercheChampDTO(chemin));
         }
 
-		// informations réservées à l'administration
-		rechercheChamps.add(new RechercheChampDTO("observations"));
+        // informations réservées à l'administration
+        rechercheChamps.add(new RechercheChampDTO("observations"));
 
-		// pièces jointes
-		rechercheChamps.add(new RechercheChampDTO("fichiers.contenu"));
-		rechercheChamps.add(new RechercheChampDTO("fichiers.name"));
+        // pièces jointes
+        rechercheChamps.add(new RechercheChampDTO("fichiers.contenu"));
+        rechercheChamps.add(new RechercheChampDTO("fichiers.name"));
 
-		// usager
-		rechercheChamps.add(new RechercheChampDTO("usager.adresse1"));
-		rechercheChamps.add(new RechercheChampDTO("usager.adresse2"));
-		rechercheChamps.add(new RechercheChampDTO("usager.codePostal"));
-		rechercheChamps.add(new RechercheChampDTO("usager.complementAdresse"));
-		rechercheChamps.add(new RechercheChampDTO("usager.email"));
-		rechercheChamps.add(new RechercheChampDTO("usager.login"));
-		rechercheChamps.add(new RechercheChampDTO("usager.nom"));
-		rechercheChamps.add(new RechercheChampDTO("usager.nomPays"));
-		rechercheChamps.add(new RechercheChampDTO("usager.prenom"));
-		rechercheChamps.add(new RechercheChampDTO("usager.raisonSociale"));
-		rechercheChamps.add(new RechercheChampDTO("usager.titre"));
-		rechercheChamps.add(new RechercheChampDTO("usager.ville"));
+        // usager
+        rechercheChamps.add(new RechercheChampDTO("usager.adresse1"));
+        rechercheChamps.add(new RechercheChampDTO("usager.adresse2"));
+        rechercheChamps.add(new RechercheChampDTO("usager.codePostal"));
+        rechercheChamps.add(new RechercheChampDTO("usager.complementAdresse"));
+        rechercheChamps.add(new RechercheChampDTO("usager.email"));
+        rechercheChamps.add(new RechercheChampDTO("usager.login"));
+        rechercheChamps.add(new RechercheChampDTO("usager.nom"));
+        rechercheChamps.add(new RechercheChampDTO("usager.nomPays"));
+        rechercheChamps.add(new RechercheChampDTO("usager.prenom"));
+        rechercheChamps.add(new RechercheChampDTO("usager.raisonSociale"));
+        rechercheChamps.add(new RechercheChampDTO("usager.titre"));
+        rechercheChamps.add(new RechercheChampDTO("usager.ville"));
 
-		return rechercheChamps;
-	}
-
+        return rechercheChamps;
+    }
 
 }

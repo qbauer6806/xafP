@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Modélise une stats de restitution des données 
+ * Modélise une stats de restitution des données
  */
 @Setter
 @Getter
@@ -19,13 +19,13 @@ public class RestitutionStatistiquesDTO {
     private Integer usagerId;
 
     private Integer httpCode;
-    
+
     private String message;
 
     private Date date;
-    
+
     private String source;
-    
+
     private String demarcheId;
 
 }

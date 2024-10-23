@@ -11,18 +11,16 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.caching.GouvMemoryCache;
 
 /**
- * 
  * Implémentation de l'interface MotifsCache
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Profile("gouv")
 @Component
 public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implements MotifsCache {
-    
+
     // 3 heures
-    private static final long CACHE_DURATION = 3*60*60*1000L;
+    private static final long CACHE_DURATION = 3 * 60 * 60 * 1000L;
 
     public MotifsCacheImpl(MotifsCacheDataProvider gouvCacheDataProvider) {
         super(gouvCacheDataProvider, CACHE_DURATION);
@@ -36,7 +34,7 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
         }
         return null;
     }
-    
+
     public List<MotifDTO> getMotifs(String langue) {
         List<MotifDTO> motifs = new ArrayList<>();
         for (MotifDTO motif : getValues()) {
@@ -46,11 +44,12 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
         }
         return motifs;
     }
-    
+
     public List<MotifDTO> getMotifs(String langue, String statut) {
         List<MotifDTO> ret = new ArrayList<>();
         for (MotifDTO motif : getValues()) {
-            if (motif.getLangue().equals(langue) && motif.getStatut().equals(statut) && motif.getDateArchive() == null) {
+            if (motif.getLangue().equals(langue) && motif.getStatut().equals(statut)
+                    && motif.getDateArchive() == null) {
                 ret.add(motif);
             }
         }

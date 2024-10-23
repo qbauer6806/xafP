@@ -7,7 +7,8 @@ import lombok.Setter;
 /**
  * Représentation BO de la table DEM.TACHES
  * <br>
- * Une tâche est un objet relié à une demande, elle permet de représenter la fonctionnalité de la validation partielle pour les démarches ayant plusieurs élements comme DUPECIM.
+ * Une tâche est un objet relié à une demande, elle permet de représenter la fonctionnalité de la validation partielle
+ * pour les démarches ayant plusieurs élements comme DUPECIM.
  * <br>
  * Une tâche est composée des éléments suivants :
  * <li>Une FK vers la demande concernée</li>

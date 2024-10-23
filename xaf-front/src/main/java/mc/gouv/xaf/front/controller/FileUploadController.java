@@ -83,15 +83,16 @@ public class FileUploadController extends AbstractXafController {
     @Autowired
     private FrontControllerPropertiesCache propertiesCache;
 
-    @PostMapping(value = {"/fileupload", "/fileupload/{filename}"})
+    @PostMapping(value = { "/fileupload", "/fileupload/{filename}" })
     public ResponseEntity<FileUploadResponseDTO> doPost(@PathVariable(required = false) String filename,
-                                 HttpServletRequest request) {
+            HttpServletRequest request) {
         LOGGER.info("====================== /fileupload doPost()");
 
         // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         // Vérification du nombre de fichier uploadés sur la demande
@@ -113,7 +114,8 @@ public class FileUploadController extends AbstractXafController {
         // Vérification du type du fichier
         LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);
         if (!estExtensionDansWhitelist(safeFileName)) {
-            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
+            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
+                    getExtensionsWhitelist());
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
                     "Erreur: le type/extension du fichier soumis n'est pas valide");
         }
@@ -132,7 +134,8 @@ public class FileUploadController extends AbstractXafController {
             // transformation B en MB: 1 Mo = 1 048 576 octets
             int tailleMaxFichierMB = tailleMaxFichier * 1048576;
             if (part.getSize() > tailleMaxFichierMB) {
-                LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichier);
+                LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})",
+                        tailleMaxFichier);
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
             }
@@ -158,7 +161,8 @@ public class FileUploadController extends AbstractXafController {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + safeFileName;
+            String virtualPath =
+                    SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + safeFileName;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
@@ -178,10 +182,12 @@ public class FileUploadController extends AbstractXafController {
             HttpClient client = HttpClientBuilder.create().build();
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addPart("data",
-                    new InputStreamBody(part.getInputStream(), ContentType.create(part.getContentType()), part.getSubmittedFileName()));
+                    new InputStreamBody(part.getInputStream(), ContentType.create(part.getContentType()),
+                            part.getSubmittedFileName()));
             HttpEntity multipart = builder.build();
             postRequest.setEntity(multipart);
-            postRequest.setHeader(HttpHeaders.AUTHORIZATION, xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
+            postRequest.setHeader(HttpHeaders.AUTHORIZATION,
+                    xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
             HttpResponse postResponse = client.execute(postRequest);
@@ -244,8 +250,9 @@ public class FileUploadController extends AbstractXafController {
             LOGGER.info("URL = {}", urlVscan);
             HttpClient clientVscan = HttpClientBuilder.create().build();
             MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
-            builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(),
-                    ContentType.create(part0.getContentType()), part0.getSubmittedFileName()));
+            builderVscan.addPart("file",
+                    new InputStreamBody(part0.getInputStream(), ContentType.create(part0.getContentType()),
+                            part0.getSubmittedFileName()));
 
             ScanRequestDTO scanRequest = new ScanRequestDTO();
             scanRequest.setCodeAppli(propertiesResolver.getDemarcheId());
@@ -294,17 +301,20 @@ public class FileUploadController extends AbstractXafController {
     /**
      * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
      */
-    private ResponseEntity<FileUploadResponseDTO> constituerReponse(String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
+    private ResponseEntity<FileUploadResponseDTO> constituerReponse(String filename, UUID uuid, Integer accessId,
+            HttpResponse postResponse) throws IOException {
         int statusCode = postResponse.getCode();
         ResponseEntity response;
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(SLASH + accessId + SLASH + uuid + SLASH + filename);
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(
+                    SLASH + accessId + SLASH + uuid + SLASH + filename);
             response = ResponseEntity.status(statusCode).body(responseObj);
         } else {
             LOGGER.error("Status code : {}", statusCode);
             // S'il y a eu un problème, alors on retourne le message d'erreur au client
-            response = ResponseEntity.status(statusCode).body(((ClassicHttpResponse)postResponse).getEntity().getContent());
+            response = ResponseEntity.status(statusCode)
+                    .body(((ClassicHttpResponse) postResponse).getEntity().getContent());
         }
 
         return response;
@@ -343,11 +353,12 @@ public class FileUploadController extends AbstractXafController {
     }
 
     /**
-     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex:
-     * Une session dont la date du premier upload > x secondes
+     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex: Une session
+     * dont la date du premier upload > x secondes
      */
     private synchronized void reinitialierSessionsInutilisees() {
-        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet()
+                .iterator(); it.hasNext(); ) {
             Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
             LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
             Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());

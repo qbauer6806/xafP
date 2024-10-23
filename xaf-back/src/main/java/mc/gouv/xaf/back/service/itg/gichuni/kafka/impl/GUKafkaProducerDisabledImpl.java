@@ -25,17 +25,20 @@ public class GUKafkaProducerDisabledImpl implements GUKafkaProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerDisabledImpl.class);
 
     @Override
-    public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes) {
+    public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation,
+            RecapDemandesDTO recapDemandes) {
         LOGGER.info("sendCreationDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
     }
 
     @Override
-    public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
+    public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant,
+            StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
         LOGGER.info("sendChangementStatutDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
     }
 
     @Override
-    public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression, RecapDemandesDTO recapDemandes) {
+    public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant,
+            Date dateSuppression, RecapDemandesDTO recapDemandes) {
         LOGGER.info("sendSuppressionDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
     }
 

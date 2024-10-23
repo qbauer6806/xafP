@@ -5,9 +5,8 @@ import lombok.Getter;
 
 /**
  * Modélise une erreur retournée au client
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Getter
 @AllArgsConstructor

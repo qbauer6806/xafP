@@ -24,14 +24,12 @@ import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 /**
- * 
  * Classe BO de la table DEM.DEMANDES
  * <br>
  * Attention ! À chaque ajout de Set<> dans ce BO, penser à mettre à jour l'algorithme de duplication de demandes pour
  * les prendre en compte. Et mettre à jour les transformers pour toute donnée ajoutée.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -142,11 +140,11 @@ public class DemandeBO {
     private String typeConnexionUsager;
 
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector_contenu",columnDefinition = "tsvector", insertable = false, updatable = false)
+    @Column(name = "search_vector_contenu", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVectorContenu;
 
     // De type Integer et non DemandeBO (autrement dit : pas de foreign key en base)

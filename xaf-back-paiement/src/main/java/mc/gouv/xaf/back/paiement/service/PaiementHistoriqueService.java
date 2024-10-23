@@ -6,6 +6,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import java.util.List;
 
 public interface PaiementHistoriqueService {
+
     List<PaiementHistoriqueDTO> findAllByDemandeId(Integer demandeId);
 
     void ajouterHistorique(PaiementHistoriqueDTO dto);

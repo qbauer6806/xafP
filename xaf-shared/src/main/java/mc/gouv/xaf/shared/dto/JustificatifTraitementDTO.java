@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class JustificatifTraitementDTO {
+
     private String historique;
 
     private String justification;

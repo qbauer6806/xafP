@@ -21,7 +21,8 @@ public interface DemandesDataService {
     DemandeDataDTO getDemandeData(Integer demandeId, String key);
 
     /**
-     * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, en vérifiant l'existance de la demande via le paramètre checkActive
+     * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, en vérifiant l'existance de
+     * la demande via le paramètre checkActive
      *
      * @return La donnée de demande demandée
      */
@@ -44,8 +45,7 @@ public interface DemandesDataService {
     /**
      * Permet de récupérer les data associées au couple key / value parmis la liste donnée
      */
-    List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value,
-                                                                   List<DemandeBO> demandes);
+    List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value, List<DemandeBO> demandes);
 
     /**
      * Permet de sauvegarder ou mettre à jour une donnée de demande en base
@@ -75,17 +75,23 @@ public interface DemandesDataService {
 
     /**
      * <p>Méthode permettant de sauvgarder plusieurs données de la demande en base.</p>
-     * <p>Cette méthode est a utiliser pour éviter de bombarder elasticsearch si on met à jours plusieurs clès valeurs</p>
+     * <p>Cette méthode est a utiliser pour éviter de bombarder elasticsearch si on met à jours plusieurs clès
+     * valeurs</p>
      *
-     * @param demandeId  Identifiant de la demande
-     * @param datas      Données à mettre à jour
+     * @param demandeId
+     *         Identifiant de la demande
+     * @param datas
+     *         Données à mettre à jour
      */
     void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas);
 
     /**
      * Duplication des données d'une demande vers une nouvelle demande.
-     * @param demandeBo L'objet BO de la demande à cloner
-     * @param newDemandeBo le nouvel objet BO
+     *
+     * @param demandeBo
+     *         L'objet BO de la demande à cloner
+     * @param newDemandeBo
+     *         le nouvel objet BO
      */
     void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo);
 

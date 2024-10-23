@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author qdeme
- *
  */
 public class MDCLogFilterAPI implements Filter {
 

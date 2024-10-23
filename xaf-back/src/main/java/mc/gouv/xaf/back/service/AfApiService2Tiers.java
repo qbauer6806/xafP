@@ -60,336 +60,343 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 
     @Autowired
     private MotifsServiceImpl motifsService;
-    
+
     @Autowired
     private PeriodesOuvertureService periodesOuvertureService;
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private PropertiesService propertiesService;
-    
+
     @Autowired
     private UsagersCache usagersCache;
-    
+
     @Autowired
     private GUKafkaProducer guKafkaProducer;
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
 
-	public void annulerDemande(Integer demandeId, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.annulerDemande({}, {})", demandeId, usagerId);
-		afBackUtils.getAfApiClient2Tiers().annulerDemande(demandeId, usagerId);
-	}
+    public void annulerDemande(Integer demandeId, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.annulerDemande({}, {})", demandeId, usagerId);
+        afBackUtils.getAfApiClient2Tiers().annulerDemande(demandeId, usagerId);
+    }
 
-	public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-			DemandeComplementsReponseDTO reponse) {
-		LOGGER.info("AfApiService2Tiers.repondreDemandeComplements({}, {}, {})", demandeId, icId, reponse);
-		return afBackUtils.getAfApiClient2Tiers().repondreDemandeComplements(demandeId, icId, reponse);
-	}
+    public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
+            DemandeComplementsReponseDTO reponse) {
+        LOGGER.info("AfApiService2Tiers.repondreDemandeComplements({}, {}, {})", demandeId, icId, reponse);
+        return afBackUtils.getAfApiClient2Tiers().repondreDemandeComplements(demandeId, icId, reponse);
+    }
 
-	public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
-		LOGGER.info("AfApiService2Tiers.getDemande({}, {})", usagerId, demandeId);
-		return afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
-	}
+    public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
+        LOGGER.info("AfApiService2Tiers.getDemande({}, {})", usagerId, demandeId);
+        return afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
+    }
 
-	public List<DemandeDTO> getDemandes(Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.getDemandes({})", usagerId);
-		return afBackUtils.getAfApiClient2Tiers().getDemandes(usagerId);
-	}
+    public List<DemandeDTO> getDemandes(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.getDemandes({})", usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getDemandes(usagerId);
+    }
 
-	public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
-		LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
-		return afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
-	}
+    public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
+        LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
+    }
 
-	public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
-		LOGGER.info("AfApiService2Tiers.getDemandeComplements({})", demandeId);
-		return afBackUtils.getAfApiClient2Tiers().getDemandesComplements(demandeId);
-	}
+    public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
+        LOGGER.info("AfApiService2Tiers.getDemandeComplements({})", demandeId);
+        return afBackUtils.getAfApiClient2Tiers().getDemandesComplements(demandeId);
+    }
 
-	public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
-		LOGGER.info("AfApiService2Tiers.getDemandeComplements({}, {})", demandeId, icId);
-		return afBackUtils.getAfApiClient2Tiers().getDemandeComplements(demandeId, icId);
-	}
+    public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
+        LOGGER.info("AfApiService2Tiers.getDemandeComplements({}, {})", demandeId, icId);
+        return afBackUtils.getAfApiClient2Tiers().getDemandeComplements(demandeId, icId);
+    }
 
-	public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.associerDemandeCourrier({}, {}, {})", identifiantDemande, stringToCheck,
+    public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.associerDemandeCourrier({}, {}, {})", identifiantDemande, stringToCheck,
                 usagerId);
-		return afBackUtils.getAfApiClient2Tiers().associerDemandeCourrier(identifiantDemande, stringToCheck, usagerId);
-	}
+        return afBackUtils.getAfApiClient2Tiers().associerDemandeCourrier(identifiantDemande, stringToCheck, usagerId);
+    }
 
-	public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
-		LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, langue);
-		afBackUtils.getAfApiClient2Tiers().desinscriptionUsager(usagerId, langue);
-	}
+    public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
+        LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, langue);
+        afBackUtils.getAfApiClient2Tiers().desinscriptionUsager(usagerId, langue);
+    }
 
-	public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
-		LOGGER.info("AfApiService2Tiers.createOrUpdateAccess({}, +dto)", usagerId);
-		return afBackUtils.getAfApiClient2Tiers().createOrUpdateAccess(usagerId, dto);
-	}
+    public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
+        LOGGER.info("AfApiService2Tiers.createOrUpdateAccess({}, +dto)", usagerId);
+        return afBackUtils.getAfApiClient2Tiers().createOrUpdateAccess(usagerId, dto);
+    }
 
-	public AccessDTO getAccess(Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.getAccess({})", usagerId);
-		return afBackUtils.getAfApiClient2Tiers().getAccess(usagerId);
-	}
+    public AccessDTO getAccess(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.getAccess({})", usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getAccess(usagerId);
+    }
 
-	public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
-		LOGGER.info("AfApiService2Tiers.getUsagerCourrier({})", usagerCourrierId);
-		return afBackUtils.getAfApiClient2Tiers().getUsagerCourrier(usagerCourrierId);
-	}
+    public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
+        LOGGER.info("AfApiService2Tiers.getUsagerCourrier({})", usagerCourrierId);
+        return afBackUtils.getAfApiClient2Tiers().getUsagerCourrier(usagerCourrierId);
+    }
 
-	@Override
-	public List<MotifDTO> getMotifs() {
-		LOGGER.info("AfApiService2Tiers.getMotifs()");
-		return motifsService.getMotifs();
-	}
+    @Override
+    public List<MotifDTO> getMotifs() {
+        LOGGER.info("AfApiService2Tiers.getMotifs()");
+        return motifsService.getMotifs();
+    }
 
-	public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
-		return afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
-	}
+    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
+        return afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
+    }
 
-	@Override
-	public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
-		LOGGER.info("AfApiService2Tiers.getPeriodesOuverture()");
-		return periodesOuvertureService.getPeriodesOuverture();
-	}
+    @Override
+    public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
+        LOGGER.info("AfApiService2Tiers.getPeriodesOuverture()");
+        return periodesOuvertureService.getPeriodesOuverture();
+    }
 
-	public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.getCustom()");
-		return null;
-	}
+    public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.getCustom()");
+        return null;
+    }
 
-	public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.postCustom()");
-		return null;
-	}
+    public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.postCustom()");
+        return null;
+    }
 
-	public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.putCustom()");
-		return null;
-	}
+    public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.putCustom()");
+        return null;
+    }
 
-	public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.deleteCustom()");
-		return null;
-	}
+    public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.deleteCustom()");
+        return null;
+    }
 
-	public List<PropertiesDTO> getFrontProperties() {
-		LOGGER.info("AfApiService2Tiers.getFrontProperties()");
-		return propertiesService.getProperties();
-	}
+    public List<PropertiesDTO> getFrontProperties() {
+        LOGGER.info("AfApiService2Tiers.getFrontProperties()");
+        return propertiesService.getProperties();
+    }
 
-	public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.creerBrouillon({}, {})", brouillon, usagerId);
-		return afBackUtils.getAfApiClient2Tiers().creerBrouillon(brouillon, usagerId);
-	}
+    public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.creerBrouillon({}, {})", brouillon, usagerId);
+        return afBackUtils.getAfApiClient2Tiers().creerBrouillon(brouillon, usagerId);
+    }
 
-	public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.updateBrouillon({}, {})", brouillon, usagerId);
-		return afBackUtils.getAfApiClient2Tiers().updateBrouillon(brouillon, brouillon.getPkBrouillons(), usagerId);
-	}
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.updateBrouillon({}, {})", brouillon, usagerId);
+        return afBackUtils.getAfApiClient2Tiers().updateBrouillon(brouillon, brouillon.getPkBrouillons(), usagerId);
+    }
 
-	public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.getBrouillons({})", usagerId);
-		return afBackUtils.getAfApiClient2Tiers().getBrouillons(usagerId);
-	}
+    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.getBrouillons({})", usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getBrouillons(usagerId);
+    }
 
-	public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
-		LOGGER.info("AfApiService2Tiers.getBrouillonsPageable({})", usagerId);
-		return afBackUtils.getAfApiClient2Tiers().getBrouillonsPageable(usagerId, paramDTO);
-	}
+    public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
+        LOGGER.info("AfApiService2Tiers.getBrouillonsPageable({})", usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getBrouillonsPageable(usagerId, paramDTO);
+    }
 
-	public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.getBrouillon({}, {})", pkBrouillons, usagerId);
-		return afBackUtils.getAfApiClient2Tiers().getBrouillon(pkBrouillons, usagerId);
-	}
+    public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.getBrouillon({}, {})", pkBrouillons, usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getBrouillon(pkBrouillons, usagerId);
+    }
 
-	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
-		afBackUtils.getAfApiClient2Tiers().deleteBrouillon(pkBrouillons, usagerId);
-	}
-	
-	// ================================= 2EME PARTIE DE L'API =================================
+    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
+        afBackUtils.getAfApiClient2Tiers().deleteBrouillon(pkBrouillons, usagerId);
+    }
 
-	@Override
-	public MotifDTO createMotif(MotifDTO motif) {
-		return motifsService.saveMotif(motif);
-	}
-	
-	@Override
-	public MotifDTO updateMotif(MotifDTO motif) {
-		return motifsService.updateMotif(motif);
-	}
+    // ================================= 2EME PARTIE DE L'API =================================
 
-	@Override
-	public void deleteMotif(Integer pkMotif) {
-		motifsService.deleteMotif(pkMotif);
-	}
-	
-	@Override
-	public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
-		return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
-	}
-	
-	@Override
-	public PeriodeOuvertureDTO updatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
-		return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
-	}
+    @Override
+    public MotifDTO createMotif(MotifDTO motif) {
+        return motifsService.saveMotif(motif);
+    }
 
-	@Override
-	public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
-		periodesOuvertureService.deletePeriodeOuverture(pkPeriodeOuverture);
-	}
-	
-	@Override
-	public GichuniUsagerDTO getUsager(Integer usagerId) {
-		return usagersCache.get(usagerId);
-	}
+    @Override
+    public MotifDTO updateMotif(MotifDTO motif) {
+        return motifsService.updateMotif(motif);
+    }
 
-	@Override
-	public FileResponseDTO saveFile(String container, MultipartFile data, HttpServletRequest request, HttpServletResponse response) {
+    @Override
+    public void deleteMotif(Integer pkMotif) {
+        motifsService.deleteMotif(pkMotif);
+    }
+
+    @Override
+    public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
+        return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
+    }
+
+    @Override
+    public PeriodeOuvertureDTO updatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
+        return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
+    }
+
+    @Override
+    public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
+        periodesOuvertureService.deletePeriodeOuverture(pkPeriodeOuverture);
+    }
+
+    @Override
+    public GichuniUsagerDTO getUsager(Integer usagerId) {
+        return usagersCache.get(usagerId);
+    }
+
+    @Override
+    public FileResponseDTO saveFile(String container, MultipartFile data, HttpServletRequest request,
+            HttpServletResponse response) {
         // Seule manière avec Spring de pouvoir inclure des "/" dans le dernier
         // paramètre d'une URL (et en mettant /** dans l'URL)
         // (+ utilisation de la classe WebMvcConfig afin d'éviter que les
         // extensions ne soient traitées par Spring)
-		String file = request.getServletPath();
-		file = file.replace(FILE_PATH, "");
-		file = file.split("/", 2)[1];
-		LOGGER.info(LOG_CHEMIN, file);
-        
+        String file = request.getServletPath();
+        file = file.replace(FILE_PATH, "");
+        file = file.split("/", 2)[1];
+        LOGGER.info(LOG_CHEMIN, file);
+
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
         file = Normalizer.normalize(file, Form.NFC);
-        
+
         String account = gouvPropertiesResolver.getDemarcheId();
 
         LOGGER.info("====================== saveFile({}/{}/{})", account, container, file);
 
-		Map<String, String> meta = extractMeta(request);
-		
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		ObjectMapper objectMapper = new ObjectMapper();
-		FileResponseDTO fileResponseDTO = null;
-		try {
-			afBackUtils.getFileClient().saveFile(account, container, data.getInputStream(), file, data.getContentType(), meta, os);
-			fileResponseDTO = objectMapper.readValue(os.toByteArray(), FileResponseDTO.class);
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'appel à FILE pour la sauvegarde du fichier", e);
-		}
+        Map<String, String> meta = extractMeta(request);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ObjectMapper objectMapper = new ObjectMapper();
+        FileResponseDTO fileResponseDTO = null;
+        try {
+            afBackUtils.getFileClient()
+                    .saveFile(account, container, data.getInputStream(), file, data.getContentType(), meta, os);
+            fileResponseDTO = objectMapper.readValue(os.toByteArray(), FileResponseDTO.class);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'appel à FILE pour la sauvegarde du fichier", e);
+        }
 
         return fileResponseDTO;
-	}
-	
-	@Override
-	public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request, HttpServletResponse response) {
-		String file = request.getServletPath();
-		file = file.replace(FILE_PATH, "");
-		file = file.split("/", 2)[1];
-		LOGGER.info(LOG_CHEMIN, file);
-        
+    }
+
+    @Override
+    public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request,
+            HttpServletResponse response) {
+        String file = request.getServletPath();
+        file = file.replace(FILE_PATH, "");
+        file = file.split("/", 2)[1];
+        LOGGER.info(LOG_CHEMIN, file);
+
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
         file = Normalizer.normalize(file, Form.NFC);
-        
+
         String account = gouvPropertiesResolver.getDemarcheId();
-        
+
         LOGGER.info("====================== getFile({}/{}/{})", account, container, file);
         try {
-        	afBackUtils.getFileClient().getFile(account, container, file, response);
-		} catch (IOException e) {
-			LOGGER.error("Erreur lors de l'appel à FILE pour la récupération du fichier", e);
-		}
-        
+            afBackUtils.getFileClient().getFile(account, container, file, response);
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de l'appel à FILE pour la récupération du fichier", e);
+        }
+
         // Réponse déjà mise dans "response" par fileClient.getFile()
         return null;
-	}
-	
-	@Override
-	public ResponseEntity deleteFile(@PathVariable("container") String container, HttpServletRequest request) {
-		String file = request.getServletPath();
-		file = file.replace(FILE_PATH, "");
-		file = file.split("/", 2)[1];
-		LOGGER.info(LOG_CHEMIN, file);
-        
+    }
+
+    @Override
+    public ResponseEntity deleteFile(@PathVariable("container") String container, HttpServletRequest request) {
+        String file = request.getServletPath();
+        file = file.replace(FILE_PATH, "");
+        file = file.split("/", 2)[1];
+        LOGGER.info(LOG_CHEMIN, file);
+
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
         file = Normalizer.normalize(file, Form.NFC);
-        
+
         String account = gouvPropertiesResolver.getDemarcheId();
-        
+
         LOGGER.info("====================== deleteFile({}/{}/{})", account, container, file);
-        
+
         try {
-        	afBackUtils.getFileClient().deleteFile(account, container, file);
-		} catch (Exception e) {
-			LOGGER.info("Erreur lors de l'appel à FILE pour la suppression du fichier", e);
-		}
-        
+            afBackUtils.getFileClient().deleteFile(account, container, file);
+        } catch (Exception e) {
+            LOGGER.info("Erreur lors de l'appel à FILE pour la suppression du fichier", e);
+        }
+
         return ResponseEntity.ok().body(null);
-	}
-	
-	
+    }
 
-	@Override
-	public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
-			Date dateCreation, RecapDemandesDTO recapDemandes) {
-		LOGGER.info("AfApiService2Tiers.notifyCreationDemande({},{},{},{},{})", usagerId, demandeId, identifiantDemande, dateCreation, recapDemandes);
-		
-		guKafkaProducer.sendCreationDemandeMessage(usagerId, demandeId, identifiantDemande, dateCreation, recapDemandes);
-		
-		return ResponseEntity.ok().body(null);
-	}
+    @Override
+    public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
+            Date dateCreation, RecapDemandesDTO recapDemandes) {
+        LOGGER.info("AfApiService2Tiers.notifyCreationDemande({},{},{},{},{})", usagerId, demandeId, identifiantDemande,
+                dateCreation, recapDemandes);
 
-	@Override
-	public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
-			StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
-		LOGGER.info("AfApiService2Tiers.notifyChangementStatutDemande({},{},{},{},{},{})", usagerId, demandeId, identifiantDemande, statutSimplifie, dateStatutSimplifie, recapDemandes);
+        guKafkaProducer.sendCreationDemandeMessage(usagerId, demandeId, identifiantDemande, dateCreation,
+                recapDemandes);
 
-		guKafkaProducer.sendChangementStatutDemandeMessage(usagerId, demandeId, identifiantDemande, statutSimplifie, dateStatutSimplifie, recapDemandes);
-		
-		return ResponseEntity.ok().body(null);
-	}
+        return ResponseEntity.ok().body(null);
+    }
 
-	@Override
-	public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
-			Date dateSuppression, RecapDemandesDTO recapDemandes) {
-		LOGGER.info("AfApiService2Tiers.notifySuppressionDemande({},{},{},{},{})", usagerId, demandeId, identifiantDemande, dateSuppression, recapDemandes);
-		
-		guKafkaProducer.sendSuppressionDemandeMessage(usagerId, demandeId, identifiantDemande, dateSuppression, recapDemandes);
-		
-		return ResponseEntity.ok().body(null);
-	}
+    @Override
+    public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
+            StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
+        LOGGER.info("AfApiService2Tiers.notifyChangementStatutDemande({},{},{},{},{},{})", usagerId, demandeId,
+                identifiantDemande, statutSimplifie, dateStatutSimplifie, recapDemandes);
 
-	@Override
-	public ResponseEntity notifyDesinscriptionUsagerTS(Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.notifyDesinscriptionUsagerTS({})", usagerId);
-		
-		guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
-		
-		return ResponseEntity.ok().body(null);
-	}
+        guKafkaProducer.sendChangementStatutDemandeMessage(usagerId, demandeId, identifiantDemande, statutSimplifie,
+                dateStatutSimplifie, recapDemandes);
 
-	@Override
-	public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-		LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
-		
-		guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecap);
-		
-		return ResponseEntity.ok().body(null);
-	}
+        return ResponseEntity.ok().body(null);
+    }
 
-	@Override
-	public ResponseEntity notifyCreationAccesTS(Integer usagerId) {
-		LOGGER.info("AfApiService2Tiers.notifyCreationAccesTS({})", usagerId);
-		
-		guKafkaProducer.sendCreationAccesTSMessage(usagerId);
-		
-		return ResponseEntity.ok().body(null);
-	}
+    @Override
+    public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
+            Date dateSuppression, RecapDemandesDTO recapDemandes) {
+        LOGGER.info("AfApiService2Tiers.notifySuppressionDemande({},{},{},{},{})", usagerId, demandeId,
+                identifiantDemande, dateSuppression, recapDemandes);
 
-	private Map<String, String> extractMeta(HttpServletRequest request) {
-		Map<String, String> headerMap = new HashMap<>();
+        guKafkaProducer.sendSuppressionDemandeMessage(usagerId, demandeId, identifiantDemande, dateSuppression,
+                recapDemandes);
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    @Override
+    public ResponseEntity notifyDesinscriptionUsagerTS(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.notifyDesinscriptionUsagerTS({})", usagerId);
+
+        guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    @Override
+    public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
+        LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
+
+        guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecap);
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    @Override
+    public ResponseEntity notifyCreationAccesTS(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.notifyCreationAccesTS({})", usagerId);
+
+        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    private Map<String, String> extractMeta(HttpServletRequest request) {
+        Map<String, String> headerMap = new HashMap<>();
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
             String header = headers.nextElement();
@@ -400,6 +407,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
             }
         }
         return headerMap;
-	}
-	
+    }
+
 }

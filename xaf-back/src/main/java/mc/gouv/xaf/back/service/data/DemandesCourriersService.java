@@ -25,11 +25,13 @@ public interface DemandesCourriersService {
     /**
      * Supprime tous les courriers de la demande donnée en paramètre (dans le BO est dans file)
      *
-     * @param pkDemande  : ID de la demande dont il faut supprimer les courriers
+     * @param pkDemande
+     *         : ID de la demande dont il faut supprimer les courriers
      */
     void deleteCourriers(Integer pkDemande);
 
     DemandeCourrierDTO updateCourrier(Integer pkDemande, DemandeCourrierDTO courrierDto);
 
-    Page<DemandeCourrierDTO> getDemandesCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable, String[] strings);
+    Page<DemandeCourrierDTO> getDemandesCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable,
+            String[] strings);
 }

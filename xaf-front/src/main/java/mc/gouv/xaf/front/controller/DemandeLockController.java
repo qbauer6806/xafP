@@ -81,19 +81,19 @@ public class DemandeLockController extends AbstractXafController {
     }
 
     private void verrouillerDemande(HttpServletRequest request, AfApiClient afApiClient, Integer usagerId,
-                                    Integer demandeId) {
+            Integer demandeId) {
 
         HttpSession httpSession = request.getSession(false);
 
         /* on unlock une autre demande eventuellement lockée par la session */
         if (httpSession != null) {
-            Integer modificationDemandeId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
-            Integer modificationDemandeUsagerId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
+            Integer modificationDemandeId = (Integer) httpSession.getAttribute(
+                    SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
+            Integer modificationDemandeUsagerId = (Integer) httpSession.getAttribute(
+                    SessionConstant.SESSION_MODIFICATION_USAGER_ID);
 
-            if (modificationDemandeId != null && modificationDemandeUsagerId != null
-                    && !demandeId.equals(modificationDemandeId)) {
+            if (modificationDemandeId != null && modificationDemandeUsagerId != null && !demandeId.equals(
+                    modificationDemandeId)) {
 
                 afApiClient.unlockDemande(modificationDemandeId, modificationDemandeUsagerId);
 
@@ -106,8 +106,8 @@ public class DemandeLockController extends AbstractXafController {
              * la demande sera lockée jusqu'à l'expiration de la session, cad l'instant présent + durée max d'inactivité
              * de la session plus une minute de marge.
              */
-            Long timestampValue = Instant.now().toEpochMilli() + (httpSession.getMaxInactiveInterval() * 1000L)
-                    + 60000L;
+            Long timestampValue =
+                    Instant.now().toEpochMilli() + (httpSession.getMaxInactiveInterval() * 1000L) + 60000L;
             /* on lock la demande */
             afApiClient.lockDemande(demandeId, usagerId, timestampValue);
             LOGGER.info("DemandeLockServlet verrouillerDemande: Demande {} verrouillée jusque {}", demandeId,
@@ -118,22 +118,22 @@ public class DemandeLockController extends AbstractXafController {
     }
 
     private void deverrouillerDemande(HttpServletRequest request, AfApiClient afApiClient, Integer usagerId,
-                                      Integer demandeId) {
+            Integer demandeId) {
 
         HttpSession httpSession = request.getSession(false);
 
         if (httpSession != null) {
-            Integer modificationDemandeId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
-            Integer modificationDemandeUsagerId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
+            Integer modificationDemandeId = (Integer) httpSession.getAttribute(
+                    SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
+            Integer modificationDemandeUsagerId = (Integer) httpSession.getAttribute(
+                    SessionConstant.SESSION_MODIFICATION_USAGER_ID);
 
             /*
              * si la demande dont on a demandé l'annulation est toujours référencée au niveau session on la retire de la
              * session
              */
-            if (modificationDemandeId != null && modificationDemandeUsagerId != null
-                    && demandeId.equals(modificationDemandeId)) {
+            if (modificationDemandeId != null && modificationDemandeUsagerId != null && demandeId.equals(
+                    modificationDemandeId)) {
 
                 httpSession.setAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID, null);
                 LOGGER.info("DemandeLockServlet deverrouillerDemande: Demande {} retirée de la session",

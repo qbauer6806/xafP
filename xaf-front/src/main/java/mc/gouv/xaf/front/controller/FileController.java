@@ -45,7 +45,8 @@ public class FileController extends AbstractXafController {
 
     private static final String SLASH = "/";
 
-    public ResponseEntity doGet(String accessId, String uuid, String filename, HttpServletRequest request, boolean isPreview) throws IOException {
+    public ResponseEntity doGet(String accessId, String uuid, String filename, HttpServletRequest request,
+            boolean isPreview) throws IOException {
         LOGGER.info("====================== /fileservlet doGet()");
 
         try {
@@ -57,20 +58,21 @@ public class FileController extends AbstractXafController {
 
             // TODO pourquoi publications??????
             // Récupération du nom du fichier à récupérer (Format: /accessId/uuid/filename)
-//            String pathInfo = request.getPathInfo();
-//            Integer accessId = null;
-//            if (pathInfo != null && pathInfo.length() > 1) {
-//                String[] pathElems = pathInfo.split("/");
-//                accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
-//                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], "UTF-8");
-//            }
+            //            String pathInfo = request.getPathInfo();
+            //            Integer accessId = null;
+            //            if (pathInfo != null && pathInfo.length() > 1) {
+            //                String[] pathElems = pathInfo.split("/");
+            //                accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
+            //                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], "UTF-8");
+            //            }
 
             if (StringUtils.isBlank(filename)) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: nom ou ID du fichier manquant");
             }
 
-            if (accessId != null && (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId().equals(Integer.parseInt(accessId)))) {
+            if (accessId != null && (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId()
+                    .equals(Integer.parseInt(accessId)))) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
                         "Erreur: accès à ce fichier non autorisé");
             }
@@ -82,7 +84,7 @@ public class FileController extends AbstractXafController {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String fullFilename=accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
+            String fullFilename = accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
             String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + fullFilename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
@@ -94,10 +96,11 @@ public class FileController extends AbstractXafController {
             HttpClient client = HttpClientBuilder.create().build();
             HttpGet getRequest = new HttpGet(url.toString());
 
-            getRequest.setHeader(HttpHeaders.AUTHORIZATION, xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION,
+                    xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
-            ClassicHttpResponse getResponse = (ClassicHttpResponse)client.execute(getRequest);
+            ClassicHttpResponse getResponse = (ClassicHttpResponse) client.execute(getRequest);
 
             LOGGER.info("Constitution de la réponse pour retour au client");
             ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getCode())
@@ -107,7 +110,9 @@ public class FileController extends AbstractXafController {
                 if (header.getName().startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                     response.header(header.getName(), header.getValue());
                 } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
-                    String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
+                    String headerValue = isPreview
+                            ? header.getValue().replace("attachment;", "inline;")
+                            : header.getValue();
                     response.header(header.getName(), URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
                 }
             }

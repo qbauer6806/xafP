@@ -1,8 +1,7 @@
 package mc.gouv.xaf.back.bpm;
 
 /**
- * Rassemble les valeurs possibles pour les variables génériques
- * des process du gouvernement
+ * Rassemble les valeurs possibles pour les variables génériques des process du gouvernement
  *
  * @author qdeme
  */

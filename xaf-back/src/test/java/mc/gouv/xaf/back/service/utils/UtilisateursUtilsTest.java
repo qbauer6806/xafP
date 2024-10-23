@@ -45,9 +45,10 @@ class UtilisateursUtilsTest {
     @Mock
     private UtilisateursCache utilisateursCache;
 
-    private User createUser(String matricule, String prenom, String nom, String nomUsage, String nomNaissance, Civilite civ) {
+    private User createUser(String matricule, String prenom, String nom, String nomUsage, String nomNaissance,
+            Civilite civ) {
         User user = new User();
-//        user.resetData();
+        //        user.resetData();
         user.setMatricule(matricule);
         user.setPrenom(prenom);
         user.setNomAffichage(nom);
@@ -63,7 +64,6 @@ class UtilisateursUtilsTest {
         user_dame = createUser(MATRICULE_DAME, PRENOM_DAME, NOM_DAME, null, NOM_NAISSANCE, Civilite.MADAME);
         user_sc = createUser(MATRICULE_SC, PRENOM_SC, NOM_SC, NOM_SC, NOM_SC, Civilite.MONSIEUR);
     }
-
 
     @Test
     void getUserNameFromIDTestMauvaisMatricule() {

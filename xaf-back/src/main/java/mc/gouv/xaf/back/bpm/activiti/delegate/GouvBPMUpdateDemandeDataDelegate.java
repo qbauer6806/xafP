@@ -54,10 +54,10 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
         // xaf 12 on n'utilise plus le flag IS_EN_ATTENTE_VALIDATION pour les validations hiérarchiques
         // on est obligé de laisser cette condition pour faire marcher les anciennes demandes qui sont encore actives avec des vieux bpmn
         if (dataKeyStr.equals("IS_EN_ATTENTE_VALIDATION") && dataValueStr.equals("1")) {
-            demandesStatutsService.updateStatut(demandeId, "VALIDATION_HIERARCHIQUE", AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
+            demandesStatutsService.updateStatut(demandeId, "VALIDATION_HIERARCHIQUE",
+                    AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
         } else {
-            demandesDataService.saveOrUpdateDemandeData(demandeId, dataKeyStr,
-                    dataValueStr);
+            demandesDataService.saveOrUpdateDemandeData(demandeId, dataKeyStr, dataValueStr);
         }
 
     }

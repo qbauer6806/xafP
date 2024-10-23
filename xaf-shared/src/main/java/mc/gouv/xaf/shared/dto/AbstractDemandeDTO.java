@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 public class AbstractDemandeDTO implements Serializable {
 
-	@Serial
+    @Serial
     private static final long serialVersionUID = 4591114018832121128L;
 
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")

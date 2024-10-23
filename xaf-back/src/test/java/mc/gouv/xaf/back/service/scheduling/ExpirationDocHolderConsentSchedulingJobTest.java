@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ExpirationDocHolderConsentSchedulingJobTest {
+
     @Mock
     AccessRepository accessRepository;
     @Mock
@@ -33,22 +34,20 @@ class ExpirationDocHolderConsentSchedulingJobTest {
     ExpirationDocHolderConsentSchedulingJob job;
 
     static Date today = Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).toInstant());
-    static Date expiredDate = Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).minusYears(1).minusMonths(1).toInstant());
+    static Date expiredDate = Date.from(
+            Instant.now().atZone(ZoneId.of("Europe/Monaco")).minusYears(1).minusMonths(1).toInstant());
     static Date notExpiredDate = Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).minusYears(1).toInstant());
     static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     static final SimpleDateFormat dateFormat = new SimpleDateFormat(JSON_DATE_FORMAT);
     static final String XAF_PORTE_DOCUMENT_ACTIF = "XAF_PORTE_DOCUMENT_ACTIF";
 
     private static Stream<Arguments> accesses() {
-        return Stream.of(
-                Arguments.of(accessWithoutData(), 0),
-                Arguments.of(accessWithConsentAllFields(true, today), 0),
+        return Stream.of(Arguments.of(accessWithoutData(), 0), Arguments.of(accessWithConsentAllFields(true, today), 0),
                 Arguments.of(accessWithConsentAllFields(true, notExpiredDate), 0),
                 Arguments.of(accessWithConsentAllFields(true, expiredDate), 1),
                 Arguments.of(accessWithConsentAllFields(false, today), 0),
                 Arguments.of(accessWithConsentAllFields(false, notExpiredDate), 0),
-                Arguments.of(accessWithConsentAllFields(false, expiredDate), 0)
-        );
+                Arguments.of(accessWithConsentAllFields(false, expiredDate), 0));
     }
 
     @ParameterizedTest
@@ -77,7 +76,9 @@ class ExpirationDocHolderConsentSchedulingJobTest {
         AccessBO access = new AccessBO();
         String fmtDate = dateFormat.format(dateCreation);
         access.setPkAccess(123);
-        access.setContenu("{\"CGU\":true, \"docholderConsent\":{\"consenting\":" + consenting + ", \"dateCreation\":\"" + fmtDate + "\"}}");
+        access.setContenu(
+                "{\"CGU\":true, \"docholderConsent\":{\"consenting\":" + consenting + ", \"dateCreation\":\"" + fmtDate
+                        + "\"}}");
 
         return access;
     }

@@ -35,7 +35,8 @@ public class GouvBPMTestImpl implements GouvBPM {
     private DemandesStatutsRepository demandesStatutsRepository;
 
     @Override
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
+            Map<String, Object> businessVariables) {
 
     }
 
@@ -96,7 +97,8 @@ public class GouvBPMTestImpl implements GouvBPM {
     }
 
     @Override
-    public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli, Integer demandeId) {
+    public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli,
+            Integer demandeId) {
         return null;
     }
 
@@ -121,7 +123,8 @@ public class GouvBPMTestImpl implements GouvBPM {
     }
 
     @Override
-    public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task, GouvBPMUser user) {
+    public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
+            GouvBPMUser user) {
         return null;
     }
 
@@ -136,7 +139,8 @@ public class GouvBPMTestImpl implements GouvBPM {
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws IOException, TikaException, SAXException {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId)
+            throws IOException, TikaException, SAXException {
 
     }
 
@@ -151,12 +155,14 @@ public class GouvBPMTestImpl implements GouvBPM {
     }
 
     @Override
-    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire, String statutAnnulation) {
+    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif,
+            String commentaire, String statutAnnulation) {
 
     }
 
     @Override
-    public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
+    public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
+            Map<String, Object> businessVariables) {
 
     }
 
@@ -165,23 +171,23 @@ public class GouvBPMTestImpl implements GouvBPM {
 
     }
 
-	@Override
-	public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire,
-			String statutAnnulation) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire,
+            String statutAnnulation) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void reponseRectification(Integer pkDemande, Integer usagerId)
-			throws TaskAlreadyClaimedException, IOException, SAXException {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	@Override
-	public void rectificationSpontanee(Integer demandeId) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void reponseRectification(Integer pkDemande, Integer usagerId)
+            throws TaskAlreadyClaimedException, IOException, SAXException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void rectificationSpontanee(Integer demandeId) {
+        // TODO Auto-generated method stub
+
+    }
 }

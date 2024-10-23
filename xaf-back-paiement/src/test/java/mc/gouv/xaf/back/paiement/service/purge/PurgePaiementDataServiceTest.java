@@ -150,9 +150,11 @@ class PurgePaiementDataServiceTest {
 
         commandeDemandeBOS = commandeDemandeRepository.findAll();
         assertThat(commandeDemandeBOS).hasSize(2);
-        assertThat(commandeDemandeBOS.get(0).getPkCommandesDemandes()).isEqualTo(commandeDemandeBO1.getPkCommandesDemandes());
+        assertThat(commandeDemandeBOS.get(0).getPkCommandesDemandes()).isEqualTo(
+                commandeDemandeBO1.getPkCommandesDemandes());
         assertThat(commandeDemandeBOS.get(0).getDemande()).isNull();
-        assertThat(commandeDemandeBOS.get(1).getPkCommandesDemandes()).isEqualTo(commandeDemandeBO2.getPkCommandesDemandes());
+        assertThat(commandeDemandeBOS.get(1).getPkCommandesDemandes()).isEqualTo(
+                commandeDemandeBO2.getPkCommandesDemandes());
         assertThat(commandeDemandeBOS.get(1).getDemande()).isNotNull();
         assertThat(commandeDemandeBOS.get(1).getDemande().getPkDemandes()).isEqualTo(demandeBO2.getPkDemandes());
         List<CommandeBO> commandeBOS = commandeRepository.findAll();
@@ -266,11 +268,14 @@ class PurgePaiementDataServiceTest {
 
         commandeDemandeBOS = commandeDemandeRepository.findAll();
         assertThat(commandeDemandeBOS).hasSize(3);
-        assertThat(commandeDemandeBOS.get(0).getPkCommandesDemandes()).isEqualTo(commandeDemandeBO2.getPkCommandesDemandes());
+        assertThat(commandeDemandeBOS.get(0).getPkCommandesDemandes()).isEqualTo(
+                commandeDemandeBO2.getPkCommandesDemandes());
         assertThat(commandeDemandeBOS.get(0).getDemande()).isNull();
-        assertThat(commandeDemandeBOS.get(1).getPkCommandesDemandes()).isEqualTo(commandeDemandeBO4.getPkCommandesDemandes());
+        assertThat(commandeDemandeBOS.get(1).getPkCommandesDemandes()).isEqualTo(
+                commandeDemandeBO4.getPkCommandesDemandes());
         assertThat(commandeDemandeBOS.get(1).getDemande()).isNotNull();
-        assertThat(commandeDemandeBOS.get(2).getPkCommandesDemandes()).isEqualTo(commandeDemandeBO5.getPkCommandesDemandes());
+        assertThat(commandeDemandeBOS.get(2).getPkCommandesDemandes()).isEqualTo(
+                commandeDemandeBO5.getPkCommandesDemandes());
         assertThat(commandeDemandeBOS.get(2).getDemande()).isNotNull();
         List<CommandeBO> commandeBOS = commandeRepository.findAll();
         assertThat(commandeBOS).hasSize(2);

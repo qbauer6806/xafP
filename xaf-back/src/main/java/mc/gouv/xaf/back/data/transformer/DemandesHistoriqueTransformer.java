@@ -7,15 +7,13 @@ import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesHistoriqueTransformer {
 
     private DemandesHistoriqueTransformer() {
     }
-    
+
     public static DemandeHistoriqueDTO bo2Dto(DemandesHistoriqueBO bo) {
         DemandeHistoriqueDTO dto = new DemandeHistoriqueDTO();
         dto.setAgentId(bo.getAgentId());
@@ -28,7 +26,7 @@ public class DemandesHistoriqueTransformer {
         dto.setJustificatifTraitement(bo.getJustificatifTraitement());
         return dto;
     }
-    
+
     /**
      * Cette entité est à rattacher à une demande et à un statut de demande après appel à cette fonction
      */
@@ -42,7 +40,7 @@ public class DemandesHistoriqueTransformer {
         bo.setJustificatifTraitement(dto.getJustificatifTraitement());
         return bo;
     }
-    
+
     public static List<DemandeHistoriqueDTO> bo2Dto(List<DemandesHistoriqueBO> bos) {
         ArrayList<DemandeHistoriqueDTO> dtos = new ArrayList<>();
         for (DemandesHistoriqueBO bo : bos) {
@@ -50,7 +48,7 @@ public class DemandesHistoriqueTransformer {
         }
         return dtos;
     }
-    
+
     public static List<DemandesHistoriqueBO> dto2Bo(List<DemandeHistoriqueDTO> dtos) {
         ArrayList<DemandesHistoriqueBO> bos = new ArrayList<>();
         for (DemandeHistoriqueDTO dto : dtos) {
@@ -58,5 +56,5 @@ public class DemandesHistoriqueTransformer {
         }
         return bos;
     }
-    
+
 }

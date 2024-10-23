@@ -31,5 +31,4 @@ public class StatistiqueDTO {
 
     private TypeConnexionUsagerEnum typeConnexionUsager;
 
-
 }

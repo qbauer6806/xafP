@@ -28,60 +28,59 @@ import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 @Transactional(rollbackFor = Exception.class)
 public class BrouillonsFilesServiceImpl implements BrouillonsFilesService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsFilesServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsFilesServiceImpl.class);
 
-	@Autowired
-	private BrouillonsRepository brouillonsRepository;
+    @Autowired
+    private BrouillonsRepository brouillonsRepository;
 
-	@Autowired
-	private BrouillonsFilesRepository brouillonsFilesRepository;
+    @Autowired
+    private BrouillonsFilesRepository brouillonsFilesRepository;
 
-	@Autowired
-	private BrouillonsService brouillonsService;
+    @Autowired
+    private BrouillonsService brouillonsService;
 
-	@Override
-	public void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo) {
+    @Override
+    public void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo) {
 
-		LOGGER.info("saveFiles({}, {})", brouillonFiles, brouillonBo);
+        LOGGER.info("saveFiles({}, {})", brouillonFiles, brouillonBo);
 
-		if (brouillonFiles != null && brouillonFiles.length > 0) {
-			brouillonBo.setFiles(
-					new HashSet<>(BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillonFiles))));
-			for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
-				bo.setFkBrouillons(brouillonBo);
-			}
+        if (brouillonFiles != null && brouillonFiles.length > 0) {
+            brouillonBo.setFiles(new HashSet<>(BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillonFiles))));
+            for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
+                bo.setFkBrouillons(brouillonBo);
+            }
 
-			brouillonsFilesRepository.saveAll(brouillonBo.getFiles());
+            brouillonsFilesRepository.saveAll(brouillonBo.getFiles());
 
-			brouillonsRepository.save(brouillonBo);
-		}
+            brouillonsRepository.save(brouillonBo);
+        }
 
-		LOGGER.info("Fin saveFiles()");
-	}
+        LOGGER.info("Fin saveFiles()");
+    }
 
-	@Override
-	public void saveFile(BrouillonFileDTO brouillonFile, Integer pkBrouillon) {
+    @Override
+    public void saveFile(BrouillonFileDTO brouillonFile, Integer pkBrouillon) {
 
-		LOGGER.info("saveFile({}, {})", brouillonFile, pkBrouillon);
+        LOGGER.info("saveFile({}, {})", brouillonFile, pkBrouillon);
 
-		BrouillonBO brouillonBo = brouillonsService.getBrouillonBo(pkBrouillon);
+        BrouillonBO brouillonBo = brouillonsService.getBrouillonBo(pkBrouillon);
 
-		BrouillonsFilesBO brouillonFileBo = BrouillonsFilesTransformer.dto2Bo(brouillonFile);
-		brouillonFileBo.setFkBrouillons(brouillonBo);
+        BrouillonsFilesBO brouillonFileBo = BrouillonsFilesTransformer.dto2Bo(brouillonFile);
+        brouillonFileBo.setFkBrouillons(brouillonBo);
 
-		brouillonFileBo = brouillonsFilesRepository.save(brouillonFileBo);
+        brouillonFileBo = brouillonsFilesRepository.save(brouillonFileBo);
 
-		Set<BrouillonsFilesBO> brouillonFiles = brouillonBo.getFiles();
-		if (null == brouillonFiles) {
-			brouillonFiles = new HashSet<>();
-		}
-		brouillonFiles.add(brouillonFileBo);
+        Set<BrouillonsFilesBO> brouillonFiles = brouillonBo.getFiles();
+        if (null == brouillonFiles) {
+            brouillonFiles = new HashSet<>();
+        }
+        brouillonFiles.add(brouillonFileBo);
 
-		brouillonBo.setFiles(brouillonFiles);
+        brouillonBo.setFiles(brouillonFiles);
 
-		brouillonsRepository.save(brouillonBo);
+        brouillonsRepository.save(brouillonBo);
 
-		LOGGER.info("Fin saveFile()");
-	}
+        LOGGER.info("Fin saveFile()");
+    }
 
 }

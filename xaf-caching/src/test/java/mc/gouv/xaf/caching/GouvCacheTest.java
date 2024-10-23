@@ -11,13 +11,10 @@ import static org.mockito.Mockito.verify;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 /**
- * 
  * Classe de tests pour le GouvCache
- * 
- * @author qdeme, asouabni
  *
+ * @author qdeme, asouabni
  */
 class GouvCacheTest {
 

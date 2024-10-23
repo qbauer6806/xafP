@@ -10,27 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Classe utilitaire pour la gestion des usagers. 
+ * Classe utilitaire pour la gestion des usagers.
  * <br>
- * Les usagers sont les personnes qui font des demandes au niveau du
- * Front-Office. 
+ * Les usagers sont les personnes qui font des demandes au niveau du Front-Office.
  * <br>
- * Leurs données viennent de l'application LOGIN (mc.gouv.login) ou sont
- * ajoutées par les agents pour les courriers.
- * 
+ * Leurs données viennent de l'application LOGIN (mc.gouv.login) ou sont ajoutées par les agents pour les courriers.
+ *
  * @author mboutelier.ext
  */
 @Component
 public class UsagersUtils {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(UsagersUtils.class);
-	
-	@Autowired
-	private UsagersCache usagersCache;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsagersUtils.class);
+
+    @Autowired
+    private UsagersCache usagersCache;
 
     /**
      * Change le titre en paramètre en son abbréviation.
-     * 
+     *
      * @param titre
      * @return
      */
@@ -58,7 +56,7 @@ public class UsagersUtils {
 
     /**
      * Change l'abbréviation en paramètre en son titre
-     * 
+     *
      * @param abbr
      * @return
      */
@@ -87,7 +85,8 @@ public class UsagersUtils {
     /**
      * Change le titre en paramètre en son équivalant littéral.
      *
-     * @param titre, le titre de l'usager sous forme d'un nombre
+     * @param titre,
+     *         le titre de l'usager sous forme d'un nombre
      * @return une chaêne de charactères contenant le titre de l'usager
      */
     public static String titreToString(Integer titre) {
@@ -100,7 +99,8 @@ public class UsagersUtils {
     /**
      * Change le titre en paramètre en son équivalant littéral.
      *
-     * @param titre, le titre de l'usager sous forme d'un nombre
+     * @param titre,
+     *         le titre de l'usager sous forme d'un nombre
      * @return une chaêne de charactères contenant le titre de l'usager
      */
     public static String titreShortToString(Short titre) {
@@ -144,7 +144,7 @@ public class UsagersUtils {
 
         return ub;
     }
-    
+
     public String getUsagerCourrierFromId(Integer usagerId) {
         LOGGER.debug("getUsagerFromId() : Récupération de l'usager courrier {}...", usagerId);
         GichuniUsagerDTO usagerCourrier = usagersCache.get(usagerId);

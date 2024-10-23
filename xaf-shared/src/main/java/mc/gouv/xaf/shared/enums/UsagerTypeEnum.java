@@ -5,15 +5,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum UsagerTypeEnum {
 
-	@JsonProperty("individual")
-	INDIVIDUAL("individual"),
-	
-	@JsonProperty("company")
-	COMPANY("company"),
-	
-	@JsonProperty("")
-	UNDEFINED("");
-	
+    @JsonProperty("individual") INDIVIDUAL("individual"),
+
+    @JsonProperty("company") COMPANY("company"),
+
+    @JsonProperty("") UNDEFINED("");
+
     private String value;
 
     UsagerTypeEnum(String value) {
@@ -24,5 +21,5 @@ public enum UsagerTypeEnum {
     public String getValue() {
         return value;
     }
-	
+
 }

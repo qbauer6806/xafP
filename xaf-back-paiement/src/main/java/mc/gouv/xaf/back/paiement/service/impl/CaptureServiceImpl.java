@@ -35,6 +35,7 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class CaptureServiceImpl implements CaptureService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceImpl.class);
 
     @Autowired
@@ -51,17 +52,19 @@ public class CaptureServiceImpl implements CaptureService {
     private PaiementsDataProvider paiementsDataProvider;
 
     @Override
-    public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO) throws DemarchesServiceException {
+    public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO)
+            throws DemarchesServiceException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ commandeDTO {}] ", commandeDTO);
         List<CommandeDemandeDTO> commandeDemandeDTOS = commandeDTO.getCommandesDemandes();
-        if(CollectionUtils.isEmpty(commandeDemandeDTOS)){
+        if (CollectionUtils.isEmpty(commandeDemandeDTOS)) {
             throw new DemarchesServiceException("Aucune liaison commande - demande trouvée", HttpStatus.NOT_FOUND);
         }
         CommandeDemandeDTO commandeDemandeDTO = commandeDemandeDTOS.stream()
-                .filter(comm -> comm.getFkDemandes().equals(demandeDTO.getPkDemandes())).findFirst()
-                .orElseThrow(()->new DemarchesServiceException("Impossible de trouver la liaison entre la demande et la commande",
-                        HttpStatus.NOT_FOUND));
+                .filter(comm -> comm.getFkDemandes().equals(demandeDTO.getPkDemandes())).findFirst().orElseThrow(
+                        () -> new DemarchesServiceException(
+                                "Impossible de trouver la liaison entre la demande et la commande",
+                                HttpStatus.NOT_FOUND));
 
         CommandeOperationDTO operation = new CommandeOperationDTO();
         // Si la démarche gère des tâches, il se peut que la demande soit partiellement validée, on doit calculer le montant à capturer

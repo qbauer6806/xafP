@@ -8,11 +8,9 @@ import lombok.Setter;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 
 /**
- * 
  * Cette classe représente un usager tel que retourné par l'API GICHUNI
- * 
+ *
  * @author qdeme
- * 
  */
 @Setter
 @Getter

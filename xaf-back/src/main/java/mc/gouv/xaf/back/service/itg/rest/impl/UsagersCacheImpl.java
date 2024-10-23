@@ -7,11 +7,9 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.caching.GouvMemoryCache;
 
 /**
- * 
  * Implémentation de l'interface UsagersCache
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Profile("gouv")
 public class UsagersCacheImpl extends GouvMemoryCache<Integer, GichuniUsagerDTO> implements UsagersCache {

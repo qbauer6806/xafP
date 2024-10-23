@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/associerDemandeCourrier")
 public class AssociationDemandeCourrierController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierController.class);
 
     @Autowired
@@ -64,7 +65,8 @@ public class AssociationDemandeCourrierController extends AbstractXafController 
 
             return ResponseEntity.ok().build();
         } catch (Exception exception) {
-            LOGGER.error("AssociationDemandeCourrierServlet - Une erreur est survenue lors de l'appel à la méthode POST",
+            LOGGER.error(
+                    "AssociationDemandeCourrierServlet - Une erreur est survenue lors de l'appel à la méthode POST",
                     exception);
             return ResponseEntity.status(getCodeErreur(exception)).build();
         }

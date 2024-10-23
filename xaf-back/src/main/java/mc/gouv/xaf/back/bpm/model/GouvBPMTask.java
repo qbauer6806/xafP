@@ -6,9 +6,8 @@ import lombok.ToString;
 
 /**
  * Représente une tâche du BPM du gouvernement
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @ToString
 @Setter
@@ -16,11 +15,11 @@ import lombok.ToString;
 public class GouvBPMTask {
 
     private String id;
-    
+
     private String name;
-    
+
     private String assignee;
-    
+
     private String taskDefinitionKey;
 
 }

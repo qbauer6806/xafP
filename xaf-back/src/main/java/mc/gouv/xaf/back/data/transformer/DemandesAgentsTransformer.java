@@ -6,14 +6,13 @@ import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * @author qdeme
- *
  */
 @Service
 public class DemandesAgentsTransformer {
 
-    private DemandesAgentsTransformer() {}
+    private DemandesAgentsTransformer() {
+    }
 
     public DemandeAgentDTO bo2Dto(DemandesAgentsBO bo) {
         if (bo == null) {

@@ -18,8 +18,9 @@ import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
 import org.junit.jupiter.api.Test;
 
 class MoneticoApiClientTest {
-	MoneticoApiClient moneticoApiClient = new MoneticoApiClient(new PaiementPropertiesResolverTestImpl(),
-			new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null);
+
+    MoneticoApiClient moneticoApiClient = new MoneticoApiClient(new PaiementPropertiesResolverTestImpl(),
+            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null);
 
     @Test
     void testCapture() throws Exception {
@@ -39,14 +40,12 @@ class MoneticoApiClientTest {
 
     @Test
     void extractResultTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
+        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class,
+                CommandeOperationDTO.class);
         method.setAccessible(true);
 
-        String test = "version=1.0\n" +
-                "reference=E9M3Xt4glJIX\n" +
-                "cdr=1\n" +
-                "lib=paiement accepte\n" +
-                "aut=949104";
+        String test =
+                "version=1.0\n" + "reference=E9M3Xt4glJIX\n" + "cdr=1\n" + "lib=paiement accepte\n" + "aut=949104";
         CommandeOperationDTO operationDTO = new CommandeOperationDTO();
 
         method.invoke(moneticoApiClient, test, operationDTO);
@@ -58,14 +57,12 @@ class MoneticoApiClientTest {
 
     @Test
     void extractResultAutStringTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
+        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class,
+                CommandeOperationDTO.class);
         method.setAccessible(true);
 
-        String test = "version=1.0\n" +
-                "reference=AETMGSr5yk4k\n" +
-                "cdr=1\n" +
-                "lib=paiement accepte\n" +
-                "aut=SQLZIY";
+        String test =
+                "version=1.0\n" + "reference=AETMGSr5yk4k\n" + "cdr=1\n" + "lib=paiement accepte\n" + "aut=SQLZIY";
         CommandeOperationDTO operationDTO = new CommandeOperationDTO();
 
         method.invoke(moneticoApiClient, test, operationDTO);
@@ -76,14 +73,13 @@ class MoneticoApiClientTest {
     }
 
     @Test
-    void extractResultCaptureRefuseeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
+    void extractResultCaptureRefuseeTest()
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class,
+                CommandeOperationDTO.class);
         method.setAccessible(true);
 
-        String test = "version=1.0\n" +
-                "reference=000000000145\n" +
-                "cdr=0\n" +
-                "lib=commande non authentifiee";
+        String test = "version=1.0\n" + "reference=000000000145\n" + "cdr=0\n" + "lib=commande non authentifiee";
         CommandeOperationDTO operationDTO = new CommandeOperationDTO();
 
         method.invoke(moneticoApiClient, test, operationDTO);
@@ -95,13 +91,11 @@ class MoneticoApiClientTest {
 
     @Test
     void extractResultErreurTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
+        Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class,
+                CommandeOperationDTO.class);
         method.setAccessible(true);
 
-        String test = "version=1.0\n" +
-                "reference=000000000145\n" +
-                "cdr=-1\n" +
-                "lib=commercant non identifie";
+        String test = "version=1.0\n" + "reference=000000000145\n" + "cdr=-1\n" + "lib=commercant non identifie";
         CommandeOperationDTO operationDTO = new CommandeOperationDTO();
 
         method.invoke(moneticoApiClient, test, operationDTO);

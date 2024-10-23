@@ -36,10 +36,10 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesServiceImpl.class);
 
-    private static final PropertiesTypeEnum[] FRONT_PROPERTIES = {PropertiesTypeEnum.FRONT_AF,
-            PropertiesTypeEnum.FRONT_GEST, PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACKFRONT_GEST};
-    private static final PropertiesTypeEnum[] AF_PROPERTIES = {PropertiesTypeEnum.FRONT_AF,
-            PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACK_AF};
+    private static final PropertiesTypeEnum[] FRONT_PROPERTIES = { PropertiesTypeEnum.FRONT_AF,
+            PropertiesTypeEnum.FRONT_GEST, PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACKFRONT_GEST };
+    private static final PropertiesTypeEnum[] AF_PROPERTIES = { PropertiesTypeEnum.FRONT_AF,
+            PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACK_AF };
 
     private static final String AUTRE = "AUTRE";
 
@@ -62,7 +62,8 @@ public class PropertiesServiceImpl implements PropertiesService {
     /**
      * Récupère les Properties d'une démarche liées à un certain type
      *
-     * @param type Le type d'enum à filtrer
+     * @param type
+     *         Le type d'enum à filtrer
      * @return une List de Properties
      */
     @Override
@@ -76,7 +77,8 @@ public class PropertiesServiceImpl implements PropertiesService {
     /**
      * Récupère les Properties d'une démarche liées à une liste de types
      *
-     * @param types La liste de types à filtrer
+     * @param types
+     *         La liste de types à filtrer
      * @return une List de Properties
      */
     @Override
@@ -102,21 +104,22 @@ public class PropertiesServiceImpl implements PropertiesService {
         //#28502 - [DEV] Gestion de l'édition des "properties" format JSON
         // Je tri la value de toutes les propriétées prefixées par LISTE_
         for (PropertiesDTO propertiesDTO : propertiesByTypeList) {
-			if (propertiesDTO.getKey().startsWith("LISTE_")) {
-				sortValueOfGivenProperty(propertiesDTO);
-			}
-		}
-		return propertiesByTypeList;
+            if (propertiesDTO.getKey().startsWith("LISTE_")) {
+                sortValueOfGivenProperty(propertiesDTO);
+            }
+        }
+        return propertiesByTypeList;
     }
 
     private void sortValueOfGivenProperty(PropertiesDTO propertiesDTO) {
-    	List<PropertiesListEntityDTO> jsonObjectsToDisplay;
-    	// Récupération du json représentant le fichier
-    	ObjectMapper mapper = new ObjectMapper();
-    	if (!StringUtils.isEmpty(propertiesDTO.getValue())) {
-			try {
-				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
-				jsonObjectsToDisplay.sort((p1, p2) -> {
+        List<PropertiesListEntityDTO> jsonObjectsToDisplay;
+        // Récupération du json représentant le fichier
+        ObjectMapper mapper = new ObjectMapper();
+        if (!StringUtils.isEmpty(propertiesDTO.getValue())) {
+            try {
+                jsonObjectsToDisplay = Arrays.asList(
+                        mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
+                jsonObjectsToDisplay.sort((p1, p2) -> {
                     // Si p1 est "AUTRE", il doit être placé avant p2
                     if (p1.getLabel().equalsIgnoreCase(AUTRE) || p1.getId().equalsIgnoreCase(AUTRE)) {
                         return -1;
@@ -128,25 +131,26 @@ public class PropertiesServiceImpl implements PropertiesService {
                     // Sinon, on compare les labels normalement (en majuscules pour être insensible à la casse)
                     return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
                 });
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-		    	mapper.writeValue(out, jsonObjectsToDisplay);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                mapper.writeValue(out, jsonObjectsToDisplay);
                 propertiesDTO.setValue(out.toString());
-			} catch (Exception e) {
-				LOGGER.error("Erreur dans sortValueOfGivenProperty", e);
-			}
-		}
-	}
+            } catch (Exception e) {
+                LOGGER.error("Erreur dans sortValueOfGivenProperty", e);
+            }
+        }
+    }
 
-	@Override
+    @Override
     public List<PropertiesDTO> getAdminsFonctionnelsProperties() {
         List<PropertiesTypeEnum> types = Arrays.asList(AF_PROPERTIES);
         return getPropertiesByTypeList(types);
     }
-    
+
     /**
      * Ajoute ou mets à jour une Properties
      *
-     * @param toSave La propriété à sauvegarder
+     * @param toSave
+     *         La propriété à sauvegarder
      * @return la Properties sauvée
      */
     @Override
@@ -180,7 +184,8 @@ public class PropertiesServiceImpl implements PropertiesService {
     /**
      * Supprime une Properties
      *
-     * @param propertiesId L'id de la propriété à supprimer
+     * @param propertiesId
+     *         L'id de la propriété à supprimer
      */
     @Override
     public void deleteProperties(Integer propertiesId) {
@@ -195,7 +200,8 @@ public class PropertiesServiceImpl implements PropertiesService {
     /**
      * Récupérer une Property par sa clé
      *
-     * @param key la clé de la propriété à récupérer
+     * @param key
+     *         la clé de la propriété à récupérer
      * @return le PropertiesDTO correspondant
      */
     @Override
@@ -217,9 +223,8 @@ public class PropertiesServiceImpl implements PropertiesService {
                 LOGGER.warn("Impossible de transformer la valeur de la dem_property (key={}) en map", key);
                 return "ERREUR";
             }
-            Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises).
-                    filter(e -> e.getId().equals(pathNode.asText())).
-                    findFirst();
+            Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises)
+                    .filter(e -> e.getId().equals(pathNode.asText())).findFirst();
             String result = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
             if (null != result) {
                 // refs #33280 - [BO] Traitement de la demande - Erreur 500 suite à tentative de génération du récap pour une demande ayant ''&" dans le nom de l'entreprise partenaire

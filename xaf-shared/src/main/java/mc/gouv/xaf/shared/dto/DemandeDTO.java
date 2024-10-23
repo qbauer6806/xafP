@@ -21,10 +21,10 @@ import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeDTO extends AbstractDemandeDTO {
 
-	@Serial
+    @Serial
     private static final long serialVersionUID = 877740374924793999L;
 
-	protected DemandeCanalEnum canal;
+    protected DemandeCanalEnum canal;
     protected String creeParAgentId;
     protected transient DemandeCourrierDTO[] courriers;
     private Integer fkAccess;
@@ -50,6 +50,5 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setTypeConnexionUsager(TypeConnexionUsagerEnum typeConnexionUsager) {
         this.typeConnexionUsager = typeConnexionUsager;
     }
-
 
 }

@@ -10,11 +10,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.DEMARCHES
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -27,12 +25,12 @@ public class DemarchesBO {
     @Column(name = "PK_DEMARCHEID", nullable = false)
     @Size(min = 1, max = 128)
     private String pkDemarches;
-    
+
     @Column(name = "NOM", length = 256, nullable = false)
     @NotBlank
     @Size(min = 1, max = 256)
     private String nom;
-    
+
     @Column(name = "NOM_EN", length = 256)
     @Size(min = 0, max = 256)
     private String nomEn;
@@ -80,7 +78,7 @@ public class DemarchesBO {
     @NotBlank
     @Size(min = 1, max = 256)
     private String adresseService;
-    
+
     @Column(name = "IDENTIFIANT_PREFIXE", length = 256, nullable = false)
     @NotBlank
     @Size(min = 1, max = 128)

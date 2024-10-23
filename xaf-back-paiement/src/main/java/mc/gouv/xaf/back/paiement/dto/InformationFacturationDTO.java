@@ -4,7 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * DTO regroupant les paramètres nécessaires à la création d'un facture dans CIR, configurable selon les données des démarches.
+ * DTO regroupant les paramètres nécessaires à la création d'un facture dans CIR, configurable selon les données des
+ * démarches.
  *
  * @author mboutelier.ext
  */

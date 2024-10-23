@@ -14,7 +14,7 @@ import lombok.ToString;
 public class CommandeOperationDTO {
 
     private String pkOperations;
-    
+
     private Integer fkCommandes;
 
     private String operationType;

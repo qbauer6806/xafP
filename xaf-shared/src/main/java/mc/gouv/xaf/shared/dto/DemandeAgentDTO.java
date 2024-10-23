@@ -9,22 +9,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DemandeAgentDTO {
 
-	private String id;
+    private String id;
 
-	private String nom;
+    private String nom;
 
-	private String nomUsage;
+    private String nomUsage;
 
-	private String nomNaissance;
+    private String nomNaissance;
 
-	private String prenom;
+    private String prenom;
 
-	private String mail;
+    private String mail;
 
-	private String nomAffichage;
+    private String nomAffichage;
 
-	public DemandeAgentDTO(String id) {
-		this.id = id;
-	}
+    public DemandeAgentDTO(String id) {
+        this.id = id;
+    }
 
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +52,6 @@ class StatistiquesServiceImplTest {
                 DemandeCanalEnum.GUICHET_PHYSIQUE.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
         Mockito.lenient().when(demandesStatistiquesInternesRepository.countByCanalAndDernierStatutName(
                 DemandeCanalEnum.COURRIER.name(), EN_ATTENTE_COMPL_ENUM)).thenReturn(COUNT_ATTENTE_INFOS);
-
 
         Map<String, String> statusMap = new HashMap<>();
         statusMap.put(EN_ATTENTE_TRAITENUM, EN_ATTENTE_TRAITENUM);

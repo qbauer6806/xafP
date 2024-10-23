@@ -5,10 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author uek
- *
  */
 public interface DemandesUsagersRepository extends JpaRepository<DemandesUsagersBO, Integer> {
 
     DemandesUsagersBO findOneById(Integer usagerId);
-    
+
 }

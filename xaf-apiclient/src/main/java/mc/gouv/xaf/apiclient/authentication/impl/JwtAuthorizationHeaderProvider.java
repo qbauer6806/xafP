@@ -1,6 +1,5 @@
 package mc.gouv.xaf.apiclient.authentication.impl;
 
-
 import mc.gouv.xaf.apiclient.authentication.AuthorizationHeaderProvider;
 
 public class JwtAuthorizationHeaderProvider implements AuthorizationHeaderProvider {

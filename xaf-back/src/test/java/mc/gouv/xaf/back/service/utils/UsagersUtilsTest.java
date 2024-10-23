@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UsagersUtilsTest {
+
     @Test
     void titreToStringNullTest() {
         String resultat = UsagersUtils.titreShortToString(null);
@@ -28,15 +29,14 @@ class UsagersUtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"null", "", "fake"})
+    @ValueSource(strings = { "null", "", "fake" })
     void abbreviationToTitre(String str) {
-    	Integer resultat;
-    	if (StringUtils.equals("null", str)) {
-    		resultat = UsagersUtils.abbreviationToTitre(null);
-    	}
-    	else {
-    		resultat = UsagersUtils.abbreviationToTitre(str);
-    	}
+        Integer resultat;
+        if (StringUtils.equals("null", str)) {
+            resultat = UsagersUtils.abbreviationToTitre(null);
+        } else {
+            resultat = UsagersUtils.abbreviationToTitre(str);
+        }
         assertNull(resultat);
     }
 

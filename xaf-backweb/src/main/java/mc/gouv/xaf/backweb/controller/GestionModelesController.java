@@ -50,10 +50,10 @@ public class GestionModelesController {
 
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     @Autowired
     private BackGouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private FileService fileService;
 
@@ -62,25 +62,26 @@ public class GestionModelesController {
 
         LOGGER.info("Appel de la page gestion/modeles. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/modeles/modeles");
-        
-        List<FileDTO> files = afBackUtils.getFileClient().getContainerFileList(gouvPropertiesResolver.getDemarcheId(), MODELES);
-        
+
+        List<FileDTO> files = afBackUtils.getFileClient()
+                .getContainerFileList(gouvPropertiesResolver.getDemarcheId(), MODELES);
+
         List<FileDTO> courriers = new ArrayList<>();
         List<FileDTO> justificatifs = new ArrayList<>();
         List<FileDTO> exportExcel = new ArrayList<>();
         List<FileDTO> autres = new ArrayList<>();
         for (FileDTO file : files) {
-        	if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.COURRIER.name())) {
-        		courriers.add(file);
-        	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.JUSTIFICATIF.name())) {
-        		justificatifs.add(file);
-        	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.EXPORT_EXCEL.name())) {
-        		exportExcel.add(file);
-        	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.AUTRES.name())) {
+            if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.COURRIER.name())) {
+                courriers.add(file);
+            } else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.JUSTIFICATIF.name())) {
+                justificatifs.add(file);
+            } else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.EXPORT_EXCEL.name())) {
+                exportExcel.add(file);
+            } else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.AUTRES.name())) {
                 autres.add(file);
             }
         }
-        
+
         courriers.sort(new FileComparator());
         justificatifs.sort(new FileComparator());
         exportExcel.sort(new FileComparator());
@@ -97,7 +98,7 @@ public class GestionModelesController {
 
         return mav;
     }
-    
+
     @GetMapping(value = "/get/**")
     @ResponseStatus(HttpStatus.OK) // 200
     public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -107,47 +108,51 @@ public class GestionModelesController {
         fileService.getFile(file, MODELES, response);
         LOGGER.info("====================== /gestion/modeles/get terminé, retour au client...");
     }
-    
+
     @PostMapping(value = "/valider")
     @Transactional
-    public ModelAndView valider(@RequestParam MultipartFile fileToUpload, @RequestParam String filename, @RequestParam String typeModele,
-    		final RedirectAttributes redirectAttributes) throws Exception {
+    public ModelAndView valider(@RequestParam MultipartFile fileToUpload, @RequestParam String filename,
+            @RequestParam String typeModele, final RedirectAttributes redirectAttributes) throws Exception {
 
         LOGGER.info("Appel de /gestion/modeles/valider");
-        
+
         ModelAndView mav = new ModelAndView(REDIRECT + typeModele);
-        
+
         List<String> messages = new ArrayList<>();
 
         // L'extension doit être la même
-        if (!StringUtils.equals(FilenameUtils.getExtension(fileToUpload.getOriginalFilename()), FilenameUtils.getExtension(filename))) {
-    		messages.add("L'extension du fichier que vous avez soumis diffère de celle du fichier que vous souhaitez mettre à jour.");
-    		redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
-    		return mav;
+        if (!StringUtils.equals(FilenameUtils.getExtension(fileToUpload.getOriginalFilename()),
+                FilenameUtils.getExtension(filename))) {
+            messages.add(
+                    "L'extension du fichier que vous avez soumis diffère de celle du fichier que vous souhaitez mettre à jour.");
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+            return mav;
         }
-        
+
         // Utile seulement si l'utilisateur enable le bouton avec un F12...
         if (StringUtils.isBlank(fileToUpload.getOriginalFilename())) {
-    		messages.add("Veuillez d'abord choisir un fichier.");
-    		redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
-    		return mav;
+            messages.add("Veuillez d'abord choisir un fichier.");
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+            return mav;
         }
-        
-        Map<String,String> meta = new HashMap<>();
+
+        Map<String, String> meta = new HashMap<>();
         meta.put("X-MC-TypeModele", typeModele);
 
         String newFilename = URLEncoder.encode(fileToUpload.getOriginalFilename(), StandardCharsets.UTF_8);
-        
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-        	afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), newFilename, fileToUpload.getContentType(), meta, outputStream);
-    		messages.add(LE_MODELE + filename + " a été mis à jour avec succès.");
-    		redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
+            afBackUtils.getFileClient()
+                    .saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(),
+                            newFilename, fileToUpload.getContentType(), meta, outputStream);
+            messages.add(LE_MODELE + filename + " a été mis à jour avec succès.");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
         } catch (Exception e) {
-    		messages.add(e.getMessage());
-    		redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
+            messages.add(e.getMessage());
+            redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
         }
-		
+
         LOGGER.info("======================= Fin /gestion/modeles/valider. Méthode form");
 
         return mav;
@@ -155,14 +160,15 @@ public class GestionModelesController {
 
     @PostMapping(value = "/supprimer")
     @Transactional
-    public ModelAndView supprimer(@RequestParam String filename, @RequestParam String typeModele, final RedirectAttributes redirectAttributes) {
+    public ModelAndView supprimer(@RequestParam String filename, @RequestParam String typeModele,
+            final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de /gestion/modeles/supprimer");
 
         ModelAndView mav = new ModelAndView(REDIRECT + typeModele);
 
         List<String> messages = new ArrayList<>();
 
-        if(StringUtils.isEmpty(filename)) {
+        if (StringUtils.isEmpty(filename)) {
             messages.add("Aucun fichier n'a été sélectionné");
             redirectAttributes.addFlashAttribute(SharedMessages.ERROR_MESSAGES, messages);
             return mav;
@@ -184,7 +190,8 @@ public class GestionModelesController {
 
     @PostMapping(value = "/ajouter")
     @Transactional
-    public ModelAndView ajouter(@RequestParam MultipartFile fileToUpload, @RequestParam String typeModele, final RedirectAttributes redirectAttributes) {
+    public ModelAndView ajouter(@RequestParam MultipartFile fileToUpload, @RequestParam String typeModele,
+            final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de /gestion/modeles/ajouter");
 
         ModelAndView mav = new ModelAndView(REDIRECT + typeModele);
@@ -202,10 +209,12 @@ public class GestionModelesController {
         String newFilename = URLEncoder.encode(fileToUpload.getOriginalFilename(), StandardCharsets.UTF_8);
 
         try {
-            try(ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                Map<String,String> meta = new HashMap<>();
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                Map<String, String> meta = new HashMap<>();
                 meta.put("X-MC-TypeModele", typeModele);
-                afBackUtils.getFileClient().saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(), newFilename, fileToUpload.getContentType(), meta, bos);
+                afBackUtils.getFileClient()
+                        .saveFile(gouvPropertiesResolver.getDemarcheId(), MODELES, fileToUpload.getInputStream(),
+                                newFilename, fileToUpload.getContentType(), meta, bos);
             }
             messages.add(LE_MODELE + filename + " a été ajouté avec succès.");
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
@@ -218,15 +227,15 @@ public class GestionModelesController {
 
         return mav;
     }
-    
+
     private boolean metaContainsTypeModele(Set<MetaDTO> metas, String typeModele) {
-    	boolean res = false;
-    	for (MetaDTO meta : metas) {
-    		if (meta.getKey().equals("TypeModele") && meta.getValue().equals(typeModele)) {
-    			res = true;
-    		}
-    	}
-    	return res;
+        boolean res = false;
+        for (MetaDTO meta : metas) {
+            if (meta.getKey().equals("TypeModele") && meta.getValue().equals(typeModele)) {
+                res = true;
+            }
+        }
+        return res;
     }
 
 }

@@ -87,11 +87,8 @@ public class PaiementController extends AbstractXafController {
             LOGGER.info("response = version=2\ncdr={}", sResult);
             LOGGER.info("====================== Fin /paiement doPost()\n");
 
-            return ResponseEntity.ok()
-                    .header("Pragma", "no-cache")
-                    .header("Cache-Control", "no-cache")
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("version=2\ncdr=" + sResult);
+            return ResponseEntity.ok().header("Pragma", "no-cache").header("Cache-Control", "no-cache")
+                    .contentType(MediaType.TEXT_PLAIN).body("version=2\ncdr=" + sResult);
         } catch (Exception e) {
             LOGGER.error("La mise à jour du Paiement Monetico à échouée.", e);
             return ResponseEntity.internalServerError().build();

@@ -22,61 +22,59 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour envoyer un email à l'agent affecté à la demande.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailAgentAffecteDelegate.class);
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     @Autowired
     private MailService mailService;
-    
+
     @Autowired
     private DemandesService demandesService;
-    
+
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
 
     @Setter
     @Getter
     private Expression emailBodyTemplateCode;
-    
+
     @Setter
     @Getter
     private Expression emailSubjectTemplateCode;
-    
+
     private Expression copieAuService;
 
     @Override
     public void execute(DelegateExecution execution) {
-        
+
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT AFFECTÉ ...");
-        
-        String bodyTemplateCode = (String)emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String)emailSubjectTemplateCode.getValue(execution);
+
+        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
+        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
         String copieAuServiceStr = null;
         if (copieAuService != null) {
-        	copieAuServiceStr = (String) copieAuService.getValue(execution);
+            copieAuServiceStr = (String) copieAuService.getValue(execution);
         }
-        
+
         LOGGER.info("bodyTemplateCode : {}", bodyTemplateCode);
         LOGGER.info("subjectTemplateCode : {}", subjectTemplateCode);
-        
+
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
-                .getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
 
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
         DemandeDTO demande = demandesService.getDemande(demandeId);
@@ -95,10 +93,11 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
                 emailInfo.setLangue("fr");
 
                 String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
-                String commentaire = (String) execution
-                        .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+                String commentaire = (String) execution.getVariable(
+                        GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
-                Map<String,Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
+                Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode,
+                        demande, execution.getVariables(), codeMotif, commentaire);
 
                 try {
                     mailService.sendMail(emailInfo, model, MailAudienceEnum.AGENT);
@@ -106,10 +105,11 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
                     LOGGER.error("Erreur lors de l'envoi de l'email", e);
                 }
             } else {
-                LOGGER.warn("Attention : l'utilisateur {} n'a pas d'adresse email associée. Pas d'envoi d'email.", agent.getId());
+                LOGGER.warn("Attention : l'utilisateur {} n'a pas d'adresse email associée. Pas d'envoi d'email.",
+                        agent.getId());
             }
         }
-        
+
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT AFFECTÉ <fin>");
     }
 

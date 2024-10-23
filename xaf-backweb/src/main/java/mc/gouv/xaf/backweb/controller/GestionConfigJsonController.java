@@ -47,125 +47,130 @@ import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 @RequestMapping("/gestion/configjson")
 public class GestionConfigJsonController {
 
-	@Autowired
-	private PropertiesService propertiesService;
+    @Autowired
+    private PropertiesService propertiesService;
 
-	private static final String REDIRECT = "redirect:/gestion/properties";
-	private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";
-	private static final String IMPORT_SUCCESS = "La configuration a été importée avec succès";
-	private static final String AJOUT_LIBELLE_SUCCESS = "Le libellé a été ajouté avec succès";
+    private static final String REDIRECT = "redirect:/gestion/properties";
+    private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";
+    private static final String IMPORT_SUCCESS = "La configuration a été importée avec succès";
+    private static final String AJOUT_LIBELLE_SUCCESS = "Le libellé a été ajouté avec succès";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GestionConfigJsonController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GestionConfigJsonController.class);
 
-	@GetMapping
-	public ModelAndView form(@RequestParam(name = "key", required = false) String key) {
-		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
-		ModelAndView mav = new ModelAndView("gestion/configjson/configjson");
-		mav.addObject("key", key);
-		LOGGER.info("======================= Fin /gestion/configjson. Méthode form");
-		return mav;
-	}
-	
-	@GetMapping(path = "/properties")
-	public List<PropertiesListEntityDTO> getJsonProperties(@RequestParam(name = "key") String key) throws BadRequestException, JsonProcessingException {
+    @GetMapping
+    public ModelAndView form(@RequestParam(name = "key", required = false) String key) {
+        LOGGER.info("Appel de la page gestion/configjson. Méthode form");
+        ModelAndView mav = new ModelAndView("gestion/configjson/configjson");
+        mav.addObject("key", key);
+        LOGGER.info("======================= Fin /gestion/configjson. Méthode form");
+        return mav;
+    }
 
-		List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<>();
-		PropertiesDTO property = propertiesService.getProperty(key);
-		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
-		// Récupération du json représentant le fichier
-		try {
-			if (property != null && !StringUtils.isEmpty(property.getValue())) {
-				ObjectMapper mapper = new ObjectMapper();
-				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
-			}
+    @GetMapping(path = "/properties")
+    public List<PropertiesListEntityDTO> getJsonProperties(@RequestParam(name = "key") String key)
+            throws BadRequestException, JsonProcessingException {
+
+        List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<>();
+        PropertiesDTO property = propertiesService.getProperty(key);
+        LOGGER.info("Appel de la page gestion/configjson. Méthode form");
+        // Récupération du json représentant le fichier
+        try {
+            if (property != null && !StringUtils.isEmpty(property.getValue())) {
+                ObjectMapper mapper = new ObjectMapper();
+                jsonObjectsToDisplay = Arrays.asList(
+                        mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
+            }
         } catch (JsonParseException | JsonMappingException e) {
             throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
         }
-		
-		// Set de la liste utile dans le model and view
-		LOGGER.info("======================= Fin /gestion/properties. Méthode form");
-		return jsonObjectsToDisplay;
-	}
 
-	@PostMapping(value = "/edit")
-	@Transactional
-	public ModelAndView modifier(@RequestParam(name = "key") String key, @RequestBody String newValue,
-			final RedirectAttributes redirectAttributes) throws IOException {
-		String safeKey = AfBackUtils.logSafe(key);
-		String safeNewValue = AfBackUtils.logSafe(newValue);
-		LOGGER.info("======================= Appel de la page /gestion/configjson/edit ({}, {})", safeKey, safeNewValue);
-		ObjectMapper mapper = new ObjectMapper();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+        // Set de la liste utile dans le model and view
+        LOGGER.info("======================= Fin /gestion/properties. Méthode form");
+        return jsonObjectsToDisplay;
+    }
 
-		// Je reçois un json représentant les valeurs à ajouter associées à leur id
-		PropertiesListEntityDTO[] valuesToAdd = mapper.readValue(mapper.readTree(newValue).get("value").toString(), PropertiesListEntityDTO[].class);
+    @PostMapping(value = "/edit")
+    @Transactional
+    public ModelAndView modifier(@RequestParam(name = "key") String key, @RequestBody String newValue,
+            final RedirectAttributes redirectAttributes) throws IOException {
+        String safeKey = AfBackUtils.logSafe(key);
+        String safeNewValue = AfBackUtils.logSafe(newValue);
+        LOGGER.info("======================= Appel de la page /gestion/configjson/edit ({}, {})", safeKey,
+                safeNewValue);
+        ObjectMapper mapper = new ObjectMapper();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		// Je recupère la propriété BO a update
-		PropertiesDTO propertyToUpdate = propertiesService.getProperty(key);
+        // Je reçois un json représentant les valeurs à ajouter associées à leur id
+        PropertiesListEntityDTO[] valuesToAdd = mapper.readValue(mapper.readTree(newValue).get("value").toString(),
+                PropertiesListEntityDTO[].class);
 
-		// Dans la valeur de cette propriété (qui est en fait un json) je récupère tous
-		// les champs
-		List<PropertiesListEntityDTO> valuesToUpdates = Arrays
-				.asList(mapper.readValue(propertyToUpdate.getValue(), PropertiesListEntityDTO[].class));
+        // Je recupère la propriété BO a update
+        PropertiesDTO propertyToUpdate = propertiesService.getProperty(key);
 
-		for (PropertiesListEntityDTO currentValueToUpdate : valuesToUpdates) {
-			for (PropertiesListEntityDTO currentValueToAdd : valuesToAdd) {
-				// Si un ID a update est égal a un ID a ajouter
-				if (currentValueToUpdate.getId().equals(currentValueToAdd.getId())) {
-					// Je set les nouvelles valeur associé à cet id
-					currentValueToUpdate.setLabel(currentValueToAdd.getLabel());
-					currentValueToUpdate.setEditable(currentValueToAdd.isEditable());
-					currentValueToUpdate.setEnabled(currentValueToAdd.isEnabled());
-				}
-			}
-		}
+        // Dans la valeur de cette propriété (qui est en fait un json) je récupère tous
+        // les champs
+        List<PropertiesListEntityDTO> valuesToUpdates = Arrays.asList(
+                mapper.readValue(propertyToUpdate.getValue(), PropertiesListEntityDTO[].class));
 
-		// Ensuite je converti la liste obtenue en JSON puis en string pour la set en DB
-		mapper.writeValue(out, valuesToUpdates);
-		propertyToUpdate.setValue(out.toString());
-		propertiesService.saveOrUpdateProperties(propertyToUpdate);
-		List<String> messages = new ArrayList<>();
-		messages.add(MODIFIER_SUCCES);
-		redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-		ModelAndView mav = new ModelAndView(REDIRECT);
+        for (PropertiesListEntityDTO currentValueToUpdate : valuesToUpdates) {
+            for (PropertiesListEntityDTO currentValueToAdd : valuesToAdd) {
+                // Si un ID a update est égal a un ID a ajouter
+                if (currentValueToUpdate.getId().equals(currentValueToAdd.getId())) {
+                    // Je set les nouvelles valeur associé à cet id
+                    currentValueToUpdate.setLabel(currentValueToAdd.getLabel());
+                    currentValueToUpdate.setEditable(currentValueToAdd.isEditable());
+                    currentValueToUpdate.setEnabled(currentValueToAdd.isEnabled());
+                }
+            }
+        }
 
-		LOGGER.info("======================= Fin /gestion/configjson/edit");
-		return mav;
-	}
+        // Ensuite je converti la liste obtenue en JSON puis en string pour la set en DB
+        mapper.writeValue(out, valuesToUpdates);
+        propertyToUpdate.setValue(out.toString());
+        propertiesService.saveOrUpdateProperties(propertyToUpdate);
+        List<String> messages = new ArrayList<>();
+        messages.add(MODIFIER_SUCCES);
+        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
+        ModelAndView mav = new ModelAndView(REDIRECT);
 
-	@GetMapping(path = "/export")
-	public ResponseEntity<InputStreamResource> exportConfig(@RequestParam(name = "key") String key) {
+        LOGGER.info("======================= Fin /gestion/configjson/edit");
+        return mav;
+    }
 
-		LOGGER.info("Appel du webservice /gestion/configjson/export");
-		PropertiesDTO propertyToExport = propertiesService.getProperty(key);
-		String jsonFile = propertyToExport.getValue();
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + key
-				+ new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(new Date()) + ".json");
-		responseHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
-		responseHeaders.add("Content-Transfer-Encoding", "binary");
+    @GetMapping(path = "/export")
+    public ResponseEntity<InputStreamResource> exportConfig(@RequestParam(name = "key") String key) {
 
-		InputStreamResource isr = new InputStreamResource(
-				new ByteArrayInputStream(jsonFile.getBytes(StandardCharsets.UTF_8)));
+        LOGGER.info("Appel du webservice /gestion/configjson/export");
+        PropertiesDTO propertyToExport = propertiesService.getProperty(key);
+        String jsonFile = propertyToExport.getValue();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=" + key + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(new Date())
+                        + ".json");
+        responseHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
+        responseHeaders.add("Content-Transfer-Encoding", "binary");
 
-		return ResponseEntity.ok().headers(responseHeaders).body(isr);
-	}
+        InputStreamResource isr = new InputStreamResource(
+                new ByteArrayInputStream(jsonFile.getBytes(StandardCharsets.UTF_8)));
 
-	@PostMapping(path = "/import")
-	public ModelAndView importConfig(@RequestParam(name = "key") String key,
-			@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) throws IOException {
-		LOGGER.info("Appel du webservice /gestion/configjson/import");
-		PropertiesDTO property = propertiesService.getProperty(key);
+        return ResponseEntity.ok().headers(responseHeaders).body(isr);
+    }
+
+    @PostMapping(path = "/import")
+    public ModelAndView importConfig(@RequestParam(name = "key") String key, @RequestParam("file") MultipartFile file,
+            final RedirectAttributes redirectAttributes) throws IOException {
+        LOGGER.info("Appel du webservice /gestion/configjson/import");
+        PropertiesDTO property = propertiesService.getProperty(key);
         String oldValue = property.getValue();
         PropertiesListEntityDTO[] oldValues;
         PropertiesListEntityDTO[] newValues = new PropertiesListEntityDTO[0];
-		property.setValue(new String(file.getBytes()));
-		// Vérification du fichier donné
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			if (!StringUtils.isEmpty(property.getValue())) {
-				newValues  = mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class);
-			}
+        property.setValue(new String(file.getBytes()));
+        // Vérification du fichier donné
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            if (!StringUtils.isEmpty(property.getValue())) {
+                newValues = mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class);
+            }
             oldValues = mapper.readValue(oldValue, PropertiesListEntityDTO[].class);
         } catch (JsonParseException | JsonMappingException e) {
             throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
@@ -176,13 +181,13 @@ public class GestionConfigJsonController {
             List<String> messages = new ArrayList<>();
             messages.add(IMPORT_SUCCESS);
             redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-            ModelAndView mav = new ModelAndView("redirect:/gestion/configjson?key="+key);
+            ModelAndView mav = new ModelAndView("redirect:/gestion/configjson?key=" + key);
 
             LOGGER.info("======================= Fin /gestion/configjson/import");
             return mav;
         }
         throw new BadRequestException("Il n'est pas possible de supprimer des données");
-	}
+    }
 
     private boolean containsAllLabels(PropertiesListEntityDTO[] oldValues, PropertiesListEntityDTO[] newValues) {
         // Convert newValues labels into a Set
@@ -200,40 +205,41 @@ public class GestionConfigJsonController {
 
         return true;  // All labels from oldValues are present in newValues
     }
-	
-	@PostMapping(path = "/addlibelle")
-	public ModelAndView addLibelle(@RequestParam(name = "label") String label, @RequestParam(name = "cle") String cle, @RequestParam(name = "key") String key, final RedirectAttributes redirectAttributes) throws IOException {
-		LOGGER.info("Appel du webservice /gestion/configjson/addlibelle");
-		PropertiesDTO propertyToUpdate = propertiesService.getProperty(key);
-		List<PropertiesListEntityDTO> values = new ArrayList<>();
-		// Je recupère la value existante
-		ObjectMapper mapper = new ObjectMapper();
-		if (!StringUtils.isEmpty(propertyToUpdate.getValue())) {
-			values = new ArrayList<>(
-					Arrays.asList(mapper.readValue(propertyToUpdate.getValue(), PropertiesListEntityDTO[].class)));
-		}
-		
-		// Je rajoute la nouvelle value
-		PropertiesListEntityDTO valueToAdd = new PropertiesListEntityDTO();
-		valueToAdd.setLabel(label);
-		valueToAdd.setEditable(true);
-		valueToAdd.setEnabled(true);
-		valueToAdd.setId(cle);
-		values.add(valueToAdd);
-		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		mapper.writeValue(out, values);
-		propertyToUpdate.setValue(out.toString());
-		
-		// Puis je met a jour la property
-		propertiesService.saveOrUpdateProperties(propertyToUpdate);
-		List<String> messages = new ArrayList<>();
-		messages.add(AJOUT_LIBELLE_SUCCESS);
-		redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-		ModelAndView mav = new ModelAndView("redirect:/gestion/configjson?key="+key);
 
-		LOGGER.info("======================= Fin /gestion/configjson/addlibelle");
-		return mav;
-	}
+    @PostMapping(path = "/addlibelle")
+    public ModelAndView addLibelle(@RequestParam(name = "label") String label, @RequestParam(name = "cle") String cle,
+            @RequestParam(name = "key") String key, final RedirectAttributes redirectAttributes) throws IOException {
+        LOGGER.info("Appel du webservice /gestion/configjson/addlibelle");
+        PropertiesDTO propertyToUpdate = propertiesService.getProperty(key);
+        List<PropertiesListEntityDTO> values = new ArrayList<>();
+        // Je recupère la value existante
+        ObjectMapper mapper = new ObjectMapper();
+        if (!StringUtils.isEmpty(propertyToUpdate.getValue())) {
+            values = new ArrayList<>(
+                    Arrays.asList(mapper.readValue(propertyToUpdate.getValue(), PropertiesListEntityDTO[].class)));
+        }
+
+        // Je rajoute la nouvelle value
+        PropertiesListEntityDTO valueToAdd = new PropertiesListEntityDTO();
+        valueToAdd.setLabel(label);
+        valueToAdd.setEditable(true);
+        valueToAdd.setEnabled(true);
+        valueToAdd.setId(cle);
+        values.add(valueToAdd);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        mapper.writeValue(out, values);
+        propertyToUpdate.setValue(out.toString());
+
+        // Puis je met a jour la property
+        propertiesService.saveOrUpdateProperties(propertyToUpdate);
+        List<String> messages = new ArrayList<>();
+        messages.add(AJOUT_LIBELLE_SUCCESS);
+        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
+        ModelAndView mav = new ModelAndView("redirect:/gestion/configjson?key=" + key);
+
+        LOGGER.info("======================= Fin /gestion/configjson/addlibelle");
+        return mav;
+    }
 
 }

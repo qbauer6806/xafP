@@ -16,6 +16,7 @@ import java.util.List;
 
 @Component
 public class FileTestServiceImpl implements FileService {
+
     @Override
     public void getFile(String filename, String container, HttpServletResponse response) throws IOException {
 
@@ -32,12 +33,14 @@ public class FileTestServiceImpl implements FileService {
     }
 
     @Override
-    public String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream) {
+    public String saveFile(DemandeDTO demande, String filename, String container, String contentType,
+            InputStream inputStream, OutputStream outputStream) {
         return null;
     }
 
     @Override
-    public String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws IOException {
+    public String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response)
+            throws IOException {
         return null;
     }
 

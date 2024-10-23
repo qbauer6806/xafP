@@ -19,24 +19,24 @@ import mc.gouv.xaf.back.dsp.enums.v2.ResidRelationEnum;
 @ToString
 public class ResidSituationFamilialeDLN1FDTO implements Serializable {
 
-	private static final long serialVersionUID = -2369443223981508962L;
+    private static final long serialVersionUID = -2369443223981508962L;
 
-	private ResidSituationFamilialeEnum situationFamiliale;
+    private ResidSituationFamilialeEnum situationFamiliale;
 
-	private ResidCiviliteEnum titre;
+    private ResidCiviliteEnum titre;
 
-	private String nom;
+    private String nom;
 
-	private String prenom;
+    private String prenom;
 
-	private String dateNaissance;
+    private String dateNaissance;
 
-	private String nationalite;
+    private String nationalite;
 
-	private ResidRelationEnum relation;
+    private ResidRelationEnum relation;
 
-	private boolean foyer;
-	
-	private String lieuNomEntreprise;
+    private boolean foyer;
+
+    private String lieuNomEntreprise;
 
 }

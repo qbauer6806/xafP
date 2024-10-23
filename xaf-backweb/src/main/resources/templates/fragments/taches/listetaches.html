@@ -3,171 +3,179 @@
 <body>
 <div id="listetaches" th:fragment="listetaches" th:remove="tag">
 
-    <!-- Input cachée contenant la valeur du statut de demande dans laquelle un agent valide les taches -->
-    <input id="statutValidationTache" th:value="${statutValidationTache}" type="hidden"/>
-    <!-- Input cachée contenant le nombre de taches -->
-    <input id="nbTaches" th:value="${taches.size()}" type="number" style="display: none"/>
+  <!-- Input cachée contenant la valeur du statut de demande dans laquelle un agent valide les taches -->
+  <input id="statutValidationTache" th:value="${statutValidationTache}" type="hidden"/>
+  <!-- Input cachée contenant le nombre de taches -->
+  <input id="nbTaches" th:value="${taches.size()}" type="number" style="display: none"/>
 
-    <div class="row mt-15">
-        <div class="col-xs-12">
-            <button class="btn btn-transparent" id="toutReplierBouton" onclick="toutReplier()" th:disabled="${true}">
-                <i class="icon-action_moins"></i> Tout réduire
-            </button>
-            <button class="btn btn-transparent" id="toutDeplierBouton" onclick="toutDeplier()">
-                <i class="icon-action_plus"></i> Tout déplier
-            </button>
-        </div>
+  <div class="row mt-15">
+    <div class="col-xs-12">
+      <button class="btn btn-transparent" id="toutReplierBouton" onclick="toutReplier()"
+              th:disabled="${true}">
+        <i class="icon-action_moins"></i> Tout réduire
+      </button>
+      <button class="btn btn-transparent" id="toutDeplierBouton" onclick="toutDeplier()">
+        <i class="icon-action_plus"></i> Tout déplier
+      </button>
     </div>
+  </div>
 
-    <div class="row mt-15">
-        <div aria-multiselectable="true" class="panel-group accordion" id="accordionTaches" role="tablist">
-            <div class="col-xs-12" th:each="tache : ${taches}">
-                <!-- Pannel contenant le formulaire de la tache -->
-                <div class="panel panel-default" th:classappend="${tache.locked}  ? 'panel-locked' : ''">
-                    <div class="panel-heading" role="tab" th:id="'headingTache' + ${tache.pkTaches}">
-                        <h4 class="panel-title">
-                            <a aria-expanded="false"
-                               data-parent="#accordionTaches"
-                               data-toggle="collapse" role="button"
-                               th:attr="aria-controls='collapseTache' + ${tache.pkTaches}"
-                               th:href="'#collapseTache' + ${tache.pkTaches}"
-                               th:id="'panelLink' + ${tache.pkTaches}">
-                                <div class="col-xs-10 nopadding">
-                                    <i class="pannelState icon-action_accordeon-ferme"
-                                       th:id="'iconeTacheAccordeon' + ${tache.pkTaches}"></i>
-                                    <span th:text="${TachesUtils.getTitre(tache)}"></span>
-                                    <span th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutAgent, statutPublicOuInterneDTO)}"
-                                          th:id="'statutAgent' + ${tache.pkTaches}"
-                                          th:if="!${tache.locked}"
-                                          th:text="${TachesUtils.getStatutAgent(tache, statutPublicOuInterneDTO)}"></span>
-                                </div>
-                                <!-- On affiche le statut de l'agent valideur que pour l'étape de validation ou s'il s'agit du statut VALIDER ou REFUSER lors d'un retour au guichet -->
-                                <div class="col-xs-2 nopadding text-right"
-                                     th:id="'statutValideur' + ${tache.pkTaches}"
-                                     th:if="${tache.statutValideur != null and (statutValidationTache == statutPublicOuInterneDTO.name or tache.statutValideur.name != 'RETOUR_GUICHET')}">
-                                    <div th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutValideur, null)}">
-                                        <span th:text="${tache.statutValideur.libelle}"></span>
-                                        <i th:class="${'icon-small ' + tache.statutValideur.icone}"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        </h4>
-                    </div>
-                    <div class="panel-collapse collapse collapse-taches" role="tabpanel"
-                         th:attr="aria-labelledby='headingTache' + ${tache.pkTaches}"
-                         th:data-name="${tache.pkTaches}"
-                         th:id="'collapseTache' + ${tache.pkTaches}">
-
-                        <div class="panel-body">
-                            <form action="#" method="post" th:action="@{/demandes/taches}" 
-                            	  th:id="${'form-taches' + tache.pkTaches}"
-                                  th:object="${tachesFormBean}"
-                                  th:data-name="${tache.pkTaches}">
-
-                                <!-- Sélection de l'action pour la tâche -->
-                                <ul class="radiobuttons toggle">
-                                    <li th:each="item, iter : ${actionsTachesDisponibles}">
-                                        <input class="custom" data-toggle="button" name="actionChoisie"
-                                               onchange="setTacheForm(this)"
-                                               th:data-name="${tache.pkTaches}"
-                                               th:disabled="${statutPublicOuInterneDTO.name == statutValidationTache ? tache.statutValideur != null : tache.statutAgent != null}"
-                                               th:field="*{actionChoisie}"
-                                               th:id="action + ${iter.index} + ${tache.pkTaches}"
-                                               th:value="${item.statut}"
-                                               type="radio"/>
-                                        <label th:for="action + ${iter.index} + ${tache.pkTaches}"
-                                               th:inline='text'>
-                                            <span class="ico"></span><span>[[${item.action}]]</span>
-                                        </label>
-                                    </li>
-                                </ul>
-
-                                <!-- Champs customs en fonction des types de taches -->
-                                <div th:replace="${'fragments/' + TachesUtils.getFragment(tache.codeType)} :: ${TachesUtils.getFragment(tache.codeType)}"></div>
-
-                                <!-- Champ pour l'ajout de motifs à une action choisie -->
-                                <div class="row mt-15" style="display: none"
-                                     th:id="${'motifTacheFormGroup' + tache.pkTaches}">
-                                    <div class="col-xs-12 form-group">
-                                        <label class="titre"
-                                               th:for="${'motifTacheSelect' + tache.pkTaches}">Motif</label><span
-                                            class="mandatory">&nbsp;*</span>
-                                        <select class="form-control"
-                                                th:disabled="${tache.locked} or (${statutPublicOuInterneDTO.name} != ${statutValidationTache} and ${tache.statutAgent} != null) or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
-                                                th:field="*{codeMotifChoisi}"
-                                                th:id="${'motifTacheSelect' + tache.pkTaches}">
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Champs de commentaire pour informer l'agent traitant du retour au guichet -->
-                                <div class="row mt-15" style="display: none"
-                                     th:id="${'commentaireTacheFormGroup' + tache.pkTaches}">
-                                    <div class="col-xs-12 form-group">
-                                        <label class="titre" th:for="${'commentaireTache' + tache.pkTaches}">Commentaire
-                                            (envoyé à l'agent traitant) :</label>
-                                        <textarea class="form-control greyTooltip"
-                                                  th:disabled="${tache.locked} or ${statutPublicOuInterneDTO.name} != ${statutValidationTache} or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
-                                                  th:field="*{commentaireTache}"
-                                                  th:id="${'commentaireTache' + tache.pkTaches}"
-                                        ></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Input cachée contenant la pk de la tâche à sauvegarder (ne pas enlever) -->
-                                <input name="pkTaches" th:value="${tache.pkTaches}" type="hidden"/>
-                                <!-- Input cachée contenant la pk de la demande actuelle (ne pas enlever) -->
-                                <input name="pkDemande" th:value="${demandeDTO.pkDemandes}" type="hidden"/>
-                                <!-- Input cachée contenant l'identifiant de la demande actuelle (ne pas enlever) -->
-                                <input name="idDemande" th:value="${demandeDTO.identifiant}" type="hidden"/>
-                                <!-- Input cachée contenant le statut de la demande actuelle (ne pas enlever) -->
-                                <input name="statut" th:value="${statutPublicOuInterneDTO.name}" type="hidden"/>
-                                <!-- Input cachée contenant le type de la tâche actuelle (ne pas enlever) -->
-                                <input th:id="${'codeTypeTache' + tache.pkTaches}" th:value="${tache.codeType}"
-                                       type="hidden"/>
-                                <!-- Input cachée contenant le contenu de la tache -->
-	                            <input th:id="${'contenuTache' + tache.pkTaches}" th:value="${tache.contenu}"
-	                                   type="hidden"/>
-	                            <!-- Input cachée contenant le statut choisi par l'agent valideur -->
-	                            <input th:id="${'codeStatutValideur' + tache.pkTaches}" th:value="${tache.statutValideur}"
-	                                   type="hidden"/>
-	                            <!-- Input cachée contenant l'action choisie par l'agent valideur -->
-	                            <input th:id="${'actionChoisie' + tache.pkTaches}" type="hidden"/>
-								<!-- Input cachée contenant le commentaire initial dans la tache -->
-								<input th:id="${'commentaireInitial' + tache.pkTaches}" th:value="${tache.commentaire}"
-									   type="hidden"/>
-
-                                <!-- Bloc des boutons -->
-                                <div class="row mt-15" th:if="!${tache.locked}">
-                                    <div class="col-xs-12 text-right">
-                                        <button class="btn btn-action ripple-effect"
-                                                name="action" th:id="${'sauvegarder-tache-button-' + tache.pkTaches}"
-                                                onclick="sauvegarderTache(this)"
-                                                th:data-name="${tache.pkTaches}" type="button">
-                                            Sauvegarder
-                                        </button>
-                                        <button class="btn btn-action-second ripple-effect"
-                                                name="action"
-                                                onclick="modifierTache(this)"
-                                                th:data-name="${tache.pkTaches}"
-                                                th:id="${'modifier-tache-button-' + tache.pkTaches}" type="button">
-                                            Modifier la décision
-                                        </button>
-                                        <button class="btn btn-action ripple-effect"
-											th:id="${'enregistrer-tache-button-' + tache.pkTaches + '-hidden'}" name="action"
-											style="display: none" type="submit" value="Sauvegarder">
-										</button>
-                                    </div>
-                                </div>
-                            </form>
-
-                            
-                        </div>
-                    </div>
+  <div class="row mt-15">
+    <div aria-multiselectable="true" class="panel-group accordion" id="accordionTaches"
+         role="tablist">
+      <div class="col-xs-12" th:each="tache : ${taches}">
+        <!-- Pannel contenant le formulaire de la tache -->
+        <div class="panel panel-default" th:classappend="${tache.locked}  ? 'panel-locked' : ''">
+          <div class="panel-heading" role="tab" th:id="'headingTache' + ${tache.pkTaches}">
+            <h4 class="panel-title">
+              <a aria-expanded="false"
+                 data-parent="#accordionTaches"
+                 data-toggle="collapse" role="button"
+                 th:attr="aria-controls='collapseTache' + ${tache.pkTaches}"
+                 th:href="'#collapseTache' + ${tache.pkTaches}"
+                 th:id="'panelLink' + ${tache.pkTaches}">
+                <div class="col-xs-10 nopadding">
+                  <i class="pannelState icon-action_accordeon-ferme"
+                     th:id="'iconeTacheAccordeon' + ${tache.pkTaches}"></i>
+                  <span th:text="${TachesUtils.getTitre(tache)}"></span>
+                  <span
+                      th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutAgent, statutPublicOuInterneDTO)}"
+                      th:id="'statutAgent' + ${tache.pkTaches}"
+                      th:if="!${tache.locked}"
+                      th:text="${TachesUtils.getStatutAgent(tache, statutPublicOuInterneDTO)}"></span>
                 </div>
+                <!-- On affiche le statut de l'agent valideur que pour l'étape de validation ou s'il s'agit du statut VALIDER ou REFUSER lors d'un retour au guichet -->
+                <div class="col-xs-2 nopadding text-right"
+                     th:id="'statutValideur' + ${tache.pkTaches}"
+                     th:if="${tache.statutValideur != null and (statutValidationTache == statutPublicOuInterneDTO.name or tache.statutValideur.name != 'RETOUR_GUICHET')}">
+                  <div
+                      th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutValideur, null)}">
+                    <span th:text="${tache.statutValideur.libelle}"></span>
+                    <i th:class="${'icon-small ' + tache.statutValideur.icone}"></i>
+                  </div>
+                </div>
+              </a>
+            </h4>
+          </div>
+          <div class="panel-collapse collapse collapse-taches" role="tabpanel"
+               th:attr="aria-labelledby='headingTache' + ${tache.pkTaches}"
+               th:data-name="${tache.pkTaches}"
+               th:id="'collapseTache' + ${tache.pkTaches}">
+
+            <div class="panel-body">
+              <form action="#" method="post" th:action="@{/demandes/taches}"
+                    th:id="${'form-taches' + tache.pkTaches}"
+                    th:object="${tachesFormBean}"
+                    th:data-name="${tache.pkTaches}">
+
+                <!-- Sélection de l'action pour la tâche -->
+                <ul class="radiobuttons toggle">
+                  <li th:each="item, iter : ${actionsTachesDisponibles}">
+                    <input class="custom" data-toggle="button" name="actionChoisie"
+                           onchange="setTacheForm(this)"
+                           th:data-name="${tache.pkTaches}"
+                           th:disabled="${statutPublicOuInterneDTO.name == statutValidationTache ? tache.statutValideur != null : tache.statutAgent != null}"
+                           th:field="*{actionChoisie}"
+                           th:id="action + ${iter.index} + ${tache.pkTaches}"
+                           th:value="${item.statut}"
+                           type="radio"/>
+                    <label th:for="action + ${iter.index} + ${tache.pkTaches}"
+                           th:inline='text'>
+                      <span class="ico"></span><span>[[${item.action}]]</span>
+                    </label>
+                  </li>
+                </ul>
+
+                <!-- Champs customs en fonction des types de taches -->
+                <div
+                    th:replace="${'fragments/' + TachesUtils.getFragment(tache.codeType)} :: ${TachesUtils.getFragment(tache.codeType)}"></div>
+
+                <!-- Champ pour l'ajout de motifs à une action choisie -->
+                <div class="row mt-15" style="display: none"
+                     th:id="${'motifTacheFormGroup' + tache.pkTaches}">
+                  <div class="col-xs-12 form-group">
+                    <label class="titre"
+                           th:for="${'motifTacheSelect' + tache.pkTaches}">Motif</label><span
+                      class="mandatory">&nbsp;*</span>
+                    <select class="form-control"
+                            th:disabled="${tache.locked} or (${statutPublicOuInterneDTO.name} != ${statutValidationTache} and ${tache.statutAgent} != null) or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
+                            th:field="*{codeMotifChoisi}"
+                            th:id="${'motifTacheSelect' + tache.pkTaches}">
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Champs de commentaire pour informer l'agent traitant du retour au guichet -->
+                <div class="row mt-15" style="display: none"
+                     th:id="${'commentaireTacheFormGroup' + tache.pkTaches}">
+                  <div class="col-xs-12 form-group">
+                    <label class="titre" th:for="${'commentaireTache' + tache.pkTaches}">Commentaire
+                      (envoyé à l'agent traitant) :</label>
+                    <textarea class="form-control greyTooltip"
+                              th:disabled="${tache.locked} or ${statutPublicOuInterneDTO.name} != ${statutValidationTache} or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
+                              th:field="*{commentaireTache}"
+                              th:id="${'commentaireTache' + tache.pkTaches}"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Input cachée contenant la pk de la tâche à sauvegarder (ne pas enlever) -->
+                <input name="pkTaches" th:value="${tache.pkTaches}" type="hidden"/>
+                <!-- Input cachée contenant la pk de la demande actuelle (ne pas enlever) -->
+                <input name="pkDemande" th:value="${demandeDTO.pkDemandes}" type="hidden"/>
+                <!-- Input cachée contenant l'identifiant de la demande actuelle (ne pas enlever) -->
+                <input name="idDemande" th:value="${demandeDTO.identifiant}" type="hidden"/>
+                <!-- Input cachée contenant le statut de la demande actuelle (ne pas enlever) -->
+                <input name="statut" th:value="${statutPublicOuInterneDTO.name}" type="hidden"/>
+                <!-- Input cachée contenant le type de la tâche actuelle (ne pas enlever) -->
+                <input th:id="${'codeTypeTache' + tache.pkTaches}" th:value="${tache.codeType}"
+                       type="hidden"/>
+                <!-- Input cachée contenant le contenu de la tache -->
+                <input th:id="${'contenuTache' + tache.pkTaches}" th:value="${tache.contenu}"
+                       type="hidden"/>
+                <!-- Input cachée contenant le statut choisi par l'agent valideur -->
+                <input th:id="${'codeStatutValideur' + tache.pkTaches}"
+                       th:value="${tache.statutValideur}"
+                       type="hidden"/>
+                <!-- Input cachée contenant l'action choisie par l'agent valideur -->
+                <input th:id="${'actionChoisie' + tache.pkTaches}" type="hidden"/>
+                <!-- Input cachée contenant le commentaire initial dans la tache -->
+                <input th:id="${'commentaireInitial' + tache.pkTaches}"
+                       th:value="${tache.commentaire}"
+                       type="hidden"/>
+
+                <!-- Bloc des boutons -->
+                <div class="row mt-15" th:if="!${tache.locked}">
+                  <div class="col-xs-12 text-right">
+                    <button class="btn btn-action ripple-effect"
+                            name="action" th:id="${'sauvegarder-tache-button-' + tache.pkTaches}"
+                            onclick="sauvegarderTache(this)"
+                            th:data-name="${tache.pkTaches}" type="button">
+                      Sauvegarder
+                    </button>
+                    <button class="btn btn-action-second ripple-effect"
+                            name="action"
+                            onclick="modifierTache(this)"
+                            th:data-name="${tache.pkTaches}"
+                            th:id="${'modifier-tache-button-' + tache.pkTaches}" type="button">
+                      Modifier la décision
+                    </button>
+                    <button class="btn btn-action ripple-effect"
+                            th:id="${'enregistrer-tache-button-' + tache.pkTaches + '-hidden'}"
+                            name="action"
+                            style="display: none" type="submit" value="Sauvegarder">
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 </body>
 </html>

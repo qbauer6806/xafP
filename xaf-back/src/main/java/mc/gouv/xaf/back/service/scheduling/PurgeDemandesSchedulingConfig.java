@@ -16,7 +16,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 @Service
 public class PurgeDemandesSchedulingConfig {
 
-	private static final String PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION = "PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION";
+    private static final String PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION = "PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION";
 
     @Autowired
     private GouvSchedulerService schedulerService;
@@ -35,12 +35,14 @@ public class PurgeDemandesSchedulingConfig {
 
     private void initPurgeJobs() throws SchedulerException {
         PropertiesDTO prop = propertiesService.getProperty(PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION);
-        JobDetail jobDetail = schedulerService.buildJobDetail(PurgeDemandesSchedulingJob.class, "PurgeDemandesSchedulingJob");
+        JobDetail jobDetail = schedulerService.buildJobDetail(PurgeDemandesSchedulingJob.class,
+                "PurgeDemandesSchedulingJob");
 
         // Ajout de la liste des statuts dans le JobDataMap
         jobDetail.getJobDataMap().put("statuts", demarchesDataProvider.getStatutsAPurger());
 
-        Trigger trigger = schedulerService.buildJobTrigger(jobDetail, "PurgeDemandesSchedulingTrigger", prop.getValue());
+        Trigger trigger = schedulerService.buildJobTrigger(jobDetail, "PurgeDemandesSchedulingTrigger",
+                prop.getValue());
         schedulerService.startOrUpdateScheduledJob(jobDetail, trigger);
     }
 }

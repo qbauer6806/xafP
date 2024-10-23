@@ -4,30 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
  * Modélise un email à être envoyé par le MailService d'AfBack
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class EmailInfoDTO {
 
     /**
-     * Template correspondant au corps du mail
-     * Ce template doit être en HTML
+     * Template correspondant au corps du mail Ce template doit être en HTML
      */
     private String bodyTemplateCode;
-    
+
     /**
      * Template correspondant au sujet du mail
      */
     private String subjectTemplateCode;
-    
+
     /**
      * Sert à identifier dans quelle langue on doit prendre les templates
      */
     private String langue;
-    
+
     private final List<EmailInfoAddressDTO> to = new ArrayList<>();
 
     private final List<EmailInfoAddressDTO> cc = new ArrayList<>();
@@ -37,7 +34,7 @@ public class EmailInfoDTO {
     private EmailInfoAddressDTO from;
 
     private EmailInfoAddressDTO replyto;
-    
+
     /**
      * Liste de métadonnées optionnelles à donner au service de mail
      */
@@ -98,24 +95,24 @@ public class EmailInfoDTO {
     public List<EmailInfoParamDTO> getParams() {
         return params;
     }
-    
+
     public void addTo(String address, String name) {
-        EmailInfoAddressDTO addr = new EmailInfoAddressDTO(address, name); 
+        EmailInfoAddressDTO addr = new EmailInfoAddressDTO(address, name);
         to.add(addr);
     }
-    
+
     public void addCc(String address, String name) {
-        EmailInfoAddressDTO addr = new EmailInfoAddressDTO(address, name); 
+        EmailInfoAddressDTO addr = new EmailInfoAddressDTO(address, name);
         cc.add(addr);
     }
-    
+
     public void addBcc(String address, String name) {
-        EmailInfoAddressDTO addr = new EmailInfoAddressDTO(address, name); 
+        EmailInfoAddressDTO addr = new EmailInfoAddressDTO(address, name);
         bcc.add(addr);
     }
-    
+
     public void addParam(String key, String value) {
-        EmailInfoParamDTO param = new EmailInfoParamDTO(key, value); 
+        EmailInfoParamDTO param = new EmailInfoParamDTO(key, value);
         params.add(param);
     }
 
@@ -125,5 +122,5 @@ public class EmailInfoDTO {
                 + ", langue=" + langue + ", to=" + to + ", cc=" + cc + ", bcc=" + bcc + ", from=" + from + ", replyto="
                 + replyto + ", params=" + params + "]";
     }
-    
+
 }

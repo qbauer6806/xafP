@@ -21,16 +21,14 @@ import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 
 /**
- * 
  * DataProvider du cache des usagers courrier
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Profile("gouv")
 @Component
 public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, GichuniUsagerDTO> {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCacheDataProvider.class);
 
     @Autowired
@@ -38,10 +36,10 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private UsagersCourrierService usagersCourrierService;
-    
+
     @Autowired
     private AccessService accessService;
 
@@ -66,7 +64,8 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     private List<List<Integer>> pagesBuilder(List<Integer> usagersInternetIds) {
         // Paginer par pages de (500 par défaut)
         Integer pageSize = gouvPropertiesResolver.getUsagersPageSize();
-        LOGGER.info("Pagination : appel par pages de {}... {} usagers à récupérer...", pageSize, usagersInternetIds.size());
+        LOGGER.info("Pagination : appel par pages de {}... {} usagers à récupérer...", pageSize,
+                usagersInternetIds.size());
         List<List<Integer>> pages = new ArrayList<>();
         pages.add(new ArrayList<>());
         int pageCounter = 0;
@@ -110,7 +109,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
             }
         }
     }
-    
+
     @Override
     public ConcurrentHashMap<Integer, GichuniUsagerDTO> getAll() {
         List<GichuniUsagerDTO> usagers = new ArrayList<>();
@@ -129,14 +128,14 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         for (Integer usagerCourrierId : usagersCourriersIds) {
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(usagerCourrierId);
             if (uc != null) {
-            	GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
+                GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
                 usagersCourriers.add(ub);
             }
         }
         // Ajout des usagers courriers à la liste
         usagers.addAll(usagersCourriers);
         LOGGER.debug("Liste des usagers : {}", usagers);
-        
+
         // Transformation de la liste vers la ConcurrentHashMap
         ConcurrentHashMap<Integer, GichuniUsagerDTO> usagersMap = new ConcurrentHashMap<>();
         for (GichuniUsagerDTO usager : usagers) {
@@ -154,7 +153,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
             return gichuniApiClient.getUsager(key);
         }
     }
-    
+
     public static boolean isUsagerCourrier(Integer usagerId) {
         return usagerId > DemarchesUtils.USAGERID_OFFSET;
     }

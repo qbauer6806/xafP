@@ -7,9 +7,7 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesFilesTransformer {
 

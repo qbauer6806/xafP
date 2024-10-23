@@ -30,7 +30,8 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         // AUTO_DETECT regarde si il y a sheetStreaming="true" dans la 1ère cellule du template
         // sauf cas particulier il vaut mieux activer le streaming pour éviter les problèmes de mémoire sur les fichiers volumineux
         LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
-        try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
+        try (InputStream is = afBackUtils.getFileClient()
+                .getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
             JxlsPoi.fill(is, JxlsStreaming.AUTO_DETECT, model, outputStream);
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la génération Excel", e);

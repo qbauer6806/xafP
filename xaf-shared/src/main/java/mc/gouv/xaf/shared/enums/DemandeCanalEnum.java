@@ -4,9 +4,8 @@ import java.text.Collator;
 
 /**
  * Enum représentant les modes de transmission (ou canaux) possibles pour une demande.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public enum DemandeCanalEnum {
 
@@ -27,8 +26,9 @@ public enum DemandeCanalEnum {
             // This strategy mean it'll ignore the accents
             instance.setStrength(Collator.NO_DECOMPOSITION);
 
-            if (demandeCanalEnum.libelle.equals(libelle))
+            if (demandeCanalEnum.libelle.equals(libelle)) {
                 return demandeCanalEnum;
+            }
         }
 
         return null;

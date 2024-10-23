@@ -11,11 +11,9 @@ import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 /**
- * 
  * Classe BO de la table DEM.DEM_DEMANDES_USAGERS
- * 
- * @author uek
  *
+ * @author uek
  */
 @Setter
 @Getter
@@ -80,7 +78,7 @@ public class DemandesUsagersBO {
     private String login;
 
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 
 }

@@ -45,12 +45,13 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
 
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, true);
             histoService.actionSysteme(demandeId, "SUCCES", "Ecriture comptable automatique réalisée avec succès");
-            
+
         } catch (Exception e) {
             LOGGER.error("Error compta CIR", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, false);
             histoService.actionSysteme(demandeId, "ECHEC", "Ecriture comptable automatique en échec");
-            demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), FactureApiClient.INCIDENT);
+            demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(),
+                    FactureApiClient.INCIDENT);
         }
 
         LOGGER.info("==== xaf-back-stc compta CIR <fin>");

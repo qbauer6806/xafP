@@ -17,19 +17,22 @@ public enum SourceFiablesEnum {
         this.service = service;
         this.application = application;
     }
+
     public String getService() {
         return service;
     }
+
     public String getApplication() {
         return application;
     }
+
     @Override
     public String toString() {
         return libelle;
     }
 
-
     private static class Constants {
+
         public static final String IDENTITE_NUMERIQUE = "Identité Numérique";
     }
 }

@@ -18,9 +18,12 @@ public interface ArchivageService {
     /**
      * Archive les documents en attribut dans un registre donné
      *
-     * @param refPermis  Référence permis
-     * @param files      Fichiers à archiver
-     * @param demandeDTO demande
+     * @param refPermis
+     *         Référence permis
+     * @param files
+     *         Fichiers à archiver
+     * @param demandeDTO
+     *         demande
      * @return Liste des fichiers archivés
      */
     List<String> archivagePermis(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
@@ -28,9 +31,12 @@ public interface ArchivageService {
     /**
      * Archive les documents en attribut dans un registre donné
      *
-     * @param refRegistre Référence permis
-     * @param files       Fichiers à archiver
-     * @param demandeDTO  demande
+     * @param refRegistre
+     *         Référence permis
+     * @param files
+     *         Fichiers à archiver
+     * @param demandeDTO
+     *         demande
      * @return
      */
     List<String> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
@@ -38,9 +44,12 @@ public interface ArchivageService {
     /**
      * Archive les documents sur les références en paramètres
      *
-     * @param references map de référence et type de référence
-     * @param files      Fichiers à archiver
-     * @param demandeDTO demande
+     * @param references
+     *         map de référence et type de référence
+     * @param files
+     *         Fichiers à archiver
+     * @param demandeDTO
+     *         demande
      * @return la liste des références proprement archivées
      */
     List<String> archiver(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO);

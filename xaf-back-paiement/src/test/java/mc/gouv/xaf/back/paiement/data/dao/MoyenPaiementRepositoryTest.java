@@ -29,7 +29,7 @@ class MoyenPaiementRepositoryTest {
     void findByCommande_Id_test() {
         CommandeBO commandeBO = new CommandeBO();
         commandeBO.setDateCreation(LocalDateTime.now());
-        commandeBO =  commandeRepository.save(commandeBO);
+        commandeBO = commandeRepository.save(commandeBO);
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
         moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementBO.setPkMoyensPaiements("maRef1");

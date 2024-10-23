@@ -53,6 +53,7 @@ public class AfBackWebControllerAdvice {
     public String getContactSupportUrl() {
         return contactSupportUrl;
     }
+
     @ModelAttribute(name = "applicationVersion")
     public String getVersion() {
         return version;

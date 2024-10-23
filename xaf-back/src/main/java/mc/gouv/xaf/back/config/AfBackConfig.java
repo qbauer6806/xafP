@@ -24,11 +24,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.StringTemplateResolver;
 
 /**
- * 
  * Classe de configuration
- * 
+ *
  * @author qdeme
- * 
  */
 @Configuration
 @EnableCaching
@@ -49,8 +47,8 @@ public class AfBackConfig {
 
     @PostConstruct
     public void loadProperties() {
-        System.setProperty("MC_LOGDIR", loggingFile) ;
-        System.setProperty("MC_APPNAME", displayName) ;
+        System.setProperty("MC_LOGDIR", loggingFile);
+        System.setProperty("MC_APPNAME", displayName);
     }
 
     @Bean(name = "paysCacheImpl")
@@ -76,7 +74,8 @@ public class AfBackConfig {
     public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableFlowable5CompatibilityConfigurer() {
         return (SpringProcessEngineConfiguration processEngineConfiguration) -> {
             processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
-            processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(DefaultFlowable5SpringCompatibilityHandler::new);
+            processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(
+                    DefaultFlowable5SpringCompatibilityHandler::new);
         };
 
     }
@@ -87,7 +86,6 @@ public class AfBackConfig {
         templateEngine.setTemplateResolver(new StringTemplateResolver());
         return templateEngine;
     }
-
 
 }
 

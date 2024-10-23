@@ -22,59 +22,59 @@ import org.springframework.transaction.annotation.Transactional;
  * Service permettant la manipulation des demandes.
  *
  * @author qdeme
- *
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class DemandesConfigServiceImpl implements DemandesConfigService {
 
-	@Autowired
-	private DemandesConfigRepository demandesConfigRepository;
+    @Autowired
+    private DemandesConfigRepository demandesConfigRepository;
 
-	@Autowired
-	private MarqueursService marqueursService;
+    @Autowired
+    private MarqueursService marqueursService;
 
     @Autowired
     private BrouillonsService brouillonsService;
 
-	@Autowired
-	private DemandesConfigTransformer demandesConfigTransformer;
+    @Autowired
+    private DemandesConfigTransformer demandesConfigTransformer;
 
     private static final String MODEL_PATH = "modelPaths";
 
-	@Override
-	public List<DemandeConfigBO> getConfigsBO() {
-		return demandesConfigRepository.findAllByOrderByBuildIdDesc();
-	}
-
-	@Override
-	public String getLastBuildId() {
-		DemandeConfigBO configBO = demandesConfigRepository.findFirstByOrderByBuildIdDesc();
-		return configBO != null ? configBO.getBuildId() : null;
-	}
-
-	@Override
-	public DemandeConfigBO getLastConfig() {
-		return demandesConfigRepository.findFirstByOrderByBuildIdDesc();
-	}
+    @Override
+    public List<DemandeConfigBO> getConfigsBO() {
+        return demandesConfigRepository.findAllByOrderByBuildIdDesc();
+    }
 
     @Override
-	public JsonNode saveConfig(JsonNode config) {
-		String buildId = config.get("buildId").asText();
-		// si la config existe et que son contenu et != null, on ne la sauvegarde pas
-		DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
-		if (configBO == null || configBO.getContenu() == null) {
+    public String getLastBuildId() {
+        DemandeConfigBO configBO = demandesConfigRepository.findFirstByOrderByBuildIdDesc();
+        return configBO != null ? configBO.getBuildId() : null;
+    }
+
+    @Override
+    public DemandeConfigBO getLastConfig() {
+        return demandesConfigRepository.findFirstByOrderByBuildIdDesc();
+    }
+
+    @Override
+    public JsonNode saveConfig(JsonNode config) {
+        String buildId = config.get("buildId").asText();
+        // si la config existe et que son contenu et != null, on ne la sauvegarde pas
+        DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
+        if (configBO == null || configBO.getContenu() == null) {
             // on récupère tous les config avant d'ajouter le nouveau
             List<DemandeConfigBO> configs = getConfigsBO();
-			String lastBuildId = getLastBuildId();
-			configBO = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(config));
+            String lastBuildId = getLastBuildId();
+            configBO = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(config));
             // on recalcule les autres config pour vérifier si elles sont toujours le même modèle ou si le modèle a changé
             checkIfDernierModele(configs, configBO);
             // on génère les marqueurs pour la nouvelle config
-			marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId, getModelPaths(config.get(MODEL_PATH).get("rechercheAvancee")));
-		}
-		return demandesConfigTransformer.bo2Json(configBO);
-	}
+            marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId,
+                    getModelPaths(config.get(MODEL_PATH).get("rechercheAvancee")));
+        }
+        return demandesConfigTransformer.bo2Json(configBO);
+    }
 
     private void checkIfDernierModele(List<DemandeConfigBO> configs, DemandeConfigBO lastConfig) {
         for (DemandeConfigBO config : configs) {
@@ -100,24 +100,26 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         return getModelPathsRechercheAvancee(getLastBuildId());
     }
 
-	@Override
-	public List<String> getModelPathsRechercheAvancee(String buildId) {
+    @Override
+    public List<String> getModelPathsRechercheAvancee(String buildId) {
         DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
         return getModelPaths(configBO.getContenu().get(MODEL_PATH).get("rechercheAvancee"));
     }
 
     @Override
-	public List<String> getModelPaths(JsonNode modelPaths) {
-        if(modelPaths == null || modelPaths.isNull()) {
+    public List<String> getModelPaths(JsonNode modelPaths) {
+        if (modelPaths == null || modelPaths.isNull()) {
             return new ArrayList<>();
         }
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {});
-		try {
-			return reader.readValue(modelPaths);
-		} catch (IOException e) {
-			throw new DemarcheException("Erreur lors de la récupération des chemins", e);
-		}
-	}
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {
+
+        });
+        try {
+            return reader.readValue(modelPaths);
+        } catch (IOException e) {
+            throw new DemarcheException("Erreur lors de la récupération des chemins", e);
+        }
+    }
 
 }

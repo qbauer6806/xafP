@@ -17,22 +17,22 @@ import mc.gouv.xaf.back.dsp.enums.common.ResidTypePieceIdentiteEnum;
 @ToString
 public class ResidNationalite1Et2DTO implements Serializable {
 
-	private static final long serialVersionUID = 8927813265707011626L;
+    private static final long serialVersionUID = 8927813265707011626L;
 
-	private String nationalite1;
+    private String nationalite1;
 
-	private ResidTypePieceIdentiteEnum typePiece;
+    private ResidTypePieceIdentiteEnum typePiece;
 
-	private String numeroPiece;
+    private String numeroPiece;
 
-	private String dateDelivrance;
+    private String dateDelivrance;
 
-	private String dateFinValidite;
+    private String dateFinValidite;
 
-	private String paysDelivrance;
+    private String paysDelivrance;
 
-	private String nationalite2;
+    private String nationalite2;
 
-	private boolean ressortissant;
+    private boolean ressortissant;
 
 }

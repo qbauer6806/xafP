@@ -8,21 +8,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class HTMLEscapeUtilsTest {
-    
+
     @Test
     void escapeTextTest() {
         String txt = "coucou";
         String result = HTMLEscapeUtils.escape(txt);
         assertEquals(txt, result);
     }
-    
+
     @Test
     void escapeNumbersTest() {
         String txt = "123";
         String result = HTMLEscapeUtils.escape(txt);
         assertEquals(txt, result);
     }
-    
+
     @Test
     void escapeHTMLTest() {
         String txt = "<p>html</p>";
@@ -30,7 +30,7 @@ class HTMLEscapeUtilsTest {
         String expected = "&lt;p&gt;html&lt;/p&gt;";
         assertEquals(expected, result);
     }
-    
+
     @Test
     void escapeJavaScriptTest() {
         String txt = "<script>alert(1);</script>";

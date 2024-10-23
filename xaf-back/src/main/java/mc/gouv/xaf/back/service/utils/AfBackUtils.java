@@ -76,7 +76,6 @@ import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
  * Classe utilitaire pour le projet xaf-back
  *
  * @author qdeme
- *
  */
 @Component
 public class AfBackUtils {
@@ -91,7 +90,7 @@ public class AfBackUtils {
 
     // 24 hours time format
     public static final String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
-    
+
     // 24 hours time format with seconds
     public static final String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
 
@@ -114,7 +113,7 @@ public class AfBackUtils {
     public static final DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
-    
+
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
     public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
@@ -155,7 +154,7 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
-    
+
     @Autowired
     @Lazy
     private DemandesService demandesService;
@@ -197,20 +196,21 @@ public class AfBackUtils {
 
         return null;
     }
-    
+
     /**
-	 * Retourne le code alpha2 de la nationalitée en fonction du code alpha3 donné en paramètre
-	 * @param alpha3Code
-	 * @return
-	 */
-	public static String getAlpha2Code(String alpha3Code) {
-		Map<String, String> isoCodeMap = new HashMap<>();
-		for (String currentCountry : Locale.getISOCountries()) {
-			Locale currentCountryLocaleFr = Locale.of("fr", currentCountry);
-			isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
-		}
-		return isoCodeMap.get(alpha3Code);
-	}
+     * Retourne le code alpha2 de la nationalitée en fonction du code alpha3 donné en paramètre
+     *
+     * @param alpha3Code
+     * @return
+     */
+    public static String getAlpha2Code(String alpha3Code) {
+        Map<String, String> isoCodeMap = new HashMap<>();
+        for (String currentCountry : Locale.getISOCountries()) {
+            Locale currentCountryLocaleFr = Locale.of("fr", currentCountry);
+            isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
+        }
+        return isoCodeMap.get(alpha3Code);
+    }
 
     /**
      * Utilisé dans les fichiers html/thymeleaf
@@ -222,11 +222,12 @@ public class AfBackUtils {
     /**
      * Retourne le nom d'un usager à partir de son ID
      *
-     * @param usagerId une String contenant l'id de l'usager
+     * @param usagerId
+     *         une String contenant l'id de l'usager
      * @return une Sring composer de son prénom et son nom
      */
     public String getUsagerNameFromID(Integer usagerId) {
-    	GichuniUsagerDTO u = usagersCache.get(usagerId);
+        GichuniUsagerDTO u = usagersCache.get(usagerId);
         StringBuilder builder = new StringBuilder();
         if (null != u) {
             if (StringUtils.isNotBlank(u.getPrenom())) {
@@ -257,7 +258,8 @@ public class AfBackUtils {
     }
 
     /**
-     * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: YYYYMMDDHHmmssSS
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant:
+     * YYYYMMDDHHmmssSS
      */
     public static String generateFileDateAndTimeSuffix() {
         return new SimpleDateFormat(FILE_DATE_AND_TIME_SUFFIX_FORMAT).format(new Date());
@@ -296,7 +298,7 @@ public class AfBackUtils {
     public String getDemarcheNom() {
         return getDemarcheInfos().getNom();
     }
-    
+
     /**
      * Retourne le nom complet de la démarche en Anglais
      *
@@ -308,7 +310,6 @@ public class AfBackUtils {
 
     /**
      * Permet de récupérer une donnée d'une demande
-     *
      */
     public static String getDemandeData(DemandeDTO demande, String key) {
         if (demande.getData() != null) {
@@ -363,9 +364,9 @@ public class AfBackUtils {
     }
 
     public static String getTitreStr(Short titre) {
-    	if (titre == null) {
-    		return "";
-    	} else if (titre == 0) {
+        if (titre == null) {
+            return "";
+        } else if (titre == 0) {
             return "Monsieur";
         } else if (titre == 1) {
             return "Madame";
@@ -392,9 +393,9 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne la classe CSS de la couleur associée à un statut
-     * Attention, changer la fonction js getStatusColorClass
+     * Retourne la classe CSS de la couleur associée à un statut Attention, changer la fonction js getStatusColorClass
      * Utilisé dans les fichiers html/thymeleaf
+     *
      * @param statutName
      * @return
      */
@@ -516,8 +517,7 @@ public class AfBackUtils {
     }
 
     /**
-     * Permet de récupérer le flag indiquant que la démarche peut générer des
-     * courriers
+     * Permet de récupérer le flag indiquant que la démarche peut générer des courriers
      *
      * @return
      */
@@ -527,6 +527,7 @@ public class AfBackUtils {
 
     /**
      * Permet de savoir si la démarche prend en charge les périodes d'ouverture
+     *
      * @return
      */
     public boolean getDemarcheCanHandlePeriodesOuverture() {
@@ -535,6 +536,7 @@ public class AfBackUtils {
 
     /**
      * Permet de savoir si la démarche prend en charge des propriétés
+     *
      * @return
      */
     public boolean getDemarcheCanHandleProperties() {
@@ -543,7 +545,9 @@ public class AfBackUtils {
 
     /**
      * Permet de parser une string en un objet Date au format déclaré dans AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT
-     * @throws ParseException en cas d'erreurs de parsing du SimpleDateFormat
+     *
+     * @throws ParseException
+     *         en cas d'erreurs de parsing du SimpleDateFormat
      */
     public static Date convertDate(String dateStr, boolean endDate) throws ParseException {
         Date date = null;
@@ -562,13 +566,14 @@ public class AfBackUtils {
         }
         return date;
     }
-    
+
     /**
      * Permet de savoir si la démarche prend en charge la gestion des agents (DENJS)
+     *
      * @return
      */
     public boolean getDemarcheCanHandleDenjsGestionAgents() {
-    	return demarchesDataProvider.getDemarcheCanHandleDenjsGestionAgents();
+        return demarchesDataProvider.getDemarcheCanHandleDenjsGestionAgents();
     }
 
     public static String escapeChars(String str) {
@@ -601,30 +606,32 @@ public class AfBackUtils {
     /**
      * Retourne le nom d'un utilisateur à partir de son matricule
      * <br>
-     * Attention cette méthode est appelée dans les pages HTML avec thymeleaf, bien vérifier les appels lors d'une suppression
+     * Attention cette méthode est appelée dans les pages HTML avec thymeleaf, bien vérifier les appels lors d'une
+     * suppression
+     *
      * @deprecated : Utiliser la méthode de {@link UtilisateursUtils}
      */
     @Deprecated
     public String getUserNameFromID(String matricule) {
         return utilisateursUtils.getUserNameFromID(matricule);
     }
-    
+
     @SuppressWarnings("unchecked")
-	public static Map<String, String> getListFromDemProperty(String demPropertyValue) {
-    	ObjectMapper mapper = new ObjectMapper();
-    	try {
+    public static Map<String, String> getListFromDemProperty(String demPropertyValue) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
             return mapper.readValue(demPropertyValue, Map.class);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
-		}
-    	return Collections.emptyMap();
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
+        }
+        return Collections.emptyMap();
     }
 
     public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, PropertiesListEntityDTO[].class);
     }
-    
+
     public static String convertTelIndicateur(String indicateur) {
         return StringUtils.replace(indicateur, "t", "+");
     }
@@ -654,64 +661,66 @@ public class AfBackUtils {
         ((DecimalFormat) formatter).setDecimalFormatSymbols(decimalFormatSymbols);
         return formatter.format(number);
     }
-    
+
     public static String getSectionFromMetaFichier(String meta) {
-    	if (StringUtils.isBlank(meta)) {
-    		return null;
-    	}
-    	for (String token : meta.split(";")) {
-    		if (token.startsWith(META_FICHIER_SECTION_PREFIX)) {
-    			token = token.replace(META_FICHIER_SECTION_PREFIX, "");
-    			return token;
-    		}
-    	}
-    	return null;
+        if (StringUtils.isBlank(meta)) {
+            return null;
+        }
+        for (String token : meta.split(";")) {
+            if (token.startsWith(META_FICHIER_SECTION_PREFIX)) {
+                token = token.replace(META_FICHIER_SECTION_PREFIX, "");
+                return token;
+            }
+        }
+        return null;
     }
-    
+
     /*
      * Retourne le texte tronqué avec "(...)" à la fin (pour affichage)
      */
     public static String tronquerTextePourAffichage(String texte, Integer nbChars) {
-	    if (texte != null) {
-	    	String ret = texte.substring(0, (texte.length() > nbChars ? nbChars : texte.length()));
-	    	if (ret.length() > 3000) {
-	    		ret += " (...)";
-	    	}
-	    	return ret;
-	    }
-	    return null;
+        if (texte != null) {
+            String ret = texte.substring(0, (texte.length() > nbChars ? nbChars : texte.length()));
+            if (ret.length() > 3000) {
+                ret += " (...)";
+            }
+            return ret;
+        }
+        return null;
     }
-	
-	public static String mConnectDateToString(Date date) {
-		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
-	}
 
-	public Map<String, String> getLanguesDisponibles() {
-		DemarcheDTO demarche = getDemarcheInfos();
-		Map<String, String> langues = new HashMap<>();
-		if (demarche.getLangues().contains("fr")) {
-			langues.put("fr", "Français");
-		}
-		if (demarche.getLangues().contains("en")) {
-			langues.put("en", "Anglais");
-		}
-		return langues;
-	}
+    public static String mConnectDateToString(Date date) {
+        return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
+    }
 
-	public String getIdentifiantFromPkDemande(Integer pkDemande) {
-		DemandeDTO demande = demandesService.getDemande(pkDemande);
-		return demande.getIdentifiant();
-	}
-	public boolean isEmailHtmlEnabled() {
+    public Map<String, String> getLanguesDisponibles() {
+        DemarcheDTO demarche = getDemarcheInfos();
+        Map<String, String> langues = new HashMap<>();
+        if (demarche.getLangues().contains("fr")) {
+            langues.put("fr", "Français");
+        }
+        if (demarche.getLangues().contains("en")) {
+            langues.put("en", "Anglais");
+        }
+        return langues;
+    }
+
+    public String getIdentifiantFromPkDemande(Integer pkDemande) {
+        DemandeDTO demande = demandesService.getDemande(pkDemande);
+        return demande.getIdentifiant();
+    }
+
+    public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
-        	return false;
+            return false;
         }
         return Boolean.parseBoolean(emailHtmlEnabledProp.getValue());
-	}
-	
-	/**
+    }
+
+    /**
      * Permet de savoir si la démarche prend en charge des propriétés
+     *
      * @return
      */
     public boolean isTypedocApplicable(String typedoc) {
@@ -719,10 +728,11 @@ public class AfBackUtils {
     }
 
     public AfApiClient getAfApiClient2Tiers() {
-    	if (afApiClient2Tiers == null) {
-    		afApiClient2Tiers = new AfApiClient(gouvPropertiesResolver.get2TiersBoUrl(), gouvPropertiesResolver.get2TiersBoJwt());
-    	}
-    	return afApiClient2Tiers;
+        if (afApiClient2Tiers == null) {
+            afApiClient2Tiers = new AfApiClient(gouvPropertiesResolver.get2TiersBoUrl(),
+                    gouvPropertiesResolver.get2TiersBoJwt());
+        }
+        return afApiClient2Tiers;
     }
 
     public String getMarqueurValue(JsonNode contenu, String path) {
@@ -743,7 +753,7 @@ public class AfBackUtils {
         return path.replace("contenu.", "/").replace(".", "/");
     }
 
-    public static void setNodeValue(JsonNode contenu, String path, String nouvelleValeur){
+    public static void setNodeValue(JsonNode contenu, String path, String nouvelleValeur) {
         // [contenu,donnee,demandeur,prenom]
         List<String> donneeExterneKeyArray = new ArrayList<>(Arrays.asList(path.split("\\.")));
         // [donnee,demandeur,prenom]
@@ -756,8 +766,8 @@ public class AfBackUtils {
     }
 
     /**
-     * Permet de convertir une ligne d'historique DEM en une ligne d'historique TS avec tous les détails
-     * spécifiques au TS.
+     * Permet de convertir une ligne d'historique DEM en une ligne d'historique TS avec tous les détails spécifiques au
+     * TS.
      *
      * @param demHisto
      * @return
@@ -777,8 +787,8 @@ public class AfBackUtils {
     }
 
     /**
-     * Permet de convertir un ensemble de lignes d'historique DEM en un ensemble de lignes d'historique TS avec
-     * tous les détails spécifiques au TS.
+     * Permet de convertir un ensemble de lignes d'historique DEM en un ensemble de lignes d'historique TS avec tous les
+     * détails spécifiques au TS.
      *
      * @param demHistos
      * @return
@@ -803,8 +813,7 @@ public class AfBackUtils {
      * @param agentId
      * @return
      */
-    public DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu,
-            Integer usagerId,
+    public DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
             String agentId) {
         DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
         demHisto.setAgentId(agentId);
@@ -850,6 +859,7 @@ public class AfBackUtils {
 
     /**
      * Convertit la syntaxe velocity vers thymeleaf (${dateDebut} vers <th:block th:utext="${dateDebut}"></th:block>)
+     *
      * @param input
      * @return
      */
@@ -867,10 +877,7 @@ public class AfBackUtils {
         String tempInput = input.replaceAll(attributePattern, "PLACEHOLDER");
 
         // 2ème étape : Remplacer les ${...} qui ne sont pas dans un attribut de balise
-        String output = tempInput.replaceAll(
-                "\\$\\{([^\\s}]+)\\}",
-                "<th:block th:utext=\"\\$\\{$1\\}\"></th:block>"
-        );
+        String output = tempInput.replaceAll("\\$\\{([^\\s}]+)\\}", "<th:block th:utext=\"\\$\\{$1\\}\"></th:block>");
 
         // 3ème étape : Restaurer les balises <a th:href="..."> ou th:utext="..." à leur place
         for (String match : attributeMatches) {
@@ -882,6 +889,7 @@ public class AfBackUtils {
 
     /**
      * Utilisé dans les template doc
+     *
      * @param date
      * @param pattern
      * @return
@@ -898,6 +906,7 @@ public class AfBackUtils {
 
     /**
      * Utilisé dans les template doc
+     *
      * @param pattern
      * @return
      */
@@ -905,7 +914,6 @@ public class AfBackUtils {
         SimpleDateFormat outputFormat = new SimpleDateFormat(pattern, Locale.FRANCE);
         return outputFormat.format(new Date());
     }
-
 
     /**
      * Permets de déterminer le type de connexion à partir d'une demande
@@ -921,7 +929,8 @@ public class AfBackUtils {
             return TypeConnexionUsagerEnum.MCONNECT;
         }
         //Par défaut, c'est AUTHENTIFICATION_FAIBLE
-        return COURRIER.equals(demande.getCanal()) || GUICHET_PHYSIQUE.equals(demande.getCanal()) ?
-                TypeConnexionUsagerEnum.AGENT : TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE;
+        return COURRIER.equals(demande.getCanal()) || GUICHET_PHYSIQUE.equals(demande.getCanal())
+                ? TypeConnexionUsagerEnum.AGENT
+                : TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE;
     }
 }

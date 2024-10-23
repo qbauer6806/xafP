@@ -36,9 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des usagers courrier.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -242,8 +241,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      * {@inheritDoc}
      */
     @Override
-    public void transferer(Integer usagerCourrierSourceId, Integer usagerCourrierCibleId,
-            List<Integer> demandeIds) {
+    public void transferer(Integer usagerCourrierSourceId, Integer usagerCourrierCibleId, List<Integer> demandeIds) {
 
         LOGGER.info("Récupération de l'accès cible...");
         AccessBO accesCible = accessService.getAccessBOActive(usagerCourrierCibleId);
@@ -255,9 +253,8 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             DemandeBO demande = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
             AccessBO accesSource = demande.getFkAccess();
             if (!accesSource.getUsagerId().equals(usagerCourrierSourceId)) {
-                throw new DemarchesServiceException(
-                        "La demande " + demande.getPkDemandes()
-                                + " ne correspond pas à l'usager courrier source spécifié " + usagerCourrierSourceId,
+                throw new DemarchesServiceException("La demande " + demande.getPkDemandes()
+                        + " ne correspond pas à l'usager courrier source spécifié " + usagerCourrierSourceId,
                         HttpStatus.BAD_REQUEST);
             }
             accesSource.getDemandes().remove(demande);
@@ -271,13 +268,11 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
-            List<String> buildIds) {
+    public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds) {
         List<DemandeDTO> listDemandes = demandesService.getDemandes(usagerId, true);
         return listDemandes.stream()
                 .filter(dem -> statuts.contains(dem.getDernierStatut().getName()) && buildIds.contains(
-                        dem.getConfig().get("buildId").asText()))
-                .max(Comparator.comparing(DemandeDTO::getDateCreation))
+                        dem.getConfig().get("buildId").asText())).max(Comparator.comparing(DemandeDTO::getDateCreation))
                 .orElse(null);
 
     }

@@ -35,10 +35,9 @@ public class BrouillonsPageableController extends AbstractXafController {
 
     @GetMapping
     public ResponseEntity<Page<BrouillonDTO>> doGet(@RequestParam(name = RequestConstant.PAGE_PARAM) String pageNb,
-                                                    @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
-                                                    @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
-                                                    @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
-                                                    HttpServletRequest request) {
+            @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
+            @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
+            @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction, HttpServletRequest request) {
 
         LOGGER.info("====================== /brouillonspage doGet()");
 

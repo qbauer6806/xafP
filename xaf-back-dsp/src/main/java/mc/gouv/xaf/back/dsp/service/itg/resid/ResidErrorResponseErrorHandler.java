@@ -20,14 +20,17 @@ public class ResidErrorResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
-        return (httpResponse.getStatusCode().value() == CLIENT_ERROR.value() || httpResponse.getStatusCode().value() == SERVER_ERROR.value());
+        return (httpResponse.getStatusCode().value() == CLIENT_ERROR.value()
+                || httpResponse.getStatusCode().value() == SERVER_ERROR.value());
     }
 
     @Override
     public void handleError(ClientHttpResponse httpResponse) throws IOException {
-        if (httpResponse.getStatusCode().value() == HttpStatus.Series.SERVER_ERROR.value()|| httpResponse.getStatusCode().value() == HttpStatus.Series.CLIENT_ERROR.value()) {
+        if (httpResponse.getStatusCode().value() == HttpStatus.Series.SERVER_ERROR.value()
+                || httpResponse.getStatusCode().value() == HttpStatus.Series.CLIENT_ERROR.value()) {
             LOGGER.error("Erreur lors de l'appel à RESID - Erreur {}", httpResponse.getStatusCode());
-            ResidHttpResponseException ex = new ObjectMapper().readValue(httpResponse.getBody(), ResidHttpResponseException.class);
+            ResidHttpResponseException ex = new ObjectMapper().readValue(httpResponse.getBody(),
+                    ResidHttpResponseException.class);
             ex.setHttpStatus(httpResponse.getStatusCode().value());
             throw ex;
         }

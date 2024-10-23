@@ -24,9 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Les tests unitaires pour le PdfGenerationService
- * 
- * @author dsaidiparto.ext
  *
+ * @author dsaidiparto.ext
  */
 @Disabled
 @ActiveProfiles("test")
@@ -52,7 +51,7 @@ class PdfGenerationTest {
 
     /**
      * Fournit le texte pour créer le pdf avec les donner fournir en utilisant le template en format docx
-     * 
+     *
      * @return
      * @throws IOException
      * @throws XDocReportException
@@ -76,7 +75,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que le identifiant est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -90,7 +89,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que Ttire, Prénom et Nom sont bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -106,7 +105,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que la date courant est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -120,7 +119,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que le référence est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -134,7 +133,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que l'adress est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -147,7 +146,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que le motif est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -161,7 +160,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que la date de depot est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -175,7 +174,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que le commentaire est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -188,7 +187,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que le raison sociale est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -202,7 +201,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que la date de début est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -217,7 +216,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que la date de fin est bien placé dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -231,7 +230,7 @@ class PdfGenerationTest {
 
     /**
      * Verifie que generateur de pdf respect la position de commentaire dans le texte
-     * 
+     *
      * @throws IOException
      * @throws XDocReportException
      */
@@ -258,8 +257,9 @@ class PdfGenerationTest {
     }
 
     /**
-     * Verification de champs conditionelle dans le template , si le parametre est vide il ne faut pas avoire ligne vide
-     * 
+     * Verification de champs conditionelle dans le template , si le parametre est vide il ne faut pas avoire ligne
+     * vide
+     *
      * @throws IOException
      * @throws XDocReportException
      */

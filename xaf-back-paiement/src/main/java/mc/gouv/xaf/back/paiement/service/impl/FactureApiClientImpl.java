@@ -49,9 +49,8 @@ public class FactureApiClientImpl implements FactureApiClient {
     private final PaiementPropertiesResolver paiementPropertiesResolver;
     private final MailService mailService;
 
-    public FactureApiClientImpl(PaiementPropertiesResolver paiementPropertiesResolver,
-                           OperationHelper operationHelper,
-                           MailService mailService) {
+    public FactureApiClientImpl(PaiementPropertiesResolver paiementPropertiesResolver, OperationHelper operationHelper,
+            MailService mailService) {
         String serviceUrl = paiementPropertiesResolver.getFactureUrl();
         ClientConfig config = new ClientConfig();
 
@@ -75,10 +74,8 @@ public class FactureApiClientImpl implements FactureApiClient {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
         Response response = this.targetCheck.queryParam("numFacture", numFacture)
-                .queryParam("registre", paiementPropertiesResolver.getRegistre())
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-                .get();
+                .queryParam("registre", paiementPropertiesResolver.getRegistre()).request()
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken()).get();
 
         String responseString = response.readEntity(String.class);
         LOGGER.info("return : {}", responseString);
@@ -89,6 +86,7 @@ public class FactureApiClientImpl implements FactureApiClient {
     public Optional<String> createFacture(List<CirRequestDTO> lignes, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
         Operation<String> operation = new Operation<>() {
+
             @Override
             public void execute() throws HttpResponseException {
                 Response response = targetCreate.request()
@@ -123,10 +121,10 @@ public class FactureApiClientImpl implements FactureApiClient {
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
 
         Operation<InputStream> operation = new Operation<>() {
+
             @Override
             public void execute() throws HttpResponseException {
-                Response response = targetGet.queryParam("numFacture", numFacture)
-                        .request("application/pdf")
+                Response response = targetGet.queryParam("numFacture", numFacture).request("application/pdf")
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                         .get();
 
@@ -158,9 +156,13 @@ public class FactureApiClientImpl implements FactureApiClient {
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
         String bodyTemplateCode = "MAIL_CIR_ECHEC_CORPS";
         String subjectTemplateCode = "MAIL_CIR_ECHEC_OBJET";
-        Set<String> mailingLists = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(), MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name(), MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
+        Set<String> mailingLists = mailService.getMailingLists(
+                MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+                MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name(),
+                MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, Object> model = new HashMap<>();
         model.put("resultat", operation.getResult());
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), incident, model, null);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(),
+                demandeDTO.getIdentifiant(), incident, model, null);
     }
 }

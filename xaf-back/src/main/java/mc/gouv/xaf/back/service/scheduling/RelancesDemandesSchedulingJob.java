@@ -44,12 +44,13 @@ public class RelancesDemandesSchedulingJob implements Job {
                 // Récupération de la liste des statuts à purger dans le contexte du job detail
                 Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statutsARelancer");
                 if (statutsJob instanceof List) {
-                	confRelances = (List<RelanceStatutDemandeConf>) statutsJob;
+                    confRelances = (List<RelanceStatutDemandeConf>) statutsJob;
                 }
                 LOGGER.info("RAPPEL COURRIEL: Début du job de relance courriel des demandes");
                 relanceDemandesService.sendRelancesMail(confRelances);
             } else {
-                LOGGER.info("RAPPEL COURRIEL: La fonctionnalité de la rappel des courriels est désactivée, changez la propriété XAF_RAPPEL_ACTIVATION pour activer.");
+                LOGGER.info(
+                        "RAPPEL COURRIEL: La fonctionnalité de la rappel des courriels est désactivée, changez la propriété XAF_RAPPEL_ACTIVATION pour activer.");
             }
         } catch (Exception e) {
             LOGGER.error("Erreur lors du rappel des demandes", e);

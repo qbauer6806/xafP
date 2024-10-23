@@ -31,7 +31,7 @@ public class RechercheCourriersController extends AbstractController {
 
     @GetMapping(value = "/pageable")
     public Page<DemandeCourrierDTO> getDemandesCourriers(@RequestParam(value = "texte", required = false) String texte,
-                                                         @RequestParam(value = "imprime", required = false) boolean imprime, Pageable pageable) {
+            @RequestParam(value = "imprime", required = false) boolean imprime, Pageable pageable) {
 
         String safeTexte = AfBackUtils.logSafe(texte);
         LOGGER.info("======================= Appel de /ws/courriers/pageable (texte=\"{}\")", safeTexte);
@@ -47,7 +47,8 @@ public class RechercheCourriersController extends AbstractController {
             }
         }
 
-        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC, "identifiant");
+        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
+                "identifiant");
 
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
 

@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesStatutsTransformer {
 
-    private DemandesStatutsTransformer() {}
+    private DemandesStatutsTransformer() {
+    }
 
     public static DemandeStatutDTO bo2Dto(DemandesStatutsBO bo) {
         if (bo == null) {

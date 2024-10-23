@@ -45,16 +45,16 @@ public class DemandeJobServiceImpl implements DemandeJobService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private KafkaOutboxTraitementJob kafkaOutboxTraitementJob;
-    
+
     @Autowired
     private GUKafkaUtils guKafkaUtils;
-    
+
     @Autowired
     private GUKafkaProducer guKafkaProducer;
-    
+
     @Autowired
     private KafkaOutboxService kafkaOutboxService;
 
@@ -92,8 +92,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         }
     }
 
-
-
     @Async
     @Transactional(propagation = Propagation.REQUIRED)
     public void launch(DemandeJobBO job) {
@@ -106,7 +104,8 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                         // Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
                         msg = context.getBean(GUKafkaDLTConsumer.class).traiterDLT();
                     } else {
-                        throw new DemarchesServiceException("Ce job doit être lancé par le backserver", HttpStatus.UNAUTHORIZED);
+                        throw new DemarchesServiceException("Ce job doit être lancé par le backserver",
+                                HttpStatus.UNAUTHORIZED);
                     }
                     break;
                 case TRAITEMENT_OUTBOX_KAFKA:
@@ -122,8 +121,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     msg = "L'Outbox Kafka contient " + nbMessages;
                     if (nbMessages > 1) {
                         msg += " messages.";
-                    }
-                    else {
+                    } else {
                         msg += " message.";
                     }
                     break;
@@ -160,29 +158,29 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void logErrors(Integer jobId, Exception e) {
+    public void logErrors(Integer jobId, Exception e) {
 
-		StringBuilder errorMsg;
-		if (e.getMessage() != null) {
-			errorMsg = new StringBuilder(e.getMessage());
-		} else {
-			errorMsg = new StringBuilder("Une erreur inattendue est survenue");
-		}
-		if (e.getCause() != null && e.getCause().getMessage() != null) {
-			errorMsg.append("\n").append(e.getCause().getMessage());
-		}
+        StringBuilder errorMsg;
+        if (e.getMessage() != null) {
+            errorMsg = new StringBuilder(e.getMessage());
+        } else {
+            errorMsg = new StringBuilder("Une erreur inattendue est survenue");
+        }
+        if (e.getCause() != null && e.getCause().getMessage() != null) {
+            errorMsg.append("\n").append(e.getCause().getMessage());
+        }
 
-		Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
-		if (jobOpt.isPresent()) {
-			DemandeJobBO job = jobOpt.get();
-			LOGGER.error("Une erreur est survenue lors du lancement du job {} : {}", job.getJobName().getLibelle(),
-					errorMsg, e);
-			job.setStatut(JobStatutsEnum.ERROR);
-			job.setMsg(errorMsg.toString());
-			job.setDateDernModif(new Date());
-			demandeJobRepository.save(job);
-		}
-	}
+        Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
+        if (jobOpt.isPresent()) {
+            DemandeJobBO job = jobOpt.get();
+            LOGGER.error("Une erreur est survenue lors du lancement du job {} : {}", job.getJobName().getLibelle(),
+                    errorMsg, e);
+            job.setStatut(JobStatutsEnum.ERROR);
+            job.setMsg(errorMsg.toString());
+            job.setDateDernModif(new Date());
+            demandeJobRepository.save(job);
+        }
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logSuccess(Integer jobId, String msg) {

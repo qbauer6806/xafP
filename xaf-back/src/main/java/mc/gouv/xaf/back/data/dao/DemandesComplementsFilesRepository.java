@@ -8,11 +8,10 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 
 /**
  * @author qdeme
- *
  */
 public interface DemandesComplementsFilesRepository extends CrudRepository<DemandesComplementsFilesBO, Integer> {
 
-	List<DemandesComplementsFilesBO> findAllByUrl(String url);
+    List<DemandesComplementsFilesBO> findAllByUrl(String url);
 
     Integer countByUrl(String url);
 }

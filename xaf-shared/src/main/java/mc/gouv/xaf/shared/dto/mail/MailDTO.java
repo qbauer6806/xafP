@@ -11,11 +11,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 
  * Classe pour modélisation JSON d'un mail à l'entrée du WS.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -83,7 +81,7 @@ public class MailDTO {
 
     @Valid
     private ParamDTO[] paramDTOs;
-    
+
     @Setter
     @Getter
     private MailAttachmentLinkDTO[] mailAttachmentLinks;

@@ -19,11 +19,9 @@ import jakarta.validation.constraints.Size;
 import java.util.Date;
 
 /**
- * 
  * Classe BO de la table DEM.DEMANDES_FILES
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -53,7 +51,7 @@ public class DemandesFilesBO {
     @Column(name = "meta", length = 512)
     @Size(max = 512)
     private String meta;
-    
+
     @Column(name = "DATE")
     private Date date;
 
@@ -68,7 +66,7 @@ public class DemandesFilesBO {
     private String contenu;
 
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 
 }

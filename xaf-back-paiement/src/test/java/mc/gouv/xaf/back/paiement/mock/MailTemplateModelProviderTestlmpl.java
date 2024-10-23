@@ -15,12 +15,14 @@ public class MailTemplateModelProviderTestlmpl implements MailTemplateModelProvi
     }
 
     @Override
-    public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande, Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
+    public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande,
+            Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
         return null;
     }
 
     @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, Map<String, Object> bpmVariables) {
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+            Map<String, Object> bpmVariables) {
         return null;
     }
 

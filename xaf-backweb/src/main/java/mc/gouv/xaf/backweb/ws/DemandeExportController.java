@@ -22,7 +22,7 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 /**
  * Controller pour l'extraction des données des demandes (export excel)
- * 
+ *
  * @author qdeme
  */
 @GouvRestController
@@ -32,7 +32,7 @@ public class DemandeExportController extends AbstractController {
 
     @Autowired
     private ExcelExportService excelExportService;
-    
+
     @Autowired
     private ExcelExportModelProvider excelExportModelProvider;
 
@@ -42,25 +42,28 @@ public class DemandeExportController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
     @GetMapping(value = "/excel")
-    public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate , @RequestParam(required = false) String creationEndDate) {
+    public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate,
+            @RequestParam(required = false) String creationEndDate) {
 
         LOGGER.info("======================= Appel du controller /ws/export/excel");
         String safeCreationStart = AfBackUtils.logSafe(creationStartDate);
         String safeCreationEnd = AfBackUtils.logSafe(creationEndDate);
-        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", safeCreationStart, safeCreationEnd);
+        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", safeCreationStart,
+                safeCreationEnd);
 
         try {
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-disposition", "attachment; filename=" +
-                    demarchesService.getDemarche().getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + demarchesService.getDemarche().getIdentifiantPrefixe() + "_Donnees_Stat_"
+                            + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
 
             ExcelRechercheDTO excelRechercheDTO = new ExcelRechercheDTO();
             excelRechercheDTO.setCreationStartDate(creationStartDate);
             excelRechercheDTO.setCreationEndDate(creationEndDate);
-            
+
             LOGGER.info("Constitution du modèle pour la génération Excel...");
             Map<String, Object> model = excelExportModelProvider.getModel(excelRechercheDTO);
-            
+
             LOGGER.info("Appel export Excel...");
             excelExportService.exportExcel("demandes.xlsx", model, response.getOutputStream());
 

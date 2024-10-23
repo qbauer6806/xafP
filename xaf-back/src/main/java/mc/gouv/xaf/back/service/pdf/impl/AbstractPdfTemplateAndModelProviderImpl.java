@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvider {
 
-  @Autowired
-  private MotifsCache motifsCache;
+    @Autowired
+    private MotifsCache motifsCache;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -64,7 +64,8 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
     }
 
     @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, String texteAEnvoyer) {
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+            String texteAEnvoyer) {
         Map<String, Object> model = new HashMap<>();
         model.put("identifiant", demande.getIdentifiant());
         DemandeAgentDTO agent = demande.getAgent();
@@ -90,7 +91,8 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         model.put("nomDirection", demarcheInfos.getNomDirection());
         model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
         model.put("nomFooter", demarcheInfos.getNomFooter());
-        model.put("adresseService", StringUtils.replace(demarcheInfos.getAdresseService(),"<br/>", System.lineSeparator()));
+        model.put("adresseService",
+                StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", System.lineSeparator()));
         model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
         model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
         model.put("telephoneService", demarcheInfos.getTelephoneService());

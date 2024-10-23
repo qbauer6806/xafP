@@ -45,23 +45,17 @@ class DocHolderControllerTest {
     @Test
     void failOnUserNotLoggedTest() throws ServletException, IOException {
         when(servletUtilsMocked.getLoggedUser(any())).thenReturn(null);
-        when(servletUtilsMocked.logAndSendError(any(), anyInt(), anyString()))
-                .thenReturn(ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build());
+        when(servletUtilsMocked.logAndSendError(any(), anyInt(), anyString())).thenReturn(
+                ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build());
 
         ResponseEntity<?> responseEntity = docHolderTypedocController.doGet(request);
         Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, responseEntity.getStatusCodeValue());
     }
 
     private static Stream<Arguments> emptyOrInvalidFileParameters() {
-        return Stream.of(
-                Arguments.of(null, null, null),
-                Arguments.of(null, null, ""),
-                Arguments.of(null, "", null),
-                Arguments.of("", "", null),
-                Arguments.of("", "  ", null),
-                Arguments.of("", "", ""),
-                Arguments.of("  ", "  ", "  ")
-        );
+        return Stream.of(Arguments.of(null, null, null), Arguments.of(null, null, ""), Arguments.of(null, "", null),
+                Arguments.of("", "", null), Arguments.of("", "  ", null), Arguments.of("", "", ""),
+                Arguments.of("  ", "  ", "  "));
     }
 
     @ParameterizedTest
@@ -70,8 +64,9 @@ class DocHolderControllerTest {
         UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
 
         when(servletUtilsMocked.getLoggedUser(any())).thenReturn(usagerInfosDTO);
-        when(servletUtilsMocked.logAndSendError(any(Logger.class), any(org.springframework.http.HttpStatus.class), anyString()))
-                .thenReturn(ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).build());
+        when(servletUtilsMocked.logAndSendError(any(Logger.class), any(org.springframework.http.HttpStatus.class),
+                anyString())).thenReturn(
+                ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST).build());
 
         DocHolderFilePostDTO filePostDTO = new DocHolderFilePostDTO();
         filePostDTO.setUrl(url);
@@ -82,11 +77,12 @@ class DocHolderControllerTest {
         String body = mapper.writeValueAsString(filePostDTO);
 
         try (ByteArrayInputStream bais = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));
-             DelegatingServletInputStream dsis = new DelegatingServletInputStream(bais)) {
+                DelegatingServletInputStream dsis = new DelegatingServletInputStream(bais)) {
             when(request.getInputStream()).thenReturn(dsis);
 
             ResponseEntity<?> responseEntity = docHolderFileController.doPost(request);
-            Assertions.assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST.value(), responseEntity.getStatusCodeValue());
+            Assertions.assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST.value(),
+                    responseEntity.getStatusCodeValue());
         }
     }
 }

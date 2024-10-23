@@ -1,14 +1,14 @@
 @page {
-	size: letter portrait;
+  size: letter portrait;
 }
 
 #pageHeader {
-	margin-bottom: 10px;
-	margin-left: auto;
-	margin-right: auto;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #pageFooter {
-	margin-left: auto;
-	margin-right: auto;
+  margin-left: auto;
+  margin-right: auto;
 }

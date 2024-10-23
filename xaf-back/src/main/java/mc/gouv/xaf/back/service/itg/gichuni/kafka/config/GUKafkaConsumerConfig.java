@@ -27,82 +27,82 @@ import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
 /**
- * 
  * Configuration du Consumer Kafka pour le Guichet Unique
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @EnableKafka
 @Configuration
 @ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaConsumerConfig {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);
-	
-	private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL = "XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL";
-	private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
-	
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);
+
+    private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL = "XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL";
+    private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
-    	LOGGER.info("Création du GUKafkaConsumer...");
+        LOGGER.info("Création du GUKafkaConsumer...");
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
-        
+        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
+
         // GroupID : le code appli (DemarcheID)
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, gouvPropertiesResolver.getDemarcheId());
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-        configProps.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, gouvPropertiesResolver.getGUKafkaConsumerFetchMaxBytes()); 
-        configProps.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, gouvPropertiesResolver.getGUKafkaConsumerMaxPartitionFetchBytes());
-        
+        configProps.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG,
+                gouvPropertiesResolver.getGUKafkaConsumerFetchMaxBytes());
+        configProps.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,
+                gouvPropertiesResolver.getGUKafkaConsumerMaxPartitionFetchBytes());
+
         boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
-        if (sslEnabled) {        	
-        	configProps.put("security.protocol", "SSL");
-        	
-        	configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
-        	configProps.put("ssl.truststore.password", gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-        	configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-        	configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-        	configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
-        	configProps.put("ssl.endpoint.identification.algorithm", "");
+        if (sslEnabled) {
+            configProps.put("security.protocol", "SSL");
+
+            configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
+            configProps.put("ssl.truststore.password", gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
+            configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
+            configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
+            configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
+            configProps.put("ssl.endpoint.identification.algorithm", "");
         }
-        
+
         return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(new StringDeserializer()));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> 
-      kafkaListenerContainerFactory(KafkaTemplate<String, String> kafkaTemplate, PropertiesService propertiesService) throws DemPropertyNotFoundException {
-   
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
-          new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
+            KafkaTemplate<String, String> kafkaTemplate, PropertiesService propertiesService)
+            throws DemPropertyNotFoundException {
+
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        
+
         // Afin d'éviter que l'appli s'arrête (crash total) lorsque Kafka tombe
         factory.setMissingTopicsFatal(false);
-        
+
         LOGGER.info("Récupération des DEM_PROPERTIES en base pour le GUKafkaConsumerConfig...");
         PropertiesDTO backOffIntervalProp = propertiesService.getProperty(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
         if (backOffIntervalProp == null || StringUtils.isBlank(backOffIntervalProp.getValue())) {
-        	throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
+            throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
         }
         int backOffInterval = Integer.parseInt(backOffIntervalProp.getValue());
         PropertiesDTO backOffMaxAttemptsProp = propertiesService.getProperty(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
         if (backOffMaxAttemptsProp == null || StringUtils.isBlank(backOffMaxAttemptsProp.getValue())) {
-        	throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
+            throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
         }
         int backOffMaxAttempts = Integer.parseInt(backOffMaxAttemptsProp.getValue());
-        
+
         BackOff bo = new FixedBackOff(backOffInterval, backOffMaxAttempts);
-        factory.setCommonErrorHandler(new DefaultErrorHandler(
-        	      new DeadLetterPublishingRecoverer(kafkaTemplate), bo));
-        
+        factory.setCommonErrorHandler(new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate), bo));
+
         return factory;
     }
 }

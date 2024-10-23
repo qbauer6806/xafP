@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * 
  * Cette classe représente un usager tel que retourné par l'API GICHUNI
- * 
+ *
  * @author qdeme
- * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GichuniUsagerDTO {
@@ -176,6 +174,5 @@ public class GichuniUsagerDTO {
     public void setDonneesExternes(JsonNode donneesExternes) {
         this.donneesExternes = donneesExternes;
     }
-
 
 }

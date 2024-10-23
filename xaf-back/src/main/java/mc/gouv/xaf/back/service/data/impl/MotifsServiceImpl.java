@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des motifs.
- * 
+ *
  * @author qdeme
  */
 @Component
@@ -58,7 +58,8 @@ public class MotifsServiceImpl implements MotifsService {
     public Map<String, MotifDTO> getMotifsByStatut(String statut) {
         LOGGER.info("getMotifs({})...", statut);
         List<MotifBO> motifBos = motifsRepository.findByStatut(statut);
-        return motifBos.stream().collect(Collectors.toMap(m -> m.getCode() + '_' + m.getLangue().toUpperCase(), MotifTransformer::bo2Dto));
+        return motifBos.stream().collect(
+                Collectors.toMap(m -> m.getCode() + '_' + m.getLangue().toUpperCase(), MotifTransformer::bo2Dto));
     }
 
     /**

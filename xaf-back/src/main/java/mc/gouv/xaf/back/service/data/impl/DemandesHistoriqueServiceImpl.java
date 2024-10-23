@@ -39,7 +39,8 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
         // Jette une exception si la demande n'existe pas
         demandesService.getCheckDemarcheDemandeDTO(demandeId, false);
 
-        List<DemandesHistoriqueBO> demandeHistorique = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
+        List<DemandesHistoriqueBO> demandeHistorique = demandesHistoriqueRepository.findByFkDemandesPkDemandes(
+                demandeId);
 
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesHistoriqueTransformer.bo2Dto(demandeHistorique);

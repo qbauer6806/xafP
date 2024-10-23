@@ -12,17 +12,15 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class AccessTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTransformer.class);
-    
+
     private AccessTransformer() {
     }
-    
+
     public static AccessDTO bo2Dto(AccessBO bo) {
         if (bo == null) {
             return null;
@@ -40,7 +38,7 @@ public class AccessTransformer {
         dto.setUsagerId(bo.getUsagerId());
         return dto;
     }
-    
+
     public static AccessBO dto2Bo(AccessDTO dto) {
         if (dto == null) {
             return null;
@@ -58,5 +56,5 @@ public class AccessTransformer {
         bo.setUsagerId(dto.getUsagerId());
         return bo;
     }
-    
+
 }

@@ -17,7 +17,8 @@ public class PaysSerializer extends JsonSerializer<String> {
     private PaysCache paysCache;
 
     @Override
-    public void serialize(String paysCode, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(String paysCode, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+            throws IOException {
         jsonGenerator.writeString(StringUtils.isBlank(paysCode) ? " " : paysCache.get(paysCode, "fr").getNom());
     }
 }

@@ -21,11 +21,9 @@ import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
- * 
  * WS d'autocomplete pour les usagers
- * 
+ *
  * @author qdeme
- * 
  */
 @GouvRestController
 @RequestMapping(value = "/ws/usagersAutocomplete", produces = "application/json")

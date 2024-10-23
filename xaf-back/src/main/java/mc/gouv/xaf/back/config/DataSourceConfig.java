@@ -79,21 +79,28 @@ public class DataSourceConfig {
 
     /**
      * Méthode permettant la récupération de la datasource princiale
+     *
      * @return Datasource créée
      */
     @Bean(name = "dataSource")
     @Primary
-    public DataSource getDataSource() throws SQLException, MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    public DataSource getDataSource() throws SQLException, MalformedObjectNameException, NotCompliantMBeanException,
+            InstanceAlreadyExistsException, MBeanRegistrationException {
         return getDataSource(StringUtils.upperCase(applicationName), displayName);
     }
 
     /**
      * Méthode permettant de récupérer la datasource
-     * @param dbName Nom de la base de données
-     * @param displayName Nom de la variable JMX
+     *
+     * @param dbName
+     *         Nom de la base de données
+     * @param displayName
+     *         Nom de la variable JMX
      * @return Datasource créée
      */
-    public DataSource getDataSource(String dbName, String displayName) throws SQLException, MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    public DataSource getDataSource(String dbName, String displayName)
+            throws SQLException, MalformedObjectNameException, NotCompliantMBeanException,
+            InstanceAlreadyExistsException, MBeanRegistrationException {
         var poolProperties = new PoolProperties();
         poolProperties.setMinIdle(Integer.parseInt(minIddle));
         poolProperties.setMaxIdle(Integer.parseInt(maxIddle));
@@ -110,14 +117,14 @@ public class DataSourceConfig {
         poolProperties.setUsername(user);
         poolProperties.setPassword(pass);
         poolProperties.setJmxEnabled(true);
-        
+
         // Tolérance aux pannes DB (reconnexion) :
         poolProperties.setTestOnBorrow(Boolean.parseBoolean(testOnBorrow));
         poolProperties.setValidationQuery(validationQuery);
         poolProperties.setValidationInterval(Integer.parseInt(validationInterval));
         poolProperties.setTestWhileIdle(Boolean.parseBoolean(testWhileIddle));
         poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(timeBetweenEvictionRunsMillis));
-        
+
         var dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
         dataSource.setPoolProperties(poolProperties);
 

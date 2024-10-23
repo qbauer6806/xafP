@@ -23,63 +23,63 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class MarqueursServiceImpl implements MarqueursService {
 
-	@Autowired
-	private MarqueursRepository marqueursRepository;
+    @Autowired
+    private MarqueursRepository marqueursRepository;
 
-	@Autowired
-	private MarqueursTransformer marqueursTransformer;
+    @Autowired
+    private MarqueursTransformer marqueursTransformer;
 
     @Autowired
     private DemandesConfigService demandesConfigService;
 
     @Override
-	public List<MarqueurDTO> getMarqueurs(String buildId) {
-		List<MarqueurBO> marqueurBOS = marqueursRepository.findAllByBuildId(buildId);
-		return marqueursTransformer.bos2Dtos(marqueurBOS);
-	}
+    public List<MarqueurDTO> getMarqueurs(String buildId) {
+        List<MarqueurBO> marqueurBOS = marqueursRepository.findAllByBuildId(buildId);
+        return marqueursTransformer.bos2Dtos(marqueurBOS);
+    }
 
-	@Override
-	public MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueurDTO) {
-		// Création
-		if (marqueurDTO.getPkMarqueur() == null) {
-			MarqueurBO bo = marqueursTransformer.dto2Bo(marqueurDTO);
-			bo = marqueursRepository.save(bo);
-			return marqueursTransformer.bo2Dto(bo);
-		}
-		// Mise à jour
-		else {
-			Optional<MarqueurBO> marqueurBOOpt = marqueursRepository.findById(marqueurDTO.getPkMarqueur());
-			if (marqueurBOOpt.isEmpty()) {
-				throw new DemarchesServiceException("Le marqueur spécifié est introuvable", HttpStatus.NOT_FOUND);
-			}
+    @Override
+    public MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueurDTO) {
+        // Création
+        if (marqueurDTO.getPkMarqueur() == null) {
+            MarqueurBO bo = marqueursTransformer.dto2Bo(marqueurDTO);
+            bo = marqueursRepository.save(bo);
+            return marqueursTransformer.bo2Dto(bo);
+        }
+        // Mise à jour
+        else {
+            Optional<MarqueurBO> marqueurBOOpt = marqueursRepository.findById(marqueurDTO.getPkMarqueur());
+            if (marqueurBOOpt.isEmpty()) {
+                throw new DemarchesServiceException("Le marqueur spécifié est introuvable", HttpStatus.NOT_FOUND);
+            }
 
-			MarqueurBO marqueurBO = marqueurBOOpt.get();
-			marqueurBO.setDescription(marqueurDTO.getDescription());
-			marqueurBO.setIdentifiant(marqueurDTO.getIdentifiant());
-			marqueurBO.setChemin(marqueurDTO.getChemin());
-			marqueurBO.setBuildId(marqueurDTO.getBuildId());
-			marqueurBO = marqueursRepository.save(marqueurBO);
+            MarqueurBO marqueurBO = marqueurBOOpt.get();
+            marqueurBO.setDescription(marqueurDTO.getDescription());
+            marqueurBO.setIdentifiant(marqueurDTO.getIdentifiant());
+            marqueurBO.setChemin(marqueurDTO.getChemin());
+            marqueurBO.setBuildId(marqueurDTO.getBuildId());
+            marqueurBO = marqueursRepository.save(marqueurBO);
 
-			return marqueursTransformer.bo2Dto(marqueurBO);
+            return marqueursTransformer.bo2Dto(marqueurBO);
 
-		}
-	}
+        }
+    }
 
-	@Override
-	public void deleteMarqueur(Integer pkMarqueur) {
-		Optional<MarqueurBO> marqueurBO = marqueursRepository.findById(pkMarqueur);
-		if (marqueurBO.isEmpty()) {
-			throw new DemarchesServiceException("Le marqueur spécifié est introuvable", HttpStatus.NOT_FOUND);
-		}
-		marqueursRepository.delete(marqueurBO.get());
-	}
+    @Override
+    public void deleteMarqueur(Integer pkMarqueur) {
+        Optional<MarqueurBO> marqueurBO = marqueursRepository.findById(pkMarqueur);
+        if (marqueurBO.isEmpty()) {
+            throw new DemarchesServiceException("Le marqueur spécifié est introuvable", HttpStatus.NOT_FOUND);
+        }
+        marqueursRepository.delete(marqueurBO.get());
+    }
 
     @Override
     public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths) {
-		if (lastBuildId != null) {
-			List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
+        if (lastBuildId != null) {
+            List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
             // on copie les marqueurs du précédent build id s'il y en a
-            if(!marqueurDTOS.isEmpty()) {
+            if (!marqueurDTOS.isEmpty()) {
                 for (MarqueurDTO marqueurDTO : marqueurDTOS) {
                     marqueurDTO.setPkMarqueur(null);
                     marqueurDTO.setBuildId(buildId);
@@ -92,9 +92,9 @@ public class MarqueursServiceImpl implements MarqueursService {
             // on génère tous les autres
             setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId);
 
-			marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
-		}
-	}
+            marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
+        }
+    }
 
     @Override
     public void resetMarqueurs() {
@@ -102,7 +102,9 @@ public class MarqueursServiceImpl implements MarqueursService {
         List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
         for (DemandeConfigBO config : configs) {
             List<MarqueurDTO> marqueurDTOS = new ArrayList<>();
-            setMarqueursFromModelPaths(demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("rechercheAvancee")), marqueurDTOS, config.getBuildId());
+            setMarqueursFromModelPaths(
+                    demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("rechercheAvancee")),
+                    marqueurDTOS, config.getBuildId());
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
         }
     }
@@ -138,8 +140,7 @@ public class MarqueursServiceImpl implements MarqueursService {
 
         for (int i = 2; i < parts.length; i++) {
             String part = parts[i];
-            result.append(Character.toUpperCase(part.charAt(0)))
-                    .append(part.substring(1));
+            result.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
         }
 
         return result.toString();
@@ -161,12 +162,13 @@ public class MarqueursServiceImpl implements MarqueursService {
     public void importConfig(byte[] file) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
-        List<MarqueurDTO> marqueurList = mapper.readValue(file, new TypeReference<>() {});
+        List<MarqueurDTO> marqueurList = mapper.readValue(file, new TypeReference<>() {
+
+        });
         if (marqueurList != null) {
             marqueursRepository.deleteAll();
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurList));
         }
-
 
     }
 

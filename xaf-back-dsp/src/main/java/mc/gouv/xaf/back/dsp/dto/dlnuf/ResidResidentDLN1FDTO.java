@@ -15,16 +15,16 @@ import mc.gouv.xaf.back.dsp.enums.common.ResidTypeCarteMroadEnum;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidResidentDLN1FDTO implements Serializable {
 
-	private static final long serialVersionUID = 3142537019985412980L;
+    private static final long serialVersionUID = 3142537019985412980L;
 
-	private String numeroCarte;
+    private String numeroCarte;
 
-	private String dateDebutValidite;
+    private String dateDebutValidite;
 
-	private String dateFinValidite;
+    private String dateFinValidite;
 
-	private ResidTypeCarteMroadEnum type;
+    private ResidTypeCarteMroadEnum type;
 
-	private String dateEtablissementMonaco;
+    private String dateEtablissementMonaco;
 
 }

@@ -59,7 +59,9 @@ public class XafFrontserverUtils {
     private GichkeyService gichkeyService;
 
     /**
-     * Vérifie que les donneesExternes reçues de la part de l'utilisateur ne sont pas traffiquées, en les comparant à la référence du config.json
+     * Vérifie que les donneesExternes reçues de la part de l'utilisateur ne sont pas traffiquées, en les comparant à la
+     * référence du config.json
+     *
      * @param donneesExternesInput
      * @param donneesExternesConfig
      * @return
@@ -67,12 +69,14 @@ public class XafFrontserverUtils {
     public boolean checkDonneesExternes(JsonNode donneesExternesInput, JsonNode donneesExternesConfig) {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> donneesExternesInputMap = objectMapper.convertValue(donneesExternesInput, Map.class);
-        Map<String, List<String>> donneesExternesConfigMap = objectMapper.convertValue(donneesExternesConfig, Map.class);
+        Map<String, List<String>> donneesExternesConfigMap = objectMapper.convertValue(donneesExternesConfig,
+                Map.class);
         // pour chaque donnée externe présente dans l'input, on vérifie si elle est présente dans les donneesexternes définies dans le config.json
         for (Entry<String, String> donneeExterneInput : donneesExternesInputMap.entrySet()) {
             boolean donneeExterneInputChecked = false;
             for (Entry<String, List<String>> donneeExterneConfig : donneesExternesConfigMap.entrySet()) {
-                if (donneeExterneInput.getKey().equals(donneeExterneConfig.getKey()) && donneeExterneConfig.getValue().contains(donneeExterneInput.getValue())) {
+                if (donneeExterneInput.getKey().equals(donneeExterneConfig.getKey()) && donneeExterneConfig.getValue()
+                        .contains(donneeExterneInput.getValue())) {
                     donneeExterneInputChecked = true;
                     break;
                 }
@@ -91,9 +95,12 @@ public class XafFrontserverUtils {
     /**
      * Permet de loguer une erreur et d'envoyer l'erreur au client dans la foulée
      *
-     * @param logger     Le logger à utiliser
-     * @param httpStatus Le statut HTTP à renvoyer
-     * @param errMsg     Le message d'erreur à renvoyer
+     * @param logger
+     *         Le logger à utiliser
+     * @param httpStatus
+     *         Le statut HTTP à renvoyer
+     * @param errMsg
+     *         Le message d'erreur à renvoyer
      * @return Réponse de la servlet
      */
     public ResponseEntity logAndSendError(Logger logger, HttpStatus httpStatus, String errMsg) {
@@ -101,12 +108,13 @@ public class XafFrontserverUtils {
         return ResponseEntity.status(httpStatus).build();
     }
 
-
     /**
      * Permet de loguer une erreur et d'envoyer l'erreur au client dans la foulée
      *
-     * @param logger Le logger à utiliser
-     * @param errMsg Le message d'erreur à renvoyer
+     * @param logger
+     *         Le logger à utiliser
+     * @param errMsg
+     *         Le message d'erreur à renvoyer
      * @return Réponse de la servlet
      */
     public ResponseEntity logAndSendError(Logger logger, int httpStatusCode, String errMsg) {
@@ -126,11 +134,11 @@ public class XafFrontserverUtils {
     }
 
     /**
-     * Récupère l'utilisateur logué depuis la session
-     * Synchronized afin d'éviter de multiples récupérations de tokens Keycloak en même temps
-     * pour la même page, dans le cas où un rafraîchissement est nécessaire.
+     * Récupère l'utilisateur logué depuis la session Synchronized afin d'éviter de multiples récupérations de tokens
+     * Keycloak en même temps pour la même page, dans le cas où un rafraîchissement est nécessaire.
      *
-     * @param request Requete récupérée par la servlet
+     * @param request
+     *         Requete récupérée par la servlet
      * @return Utilisateur logué
      */
     public synchronized UsagerInfosDTO getLoggedUser(HttpServletRequest request) {
@@ -175,7 +183,8 @@ public class XafFrontserverUtils {
     /**
      * Retourne le header d'authentification JWT correspondant au service à appeler
      *
-     * @param serviceTarget Service à appeler
+     * @param serviceTarget
+     *         Service à appeler
      * @return Le header d'authentification JWT
      */
     public String getAuthHeader(ServiceTarget serviceTarget) {

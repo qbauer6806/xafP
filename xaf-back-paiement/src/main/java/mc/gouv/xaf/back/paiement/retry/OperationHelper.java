@@ -16,13 +16,13 @@ public class OperationHelper {
     }
 
     public void executeWithRetry(Operation<?> operation) throws HttpResponseException {
-        executeWithRetry(operation,
-                paiementPropertiesResolver.getXafRetryCount(),
+        executeWithRetry(operation, paiementPropertiesResolver.getXafRetryCount(),
                 paiementPropertiesResolver.getXafRetryInitialDelay(),
                 paiementPropertiesResolver.getXafRetryMultiplier());
     }
 
-    public void executeWithRetry(Operation<?> operation, int maxAttempts, int delay, int multiplier) throws HttpResponseException {
+    public void executeWithRetry(Operation<?> operation, int maxAttempts, int delay, int multiplier)
+            throws HttpResponseException {
         for (int count = 0; ; count++) {
             operation.getLogger().info("Tentative n°{}", (count + 1));
             try {
@@ -32,7 +32,8 @@ public class OperationHelper {
                 operation.handleException(exception);
                 sleep(operation, delay);
                 delay *= multiplier;
-                if ((exception.getStatusCode() >= 400 && exception.getStatusCode() <= 499 ) || count >= (maxAttempts - 1)) {
+                if ((exception.getStatusCode() >= 400 && exception.getStatusCode() <= 499) || count >= (maxAttempts
+                        - 1)) {
                     throw exception;
                 }
             }

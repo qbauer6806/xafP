@@ -12,11 +12,9 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
 /**
- * 
  * Classe BO de la table DEM.DEM_DEMANDES_AGENTS
- * 
- * @author uek
  *
+ * @author uek
  */
 @Setter
 @Getter
@@ -53,7 +51,7 @@ public class DemandesAgentsBO {
     private String nomAffichage;
 
     @Type(PostgreSQLTSVectorType.class)
-    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 
 }

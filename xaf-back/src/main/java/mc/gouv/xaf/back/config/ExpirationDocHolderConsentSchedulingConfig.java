@@ -14,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 
 @Service
 public class ExpirationDocHolderConsentSchedulingConfig {
+
     private static final String EXPIRATION_DOCHOLDER_SCHEDULING_CRON_EXPRESSION = "EXPIRATION_DOCHOLDER_SCHEDULING_CRON_EXPRESSION";
 
     @Autowired
@@ -25,8 +26,10 @@ public class ExpirationDocHolderConsentSchedulingConfig {
     @PostConstruct
     private void init() throws SchedulerException {
         PropertiesDTO prop = propertiesService.getProperty(EXPIRATION_DOCHOLDER_SCHEDULING_CRON_EXPRESSION);
-        JobDetail jobDetail = schedulerService.buildJobDetail(ExpirationDocHolderConsentSchedulingJob.class, "ExpirationDocHolderConsentSchedulingJob");
-        Trigger trigger = schedulerService.buildJobTrigger(jobDetail, "ExpirationDocHolderConsentSchedulingTrigger", prop.getValue());
+        JobDetail jobDetail = schedulerService.buildJobDetail(ExpirationDocHolderConsentSchedulingJob.class,
+                "ExpirationDocHolderConsentSchedulingJob");
+        Trigger trigger = schedulerService.buildJobTrigger(jobDetail, "ExpirationDocHolderConsentSchedulingTrigger",
+                prop.getValue());
 
         schedulerService.startOrUpdateScheduledJob(jobDetail, trigger);
     }

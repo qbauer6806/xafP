@@ -5,43 +5,41 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * 
  * Bloc "usagerDemandesRecap" du message SynchronisationDemandesMessage envoyé au Guichet Unique
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UsagerDemandesRecapDTO {
 
-	private String usagerId;
-	
-	private List<DemandeRecapDTO> demandeRecaps;
-	
-	private RecapDemandesDTO recapDemandes;
+    private String usagerId;
 
-	public String getUsagerId() {
-		return usagerId;
-	}
+    private List<DemandeRecapDTO> demandeRecaps;
 
-	public void setUsagerId(String usagerId) {
-		this.usagerId = usagerId;
-	}
+    private RecapDemandesDTO recapDemandes;
 
-	public List<DemandeRecapDTO> getDemandeRecaps() {
-		return demandeRecaps;
-	}
+    public String getUsagerId() {
+        return usagerId;
+    }
 
-	public void setDemandeRecaps(List<DemandeRecapDTO> demandeRecaps) {
-		this.demandeRecaps = demandeRecaps;
-	}
+    public void setUsagerId(String usagerId) {
+        this.usagerId = usagerId;
+    }
 
-	public RecapDemandesDTO getRecapDemandes() {
-		return recapDemandes;
-	}
+    public List<DemandeRecapDTO> getDemandeRecaps() {
+        return demandeRecaps;
+    }
 
-	public void setRecapDemandes(RecapDemandesDTO recapDemandes) {
-		this.recapDemandes = recapDemandes;
-	}
-	
+    public void setDemandeRecaps(List<DemandeRecapDTO> demandeRecaps) {
+        this.demandeRecaps = demandeRecaps;
+    }
+
+    public RecapDemandesDTO getRecapDemandes() {
+        return recapDemandes;
+    }
+
+    public void setRecapDemandes(RecapDemandesDTO recapDemandes) {
+        this.recapDemandes = recapDemandes;
+    }
+
 }

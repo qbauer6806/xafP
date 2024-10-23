@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Copie de org.springframework.data.domain.Page pour ne pas avoir de dépendance avec Spring dans le client, et pour matcher les besoins front
- * Adaptation des noms pour la réponse de customRequest
+ * Copie de org.springframework.data.domain.Page pour ne pas avoir de dépendance avec Spring dans le client, et pour
+ * matcher les besoins front Adaptation des noms pour la réponse de customRequest
  *
  * @param <T>
  * @author uek

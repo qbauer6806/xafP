@@ -34,7 +34,8 @@ public class UtilisateursUtils {
      * <br>
      * Retourne {@code null} si le maticule donné n'est pas trouvé dans logon.
      *
-     * @param matricule, String contenant le matricule de l'usager
+     * @param matricule,
+     *         String contenant le matricule de l'usager
      * @return Une String contenant le prénom et le nom d'un utilisateur.
      */
     public String getUserNameFromID(String matricule) {

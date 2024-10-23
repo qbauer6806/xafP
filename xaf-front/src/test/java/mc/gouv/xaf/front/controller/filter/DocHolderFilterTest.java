@@ -58,8 +58,8 @@ class DocHolderFilterTest {
         KeycloakTokenInfo tokenInfo = mock(KeycloakTokenInfo.class);
         when(usagerInfosDTO.getTokenInfo()).thenReturn(tokenInfo);
 
-        when(frontControllerPropertiesCache.getFrontProperty(anyString()))
-                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
+        when(frontControllerPropertiesCache.getFrontProperty(anyString())).thenReturn(
+                new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
 
         when(request.getServletPath()).thenReturn("/doc-holder");
 
@@ -75,8 +75,8 @@ class DocHolderFilterTest {
 
     @Test
     void testDocHolderEnabledUserNotLogged() throws ServletException, IOException {
-        when(frontControllerPropertiesCache.getFrontProperty(anyString()))
-                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
+        when(frontControllerPropertiesCache.getFrontProperty(anyString())).thenReturn(
+                new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
 
         when(request.getServletPath()).thenReturn("/doc-holder");
 
@@ -96,8 +96,8 @@ class DocHolderFilterTest {
 
         when(xafFrontserverUtils.getLoggedUser(request)).thenReturn(usagerInfosDTO);
 
-        when(frontControllerPropertiesCache.getFrontProperty(anyString()))
-                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
+        when(frontControllerPropertiesCache.getFrontProperty(anyString())).thenReturn(
+                new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
 
         when(request.getServletPath()).thenReturn("/doc-holder");
 
@@ -113,8 +113,8 @@ class DocHolderFilterTest {
 
     @Test
     void testDocHolderDisabled() throws ServletException, IOException {
-        when(frontControllerPropertiesCache.getFrontProperty(anyString()))
-                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "false"));
+        when(frontControllerPropertiesCache.getFrontProperty(anyString())).thenReturn(
+                new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "false"));
 
         when(request.getServletPath()).thenReturn("/doc-holder");
 
@@ -131,8 +131,8 @@ class DocHolderFilterTest {
     @Test
     void testDocHolderDisabledUserNotLogged() throws ServletException, IOException {
 
-        when(frontControllerPropertiesCache.getFrontProperty(anyString()))
-                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "false"));
+        when(frontControllerPropertiesCache.getFrontProperty(anyString())).thenReturn(
+                new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "false"));
 
         when(request.getServletPath()).thenReturn("/doc-holder");
 

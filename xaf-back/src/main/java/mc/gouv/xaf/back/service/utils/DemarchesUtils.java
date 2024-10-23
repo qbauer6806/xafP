@@ -23,9 +23,8 @@ import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Classe utilitaire pour le projet Demarches
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class DemarchesUtils {
@@ -109,18 +108,19 @@ public class DemarchesUtils {
     public static boolean isUsagerCourrier(Integer usagerId) {
         return usagerId > USAGERID_OFFSET;
     }
-    
+
     /**
      * Prend une liste de fichiers d'une demande, et ne retourne que ceux qui sont à destination du FRONT
      */
     public static DemandeFileDTO[] filterFiles(DemandeFileDTO[] files) {
-    	List<DemandeFileDTO> newFiles = new ArrayList<>();
-    	for (DemandeFileDTO file : files) {
-    		if (StringUtils.isBlank(file.getMeta()) || file.getMeta().startsWith(FRONT_FILE_PREFIX) || file.getMeta().startsWith(BACK_FRONT_FILE_PREFIX)) {
-    			newFiles.add(file);
-    		}
-    	}
-    	return newFiles.toArray(new DemandeFileDTO[0]);
+        List<DemandeFileDTO> newFiles = new ArrayList<>();
+        for (DemandeFileDTO file : files) {
+            if (StringUtils.isBlank(file.getMeta()) || file.getMeta().startsWith(FRONT_FILE_PREFIX) || file.getMeta()
+                    .startsWith(BACK_FRONT_FILE_PREFIX)) {
+                newFiles.add(file);
+            }
+        }
+        return newFiles.toArray(new DemandeFileDTO[0]);
     }
 
 }

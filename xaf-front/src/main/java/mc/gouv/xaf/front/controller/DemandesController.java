@@ -29,9 +29,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
- * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.
- * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
- * correspondants dans le back-end générique.
+ * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
+ * le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS correspondants dans le back-end générique.
  *
  * @author qdeme
  */
@@ -43,8 +42,8 @@ public class DemandesController extends AbstractXafController {
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
-
-    private ResponseEntity traiterDemande(HttpMethod httpMethod, HttpServletRequest request, Integer demandeId, DemandeInputDTO demandeInput) throws JsonProcessingException {
+    private ResponseEntity traiterDemande(HttpMethod httpMethod, HttpServletRequest request, Integer demandeId,
+            DemandeInputDTO demandeInput) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         AfApiClient afApiClient = getAfApiClient();
 
@@ -60,26 +59,32 @@ public class DemandesController extends AbstractXafController {
 
         // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en compte pour les places dans les bons endroits
         // du contenu de la demande. Ceci afin d'éviter un potentiel "hack" de la part de l'usager sur le FO)
-        if (usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
-            demandeInput.setDonneesMConnect(mapper.treeToValue(usagerInfosDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class));
+        if (usagerInfosDTO.getDonneesExternes() != null
+                && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
+            demandeInput.setDonneesMConnect(
+                    mapper.treeToValue(usagerInfosDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class));
         }
 
         DemandeDTO demandeDto;
         if (HttpMethod.POST.equals(httpMethod)) {
             LOGGER.info("Appel à la démarche pour créer la demande");
             if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
-                demandeInput.setContenuInitial(mapper.valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+                demandeInput.setContenuInitial(mapper.valueToTree(
+                        request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
             }
             // récupérer la config pour faire les vérifications
             JsonNode config;
             try {
                 config = xafFrontserverUtils.getConfig();
             } catch (IOException e) {
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, "Impossible de lire le fichier config.json");
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Impossible de lire le fichier config.json");
             }
             // vérifier la consistance des donneesexternes fournies par l'usager
-            if (!xafFrontserverUtils.checkDonneesExternes(demandeInput.getDonneesExternes(), config.get("donneesExternes"))) {
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, "Inconsistance des donneesExternes envoyées");
+            if (!xafFrontserverUtils.checkDonneesExternes(demandeInput.getDonneesExternes(),
+                    config.get("donneesExternes"))) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Inconsistance des donneesExternes envoyées");
             }
             demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
             request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, null);
@@ -91,23 +96,23 @@ public class DemandesController extends AbstractXafController {
         return ResponseEntity.status(HttpStatus.CREATED).body(demandeDto);
     }
 
-    private ResponseEntity traiterDemandeInfoCompl(HttpServletRequest request, Integer demandeId, Integer demandeInfoComplId,
-                                                   DemandeComplementsReponseDTO response) {
+    private ResponseEntity traiterDemandeInfoCompl(HttpServletRequest request, Integer demandeId,
+            Integer demandeInfoComplId, DemandeComplementsReponseDTO response) {
         LOGGER.info("Appel à la démarche pour répondre à la demande d'informations complémentaires");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             return ResponseEntity.internalServerError().build();
         }
 
-        DemandeComplementsDTO demandeComplement = getAfApiClient().repondreDemandeComplements(demandeId, demandeInfoComplId, response);
+        DemandeComplementsDTO demandeComplement = getAfApiClient().repondreDemandeComplements(demandeId,
+                demandeInfoComplId, response);
 
         return ResponseEntity.ok(demandeComplement);
     }
 
-    @PostMapping(value = {"/demandes", "/demandes/{demandeId}"})
+    @PostMapping(value = { "/demandes", "/demandes/{demandeId}" })
     public ResponseEntity doPostDemande(@PathVariable(required = false) Integer demandeId,
-                                        @RequestBody(required = false) DemandeInputDTO demandeInput,
-                                        HttpServletRequest request) {
+            @RequestBody(required = false) DemandeInputDTO demandeInput, HttpServletRequest request) {
         LOGGER.info("====================== /demandes doPost()");
         try {
             return traiterDemande(HttpMethod.POST, request, demandeId, demandeInput);
@@ -118,18 +123,15 @@ public class DemandesController extends AbstractXafController {
     }
 
     @PutMapping("/demandes/{demandeId}/complements/{demandeInfoComplId}")
-    public ResponseEntity doPutInfoCompl(@PathVariable Integer demandeId,
-                                         @PathVariable Integer demandeInfoComplId,
-                                         @RequestBody DemandeComplementsReponseDTO demandeInfoComplInput,
-                                         HttpServletRequest request) {
+    public ResponseEntity doPutInfoCompl(@PathVariable Integer demandeId, @PathVariable Integer demandeInfoComplId,
+            @RequestBody DemandeComplementsReponseDTO demandeInfoComplInput, HttpServletRequest request) {
         LOGGER.info("====================== /demandes doPost()");
         return traiterDemandeInfoCompl(request, demandeId, demandeInfoComplId, demandeInfoComplInput);
     }
 
-    @PutMapping(value = {"/demandes", "/demandes/{demandeId}"})
+    @PutMapping(value = { "/demandes", "/demandes/{demandeId}" })
     public ResponseEntity doPut(@PathVariable(required = false) Integer demandeId,
-                                @RequestBody(required = false) DemandeInputDTO demandeInput,
-                                HttpServletRequest request) {
+            @RequestBody(required = false) DemandeInputDTO demandeInput, HttpServletRequest request) {
         LOGGER.info("====================== /demandes doPut()");
         try {
             return traiterDemande(HttpMethod.PUT, request, demandeId, demandeInput);
@@ -140,8 +142,7 @@ public class DemandesController extends AbstractXafController {
     }
 
     @GetMapping("/demandes/{demandeId}")
-    public ResponseEntity doGet(@PathVariable Integer demandeId,
-                                HttpServletRequest request) {
+    public ResponseEntity doGet(@PathVariable Integer demandeId, HttpServletRequest request) {
         LOGGER.info("====================== /demandes doGet()");
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
@@ -156,9 +157,8 @@ public class DemandesController extends AbstractXafController {
     }
 
     @GetMapping("/demandes/{demandeId}/complements/{demandeInfoComplId}")
-    public ResponseEntity doGet(@PathVariable Integer demandeId,
-                                @PathVariable Integer demandeInfoComplId,
-                                HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity doGet(@PathVariable Integer demandeId, @PathVariable Integer demandeInfoComplId,
+            HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doGet()");
 
         AfApiClient afApiClient = getAfApiClient();

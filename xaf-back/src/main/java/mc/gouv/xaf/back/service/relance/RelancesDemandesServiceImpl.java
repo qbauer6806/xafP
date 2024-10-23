@@ -19,49 +19,49 @@ import java.util.Map;
 @Service
 @EnableScheduling
 public class RelancesDemandesServiceImpl implements RelancesDemandesService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(RelancesDemandesServiceImpl.class);
 
-	@Autowired
-	private MailService mailService;
-	
-	@Autowired
-	private RelancesUtils relanceUtils;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelancesDemandesServiceImpl.class);
 
+    @Autowired
+    private MailService mailService;
 
-	@Autowired
-	private MailTemplateModelProvider mailTemplateModelProvider;
-	
-	@Override
-	public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer) {
-		// On recupère toutes les demandes du TS appelant qui feront l'objet d'une relance
-		Map<DemandeDTO, String> demandesANotifier = relanceUtils.getDemandesANotifier(statutsARelancer);
-		for (Map.Entry<DemandeDTO, String> entry : demandesANotifier.entrySet()) {
-			LOGGER.info("Début du processus de relance des demandes...");
-			envoiEmailUsagerRelance(entry.getKey(), entry.getValue());
-			relanceUtils.setRelanceDate(entry.getKey());
-		}
-	}
+    @Autowired
+    private RelancesUtils relanceUtils;
 
-	@Override
-	public void envoiEmailUsagerRelance(DemandeDTO demande, String codeMailPrefix) {
-		final String subjectTemplateCode = codeMailPrefix + "_OBJET";
-		final String bodyTemplateCode = codeMailPrefix + "_CORPS";
+    @Autowired
+    private MailTemplateModelProvider mailTemplateModelProvider;
 
-		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode, demande.getLangue());
+    @Override
+    public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer) {
+        // On recupère toutes les demandes du TS appelant qui feront l'objet d'une relance
+        Map<DemandeDTO, String> demandesANotifier = relanceUtils.getDemandesANotifier(statutsARelancer);
+        for (Map.Entry<DemandeDTO, String> entry : demandesANotifier.entrySet()) {
+            LOGGER.info("Début du processus de relance des demandes...");
+            envoiEmailUsagerRelance(entry.getKey(), entry.getValue());
+            relanceUtils.setRelanceDate(entry.getKey());
+        }
+    }
+
+    @Override
+    public void envoiEmailUsagerRelance(DemandeDTO demande, String codeMailPrefix) {
+        final String subjectTemplateCode = codeMailPrefix + "_OBJET";
+        final String bodyTemplateCode = codeMailPrefix + "_CORPS";
+
+        EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode,
+                demande.getLangue());
         DemandeUsagerDTO usager = demande.getUsager();
         if (usager != null) {
             emailInfoDTO.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         }
 
-        Map<String,Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
-		model.put("expireDans", relanceUtils.getExpirationTime(demande));
+        Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
+        model.put("expireDans", relanceUtils.getExpirationTime(demande));
 
-		try {
-			mailService.sendMail(emailInfoDTO, model);
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email usager de relance pour la demande {}",
-					demande.getIdentifiant());
-		}
-	}
+        try {
+            mailService.sendMail(emailInfoDTO, model);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email usager de relance pour la demande {}",
+                    demande.getIdentifiant());
+        }
+    }
 }

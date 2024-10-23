@@ -7,7 +7,7 @@ public class RestitutionStatistiquesTransformer {
 
     private RestitutionStatistiquesTransformer() {
     }
-    
+
     public static RestitutionStatistiquesDTO bo2Dto(RestitutionStatistiquesBO bo) {
         if (bo == null) {
             return null;
@@ -22,7 +22,7 @@ public class RestitutionStatistiquesTransformer {
         dto.setDemarcheId(bo.getDemarcheId());
         return dto;
     }
-    
+
     public static RestitutionStatistiquesBO dto2Bo(RestitutionStatistiquesDTO dto) {
         if (dto == null) {
             return null;
@@ -37,5 +37,5 @@ public class RestitutionStatistiquesTransformer {
         bo.setDemarcheId(dto.getDemarcheId());
         return bo;
     }
-    
+
 }

@@ -46,7 +46,8 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         LOGGER.info("targetState = {}, pkDemande = {} ...", statut, pkDemande);
 
         // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = histoService.traiterFinal(pkDemande, statut, AfBackUtils.getAuthenticatedAgentId());
+        DemandeHistoriqueDTO histo = histoService.traiterFinal(pkDemande, statut,
+                AfBackUtils.getAuthenticatedAgentId());
         LOGGER.info("Appel à DEM pour historique...");
         try {
             demandesHistoriqueService.saveHistoriqueActionAuto(pkDemande, histo);

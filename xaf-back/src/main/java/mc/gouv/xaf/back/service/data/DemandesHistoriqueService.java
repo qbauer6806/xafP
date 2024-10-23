@@ -22,10 +22,9 @@ public interface DemandesHistoriqueService {
     DemandeHistoriqueDTO saveHistorique(Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto);
 
     /**
-     * Permet de rajouter une ligne à l'historique d'une demande
-     * pour les actions automatiques (userId et agentId sont null)
+     * Permet de rajouter une ligne à l'historique d'une demande pour les actions automatiques (userId et agentId sont
+     * null)
      */
     DemandeHistoriqueDTO saveHistoriqueActionAuto(Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto);
-
 
 }

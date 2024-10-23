@@ -8,7 +8,8 @@ public enum DemandeStatutEnum {
     EN_COURS_TRAIT("En cours de traitement", false, StatutSimplifieEnum.EN_COURS),
     EN_ATTENTE_COMPL("En attente d'informations complémentaires", true, StatutSimplifieEnum.EN_COURS),
     EN_ATTENTE_DE_PAIEMENT("En attente de paiement", true, StatutSimplifieEnum.EN_COURS),
-    EN_ATTENTE_RETRAIT_OU_ECHANGE("En attente d’échange ou de retrait du permis monégasque", false, StatutSimplifieEnum.EN_COURS),
+    EN_ATTENTE_RETRAIT_OU_ECHANGE("En attente d’échange ou de retrait du permis monégasque", false,
+            StatutSimplifieEnum.EN_COURS),
     CLOTUREE("Clôturée", true, StatutSimplifieEnum.TERMINEE),
     REFUSEE("Refusée", true, StatutSimplifieEnum.TERMINEE),
     ANNULEE("Annulée", true, StatutSimplifieEnum.TERMINEE);
@@ -19,13 +20,11 @@ public enum DemandeStatutEnum {
 
     public StatutSimplifieEnum statutSimplifie;
 
-
     DemandeStatutEnum(String libelle, boolean containsMotifs, StatutSimplifieEnum statutSimplifie) {
         this.libelle = libelle;
         this.containsMotifs = containsMotifs;
         this.statutSimplifie = statutSimplifie;
     }
-
 
     @Override
     public String toString() {

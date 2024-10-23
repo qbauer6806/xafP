@@ -50,9 +50,10 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
     private MessageSource messageSource;
 
     @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, Map<String, Object> bpmVariables) {
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+            Map<String, Object> bpmVariables) {
         Map<String, Object> model = new HashMap<>();
-        if (demande != null){
+        if (demande != null) {
             GichuniUsagerDTO usager = usagersCache.get(demande.getUsagerId());
             if (usager == null) {
                 usager = new GichuniUsagerDTO();
@@ -64,11 +65,11 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
                 }
             }
             model.put("usager", usager.getPrenom() + " " + usager.getNom());
-            String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+            String defaultMailTitre = demande.getLangue().equals("fr")
+                    ? SharedMessages.DEFAULT_TITRE_MAIL_FR
                     : SharedMessages.DEFAULT_TITRE_MAIL_EN;
-            String titre = usager.getTitre() != null
-                    ? messageSource.getMessage("civilite." + usager.getTitre(), null, Locale.of(demande.getLangue()))
-                    : defaultMailTitre;
+            String titre = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
+                    Locale.of(demande.getLangue())) : defaultMailTitre;
             model.put("titre", titre);
 
             model.put("identifiant", demande.getIdentifiant());
@@ -77,7 +78,8 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
                 MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
                 if (motif == null) {
                     throw new DemarcheException(
-                            "Impossible de trouver le motif pour le code : " + codeMotif + " et la langue : " + demande.getLangue());
+                            "Impossible de trouver le motif pour le code : " + codeMotif + " et la langue : "
+                                    + demande.getLangue());
                 }
                 model.put("motif", motif.getLibelle());
             }
@@ -86,7 +88,7 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
             }
 
             model.put("pkDemande", demande.getPkDemandes());
-            
+
             setAgent(model, bpmVariables);
 
             model.put("marqueurs", demande.getMarqueurs());
@@ -95,11 +97,11 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
 
         return model;
     }
-    
+
     private Map<String, Object> setAgent(Map<String, Object> model, Map<String, Object> bpmVariables) {
-        if(bpmVariables != null) {
+        if (bpmVariables != null) {
             Object mapBpm = bpmVariables.get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-            if(mapBpm != null) {
+            if (mapBpm != null) {
                 String agentId = (String) mapBpm;
                 // agent, à renommer agent dans les ts et ici. certains ts semblent utiliser "utilisateur"
                 model.put("utilisateur", utilisateursUtils.getUserNameFromID(agentId));

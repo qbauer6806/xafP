@@ -21,12 +21,14 @@ public interface TachesUtils {
     String getTitre(TacheDTO tache);
 
     /**
-     * Récupère le libelle du statut choisi par l'agent, en fonctione du statut de la demande (en cas d'étape valideur).
+     * Récupère le libelle du statut choisi par l'agent, en fonctione du statut de la demande (en cas d'étape
+     * valideur).
      */
     String getStatutAgent(TacheDTO tache, String statutName);
 
     /**
-     * Récupère la classe CSS liée du statut choisi par l'agent, en fonctione du statut de la demande (en cas d'étape valideur).
+     * Récupère la classe CSS liée du statut choisi par l'agent, en fonctione du statut de la demande (en cas d'étape
+     * valideur).
      */
     String getStatutColorClass(StatutTachesEnum statutTaches, String statutName);
 

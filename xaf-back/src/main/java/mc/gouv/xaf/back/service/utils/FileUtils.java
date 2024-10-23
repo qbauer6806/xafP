@@ -18,11 +18,9 @@ import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 
  * Classe utilitaire pour traiter les fichiers
- * 
- * @author asouabni.ext
  *
+ * @author asouabni.ext
  */
 public class FileUtils {
 
@@ -37,7 +35,7 @@ public class FileUtils {
     public static final String CAT_COMPLEMENTS = "Fichiers complémentaires de l'usager";
     public static final String CAT_ADMINISTRATION = "Fichiers remis par l'Administration";
     public static final String CAT_INTERNES = "Fichiers internes";
-    
+
     public static final String MC_METADATA_PREFIX = "X-MC-";
 
     private FileUtils() {
@@ -46,9 +44,9 @@ public class FileUtils {
 
     /**
      * Méthode permettant de lire le contenu d'un fichier
-     * 
+     *
      * @param stream
-     *            InputStream à lire
+     *         InputStream à lire
      * @return Le fichier sous forme d'une chaine de caractéres
      */
     public static String parseToPlainText(InputStream stream) throws IOException {
@@ -59,9 +57,9 @@ public class FileUtils {
             fulltext = tika.parse(stream);
             contentStr = IOUtils.toString(fulltext);
         } finally {
-        	if (fulltext != null) {
-        		fulltext.close();
-        	}
+            if (fulltext != null) {
+                fulltext.close();
+            }
         }
         return contentStr;
     }
@@ -69,7 +67,7 @@ public class FileUtils {
     public static List<DemandeFileDTO> getAllFileDemande(DemandeDTO demandeDTO) {
         List<DemandeFileDTO> files = new ArrayList<>();
         // Fichiers de la demande
-        if(demandeDTO.getFichiers() != null) {
+        if (demandeDTO.getFichiers() != null) {
             files.addAll(Arrays.asList(demandeDTO.getFichiers()));
         }
 
@@ -77,7 +75,8 @@ public class FileUtils {
         if (demandeDTO.getComplements() != null) {
             for (DemandeComplementsDTO compl : demandeDTO.getComplements()) {
                 if (compl.getReponse() != null && compl.getReponse().getFichiers() != null) {
-                    files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(Arrays.asList(compl.getReponse().getFichiers())));
+                    files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(
+                            Arrays.asList(compl.getReponse().getFichiers())));
                 }
             }
         }
@@ -89,16 +88,16 @@ public class FileUtils {
         // Tronquer si plus de 150 chars dans la requête. Attention à l'extension !
         if (nomFichier.length() > 150) {
             String extension = nomFichier.substring(nomFichier.lastIndexOf('.'));
-            nomFichier = nomFichier.substring(0, 150-extension.length()) + extension;
+            nomFichier = nomFichier.substring(0, 150 - extension.length()) + extension;
         }
         return nomFichier;
     }
 
     public static String removeSpecialChars(String filename) {
         String[] filenameExtensionSplit = filename.split("\\.");
-        String extension = filenameExtensionSplit[filenameExtensionSplit.length-1];
+        String extension = filenameExtensionSplit[filenameExtensionSplit.length - 1];
         // On supprime l'exension du split
-        String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length-1);
+        String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length - 1);
         String filenameConcat = String.join("", filenameSplit);
         return filenameConcat.replaceAll("\\W", "_") + "." + extension;
     }
@@ -123,7 +122,7 @@ public class FileUtils {
 
     public static int getNbFileNonTypes(List<FileCategoryDTO> filesAvecCategorie) {
         int nbSansCategorie = 0;
-        for(FileCategoryDTO categoryDTO : filesAvecCategorie) {
+        for (FileCategoryDTO categoryDTO : filesAvecCategorie) {
             if (categoryDTO.isTypedoc()) {
                 for (DemandeFileDTO file : categoryDTO.getFiles()) {
                     if (StringUtils.isEmpty(file.getTypedoc())) {
@@ -135,10 +134,11 @@ public class FileUtils {
         return nbSansCategorie;
     }
 
-
     /**
      * Génère des métas à partir des données du fichier
-     * @param file le fichier en question
+     *
+     * @param file
+     *         le fichier en question
      * @return une {@link String} au format 'meta' en clef_valeur séparé par un point-virgule
      */
     public static String generateMetaData(File file) throws IOException {
@@ -151,13 +151,17 @@ public class FileUtils {
 
     /**
      * Génère des métas à partir des données du fichier
-     * @param file le fichier en question
+     *
+     * @param file
+     *         le fichier en question
      * @return une {@link String} au format 'meta' en clef_valeur séparé par un point-virgule
      */
     public static String generateMetaData(MultipartFile file) throws IOException {
         Tika tika = new Tika();
         long fileSizebytes = file.getSize();
-        String mimetype = StringUtils.isNotEmpty(file.getContentType()) ? file.getContentType() : tika.detect(file.getInputStream());
+        String mimetype = StringUtils.isNotEmpty(file.getContentType())
+                ? file.getContentType()
+                : tika.detect(file.getInputStream());
 
         return formatMetaData(fileSizebytes, mimetype);
     }

@@ -22,8 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Classe permettant d'appeler GICHUNI afin de récupérer les informations de profil de
- * l'usager.
+ * Classe permettant d'appeler GICHUNI afin de récupérer les informations de profil de l'usager.
  *
  * @author qdeme
  */
@@ -63,7 +62,7 @@ public class GichuniService {
 
         LOGGER.info("Appel à GICHUNI");
         try {
-            ClassicHttpResponse getResponse = (ClassicHttpResponse)client.execute(getRequest);
+            ClassicHttpResponse getResponse = (ClassicHttpResponse) client.execute(getRequest);
             String resp = IOUtils.toString(getResponse.getEntity().getContent());
             LOGGER.debug("Status : {}, resp = {}", getResponse.getCode(), resp);
             ArrayNode anode = new ObjectMapper().readValue(resp, ArrayNode.class);

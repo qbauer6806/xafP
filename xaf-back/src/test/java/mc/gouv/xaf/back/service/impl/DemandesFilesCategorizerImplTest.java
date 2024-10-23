@@ -16,6 +16,7 @@ class DemandesFilesCategorizerImplTest {
     private static final String FICHIER_INTERNE = "FICHIER_INTERNE";
 
     private final DemandeFilesCategorizer demandeFilesCategorizer = new AbstractDemandeFilesCategorizerImpl() {
+
     };
 
     private DemandeFileDTO createFile(String meta, String name, String url, Date date) {
@@ -44,7 +45,7 @@ class DemandesFilesCategorizerImplTest {
     private DemandeComplementsReponseDTO createReponse(String meta, String name, String url, Date date) {
         DemandeComplementsReponseDTO reponse = new DemandeComplementsReponseDTO();
         reponse.setDate(date);
-        reponse.setFichiers(new DemandeComplementsFileDTO[]{createComplementFile(meta, name, url)});
+        reponse.setFichiers(new DemandeComplementsFileDTO[] { createComplementFile(meta, name, url) });
         return reponse;
     }
 

@@ -9,8 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Modélise une donnée de paiement pour l'interface Monetico
- * Pour plus d'informaations se reporter à la doc technique de Monetico
+ * Modélise une donnée de paiement pour l'interface Monetico Pour plus d'informaations se reporter à la doc technique de
+ * Monetico
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
@@ -102,7 +102,6 @@ public class PaiementDTO {
     @Getter
     @JsonProperty("url_retour_err")
     private String urlRetourErr;
-
 
     private String ThreeDSecureChallenge;
 

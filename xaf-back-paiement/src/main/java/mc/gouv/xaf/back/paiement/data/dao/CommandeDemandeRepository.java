@@ -19,5 +19,6 @@ public interface CommandeDemandeRepository extends JpaRepository<CommandeDemande
 
     List<CommandeDemandeBO> findByCommande_PkCommandes(Integer pkCommande);
 
-    List<CommandeDemandeBO> findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(List<String> statuts, Date date);
+    List<CommandeDemandeBO> findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(
+            List<String> statuts, Date date);
 }

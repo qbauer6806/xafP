@@ -120,7 +120,8 @@ public class ArchivageServiceImpl implements ArchivageService {
         return archiverDocument(references, files, demandeDTO);
     }
 
-    private List<String> archiverDocument(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+    private List<String> archiverDocument(Map<String, String> references, List<DemandeFileDTO> files,
+            DemandeDTO demandeDTO) {
         double progresArchivage = 0;
         double valeurStep = 1d / files.size();
         int demandeId = demandeDTO.getPkDemandes();
@@ -143,8 +144,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         }
 
         List<RioDocumentDTO> rioDocumentDTOs = references.entrySet().stream()
-                .map(entry -> getRioDocumentDTO(entry.getKey(), entry.getValue(), erreurRio))
-                .filter(Objects::nonNull)
+                .map(entry -> getRioDocumentDTO(entry.getKey(), entry.getValue(), erreurRio)).filter(Objects::nonNull)
                 .toList();
 
         for (DemandeFileDTO file : files) {
@@ -157,14 +157,16 @@ public class ArchivageServiceImpl implements ArchivageService {
 
                 for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
                     // Ajout dans la liste des fichiers qui ont bien été convertis
-                    archivageRapportExportDTO.addFichiersConvertis(createFichierConverti(file, STATUT_OK, fileTiff.getKey()));
+                    archivageRapportExportDTO.addFichiersConvertis(
+                            createFichierConverti(file, STATUT_OK, fileTiff.getKey()));
 
                     //On appel à l'archivage de la page courante
                     boolean erreurArchivagePageCourante = this.archiverPageFichier(erreurRio, archivageRapportExportDTO,
                             referencesTraitees, rioDocumentDTOs, file, fileTiff);
 
                     if (erreurArchivagePageCourante) {
-                        archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, fileTiff.getKey(), ""));
+                        archivageRapportExportDTO.addFichiersDeposes(
+                                createFichierDepose(file, STATUT_KO, fileTiff.getKey(), ""));
                         fichiersEnErreurs.incrementAndGet();
                         erreurArchivageFichierCourant = true;
                     }
@@ -195,13 +197,13 @@ public class ArchivageServiceImpl implements ArchivageService {
         archivageRapportExportDTO.setDemandeFlatDTO(afBackUtils.demandeDTOToDemandeFlatDTO(demandeDTO));
 
         String nomRapport = genererNomRapport(demandeDTO.getIdentifiant(), archivageRapportExportDTO);
-        try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO, nomRapport)) {
+        try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO,
+                nomRapport)) {
             processErreursArchivage(erreurRio.get(), erreurConvertisseur, demandeDTO, rapport, nomRapport);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la génération du rapport d'archivage pour la demande {}", demandeId, e);
         }
-        List<String> listeReferences = referencesTraitees.entrySet().stream()
-                .filter(entry -> entry.getValue() == 0)
+        List<String> listeReferences = referencesTraitees.entrySet().stream().filter(entry -> entry.getValue() == 0)
                 .map(Map.Entry::getKey).toList();
 
         if (fichiersEnErreurs.get() > 0) {
@@ -222,23 +224,23 @@ public class ArchivageServiceImpl implements ArchivageService {
     }
 
     private boolean archiverPageFichier(AtomicBoolean erreurRio, ArchivageRapportExportDTO archivageRapportExportDTO,
-                                        Map<String, Integer> referencesTraites, List<RioDocumentDTO> rioDocumentDTOs,
-                                        DemandeFileDTO file, Map.Entry<String, InputStream> fileTiff) {
+            Map<String, Integer> referencesTraites, List<RioDocumentDTO> rioDocumentDTOs, DemandeFileDTO file,
+            Map.Entry<String, InputStream> fileTiff) {
         try (InputStream value = fileTiff.getValue()) {
             //Il faut sortir le tableau de bytes dans la boucle sinon, au deuxième élément, value.readAllBytes() renvoi un tableau vide
             byte[] bytes = value.readAllBytes();
 
-            return this.envoyerPageDocumentEnGed(archivageRapportExportDTO, rioDocumentDTOs, file,
-                    fileTiff, bytes, referencesTraites, erreurRio);
+            return this.envoyerPageDocumentEnGed(archivageRapportExportDTO, rioDocumentDTOs, file, fileTiff, bytes,
+                    referencesTraites, erreurRio);
         } catch (IOException e) {
             LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
             return true;
         }
     }
 
-    private boolean envoyerPageDocumentEnGed(ArchivageRapportExportDTO archivageRapportExportDTO, List<RioDocumentDTO> rioDocumentDTOs,
-                                             DemandeFileDTO file, Map.Entry<String, InputStream> fileTiff, byte[] bytes,
-                                             Map<String, Integer> referencesTraites, AtomicBoolean erreurRio) {
+    private boolean envoyerPageDocumentEnGed(ArchivageRapportExportDTO archivageRapportExportDTO,
+            List<RioDocumentDTO> rioDocumentDTOs, DemandeFileDTO file, Map.Entry<String, InputStream> fileTiff,
+            byte[] bytes, Map<String, Integer> referencesTraites, AtomicBoolean erreurRio) {
         boolean erreurMiseEnGed = false;
         String refDocument = StringUtils.EMPTY;
         for (RioDocumentDTO rioDocumentDTO : rioDocumentDTOs) {
@@ -248,7 +250,8 @@ public class ArchivageServiceImpl implements ArchivageService {
 
                 refDocument = rioDocumentDTO.getRefDocument();
                 rioService.createFileDocument(refDocument, fileTiff.getKey(), bytes, rioDocumentDTO.getCodeNotice());
-                archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_OK, fileTiff.getKey(), refDocument));
+                archivageRapportExportDTO.addFichiersDeposes(
+                        createFichierDepose(file, STATUT_OK, fileTiff.getKey(), refDocument));
                 referencesTraites.putIfAbsent(refDocument, 0);
             } catch (Exception e) {
                 LOGGER.error("Erreur lors de l'envoi du documents en GED pour {}", file.getName(), e);
@@ -278,8 +281,8 @@ public class ArchivageServiceImpl implements ArchivageService {
         return rioDocumentDTO;
     }
 
-
-    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
+    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO,
+            ByteArrayOutputStream rapport, String nomRapport) {
         if (erreurRIO) {
             sendMailProblemeRIO(demandeDTO, rapport, nomRapport);
         } else if (erreurConvertisseur) {
@@ -287,14 +290,16 @@ public class ArchivageServiceImpl implements ArchivageService {
         }
     }
 
-    private void sendMailProblemeConvertisseur(DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
+    private void sendMailProblemeConvertisseur(DemandeDTO demandeDTO, ByteArrayOutputStream rapport,
+            String nomRapport) {
         String subjectTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_CORPS";
         Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, InputStream> pj = new HashMap<>();
         pj.put(nomRapport, new ByteArrayInputStream(rapport.toByteArray()));
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), 8, null, pj);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(),
+                demandeDTO.getIdentifiant(), 8, null, pj);
     }
 
     private void sendMailProblemeRIO(DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
@@ -305,10 +310,12 @@ public class ArchivageServiceImpl implements ArchivageService {
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, InputStream> pj = new HashMap<>();
         pj.put(nomRapport, new ByteArrayInputStream(rapport.toByteArray()));
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), 9, null, pj);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(),
+                demandeDTO.getIdentifiant(), 9, null, pj);
     }
 
-    private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO, String nomRapport) throws IOException {
+    private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO,
+            DemandeDTO demandeDTO, String nomRapport) throws IOException {
         LOGGER.info("Constitution du modèle pour la génération du recap archivage...");
         Map<String, Object> model = new HashMap<>();
         model.put("demarcheId", gouvPropertiesResolver.getDemarcheId());
@@ -327,7 +334,8 @@ public class ArchivageServiceImpl implements ArchivageService {
         LOGGER.info("Sauvegarde du fichier...");
         ByteArrayOutputStream outputSave = new ByteArrayOutputStream();
         String url = fileService.saveFile(demandeDTO, nomRapport, gouvPropertiesResolver.getContainerId(),
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new ByteArrayInputStream(output.toByteArray()), outputSave);
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                new ByteArrayInputStream(output.toByteArray()), outputSave);
 
         outputSave.close();
 
@@ -377,7 +385,8 @@ public class ArchivageServiceImpl implements ArchivageService {
         return fichierConvertiDTO;
     }
 
-    private ArchivageFichierDeposeDTO createFichierDepose(DemandeFileDTO file, String statut, String nomTiff, String referenceDossier) {
+    private ArchivageFichierDeposeDTO createFichierDepose(DemandeFileDTO file, String statut, String nomTiff,
+            String referenceDossier) {
         ArchivageFichierDeposeDTO fichierDeposeDTO = new ArchivageFichierDeposeDTO();
         Date date = new Date(System.currentTimeMillis());
         String dateTimeString = simpleDateTimeFormat.format(date);

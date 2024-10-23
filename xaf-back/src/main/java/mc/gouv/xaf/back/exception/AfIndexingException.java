@@ -1,10 +1,9 @@
 package mc.gouv.xaf.back.exception;
 
 /**
- * 
  * Exception declenchée si on a un problème d'indexation
- * @author asouabni.ext
  *
+ * @author asouabni.ext
  */
 public class AfIndexingException extends RuntimeException {
 

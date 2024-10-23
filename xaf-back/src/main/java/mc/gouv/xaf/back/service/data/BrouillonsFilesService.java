@@ -10,8 +10,8 @@ import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
  */
 public interface BrouillonsFilesService {
 
-	void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo);
+    void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo);
 
-	void saveFile(BrouillonFileDTO brouillonFile, Integer pkBrouillon);
+    void saveFile(BrouillonFileDTO brouillonFile, Integer pkBrouillon);
 
 }

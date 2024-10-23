@@ -31,7 +31,6 @@ public class PaiementInfoController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementInfoController.class);
 
-
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 

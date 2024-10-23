@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/doc-holder/consent")
 public class DocHolderConsentController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderConsentController.class);
 
     @Autowired
@@ -55,14 +56,16 @@ public class DocHolderConsentController extends AbstractXafController {
         LOGGER.info("Vérification usager connecté");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         LOGGER.info("Récupération des données d'accès");
         AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
         if (access == null) {
             LOGGER.error("Impossible de récupérer l'AccessDTO pour l'utilisateur id {}", usagerInfosDTO.getId());
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                    SharedMessages.ERREUR_INTERNE);
         }
 
         LOGGER.info("Déserialisation des données d'accès");
@@ -72,7 +75,8 @@ public class DocHolderConsentController extends AbstractXafController {
                 LOGGER.info("Aucun noeud json " + DOCHOLDER_CONSENT_NODE + " trouvé");
                 return ResponseEntity.notFound().build();
             } else {
-                DocHolderConsentDTO docholderConsent = mapper.readValue(docholderConsentNode.toString(), DocHolderConsentDTO.class);
+                DocHolderConsentDTO docholderConsent = mapper.readValue(docholderConsentNode.toString(),
+                        DocHolderConsentDTO.class);
                 if (docholderConsent == null) {
                     return ResponseEntity.notFound().build();
                 } else {
@@ -82,7 +86,8 @@ public class DocHolderConsentController extends AbstractXafController {
             }
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la déserialisation de la requête", e);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                    SharedMessages.ERREUR_INTERNE);
         }
 
     }
@@ -101,14 +106,16 @@ public class DocHolderConsentController extends AbstractXafController {
         LOGGER.info("Vérification usager connecté");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         LOGGER.info("Récupération des données d'accès");
         AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
         if (access == null) {
             LOGGER.error("Impossible de récupérer l'AccessDTO pour l'utilisateur id {}", usagerInfosDTO.getId());
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                    SharedMessages.ERREUR_INTERNE);
         }
 
         LOGGER.info("Déserialisation des données d'accès");
@@ -122,7 +129,8 @@ public class DocHolderConsentController extends AbstractXafController {
             docholderConsent.setDateCreation(Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).toInstant()));
 
             AccessInputDTO accessInputDTO = new AccessInputDTO();
-            JsonNode accessInputNode = ((ObjectNode) access.getContenu()).putPOJO(DOCHOLDER_CONSENT_NODE, docholderConsent);
+            JsonNode accessInputNode = ((ObjectNode) access.getContenu()).putPOJO(DOCHOLDER_CONSENT_NODE,
+                    docholderConsent);
             accessInputDTO.setContenu(accessInputNode);
 
             LOGGER.info("Mise à jour des données d'accès");
@@ -134,9 +142,9 @@ public class DocHolderConsentController extends AbstractXafController {
             LOGGER.info("Modification du consentement dans les données d'accès");
             AccessInputDTO accessInputDTO = new AccessInputDTO();
 
-            ((ObjectNode) access.getContenu().findPath(DOCHOLDER_CONSENT_NODE))
-                    .put(CONSENTING_NODE, true)
-                    .put(DATE_CREATION_NODE, new SimpleDateFormat(JSON_DATE_FORMAT).format(Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).toInstant())));
+            ((ObjectNode) access.getContenu().findPath(DOCHOLDER_CONSENT_NODE)).put(CONSENTING_NODE, true)
+                    .put(DATE_CREATION_NODE, new SimpleDateFormat(JSON_DATE_FORMAT).format(
+                            Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).toInstant())));
 
             accessInputDTO.setContenu(access.getContenu());
 

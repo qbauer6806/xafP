@@ -23,7 +23,7 @@ public class ResidHttpResponseDTO implements Serializable {
     private String message;
 
     private List<ResidErrorDTO> errors;
-    
+
     private List<ResidWarningDTO> warnings;
 
     public String toStringMessage() {

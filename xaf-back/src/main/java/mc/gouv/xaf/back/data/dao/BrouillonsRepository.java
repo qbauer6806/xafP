@@ -22,7 +22,7 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
      * Récupération brouillons de l'usager FRONT (paginée)
      */
     Page<BrouillonBO> findByFkAccess_UsagerIdAndFkAccess_Active(Integer usagerId, boolean active, Pageable pageRequest);
-    
+
     /**
      * Récupération brouillons de l'usager FRONT
      */

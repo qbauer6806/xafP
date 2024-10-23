@@ -44,9 +44,9 @@ import org.springframework.stereotype.Component;
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
-    
+
     private static final String SPAN_END_TAG = "</span>";
-    
+
     private static final String TD_TR_TABLE_TAG = "</td></tr></table>";
 
     @Autowired
@@ -87,7 +87,8 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         }
 
         LOGGER.info("Vérification de l'existance d'un fichier récap...");
-        List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndTypedoc(demande.getPkDemandes(), META_RECAP);
+        List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndTypedoc(demande.getPkDemandes(),
+                META_RECAP);
 
         DemandeFileDTO file = new DemandeFileDTO();
         if (!files.isEmpty()) {
@@ -101,7 +102,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         file.setName(fileName);
         file.setUrl('/' + url);
         file.setDate(new Date());
-        file.setMeta( metas);
+        file.setMeta(metas);
         file.setTypedoc(META_RECAP);
         demandesFileService.saveFile(file, demande.getPkDemandes());
 
@@ -130,7 +131,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.useSVGDrawer(new BatikSVGDrawer());
-            try(FileInputStream inputStream = new FileInputStream(htmlSource)) {
+            try (FileInputStream inputStream = new FileInputStream(htmlSource)) {
                 String contenu = IOUtils.toString(inputStream, Charset.defaultCharset());
                 LOGGER.debug("HTML Source : {}", contenu);
             }
@@ -139,7 +140,8 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             builder.run();
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la construction du fichier PDF: {}", e.getMessage());
-            throw new DemarchesServiceException("Erreur lors de la construction du fichier PDF", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Erreur lors de la construction du fichier PDF",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             LOGGER.info("Suppression des fichiers temporaires...");
             try {
@@ -167,9 +169,9 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
             LOGGER.info("Génération du code HTML des demandes d'informations complémentaires...");
             DemandeComplementsDTO[] complements = demande.getComplements();
-            String htmlComp = null != complements && complements.length > 0
-                    ? demandeRecapHTMLService.getHTMLDemandeComplements(demande)
-                    : "Aucune demande d'informations complémentaires.";
+            String htmlComp =
+                    null != complements && complements.length > 0 ? demandeRecapHTMLService.getHTMLDemandeComplements(
+                            demande) : "Aucune demande d'informations complémentaires.";
 
             LOGGER.info("Génération du code HTML de la récap...");
             String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, true);
@@ -179,13 +181,14 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
             DemarcheDTO demarche = afBackUtils.getDemarcheInfos();
             try (PrintWriter writer = new PrintWriter(htmlSource)) {
-	            writer.println("<!DOCTYPE html><html><head>");
+                writer.println("<!DOCTYPE html><html><head>");
 
                 writer.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
-	            writer.println("<style>");
+                writer.println("<style>");
 
                 // pageOrientation
-                try (InputStream pageOrientation = this.getClass().getResourceAsStream("/pdfrecap/css/page" + afBackUtils.getRecapOrientation() +"-genpdf.css")) {
+                try (InputStream pageOrientation = this.getClass().getResourceAsStream(
+                        "/pdfrecap/css/page" + afBackUtils.getRecapOrientation() + "-genpdf.css")) {
                     int content;
                     while ((content = pageOrientation.read()) != -1) {
                         // conversion en char avant écriture
@@ -200,16 +203,16 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
                         writer.print((char) content);
                     }
                 }
-	
-	            writer.println("</style></head><body>");
-	            LOGGER.info("Fin de l'écriture du CSS...");
-	
-	            writer.println("<div id=\"pageHeader\">");
-	            if (null != header) {
-	                writer.print("<img id=\"imgLogo\" src=\"");
-	                writer.print(header.toURI().getPath());
-	                writer.println("\" alt=\"HEADER\"></img>");
-	            }
+
+                writer.println("</style></head><body>");
+                LOGGER.info("Fin de l'écriture du CSS...");
+
+                writer.println("<div id=\"pageHeader\">");
+                if (null != header) {
+                    writer.print("<img id=\"imgLogo\" src=\"");
+                    writer.print(header.toURI().getPath());
+                    writer.println("\" alt=\"HEADER\"></img>");
+                }
                 writer.println("<span id=\"nomDirection\">");
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomDirection()));
                 writer.println(SPAN_END_TAG);
@@ -217,9 +220,9 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
                 writer.println("<span id=\"nomSousDirection\">");
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomSousDirection()));
                 writer.println(SPAN_END_TAG);
-	            writer.println("</div>");
-	
-	            writer.println("<div id=\"pageFooter\">");
+                writer.println("</div>");
+
+                writer.println("<div id=\"pageFooter\">");
                 writer.println("<span id=\"adresseService\">");
                 writer.println(demarche.getAdresseService());
                 writer.println("<br/>");
@@ -228,35 +231,35 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
                 writer.println("<span id=\"nomFooter\">");
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomFooter()));
                 writer.println(SPAN_END_TAG);
-	            writer.println("</div>");
-	
-	            LOGGER.info("Fin du header et footer...");
-	
-	            writer.println("<h1>Récapitulatif de la demande</h1>");
-	            writer.println("<h2>");
-                writer.println(StringEscapeUtils.escapeXml(afBackUtils.getDemarcheNom()));
-	            writer.println("</h2>");
-	
-	            writer.println("<table class=\"table-section sectiondemande\">");
-	            writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
-	            writer.println(htmlDemande);
-	            writer.println(TD_TR_TABLE_TAG);
-	
-	            writer.println("<table class=\"table-section sectionic\">");
-	            writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
-	            writer.println(htmlComp);
-	            writer.println(TD_TR_TABLE_TAG);
-	
-	            writer.println("<table class=\"table-section sectionrecap\">");
-	            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
-	            writer.println(htmlRecap);
-	            writer.println(TD_TR_TABLE_TAG);
+                writer.println("</div>");
 
-                if(extraContent != null) {
+                LOGGER.info("Fin du header et footer...");
+
+                writer.println("<h1>Récapitulatif de la demande</h1>");
+                writer.println("<h2>");
+                writer.println(StringEscapeUtils.escapeXml(afBackUtils.getDemarcheNom()));
+                writer.println("</h2>");
+
+                writer.println("<table class=\"table-section sectiondemande\">");
+                writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
+                writer.println(htmlDemande);
+                writer.println(TD_TR_TABLE_TAG);
+
+                writer.println("<table class=\"table-section sectionic\">");
+                writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
+                writer.println(htmlComp);
+                writer.println(TD_TR_TABLE_TAG);
+
+                writer.println("<table class=\"table-section sectionrecap\">");
+                writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
+                writer.println(htmlRecap);
+                writer.println(TD_TR_TABLE_TAG);
+
+                if (extraContent != null) {
                     writer.println(extraContent);
                 }
-	
-	            writer.println("</body></html>");
+
+                writer.println("</body></html>");
             }
 
         } catch (Exception e) {

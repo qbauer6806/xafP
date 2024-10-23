@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE.
- * Cette servlet permet d'appeler des fonctions API custom/spécifiques d'une démarche
+ * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE. Cette servlet
+ * permet d'appeler des fonctions API custom/spécifiques d'une démarche
  *
  * @author qdeme
  */
@@ -49,20 +49,10 @@ public class CustomRequestController extends AbstractXafController {
     private FrontGouvPropertiesResolver propertiesResolver;
 
     // List des headers qui sont interdits à copier, voir https://hg.openjdk.org/jdk8u/jdk8u-dev/jdk/file/31bc1a681b51/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#l186
-    private final String[] restrictedHeaders = {
-            "Access-Control-Request-Headers",
-            "Access-Control-Request-Method",
+    private final String[] restrictedHeaders = { "Access-Control-Request-Headers", "Access-Control-Request-Method",
             "Connection", /* close is allowed */
-            "Content-Length",
-            "Content-Transfer-Encoding",
-            "Host",
-            "Keep-Alive",
-            "Origin",
-            "Trailer",
-            "Transfer-Encoding",
-            "Upgrade",
-            "Via"
-    };
+            "Content-Length", "Content-Transfer-Encoding", "Host", "Keep-Alive", "Origin", "Trailer",
+            "Transfer-Encoding", "Upgrade", "Via" };
 
     public ResponseEntity doHttpMethod(HttpServletRequest request, HttpMethod httpMethod) {
 
@@ -135,7 +125,8 @@ public class CustomRequestController extends AbstractXafController {
         }
     }
 
-    private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl) throws IOException {
+    private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl)
+            throws IOException {
         Request serviceRequest = null;
         if (HttpMethod.GET.equals(httpMethod)) {
             serviceRequest = Request.get(serviceUrl);

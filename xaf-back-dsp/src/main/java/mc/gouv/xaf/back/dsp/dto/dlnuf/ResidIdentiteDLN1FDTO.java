@@ -18,26 +18,26 @@ import mc.gouv.xaf.back.dsp.enums.common.ResidSexeEnum;
 @ToString
 public class ResidIdentiteDLN1FDTO implements Serializable {
 
-	private static final long serialVersionUID = 2762334113370075251L;
+    private static final long serialVersionUID = 2762334113370075251L;
 
-	private ResidCiviliteEnum titreUsager;
+    private ResidCiviliteEnum titreUsager;
 
-	private String nomUsager;
+    private String nomUsager;
 
-	private String nomUsageUsager;
+    private String nomUsageUsager;
 
-	private String prenomUsager;
+    private String prenomUsager;
 
-	private String dateNaissanceUsager;
+    private String dateNaissanceUsager;
 
-	private String heureNaissanceUsager;
+    private String heureNaissanceUsager;
 
-	private String villeNaissanceUsager;
+    private String villeNaissanceUsager;
 
-	private String paysNaissanceUsager;
+    private String paysNaissanceUsager;
 
-	private ResidSexeEnum sexeUsager;
+    private ResidSexeEnum sexeUsager;
 
-	private boolean personnaliteSensible;
+    private boolean personnaliteSensible;
 
 }

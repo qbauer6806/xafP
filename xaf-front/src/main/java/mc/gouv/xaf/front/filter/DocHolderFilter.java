@@ -20,8 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Filtre de servlet pour les fonctionnalités du porte-document (doc-holder)
- * Il fait les vérifications suivantes :
+ * Filtre de servlet pour les fonctionnalités du porte-document (doc-holder) Il fait les vérifications suivantes :
  * <ul>
  *     <li>La fonctionnalité est-elle activée (isDocHolderEnabled)</li>
  *     <li>L'usager est-il-connecté ?</li>
@@ -29,6 +28,7 @@ import java.io.IOException;
  */
 @Component
 public class DocHolderFilter extends OncePerRequestFilter {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFilter.class);
     private static final String XAF_PORTE_DOCUMENT_ACTIF = "XAF_PORTE_DOCUMENT_ACTIF";
 
@@ -46,7 +46,8 @@ public class DocHolderFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest servletRequest,
-                                    @NonNull HttpServletResponse servletResponse, @NonNull FilterChain filterChain) throws ServletException, IOException {
+            @NonNull HttpServletResponse servletResponse, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
         PropertiesDTO docHolderEnabled = propertiesCache.getFrontProperty(XAF_PORTE_DOCUMENT_ACTIF);
         if (docHolderEnabled == null) {
             LOGGER.error("La propriété obligatoire " + XAF_PORTE_DOCUMENT_ACTIF + " ne semble pas définie");

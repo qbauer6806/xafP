@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour créer une demande d'informations complémentaires.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
@@ -29,9 +27,9 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesComplementsService demandesComplementsService;
-    
+
     private Expression codeMotif;
-    
+
     private Expression commentaireUsager;
 
     @Override
@@ -43,26 +41,26 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
         LOGGER.info("Demande : {}", demandeId);
 
-        
-		String codeMotifStr = null;
+        String codeMotifStr = null;
         if (codeMotif != null && StringUtils.isNotBlank((String) codeMotif.getValue(execution))) {
             codeMotifStr = ((String) codeMotif.getValue(execution)).trim();
         }
-		String commentaireUsagerStr = null;
+        String commentaireUsagerStr = null;
         if (commentaireUsager != null && StringUtils.isNotBlank((String) commentaireUsager.getValue(execution))) {
-        	commentaireUsagerStr = ((String) commentaireUsager.getValue(execution)).trim();
+            commentaireUsagerStr = ((String) commentaireUsager.getValue(execution)).trim();
         }
-        
+
         // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
-        
+
         // Si le commentaire usager n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
         if (StringUtils.isBlank(commentaireUsagerStr)) {
-        	commentaireUsagerStr = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+            commentaireUsagerStr = (String) execution.getVariables()
+                    .get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
         }
-        
+
         // Si le code motif n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
         if (StringUtils.isBlank(codeMotifStr)) {
-        	codeMotifStr = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+            codeMotifStr = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         }
 
         LOGGER.info("Commentaire usager : {}", commentaireUsagerStr);

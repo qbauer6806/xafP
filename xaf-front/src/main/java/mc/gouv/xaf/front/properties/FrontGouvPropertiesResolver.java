@@ -18,11 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * Classe permettant de récupérer les propriétés externalisées dans les fichiers .properties du serveur
  *
  * @author qdeme
- *
  */
 @Getter
 @Component
@@ -60,7 +58,6 @@ public class FrontGouvPropertiesResolver {
 
     @Value("${mc.gouv.monetico.url:}")
     private String moneticoUrl;
-
 
     // FRONT
     @Value("${mc.gouv.${application.name}.frontserver.copyright.years}")
@@ -187,8 +184,8 @@ public class FrontGouvPropertiesResolver {
         List<String> propertiesNotFound = new ArrayList<>();
         try {
 
-            for (PropertyDescriptor propertyDescriptor : Introspector
-                    .getBeanInfo(FrontGouvPropertiesResolver.class, Object.class).getPropertyDescriptors()) {
+            for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(FrontGouvPropertiesResolver.class,
+                    Object.class).getPropertyDescriptors()) {
 
                 Method method = getMethod(propertyDescriptor);
 
@@ -218,7 +215,8 @@ public class FrontGouvPropertiesResolver {
         return method;
     }
 
-    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor) throws InvocationTargetException, IllegalAccessException {
+    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor)
+            throws InvocationTargetException, IllegalAccessException {
         try {
             Object value = method.invoke(this);
             if (value == null) {
@@ -241,38 +239,60 @@ public class FrontGouvPropertiesResolver {
 
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
 
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.gichkey.redirect.url", getGichkeyRedirectUrl()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.copyright.years", getCopyrightYears()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.matomo.site_id", getMatomoSiteId()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.gichkey.redirect.url",
+                getGichkeyRedirectUrl()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.copyright.years", getCopyrightYears()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.matomo.site_id", getMatomoSiteId()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.matomo.api.url", getMatomoUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.monetico.url", getMoneticoUrl()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.fr", getLienRevocationCertifsElectroniquesFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.en", getLienRevocationCertifsElectroniquesEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.profil.particulier.url", getGichuniProfilIndividualUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.fr",
+                getLienRevocationCertifsElectroniquesFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.en",
+                getLienRevocationCertifsElectroniquesEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.profil.particulier.url", getGichuniProfilIndividualUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.profil.entreprise.url", getGichuniProfilCompanyUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.front.url", getGichuniFrontUrl()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.fr", getGichuniDemarcheParticulierUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.en", getGichuniDemarcheParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.entreprise.url.fr", getGichuniDemarcheEntrepriseUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.demarche.entreprise.url.en", getGichuniDemarcheEntrepriseUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.fr", getGichuniDemarcheParticulierUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.en", getGichuniDemarcheParticulierUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.demarche.entreprise.url.fr", getGichuniDemarcheEntrepriseUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.demarche.entreprise.url.en", getGichuniDemarcheEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.pub.mconnect.url.fr", getPubMconnectUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.pub.mconnect.url.en", getPubMconnectUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.fr", getServicePublicParticulierUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.en", getServicePublicParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.entreprise.url.fr", getServicePublicEntrepriseUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.entreprise.url.en", getServicePublicEntrepriseUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.particulier.url.fr", getCookiesParticulierUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.particulier.url.en", getCookiesParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.entreprise.url.fr", getCookiesEntrepriseUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.cookies.entreprise.url.en", getCookiesEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.fr",
+                getServicePublicParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.particulier.url.en",
+                getServicePublicParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.entreprise.url.fr",
+                getServicePublicEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.servicepublic.entreprise.url.en",
+                getServicePublicEntrepriseUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.cookies.particulier.url.fr", getCookiesParticulierUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.cookies.particulier.url.en", getCookiesParticulierUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.cookies.entreprise.url.fr", getCookiesEntrepriseUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.cookies.entreprise.url.en", getCookiesEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.mconnect.help.url.fr", getMconnectHelpUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.mconnect.help.url.en", getMconnectHelpUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.support.url.fr", getSupportUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.support.url.en", getSupportUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.fr", getCompteParticulierUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.en", getCompteParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.fr", getCompteEntrepriseUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.en", getCompteEntrepriseUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.fr", getCompteParticulierUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.compte.particulier.url.en", getCompteParticulierUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.fr", getCompteEntrepriseUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.en", getCompteEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.fr", getMonguichetCguUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.en", getMonguichetCguUrlEn()));
 

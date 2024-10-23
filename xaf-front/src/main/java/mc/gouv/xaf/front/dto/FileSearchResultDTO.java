@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class FileSearchResultDTO {
+
     @Setter
     @Getter
     private String data;

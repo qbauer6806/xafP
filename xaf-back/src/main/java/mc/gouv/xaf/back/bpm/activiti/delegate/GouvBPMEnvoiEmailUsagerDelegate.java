@@ -23,11 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour envoyer un email à l'usager.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
@@ -56,18 +54,18 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     @Setter
     @Getter
     private Expression emailSubjectTemplateCode;
-    
+
     private Expression copieCacheeAuService;
 
     @Override
     public void execute(DelegateExecution execution) {
 
-		LOGGER.info("==== xaf-back ENVOI EMAIL USAGER ...");
-		Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
-		GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
-		Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
-		DemandeDTO demande = demandesService.getDemande(demandeId);
-		if (usager == null) {
+        LOGGER.info("==== xaf-back ENVOI EMAIL USAGER ...");
+        Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
+        GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
+        DemandeDTO demande = demandesService.getDemande(demandeId);
+        if (usager == null) {
             usager = new GichuniUsagerDTO();
             DemandeUsagerDTO usagerDto = demande.getUsager();
             if (usagerDto != null) {
@@ -75,58 +73,58 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
                 usager.setPrenom(usagerDto.getPrenom());
                 usager.setEmail(usagerDto.getEmail());
             }
-		}
+        }
 
-		String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-		String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
-		String copieCacheeAuServiceStr = null;
-		if (copieCacheeAuService != null) {
-			copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
-		}
+        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
+        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String copieCacheeAuServiceStr = null;
+        if (copieCacheeAuService != null) {
+            copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
+        }
 
-		String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
-		EmailInfoDTO emailInfo = new EmailInfoDTO();
-		emailInfo.setBodyTemplateCode(bodyTemplateCode);
-		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-				afBackUtils.getDemarcheInfos().getEmailFromNom());
-		emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-				afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
+        EmailInfoDTO emailInfo = new EmailInfoDTO();
+        emailInfo.setBodyTemplateCode(bodyTemplateCode);
+        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
 
-		String prenom = StringUtils.EMPTY;
-		String nom = StringUtils.EMPTY;
+        String prenom = StringUtils.EMPTY;
+        String nom = StringUtils.EMPTY;
 
-		if (StringUtils.isNotBlank(usager.getPrenom())) {
-			prenom = usager.getPrenom();
-		}
+        if (StringUtils.isNotBlank(usager.getPrenom())) {
+            prenom = usager.getPrenom();
+        }
 
-		if (StringUtils.isNotBlank(usager.getNom())) {
-			nom = usager.getNom();
-		}
+        if (StringUtils.isNotBlank(usager.getNom())) {
+            nom = usager.getNom();
+        }
 
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
         emailInfo.setLangue(langue);
-        
+
         if ("true".equals(copieCacheeAuServiceStr)) {
-        	LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
-        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
+            LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
+            emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
         }
 
-		String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
-		String commentaire = (String) execution
-				.getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-		commentaire = mailService.formatCommentaire(commentaire);
-		Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
-				execution.getVariables(), codeMotif, commentaire);
+        String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        String commentaire = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        commentaire = mailService.formatCommentaire(commentaire);
+        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+                execution.getVariables(), codeMotif, commentaire);
 
-		try {
-			mailService.sendMail(emailInfo, model);
-		} catch (Exception e) {
-			LOGGER.error("Échec lors de l'envoi de l'email", e);
-		}
+        try {
+            mailService.sendMail(emailInfo, model);
+        } catch (Exception e) {
+            LOGGER.error("Échec lors de l'envoi de l'email", e);
+        }
 
-		LOGGER.info("==== xaf-back ENVOI EMAIL USAGER <fin>");
-	}
+        LOGGER.info("==== xaf-back ENVOI EMAIL USAGER <fin>");
+    }
 
 }

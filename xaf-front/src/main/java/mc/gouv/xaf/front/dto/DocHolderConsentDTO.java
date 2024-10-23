@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @Getter
 public class DocHolderConsentDTO {
+
     private boolean consenting;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DocHolderUtils.JSON_DATE_FORMAT, timezone = "Europe/Monaco")

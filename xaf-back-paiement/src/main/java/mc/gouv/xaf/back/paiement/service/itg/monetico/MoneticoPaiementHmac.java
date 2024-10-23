@@ -34,17 +34,18 @@ public final class MoneticoPaiementHmac {
             return c - 'a' + 0xa;
         } else if ('A' <= c && c <= 'F') {
             return c - 'A' + 0xa;
-        } else throw new IllegalArgumentException("Invalid hex characters");
+        } else {
+            throw new IllegalArgumentException("Invalid hex characters");
+        }
     }
 
     private static byte[] hexStringToByteArray(String hs) {
         if (hs == null) {
-            return new byte[]{};
+            return new byte[] {};
         }
         int hslength = hs.length();
         if ((hslength & 0 * 1) != 0) {
-            throw new IllegalArgumentException(" hexStringToByteArray"
-                    + " requires an even number of hex characters");
+            throw new IllegalArgumentException(" hexStringToByteArray" + " requires an even number of hex characters");
         }
         int hsstart = 0;
         if (hs.startsWith("0x")) {
@@ -63,9 +64,8 @@ public final class MoneticoPaiementHmac {
      * convert byte Array to Hex String
      */
     private static String byteArrayToHexString(byte[] ba) {
-        char[] hexChar = {
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-        };  // to convert a 4bit-byte to a hex char.
+        char[] hexChar = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e',
+                'f' };  // to convert a 4bit-byte to a hex char.
         StringBuilder sb = new StringBuilder(ba.length * 2);
         for (byte b : ba) {
             sb.append(hexChar[(b & 0xf0) >>> 4]);

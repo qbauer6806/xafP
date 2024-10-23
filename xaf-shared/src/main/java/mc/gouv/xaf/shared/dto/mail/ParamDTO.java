@@ -9,7 +9,6 @@ import lombok.ToString;
 
 /**
  * @author qdeme
- *
  */
 @Setter
 @Getter

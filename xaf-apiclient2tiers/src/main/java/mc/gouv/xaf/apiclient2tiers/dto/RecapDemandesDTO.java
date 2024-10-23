@@ -3,65 +3,63 @@ package mc.gouv.xaf.apiclient2tiers.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * 
  * Bloc "recapDemandes" du message SynchronisationDemandesMessage envoyé au Guichet Unique
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RecapDemandesDTO {
-	
-	/**
-	 * Nombre total de demandes effectuées par l'usager, quelque soit leur statut
-	 */
-	private Integer total;
-	
-	/**
-	 * Nombre de demandes en cours de l'usager (moins celles en attente de l'usager)
-	 */
-	private Integer enCours;
-	
-	/**
-	 * Nombre de demandes de l'usager qui sont en attente d'une action de sa part
-	 */
-	private Integer enAttenteUsager;
-	
-	/**
-	 * Nombre de demandes terminées de l'usager
-	 */
-	private Integer terminees;
 
-	public Integer getTotal() {
-		return total;
-	}
+    /**
+     * Nombre total de demandes effectuées par l'usager, quelque soit leur statut
+     */
+    private Integer total;
 
-	public void setTotal(Integer total) {
-		this.total = total;
-	}
+    /**
+     * Nombre de demandes en cours de l'usager (moins celles en attente de l'usager)
+     */
+    private Integer enCours;
 
-	public Integer getEnCours() {
-		return enCours;
-	}
+    /**
+     * Nombre de demandes de l'usager qui sont en attente d'une action de sa part
+     */
+    private Integer enAttenteUsager;
 
-	public void setEnCours(Integer enCours) {
-		this.enCours = enCours;
-	}
+    /**
+     * Nombre de demandes terminées de l'usager
+     */
+    private Integer terminees;
 
-	public Integer getEnAttenteUsager() {
-		return enAttenteUsager;
-	}
+    public Integer getTotal() {
+        return total;
+    }
 
-	public void setEnAttenteUsager(Integer enAttenteUsager) {
-		this.enAttenteUsager = enAttenteUsager;
-	}
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
 
-	public Integer getTerminees() {
-		return terminees;
-	}
+    public Integer getEnCours() {
+        return enCours;
+    }
 
-	public void setTerminees(Integer terminees) {
-		this.terminees = terminees;
-	}
+    public void setEnCours(Integer enCours) {
+        this.enCours = enCours;
+    }
+
+    public Integer getEnAttenteUsager() {
+        return enAttenteUsager;
+    }
+
+    public void setEnAttenteUsager(Integer enAttenteUsager) {
+        this.enAttenteUsager = enAttenteUsager;
+    }
+
+    public Integer getTerminees() {
+        return terminees;
+    }
+
+    public void setTerminees(Integer terminees) {
+        this.terminees = terminees;
+    }
 
 }

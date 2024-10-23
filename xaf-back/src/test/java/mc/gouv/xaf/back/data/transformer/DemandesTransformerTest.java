@@ -71,27 +71,29 @@ class DemandesTransformerTest {
     }
 
     public static Stream<Arguments> getAllFieldsTestArgs() {
-        return Stream.of(Arguments.of(
-                null, new boolean[]{true, true, true, true, true},
-                new String[]{}, new boolean[]{false, false, false, false, false},
-                new String[]{FIELD_COURRIER}, new boolean[]{true, false, false, false, false},
-                new String[]{FIELD_COURRIER, FIELD_DATA}, new boolean[]{true, false, false, false, true},
-                new String[]{FIELD_COURRIER, FIELD_DATA, FIELD_FILES}, new boolean[]{true, true, false, false, true},
-                new String[]{FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_STATUS}, new boolean[]{true, true, true, false, true},
-                new String[]{FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_DEM_COMPL}, new boolean[]{true, true, true, true, true}
-        ));
+        return Stream.of(Arguments.of(null, new boolean[] { true, true, true, true, true }, new String[] {},
+                new boolean[] { false, false, false, false, false }, new String[] { FIELD_COURRIER },
+                new boolean[] { true, false, false, false, false }, new String[] { FIELD_COURRIER, FIELD_DATA },
+                new boolean[] { true, false, false, false, true },
+                new String[] { FIELD_COURRIER, FIELD_DATA, FIELD_FILES },
+                new boolean[] { true, true, false, false, true },
+                new String[] { FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_STATUS },
+                new boolean[] { true, true, true, false, true },
+                new String[] { FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_DEM_COMPL },
+                new boolean[] { true, true, true, true, true }));
     }
 
     @ParameterizedTest
     @MethodSource("getAllFieldsTestArgs")
-    void getAllFieldsTest(String[] fields, boolean[] expected) throws InvocationTargetException, IllegalAccessException {
+    void getAllFieldsTest(String[] fields, boolean[] expected)
+            throws InvocationTargetException, IllegalAccessException {
         boolean[] result = (boolean[]) getAllFields.invoke(DemandesTransformer.class, (Object) fields);
         assertArrayEquals(expected, result);
     }
 
     @Test
     void bo2DtoMapDernierStatut() {
-        String[] fields = new String[]{};
+        String[] fields = new String[] {};
         DemandeBO demandeBO = makeDemandeBo();
         demandeBO.setDernierStatut(null);
 
@@ -100,12 +102,14 @@ class DemandesTransformerTest {
         assertNull(demandeDTO.getDernierStatut());
 
         try (MockedStatic<DemarchesUtils> demarchesUtils = mockStatic(DemarchesUtils.class);
-                MockedStatic<DemandesStatutsTransformer> statutsTransformer = mockStatic(DemandesStatutsTransformer.class)) {
+                MockedStatic<DemandesStatutsTransformer> statutsTransformer = mockStatic(
+                        DemandesStatutsTransformer.class)) {
             DemandeStatutDTO statutDTO = new DemandeStatutDTO();
             statutDTO.setAgentId("agentId");
 
             demarchesUtils.when(DemarchesUtils::isFrontUser).thenReturn(false);
-            statutsTransformer.when(() -> DemandesStatutsTransformer.bo2Dto((DemandesStatutsBO) any())).thenReturn(statutDTO);
+            statutsTransformer.when(() -> DemandesStatutsTransformer.bo2Dto((DemandesStatutsBO) any()))
+                    .thenReturn(statutDTO);
 
             // Si on a un statut, on le mappe...
             demandeBO.setDernierStatut(new DemandesStatutsBO());
@@ -123,28 +127,33 @@ class DemandesTransformerTest {
             assertNotNull(demandeDTO.getDernierStatut());
         }
 
-
     }
 
     @Test
     void bo2DtoBooleanFieldsTest() {
-        String[] fields = new String[]{FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_DEM_COMPL};
+        String[] fields = new String[] { FIELD_COURRIER, FIELD_DATA, FIELD_FILES, FIELD_DEM_COMPL };
         DemandeBO demandeBO = makeDemandeBo();
 
-        try (MockedStatic<DemandesCourriersTransformer> courriersTransformer = mockStatic(DemandesCourriersTransformer.class);
-             MockedStatic<DemandesComplementsTransformer> complementsTransformer = mockStatic(DemandesComplementsTransformer.class);
-             MockedStatic<DemandesFilesTransformer> filesTransformer = mockStatic(DemandesFilesTransformer.class);
-             MockedStatic<DemandesDataTransformer> dataTransformer = mockStatic(DemandesDataTransformer.class)) {
+        try (MockedStatic<DemandesCourriersTransformer> courriersTransformer = mockStatic(
+                DemandesCourriersTransformer.class);
+                MockedStatic<DemandesComplementsTransformer> complementsTransformer = mockStatic(
+                        DemandesComplementsTransformer.class);
+                MockedStatic<DemandesFilesTransformer> filesTransformer = mockStatic(DemandesFilesTransformer.class);
+                MockedStatic<DemandesDataTransformer> dataTransformer = mockStatic(DemandesDataTransformer.class)) {
 
             DemandeCourrierDTO demandeCourrierDTO = mock(DemandeCourrierDTO.class);
             DemandeFileDTO demandeFileDTO = mock(DemandeFileDTO.class);
             DemandeDataDTO demandeDataDTO = mock(DemandeDataDTO.class);
             DemandeComplementsDTO complementsDTO = mock(DemandeComplementsDTO.class);
 
-            courriersTransformer.when(() -> DemandesCourriersTransformer.bo2Dto((DemandesCourriersBO) any())).thenReturn(demandeCourrierDTO);
-            complementsTransformer.when(() -> DemandesComplementsTransformer.bo2Dto((DemandesComplementsBO) any())).thenReturn(complementsDTO);
-            filesTransformer.when(() -> DemandesFilesTransformer.bo2Dto((DemandesFilesBO) any())).thenReturn(demandeFileDTO);
-            dataTransformer.when(() -> DemandesDataTransformer.bo2Dto((DemandesDataBO) any())).thenReturn(demandeDataDTO);
+            courriersTransformer.when(() -> DemandesCourriersTransformer.bo2Dto((DemandesCourriersBO) any()))
+                    .thenReturn(demandeCourrierDTO);
+            complementsTransformer.when(() -> DemandesComplementsTransformer.bo2Dto((DemandesComplementsBO) any()))
+                    .thenReturn(complementsDTO);
+            filesTransformer.when(() -> DemandesFilesTransformer.bo2Dto((DemandesFilesBO) any()))
+                    .thenReturn(demandeFileDTO);
+            dataTransformer.when(() -> DemandesDataTransformer.bo2Dto((DemandesDataBO) any()))
+                    .thenReturn(demandeDataDTO);
 
             DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBO, fields);
 
@@ -159,7 +168,8 @@ class DemandesTransformerTest {
         ObjectMapper mapper = new ObjectMapper();
         DemandeBO demandeBO = new DemandeBO();
         try {
-            demandeBO.setContenu(mapper.readTree("{\"donnee\":{\"demandeur\":{\"titre\":null,\"prenom\":\"Tom\",\"nom\":\"TORREZE\",\"email\":null},\"derogation\":{\"typedemande\":\"SUSPENSION\",\"annee\":\"2019\",\"dateinfosal\":null,\"effectifentreprise\":\"45\",\"presencedeleguepersonnel\":\"NO\",\"datederniereelection\":null,\"dateinfodp\":null,\"identitedp\":null,\"motifdemande\":\"cds\"},\"attribut\":{\"demandeur\":{\"declarant\":\"DECLARANT\"},\"civilite\":null,\"monegasque\":null,\"adresse\":{\"ligne1\":null,\"ligne2\":null,\"ligne3\":null,\"codePostal\":null,\"ville\":null,\"pays\":null},\"email\":\"ttorreze.ext@gouv.mc\",\"date\":{\"heure\":{\"naissance\":null}},\"lieu\":{\"naissance\":null},\"telephone\":{\"indicatif\":null,\"numero\":null},\"fiscale\":{\"titulaire\":null,\"bic\":null,\"iban\":null},\"declarant\":{\"civilite\":\"0\",\"nom\":\"Tomconsult\",\"prenom\":\"a,b,c\",\"monegasque\":\"NO\",\"resident\":\"NO\",\"adresse\":{\"ligne1\":\"2, rue du pioupiou\",\"ligne2\":null,\"ligne3\":null,\"codePostal\":\"Monaco\",\"ville\":\"98000\",\"pays\":\"FR\"}},\"nom\":null,\"prenoms\":null,\"resident\":null}},\"raison\":{\"sociale\":\"\"}}"));
+            demandeBO.setContenu(mapper.readTree(
+                    "{\"donnee\":{\"demandeur\":{\"titre\":null,\"prenom\":\"Tom\",\"nom\":\"TORREZE\",\"email\":null},\"derogation\":{\"typedemande\":\"SUSPENSION\",\"annee\":\"2019\",\"dateinfosal\":null,\"effectifentreprise\":\"45\",\"presencedeleguepersonnel\":\"NO\",\"datederniereelection\":null,\"dateinfodp\":null,\"identitedp\":null,\"motifdemande\":\"cds\"},\"attribut\":{\"demandeur\":{\"declarant\":\"DECLARANT\"},\"civilite\":null,\"monegasque\":null,\"adresse\":{\"ligne1\":null,\"ligne2\":null,\"ligne3\":null,\"codePostal\":null,\"ville\":null,\"pays\":null},\"email\":\"ttorreze.ext@gouv.mc\",\"date\":{\"heure\":{\"naissance\":null}},\"lieu\":{\"naissance\":null},\"telephone\":{\"indicatif\":null,\"numero\":null},\"fiscale\":{\"titulaire\":null,\"bic\":null,\"iban\":null},\"declarant\":{\"civilite\":\"0\",\"nom\":\"Tomconsult\",\"prenom\":\"a,b,c\",\"monegasque\":\"NO\",\"resident\":\"NO\",\"adresse\":{\"ligne1\":\"2, rue du pioupiou\",\"ligne2\":null,\"ligne3\":null,\"codePostal\":\"Monaco\",\"ville\":\"98000\",\"pays\":\"FR\"}},\"nom\":null,\"prenoms\":null,\"resident\":null}},\"raison\":{\"sociale\":\"\"}}"));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -181,7 +191,7 @@ class DemandesTransformerTest {
         demande = demandesTransformer.bo2Dto((DemandeBO) null, null);
         assertNull(demande);
 
-        demande = demandesTransformer.bo2Dto((DemandeBO) null, new String[]{FIELD_FILES});
+        demande = demandesTransformer.bo2Dto((DemandeBO) null, new String[] { FIELD_FILES });
         assertNull(demande);
     }
 }

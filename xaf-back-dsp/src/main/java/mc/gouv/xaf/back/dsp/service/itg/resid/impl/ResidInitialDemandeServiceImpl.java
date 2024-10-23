@@ -58,8 +58,9 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
      * {@inheritDoc}
      */
     @Override
-    public JsonNode getInitialDemande(Integer usagerId, Map<String, String[]> params) throws ResidHttpResponseException, ParseException, JsonProcessingException {
-        if(!this.isMconnectCall(params)){
+    public JsonNode getInitialDemande(Integer usagerId, Map<String, String[]> params)
+            throws ResidHttpResponseException, ParseException, JsonProcessingException {
+        if (!this.isMconnectCall(params)) {
             LOGGER.info("Impossible d'appeler RESID avec les données fournies");
             DonneesExternesDemandeDTO donneesExternesDemandeDTO = new DonneesExternesDemandeDTO();
             donneesExternesDemandeDTO.setDemande(null);
@@ -68,11 +69,11 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
         }
         LOGGER.info("Début de récupération des données depuis RESID");
         String jwt = residPropertiesResolver.getResidApiJwt();
-        if(StringUtils.isBlank(jwt)){
+        if (StringUtils.isBlank(jwt)) {
             throw new ResidHttpResponseException("Le TOKEN pour l'appel à RESID est null");
         }
         String residApiUrlV2 = residPropertiesResolver.getResidApiUrlV2();
-        if(StringUtils.isBlank(residApiUrlV2)){
+        if (StringUtils.isBlank(residApiUrlV2)) {
             throw new ResidHttpResponseException("L'url pour l'appel à RESID est null");
         }
         LOGGER.info("URL RESID: {}", residApiUrlV2);
@@ -95,9 +96,10 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
         initialDemandeDTO.setEmail(email);
         initialDemandeDTO.setTitre(titre);
 
-        ResidUsagerNpdhlDTO usagerDln1f = residApiService.getUsagerDln1f(initialDemandeDTO, residApiUrlV2, jwt, usagerId);
+        ResidUsagerNpdhlDTO usagerDln1f = residApiService.getUsagerDln1f(initialDemandeDTO, residApiUrlV2, jwt,
+                usagerId);
 
-        if(usagerDln1f == null){
+        if (usagerDln1f == null) {
             LOGGER.info("RESID nous retourne null");
             DonneesExternesDemandeDTO donneesExternesDemandeDTO = new DonneesExternesDemandeDTO();
             donneesExternesDemandeDTO.setDemande(null);
@@ -120,12 +122,15 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
     }
 
     private boolean isMconnectCall(Map<String, String[]> params) {
-        if(params == null){
+        if (params == null) {
             return false;
         }
-        return params.get(DONNEES_EXTERNES_MCONNECT_BIRTHDATE) != null || params.get(DONNEES_EXTERNES_MCONNECT_FAMILYNAME) != null
-                || params.get(DONNEES_EXTERNES_MCONNECT_GIVENNAME) != null || params.get(DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY) != null
-                || params.get(DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY) != null || params.get(DONNEES_EXTERNES_MCONNECT_BIRTHNAME) != null;
+        return params.get(DONNEES_EXTERNES_MCONNECT_BIRTHDATE) != null
+                || params.get(DONNEES_EXTERNES_MCONNECT_FAMILYNAME) != null
+                || params.get(DONNEES_EXTERNES_MCONNECT_GIVENNAME) != null
+                || params.get(DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY) != null
+                || params.get(DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY) != null
+                || params.get(DONNEES_EXTERNES_MCONNECT_BIRTHNAME) != null;
     }
 
 }

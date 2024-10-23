@@ -20,11 +20,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 /**
- * 
  * Classe BO de la table DEM.HISTORIQUE
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

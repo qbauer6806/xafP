@@ -17,11 +17,10 @@ import mc.gouv.xaf.back.dsp.enums.common.ResidLoyerPeriodiciteEnum;
 @ToString
 public class ResidLoyerPeriodiciteDTO implements Serializable {
 
-	private static final long serialVersionUID = -6823317089850982795L;
+    private static final long serialVersionUID = -6823317089850982795L;
 
-	private ResidLoyerPeriodiciteEnum loyerEnum;
+    private ResidLoyerPeriodiciteEnum loyerEnum;
 
-	private String autre;
-
+    private String autre;
 
 }

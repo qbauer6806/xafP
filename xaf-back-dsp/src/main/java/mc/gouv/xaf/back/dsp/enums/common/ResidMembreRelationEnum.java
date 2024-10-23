@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.dsp.enums.common;
 
 public enum ResidMembreRelationEnum {
 
-	PRO("PRO"),
+    PRO("PRO"),
     AMI("AMI"),
     BEA("BEA"),
     PAR("PAR"),

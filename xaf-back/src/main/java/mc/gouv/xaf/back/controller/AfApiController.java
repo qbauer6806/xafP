@@ -43,13 +43,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.xml.sax.SAXException;
 
 /**
- *
  * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
  * REST de Spring
  *
  * @author qdeme
  * @author fgaujous
- *
  */
 public class AfApiController {
 
@@ -67,8 +65,7 @@ public class AfApiController {
 
     @PostMapping(value = "/demandes")
     public DemandeDTO creerDemandeRequest(@Valid @RequestBody DemandeInputDTO demande,
-            @RequestParam(value = "usagerId") Integer usagerId)
-            throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
         LOGGER.debug("AbstractAfApiController.creerDemande({}, {})", demande, usagerId);
         return afApiService.creerDemande(demande, usagerId);
     }
@@ -203,33 +200,33 @@ public class AfApiController {
     }
 
     @SuppressWarnings("rawtypes")
-	@GetMapping(value = "/customRequest/**")
+    @GetMapping(value = "/customRequest/**")
     public ResponseEntity getCustomRequestRequest(HttpServletRequest request,
-                                                  @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getCustomRequest()");
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @SuppressWarnings("rawtypes")
-	@PostMapping(value = "/customRequest/**")
+    @PostMapping(value = "/customRequest/**")
     public ResponseEntity postCustomRequestRequest(HttpServletRequest request,
-                                                   @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.postCustomRequest()");
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @SuppressWarnings("rawtypes")
-	@PutMapping(value = "/customRequest/**")
+    @PutMapping(value = "/customRequest/**")
     public ResponseEntity putCustomRequestRequest(HttpServletRequest request,
-                                                  @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.putCustomRequest()");
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @SuppressWarnings("rawtypes")
-	@DeleteMapping(value = "/customRequest/**")
+    @DeleteMapping(value = "/customRequest/**")
     public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request,
-                                                     @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
@@ -278,7 +275,7 @@ public class AfApiController {
         return afApiService.getBrouillonsPageable(usagerId, new PageParamDTO(page, size, sort, direction, null, null));
     }
 
-    @ExceptionHandler({WebException.class})
+    @ExceptionHandler({ WebException.class })
     public @ResponseBody ErrorsDTO handleException(HttpServletResponse res, WebException ex) {
         LOGGER.error("Exception : {}", ex.getMessage(), ex);
         ErrorsDTO errorsDTO = new ErrorsDTO();

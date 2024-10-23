@@ -8,9 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Représente un motif
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class MotifDTO {
 
@@ -37,7 +36,7 @@ public class MotifDTO {
     private boolean updated = false;
 
     private Date dateArchive;
-    
+
     private String commentairePrerempli;
 
     private String texteAEnvoyer;
@@ -47,10 +46,10 @@ public class MotifDTO {
     }
 
     /**
-     * Constructeur remplaçant la méthode clone()<br>
-     * Copie l'objet source donné en paramètre.
+     * Constructeur remplaçant la méthode clone()<br> Copie l'objet source donné en paramètre.
      *
-     * @param source l'objet à copier
+     * @param source
+     *         l'objet à copier
      */
     public MotifDTO(MotifDTO source) {
         super();
@@ -129,7 +128,7 @@ public class MotifDTO {
     public void setDateArchive(Date dateArchive) {
         this.dateArchive = dateArchive;
     }
-    
+
     public String getCommentairePrerempli() {
         return commentairePrerempli;
     }

@@ -58,7 +58,7 @@ public interface DemarchesDataProvider {
         return true;
     }
 
-	default boolean getDemarcheCanHandleDenjsGestionAgents() {
+    default boolean getDemarcheCanHandleDenjsGestionAgents() {
         return false;
     }
 
@@ -66,8 +66,8 @@ public interface DemarchesDataProvider {
         return false;
     }
 
-	default String[] getGUKafkaSupportedVersions() {
-        return new String[]{ "v1" };
+    default String[] getGUKafkaSupportedVersions() {
+        return new String[] { "v1" };
     }
 
     StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
@@ -91,13 +91,13 @@ public interface DemarchesDataProvider {
     }
 
     /**
-     * Permet de définir l'orientation du PDF récap.
-     * Valeurs possibles {landscape ou portrait}
+     * Permet de définir l'orientation du PDF récap. Valeurs possibles {landscape ou portrait}
+     *
      * @return
      */
     default String getRecapOrientation() {
-		return "landscape";
-	}
+        return "landscape";
+    }
 
     default List<TitreUsagerEnum> getTitres() {
         return Arrays.asList(TitreUsagerEnum.values());
@@ -133,8 +133,7 @@ public interface DemarchesDataProvider {
     boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck);
 
     /**
-     * TSCODEDemandeStatutEnum s = TSCODEDemandeStatutEnum.valueOf(statut);
-     * return s.statutSimplifie;
+     * TSCODEDemandeStatutEnum s = TSCODEDemandeStatutEnum.valueOf(statut); return s.statutSimplifie;
      */
     StatutSimplifieEnum getStatutSimplifie(String statut);
 
@@ -162,14 +161,14 @@ public interface DemarchesDataProvider {
      * Retourne le libellé du statut brouillon non transmis
      */
     default String getBrouillonStatutNotTransmitted() {
-      return "NOT_TRANSMITTED";
+        return "NOT_TRANSMITTED";
     }
 
     /**
      * Retourne le libellé du statut brouillon obsolète
      */
     default String getBrouillonStatutDeprecated() {
-      return "DEPRECATED";
+        return "DEPRECATED";
     }
 
     /**
@@ -194,24 +193,25 @@ public interface DemarchesDataProvider {
     }
 
     default List<String> getSpansIdAMarquer(DemandeDTO demande) {
-    	return new ArrayList<>();
-	}
-    
+        return new ArrayList<>();
+    }
+
     default boolean isTypedocApplicable(String typedoc) {
-    	return !typedoc.equals("NON_APPLICABLE");
+        return !typedoc.equals("NON_APPLICABLE");
     }
 
     /**
      * Permet de déterminer si l'on affiche la demande source dans le récapitulatif BO.
+     *
      * @return true par défaut
      */
-    default boolean isAfficheDemandeSource(){
+    default boolean isAfficheDemandeSource() {
         return true;
     }
 
     /**
-     * Permets de définir la taile du texte sur les entetes des tableaux du PDF récap.
-     * Valeur par défaut est 12
+     * Permets de définir la taile du texte sur les entetes des tableaux du PDF récap. Valeur par défaut est 12
+     *
      * @return
      */
     default int getTaileTexteEnteteTableauxRecapPdf() {

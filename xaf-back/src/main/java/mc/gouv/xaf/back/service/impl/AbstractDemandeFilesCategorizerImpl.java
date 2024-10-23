@@ -63,8 +63,8 @@ public abstract class AbstractDemandeFilesCategorizerImpl implements DemandeFile
         List<DemandeFileDTO> files = new ArrayList<>();
         if (demandeFiles != null) {
             for (DemandeFileDTO file : demandeFiles) {
-                if (!StringUtils.isBlank(file.getMeta()) && !file.getMeta().startsWith("FRONT_") &&
-                        !file.getMeta().contains(JUSTIFICATIF_DEMANDE)) {
+                if (!StringUtils.isBlank(file.getMeta()) && !file.getMeta().startsWith("FRONT_") && !file.getMeta()
+                        .contains(JUSTIFICATIF_DEMANDE)) {
                     files.add(file);
                 }
             }

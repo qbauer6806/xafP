@@ -8,7 +8,8 @@ import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 public interface RestitutionStatistiquesService {
 
     /**
-     * @param stat objet à sauvegarder
+     * @param stat
+     *         objet à sauvegarder
      * @return objet sauvegardé
      */
     void saveRestitutionStatistique(RestitutionStatistiquesDTO restitutionStat);

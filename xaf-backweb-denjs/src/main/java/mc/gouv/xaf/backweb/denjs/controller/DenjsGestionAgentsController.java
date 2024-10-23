@@ -31,7 +31,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * Controller de la page de gestion des agents
  *
  * @author qdeme
- *
  */
 @Controller
 @RequestMapping("/denjs/gestion/agents")
@@ -51,8 +50,9 @@ public class DenjsGestionAgentsController {
     private LogonClient logonClient;
 
     @GetMapping
-    public ModelAndView form(@ModelAttribute("denjsGestionAgentsFormBean") DenjsGestionAgentsFormBean denjsGestionAgentsFormBean,
-                             final RedirectAttributes redirectAttributes) {
+    public ModelAndView form(
+            @ModelAttribute("denjsGestionAgentsFormBean") DenjsGestionAgentsFormBean denjsGestionAgentsFormBean,
+            final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de la page /denjs/gestion/agents. Méthode form");
         ModelAndView mav = new ModelAndView("denjs/gestionagents/gestionagents");
 
@@ -65,17 +65,18 @@ public class DenjsGestionAgentsController {
 
             List<DenjsAgentEtablissementDTO> agents = new ArrayList<>();
             for (User user : list) {
-            	DenjsAgentEtablissementDTO agent = new DenjsAgentEtablissementDTO();
-            	agent.setAgentNom(user.getNom());
-            	agent.setAgentMatricule(user.getMatricule());
-            	for (DenjsAffectationAgentDTO aff : affectations) {
-            		if (aff.getAgentMatricule().equals(user.getMatricule())) {
-            			agent.setEtablissementCode(aff.getEtablissementCode());
-            			DenjsEtablissementDTO etablissement = denjsAffectationService.getEtablissementFromCode(aff.getEtablissementCode(), etablissements);
-            			agent.setEtablissementNom(etablissement.getNom());
-            		}
-            	}
-            	agents.add(agent);
+                DenjsAgentEtablissementDTO agent = new DenjsAgentEtablissementDTO();
+                agent.setAgentNom(user.getNom());
+                agent.setAgentMatricule(user.getMatricule());
+                for (DenjsAffectationAgentDTO aff : affectations) {
+                    if (aff.getAgentMatricule().equals(user.getMatricule())) {
+                        agent.setEtablissementCode(aff.getEtablissementCode());
+                        DenjsEtablissementDTO etablissement = denjsAffectationService.getEtablissementFromCode(
+                                aff.getEtablissementCode(), etablissements);
+                        agent.setEtablissementNom(etablissement.getNom());
+                    }
+                }
+                agents.add(agent);
             }
 
             mav.addObject("agents", agents);
@@ -90,16 +91,18 @@ public class DenjsGestionAgentsController {
 
     @PostMapping(value = "/edit", params = "action=valider")
     @Transactional
-    public ModelAndView modifier(@Valid @ModelAttribute("denjsGestionAgentsFormBean") DenjsGestionAgentsFormBean denjsGestionAgentsFormBean,
-                                 BindingResult result, final RedirectAttributes redirectAttributes) {
+    public ModelAndView modifier(
+            @Valid @ModelAttribute("denjsGestionAgentsFormBean") DenjsGestionAgentsFormBean denjsGestionAgentsFormBean,
+            BindingResult result, final RedirectAttributes redirectAttributes) {
 
         String agentMatricule = denjsGestionAgentsFormBean.getAgentMatricule();
         String etablissementCode = denjsGestionAgentsFormBean.getEtablissementCode();
         if ("aucun".equals(etablissementCode)) {
-        	etablissementCode = null;
+            etablissementCode = null;
         }
         String safeAgentMatricule = AfBackUtils.logSafe(agentMatricule);
-        LOGGER.info("======================= Appel de la page /denjs/gestion/agents/edit ({}, {})", safeAgentMatricule, etablissementCode);
+        LOGGER.info("======================= Appel de la page /denjs/gestion/agents/edit ({}, {})", safeAgentMatricule,
+                etablissementCode);
 
         DenjsAffectationAgentDTO affectation = new DenjsAffectationAgentDTO();
         affectation.setAgentMatricule(agentMatricule);

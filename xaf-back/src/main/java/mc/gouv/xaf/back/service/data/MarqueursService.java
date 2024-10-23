@@ -13,6 +13,7 @@ public interface MarqueursService {
     void deleteMarqueur(Integer pkMarqueur);
 
     void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths);
+
     void resetMarqueurs();
 
     String exportConfig() throws IOException;

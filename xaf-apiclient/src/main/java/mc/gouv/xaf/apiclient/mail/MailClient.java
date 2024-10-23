@@ -23,9 +23,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Classe cliente permettant d'appeler le WS MAIL
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class MailClient extends ApiClient {
 
@@ -35,9 +34,13 @@ public class MailClient extends ApiClient {
 
     /**
      * Crée une instance du client avec sécurisation via Basic Auth
-     * @param serviceUrl URL du WS à appeler
-     * @param user User à utiliser pour l'authentification
-     * @param password Mot de passe à utiliser pour l'authentification
+     *
+     * @param serviceUrl
+     *         URL du WS à appeler
+     * @param user
+     *         User à utiliser pour l'authentification
+     * @param password
+     *         Mot de passe à utiliser pour l'authentification
      */
     public MailClient(String serviceUrl, String user, String password) {
         super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password), true);
@@ -45,6 +48,7 @@ public class MailClient extends ApiClient {
 
     /**
      * Création d'une instance de mail client avec sécurisation via JWT
+     *
      * @param serviceUrl
      * @param jwtToken
      */
@@ -54,8 +58,11 @@ public class MailClient extends ApiClient {
 
     /**
      * Permet d'envoyer un email avec (ou sans) pièces jointes
-     * @param mailDTO L'email à envoyer
-     * @param attachments Les pièces jointes à envoyer
+     *
+     * @param mailDTO
+     *         L'email à envoyer
+     * @param attachments
+     *         Les pièces jointes à envoyer
      * @return Le résultat du WS (ID de l'email et son statut)
      */
     public MailSentDTO sendEmail(MailDTO mailDTO, Map<String, InputStream> attachments) {
@@ -63,10 +70,10 @@ public class MailClient extends ApiClient {
         LOGGER.debug("sendEmail({},{})", mailDTO, attachments);
 
         boolean pj = attachments != null;
-        
+
         if (pj) {
-            
-            try(MultiPart multiPartEntity = new MultiPart()) {
+
+            try (MultiPart multiPartEntity = new MultiPart()) {
                 multiPartEntity.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
 
                 // Objet "email"
@@ -87,26 +94,25 @@ public class MailClient extends ApiClient {
 
                 LOGGER.debug("Appel ({}, pj={})...", getServiceUrl(), pj);
 
-                return getTarget().request()
-                        .header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                return getTarget().request().header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                         .post(Entity.entity(multiPartEntity, multiPartEntity.getMediaType()), MailSentDTO.class);
             } catch (IOException e) {
                 throw new DemarcheException(e);
             }
-        }
-        else {
+        } else {
 
             LOGGER.debug("Appel ({}, pj={})...", getServiceUrl(), pj);
-            
-            return getTarget().request()
-                    .header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+
+            return getTarget().request().header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                     .post(Entity.entity(mailDTO, MediaType.APPLICATION_JSON), MailSentDTO.class);
         }
     }
 
     /**
      * Permet d'envoyer un email sans pièces jointes
-     * @param mailDTO L'email à envoyer
+     *
+     * @param mailDTO
+     *         L'email à envoyer
      * @return Le résultat du WS (ID de l'email et son statut)
      */
     public MailSentDTO sendEmail(MailDTO mailDTO) {
@@ -118,7 +124,9 @@ public class MailClient extends ApiClient {
 
     /**
      * Retrouve un email à partir de son ID
-     * @param id ID de l'email à retrouver
+     *
+     * @param id
+     *         ID de l'email à retrouver
      * @return L'email demandé
      */
     public MailDTO getEmail(Integer id) {
@@ -131,6 +139,7 @@ public class MailClient extends ApiClient {
 
     /**
      * Retrouve des emails à partir d'une métadonnée
+     *
      * @param metaKey
      * @param metaValue
      * @return L'email demandé
@@ -139,15 +148,14 @@ public class MailClient extends ApiClient {
 
         LOGGER.info("getEmails({},{})", metaKey, metaValue);
 
-        return getTarget().path("/").queryParam("metaKey", metaKey).queryParam("metaValue", metaValue)
-                .request()
+        return getTarget().path("/").queryParam("metaKey", metaKey).queryParam("metaValue", metaValue).request()
                 .header(AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .get(new GenericType<List<MailDTO>>() {
+
                 });
     }
 
     /**
-     *
      * @param emailId
      * @return
      */
@@ -160,7 +168,7 @@ public class MailClient extends ApiClient {
 
     public MailSentDTO resendEmail(Integer emailId, MailAddrOnlyDTO mailAddrOnlyDTO) {
 
-        LOGGER.info("resendEmail({},{})",emailId, mailAddrOnlyDTO);
+        LOGGER.info("resendEmail({},{})", emailId, mailAddrOnlyDTO);
         MailDTO mailDTO = getEmail(emailId);
 
         // Si le client souhaite renvoyer en changeant des adresses...

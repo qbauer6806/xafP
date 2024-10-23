@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/doc-holder/tofile")
 public class DocHolderToFileController extends AbstractXafController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderToFileController.class);
 
     @Autowired
@@ -53,7 +54,8 @@ public class DocHolderToFileController extends AbstractXafController {
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
         Gson gson = new Gson();
@@ -64,7 +66,8 @@ public class DocHolderToFileController extends AbstractXafController {
             jsonObject = gson.fromJson(reader, JsonObject.class);
         } catch (JsonParseException jpe) {
             LOGGER.error("Erreur lors de la déserialisation.", jpe);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         JsonElement urlElement = jsonObject.get("url");
@@ -72,7 +75,8 @@ public class DocHolderToFileController extends AbstractXafController {
 
         if (StringUtils.isEmpty(fileUrl)) {
             LOGGER.error("Erreur lors de la récupération du paramètre 'url' => paramètre vide ou inconnu.");
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    SharedMessages.REQUETE_MALFORMEE);
         }
 
         String docHolderFileServiceUrl = frontGouvPropertiesResolver.getPorteDocUrl() + "/file";
@@ -80,20 +84,24 @@ public class DocHolderToFileController extends AbstractXafController {
 
         try {
             LOGGER.info("Téléchargement du fichier {} depuis le porte-documents", fileUrl);
-            ClassicHttpResponse docholderResponse = (ClassicHttpResponse)fileControllerUtils.downloadFromDocHolder(docHolderFileServiceUrl, fileUrl, usagerInfosDTO.getTokenInfo().getAccessToken());
+            ClassicHttpResponse docholderResponse = (ClassicHttpResponse) fileControllerUtils.downloadFromDocHolder(
+                    docHolderFileServiceUrl, fileUrl, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             if (docholderResponse.getCode() == 200) {
                 LOGGER.info("Téléversement du fichier {} dans FILE", filename);
-                return fileControllerUtils.uploadToFILE(usagerInfosDTO, filename, "AUTRES", docholderResponse.getEntity().getContent());
+                return fileControllerUtils.uploadToFILE(usagerInfosDTO, filename, "AUTRES",
+                        docholderResponse.getEntity().getContent());
 
             } else {
                 LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
                 return ResponseEntity.status(docholderResponse.getCode())
-                        .body(new String(docholderResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+                        .body(new String(docholderResponse.getEntity().getContent().readAllBytes(),
+                                StandardCharsets.UTF_8));
             }
         } catch (IOException | URISyntaxException | UnsupportedOperationException e) {
             LOGGER.error("Une erreur est survenue lors du téléchargement du fichier", e);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
+                    SharedMessages.ERREUR_INTERNE);
         }
     }
 }

@@ -8,7 +8,6 @@ public enum TitreUsagerEnum {
     TITRE_1("Madame", "1"),
     TITRE_2("Mademoiselle", "2");
 
-
     String libelle;
     String value;
 

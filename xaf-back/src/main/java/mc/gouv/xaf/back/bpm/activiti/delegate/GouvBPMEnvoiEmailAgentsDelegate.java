@@ -23,71 +23,70 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour envoyer un email aux agents.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailAgentsDelegate.class);
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     @Autowired
     private MailService mailService;
-    
+
     @Autowired
     private DemandesService demandesService;
-    
+
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
-    
+
     @Setter
     @Getter
     private Expression emailBodyTemplateCode;
-    
+
     @Setter
     @Getter
     private Expression emailSubjectTemplateCode;
 
     @Override
     public void execute(DelegateExecution execution) {
-        
+
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENTS ...");
-        
-        String bodyTemplateCode = (String)emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String)emailSubjectTemplateCode.getValue(execution);
-        
+
+        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
+        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
-                .getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
         emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
         emailInfo.setLangue("fr");
-        
+
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
-        String commentaire = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        String commentaire = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
         DemandeDTO demande = demandesService.getDemande(demandeId);
-        
-        Map<String,Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
+
+        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+                execution.getVariables(), codeMotif, commentaire);
 
         try {
             mailService.sendMail(emailInfo, model, MailAudienceEnum.AGENT);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'envoi de l'email", e);
         }
-        
+
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENTS <fin>");
     }
 

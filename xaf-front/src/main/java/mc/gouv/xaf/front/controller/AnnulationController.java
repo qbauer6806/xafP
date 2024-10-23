@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * Servlet mettant à disposition le service /annulation avec la méthode POST, permettant
- * d'annuler une demande depuis le Front.
+ * Servlet mettant à disposition le service /annulation avec la méthode POST, permettant d'annuler une demande depuis le
+ * Front.
  *
  * @author qdeme
  */
@@ -30,7 +30,7 @@ public class AnnulationController extends AbstractXafController {
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
-    @DeleteMapping(value = {"/{demandeId}"})
+    @DeleteMapping(value = { "/{demandeId}" })
     public ResponseEntity doDelete(@PathVariable(required = false) String demandeId, HttpServletRequest request) {
 
         LOGGER.info("====================== /annulation doDelete()");
@@ -42,8 +42,7 @@ public class AnnulationController extends AbstractXafController {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
         if (demandeId == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.SC_BAD_REQUEST,
-                    "DemandeID non spécifié");
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.SC_BAD_REQUEST, "DemandeID non spécifié");
         }
         int demandeIdParsed;
         try {

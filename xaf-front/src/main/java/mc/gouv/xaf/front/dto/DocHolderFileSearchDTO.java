@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class DocHolderFileSearchDTO {
+
     public enum OperatorEnum {
         AND("And"),
         OR("Or");

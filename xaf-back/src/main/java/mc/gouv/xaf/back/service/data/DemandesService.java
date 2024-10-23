@@ -43,14 +43,18 @@ public interface DemandesService {
     /**
      * Méthode permettant de récupérer les demandes
      *
-     * @param demandeRecherche Paramètres de la recherche
-     * @param pageable         Page sur laquelle on pointe
-     * @param fields           Fields à récupérer (si null on récupére tous les fields)
+     * @param demandeRecherche
+     *         Paramètres de la recherche
+     * @param pageable
+     *         Page sur laquelle on pointe
+     * @param fields
+     *         Fields à récupérer (si null on récupére tous les fields)
      * @return Page des demandes recherchées
      */
     Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields);
 
-    mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status, PageParamDTO paramDTO);
+    mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status,
+            PageParamDTO paramDTO);
 
     /**
      * Permet de récupérer la demande correspondant UsagerID
@@ -81,7 +85,8 @@ public interface DemandesService {
     /**
      * Permet de modifier une demande à partir de l'UsagerID
      *
-     * @param partialUpdate true si il faut effectuer une mise à jour partielle
+     * @param partialUpdate
+     *         true si il faut effectuer une mise à jour partielle
      * @return La demande modifiée
      */
     DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate);
@@ -89,8 +94,8 @@ public interface DemandesService {
     /**
      * Permet de modifier une demande
      *
-     * @param partialUpdate true si il faut effectuer une mise à jour partielle
-     *
+     * @param partialUpdate
+     *         true si il faut effectuer une mise à jour partielle
      * @return La demande modifiée
      */
     DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive);
@@ -99,8 +104,7 @@ public interface DemandesService {
      * Permet de supprimer une demande à partir de l'UsagerID
      */
     void deleteDemande(Integer demandeId) throws JsonProcessingException;
-    
-    
+
     void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
@@ -110,17 +114,18 @@ public interface DemandesService {
      */
     DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes) throws IOException;
 
-
     /**
      * Permet de sauvegarder ou mettre à jour une demande en base
      *
-     * @param partialUpdate true si il faut effectuer une mise à jour partielle
+     * @param partialUpdate
+     *         true si il faut effectuer une mise à jour partielle
      * @return La demande sauvegardée ou mise à jour
      */
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException;
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
+            throws IOException, SAXException;
 
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName, JsonNode donneesExternes) throws IOException, SAXException;
-
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
+            JsonNode donneesExternes) throws IOException, SAXException;
 
     /**
      * Permet de récupérer l'AccessID de l'Access lié à une demande
@@ -131,17 +136,19 @@ public interface DemandesService {
      * <p>Permet de dupliquer une demande</p>
      * <p>#4679: l'historique de la demande n'est pas dupliqué</p>
      *
-     * @param pkDemande la pk de la demande à dupliquer
+     * @param pkDemande
+     *         la pk de la demande à dupliquer
      * @return La demande dupliquée (nouvelle instance)
      */
     DemandeDTO cloneDemande(Integer pkDemande);
 
     DemandeDTO getDemande(Integer pkDemande, Integer usagerId);
-    
+
     /**
      * Permet de retrouver une demande à partir de son identifiant
      *
-     * @param identifiant : {@link DemandeDTO#getIdentifiant()} de la demande
+     * @param identifiant
+     *         : {@link DemandeDTO#getIdentifiant()} de la demande
      * @return la {@link DemandeDTO} recherchée
      */
     DemandeDTO getDemande(String identifiant);
@@ -156,9 +163,8 @@ public interface DemandesService {
     boolean isAccesDesactive(Integer pkDemande);
 
     /**
-     * Change l'affectation de la demande sans trigger un full update dans le cas où
-     * on veut SUPPRIMER l'affectation (car lors d'un partialUpdate on vérifie si le
-     * champs est null avant de mettre à jour le champs en question)
+     * Change l'affectation de la demande sans trigger un full update dans le cas où on veut SUPPRIMER l'affectation
+     * (car lors d'un partialUpdate on vérifie si le champs est null avant de mettre à jour le champs en question)
      */
     DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId);
 
@@ -175,28 +181,35 @@ public interface DemandesService {
     /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
      *
-     * @param statut     libellé du statut
+     * @param statut
+     *         libellé du statut
      */
     List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate, String statut);
 
     /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
      *
-     * @param statut     libellé du statut
+     * @param statut
+     *         libellé du statut
      */
     List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(Date startDate, Date endDate, String statut);
 
     /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
-     * @param statut le statut à filtrer
+     *
+     * @param statut
+     *         le statut à filtrer
      * @return une liste de demandes ayant le même statut.
      */
     List<DemandeDTO> getAllDemandesFilteredByStatut(String statut);
 
     /**
      * Récupère les demandes qui sont passées en dernier statut à partir d'une date donnée et pour le statut donné
-     * @param statut le statut à filtrer
-     * @param date date dernier statut
+     *
+     * @param statut
+     *         le statut à filtrer
+     * @param date
+     *         date dernier statut
      * @return une liste de demandes ayant le même statut à partir d'une date donnée
      */
     List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date);
@@ -207,40 +220,41 @@ public interface DemandesService {
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
     /**
-     * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT
+     * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du
+     * FRONT
      */
     List<DemandeDTO> getDemandesFilterFiles(Integer usagerId);
 
-
     /**
      * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
      *
      * @param dernierStatutDateDebut
-     *            : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
+     *         : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
      * @param dernierStatutList
      * @return
      */
-    List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut,
-            List<String> dernierStatutList, List<String> canaux);
+    List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
+            List<String> canaux);
 
-    List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut,
-            List<String> dernierStatutList, List<String> canaux);
+    List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
+            List<String> canaux);
+
     /**
      * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
      *
      * @param dernierStatutDateDebut
-     *            : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
+     *         : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
      * @param dernierStatutDateFin
-     *            : la date limite (purger les demandes dont date dernier statut < dernierStatutDateDebut). en general
-     *            DateDebut + 1 jour
+     *         : la date limite (purger les demandes dont date dernier statut < dernierStatutDateDebut). en general
+     *         DateDebut + 1 jour
      * @param dernierStatutList
      * @return
      */
-    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut,
-            Date dernierStatutDateFin, List<String> dernierStatutList);
+    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
+            List<String> dernierStatutList);
 
-    List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut,
-            Date dernierStatutDateFin, List<String> dernierStatutList);
+    List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
+            List<String> dernierStatutList);
 
     void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException;

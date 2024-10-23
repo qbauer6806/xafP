@@ -10,9 +10,8 @@ import lombok.Setter;
 
 /**
  * Modélise un usager courrier
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -45,19 +44,19 @@ public class UsagerCourrierDTO {
     private String telephone;
 
     private String email;
-    
+
     // Le contenu de l'access à créer dans le cas de la création d'un usager courrier
     private JsonNode accessContenu;
-    
+
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     private Date dateCreation;
 
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     private Date dateDerModif;
-    
+
     @JsonIgnore
     private boolean updated = false;
-    
+
     private int nbDemandes;
 
 }

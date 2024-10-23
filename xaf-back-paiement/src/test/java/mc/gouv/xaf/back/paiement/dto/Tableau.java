@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.dto;
 
 public class Tableau {
+
     private String objet;
     private String montant;
 

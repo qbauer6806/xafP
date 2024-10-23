@@ -30,9 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des courriers liés à une demande.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -165,24 +164,24 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         return DemandesCourriersTransformer.bo2Dto(courrierBo);
     }
 
-	@Override
-	public void deleteCourriers(Integer pkDemande) {
-		LOGGER.info("Suppression de la demande courrier {}...", pkDemande);
-		List<DemandeCourrierDTO> courriersToDelete = getCourriers(pkDemande);
-		if(null != courriersToDelete && !courriersToDelete.isEmpty()) {
-			for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
-				DemandesCourriersBO courrierBo = getCourrierBo(pkDemande, currentCourriersToDelete.getPkCourrier());
-				if (courrierBo == null) {
-		            throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
-		        }
-				demandesCourriersRepository.delete(courrierBo);
-			}
-		}
-	}
-
+    @Override
+    public void deleteCourriers(Integer pkDemande) {
+        LOGGER.info("Suppression de la demande courrier {}...", pkDemande);
+        List<DemandeCourrierDTO> courriersToDelete = getCourriers(pkDemande);
+        if (null != courriersToDelete && !courriersToDelete.isEmpty()) {
+            for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
+                DemandesCourriersBO courrierBo = getCourrierBo(pkDemande, currentCourriersToDelete.getPkCourrier());
+                if (courrierBo == null) {
+                    throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
+                }
+                demandesCourriersRepository.delete(courrierBo);
+            }
+        }
+    }
 
     @Override
-    public Page<DemandeCourrierDTO> getDemandesCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
+    public Page<DemandeCourrierDTO> getDemandesCourriers(DemandeCourrierRechercheDTO demandeRecherche,
+            Pageable pageable, String[] fields) {
         //count query
         Long totalCount = rechercheCourriersUtils.getCourriersCount(demandeRecherche);
 
@@ -192,7 +191,5 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
         return new PageImpl<>(demandesDto, pageable, totalCount);
     }
-
-
 
 }

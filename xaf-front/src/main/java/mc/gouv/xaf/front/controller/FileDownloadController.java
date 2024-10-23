@@ -20,11 +20,11 @@ public class FileDownloadController extends FileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadController.class);
 
-    @GetMapping(value = {"/filedownload", "/filedownload/{accessId}/{uuid}/{filename}"}, produces= MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = { "/filedownload",
+            "/filedownload/{accessId}/{uuid}/{filename}" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity doGet(@PathVariable(required = false) String accessId,
-                                @PathVariable(required = false) String uuid,
-                                @PathVariable(required = false) String filename,
-                                HttpServletRequest request) throws IOException {
+            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename,
+            HttpServletRequest request) throws IOException {
         LOGGER.info("====================== /filedownload doGet()");
 
         try {

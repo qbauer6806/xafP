@@ -22,9 +22,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Servlet mettant à disposition le service /brouillons avec les méthodes PUT, POST, GET, DELETE.
- * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
- * correspondants dans le back-end générique.
+ * Servlet mettant à disposition le service /brouillons avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
+ * le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS correspondants dans le back-end générique.
  *
  * @author qdeme
  */
@@ -39,8 +38,10 @@ public class BrouillonsController extends XafFrontserverUtils {
     /**
      * Factorisation des méthodes PUT et POST
      *
-     * @param request    Requête initiale de la Servlet
-     * @param httpMethod Indique si l'on souhaite effectuer un POST ou un PUT
+     * @param request
+     *         Requête initiale de la Servlet
+     * @param httpMethod
+     *         Indique si l'on souhaite effectuer un POST ou un PUT
      */
     private ResponseEntity doHttpMethod(String brouillonId, HttpServletRequest request, HttpMethod httpMethod) {
 
@@ -66,8 +67,7 @@ public class BrouillonsController extends XafFrontserverUtils {
             }
 
             if (buffer.toString().isEmpty()) {
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
-                        "Erreur: JSON manquant");
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, "Erreur: JSON manquant");
             }
 
             LOGGER.info("Appel à la démarche pour créer le brouillon");
@@ -78,14 +78,15 @@ public class BrouillonsController extends XafFrontserverUtils {
             BrouillonDTO brouillonDto;
 
             if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
-                brouillonInput.setContenuInitial(mapper
-                        .valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+                brouillonInput.setContenuInitial(mapper.valueToTree(
+                        request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
             }
             if (HttpMethod.POST.equals(httpMethod)) {
                 brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerInfosDTO.getId());
                 response = ResponseEntity.status(HttpStatus.CREATED);
             } else {
-                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId), usagerInfosDTO.getId());
+                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId),
+                        usagerInfosDTO.getId());
                 response = ResponseEntity.status(HttpStatus.OK);
             }
 
@@ -97,19 +98,19 @@ public class BrouillonsController extends XafFrontserverUtils {
 
     }
 
-    @PostMapping(value = {"/brouillons", "/brouillons/{brouillonId}"})
+    @PostMapping(value = { "/brouillons", "/brouillons/{brouillonId}" })
     public ResponseEntity doPost(@PathVariable(required = false) String brouillonId, HttpServletRequest request) {
         LOGGER.info("====================== /brouillons doPost()");
         return doHttpMethod(brouillonId, request, HttpMethod.POST);
     }
 
-    @PutMapping(value = {"/brouillons", "/brouillons/{brouillonId}"})
+    @PutMapping(value = { "/brouillons", "/brouillons/{brouillonId}" })
     public ResponseEntity doPut(@PathVariable(required = false) String brouillonId, HttpServletRequest request) {
         LOGGER.info("====================== /brouillons doPut()");
         return doHttpMethod(brouillonId, request, HttpMethod.PUT);
     }
 
-    @GetMapping(value = {"/brouillons", "/brouillons/{brouillonId}"})
+    @GetMapping(value = { "/brouillons", "/brouillons/{brouillonId}" })
     public ResponseEntity doGet(@PathVariable(required = false) String brouillonId, HttpServletRequest request) {
         LOGGER.info("====================== /brouillons doGet()");
 
@@ -131,8 +132,8 @@ public class BrouillonsController extends XafFrontserverUtils {
                         usagerInfosDTO.getId());
 
                 if (brouillonDto.getContenuInitial() != null) {
-                    request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE,
-                            brouillonDto.getContenuInitial());
+                    request.getSession()
+                            .setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, brouillonDto.getContenuInitial());
                 }
                 return ResponseEntity.ok(brouillonDto);
             }
@@ -142,7 +143,7 @@ public class BrouillonsController extends XafFrontserverUtils {
         }
     }
 
-    @DeleteMapping(value = {"/brouillons", "/brouillons/{brouillonId}"})
+    @DeleteMapping(value = { "/brouillons", "/brouillons/{brouillonId}" })
     public ResponseEntity doDelete(@PathVariable(required = false) String brouillonId, HttpServletRequest request) {
         LOGGER.info("====================== /brouillons doDelete()");
 

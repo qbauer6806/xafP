@@ -9,9 +9,8 @@ import lombok.ToString;
 
 /**
  * Modélise un statut d'une demande
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

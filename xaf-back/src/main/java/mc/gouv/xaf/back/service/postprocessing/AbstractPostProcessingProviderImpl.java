@@ -43,7 +43,8 @@ public abstract class AbstractPostProcessingProviderImpl implements PostProcessi
                             nouvelleValeur = demande.getDonneesMConnect().getFamilyName();
                             break;
                         case "birthDatetime":
-                            nouvelleValeur = AfBackUtils.mConnectDateToString(demande.getDonneesMConnect().getBirthDatetime());
+                            nouvelleValeur = AfBackUtils.mConnectDateToString(
+                                    demande.getDonneesMConnect().getBirthDatetime());
                             break;
                         case "birthName":
                             nouvelleValeur = demande.getDonneesMConnect().getBirthName();

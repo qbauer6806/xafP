@@ -21,19 +21,18 @@ import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 /**
  * Service permettant la manipulation des templates.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class TemplatesServiceImpl implements TemplatesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TemplatesServiceImpl.class);
-    
+
     @Autowired
     private TemplatesRepository templatesRepository;
-    
+
     @Autowired
     private DemarchesService demarchesService;
 
@@ -45,7 +44,7 @@ public class TemplatesServiceImpl implements TemplatesService {
         }
         return templateBo;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -55,7 +54,7 @@ public class TemplatesServiceImpl implements TemplatesService {
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBo);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -64,8 +63,7 @@ public class TemplatesServiceImpl implements TemplatesService {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
         TemplateBO templateBo = templatesRepository.findByCodeAndLangue(code, langue);
         if (templateBo == null) {
-            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE,
-                    HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBo);
@@ -130,7 +128,7 @@ public class TemplatesServiceImpl implements TemplatesService {
     @Override
     public TemplateDTO updateTemplate(TemplateDTO template) {
         TemplateBO templateBo = getTemplateBO(template.getPkTemplates());
-        
+
         LOGGER.info("Mise à jour du template...");
         templateBo.setLangue(template.getLangue());
         templateBo.setCode(template.getCode());
@@ -144,15 +142,15 @@ public class TemplatesServiceImpl implements TemplatesService {
         }
 
         templateBo = templatesRepository.save(templateBo);
-        
+
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        
+
         TemplateDTO ret = TemplatesTransformer.bo2Dto(templateBo);
         ret.setUpdated(true);
-        
+
         return ret;
     }
-    
+
     /**
      * {@inheritDoc}
      */

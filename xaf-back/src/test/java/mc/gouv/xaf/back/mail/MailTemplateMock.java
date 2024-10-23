@@ -42,6 +42,5 @@ public class MailTemplateMock {
             + " on the website <a href=\"${urlBack}\">www.gouv.mc</a>"
             + "<br/><br/>Sincerely <br/><br/>Direction des Ressources Humaines et de "
             + "la Formation de la Fonction Publique<br/>3ème étage - Stade Louis II - Entrée H<br/>1, Avenue des"
-            + " Castelans<br/>BP 672<br/>MC 98014 MONACO CEDEX<br/><br/>"
-            + " PS : ${commentaire}.<br/>";
+            + " Castelans<br/>BP 672<br/>MC 98014 MONACO CEDEX<br/><br/>" + " PS : ${commentaire}.<br/>";
 }

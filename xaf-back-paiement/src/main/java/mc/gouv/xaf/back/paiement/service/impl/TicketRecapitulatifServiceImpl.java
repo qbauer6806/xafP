@@ -46,10 +46,10 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
     @Autowired
     private GouvBPM gouvBPM;
-    
+
     @Autowired
     private DemandesService demandesService;
-    
+
     @Autowired
     private MessageSource messageSource;
 
@@ -62,61 +62,61 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeId);
         Integer usagerId = (Integer) variables.get(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
 
-		GichuniUsagerDTO usager = usagersCache.get(usagerId, true);
-		DemandeDTO demandeDto = demandesService.getDemande(demandeId);
-		if (usager == null) {
-			usager = new GichuniUsagerDTO();
-			DemandeUsagerDTO usagerDto = demandeDto.getUsager();
-			if (usagerDto != null) {
-				usager.setNom(usagerDto.getNom());
-				usager.setPrenom(usagerDto.getPrenom());
-				usager.setEmail(usagerDto.getEmail());
-			}
-		}
+        GichuniUsagerDTO usager = usagersCache.get(usagerId, true);
+        DemandeDTO demandeDto = demandesService.getDemande(demandeId);
+        if (usager == null) {
+            usager = new GichuniUsagerDTO();
+            DemandeUsagerDTO usagerDto = demandeDto.getUsager();
+            if (usagerDto != null) {
+                usager.setNom(usagerDto.getNom());
+                usager.setPrenom(usagerDto.getPrenom());
+                usager.setEmail(usagerDto.getEmail());
+            }
+        }
 
-		String bodyTemplateCode = "MAIL_TICKET_RECAP_USAGER_CORPS";
-		String subjectTemplateCode = "MAIL_TICKET_RECAP_USAGER_OBJET";
+        String bodyTemplateCode = "MAIL_TICKET_RECAP_USAGER_CORPS";
+        String subjectTemplateCode = "MAIL_TICKET_RECAP_USAGER_OBJET";
 
-		EmailInfoDTO emailInfo = new EmailInfoDTO();
-		emailInfo.setBodyTemplateCode(bodyTemplateCode);
-		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-				afBackUtils.getDemarcheInfos().getEmailFromNom());
-		emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-				afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-		emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
-		emailInfo.setLangue(demandeDto.getLangue());
+        EmailInfoDTO emailInfo = new EmailInfoDTO();
+        emailInfo.setBodyTemplateCode(bodyTemplateCode);
+        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
+        emailInfo.setLangue(demandeDto.getLangue());
 
-		try {
-			Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager, demandeDto);
-			mailService.sendMail(emailInfo, model);
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email", e);
-		}
-	}
+        try {
+            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager, demandeDto);
+            mailService.sendMail(emailInfo, model);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email", e);
+        }
+    }
 
-	private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement,
-			GichuniUsagerDTO usager, DemandeDTO demande) {
+    private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement,
+            GichuniUsagerDTO usager, DemandeDTO demande) {
         Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
-        String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+        String defaultMailTitre = demande.getLangue().equals("fr")
+                ? SharedMessages.DEFAULT_TITRE_MAIL_FR
                 : SharedMessages.DEFAULT_TITRE_MAIL_EN;
-        String titre = usager.getTitre() != null
-                ? messageSource.getMessage("civilite." + usager.getTitre(), null, Locale.of(demande.getLangue()))
-                : defaultMailTitre;
-		model.put("numTPE", paiementPropertiesResolver.getTpe());
-		model.put("pkOperation", operation.getPkOperations());
-		model.put("reference", moyenPaiement.getPkMoyenPaiements());
-		model.put("identifiant", demande.getIdentifiant());
-		model.put("dateTransaction",
-				operation.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-		model.put("montant", operation.getMontant() + " EUR");
-		model.put("moyenPaiement", moyenPaiement.getModepaiement());
-		model.put("typeTransaction", operation.getOperationType());
-		model.put("numCarte", moyenPaiement.getCbmasquee());
-        model.put("numeroAutorisation", null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
-		model.put("titre", titre);
-		return model;
-	}
-
+        String titre = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
+                Locale.of(demande.getLangue())) : defaultMailTitre;
+        model.put("numTPE", paiementPropertiesResolver.getTpe());
+        model.put("pkOperation", operation.getPkOperations());
+        model.put("reference", moyenPaiement.getPkMoyenPaiements());
+        model.put("identifiant", demande.getIdentifiant());
+        model.put("dateTransaction",
+                operation.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        model.put("montant", operation.getMontant() + " EUR");
+        model.put("moyenPaiement", moyenPaiement.getModepaiement());
+        model.put("typeTransaction", operation.getOperationType());
+        model.put("numCarte", moyenPaiement.getCbmasquee());
+        model.put("numeroAutorisation",
+                null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
+        model.put("titre", titre);
+        return model;
+    }
 
 }

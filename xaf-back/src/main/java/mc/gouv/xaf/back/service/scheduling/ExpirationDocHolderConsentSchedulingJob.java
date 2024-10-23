@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Job permettant l'expiration des consentements porte-documents périmés côté TS
  */
 public class ExpirationDocHolderConsentSchedulingJob implements Job {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpirationDocHolderConsentSchedulingJob.class);
     @Autowired
     private AccessRepository accessRepository;
@@ -45,14 +46,16 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
         PropertiesDTO docHolderEnabled = propertiesService.getProperty(XAF_PORTE_DOCUMENT_ACTIF);
 
         if (docHolderEnabled == null) {
-            LOGGER.error("Impossible de lancer le job d'expiration du consentement du porte-documents : la propriété {} n'a pas été trouvée.", XAF_PORTE_DOCUMENT_ACTIF);
+            LOGGER.error(
+                    "Impossible de lancer le job d'expiration du consentement du porte-documents : la propriété {} n'a pas été trouvée.",
+                    XAF_PORTE_DOCUMENT_ACTIF);
             return;
         }
 
         boolean isDocHolderEnabled = Boolean.parseBoolean(docHolderEnabled.getValue());
         if (isDocHolderEnabled) {
             ObjectMapper mapper = new ObjectMapper();
-            List<AccessBO> accesses = accessRepository.findByActive( true);
+            List<AccessBO> accesses = accessRepository.findByActive(true);
 
             // Si 1 an + 1 mois il faut périmer le consentement TS du porte-documents
             for (AccessBO access : accesses) {
@@ -61,9 +64,12 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
                     JsonNode contenu = mapper.readTree(access.getContenu());
                     if (!contenu.findPath(DOCHOLDER_CONSENT_NODE).isEmpty()) {
                         JsonNode dateNode = contenu.findPath(DOCHOLDER_CONSENT_NODE).findPath(DATE_CREATION_NODE);
-                        boolean isConsenting = contenu.findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE).asBoolean();
+                        boolean isConsenting = contenu.findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE)
+                                .asBoolean();
                         Date dateConsent = dateFormat.parse(dateNode.asText());
-                        Date oneYearPlusOneMonth = Date.from(dateConsent.toInstant().atZone(ZoneId.of("Europe/Monaco")).plusYears(1).plusMonths(1).toInstant());
+                        Date oneYearPlusOneMonth = Date.from(
+                                dateConsent.toInstant().atZone(ZoneId.of("Europe/Monaco")).plusYears(1).plusMonths(1)
+                                        .toInstant());
                         Date today = Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).toInstant());
 
                         if (oneYearPlusOneMonth.before(today) && isConsenting) {
@@ -82,7 +88,8 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
                 }
             }
         } else {
-            LOGGER.error("Impossible de lancer le job d'expiration du consentement du porte-documents. Le porte-documents n'est pas activé.");
+            LOGGER.error(
+                    "Impossible de lancer le job d'expiration du consentement du porte-documents. Le porte-documents n'est pas activé.");
         }
 
         LOGGER.info("====================== Fin du job ExpirationDocHolderConsentSchedulingJob");

@@ -14,9 +14,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 /**
- * 
  * @author qdeme
- *
  */
 @Getter
 public abstract class ApiClient {
@@ -36,7 +34,7 @@ public abstract class ApiClient {
      * Configuration par défaut de jackson avec DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES = false
      *
      * @param isMultipartSupported
-     *            indique si le client gère du multipart
+     *         indique si le client gère du multipart
      */
     protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider,
             boolean isMultipartSupported) {

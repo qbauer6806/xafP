@@ -13,7 +13,7 @@ public class ExceptionManager {
     }
 
     public static void checkExceptionResponse(Response response) {
-        
+
         // Si la réponse signale une erreur
         if (response.getStatus() < 200 || response.getStatus() > 299) {
 
@@ -35,9 +35,10 @@ public class ExceptionManager {
                 case HttpURLConnection.HTTP_INTERNAL_ERROR:
                     throw response.readEntity(InternalErrorWebException.class);
                 default:
-                    throw new WebException(response.getStatus(), "Erreur lors de l'appel au service. Code HTTP " + response.getStatus());
+                    throw new WebException(response.getStatus(),
+                            "Erreur lors de l'appel au service. Code HTTP " + response.getStatus());
             }
-        
+
         }
 
     }

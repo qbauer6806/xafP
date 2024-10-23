@@ -12,7 +12,6 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
  * DTO interne (non partagé) servant à DEM pour regrouper des critères de recherche de demandes
  *
  * @author qdeme
- *
  */
 @Setter
 @ToString
@@ -60,9 +59,8 @@ public class DemandeRechercheDTO {
     @Getter
     private boolean checkTimestamp;
 
-    public DemandeRechercheDTO(String texte, List<String> statuts, List<DemandeCanalEnum> canaux,
-                               String agentAffecteId, Integer usagerId, Date creationStartDate, Date creationEndDate,
-                               DataRechercheDTO data, String identifiant) {
+    public DemandeRechercheDTO(String texte, List<String> statuts, List<DemandeCanalEnum> canaux, String agentAffecteId,
+            Integer usagerId, Date creationStartDate, Date creationEndDate, DataRechercheDTO data, String identifiant) {
         super();
         this.texte = texte;
         this.statuts = statuts;

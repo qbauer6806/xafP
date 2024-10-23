@@ -4,11 +4,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
  * DataProvider de test
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class GouvCacheDataTestingProvider implements GouvCacheDataProvider<Integer, GouvCacheData> {
 

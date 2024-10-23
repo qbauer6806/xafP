@@ -15,15 +15,15 @@ import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
- * Job permettant d'appeler le service de purge des demandes. <br>
- * Il est nécessaire de péciser la liste des statuts des demandes à purger.
+ * Job permettant d'appeler le service de purge des demandes. <br> Il est nécessaire de péciser la liste des statuts des
+ * demandes à purger.
  */
 @DisallowConcurrentExecution
 public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);
 
-  private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
+    private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
     private static final int DELAI_PAR_DEFAUT_PURGE = 1095; // 3 ans de purge par défaut
     private static final String ACTIVATION_PURGE = "ACTIVATION_PURGE";
 

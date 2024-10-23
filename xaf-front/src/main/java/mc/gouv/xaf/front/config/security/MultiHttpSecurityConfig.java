@@ -19,11 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * 
  * Sécurisation par JWT des endpoints /api2tiers/**
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
@@ -62,8 +60,7 @@ public class MultiHttpSecurityConfig {
             jwtAuthenticationProvider.setApplicationName(applicationName);
             jwtAuthenticationProvider.setEnvironment(env);
             authentication.authenticationProvider(jwtAuthenticationProvider);
-        }
-        else {
+        } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas de définition de JwtAuthenticationProvider");
         }
     }
@@ -71,17 +68,18 @@ public class MultiHttpSecurityConfig {
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         if (frontGouvPropertiesResolver.isProxy2tiersActivation()) {
-            LOGGER.info("Activation du proxy 2 tiers, donc ouverture et sécurisation de l'endpoint /api2tiers/** en JWT");
-            http.securityMatcher("/api2tiers/**")
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                    .authorizeRequests().requestMatchers("/*").permitAll().anyRequest().authenticated().and()
-                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf()
-                    .disable();
+            LOGGER.info(
+                    "Activation du proxy 2 tiers, donc ouverture et sécurisation de l'endpoint /api2tiers/** en JWT");
+            http.securityMatcher("/api2tiers/**").sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+                    .requestMatchers("/*").permitAll().anyRequest().authenticated().and()
+                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
         } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas d'ouverture de l'endpoint /api2tiers/**");
-            http.authorizeRequests()
-                    .requestMatchers("/api2tiers/**").denyAll() // Empêcher l'accès à /api2tiers/** par défaut
-                    .requestMatchers("/*").permitAll().anyRequest().permitAll().and().csrf().disable(); // Autorise toutes les autres requêtes
+            http.authorizeRequests().requestMatchers("/api2tiers/**")
+                    .denyAll() // Empêcher l'accès à /api2tiers/** par défaut
+                    .requestMatchers("/*").permitAll().anyRequest().permitAll().and().csrf()
+                    .disable(); // Autorise toutes les autres requêtes
         }
         return http.build();
     }

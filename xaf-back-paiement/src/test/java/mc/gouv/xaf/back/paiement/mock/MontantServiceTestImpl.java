@@ -10,6 +10,7 @@ import java.util.List;
 
 @Component
 public class MontantServiceTestImpl implements MontantService {
+
     @Override
     public List<CommandeDemandeArticleBO> getArticles(DemandeDTO demandeDto) {
         var articles = new ArrayList<CommandeDemandeArticleBO>();

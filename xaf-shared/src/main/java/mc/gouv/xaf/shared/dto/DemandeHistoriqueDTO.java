@@ -12,9 +12,8 @@ import lombok.ToString;
 
 /**
  * Modélise le contenu d'une ligne d'historique
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

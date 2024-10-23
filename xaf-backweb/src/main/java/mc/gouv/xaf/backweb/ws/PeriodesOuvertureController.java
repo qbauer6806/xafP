@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @GouvRestController
-@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
+@Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 @RequestMapping("/ws/periodesouverture")
 public class PeriodesOuvertureController {
 

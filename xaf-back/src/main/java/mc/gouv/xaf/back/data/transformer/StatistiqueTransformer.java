@@ -10,7 +10,7 @@ public class StatistiqueTransformer {
 
     private StatistiqueTransformer() {
     }
-    
+
     public static StatistiqueDTO bo2Dto(StatistiqueBO bo) {
         if (bo == null) {
             return null;
@@ -23,12 +23,12 @@ public class StatistiqueTransformer {
         dto.setDemarcheId(bo.getDemarcheId());
         dto.setStatutPublic(bo.getStatutPublic());
         dto.setIdentifiantDemande(bo.getIdentifiantDemande());
-        if(!StringUtils.isEmpty(bo.getTypeConnexionUsager())) {
+        if (!StringUtils.isEmpty(bo.getTypeConnexionUsager())) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
         return dto;
     }
-    
+
     public static StatistiqueBO dto2Bo(StatistiqueDTO dto) {
         if (dto == null) {
             return null;
@@ -41,10 +41,10 @@ public class StatistiqueTransformer {
         bo.setDemarcheId(dto.getDemarcheId());
         bo.setStatutPublic(dto.getStatutPublic());
         bo.setIdentifiantDemande(dto.getIdentifiantDemande());
-        if(dto.getTypeConnexionUsager() != null) {
+        if (dto.getTypeConnexionUsager() != null) {
             bo.setTypeConnexionUsager(dto.getTypeConnexionUsager().name());
         }
         return bo;
     }
-    
+
 }

@@ -36,7 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author tverdoyan
  */
 @Controller
-@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
+@Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/parametres")
 public class GestionParametresController extends AbstractController {
 
@@ -70,7 +70,8 @@ public class GestionParametresController extends AbstractController {
             mav.addObject("motifs", customlist);
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans form (/)");
-            throw new DemarchesServiceException("Exception rencontrée dans GestionParametresController.form()", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            throw new DemarchesServiceException("Exception rencontrée dans GestionParametresController.form()",
+                    HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         mav.addObject(ERROR_LIST, errorList);
         LOGGER.info("======================= Fin /gestion/parametres. Méthode form");
@@ -87,7 +88,8 @@ public class GestionParametresController extends AbstractController {
             mav.addObject(STATUT_PARAM, list);
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans formInit (/newInit)");
-            throw new DemarchesServiceException("Exception rencontrée dans formInit (/newInit)", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            throw new DemarchesServiceException("Exception rencontrée dans formInit (/newInit)",
+                    HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
         LOGGER.info("======================= Fin /gestion/parametres/newInit. Méthode formInit");
         return mav;
@@ -96,7 +98,8 @@ public class GestionParametresController extends AbstractController {
     /**
      * Activation du motif (mise de la date du jour)
      *
-     * @param motifsFormBean le formulaire de la page des motifs
+     * @param motifsFormBean
+     *         le formulaire de la page des motifs
      */
     private ModelAndView activationMotif(MotifsFormBean motifsFormBean) {
         LOGGER.info("Activation du motif de code : {}", motifsFormBean.getCodeVisible());
@@ -121,7 +124,8 @@ public class GestionParametresController extends AbstractController {
             }
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans activationMotif");
-            throw new DemarchesServiceException("Exception rencontrée dans activationMotif", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Exception rencontrée dans activationMotif",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         LOGGER.info("sortie méthode activationMotif");
         return new ModelAndView(REDIRECT_GESTION_PARAMETRES);
@@ -130,7 +134,8 @@ public class GestionParametresController extends AbstractController {
     /**
      * Desactivation du motif (mise de la date du jour) *
      *
-     * @param motifsFormBean le formulaire de la page des motifs
+     * @param motifsFormBean
+     *         le formulaire de la page des motifs
      */
     private ModelAndView desactivationMotif(MotifsFormBean motifsFormBean) {
         LOGGER.info("Desactivation du motif de code : {}", motifsFormBean.getCodeVisible());
@@ -155,7 +160,8 @@ public class GestionParametresController extends AbstractController {
             }
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans desactivationMotif");
-            throw new DemarchesServiceException("Exception rencontrée dans desactivationMotif", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Exception rencontrée dans desactivationMotif",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         LOGGER.info("sortie méthode desactivationMotif");
         return new ModelAndView(REDIRECT_GESTION_PARAMETRES);
@@ -163,8 +169,8 @@ public class GestionParametresController extends AbstractController {
 
     @PostMapping(value = "/newCreate")
     public ModelAndView formCreate(@Valid @ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean,
-                                   BindingResult results, @RequestParam(required = false) String desactiveMotif,
-                                   @RequestParam(required = false) String activeMotif) {
+            BindingResult results, @RequestParam(required = false) String desactiveMotif,
+            @RequestParam(required = false) String activeMotif) {
 
         LOGGER.info("Appel de la page /gestion/parametres/newCreate. Méthode formCreate");
 
@@ -206,9 +212,8 @@ public class GestionParametresController extends AbstractController {
         if (motifsFormBean.getMotifPkFr() != null && motifsFormBean.getMotifPkFr() > 0) {
             errorList = miseAjourMotif(motifsFormBean);
         } else {
-            if (StringUtils.isNotBlank(motifsFormBean.getCode())
-                    && StringUtils.isNotBlank(motifsFormBean.getLibelleFr())
-                    && motifsFormBean.getStatutEnum() != null) {
+            if (StringUtils.isNotBlank(motifsFormBean.getCode()) && StringUtils.isNotBlank(
+                    motifsFormBean.getLibelleFr()) && motifsFormBean.getStatutEnum() != null) {
                 // Saisie des donnees
                 List<MotifDTO> localAllMotifs = motifsService.getMotifs();
                 String code = StringUtils.stripAccents(motifsFormBean.getCode().replace(" ", "_").toUpperCase());
@@ -219,7 +224,8 @@ public class GestionParametresController extends AbstractController {
                     errorList = createMotif(motifsFormBean, code);
                 }
             } else {
-                errorList = "Mise à jour impossible. Données isuffisantes pour le motif de code : " + motifsFormBean.getCode();
+                errorList = "Mise à jour impossible. Données isuffisantes pour le motif de code : "
+                        + motifsFormBean.getCode();
                 LOGGER.error(errorList);
             }
         }
@@ -358,7 +364,8 @@ public class GestionParametresController extends AbstractController {
             }
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans formUpdateInit.");
-            throw new DemarchesServiceException("Exception rencontrée dans formUpdateInit.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Exception rencontrée dans formUpdateInit.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         LOGGER.info("======================= Fin /gestion/parametres/updateInit. Méthode formUpdateInit");
         return mav;
@@ -386,7 +393,8 @@ public class GestionParametresController extends AbstractController {
             }
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans getDateArchiveStr");
-            throw new DemarchesServiceException("Exception rencontrée dans getDateArchiveStr", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Exception rencontrée dans getDateArchiveStr",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "";
     }
@@ -427,7 +435,8 @@ public class GestionParametresController extends AbstractController {
             }
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans regroupeLibelle");
-            throw new DemarchesServiceException("Exception rencontrée dans regroupeLibelle", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Exception rencontrée dans regroupeLibelle",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return listFinale;
     }

@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class StatistiqueSubsetDTO {
+
     private String demandeId;
 
     private String statutPublic;

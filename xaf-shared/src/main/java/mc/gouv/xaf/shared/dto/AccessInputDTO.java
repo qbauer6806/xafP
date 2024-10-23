@@ -8,9 +8,8 @@ import lombok.Setter;
 
 /**
  * Input de WS pour les demandes
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

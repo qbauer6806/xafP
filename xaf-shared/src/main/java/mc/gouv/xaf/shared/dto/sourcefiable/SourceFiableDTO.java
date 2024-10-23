@@ -13,9 +13,9 @@ import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SourceFiableDTO implements Serializable {
-	
-	private static final long serialVersionUID = -7987341949488216363L;
-	private String modelPath;
+
+    private static final long serialVersionUID = -7987341949488216363L;
+    private String modelPath;
     private SourceFiablesEnum sourceFiable;
 
 }

@@ -16,6 +16,7 @@ import java.util.List;
 public interface PaiementHistoriqueRepository extends JpaRepository<PaiementHistoriqueBO, Integer> {
 
     List<PaiementHistoriqueBO> findByFkDemandesPkDemandesOrderByDateDesc(Integer pkDemandes);
+
     PaiementHistoriqueBO findByFkDemandesPkDemandesAndStatut(Integer pkDemandes, String statut);
 
     List<PaiementHistoriqueBO> findByFkDemandes_PkDemandesIn(Collection<Integer> pkDemandes);

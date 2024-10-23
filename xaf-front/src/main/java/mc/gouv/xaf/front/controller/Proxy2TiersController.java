@@ -33,41 +33,42 @@ import org.springframework.web.multipart.MultipartFile;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 
 /**
- * 
- * Controller utilisé dans la solution 2/3, permettant d'effectuer un proxy afin que le BO tiers
- * puisse contacter l'API GenTS
- * 
- * @author qdeme
+ * Controller utilisé dans la solution 2/3, permettant d'effectuer un proxy afin que le BO tiers puisse contacter l'API
+ * GenTS
  *
+ * @author qdeme
  */
 @Controller
 @RequestMapping("/api2tiers")
 public class Proxy2TiersController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Proxy2TiersController.class);
-    
+
     @Autowired
     private FrontGouvPropertiesResolver propertiesResolver;
 
-    @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-    public ResponseEntity doHttpMethod(HttpServletRequest request, HttpServletResponse response, @RequestParam(required = false) MultipartFile data) {
+    @RequestMapping(value = "/**", method = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
+            RequestMethod.DELETE })
+    public ResponseEntity doHttpMethod(HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(required = false) MultipartFile data) {
         LOGGER.info("====================== /api2tiers doHttpMethod({})", request.getMethod());
         // Récupérer l'URL de la requête entrante
         String requestUrl = request.getRequestURL().toString();
-        
+
         String queryString = request.getQueryString(); // Récupérer les paramètres de la requête
-        
+
         // Décoder les paramètres de la requête
         if (queryString != null) {
-         	queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
+            queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
         }
-        
+
         LOGGER.info("requestUrl={}", requestUrl);
-        
+
         RestTemplate restTemplate = new RestTemplate();
-        
-        String apiUrl = propertiesResolver.getApiUrl().replace("/api/v1", "") + extractApiUrl(requestUrl, "/api2tiers", queryString);
-        
+
+        String apiUrl = propertiesResolver.getApiUrl().replace("/api/v1", "") + extractApiUrl(requestUrl, "/api2tiers",
+                queryString);
+
         LOGGER.info("apiUrl={}", apiUrl);
 
         // Récupérer les headers de la requête entrante
@@ -75,21 +76,21 @@ public class Proxy2TiersController extends AbstractXafController {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            
+
             // Remplacer le header Authorization donné par le client appelant le FO par le nôtre pour appeler l'API
             if ("Authorization".equals(headerName)) {
-            	headers.add(headerName, "Bearer " + propertiesResolver.getFrontserverJwt());
-            }
-            else {
-            	headers.add(headerName, request.getHeader(headerName));
+                headers.add(headerName, "Bearer " + propertiesResolver.getFrontserverJwt());
+            } else {
+                headers.add(headerName, request.getHeader(headerName));
             }
         }
-        
+
         try {
             // Effectuer la requête sortante
             ResponseEntity<byte[]> responseEntity = null;
             if (request.getMethod().equals("GET") || request.getMethod().equals("DELETE")) {
-                responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()), new HttpEntity<>(headers), byte[].class);
+                responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()),
+                        new HttpEntity<>(headers), byte[].class);
             } else {
                 // Vérifier s'il y a un fichier joint
                 if (data != null && !data.isEmpty()) {
@@ -105,7 +106,8 @@ public class Proxy2TiersController extends AbstractXafController {
 
                     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
                     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-                    responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()), requestEntity, byte[].class);
+                    responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()),
+                            requestEntity, byte[].class);
                 } else {
                     // Si aucun fichier n'est joint, traiter le corps de la requête comme d'habitude
                     InputStream requestBodyStream = request.getInputStream();
@@ -118,22 +120,21 @@ public class Proxy2TiersController extends AbstractXafController {
                     }
                     byte[] requestBody = outputStream.toByteArray();
 
-                    responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()), new HttpEntity<>(requestBody, headers), byte[].class);
+                    responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()),
+                            new HttpEntity<>(requestBody, headers), byte[].class);
                 }
             }
 
-            return ResponseEntity.status(responseEntity.getStatusCode())
-                    .headers(responseEntity.getHeaders())
+            return ResponseEntity.status(responseEntity.getStatusCode()).headers(responseEntity.getHeaders())
                     .body(responseEntity.getBody());
-	    } catch (HttpClientErrorException ex) {
-	        return ResponseEntity.status(ex.getRawStatusCode())
-	            .headers(ex.getResponseHeaders())
-	            .body(ex.getResponseBodyAsString());
-	    } catch (IOException ex) {
+        } catch (HttpClientErrorException ex) {
+            return ResponseEntity.status(ex.getRawStatusCode()).headers(ex.getResponseHeaders())
+                    .body(ex.getResponseBodyAsString());
+        } catch (IOException ex) {
             return ResponseEntity.status(500).body(ex.getMessage());
         }
     }
-    
+
     private String extractApiUrl(String requestUrl, String keyword, String queryString) {
         try {
             URI uri = new URI(requestUrl);

@@ -46,20 +46,20 @@ public class DemandeLockFilter implements Filter {
              * demande côté front, on appele session, dateouverture, demande et d'autres servlet en parallele. On se
              * retrouve donc avec plusieurs threads liés à la même session. On ajoutera cette minute au timestamp de
              * lock.
-             * 
+             *
              */
             Long intervalSinceLastUpdate = Instant.now().toEpochMilli() - httpSession.getLastAccessedTime();
 
             if (intervalSinceLastUpdate > 60000L) {
-                Integer modificationDemandeId = (Integer) httpSession
-                        .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
-                Integer modificationDemandeUsagerId = (Integer) httpSession
-                        .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
+                Integer modificationDemandeId = (Integer) httpSession.getAttribute(
+                        SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
+                Integer modificationDemandeUsagerId = (Integer) httpSession.getAttribute(
+                        SessionConstant.SESSION_MODIFICATION_USAGER_ID);
 
                 if (modificationDemandeId != null && modificationDemandeUsagerId != null) {
                     AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
-                    Long timestampValue = Instant.now().toEpochMilli() + (httpSession.getMaxInactiveInterval() * 1000L)
-                            + 60000L;
+                    Long timestampValue =
+                            Instant.now().toEpochMilli() + (httpSession.getMaxInactiveInterval() * 1000L) + 60000L;
                     afApiClient.lockDemande(modificationDemandeId, modificationDemandeUsagerId, timestampValue);
                     LOGGER.info("LockDemandeFilter: Verrouillage demande {} prolongé jusqu'a {}", modificationDemandeId,
                             timestampValue);

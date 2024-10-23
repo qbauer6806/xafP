@@ -59,7 +59,7 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
         String templateFileName = "DemandeAccepteeTest.docx";
 
         LOGGER.info("Template=" + templateFileName + ", model=" + model);
-        
+
         PdfTemplateAndModelDTO dto = new PdfTemplateAndModelDTO();
         dto.setFilename("test.doc");
         dto.setTemplateFilename(templateFileName);
@@ -108,7 +108,8 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     }
 
     @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, String texteAEnvoyer) {
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+            String texteAEnvoyer) {
         return null;
     }
 

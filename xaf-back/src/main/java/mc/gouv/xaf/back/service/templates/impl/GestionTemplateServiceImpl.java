@@ -34,14 +34,16 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
     public TemplateFormBean retrieveTemplateForm(TemplateFormBean formBean) {
 
         try {
-            TemplateDTO templateDtoObjet = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + OBJET, formBean.getLangue());
+            TemplateDTO templateDtoObjet = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + OBJET,
+                    formBean.getLangue());
             formBean.setObjet(templateDtoObjet.getContenu());
         } catch (Exception e) {
             LOGGER.error("Aucun objet trouvé pour le code {}", formBean.getCode());
         }
 
         try {
-            TemplateDTO templateDtoCorps = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + CORPS, formBean.getLangue());
+            TemplateDTO templateDtoCorps = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + CORPS,
+                    formBean.getLangue());
             formBean.setCorps(templateDtoCorps.getContenu());
         } catch (Exception e) {
             LOGGER.error("Aucun corps trouvé pour le code {}", formBean.getCode());
@@ -53,7 +55,8 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
     @Override
     public void saveTemplateForm(TemplateFormBean formBean) {
         try {
-            TemplateDTO templateObjet = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + OBJET, formBean.getLangue());
+            TemplateDTO templateObjet = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + OBJET,
+                    formBean.getLangue());
             templateObjet.setContenu(formBean.getObjet());
             templateObjet.setDateModif(new Date());
             templatesService.saveOrUpdateTemplate(templateObjet);
@@ -62,7 +65,8 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
         }
 
         try {
-            TemplateDTO templateCorps = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + CORPS, formBean.getLangue());
+            TemplateDTO templateCorps = templatesService.getTemplateByCodeAndLangue(formBean.getCode() + CORPS,
+                    formBean.getLangue());
             templateCorps.setContenu(formBean.getCorps());
             templateCorps.setDateModif(new Date());
             templatesService.saveOrUpdateTemplate(templateCorps);

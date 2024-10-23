@@ -22,7 +22,8 @@ public abstract class DefaultPaiementHistoriqueServiceImpl implements PaiementHi
 
     @Override
     public List<PaiementHistoriqueDTO> findAllByDemandeId(Integer demandeId) {
-        List<PaiementHistoriqueBO> bos = paiementHistoriqueRepository.findByFkDemandesPkDemandesOrderByDateDesc(demandeId);
+        List<PaiementHistoriqueBO> bos = paiementHistoriqueRepository.findByFkDemandesPkDemandesOrderByDateDesc(
+                demandeId);
         List<PaiementHistoriqueDTO> dtos = PaiementHistoriqueTransformer.bos2Dtos(bos);
         dtos.forEach(dto -> dto.setCouleur(demarchesDataProvider.getStatusColorClass(dto.getStatut().name())));
         return dtos;

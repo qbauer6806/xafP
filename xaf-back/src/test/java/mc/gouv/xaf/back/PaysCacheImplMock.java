@@ -13,58 +13,58 @@ import mc.gouv.xaf.back.service.itg.rest.PaysCache;
 @Profile("test")
 public class PaysCacheImplMock implements PaysCache {
 
-	@Override
-	public PaysBean get(String codeIso, String locale) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public PaysBean get(String codeIso, String locale) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getNationalite(String codeIso, String locale) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNationalite(String codeIso, String locale) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Map<Integer, PaysBean> getAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Map<Integer, PaysBean> getAll() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public PaysBean get(Integer key) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public PaysBean get(Integer key) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public PaysBean get(Integer key, boolean forceUpdate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public PaysBean get(Integer key, boolean forceUpdate) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void refresh() {
+        // TODO Auto-generated method stub
 
-	@Override
-	public void add(Integer key, PaysBean value) {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	@Override
-	public Collection<PaysBean> getValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public void add(Integer key, PaysBean value) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public Collection<Integer> getKeys() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
+
+    @Override
+    public Collection<PaysBean> getValues() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Collection<Integer> getKeys() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

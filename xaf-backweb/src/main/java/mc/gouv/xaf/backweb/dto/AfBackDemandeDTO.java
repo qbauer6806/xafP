@@ -7,9 +7,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 /**
  * Classe permettant de rajouter des champs dans DemandeDTO, qui sont utiles pour les démarches, sans avoir à encombrer
  * DEM avec ça (et avec le calcul de ces champs)
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

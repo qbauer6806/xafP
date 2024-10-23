@@ -10,22 +10,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 /**
- * 
  * Servlet servant à visualiser dans le navigateur un fichier de FILE.
- * 
- * @author uek
  *
+ * @author uek
  */
 @Controller
 public class FilePreviewController extends FileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilePreviewController.class);
 
-    @GetMapping(value = {"/filepreview", "/filepreview/{accessId}/{uuid}/{filename}"})
+    @GetMapping(value = { "/filepreview", "/filepreview/{accessId}/{uuid}/{filename}" })
     public ResponseEntity doGet(@PathVariable(required = false) String accessId,
-                                @PathVariable(required = false) String uuid,
-                                @PathVariable(required = false) String filename,
-                                HttpServletRequest request) throws IOException {
+            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename,
+            HttpServletRequest request) throws IOException {
         LOGGER.info("====================== /filepreview doGet()");
 
         try {

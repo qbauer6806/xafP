@@ -15,9 +15,9 @@ import lombok.ToString;
 @ToString
 public class ResidWarningDTO implements Serializable {
 
-	private static final long serialVersionUID = 1016532880273751925L;
-	
-	private String code;
+    private static final long serialVersionUID = 1016532880273751925L;
+
+    private String code;
 
     private String libelle;
 

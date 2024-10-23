@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.dsp.enums.v2;
 
 public enum ResidRelationDLN1FEnum {
-	
+
     PRO("PRO"),
     AMI("AMI"),
     BEA("BEA"),
@@ -25,6 +25,5 @@ public enum ResidRelationDLN1FEnum {
     ResidRelationDLN1FEnum(String value) {
         this.value = value;
     }
-
 
 }

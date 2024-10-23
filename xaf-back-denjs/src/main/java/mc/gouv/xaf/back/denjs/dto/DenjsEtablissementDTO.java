@@ -5,9 +5,8 @@ import lombok.Setter;
 
 /**
  * DTO représentant un établissement scolaire
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter

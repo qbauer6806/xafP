@@ -16,18 +16,18 @@ import lombok.ToString;
 @ToString
 public class BrouillonFileDTO {
 
-	protected Integer pkBrouillonsFiles;
-	
-	@NotNull
-	protected String name;
-	
-	@NotNull
-	protected String url;
-	
-	protected String meta;
-	
-	protected Date date;
-	
-	protected String typedoc;
+    protected Integer pkBrouillonsFiles;
+
+    @NotNull
+    protected String name;
+
+    @NotNull
+    protected String url;
+
+    protected String meta;
+
+    protected Date date;
+
+    protected String typedoc;
 
 }

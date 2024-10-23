@@ -4,18 +4,18 @@
 <div id="sectionjustificatiftraitement" th:fragment="sectionjustificatiftraitement"
      th:if="!${justificatifTraitementList.isEmpty()}" th:remove="tag">
 
-    <hr/>
+  <hr/>
 
-    <h3>Justification du traitement de la demande</h3>
+  <h3>Justification du traitement de la demande</h3>
 
-    <div class="justif-traitement-view">
-        <div th:each="justificatifTraitement : ${justificatifTraitementList}">
-            <p><strong th:utext="${justificatifTraitement.historique}"></strong></p>
-            <p th:text="${justificatifTraitement.justification}"></p>
-        </div>
+  <div class="justif-traitement-view">
+    <div th:each="justificatifTraitement : ${justificatifTraitementList}">
+      <p><strong th:utext="${justificatifTraitement.historique}"></strong></p>
+      <p th:text="${justificatifTraitement.justification}"></p>
     </div>
+  </div>
 
-    <hr/>
+  <hr/>
 
 </div>
 </body>

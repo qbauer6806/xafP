@@ -27,7 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/gestion/periodesouverture")
-@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
+@Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 public class GestionPeriodesOuvertureController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPeriodesOuvertureController.class);
@@ -42,11 +42,13 @@ public class GestionPeriodesOuvertureController {
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT), false));
+        binder.registerCustomEditor(Date.class,
+                new CustomDateEditor(new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT), false));
     }
 
     @GetMapping
-    public ModelAndView form(@RequestParam(name = "pageLength", required = false) Integer pageLength, final RedirectAttributes redirectAttributes) {
+    public ModelAndView form(@RequestParam(name = "pageLength", required = false) Integer pageLength,
+            final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de la page gestion/periodesouverture. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/periodesouverture/periodesouverture");
         if (null != pageLength) {
@@ -56,7 +58,8 @@ public class GestionPeriodesOuvertureController {
         return mav;
     }
 
-    private ModelAndView redirectSuccess(Integer pageLengthNumber, RedirectAttributes redirectAttributes, String message) {
+    private ModelAndView redirectSuccess(Integer pageLengthNumber, RedirectAttributes redirectAttributes,
+            String message) {
         ModelAndView mav = new ModelAndView(RequestConstant.REDIRECT);
         if (null != pageLengthNumber) {
             mav = new ModelAndView(REDIRECT_PERIODES + pageLengthNumber);
@@ -69,10 +72,11 @@ public class GestionPeriodesOuvertureController {
 
     @PostMapping(value = "/edit", params = "action=ajouter")
     @Transactional
-    public ModelAndView ajouter(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate, @RequestParam Integer pageLengthNumber,
-                                final RedirectAttributes redirectAttributes) {
+    public ModelAndView ajouter(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate,
+            @RequestParam Integer pageLengthNumber, final RedirectAttributes redirectAttributes) {
 
-        LOGGER.info("======================= Appel de la page /gestion/periodesouverture/ajouter ({}, {})", periodeStartDate, periodeEndDate);
+        LOGGER.info("======================= Appel de la page /gestion/periodesouverture/ajouter ({}, {})",
+                periodeStartDate, periodeEndDate);
         PeriodeOuvertureDTO periode = new PeriodeOuvertureDTO();
         periode.setDateDebut(periodeStartDate);
         periode.setDateFin(periodeEndDate);
@@ -84,10 +88,12 @@ public class GestionPeriodesOuvertureController {
 
     @PostMapping(value = "/edit", params = "action=modifier")
     @Transactional
-    public ModelAndView modifier(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate, @RequestParam Integer pkPeriodesOuverture,
-                                 @RequestParam Integer pageLengthNumber, final RedirectAttributes redirectAttributes) {
+    public ModelAndView modifier(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate,
+            @RequestParam Integer pkPeriodesOuverture, @RequestParam Integer pageLengthNumber,
+            final RedirectAttributes redirectAttributes) {
 
-        LOGGER.info("======================= Appel de la page /gestion/periodesouverture/modifier ({}, {}, {})", periodeStartDate, periodeEndDate, pkPeriodesOuverture);
+        LOGGER.info("======================= Appel de la page /gestion/periodesouverture/modifier ({}, {}, {})",
+                periodeStartDate, periodeEndDate, pkPeriodesOuverture);
         PeriodeOuvertureDTO periode = new PeriodeOuvertureDTO();
         periode.setDateDebut(periodeStartDate);
         periode.setDateFin(periodeEndDate);
@@ -100,8 +106,10 @@ public class GestionPeriodesOuvertureController {
 
     @PostMapping(value = "/supprimer")
     @Transactional
-    public ModelAndView supprimer(@RequestParam Integer pkPeriodesOuverture, @RequestParam Integer pageLengthNumber, final RedirectAttributes redirectAttributes) {
-        LOGGER.info("======================= Appel de la page /gestion/periodesouverture/supprimer ({})", pkPeriodesOuverture);
+    public ModelAndView supprimer(@RequestParam Integer pkPeriodesOuverture, @RequestParam Integer pageLengthNumber,
+            final RedirectAttributes redirectAttributes) {
+        LOGGER.info("======================= Appel de la page /gestion/periodesouverture/supprimer ({})",
+                pkPeriodesOuverture);
         periodesOuvertureService.deletePeriodeOuverture(pkPeriodesOuverture);
         ModelAndView mav = redirectSuccess(pageLengthNumber, redirectAttributes, SUPPRIMER_SUCCES);
         LOGGER.info("======================= Fin /gestion/periodesouverture/supprimer");

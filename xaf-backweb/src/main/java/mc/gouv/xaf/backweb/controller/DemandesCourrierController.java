@@ -36,116 +36,115 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Controller pour les demandes courrier
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Controller
 @RequestMapping("/demandes/courriers")
 public class DemandesCourrierController extends AbstractController {
 
-	@Autowired
-	private BackGouvPropertiesResolver gouvPropertiesResolver;
+    @Autowired
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
-	@Autowired
-	private AfBackUtils afBackUtils;
+    @Autowired
+    private AfBackUtils afBackUtils;
 
-	@Autowired
-	private DemarchesDataProvider demarchesDataProvider;
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
-	@Autowired
-	private UsagersUtils usagersUtils;
+    @Autowired
+    private UsagersUtils usagersUtils;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
     @Autowired
     private UsagersCourrierService usagersCourrierService;
 
+    @Secured("ROLE_SAISIE")
+    @GetMapping
+    public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
+        LOGGER.info("======================= Appel de la page /demandes/courriers");
+        ModelAndView mav = new ModelAndView("demandes/demandescourrier");
+        LOGGER.info("======================= Fin /demandes/courriers");
+        return mav;
+    }
 
-	@Secured("ROLE_SAISIE")
-	@GetMapping
-	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
-		LOGGER.info("======================= Appel de la page /demandes/courriers");
-		ModelAndView mav = new ModelAndView("demandes/demandescourrier");
-		LOGGER.info("======================= Fin /demandes/courriers");
-		return mav;
-	}
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
+    @PostMapping(value = "/creer/{usagerId}")
+    public ModelAndView creerDemandeCourrier(@PathVariable(value = "usagerId") Integer usagerId,
+            @Valid @ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean,
+            BindingResult bindingResult) throws URISyntaxException, ParseException {
 
-	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
-	@PostMapping(value = "/creer/{usagerId}")
-	public ModelAndView creerDemandeCourrier(@PathVariable(value = "usagerId") Integer usagerId,
-			@Valid @ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean,
-			BindingResult bindingResult) throws URISyntaxException, ParseException {
+        ModelAndView mav;
+        LOGGER.info("======================= Appel de la page POST /demandes/courriers/creer/{}", usagerId);
 
-		ModelAndView mav;
-		LOGGER.info("======================= Appel de la page POST /demandes/courriers/creer/{}", usagerId);
-		
-		if (bindingResult.hasErrors()) {
-			mav = new ModelAndView("demandes/demandescourrier2");
-			initForm(mav, usagerId);
-			List<String> errors = new ArrayList<>();
-			errors.add(AfBackUtils.MESSAGE_ERREURS_FORMULAIRE);
-			mav.addObject("errors", errors);
-			return mav;
-		}
+        if (bindingResult.hasErrors()) {
+            mav = new ModelAndView("demandes/demandescourrier2");
+            initForm(mav, usagerId);
+            List<String> errors = new ArrayList<>();
+            errors.add(AfBackUtils.MESSAGE_ERREURS_FORMULAIRE);
+            mav.addObject("errors", errors);
+            return mav;
+        }
 
-		// Conversion de la date au format iso
-		// #6366
-		SimpleDateFormat dt1 = new SimpleDateFormat("dd/MM/yyyy");
-		Date dateReception = dt1.parse(demandesCourrierFormBean.getDateReception());
-		SimpleDateFormat dateReceptionIsoFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String dateReceptionIso = dateReceptionIsoFormat.format(dateReception);
+        // Conversion de la date au format iso
+        // #6366
+        SimpleDateFormat dt1 = new SimpleDateFormat("dd/MM/yyyy");
+        Date dateReception = dt1.parse(demandesCourrierFormBean.getDateReception());
+        SimpleDateFormat dateReceptionIsoFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String dateReceptionIso = dateReceptionIsoFormat.format(dateReception);
 
-		String id = "c_" + demandesCourrierFormBean.getUsagerId();
-		Date currentDate = new Date();
-		long currentMilli = currentDate.getTime();
-		String sig = DigestUtils.sha256Hex(gouvPropertiesResolver.getFrontSharedKey() + id + currentMilli) + ":"
-				+ currentMilli;
+        String id = "c_" + demandesCourrierFormBean.getUsagerId();
+        Date currentDate = new Date();
+        long currentMilli = currentDate.getTime();
+        String sig = DigestUtils.sha256Hex(gouvPropertiesResolver.getFrontSharedKey() + id + currentMilli) + ":"
+                + currentMilli;
 
-		// c_ pour que AfServlet sache qu'il s'agit d'un usager courrier et
-		// qu'il faut appeler DEM à la place de Login
-		
-		// Récupérer des properties s'il faut ordonner au Front de désactiver la validation des champs du formulaire
-		String novalidate = "";
-		if (gouvPropertiesResolver.getNovalidate()) {
-		    novalidate = "&novalidate=true";
-		}
+        // c_ pour que AfServlet sache qu'il s'agit d'un usager courrier et
+        // qu'il faut appeler DEM à la place de Login
 
-		URIBuilder ub = new URIBuilder(gouvPropertiesResolver.getFrontUrl() + "/acces_teleservice.html");
-		ub.addParameter("id", id);
-		ub.addParameter("international", "fr"+novalidate);
-		ub.addParameter("canal", demandesCourrierFormBean.getCanal());
-		ub.addParameter("langue", demandesCourrierFormBean.getLangue());
-		ub.addParameter("courrierDateReception", dateReceptionIso);
-		ub.addParameter("courrierRefInterne", demandesCourrierFormBean.getRefInterne());
-		ub.addParameter("target", "/" + gouvPropertiesResolver.getFrontFormStartPage());
-		ub.addParameter("creeParAgentId", AfBackUtils.getAuthenticatedAgentId());
-		ub.addParameter("sig", sig);
-        if (demandesCourrierFormBean.getDuplicationKeyId() != null)
+        // Récupérer des properties s'il faut ordonner au Front de désactiver la validation des champs du formulaire
+        String novalidate = "";
+        if (gouvPropertiesResolver.getNovalidate()) {
+            novalidate = "&novalidate=true";
+        }
+
+        URIBuilder ub = new URIBuilder(gouvPropertiesResolver.getFrontUrl() + "/acces_teleservice.html");
+        ub.addParameter("id", id);
+        ub.addParameter("international", "fr" + novalidate);
+        ub.addParameter("canal", demandesCourrierFormBean.getCanal());
+        ub.addParameter("langue", demandesCourrierFormBean.getLangue());
+        ub.addParameter("courrierDateReception", dateReceptionIso);
+        ub.addParameter("courrierRefInterne", demandesCourrierFormBean.getRefInterne());
+        ub.addParameter("target", "/" + gouvPropertiesResolver.getFrontFormStartPage());
+        ub.addParameter("creeParAgentId", AfBackUtils.getAuthenticatedAgentId());
+        ub.addParameter("sig", sig);
+        if (demandesCourrierFormBean.getDuplicationKeyId() != null) {
             ub.addParameter("duplicationKeyId", demandesCourrierFormBean.getDuplicationKeyId());
+        }
 
-		String redirect = "redirect:" + ub;
-		
-		LOGGER.info("URL de redirection vers le front : {}", redirect);
+        String redirect = "redirect:" + ub;
 
-		mav = new ModelAndView(redirect);
+        LOGGER.info("URL de redirection vers le front : {}", redirect);
 
-		LOGGER.info("======================= Fin /demandes/courriers/creer/{}", usagerId);
+        mav = new ModelAndView(redirect);
 
-		return mav;
-	}
+        LOGGER.info("======================= Fin /demandes/courriers/creer/{}", usagerId);
 
-	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
-	@GetMapping(value = "/creer/{usagerId}")
-	public ModelAndView form(@PathVariable(value = "usagerId") Integer usagerId,
-			@ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean) {
+        return mav;
+    }
 
-		LOGGER.info("======================= Appel de la page /demandes/courriers/creer/{}", usagerId);
-		ModelAndView mav = new ModelAndView("demandes/demandescourrier2");
-		initForm(mav, usagerId);
-		LOGGER.info("======================= Fin /demandes/courriers/creer/{}", usagerId);
-		return mav;
-	}
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
+    @GetMapping(value = "/creer/{usagerId}")
+    public ModelAndView form(@PathVariable(value = "usagerId") Integer usagerId,
+            @ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean) {
+
+        LOGGER.info("======================= Appel de la page /demandes/courriers/creer/{}", usagerId);
+        ModelAndView mav = new ModelAndView("demandes/demandescourrier2");
+        initForm(mav, usagerId);
+        LOGGER.info("======================= Fin /demandes/courriers/creer/{}", usagerId);
+        return mav;
+    }
 
     private void initForm(ModelAndView mav, Integer usagerId) {
         mav.addObject("usager", usagersUtils.getUsagerCourrierFromId(usagerId));
@@ -156,9 +155,8 @@ public class DemandesCourrierController extends AbstractController {
         mav.addObject("langues", afBackUtils.getLanguesDisponibles());
 
         // Récuperation de la dernière demande pour duplication
-        DemandeDTO derniereDemande = usagersCourrierService.getDerniereDemandePourDuplication(
-                usagerId, demarchesDataProvider.getStatutsPourDuplication(),
-                demarchesDataProvider.getBuildIdsPourDuplication());
+        DemandeDTO derniereDemande = usagersCourrierService.getDerniereDemandePourDuplication(usagerId,
+                demarchesDataProvider.getStatutsPourDuplication(), demarchesDataProvider.getBuildIdsPourDuplication());
         if (derniereDemande != null) {
             mav.addObject("duplicationKeyId", derniereDemande.getPkDemandes());
             mav.addObject("duplicationIdentifiant", derniereDemande.getIdentifiant());

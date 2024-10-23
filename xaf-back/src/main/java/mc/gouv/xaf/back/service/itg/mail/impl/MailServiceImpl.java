@@ -40,11 +40,9 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.exceptions.TemplateProcessingException;
 
 /**
- *
  * Composant permettant l'envoi d'emails "templatés"
  *
  * @author qdeme
- *
  */
 @Component
 public class MailServiceImpl implements MailService {
@@ -75,12 +73,14 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail)
+            throws JsonProcessingException {
         sendMail(emailInfo, model, null, audienceMail);
     }
 
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments)
+            throws JsonProcessingException {
         sendMail(emailInfo, model, attachments, null);
     }
 
@@ -88,7 +88,8 @@ public class MailServiceImpl implements MailService {
      * {@inheritDoc}
      */
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments, MailAudienceEnum audienceMail) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments,
+            MailAudienceEnum audienceMail) throws JsonProcessingException {
         LOGGER.debug("MailServiceImpl.sendMail({}, {}, {}, {})", emailInfo, model, attachments, audienceMail);
         if (MailAudienceEnum.AGENT.equals(audienceMail) && !notificationMailAgentProperty()) {
             LOGGER.info("PAS d'envoi email aux agents du service");
@@ -115,7 +116,8 @@ public class MailServiceImpl implements MailService {
     private MailDTO createMailContent(EmailInfoDTO emailInfo, Map<String, Object> model) {
         String[] subjectAndBody;
         try {
-            subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
+            subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(),
+                    emailInfo.getLangue(), model);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la récupération du corps et du sujet de l'e-mail", e);
             return null;
@@ -147,12 +149,14 @@ public class MailServiceImpl implements MailService {
      * {@inheritDoc}
      */
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws IOException {
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
+            Map<String, Object> model) throws IOException {
         LOGGER.info("MailServiceImpl.getMailPreview({},{})", bodyTemplateCode, subjectTemplateCode);
         return getSubjectAndBody(subjectTemplateCode, bodyTemplateCode, langue, model);
     }
 
-    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws IOException {
+    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue,
+            Map<String, Object> model) throws IOException {
 
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
@@ -164,7 +168,8 @@ public class MailServiceImpl implements MailService {
         Context context = getContext(model);
 
         String mailBodyToSend = processTemplate(afBackUtils.convertToThymeleaf(templateBody.getContenu()), context);
-        String mailSubjectToSend = processTemplate(afBackUtils.convertToThymeleaf(templateSubject.getContenu()), context);
+        String mailSubjectToSend = processTemplate(afBackUtils.convertToThymeleaf(templateSubject.getContenu()),
+                context);
 
         // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
         if (afBackUtils.isEmailHtmlEnabled()) {
@@ -196,7 +201,8 @@ public class MailServiceImpl implements MailService {
         try {
             return templateEngine.process(templateContent, context);
         } catch (TemplateProcessingException e) {
-            throw new DemarchesServiceException("Thymeleaf template processing failed.", HttpStatus.INTERNAL_SERVER_ERROR, e);
+            throw new DemarchesServiceException("Thymeleaf template processing failed.",
+                    HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
     }
 
@@ -216,8 +222,9 @@ public class MailServiceImpl implements MailService {
      * {@inheritDoc}
      */
     @Override
-    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails, Integer pkDemande,
-            String identifiantDemande, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,
+            Integer pkDemande, String identifiantDemande, int incident, Map<String, Object> modelAdd,
+            Map<String, InputStream> attachments) {
         Date date = new Date(System.currentTimeMillis());
         final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
         String dateTimeString = simpleDateTimeFormat.format(date);
@@ -226,8 +233,10 @@ public class MailServiceImpl implements MailService {
         emailInfo.setLangue("fr");
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, identifiantDemande);
 
         for (String adresseMail : mails) {

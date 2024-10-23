@@ -6,6 +6,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class PageableObject {
+
     private Long offset;
     private Sort sort;
     private Integer pageNumber;

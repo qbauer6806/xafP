@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface FactureApiClient {
+
     String INCIDENT = "#Incident";
 
     String check(String numFacture);

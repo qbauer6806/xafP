@@ -80,18 +80,21 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
 
             // Population du motif
             try {
-                String populatedLibelle = templateEngine.process(afBackUtils.convertToThymeleaf(clonedMotif.getLibelle()), context);
+                String populatedLibelle = templateEngine.process(
+                        afBackUtils.convertToThymeleaf(clonedMotif.getLibelle()), context);
                 clonedMotif.setLibelle(populatedLibelle);
 
                 // Population du commentaire prérempli
                 if (motif.getCommentairePrerempli() != null) {
-                    String populatedCommentaire = templateEngine.process(afBackUtils.convertToThymeleaf(clonedMotif.getCommentairePrerempli()), context);
+                    String populatedCommentaire = templateEngine.process(
+                            afBackUtils.convertToThymeleaf(clonedMotif.getCommentairePrerempli()), context);
                     clonedMotif.setCommentairePrerempli(populatedCommentaire);
                 }
 
                 // Population du texte à envoyer
                 if (motif.getTexteAEnvoyer() != null) {
-                    String populatedTexte = templateEngine.process(afBackUtils.convertToThymeleaf(clonedMotif.getTexteAEnvoyer()), context);
+                    String populatedTexte = templateEngine.process(
+                            afBackUtils.convertToThymeleaf(clonedMotif.getTexteAEnvoyer()), context);
                     clonedMotif.setTexteAEnvoyer(populatedTexte);
                 }
 

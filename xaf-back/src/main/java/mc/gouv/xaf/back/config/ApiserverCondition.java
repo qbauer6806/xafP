@@ -6,9 +6,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * Condition permettant de restreindre des composants Spring à l'API uniquement
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class ApiserverCondition implements Condition {
 
@@ -16,9 +15,9 @@ public class ApiserverCondition implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    	
-    	String module = context.getEnvironment().getProperty(APPLICATION_MODULE_PROPERTY);
-    	return "apiserver".equals(module);
+
+        String module = context.getEnvironment().getProperty(APPLICATION_MODULE_PROPERTY);
+        return "apiserver".equals(module);
     }
 
 }

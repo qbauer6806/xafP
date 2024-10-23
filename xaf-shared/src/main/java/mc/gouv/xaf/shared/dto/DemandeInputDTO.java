@@ -9,9 +9,8 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 /**
  * Input de WS pour les demandes
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -53,6 +52,5 @@ public class DemandeInputDTO {
     private Integer demandeSourceId;
 
     private JsonNode donneesExternes;
-
 
 }

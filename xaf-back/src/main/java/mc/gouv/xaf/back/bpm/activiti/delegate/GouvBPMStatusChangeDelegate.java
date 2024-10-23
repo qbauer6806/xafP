@@ -16,11 +16,9 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour changer le statut d'une demande.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMStatusChangeDelegate implements JavaDelegate {
@@ -56,20 +54,19 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         }
 
         // Récupération du commentaire usager, du texte à envoyer et du code motif si besoin plus tard dans le traitement
-        String commentaireUsager = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        String texteAEnvoyer = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TEXTE_A_ENVOYER.name());
+        String commentaireUsager = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        String texteAEnvoyer = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_TEXTE_A_ENVOYER.name());
 
         // Si le code motif n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
         if (StringUtils.isBlank(codeMotifStr)) {
             codeMotifStr = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         }
 
-        String agentId = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-        String usagerId = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+        String agentId = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
+        String usagerId = (String) execution.getVariable(
+                GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
         LOGGER.info("Commentaire usager : {}", commentaireUsager);
         LOGGER.info("Texte à envoyer : {}", texteAEnvoyer);
@@ -81,14 +78,14 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
         // par défaut l'agent authentifié
         if (usagerId != null) {
-            demandesStatutsService.updateStatut(demandeId, statutName, null,
-                    Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
+            demandesStatutsService.updateStatut(demandeId, statutName, null, Integer.parseInt(usagerId), codeMotifStr,
+                    commentaireUsager, texteAEnvoyer);
         } else if (agentId != null) {
-            demandesStatutsService.updateStatut(demandeId, statutName, agentId,
-                    null, codeMotifStr, commentaireUsager, texteAEnvoyer);
+            demandesStatutsService.updateStatut(demandeId, statutName, agentId, null, codeMotifStr, commentaireUsager,
+                    texteAEnvoyer);
         } else {
-            demandesStatutsService.updateStatut(demandeId, statutName,
-                    AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager, texteAEnvoyer);
+            demandesStatutsService.updateStatut(demandeId, statutName, AfBackUtils.getAuthenticatedAgentId(), null,
+                    codeMotifStr, commentaireUsager, texteAEnvoyer);
         }
 
         LOGGER.info("==== xaf-back CHANGEMENT STATUT <fin>");

@@ -34,9 +34,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * @author qdeme
- *
  */
 @Service
 public class DemandesTransformer {
@@ -148,11 +146,11 @@ public class DemandesTransformer {
         dto.setPkDemandeSource(bo.getPkDemandeSource());
         dto.setModificationTimestamp(bo.getModificationTimestamp());
 
-        if(bo.getTypeConnexionUsager() != null) {
+        if (bo.getTypeConnexionUsager() != null) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
 
-        if(bo.getTypeConnexionUsager() != null) {
+        if (bo.getTypeConnexionUsager() != null) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
 
@@ -167,17 +165,12 @@ public class DemandesTransformer {
             dto.setConfig(demandesConfigTransformer.bo2Json(config));
 
             // mapper les marqueurs
-            dto.setMarqueurs(
-                    config.getMarqueurs().stream()
-                            .collect(Collectors.toMap(
-                                    MarqueurBO::getIdentifiant,
-                                    marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()),
-                                    (existing, replacement) -> {
-                                        // en cas de doublon d'identifiant, on utilise la 1ère valeur
-                                        return existing;
-                                    }
-                            ))
-            );
+            dto.setMarqueurs(config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+                    marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()),
+                    (existing, replacement) -> {
+                        // en cas de doublon d'identifiant, on utilise la 1ère valeur
+                        return existing;
+                    })));
         }
 
         // Mapper les demandes d'informations complémentaires
@@ -188,8 +181,8 @@ public class DemandesTransformer {
 
         // Mapper les fichiers
         if (addFilesField) {
-            dto.setFichiers(DemandesFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles()))
-                    .toArray(DemandeFileDTO[]::new));
+            dto.setFichiers(
+                    DemandesFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles())).toArray(DemandeFileDTO[]::new));
         }
 
         // Mapper les statuts
@@ -205,7 +198,8 @@ public class DemandesTransformer {
                 Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
                 // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
                 if (privateStatus.get(statutDto.getName()) != null) {
-                    List<DemandeStatutDTO> allStatus = DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()));
+                    List<DemandeStatutDTO> allStatus = DemandesStatutsTransformer.bo2Dto(
+                            new ArrayList<>(bo.getStatuts()));
                     allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
                     for (DemandeStatutDTO demandeStatutDTO : allStatus) {
                         // si on tombe sur un statut public, on utilise celui-là
@@ -236,8 +230,7 @@ public class DemandesTransformer {
 
         // Mapper les données de demande
         if (addDataField) {
-            dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<>(bo.getData()))
-                    .toArray(DemandeDataDTO[]::new));
+            dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<>(bo.getData())).toArray(DemandeDataDTO[]::new));
         }
 
         dto = bo2DtoProcessJsonFields(bo, dto);
@@ -247,13 +240,15 @@ public class DemandesTransformer {
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-          // Mapper le contenu de la demande préremplie
-            if (bo.getContenuInitial() != null)
+            // Mapper le contenu de la demande préremplie
+            if (bo.getContenuInitial() != null) {
                 dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
+            }
 
             // Meta
-            if (bo.getMeta() != null)
-            	dto.setMeta(mapper.readTree(bo.getMeta()));
+            if (bo.getMeta() != null) {
+                dto.setMeta(mapper.readTree(bo.getMeta()));
+            }
 
             dto.setDonneesCertifiees(mapper.treeToValue(bo.getDonneesCertifiees(), SourceFiableDTO[].class));
         } catch (IOException e) {
@@ -265,7 +260,8 @@ public class DemandesTransformer {
     private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {
         // Mapper les statuts
         if (addStatutsField && !DemarchesUtils.isFrontUser()) {
-            dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts())).toArray(DemandeStatutDTO[]::new));
+            dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
+                    .toArray(DemandeStatutDTO[]::new));
         }
         return dto;
     }
@@ -315,7 +311,7 @@ public class DemandesTransformer {
         bo.setUsager(demandesUsagersTransformer.dto2Bo(dto.getUsager()));
         bo.setRecapType(dto.getRecapType());
         bo.setPkDemandeSource(dto.getPkDemandeSource());
-        if(dto.getTypeConnexionUsager() != null) {
+        if (dto.getTypeConnexionUsager() != null) {
             bo.setTypeConnexionUsager(dto.getTypeConnexionUsager().name());
         }
         bo.setContenu(dto.getContenu());
@@ -327,7 +323,7 @@ public class DemandesTransformer {
             bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
             // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
             if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
-            	bo.setContenuInitial(null);
+                bo.setContenuInitial(null);
             }
             bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
         } catch (JsonProcessingException e) {

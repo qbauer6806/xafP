@@ -28,6 +28,7 @@ public interface GouvPropertiesResolver {
     String getGouvSharedLogonRestUrl();
 
     String getVScanUrl();
+
     boolean isVscanActivated();
 
     String getVscanJwt();
@@ -77,7 +78,7 @@ public interface GouvPropertiesResolver {
     boolean isPaiementEnabled();
 
     String getPorteDocUrl();
-    
+
     String getApiUlisMoyensGenerauxUrl();
 
     String getApiUlisTiersOrganisationUrl();
@@ -96,8 +97,8 @@ public interface GouvPropertiesResolver {
 
     String getBackUrl();
 
-	String get2TiersBoUrl();
+    String get2TiersBoUrl();
 
-	String get2TiersBoJwt();
+    String get2TiersBoJwt();
 
 }

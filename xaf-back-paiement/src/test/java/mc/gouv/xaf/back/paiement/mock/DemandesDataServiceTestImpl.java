@@ -12,6 +12,7 @@ import java.util.Map;
 
 @Component
 public class DemandesDataServiceTestImpl implements DemandesDataService {
+
     @Override
     public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
         if (StringUtils.equals(key, PaiementDemandeDataKeysEnum.NUMERO_PERMIS.name())) {
@@ -43,7 +44,8 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
-    public List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value, List<DemandeBO> demandes) {
+    public List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value,
+            List<DemandeBO> demandes) {
         return null;
     }
 

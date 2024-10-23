@@ -17,11 +17,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * Classe BO de la table DEM.ACCESS
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -53,7 +51,7 @@ public class AccessBO {
 
     @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandeBO> demandes;
-    
+
     @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BrouillonBO> brouillons;
 

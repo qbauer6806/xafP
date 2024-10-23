@@ -46,55 +46,68 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
     @Autowired
     private KafkaOutboxService guKafkaOutboxService;
 
-
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes) {
+    public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation,
+            RecapDemandesDTO recapDemandes) {
         if (DemarchesUtils.isUsagerCourrier(usagerId)) {
-            LOGGER.info("sendCreationDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
+            LOGGER.info(
+                    "sendCreationDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
             return;
         }
-        LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        CreationDemandeMessage cdm = new CreationDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
-                dateCreation, StatutSimplifieEnum.EN_COURS.name(), recapDemandes);
+        LOGGER.info(
+                "sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        CreationDemandeMessage cdm = new CreationDemandeMessage(gouvPropertiesResolver.getDemarcheId(),
+                usagerId.toString(), demandeId, identifiant, dateCreation, StatutSimplifieEnum.EN_COURS.name(),
+                recapDemandes);
         sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
     }
 
     @Override
-    public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
+    public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant,
+            StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
         if (DemarchesUtils.isUsagerCourrier(usagerId)) {
-            LOGGER.info("sendChangementStatutDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
+            LOGGER.info(
+                    "sendChangementStatutDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
             return;
         }
-        LOGGER.info("sendChangementStatutDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        ChangementStatutDemandeMessage cdm = new ChangementStatutDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
-                dateStatutSimplifie, statutSimplifie.name(), recapDemandes);
+        LOGGER.info(
+                "sendChangementStatutDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        ChangementStatutDemandeMessage cdm = new ChangementStatutDemandeMessage(gouvPropertiesResolver.getDemarcheId(),
+                usagerId.toString(), demandeId, identifiant, dateStatutSimplifie, statutSimplifie.name(),
+                recapDemandes);
         sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
     }
 
     @Override
-    public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression, RecapDemandesDTO recapDemandes) {
+    public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant,
+            Date dateSuppression, RecapDemandesDTO recapDemandes) {
         if (DemarchesUtils.isUsagerCourrier(usagerId)) {
-            LOGGER.info("sendSuppressionDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
+            LOGGER.info(
+                    "sendSuppressionDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
             return;
         }
-        LOGGER.info("sendSuppressionDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        SuppressionDemandeMessage cdm = new SuppressionDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
-                dateSuppression, recapDemandes);
+        LOGGER.info(
+                "sendSuppressionDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        SuppressionDemandeMessage cdm = new SuppressionDemandeMessage(gouvPropertiesResolver.getDemarcheId(),
+                usagerId.toString(), demandeId, identifiant, dateSuppression, recapDemandes);
         sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
     }
 
     @Override
     public void sendDesinscriptionUsagerTSMessage(Integer usagerId) {
-        LOGGER.info("sendDesinscriptionUsagerTSMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        DesinscriptionUsagerTSMessage dutsm = new DesinscriptionUsagerTSMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString());
+        LOGGER.info(
+                "sendDesinscriptionUsagerTSMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        DesinscriptionUsagerTSMessage dutsm = new DesinscriptionUsagerTSMessage(gouvPropertiesResolver.getDemarcheId(),
+                usagerId.toString());
         sendToOutbox(dutsm, dutsm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
     }
 
     @Override
     public void sendSynchronisationDemandesMessage(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-        LOGGER.info("sendSynchronisationDemandesMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        LOGGER.info(
+                "sendSynchronisationDemandesMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         SynchronisationDemandesMessage sdm = new SynchronisationDemandesMessage(demarcheId, usagerDemandesRecap);
         try {
@@ -123,8 +136,10 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 
     @Override
     public void sendCreationAccesTSMessage(Integer usagerId) {
-        LOGGER.info("sendCreationAccesTSMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        CreationAccesTSMessage catsm = new CreationAccesTSMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString());
+        LOGGER.info(
+                "sendCreationAccesTSMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        CreationAccesTSMessage catsm = new CreationAccesTSMessage(gouvPropertiesResolver.getDemarcheId(),
+                usagerId.toString());
         sendToOutbox(catsm, catsm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
     }
 

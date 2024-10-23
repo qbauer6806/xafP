@@ -13,7 +13,8 @@ public interface TachesService {
     /**
      * Récupère la tâche demandée en fonction de sa PK
      *
-     * @param pkTaches, l'id de la tâche
+     * @param pkTaches,
+     *         l'id de la tâche
      * @return la tâche associée à l'ID donné
      */
     TacheDTO getTacheByID(Integer pkTaches);
@@ -21,7 +22,8 @@ public interface TachesService {
     /**
      * Récupère toutes les tâches pour une demande donnée.
      *
-     * @param demandeId, ID de la demande
+     * @param demandeId,
+     *         ID de la demande
      * @return une liste de tâches
      */
     List<TacheDTO> getTachesByDemandeID(Integer demandeId);
@@ -29,7 +31,8 @@ public interface TachesService {
     /**
      * Ajoute ou mets à jour une Taches
      *
-     * @param toSave La tâche à sauvegarder
+     * @param toSave
+     *         La tâche à sauvegarder
      * @return la Taches sauvée
      */
     TacheDTO saveOrUpdate(TacheDTO toSave);
@@ -39,7 +42,8 @@ public interface TachesService {
      * <br>
      * A implémenter dans les démarches en fonction des règles métiers.
      *
-     * @param demande, la demande
+     * @param demande,
+     *         la demande
      * @return une liste de tâches
      */
     List<TacheDTO> creerListeDeTaches(DemandeDTO demande);
@@ -50,23 +54,26 @@ public interface TachesService {
      * <li>Supprime les statuts sélectionnés RETOUR_GUICHET.</li>
      * <li>Recopie la décision de l'agent valideur.</li>
      * <li>Bloque l'édition des tâches validées et refusées</li>
-     *</ul>
+     * </ul>
      *
-     * @param pkDemandes, l'id de la demande en retour Guichet
+     * @param pkDemandes,
+     *         l'id de la demande en retour Guichet
      */
     void updateTachesPourRetourGuichet(Integer pkDemandes);
 
     /**
      * Bloque l'édition des tâches validées et refusées
      *
-     * @param pkDemandes, l'id de la demande en retour Guichet
+     * @param pkDemandes,
+     *         l'id de la demande en retour Guichet
      */
     void updateTachesLock(Integer pkDemandes);
 
     /**
      * Purge des tâches liées à une demande.
      *
-     * @param pkDemande, l'id de la demande
+     * @param pkDemande,
+     *         l'id de la demande
      */
     void deleteTaches(Integer pkDemande);
 

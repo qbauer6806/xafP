@@ -7,15 +7,13 @@ import mc.gouv.xaf.back.data.entity.UsagersCourrierBO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class UsagerCourrierTransformer {
 
     private UsagerCourrierTransformer() {
     }
-    
+
     public static UsagerCourrierDTO bo2Dto(UsagersCourrierBO bo) {
         UsagerCourrierDTO dto = new UsagerCourrierDTO();
         dto.setAdresse1(bo.getAdresse1());
@@ -36,7 +34,7 @@ public class UsagerCourrierTransformer {
         dto.setVille(bo.getVille());
         return dto;
     }
-    
+
     public static UsagersCourrierBO dto2Bo(UsagerCourrierDTO dto) {
         UsagersCourrierBO bo = new UsagersCourrierBO();
         bo.setAdresse1(dto.getAdresse1());
@@ -57,7 +55,7 @@ public class UsagerCourrierTransformer {
         bo.setVille(dto.getVille());
         return bo;
     }
-    
+
     public static List<UsagerCourrierDTO> bo2Dto(List<UsagersCourrierBO> bos) {
         ArrayList<UsagerCourrierDTO> dtos = new ArrayList<>();
         for (UsagersCourrierBO bo : bos) {
@@ -65,7 +63,7 @@ public class UsagerCourrierTransformer {
         }
         return dtos;
     }
-    
+
     public static List<UsagersCourrierBO> dto2Bo(List<UsagerCourrierDTO> dtos) {
         ArrayList<UsagersCourrierBO> bos = new ArrayList<>();
         for (UsagerCourrierDTO dto : dtos) {
@@ -73,5 +71,5 @@ public class UsagerCourrierTransformer {
         }
         return bos;
     }
-    
+
 }

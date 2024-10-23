@@ -30,14 +30,15 @@ public class DemandeFileTransformer {
 
     /**
      * Méthode permettant de récupérer une liste de DTO avec le contenu des fichier sous forme de chaine de caractéres
-     * <br/>
-     * les contenus des fichiers sont récupérés depuis le web service file
+     * <br/> les contenus des fichiers sont récupérés depuis le web service file
      *
-     * @param demandeComplementsFileDTOS Liste des DTOs de fichiers à indexer
+     * @param demandeComplementsFileDTOS
+     *         Liste des DTOs de fichiers à indexer
      * @return Liste des DTOs des fichiers indexés
      * @throws IOException
      */
-    public void setComplementsFileContenu(List<DemandeComplementsFileDTO> demandeComplementsFileDTOS) throws IOException {
+    public void setComplementsFileContenu(List<DemandeComplementsFileDTO> demandeComplementsFileDTOS)
+            throws IOException {
         if (demandeComplementsFileDTOS != null) {
             for (DemandeComplementsFileDTO demandeComplementsFileDTO : demandeComplementsFileDTOS) {
                 setContenu(demandeComplementsFileDTO);
@@ -54,10 +55,11 @@ public class DemandeFileTransformer {
     }
 
     /**
-     * Méthode permettant de récupérer un DTO avec le contenu du fichier sous forme de chaine de caractéres <br/>
-     * le contenu du fichier est récupéré depuis le web service file
+     * Méthode permettant de récupérer un DTO avec le contenu du fichier sous forme de chaine de caractéres <br/> le
+     * contenu du fichier est récupéré depuis le web service file
      *
-     * @param fichier DTO du fichier à indexé
+     * @param fichier
+     *         DTO du fichier à indexé
      * @return Fichier indexé
      * @throws IOException
      */
@@ -80,16 +82,21 @@ public class DemandeFileTransformer {
         String finalFilename = url;
         String[] split = url.split("/");
         String isolatedFileName = split[split.length - 1];
-        finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, StandardCharsets.UTF_8));
-        return gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
+        finalFilename = finalFilename.replace(isolatedFileName,
+                URLEncoder.encode(isolatedFileName, StandardCharsets.UTF_8));
+        return gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/"
+                + finalFilename;
     }
 
     /**
      * Récupère le contenu d'un fichier dans File.
      *
-     * @param fileUrl l'URL du fichier
-     * @throws IOException             Exception I/O
-     * @throws FileConnectionException Exception lors de la connextion à File
+     * @param fileUrl
+     *         l'URL du fichier
+     * @throws IOException
+     *         Exception I/O
+     * @throws FileConnectionException
+     *         Exception lors de la connextion à File
      */
     private InputStream getFileInputStream(String fileUrl) throws IOException, FileConnectionException {
         InputStream is;

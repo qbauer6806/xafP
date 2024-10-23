@@ -29,18 +29,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * Classe service appelée par le process Activiti pour envoyer un email aux agents affectés à l'établissement à laquelle
  * est affectée la demande selon le droit defini dans le bpm
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate implements JavaDelegate {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate.class);
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -96,8 +94,8 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
         if (etablissementCode != null) {
             List<DenjsAffectationAgentDTO> affectations = denjsAffectationService.getAffectationsAgents();
             for (DenjsAffectationAgentDTO affectation : affectations) {
-                if (listAgentWithRole.contains(affectation.getAgentMatricule())
-                        && affectation.getEtablissementCode().equals(etablissementCode)) {
+                if (listAgentWithRole.contains(affectation.getAgentMatricule()) && affectation.getEtablissementCode()
+                        .equals(etablissementCode)) {
                     matriculesDestinataires.add(affectation.getAgentMatricule());
                 }
             }

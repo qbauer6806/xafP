@@ -1,4 +1,5 @@
 package mc.gouv.xaf.back.paiement.mock;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -13,6 +14,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 @Primary
 @Component
 public class FactureApiClientTestImpl implements FactureApiClient {
+
     @Override
     public String check(String numFacture) {
         return null;
@@ -26,6 +28,7 @@ public class FactureApiClientTestImpl implements FactureApiClient {
     @Override
     public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) {
         return Optional.of(new InputStream() {
+
             @Override
             public int read() throws IOException {
                 return 0;

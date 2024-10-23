@@ -16,9 +16,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class DemandesComplementsTransformer {
 
@@ -42,8 +40,8 @@ public class DemandesComplementsTransformer {
             question.setCodeMotif(bo.getCodeMotif());
             dto.setQuestion(question);
         }
-        if (bo.getReponseAgentId() != null || bo.getReponseUsagerId() != null || bo.getDateReponse() != null
-                || (bo.getFiles() != null && !bo.getFiles().isEmpty()) || bo.getReponse() != null) {
+        if (bo.getReponseAgentId() != null || bo.getReponseUsagerId() != null || bo.getDateReponse() != null || (
+                bo.getFiles() != null && !bo.getFiles().isEmpty()) || bo.getReponse() != null) {
             DemandeComplementsReponseDTO reponse = new DemandeComplementsReponseDTO();
             // Cacher l'agentId au Front Office
             if (!DemarchesUtils.isFrontUser()) {
@@ -52,11 +50,11 @@ public class DemandesComplementsTransformer {
             reponse.setUsagerId(bo.getReponseUsagerId());
             reponse.setDate(bo.getDateReponse());
             if (null != bo.getFiles()) {
-				ArrayList<DemandesComplementsFilesBO> filesBo = new ArrayList<>(bo.getFiles());
-				reponse.setFichiers(DemandesComplementsFilesTransformer.bo2Dto(filesBo)
-						.toArray(new DemandeComplementsFileDTO[filesBo.size()]));
-			}
-			reponse.setTexte(bo.getReponse());
+                ArrayList<DemandesComplementsFilesBO> filesBo = new ArrayList<>(bo.getFiles());
+                reponse.setFichiers(DemandesComplementsFilesTransformer.bo2Dto(filesBo)
+                        .toArray(new DemandeComplementsFileDTO[filesBo.size()]));
+            }
+            reponse.setTexte(bo.getReponse());
             dto.setReponse(reponse);
         }
         dto.setDemandeId(bo.getFkDemandes().getPkDemandes());
@@ -75,8 +73,8 @@ public class DemandesComplementsTransformer {
         DemandesComplementsBO bo = new DemandesComplementsBO();
         if (dto.getReponse() != null) {
             bo.setDateReponse(dto.getReponse().getDate());
-            List<DemandesComplementsFilesBO> filesBo = DemandesComplementsFilesTransformer
-                    .dto2Bo(new ArrayList<>(Arrays.asList(dto.getReponse().getFichiers())));
+            List<DemandesComplementsFilesBO> filesBo = DemandesComplementsFilesTransformer.dto2Bo(
+                    new ArrayList<>(Arrays.asList(dto.getReponse().getFichiers())));
             bo.setFiles(new HashSet<>(filesBo));
             bo.setReponse(dto.getReponse().getTexte());
             bo.setReponseAgentId(dto.getReponse().getAgentId());

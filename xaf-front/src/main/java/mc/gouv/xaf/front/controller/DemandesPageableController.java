@@ -25,18 +25,16 @@ public class DemandesPageableController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesPageableController.class);
 
-
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity<Page<DemandeDTO>> doGet(@RequestParam(name = RequestConstant.PAGE_PARAM) String pageNb,
-                                                  @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
-                                                  @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
-                                                  @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
-                                                  @RequestParam(name = RequestConstant.STATUS_PARAM) String status,
-                                                  @RequestParam(name = RequestConstant.LANG_PARAM) String lang,
-                                                  HttpServletRequest request) {
+            @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
+            @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
+            @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
+            @RequestParam(name = RequestConstant.STATUS_PARAM) String status,
+            @RequestParam(name = RequestConstant.LANG_PARAM) String lang, HttpServletRequest request) {
 
         LOGGER.info("====================== /demandespage doGet()");
 

@@ -53,7 +53,8 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     public PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee() {
         Date date = new Date();
         LOGGER.info("Récupération en base des périodes d'ouvertures avant le {} ...", date);
-        List<PeriodesOuvertureBO> periodesOuvertureBOS = periodesOuvertureRepository.findByDateFinBeforeOrderByDateFinDesc(date);
+        List<PeriodesOuvertureBO> periodesOuvertureBOS = periodesOuvertureRepository.findByDateFinBeforeOrderByDateFinDesc(
+                date);
         PeriodeOuvertureDTO dto = null;
         if (!periodesOuvertureBOS.isEmpty()) {
             PeriodesOuvertureBO bo = periodesOuvertureBOS.get(0);
@@ -78,7 +79,8 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours() {
         Date date = new Date();
         LOGGER.info("Récupération en base des périodes d'ouverture en cours ...");
-        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDateDebutLessThanEqualAndDateFinGreaterThanEqual(date, date);
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDateDebutLessThanEqualAndDateFinGreaterThanEqual(
+                date, date);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
     }
@@ -102,9 +104,11 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
         else {
             LOGGER.info("Mise à jour de la période d'ouverture");
 
-            Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(periodeOuverture.getPkPeriodesOuverture());
+            Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(
+                    periodeOuverture.getPkPeriodesOuverture());
             if (periodeOuvertureBoOpt.isEmpty()) {
-                throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable", HttpStatus.NOT_FOUND);
+                throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable",
+                        HttpStatus.NOT_FOUND);
             }
 
             PeriodesOuvertureBO periodeOuvertureBo = periodeOuvertureBoOpt.get();
@@ -125,7 +129,8 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
     public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
         Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(pkPeriodeOuverture);
         if (periodeOuvertureBoOpt.isEmpty()) {
-            throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable",
+                    HttpStatus.NOT_FOUND);
         }
         LOGGER.info("Suppression de la période d'ouverture...");
         periodesOuvertureRepository.delete(periodeOuvertureBoOpt.get());

@@ -36,8 +36,8 @@ import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
  * @author qdeme
  */
 public class AfApiClient2Tiers extends ApiClient {
-	
-	private static final String MC_METADATA_PREFIX = "X-MC-";
+
+    private static final String MC_METADATA_PREFIX = "X-MC-";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String NOTIFY = "/notify/";
     private static final String DEMANDE_ID = "demandeId";
@@ -47,11 +47,11 @@ public class AfApiClient2Tiers extends ApiClient {
      * Crée une instance du client avec sécurisation Basic Auth
      *
      * @param serviceUrl
-     *            URL du WS à appeler
+     *         URL du WS à appeler
      * @param user
-     *            User à utiliser pour l'authentification
+     *         User à utiliser pour l'authentification
      * @param password
-     *            Mot de passe à utiliser pour l'authentification
+     *         Mot de passe à utiliser pour l'authentification
      */
     public AfApiClient2Tiers(String serviceUrl, String user, String password) {
         super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password), true);
@@ -61,9 +61,9 @@ public class AfApiClient2Tiers extends ApiClient {
      * Crée une instance du client avec sécurisation JWT
      *
      * @param serviceUrl
-     *            URL du WS à appeler
+     *         URL du WS à appeler
      * @param jwtToken
-     *            JWT à utiliser pour l'authentification
+     *         JWT à utiliser pour l'authentification
      */
     public AfApiClient2Tiers(String serviceUrl, String jwtToken) {
         super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken), true);
@@ -76,12 +76,12 @@ public class AfApiClient2Tiers extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<MotifDTO>>() {
+
         });
     }
-    
+
     public MotifDTO createMotif(MotifDTO motif) {
-        Response res = getTarget().path("/motifs")
-                .request(MediaType.APPLICATION_JSON)
+        Response res = getTarget().path("/motifs").request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(motif, MediaType.APPLICATION_JSON));
 
@@ -89,10 +89,9 @@ public class AfApiClient2Tiers extends ApiClient {
 
         return res.readEntity(MotifDTO.class);
     }
-    
+
     public MotifDTO updateMotif(Integer pkMotif, MotifDTO motif) {
-        Response res = getTarget().path("/motifs/" + pkMotif)
-                .request(MediaType.APPLICATION_JSON)
+        Response res = getTarget().path("/motifs/" + pkMotif).request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(motif, MediaType.APPLICATION_JSON));
 
@@ -100,12 +99,10 @@ public class AfApiClient2Tiers extends ApiClient {
 
         return res.readEntity(MotifDTO.class);
     }
-    
+
     public void deleteMotif(Integer pkMotif) {
-        Response res = getTarget().path("/motifs/" + pkMotif)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
-                .delete();
+        Response res = getTarget().path("/motifs/" + pkMotif).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
 
         ExceptionManager.checkExceptionResponse(res);
     }
@@ -117,12 +114,12 @@ public class AfApiClient2Tiers extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<PeriodeOuvertureDTO>>() {
+
         });
     }
-    
+
     public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
-        Response res = getTarget().path("/periodesouverture")
-                .request(MediaType.APPLICATION_JSON)
+        Response res = getTarget().path("/periodesouverture").request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(periodeOuverture, MediaType.APPLICATION_JSON));
 
@@ -130,10 +127,10 @@ public class AfApiClient2Tiers extends ApiClient {
 
         return res.readEntity(PeriodeOuvertureDTO.class);
     }
-    
-    public PeriodeOuvertureDTO updatePeriodeOuverture(Integer pkPeriodeOuverture, PeriodeOuvertureDTO periodeOuverture) {
-        Response res = getTarget().path("/periodesouverture/" + pkPeriodeOuverture)
-                .request(MediaType.APPLICATION_JSON)
+
+    public PeriodeOuvertureDTO updatePeriodeOuverture(Integer pkPeriodeOuverture,
+            PeriodeOuvertureDTO periodeOuverture) {
+        Response res = getTarget().path("/periodesouverture/" + pkPeriodeOuverture).request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(periodeOuverture, MediaType.APPLICATION_JSON));
 
@@ -141,35 +138,33 @@ public class AfApiClient2Tiers extends ApiClient {
 
         return res.readEntity(PeriodeOuvertureDTO.class);
     }
-    
+
     public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
-        Response res = getTarget().path("/periodesouverture/" + pkPeriodeOuverture)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
-                .delete();
+        Response res = getTarget().path("/periodesouverture/" + pkPeriodeOuverture).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
 
         ExceptionManager.checkExceptionResponse(res);
     }
-    
-	public String saveFile(String container, InputStream inputStream, String filename,
-			String contentType, Map<String, String> customHeaders) {
 
-		// Constitution du chemin virtuel du fichier
-		// /appfactory/demarcheId/accessId/UUID/nomDuFichier
-		String virtualPath = container + "/" + filename;
+    public String saveFile(String container, InputStream inputStream, String filename, String contentType,
+            Map<String, String> customHeaders) {
 
-		// Constitution de la requête
-		Invocation.Builder builder = getTarget().path("/file/" + virtualPath).request(MediaType.MULTIPART_FORM_DATA);
+        // Constitution du chemin virtuel du fichier
+        // /appfactory/demarcheId/accessId/UUID/nomDuFichier
+        String virtualPath = container + "/" + filename;
 
-		// Ajout du contenu multipart
-		MultiPart multiPart = new MultiPart();
-		multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-		multiPart.bodyPart(new StreamDataBodyPart("data", inputStream, filename, MediaType.valueOf(contentType)));
-		Entity<MultiPart> entity = Entity.entity(multiPart, multiPart.getMediaType());
+        // Constitution de la requête
+        Invocation.Builder builder = getTarget().path("/file/" + virtualPath).request(MediaType.MULTIPART_FORM_DATA);
 
-		// Si le client a fourni des métadonnées (en X-MC-*), alors les transmettre à FILE
-		if (customHeaders != null) {
-			MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+        // Ajout du contenu multipart
+        MultiPart multiPart = new MultiPart();
+        multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+        multiPart.bodyPart(new StreamDataBodyPart("data", inputStream, filename, MediaType.valueOf(contentType)));
+        Entity<MultiPart> entity = Entity.entity(multiPart, multiPart.getMediaType());
+
+        // Si le client a fourni des métadonnées (en X-MC-*), alors les transmettre à FILE
+        if (customHeaders != null) {
+            MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
             for (Map.Entry<String, String> entry : customHeaders.entrySet()) {
                 String headerName = entry.getKey();
                 String headerValue = entry.getValue();
@@ -177,30 +172,30 @@ public class AfApiClient2Tiers extends ApiClient {
                     headers.add(headerName, headerValue);
                 }
             }
-			builder.headers(headers);
-		}
-		
-		builder.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-		
-		builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
-		
-		try(Response postResponse = builder.post(entity)) {
-			// Gestion des erreurs
-			int statusCode = postResponse.getStatus();
-			if (statusCode != Response.Status.CREATED.getStatusCode()) {
-				String errorMessage = postResponse.readEntity(String.class);
-				throw new DemarcheException(errorMessage);
-			}
-		}
+            builder.headers(headers);
+        }
 
-		return filename;
-	}
+        builder.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
 
-	public void getFile(String file, HttpServletResponse response) {
-        
+        builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
+
+        try (Response postResponse = builder.post(entity)) {
+            // Gestion des erreurs
+            int statusCode = postResponse.getStatus();
+            if (statusCode != Response.Status.CREATED.getStatusCode()) {
+                String errorMessage = postResponse.readEntity(String.class);
+                throw new DemarcheException(errorMessage);
+            }
+        }
+
+        return filename;
+    }
+
+    public void getFile(String file, HttpServletResponse response) {
+
         // Préparation de la requête
         Invocation.Builder builder = getTarget().path("/file/ROOT/" + file).request();
-		builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
+        builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
         // Appel du WS FILE
         Response remoteResponse = builder.get();
@@ -212,7 +207,7 @@ public class AfApiClient2Tiers extends ApiClient {
         // Copie des headers
         for (String headerName : remoteResponse.getHeaders().keySet()) {
             for (Object value : remoteResponse.getHeaders().get(headerName)) {
-            	response.addHeader(headerName, value.toString());
+                response.addHeader(headerName, value.toString());
             }
         }
 
@@ -220,113 +215,105 @@ public class AfApiClient2Tiers extends ApiClient {
         try {
             IOUtils.copy(remoteResponse.readEntity(InputStream.class), response.getOutputStream());
         } catch (IOException e) {
-            throw new DemarcheException("Erreur lors de la copie du contenu de l'entité de réponse : " + e.getMessage());
+            throw new DemarcheException(
+                    "Erreur lors de la copie du contenu de l'entité de réponse : " + e.getMessage());
         }
     }
 
-	public void deleteFile(String file) {
+    public void deleteFile(String file) {
         // Préparation de la requête
         Invocation.Builder builder = getTarget().path("/file/ROOT/" + file).request();
-		builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
+        builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
         // Appel du WS FILE
-        try(Response remoteResponse = builder.delete()) {
-			int statusCode = remoteResponse.getStatus();
-			if (statusCode != Response.Status.OK.getStatusCode()) {
-				String errorMessage = remoteResponse.readEntity(String.class);
-				throw new DemarcheException(errorMessage);
-			}
-		}
+        try (Response remoteResponse = builder.delete()) {
+            int statusCode = remoteResponse.getStatus();
+            if (statusCode != Response.Status.OK.getStatusCode()) {
+                String errorMessage = remoteResponse.readEntity(String.class);
+                throw new DemarcheException(errorMessage);
+            }
+        }
 
+    }
 
-	}
-	
-	public GichuniUsagerDTO getUsager(Integer usagerId) {
+    public GichuniUsagerDTO getUsager(Integer usagerId) {
         Response res = getTarget().path("/usagers/" + usagerId).request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(GichuniUsagerDTO.class);
-	}
-	
-	public void notifyCreationDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
-			Date dateCreation, RecapDemandesDTO recapDemandes) {
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		String formattedDate = dateFormat.format(dateCreation);
-		
-        Response res = getTarget().path(NOTIFY + usagerId + "/creationDemande")
-        		.queryParam(DEMANDE_ID, pkDemande)
-        		.queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
-        		.queryParam("dateCreation", formattedDate)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
-                .post(Entity.entity(recapDemandes, MediaType.APPLICATION_JSON));
-		
-		ExceptionManager.checkExceptionResponse(res);
-	}
-	
-	public void notifyChangementStatutDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
-			StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		String formattedDate = dateFormat.format(dateStatutSimplifie);
-		
-        Response res = getTarget().path(NOTIFY + usagerId + "/changementStatutDemande")
-        		.queryParam(DEMANDE_ID, pkDemande)
-        		.queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
-        		.queryParam("statutSimplifie", statutSimplifie.name())
-        		.queryParam("dateStatutSimplifie", formattedDate)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
-                .post(Entity.entity(recapDemandes, MediaType.APPLICATION_JSON));
-		
-		ExceptionManager.checkExceptionResponse(res);
-	}
+    }
 
-	public void notifySuppressionDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
-			Date dateSuppression, RecapDemandesDTO recapDemandes) {
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		String formattedDate = dateFormat.format(dateSuppression);
-		
-        Response res = getTarget().path(NOTIFY + usagerId + "/suppressionDemande")
-        		.queryParam(DEMANDE_ID, pkDemande)
-        		.queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
-        		.queryParam("dateSuppression", formattedDate)
+    public void notifyCreationDemande(Integer usagerId, Integer pkDemande, String identifiantDemande, Date dateCreation,
+            RecapDemandesDTO recapDemandes) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String formattedDate = dateFormat.format(dateCreation);
+
+        Response res = getTarget().path(NOTIFY + usagerId + "/creationDemande").queryParam(DEMANDE_ID, pkDemande)
+                .queryParam(IDENTIFIANT_DEMANDE, identifiantDemande).queryParam("dateCreation", formattedDate)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(recapDemandes, MediaType.APPLICATION_JSON));
-		
-		ExceptionManager.checkExceptionResponse(res);
-	}
-	
-	public void notifyDesinscriptionUsagerTS(Integer usagerId) {
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public void notifyChangementStatutDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
+            StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String formattedDate = dateFormat.format(dateStatutSimplifie);
+
+        Response res = getTarget().path(NOTIFY + usagerId + "/changementStatutDemande")
+                .queryParam(DEMANDE_ID, pkDemande).queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
+                .queryParam("statutSimplifie", statutSimplifie.name()).queryParam("dateStatutSimplifie", formattedDate)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.entity(recapDemandes, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public void notifySuppressionDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
+            Date dateSuppression, RecapDemandesDTO recapDemandes) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String formattedDate = dateFormat.format(dateSuppression);
+
+        Response res = getTarget().path(NOTIFY + usagerId + "/suppressionDemande").queryParam(DEMANDE_ID, pkDemande)
+                .queryParam(IDENTIFIANT_DEMANDE, identifiantDemande).queryParam("dateSuppression", formattedDate)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.entity(recapDemandes, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public void notifyDesinscriptionUsagerTS(Integer usagerId) {
         Response res = getTarget().path(NOTIFY + usagerId + "/desinscriptionUsagerTS")
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(""));
-		
-		ExceptionManager.checkExceptionResponse(res);
-	}
-	
-	public void synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-        Response res = getTarget().path("/notify/synchronizeDemandesRecaps")
-                .request(MediaType.APPLICATION_JSON)
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public void synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
+        Response res = getTarget().path("/notify/synchronizeDemandesRecaps").request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(usagerDemandesRecap, MediaType.APPLICATION_JSON));
-		
-		ExceptionManager.checkExceptionResponse(res);
-	}
-	
-	public void notifyCreationAccesTS(Integer usagerId) {
-        Response res = getTarget().path(NOTIFY + usagerId + "/creationAccesTS")
-                .request(MediaType.APPLICATION_JSON)
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public void notifyCreationAccesTS(Integer usagerId) {
+        Response res = getTarget().path(NOTIFY + usagerId + "/creationAccesTS").request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(""));
-		
-		ExceptionManager.checkExceptionResponse(res);
-	}
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Primary
 @Component
 public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesResolver {
+
     @Override
     public String getFactureUrl() {
         return "http://linuxas-dev:30450/cir/api/";
@@ -56,7 +57,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     public String getEchecUrl() {
         return null;
     }
-
 
     @Override
     public int getValiditeMaxMoyenPaiement() {
@@ -153,14 +153,14 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return null;
     }
 
-	@Override
-	public String getXafMoneticoLibelleSociete() {
-		return null;
-	}
+    @Override
+    public String getXafMoneticoLibelleSociete() {
+        return null;
+    }
 
-	@Override
-	public String getXafMoneticoLibelleLieu() {
-		return null;
-	}
+    @Override
+    public String getXafMoneticoLibelleLieu() {
+        return null;
+    }
 
 }

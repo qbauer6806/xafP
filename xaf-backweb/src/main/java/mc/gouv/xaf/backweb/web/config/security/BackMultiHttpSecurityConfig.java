@@ -24,13 +24,10 @@ public class BackMultiHttpSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .requestMatchers("/monitor", "/css/**", "/js/**", "/font/**", "/img/**", "/webjars/**", "/h2-console/**", "/fonts/**", "/dynamicjs/**").permitAll()
-                .anyRequest().authenticated().and()
-                .exceptionHandling()
-                .accessDeniedPage("/error/403").and()
-                .securityContext(securityContext -> securityContext.requireExplicitSave(false)
-                )
+        http.authorizeRequests().requestMatchers("/monitor", "/css/**", "/js/**", "/font/**", "/img/**", "/webjars/**",
+                        "/h2-console/**", "/fonts/**", "/dynamicjs/**").permitAll().anyRequest().authenticated().and()
+                .exceptionHandling().accessDeniedPage("/error/403").and()
+                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
                 .addFilterBefore(gouvPreAuthFilterRegistration(), BasicAuthenticationFilter.class);
         return http.build();
     }
@@ -38,6 +35,5 @@ public class BackMultiHttpSecurityConfig {
     private GouvPreAuthFilter gouvPreAuthFilterRegistration() {
         return new GouvPreAuthFilter(propertiesResolver);
     }
-
 
 }

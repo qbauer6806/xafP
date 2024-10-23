@@ -27,7 +27,8 @@ public class ArchivageUtils {
     /**
      * Permets de trouver une tâche à partir d'une référence
      *
-     * @param ref référence de la tâche à chercher
+     * @param ref
+     *         référence de la tâche à chercher
      * @return
      */
     public static Predicate<TacheDTO> filtrerTache(String ref) {
@@ -48,19 +49,22 @@ public class ArchivageUtils {
         if (demandeDto == null) {
             return new ArrayList<>();
         }
-        List<DemandeFileDTO> fichiers = demandeDto.getFichiers() == null ? new ArrayList<>() :
-                new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
+        List<DemandeFileDTO> fichiers = demandeDto.getFichiers() == null
+                ? new ArrayList<>()
+                : new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
         // Récupération des fichiers complémentaires
         if (demandeDto.getComplements() != null) {
             for (DemandeComplementsDTO complements : demandeDto.getComplements()) {
                 if (complements.getReponse() != null) {
-                    List<DemandeComplementsFileDTO> demandeFileDTOList = Arrays.asList(complements.getReponse().getFichiers());
+                    List<DemandeComplementsFileDTO> demandeFileDTOList = Arrays.asList(
+                            complements.getReponse().getFichiers());
                     fichiers.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(demandeFileDTOList));
                 }
             }
         }
         // refs #43237 - [BO] Qualification des documents : On remove les fichiers qui ne doivent pas partir à l'archivage
-        fichiers.removeIf(currentFichier -> null != currentFichier.getTypedoc() && currentFichier.getTypedoc().equals("NON_APPLICABLE"));
+        fichiers.removeIf(currentFichier -> null != currentFichier.getTypedoc() && currentFichier.getTypedoc()
+                .equals("NON_APPLICABLE"));
 
         // Gestion de l'ordre d'envoi
         // Si une variable d'ordre est définie, trier les fichiers
@@ -74,8 +78,11 @@ public class ArchivageUtils {
     private static void renameFichiers(List<DemandeFileDTO> fichiers) {
         // Pour chaque fichier on veut le renommer pour qu'il prenne le nom de son type avant archivage
         for (DemandeFileDTO demandeFileDTO : fichiers) {
-            String extension = demandeFileDTO.getName().substring(demandeFileDTO.getName().lastIndexOf(".")).toLowerCase();
-            demandeFileDTO.setName(demandeFileDTO.getTypedoc() != null ? demandeFileDTO.getTypedoc() + extension : demandeFileDTO.getMeta() + extension);
+            String extension = demandeFileDTO.getName().substring(demandeFileDTO.getName().lastIndexOf("."))
+                    .toLowerCase();
+            demandeFileDTO.setName(demandeFileDTO.getTypedoc() != null
+                    ? demandeFileDTO.getTypedoc() + extension
+                    : demandeFileDTO.getMeta() + extension);
         }
     }
 

@@ -20,9 +20,8 @@ import java.util.List;
 
 /**
  * Service permettant de gérer les usagers.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -38,10 +37,10 @@ public class UsagersServiceImpl implements UsagersService {
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;
-    
+
     @Autowired
     private DemandesRepository demandesRepository;
-    
+
     @Autowired
     private BrouillonsService brouillonsService;
 
@@ -58,23 +57,24 @@ public class UsagersServiceImpl implements UsagersService {
 
         LOGGER.info("Mise à jour du statut des demandes...");
         for (DemandeDTO demande : demandes) {
-            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()).equals(StatutSimplifieEnum.TERMINEE);
+            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName())
+                    .equals(StatutSimplifieEnum.TERMINEE);
             if (!isFinal && !statutAnnulation.equals(demande.getDernierStatut().getName())) {
-                demandesStatutsService.updateStatut(demande.getPkDemandes(), statutAnnulation,
-                        null, usagerId, codeMotif, null, null);
+                demandesStatutsService.updateStatut(demande.getPkDemandes(), statutAnnulation, null, usagerId,
+                        codeMotif, null, null);
             }
         }
-        
+
         LOGGER.info("Suppression des brouillons...");
         brouillonsService.deleteBrouillons(usagerId);
 
         LOGGER.info("Suppression de l'accès...");
         accessService.deleteAccess(usagerId);
     }
-    
+
     @Override
     public Integer getNbDemandesUsager(Integer usagerId) {
-    	return demandesRepository.countByFkAccess_UsagerIdAndFkAccess_ActiveTrue(usagerId);
+        return demandesRepository.countByFkAccess_UsagerIdAndFkAccess_ActiveTrue(usagerId);
     }
 
 }

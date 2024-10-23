@@ -41,11 +41,13 @@ public class RioServiceImpl implements RioService {
         RioDocumentDTO rioDocumentDTO = getDocument(refDocument, codeNotice);
         Long keyDocument = rioDocumentDTO.getKeyDocument();
 
-        return rioApiClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, codeNotice, propertiesResolver.getDemarcheId(), filename, file);
+        return rioApiClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, codeNotice,
+                propertiesResolver.getDemarcheId(), filename, file);
     }
 
     @Override
     public RioFileDocumentDTO getFileDocument(String refDocument, Integer keyFile, String codeNotice) {
-        return rioApiClient.getFileDocument(CODE_APPLI, refDocument, keyFile, codeNotice, propertiesResolver.getDemarcheId());
+        return rioApiClient.getFileDocument(CODE_APPLI, refDocument, keyFile, codeNotice,
+                propertiesResolver.getDemarcheId());
     }
 }

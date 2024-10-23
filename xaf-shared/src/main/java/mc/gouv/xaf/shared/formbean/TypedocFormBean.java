@@ -7,12 +7,12 @@ import lombok.Setter;
 @Getter
 public class TypedocFormBean {
 
-	private String files;
+    private String files;
 
-	private String complements;
+    private String complements;
 
-	private String filesCheckbox;
+    private String filesCheckbox;
 
-	private String complementsCheckbox;
+    private String complementsCheckbox;
 
 }

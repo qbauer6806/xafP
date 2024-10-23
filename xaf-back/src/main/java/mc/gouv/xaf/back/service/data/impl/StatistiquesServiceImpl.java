@@ -40,7 +40,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(stat.getDemandeId());
 
         if (!statistiquesBO.isEmpty()) {
-            StatistiqueBO derniereStat = statistiquesBO.get(statistiquesBO.size()-1);
+            StatistiqueBO derniereStat = statistiquesBO.get(statistiquesBO.size() - 1);
 
             // On ne crée pas de nouvelle information si le dernier statut est le même l'actuel
             if (derniereStat.getStatutPublic().equals(stat.getStatutPublic())) {
@@ -75,13 +75,12 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     public void deleteStatistique(Integer statId) {
         statRepository.deleteById(statId);
     }
-    
+
     @Override
     public void deleteStatistiques(Integer pkDemande) {
         LOGGER.info("Suppression des statistiques de la demande {}", pkDemande);
         List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(pkDemande);
         statRepository.deleteAll(statistiquesBO);
     }
-
 
 }

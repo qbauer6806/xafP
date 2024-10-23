@@ -24,54 +24,54 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class DemandesComplementsFilesServiceImpl implements DemandesComplementsFilesService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesComplementsFilesServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemandesComplementsFilesServiceImpl.class);
 
-	@Autowired
-	private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    @Autowired
+    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
-	@Autowired
-	private FileService fileService;
+    @Autowired
+    private FileService fileService;
 
-	private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes, AtomicBoolean success) {
-		String pk = "" + file.getPkDemandesComplementsFiles();
-		if (changes.containsKey(pk)) {
-			String typedoc = changes.get(pk);
-			if (StringUtils.isNotBlank(typedoc)) {
-				file.setTypedoc(typedoc);
-				try {
-					fileService.updateFileMetadata(file.getUrl(), FileService.FILE_METADATA_TYPEDOC, typedoc);
-				} catch (Exception e) {
-					LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
-				}
-			} else if (success.get()) {
-				success.set(false);
-			}
-		}
-		if (checkboxes.containsKey(pk)) {
-			file.setVerification(checkboxes.get(pk));
-		}
-	}
+    private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes,
+            Map<String, Boolean> checkboxes, AtomicBoolean success) {
+        String pk = "" + file.getPkDemandesComplementsFiles();
+        if (changes.containsKey(pk)) {
+            String typedoc = changes.get(pk);
+            if (StringUtils.isNotBlank(typedoc)) {
+                file.setTypedoc(typedoc);
+                try {
+                    fileService.updateFileMetadata(file.getUrl(), FileService.FILE_METADATA_TYPEDOC, typedoc);
+                } catch (Exception e) {
+                    LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(),
+                            file.getUrl(), e);
+                }
+            } else if (success.get()) {
+                success.set(false);
+            }
+        }
+        if (checkboxes.containsKey(pk)) {
+            file.setVerification(checkboxes.get(pk));
+        }
+    }
 
-	@Override
-	public boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes) {
-		LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
-		AtomicBoolean success = new AtomicBoolean(true);
-		if (!changes.isEmpty() || !checkboxes.isEmpty()) {
-            List<Integer> keys = new ArrayList<>(changes.keySet().stream()
-					.map(Integer::parseInt)
-					.toList());
-			checkboxes.keySet().forEach(k -> {
-				Integer parsed = Integer.parseInt(k);
-				if (!keys.contains(parsed)) {
-					keys.add(parsed);
-				}
-			});
-			Iterable<DemandesComplementsFilesBO> files = demandesComplementsFilesRepository.findAllById(keys);
-			files.forEach(file -> updateMetadata(file, changes, checkboxes, success));
-			demandesComplementsFilesRepository.saveAll(files);
-		}
-		LOGGER.info("Fin updateTypedocs()");
-		return success.get();
-	}
+    @Override
+    public boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes) {
+        LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
+        AtomicBoolean success = new AtomicBoolean(true);
+        if (!changes.isEmpty() || !checkboxes.isEmpty()) {
+            List<Integer> keys = new ArrayList<>(changes.keySet().stream().map(Integer::parseInt).toList());
+            checkboxes.keySet().forEach(k -> {
+                Integer parsed = Integer.parseInt(k);
+                if (!keys.contains(parsed)) {
+                    keys.add(parsed);
+                }
+            });
+            Iterable<DemandesComplementsFilesBO> files = demandesComplementsFilesRepository.findAllById(keys);
+            files.forEach(file -> updateMetadata(file, changes, checkboxes, success));
+            demandesComplementsFilesRepository.saveAll(files);
+        }
+        LOGGER.info("Fin updateTypedocs()");
+        return success.get();
+    }
 
 }

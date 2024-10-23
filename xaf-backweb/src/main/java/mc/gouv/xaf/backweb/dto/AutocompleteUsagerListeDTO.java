@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * @author qdeme
- *
  */
 @Setter
 @Getter

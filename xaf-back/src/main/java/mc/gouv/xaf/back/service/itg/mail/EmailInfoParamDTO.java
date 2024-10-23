@@ -1,18 +1,16 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
 /**
- * 
  * Modélise une métadonnée d'un email à être envoyé par le MailService d'AfBack
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class EmailInfoParamDTO {
 
     private String key;
-    
+
     private String value;
-    
+
     public EmailInfoParamDTO(String key, String value) {
         this.key = key;
         this.value = value;
@@ -38,5 +36,5 @@ public class EmailInfoParamDTO {
     public String toString() {
         return "EmailInfoParamDTO [key=" + key + ", value=" + value + "]";
     }
-    
+
 }

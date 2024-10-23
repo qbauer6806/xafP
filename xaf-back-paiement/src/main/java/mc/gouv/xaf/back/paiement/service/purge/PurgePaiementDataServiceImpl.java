@@ -44,8 +44,8 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        List<CommandeDemandeBO> commandeDemandeBOS =
-                commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(statuts, dateDebutPurge);
+        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(
+                statuts, dateDebutPurge);
 
         // On vire la liaison avec les demandes, et on récupère les ids des commandes et des demandes associées
         Set<Integer> pkCommmandes = new HashSet<>();

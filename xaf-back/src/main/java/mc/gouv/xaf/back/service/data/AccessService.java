@@ -6,22 +6,21 @@ import mc.gouv.xaf.shared.dto.AccessDTO;
 
 /**
  * Service permettant la manipulation des accès.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public interface AccessService {
 
     /**
      * Permet de récupérer un accès à partir de l'UsagerID
-     * 
+     *
      * @return L'accès demandé
      */
     AccessDTO getAccessActive(Integer usagerId);
 
     /**
      * Permet de récupérer un accès à partir du pkAccess
-     * 
+     *
      * @return L'accès demandé
      */
     AccessDTO getAccess(Integer pkAccess);
@@ -34,15 +33,15 @@ public interface AccessService {
     /**
      * <p>Permet de désactiver un accès à partir de l'UsagerID</p>
      * <p>
-     *     Pour des besoins d'archivage et d'accès des demandes associées,
-     *     il a été décidé que les suppressions consistent en l'écriture d'un flag Active = false.
+     * Pour des besoins d'archivage et d'accès des demandes associées, il a été décidé que les suppressions consistent
+     * en l'écriture d'un flag Active = false.
      * </p>
      */
     void deleteAccess(Integer usagerId);
 
     /**
      * Permet de sauvegarder ou de mettre à jour un accès en base
-     * 
+     *
      * @return L'accès sauvegardé ou mis à jour
      */
     AccessDTO saveOrUpdateAccess(Integer usagerId, AccessDTO access);
@@ -61,6 +60,5 @@ public interface AccessService {
      * Similaire à getAccess() mais retourne un BO, pour être utilisé par d'autres classes de la couche service
      */
     AccessBO getAccessBO(Integer usagerId, boolean active);
-
 
 }

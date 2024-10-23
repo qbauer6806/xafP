@@ -11,20 +11,18 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
- * Sert à intercepter les requêtes vers les contrôleurs de page de la démarche afin notamment
- * de rajouter AfBackUtils automatiquement au ModelAndView pour toutes les pages.
- * 
- * @author qdeme
+ * Sert à intercepter les requêtes vers les contrôleurs de page de la démarche afin notamment de rajouter AfBackUtils
+ * automatiquement au ModelAndView pour toutes les pages.
  *
+ * @author qdeme
  */
 @Component
 @Profile("gouv")
 public class GouvInterceptor implements HandlerInterceptor {
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 

@@ -6,11 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 
  * Modélise un élément dans la boîte d'envoi pour le Guichet Unique via Kafka
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Setter
 @Getter
@@ -26,11 +24,11 @@ public class KafkaOutboxDTO {
     private String contenu;
 
     private Date dateCreation;
-    
+
     private Date dateLastAttempt;
 
     private Integer nbFailedAttempts;
-    
+
     private String statut;
-    
+
 }

@@ -35,13 +35,13 @@ public class UsagersCacheImplMock implements UsagersCache {
     @Override
     public void refresh() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void add(Integer key, GichuniUsagerDTO value) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

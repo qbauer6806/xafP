@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.dsp.enums.common;
 
 public enum ResidEtatEnum {
-	
-	ENC("ENC"),
+
+    ENC("ENC"),
     ENA("ENA"),
     ENP("ENP"),
     ENI("ENI"),

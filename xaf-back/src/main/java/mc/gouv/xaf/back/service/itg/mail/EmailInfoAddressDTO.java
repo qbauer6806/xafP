@@ -1,18 +1,16 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
 /**
- * 
  * Modélise une adresse à être utilisée pour le MailService d'AfBack
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class EmailInfoAddressDTO {
 
     private String address;
 
     private String name;
-    
+
     public EmailInfoAddressDTO(String address, String name) {
         this.address = address;
         this.name = name;

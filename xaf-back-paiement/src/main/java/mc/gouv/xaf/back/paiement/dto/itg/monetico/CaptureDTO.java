@@ -22,18 +22,10 @@ public class CaptureDTO {
     private String version;
 
     public String toStringHmac() {
-        return String.join("*",
-                "TPE=" + this.getTpe(),
-                "date=" + this.getDate(),
-                "date_commande=" + this.getDateCommande(),
-                "lgue=" + this.getLgue(),
-                "montant=" + this.getMontant(),
+        return String.join("*", "TPE=" + this.getTpe(), "date=" + this.getDate(),
+                "date_commande=" + this.getDateCommande(), "lgue=" + this.getLgue(), "montant=" + this.getMontant(),
                 "montant_a_capturer=" + this.getMontantACapturer(),
-                "montant_deja_capture=" + this.getMontantDejaCapture(),
-                "montant_restant=" + this.getMontantRestant(),
-                "reference=" + this.getReference(),
-                "societe=" + this.getSociete(),
-                "version=" + this.getVersion()
-        );
+                "montant_deja_capture=" + this.getMontantDejaCapture(), "montant_restant=" + this.getMontantRestant(),
+                "reference=" + this.getReference(), "societe=" + this.getSociete(), "version=" + this.getVersion());
     }
 }

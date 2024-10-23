@@ -1,4 +1,3 @@
-
 package mc.gouv.xaf.front.listener;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
@@ -40,10 +39,10 @@ public class DemandeLockSessionListener implements HttpSessionListener {
          */
         HttpSession httpSession = se.getSession();
         if (httpSession != null) {
-            Integer modificationDemandeId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
-            Integer modificationDemandeUsagerId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
+            Integer modificationDemandeId = (Integer) httpSession.getAttribute(
+                    SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
+            Integer modificationDemandeUsagerId = (Integer) httpSession.getAttribute(
+                    SessionConstant.SESSION_MODIFICATION_USAGER_ID);
 
             if (modificationDemandeId != null && modificationDemandeUsagerId != null) {
                 AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();

@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * @author uek
- *
  */
 @Service
 public class DemandesConfigTransformer {
@@ -16,7 +14,8 @@ public class DemandesConfigTransformer {
     @Value("${maven.version}")
     private String mavenVersion;
 
-    private DemandesConfigTransformer() {}
+    private DemandesConfigTransformer() {
+    }
 
     public JsonNode bo2Json(DemandeConfigBO bo) {
         if (bo == null) {

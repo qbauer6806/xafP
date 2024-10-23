@@ -10,20 +10,11 @@ public class MessageUtils {
     }
 
     public static String toStringMessage(int httpStatus, String message, List<ResidErrorDTO> errors) {
-        StringBuilder builder = new StringBuilder()
-                .append("Erreur ")
-                .append(httpStatus)
-                .append(" - ")
-                .append(message)
+        StringBuilder builder = new StringBuilder().append("Erreur ").append(httpStatus).append(" - ").append(message)
                 .append(":<br>");
         for (ResidErrorDTO erreur : errors) {
-            builder.append("  - ")
-                    .append(erreur.getClef())
-                    .append(" / ")
-                    .append(erreur.getNom())
-                    .append(" / ")
-                    .append(erreur.getLibelle())
-                    .append("<br>");
+            builder.append("  - ").append(erreur.getClef()).append(" / ").append(erreur.getNom()).append(" / ")
+                    .append(erreur.getLibelle()).append("<br>");
         }
         return builder.toString();
     }

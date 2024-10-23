@@ -28,8 +28,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Authentification via la vérification du token JWT
- * Le principal sera lié à la valeur du payload "sub"
+ * Authentification via la vérification du token JWT Le principal sera lié à la valeur du payload "sub"
  *
  * @author fgaujous
  */
@@ -96,7 +95,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             Set<String> audiences = jws.getPayload().getAudience();
             Optional<String> optional = audiences.stream().findFirst();
             if (optional.isPresent()) {
-                 aud = optional.get();
+                aud = optional.get();
             }
             if (StringUtils.isBlank(aud)) {
                 LOGGER.error("aud manquant dans le token JWT");
@@ -129,22 +128,24 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     }
 
     /**
-     * utilisation de la librairie https://github.com/jwtk/jjwt
-     * Vérification du token avec la signature
+     * utilisation de la librairie https://github.com/jwtk/jjwt Vérification du token avec la signature
      *
      * @param token
      * @return
-     * @throws SignatureException       si jwt invalide
+     * @throws SignatureException
+     *         si jwt invalide
      * @throws IllegalArgumentException
      * @throws MalformedJwtException
      * @throws UnsupportedJwtException
      * @throws ExpiredJwtException
      */
-    public Jws<Claims> verify(String token) throws SignatureException, ExpiredJwtException, UnsupportedJwtException,
-            MalformedJwtException, IllegalArgumentException {
+    public Jws<Claims> verify(String token)
+            throws SignatureException, ExpiredJwtException, UnsupportedJwtException, MalformedJwtException,
+            IllegalArgumentException {
 
         if (secretValue == null) {
-            throw new DemarcheException("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
+            throw new DemarcheException(
+                    "Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
         }
         return Jwts.parser().setSigningKey(secretValue.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token);
     }

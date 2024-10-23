@@ -67,7 +67,7 @@ public class MarqueursController extends AbstractController {
         return loadMarqueurs(null);
     }
 
-    private ModelAndView loadMarqueurs(String buildId){
+    private ModelAndView loadMarqueurs(String buildId) {
         LOGGER.info("======================= Appel de la page /marqueurs");
 
         ModelAndView mav = new ModelAndView("gestion/marqueurs/marqueurs");
@@ -77,7 +77,8 @@ public class MarqueursController extends AbstractController {
         for (DemandeConfigBO config : configs) {
             ConfigDTO configDTO = new ConfigDTO();
             configDTO.setBuildId(config.getBuildId());
-            ZonedDateTime dateTime = Instant.ofEpochMilli(Long.parseLong(config.getBuildId())).atZone(ZoneId.systemDefault());
+            ZonedDateTime dateTime = Instant.ofEpochMilli(Long.parseLong(config.getBuildId()))
+                    .atZone(ZoneId.systemDefault());
             configDTO.setDate(dateTime.format(formatter));
             configDTO.setVersion(config.getVersion() != null ? config.getVersion() : "");
             configDTOS.add(configDTO);
@@ -119,7 +120,8 @@ public class MarqueursController extends AbstractController {
 
     @PostMapping(value = "/supprimer")
     @Transactional
-    public ModelAndView supprimer(@RequestParam Integer pkMarqueur, @RequestParam String buildId, final RedirectAttributes redirectAttributes) {
+    public ModelAndView supprimer(@RequestParam Integer pkMarqueur, @RequestParam String buildId,
+            final RedirectAttributes redirectAttributes) {
         marqueursService.deleteMarqueur(pkMarqueur);
         return redirectSuccess(redirectAttributes, SUPPRIMER_SUCCES, buildId);
     }
@@ -161,8 +163,9 @@ public class MarqueursController extends AbstractController {
     public ResponseEntity<InputStreamResource> exportConfig(HttpServletRequest request) throws IOException {
         String jsonFile = marqueursService.exportConfig();
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=marqueurs-config-"
-                + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(new Date()) + ".json");
+        responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=marqueurs-config-" + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(
+                        new Date()) + ".json");
         responseHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
         responseHeaders.add("Content-Transfer-Encoding", "binary");
 
@@ -173,7 +176,8 @@ public class MarqueursController extends AbstractController {
     }
 
     @PostMapping("/import")
-    public ModelAndView handleFileUpload(@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) {
+    public ModelAndView handleFileUpload(@RequestParam("file") MultipartFile file,
+            final RedirectAttributes redirectAttributes) {
         if (file.isEmpty()) {
             return redirectError(redirectAttributes, "Aucun fichier sélectionné");
         } else {

@@ -16,13 +16,14 @@ public class JwtUtils {
 
     public static void main(String[] args) {
         // STAGE_FRONT_JWT
-        String jwt = createJWTToken("STAGE_API_SECURITY_JWT_SECRET", "STAGE", new String[] { "FRONT" }, "STAGE", null, null);
+        String jwt = createJWTToken("STAGE_API_SECURITY_JWT_SECRET", "STAGE", new String[] { "FRONT" }, "STAGE", null,
+                null);
 
-//        // STAGE_FRONT_FILE_JWT
-//        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret ", "STAGE", new String[] { "USER" }, "FILE", null, null);
-//
-//        // STAGE_FRONT_VSCAN_JWT
-//        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret ", "STAGE", new String[] { "USER" }, "VSCAN", null, null);
+        //        // STAGE_FRONT_FILE_JWT
+        //        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret ", "STAGE", new String[] { "USER" }, "FILE", null, null);
+        //
+        //        // STAGE_FRONT_VSCAN_JWT
+        //        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret ", "STAGE", new String[] { "USER" }, "VSCAN", null, null);
 
         LOGGER.info(jwt);
     }
@@ -30,8 +31,9 @@ public class JwtUtils {
     public static String createJWTToken(String secret, String sub, String[] roles, String aud, String applicationName,
             Object appClaims) {
         var jwtbuilder = Jwts.builder().setSubject(sub)
-                .signWith(SignatureAlgorithm.HS256, secret.getBytes(StandardCharsets.UTF_8)).setHeaderParam("typ", "JWT")
-                .claim("aud", aud).claim("iat", new Date()).claim("jti", UUID.randomUUID().toString());
+                .signWith(SignatureAlgorithm.HS256, secret.getBytes(StandardCharsets.UTF_8))
+                .setHeaderParam("typ", "JWT").claim("aud", aud).claim("iat", new Date())
+                .claim("jti", UUID.randomUUID().toString());
 
         HashMap<String, Object> gouvMap = new HashMap<>();
         HashMap<String, Object> rolesMap = new HashMap<>();

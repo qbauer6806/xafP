@@ -17,23 +17,23 @@ import mc.gouv.xaf.back.dsp.dto.ResidQualiteDTO;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
 public class ResidResidenceDLN1FDTO implements Serializable {
-	
-	private static final long serialVersionUID = -1720606882440326053L;
 
-	private boolean locationLogement;
-	
-	private Integer nombreOccupant;
+    private static final long serialVersionUID = -1720606882440326053L;
 
-	private Integer loyer;
+    private boolean locationLogement;
 
-	private Integer nombrePiece;
+    private Integer nombreOccupant;
 
-	private Integer nombreStationnement;
-	
-	private Integer surfaceM2;
-	
-	private ResidQualiteDTO qualite;
-	
-	private ResidLoyerPeriodiciteDTO loyerPeriodicite;
+    private Integer loyer;
+
+    private Integer nombrePiece;
+
+    private Integer nombreStationnement;
+
+    private Integer surfaceM2;
+
+    private ResidQualiteDTO qualite;
+
+    private ResidLoyerPeriodiciteDTO loyerPeriodicite;
 
 }

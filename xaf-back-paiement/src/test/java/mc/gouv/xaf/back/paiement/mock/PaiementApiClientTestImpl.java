@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Primary
 @Component
 public class PaiementApiClientTestImpl implements PaiementApiClient {
+
     @Override
     public boolean capture(CommandeDTO commandeDTO, CommandeOperationDTO operation, DemandeDTO demandeDTO) {
         operation.setOperationStatut(OperationStatutEnum.ACCEPTEE.name());

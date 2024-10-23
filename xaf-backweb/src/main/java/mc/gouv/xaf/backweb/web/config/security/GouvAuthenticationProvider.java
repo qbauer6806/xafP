@@ -22,9 +22,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Composant Spring permettant de lier l'application à Logon pour la sécurité
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvAuthenticationProvider implements AuthenticationProvider {

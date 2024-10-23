@@ -7,14 +7,13 @@ import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * @author uek
- *
  */
 @Service
 public class MarqueursTransformer {
 
-    private MarqueursTransformer() {}
+    private MarqueursTransformer() {
+    }
 
     public MarqueurDTO bo2Dto(MarqueurBO bo) {
         if (bo == null) {

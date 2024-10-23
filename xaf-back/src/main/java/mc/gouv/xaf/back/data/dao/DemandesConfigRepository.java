@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 public interface DemandesConfigRepository extends CrudRepository<DemandeConfigBO, String> {
 
     DemandeConfigBO findOneByBuildId(String buildId);
+
     DemandeConfigBO findFirstByOrderByBuildIdDesc();
 
     List<DemandeConfigBO> findAllByOrderByBuildIdDesc();

@@ -44,7 +44,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
-    
+
     private static final String RECTIFICATION_DEMANDE_USERTASK_ID = "rectificationDemandeUsertask";
 
     @Autowired
@@ -57,8 +57,9 @@ public class GouvBPMImpl implements GouvBPM {
     private FormService formService;
 
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
-                                                   Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
-        LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"{}\" assignée à l'utilisateur \"{}\" et concernant la demande \"{}\"",
+            Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
+        LOGGER.info(
+                "startProcessInstance() Démarrage d'une instance du process \"{}\" assignée à l'utilisateur \"{}\" et concernant la demande \"{}\"",
                 processDefinitionKey, user, demandeId);
 
         // Création des variables du process
@@ -91,7 +92,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
-                                     Map<String, Object> businessVariables) {
+            Map<String, Object> businessVariables) {
 
         startProcessInstanceByKeyOrMessage(processDefinitionKey, null, user, demandeId, codeAppli, businessVariables);
 
@@ -99,7 +100,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
-                                              Map<String, Object> businessVariables) {
+            Map<String, Object> businessVariables) {
 
         startProcessInstanceByKeyOrMessage(null, messageName, user, demandeId, codeAppli, businessVariables);
 
@@ -173,14 +174,15 @@ public class GouvBPMImpl implements GouvBPM {
         Set<String> tasksProcessIds = tasks.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
         List<String> instancesIds = new ArrayList<>();
         if (!tasksProcessIds.isEmpty()) {
-            List<ProcessInstance> processInstanceInTheState = runtimeService.createProcessInstanceQuery().processInstanceIds(tasksProcessIds).active().list();
+            List<ProcessInstance> processInstanceInTheState = runtimeService.createProcessInstanceQuery()
+                    .processInstanceIds(tasksProcessIds).active().list();
             instancesIds = processInstanceInTheState.stream().map(ProcessInstance::getBusinessKey).toList();
         }
         return instancesIds;
     }
 
     @Override
-    @Transactional(noRollbackFor = { FlowableTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class})
+    @Transactional(noRollbackFor = { FlowableTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class })
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
         LOGGER.debug("claimTask({}, {})", task, user);
 
@@ -222,7 +224,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli,
-                                                                    Integer demandeId) {
+            Integer demandeId) {
         LOGGER.info("getTasksWhereUserIsCandidate({}, {})", user, codeAppli);
 
         // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
@@ -257,8 +259,9 @@ public class GouvBPMImpl implements GouvBPM {
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
                 .taskDefinitionKeyLike(task.getTaskDefinitionKey()).active().list();
         for (Task t : tasks) {
-            Integer demandeId = Integer.parseInt(runtimeService.createProcessInstanceQuery()
-                    .processInstanceId(t.getProcessInstanceId()).singleResult().getBusinessKey());
+            Integer demandeId = Integer.parseInt(
+                    runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
+                            .singleResult().getBusinessKey());
             demandeIds.add(demandeId);
         }
         return demandeIds;
@@ -266,15 +269,16 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
-                                                                                   GouvBPMUser user) {
+            GouvBPMUser user) {
         LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante({}, {})", codeAppli, task.getTaskDefinitionKey());
         List<Integer> demandeIds = new ArrayList<>();
         List<Task> tasks = taskService.createTaskQuery()
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
                 .taskDefinitionKey(task.getTaskDefinitionKey()).taskCandidateUser(user.getId()).active().list();
         for (Task t : tasks) {
-            Integer demandeId = Integer.parseInt(runtimeService.createProcessInstanceQuery()
-                    .processInstanceId(t.getProcessInstanceId()).singleResult().getBusinessKey());
+            Integer demandeId = Integer.parseInt(
+                    runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
+                            .singleResult().getBusinessKey());
             demandeIds.add(demandeId);
         }
         return demandeIds;
@@ -298,8 +302,8 @@ public class GouvBPMImpl implements GouvBPM {
         List<CommentaireInterneDTO> commInternes = new ArrayList<>();
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
-            commInternes = (List<CommentaireInterneDTO>) runtimeService
-                    .getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
+            commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(processInstance.getId(),
+                    GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
             if (commInternes == null) {
                 commInternes = new ArrayList<>();
             }
@@ -314,8 +318,8 @@ public class GouvBPMImpl implements GouvBPM {
     public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
-            List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>) runtimeService
-                    .getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
+            List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(
+                    processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
             if (commInternes == null) {
                 commInternes = new ArrayList<>();
             }
@@ -355,14 +359,15 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws TikaException {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId)
+            throws TikaException {
         // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
         // si on ne veut rien transmettre dans le formulaire
         Map<String, String> propertiesSafe = (properties == null) ? new HashMap<>() : properties;
         formService.submitTaskFormData(task.getId(), propertiesSafe);
     }
 
-    @SuppressWarnings({"unchecked", "java:S2864"})
+    @SuppressWarnings({ "unchecked", "java:S2864" })
     @Override
     public List<GouvBPMStatutAction> getTaskStatutActions(GouvBPMTask task) {
 
@@ -384,7 +389,8 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire, String statutAnnulation) {
+    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif,
+            String commentaire, String statutAnnulation) {
         LOGGER.info("Annulation de la demande {} par l'agent '{}' ou l'usager {}", demandeId, agent, usager);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
@@ -413,9 +419,10 @@ public class GouvBPMImpl implements GouvBPM {
             runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
         }
     }
-    
+
     @Override
-    public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire, String statutDemandeRectification) {
+    public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire,
+            String statutDemandeRectification) {
         LOGGER.info("Demande de rectification de la demande {} par l'agent '{}'", demandeId, agent);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
@@ -426,23 +433,24 @@ public class GouvBPMImpl implements GouvBPM {
         variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), statutDemandeRectification);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
-        
+
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_RECTIFICATION_EN_COURS.name(), true);
-        
+
         // Normalement il y en a une seule
 
         LOGGER.info("Nombre d'executions candidates à la demande de rectification pour la demande {} : {}", demandeId,
                 executions.size());
 
         if (executions.isEmpty()) {
-            throw new GouvBPMException("Aucune execution pour effectuer une demande de rectification de la demande : " + demandeId);
+            throw new GouvBPMException(
+                    "Aucune execution pour effectuer une demande de rectification de la demande : " + demandeId);
         }
 
         for (Execution ex : executions) {
             runtimeService.messageEventReceived("demandeRectificationMessage", ex.getId(), variables);
         }
     }
-    
+
     @Override
     public void rectificationSpontanee(Integer demandeId) {
         LOGGER.info("Rectification spontanée de la demande {} par l'usager", demandeId);
@@ -452,46 +460,48 @@ public class GouvBPMImpl implements GouvBPM {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_RECTIFICATION_EN_COURS.name(), false);
-        
+
         // Normalement il y en a une seule
 
         LOGGER.info("Nombre d'executions candidates à rectification spontanée pour la demande {} : {}", demandeId,
                 executions.size());
 
         if (executions.isEmpty()) {
-            throw new GouvBPMException("Aucune execution pour effectuer une rectification spontanée de la demande : " + demandeId);
+            throw new GouvBPMException(
+                    "Aucune execution pour effectuer une rectification spontanée de la demande : " + demandeId);
         }
 
         for (Execution ex : executions) {
             runtimeService.messageEventReceived("rectificationMessage", ex.getId(), variables);
         }
     }
-    
+
     @Override
     public void reponseRectification(Integer pkDemande, Integer usagerId) throws TaskAlreadyClaimedException {
         LOGGER.info("Réponse à la demande de rectification de la demande {} par l'usager", pkDemande);
 
-		List<GouvBPMTask> activeTasks = getActiveTasksForDemande(pkDemande);
-		GouvBPMTask activeTask = null;
-		for (GouvBPMTask task : activeTasks) {
-			if (RECTIFICATION_DEMANDE_USERTASK_ID.equals(task.getTaskDefinitionKey())) {
-				activeTask = task;
-			}
-		}
-		LOGGER.info("ActiveTask pour rectification de demande : {}", activeTask);
-		
-		// Pour le delegate GouvBPMRestorePreviousStatusDelegate
-		setProcessBusinessVariable(pkDemande, GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
-		
-		GouvBPMUser user = new GouvBPMUser();
-		user.setId(usagerId.toString());
-		claimTask(activeTask, user);
-		Map<String, String> formData = new HashMap<>();
-		try {
-			submitTaskFormData(activeTask, formData, pkDemande);
-		} catch (TikaException e) {
-			LOGGER.error("Erreur lors de reponseRectification()", e);
-		}
+        List<GouvBPMTask> activeTasks = getActiveTasksForDemande(pkDemande);
+        GouvBPMTask activeTask = null;
+        for (GouvBPMTask task : activeTasks) {
+            if (RECTIFICATION_DEMANDE_USERTASK_ID.equals(task.getTaskDefinitionKey())) {
+                activeTask = task;
+            }
+        }
+        LOGGER.info("ActiveTask pour rectification de demande : {}", activeTask);
+
+        // Pour le delegate GouvBPMRestorePreviousStatusDelegate
+        setProcessBusinessVariable(pkDemande, GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
+                usagerId.toString());
+
+        GouvBPMUser user = new GouvBPMUser();
+        user.setId(usagerId.toString());
+        claimTask(activeTask, user);
+        Map<String, String> formData = new HashMap<>();
+        try {
+            submitTaskFormData(activeTask, formData, pkDemande);
+        } catch (TikaException e) {
+            LOGGER.error("Erreur lors de reponseRectification()", e);
+        }
     }
 
 }

@@ -22,13 +22,16 @@
               </div>
               <div class="row">
                 <div class="col-xs-12 text-center  suppressionOk margin-top">
-                  <form action="#" id="form-supprimer" method="post" th:action="@{/gestion/modeles/supprimer}">
+                  <form action="#" id="form-supprimer" method="post"
+                        th:action="@{/gestion/modeles/supprimer}">
                     <div>
                       <input class="filename" name="filename" type="hidden"/>
                       <input class="typeModele" name="typeModele" type="hidden"/>
                     </div>
                     <a class="btn btn-action-second ripple-effect supprimer-annuler" href="#">Annuler</a>
-                    <button class="btn btn-action ripple-effect margin-left" id="supprimer-button" name="action" type="button" value="Valider">Valider</button>
+                    <button class="btn btn-action ripple-effect margin-left" id="supprimer-button"
+                            name="action" type="button" value="Valider">Valider
+                    </button>
                   </form>
                 </div>
               </div>

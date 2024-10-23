@@ -3,101 +3,102 @@
 
 <body>
 
-	<div id="panelinfocompl" th:fragment="panelinfocompl" th:remove="tag">
+<div id="panelinfocompl" th:fragment="panelinfocompl" th:remove="tag">
 
-		<div role="tabpanel" class="tab-pane" id="tab3">
-			<div th:each="complement, iter : ${demandeDTO.complements}">
-				<div class="panel-group accordion" aria-multiselectable="true">
-					<div class="panel panel-default">
-						<div class="panel-heading" role="tab"
-							th:id="'heading' + ${iter.index}">
-							<h4 class="panel-title">
-								<a role="button" data-toggle="collapse" aria-expanded="false"
-									data-parent="#accordion"
-									th:attr="aria-controls='IC'+${complement.pkDemandeComplements}"
-									th:href="${'#IC'+complement.pkDemandeComplements}"
-									class="collapsed"><i
-									class="pannelState icon-action_accordeon-ferme"></i><span
-									th:text="${#dates.format(complement.question.date,'dd/MM/yyyy')}"></span>
-									: INFORMATION COMPLÉMENTAIRE <span
-									th:text="'#'+${demandeDTO.pkDemandes}+'-'+${complement.pkDemandeComplements}"></span>
-								</a>
-							</h4>
-						</div>
+  <div role="tabpanel" class="tab-pane" id="tab3">
+    <div th:each="complement, iter : ${demandeDTO.complements}">
+      <div class="panel-group accordion" aria-multiselectable="true">
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab"
+               th:id="'heading' + ${iter.index}">
+            <h4 class="panel-title">
+              <a role="button" data-toggle="collapse" aria-expanded="false"
+                 data-parent="#accordion"
+                 th:attr="aria-controls='IC'+${complement.pkDemandeComplements}"
+                 th:href="${'#IC'+complement.pkDemandeComplements}"
+                 class="collapsed"><i
+                  class="pannelState icon-action_accordeon-ferme"></i><span
+                  th:text="${#dates.format(complement.question.date,'dd/MM/yyyy')}"></span>
+                : INFORMATION COMPLÉMENTAIRE <span
+                    th:text="'#'+${demandeDTO.pkDemandes}+'-'+${complement.pkDemandeComplements}"></span>
+              </a>
+            </h4>
+          </div>
 
-						<div th:id="${'IC'+complement.pkDemandeComplements}"
-							class="panel-body sectionic panel-collapse collapse"
-							role="tabpanel"
-							th:attr="aria-labelledby='heading' + ${iter.index}">
-							<p>Demande de l'administration</p>
-							<dl>
-								<dt>
-									<span>Date création</span>
-								</dt>
-								<dd>
+          <div th:id="${'IC'+complement.pkDemandeComplements}"
+               class="panel-body sectionic panel-collapse collapse"
+               role="tabpanel"
+               th:attr="aria-labelledby='heading' + ${iter.index}">
+            <p>Demande de l'administration</p>
+            <dl>
+              <dt>
+                <span>Date création</span>
+              </dt>
+              <dd>
 									<span
-										th:text="${#dates.format(complement.question.date,'dd/MM/yyyy HH:mm:ss')}"></span>
-								</dd>
-								<dt>
-									<span>Motif</span>
-								</dt>
-								<dd>
+                      th:text="${#dates.format(complement.question.date,'dd/MM/yyyy HH:mm:ss')}"></span>
+              </dd>
+              <dt>
+                <span>Motif</span>
+              </dt>
+              <dd>
 									<span
-										th:text="${MotifsCache.getMotif(complement.question.codeMotif, demandeDTO.langue).libelle}"></span>
-								</dd>
-								<dt>
-									<span>Texte</span>
-								</dt>
-								<dd>
+                      th:text="${MotifsCache.getMotif(complement.question.codeMotif, demandeDTO.langue).libelle}"></span>
+              </dd>
+              <dt>
+                <span>Texte</span>
+              </dt>
+              <dd>
 									<span th:text="${complement.question.texte}"
-										class="display-commentaire"></span>
-								</dd>
-								<dt>
-									<span>Agent</span>
-								</dt>
-								<dd>
+                        class="display-commentaire"></span>
+              </dd>
+              <dt>
+                <span>Agent</span>
+              </dt>
+              <dd>
 									<span
-										th:text="${AfBackUtils.getUserNameFromID(complement.question.agentId)}"></span>
-								</dd>
-							</dl>
-							<br />
-							<div th:if="${complement.reponse} != null">
-								<p>Réponse de l'usager</p>
-								<dl>
-									<dt>
-										<span>Date</span>
-									</dt>
-									<dd>
+                      th:text="${AfBackUtils.getUserNameFromID(complement.question.agentId)}"></span>
+              </dd>
+            </dl>
+            <br/>
+            <div th:if="${complement.reponse} != null">
+              <p>Réponse de l'usager</p>
+              <dl>
+                <dt>
+                  <span>Date</span>
+                </dt>
+                <dd>
 										<span
-											th:text="${#dates.format(complement.reponse.date,'dd/MM/yyyy HH:mm:ss')}"></span>
-									</dd>
-									<dt>
-										<span>Texte</span>
-									</dt>
-									<dd>
-										<span th:text="${complement.reponse.texte}"></span>
-									</dd>
-									<div th:each="fichier : ${complement.reponse.fichiers}">
-										<dt>
-											<span>Fichier</span>
-										</dt>
-										<dd>
-											<span style="padding-right: 5px;" th:text="${fichier.name}" />
-											<a class="nopadding" th:href="@{/ws/file/get}+${fichier.url}">
-												<button class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
-														data-placement="bottom" data-toggle="tooltip" title="" type="button">
-													<i class="icon-action_telecharger"></i>
-												</button>
-											</a>
-										</dd>
-									</div>
-								</dl>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                        th:text="${#dates.format(complement.reponse.date,'dd/MM/yyyy HH:mm:ss')}"></span>
+                </dd>
+                <dt>
+                  <span>Texte</span>
+                </dt>
+                <dd>
+                  <span th:text="${complement.reponse.texte}"></span>
+                </dd>
+                <div th:each="fichier : ${complement.reponse.fichiers}">
+                  <dt>
+                    <span>Fichier</span>
+                  </dt>
+                  <dd>
+                    <span style="padding-right: 5px;" th:text="${fichier.name}"/>
+                    <a class="nopadding" th:href="@{/ws/file/get}+${fichier.url}">
+                      <button class="btn btn-action ripple-effect greyTooltip"
+                              data-original-title="Télécharger"
+                              data-placement="bottom" data-toggle="tooltip" title="" type="button">
+                        <i class="icon-action_telecharger"></i>
+                      </button>
+                    </a>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

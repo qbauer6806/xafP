@@ -58,9 +58,6 @@ public class DemandeRechercheDTO {
     private boolean aucunResponsable;
 
     @Getter
-    private String statutPublicOuInterne;
-
-    @Getter
     private boolean checkTimestamp;
 
     public DemandeRechercheDTO(String texte, List<String> statuts, List<DemandeCanalEnum> canaux,

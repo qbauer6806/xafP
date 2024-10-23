@@ -159,9 +159,9 @@ public abstract class AfApiService {
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
-                demarchesDataProvider.getStatutAnnulee().getName());
+                demarchesDataProvider.getStatutAnnulee());
 
-        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee().getName(), null,
+        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee(), null,
                 usagerId, null);
         this.saveHistorique(demandeId, histo);
 
@@ -486,8 +486,7 @@ public abstract class AfApiService {
         miseAJourDesVariablesBPM(demandesAPasserEnAnnuleeDTO, usagerId);
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
-        usagersService.desinscriptionUsager(usagerId,
-        		demarchesDataProvider.getStatutAnnulee(), demarchesDataProvider.getCodeMotifAnnulationDesinscription());
+        usagersService.desinscriptionUsager(usagerId, demarchesDataProvider.getStatutAnnulee(), demarchesDataProvider.getCodeMotifAnnulationDesinscription());
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes qui passent à l'état Annulée suite à la désinscription...");
@@ -526,11 +525,11 @@ public abstract class AfApiService {
         StringBuilder demandesImpacteesIdentifiants = new StringBuilder();
         StringBuilder demandesImpacteesPk = new StringBuilder();
         boolean first = true;
-
+        String statutAnnuleeName = demarchesDataProvider.getStatutAnnulee();
         for (DemandeDTO demande : demandes) {
             boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()).equals(StatutSimplifieEnum.TERMINEE);
 
-            if (!isFinal && !demarchesDataProvider.getStatutAnnulee().getName().equals(demande.getDernierStatut().getName())) {
+            if (!isFinal && !statutAnnuleeName.equals(demande.getDernierStatut().getName())) {
 
                 // Statut non final et non "Annulée", alors passage au statut annulée
 
@@ -550,8 +549,8 @@ public abstract class AfApiService {
 
                 // Modif du DTO pour que l'historique prenne en compte le dernier statut comme étant "Annulée"
                 DemandeStatutDTO dernierStatut = demande.getDernierStatut();
-                dernierStatut.setLibelle(demarchesDataProvider.getStatutAnnulee().getLibelle());
-                dernierStatut.setName(demarchesDataProvider.getStatutAnnulee().getName());
+                dernierStatut.setLibelle(demarchesDataProvider.getStatusLibelle(statutAnnuleeName));
+                dernierStatut.setName(statutAnnuleeName);
                 demande.setDernierStatut(dernierStatut);
             }
         }
@@ -576,7 +575,7 @@ public abstract class AfApiService {
             }
 
             gouvBPM.annulerDemande(demande.getPkDemandes(), null, user,
-                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, demarchesDataProvider.getStatutAnnulee().getName());
+                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, demarchesDataProvider.getStatutAnnulee());
         }
     }
 
@@ -673,7 +672,7 @@ public abstract class AfApiService {
 	public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
         String[] statusArray = paramDTO.getStatusArray();
         if (statusArray.length == 0) {
-            statusArray = demarchesDataProvider.getAllStatuts();
+            statusArray = demarchesDataProvider.getStatusMap().keySet().toArray(String[]::new);
         }
         return demandesService.getDemandesPageable(usagerID, statusArray, paramDTO);
 	}

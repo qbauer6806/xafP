@@ -6,7 +6,6 @@ import mc.gouv.xaf.back.paiement.data.transformer.PaiementHistoriqueTransformer;
 import mc.gouv.xaf.back.paiement.dto.PaiementHistoriqueDTO;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,11 +24,7 @@ public abstract class DefaultPaiementHistoriqueServiceImpl implements PaiementHi
     public List<PaiementHistoriqueDTO> findAllByDemandeId(Integer demandeId) {
         List<PaiementHistoriqueBO> bos = paiementHistoriqueRepository.findByFkDemandesPkDemandesOrderByDateDesc(demandeId);
         List<PaiementHistoriqueDTO> dtos = PaiementHistoriqueTransformer.bos2Dtos(bos);
-        dtos.forEach(dto -> {
-            StatutPublicOuInterneDTO statut = new StatutPublicOuInterneDTO();
-            statut.setName(dto.getStatut().name());
-            dto.setCouleur(demarchesDataProvider.getStatusColorClass(statut));
-        });
+        dtos.forEach(dto -> dto.setCouleur(demarchesDataProvider.getStatusColorClass(dto.getStatut().name())));
         return dtos;
     }
 

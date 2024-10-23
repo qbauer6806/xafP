@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.data;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public interface DemandesStatutsService {
      * Permet d'ajouter un statut à une demande
      *
      * @param demandeId     ID de la demande
-     * @param statut        Le nouveau statut
+     * @param statutName        Le nouveau statut
      * @param agentId       AgentID à associer au statut
      * @param usagerId      UsagerID à associer au statut
      * @param codeMotif     Le codeMotif du motif associé au changement de statut, si nécessaire
@@ -26,15 +25,13 @@ public interface DemandesStatutsService {
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
      * @return L'objet DTO de la demande mise à jour
      */
-    DemandeDTO updateStatut(Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
-
-    DemandeDTO updateStatut(Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(Integer demandeId, String statutName, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**
      * Permet d'ajouter un statut à une demande, version appelable par d'autres services, sans check préalable
      *
      * @param demande       La demande
-     * @param statut        Le nouveau statut
+     * @param statutName        Le nouveau statut
      * @param agentId       AgentID à associer au statut
      * @param usagerId      UsagerID à associer au statut
      * @param codeMotif     Le codeMotif du motif associé au changement de statut, si nécessaire
@@ -42,16 +39,16 @@ public interface DemandesStatutsService {
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
      * @return L'objet BO de la demande mise à jour
      */
-    DemandeDTO updateStatut(DemandeBO demande, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(DemandeBO demande, String statutName, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**
      * Permet de mettre le même statut sur plusieurs demandes en même temps.
      *
      * @param demandes  La liste des demandes à mettre à jour
-     * @param statut    Le nouveau statut
+     * @param statutName    Le nouveau statut
      * @return          La liste à jour des demandes
      */
-    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, StatutPublicOuInterneDTO statut);
+    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statutName);
 
     /**
      * Récupérer le dernier statut d'une demande

@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -94,20 +92,20 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO saveDemande(DemandeDTO demande, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes)
+    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes)
             throws IOException {
         return null;
     }
 
     @Override
-    public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate,
-            StatutPublicOuInterneDTO premierStatut) throws IOException, SAXException {
+    public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
+            throws IOException, SAXException {
         return null;
     }
 
     @Override
-    public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate,
-            StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException, SAXException {
+    public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
+            JsonNode donneesExternes) throws IOException, SAXException {
         return null;
     }
 

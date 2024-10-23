@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.TacheDTO;
 import mc.gouv.xaf.shared.enums.StatutTachesEnum;
 
@@ -24,14 +23,14 @@ public interface TachesUtils {
     /**
      * Récupère le libelle du statut choisi par l'agent, en fonctione du statut de la demande (en cas d'étape valideur).
      */
-    String getStatutAgent(TacheDTO tache, StatutPublicOuInterneDTO statut);
+    String getStatutAgent(TacheDTO tache, String statutName);
 
     /**
      * Récupère la classe CSS liée du statut choisi par l'agent, en fonctione du statut de la demande (en cas d'étape valideur).
      */
-    String getStatutColorClass(StatutTachesEnum statutTaches, StatutPublicOuInterneDTO statut);
+    String getStatutColorClass(StatutTachesEnum statutTaches, String statutName);
 
-    List<GouvBPMStatutAction> getActions(StatutPublicOuInterneDTO statut);
+    List<GouvBPMStatutAction> getActions(String statutName);
 
     String getFragment(String codeType);
 

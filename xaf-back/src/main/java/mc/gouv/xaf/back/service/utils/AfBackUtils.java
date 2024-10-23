@@ -37,7 +37,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
@@ -59,7 +58,6 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -164,10 +162,6 @@ public class AfBackUtils {
 
     @Autowired
     @Lazy
-    private MarqueursService marqueursService;
-
-    @Autowired
-    @Lazy
     private PropertiesService propertiesService;
 
     @Autowired
@@ -218,6 +212,9 @@ public class AfBackUtils {
 		return isoCodeMap.get(alpha3Code);
 	}
 
+    /**
+     * Utilisé dans les fichiers html/thymeleaf
+     */
     public String getLogonUrl() {
         return gouvPropertiesResolver.getGouvSharedLogonUrl();
     }
@@ -379,6 +376,9 @@ public class AfBackUtils {
         }
     }
 
+    /**
+     * Utilisé dans les fichiers html/thymeleaf
+     */
     public String getStatusLibelleFromName(String status) {
         return demarchesDataProvider.getStatusLibelle(status);
     }
@@ -394,22 +394,19 @@ public class AfBackUtils {
     /**
      * Retourne la classe CSS de la couleur associée à un statut
      * Attention, changer la fonction js getStatusColorClass
-     * @param statutPublicOuInterne
+     * Utilisé dans les fichiers html/thymeleaf
+     * @param statutName
      * @return
      */
-    public String getStatusColorClass(StatutPublicOuInterneDTO statutPublicOuInterne) {
-        return demarchesDataProvider.getStatusColorClass(statutPublicOuInterne);
+    public String getStatusColorClass(String statutName) {
+        return demarchesDataProvider.getStatusColorClass(statutName);
     }
 
     /**
-     * Permet de récupérer le d'un demandeur (ici, la raison sociale de l'entreprise)
+     * Permet de récupérer le demandeur
      */
     public String getDemandeur(DemandeDTO demande) {
         return demarchesDataProvider.getDemandeur(demande);
-    }
-
-    public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto) {
-        return demarchesDataProvider.getStatutPublicOuInterne(demandeDto);
     }
 
     public String getCivilite(Short titre, String locale) {

@@ -57,7 +57,6 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -192,7 +191,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO saveDemande(DemandeDTO demande, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException {
+	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes) throws IOException {
 
 		if (demande.getCanal() == null) {
 			throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
@@ -252,8 +251,8 @@ public class DemandesServiceImpl implements DemandesService {
 		demandesFilesService.saveFiles(demande.getFichiers(), demandeBo);
 
 		// Créer le premier statut de la demande
-		LOGGER.info("Création d'un statut \"{}\" pour la demande...", premierStatut);
-		DemandeDTO demandeDTO = demandesStatutsService.updateStatut(demandeBo, premierStatut, null,
+		LOGGER.info("Création d'un statut \"{}\" pour la demande...", premierStatutName);
+		DemandeDTO demandeDTO = demandesStatutsService.updateStatut(demandeBo, premierStatutName, null,
 				demandeBo.getFkAccess().getUsagerId(), null, null, null);
 
 		// Lier les fichiers de la demande au DemandeID, dans FILE
@@ -313,19 +312,19 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut) throws IOException {
-		return saveOrUpdateDemande(demande, partialUpdate, premierStatut, null);
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName) throws IOException {
+		return saveOrUpdateDemande(demande, partialUpdate, premierStatutName, null);
 	}
 
 	@Override
-	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException {
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName, JsonNode donneesExternes) throws IOException {
 		DemandeDTO demandeDTO;
 		if (demande.getPkDemandes() != null) {
 			// ID de la demande fourni, il faut donc mettre à jour une demande
 			demandeDTO = updateDemande(demande, partialUpdate);
 		} else {
 			// UsagerID fournis, il faut donc créer une nouvelle demande
-			demandeDTO = saveDemande(demande, premierStatut, donneesExternes);
+			demandeDTO = saveDemande(demande, premierStatutName, donneesExternes);
 		}
 		return demandeDTO;
 	}

@@ -66,7 +66,7 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
         LOGGER.info("Appel à demandesStatutsService.updateStatut()...");
 
-        demandesStatutsService.updateStatut(demandeId, statut, null,
+        demandesStatutsService.updateStatut(demandeId, statut.getName(), null,
                 Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
 
         LOGGER.info("==== xaf-back RESTORE PREVIOUS STATUS DELEGATE <fin>");

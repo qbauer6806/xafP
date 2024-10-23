@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.data.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,9 +14,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * 
@@ -56,9 +58,8 @@ public class DemandesHistoriqueBO {
     @Column(name = "JUSTIFICATIF_TRAITEMENT", length = 8000)
     private String justificatifTraitement;
 
-    @Column(name = "CONTENU", length = 10000, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 10000)
-    private String contenu;
+    @Column(name = "CONTENU", columnDefinition = "JSONB", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode contenu;
 
 }

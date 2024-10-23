@@ -2,11 +2,11 @@ package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.DynamicJSService;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.util.Map;
 
 @Component
 public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
@@ -19,7 +19,20 @@ public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 
-    protected boolean ifElse(StringBuilder builder, boolean first) {
+    String js = null;
+
+    @Override
+    public String getResponse() {
+        StringBuilder builder = new StringBuilder();
+        if (js == null) {
+            statusColorClass(builder);
+            traductionCanal(builder);
+            js = builder.toString();
+        }
+        return js;
+    }
+
+    private boolean ifElse(StringBuilder builder, boolean first) {
         if (first) {
             builder.append("\nif ");
         } else {
@@ -28,13 +41,10 @@ public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
         return false;
     }
 
-    protected boolean appendStatuts(StringBuilder builder, boolean first, String name, String libelle) {
+    private boolean appendStatuts(StringBuilder builder, boolean first, String name) {
         boolean result = ifElse(builder, first);
-        builder.append(DEBUT).append(name).append("\" === statutPublicOuInterne) {\n");
-        StatutPublicOuInterneDTO statutPublicOuInterne = new StatutPublicOuInterneDTO();
-        statutPublicOuInterne.setName(name);
-        statutPublicOuInterne.setLibelle(libelle);
-        builder.append(RETURN).append(demarchesDataProvider.getStatusColorClass(statutPublicOuInterne));
+        builder.append(DEBUT).append(name).append("\" === statutName) {\n");
+        builder.append(RETURN).append(demarchesDataProvider.getStatusColorClass(name));
         builder.append(FIN);
         return result;
     }
@@ -48,6 +58,15 @@ public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
             builder.append(RETURN).append(canal).append(FIN);
         }
         builder.append(RETURN_INCONNU);
+    }
+
+    protected void statusColorClass(StringBuilder builder) {
+        builder.append("APP.getStatusColorClass = function(statutName) {\n");
+        boolean first = true;
+        for (Map.Entry<String, String> status : demarchesDataProvider.getStatusMap().entrySet()) {
+            first = appendStatuts(builder, first, status.getKey());
+        }
+        builder.append("return \"default-status-color\";\n}\n");
     }
 
 }

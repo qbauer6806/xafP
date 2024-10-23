@@ -1,14 +1,7 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
@@ -19,8 +12,6 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
  *
  */
 public class DemandesHistoriqueTransformer {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandesHistoriqueTransformer.class);
 
     private DemandesHistoriqueTransformer() {
     }
@@ -28,12 +19,7 @@ public class DemandesHistoriqueTransformer {
     public static DemandeHistoriqueDTO bo2Dto(DemandesHistoriqueBO bo) {
         DemandeHistoriqueDTO dto = new DemandeHistoriqueDTO();
         dto.setAgentId(bo.getAgentId());
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            dto.setContenu(mapper.readTree(bo.getContenu()));
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
+        dto.setContenu(bo.getContenu());
         dto.setDate(bo.getDate());
         dto.setFkDemandes(bo.getFkDemandes().getPkDemandes());
         dto.setFkStatut(DemandesStatutsTransformer.bo2Dto(bo.getFkStatut()));
@@ -49,12 +35,7 @@ public class DemandesHistoriqueTransformer {
     public static DemandesHistoriqueBO dto2Bo(DemandeHistoriqueDTO dto) {
         DemandesHistoriqueBO bo = new DemandesHistoriqueBO();
         bo.setAgentId(dto.getAgentId());
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
+        bo.setContenu(dto.getContenu());
         bo.setDate(dto.getDate());
         bo.setPkDemandesHistorique(dto.getPkDemandeHistorique());
         bo.setUsagerId(dto.getUsagerId());

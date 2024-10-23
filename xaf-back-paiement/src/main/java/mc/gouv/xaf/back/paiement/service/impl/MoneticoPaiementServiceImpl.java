@@ -55,9 +55,9 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -313,7 +313,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
             List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBO.getCommande().getPkCommandes());
-            demandesStatutsService.updateMultipleStatuts(demandes, new StatutPublicOuInterneDTO(EN_COURS_PAIEMENT_STATUT_KEY, null));
+            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandeData(demandes, dateValidite, moneticoResponseDTO);
         } else {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.INVALIDE);

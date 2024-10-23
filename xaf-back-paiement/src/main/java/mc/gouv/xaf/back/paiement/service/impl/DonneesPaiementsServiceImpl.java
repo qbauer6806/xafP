@@ -15,7 +15,6 @@ import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,9 +44,7 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
             PaiementStatutEnum statutEnum = PaiementStatutEnum.valueOf(statutPaiement.getValue());
             mav.addObject("statutPaiementCode", statutEnum.name());
             mav.addObject("statutPaiement", statutEnum.getLibelle());
-            StatutPublicOuInterneDTO statutPaiementDTO = new StatutPublicOuInterneDTO();
-            statutPaiementDTO.setName(statutEnum.name());
-            mav.addObject("statutPaiementColor", demarchesDataProvider.getStatusColorClass(statutPaiementDTO));
+            mav.addObject("statutPaiementColor", demarchesDataProvider.getStatusColorClass(statutEnum.name()));
         }
         DemandeDataDTO dateExpirationEmpreinte = demandesDataService.getDemandeData(demandeId, PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name());
         if (dateExpirationEmpreinte != null && StringUtils.isNotBlank(dateExpirationEmpreinte.getValue())) {

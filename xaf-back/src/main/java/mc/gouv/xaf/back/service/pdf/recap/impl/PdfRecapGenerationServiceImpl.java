@@ -132,7 +132,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             builder.useSVGDrawer(new BatikSVGDrawer());
             try(FileInputStream inputStream = new FileInputStream(htmlSource)) {
                 String contenu = IOUtils.toString(inputStream, Charset.defaultCharset());
-                LOGGER.info("HTML Source : {}", contenu);
+                LOGGER.debug("HTML Source : {}", contenu);
             }
             builder.withFile(htmlSource);
             builder.toStream(os);

@@ -20,9 +20,6 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MotifDTO {
 
-    public static final String LANG_FR = "fr";
-    public static final String LANG_EN = "en";
-
     private Integer pkMotifs;
 
     @NotNull

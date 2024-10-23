@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service;
 
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Interface à implémenter par la démarche, lui permettant de fournir
@@ -59,7 +59,7 @@ public interface AfHistoService {
     default DemandeHistoriqueDTO historiqueValidationHierachique(Integer demandeId, String targetState, String agentId) {
         return null;
     }
-    DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, StatutPublicOuInterneDTO spoi, String agentId);
+    DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, String statutName, String agentId);
 
     void saveHisto(Integer demandeId, DemandeHistoriqueDTO histo);
 

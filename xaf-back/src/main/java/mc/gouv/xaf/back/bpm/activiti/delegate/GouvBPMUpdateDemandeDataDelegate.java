@@ -2,10 +2,8 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import lombok.Getter;
 import lombok.Setter;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.common.engine.api.delegate.Expression;
@@ -36,9 +34,6 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
     @Autowired
     private DemandesStatutsService demandesStatutsService;
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
     @Override
     public void execute(DelegateExecution execution) {
 
@@ -56,12 +51,10 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");
         }
 
-        // xaf 12 on n'utilise plus le flag IS_EN_ATTENTE_VALIDATION pour les validations hérarchiques
+        // xaf 12 on n'utilise plus le flag IS_EN_ATTENTE_VALIDATION pour les validations hiérarchiques
         // on est obligé de laisser cette condition pour faire marcher les anciennes demandes qui sont encore actives avec des vieux bpmn
         if (dataKeyStr.equals("IS_EN_ATTENTE_VALIDATION") && dataValueStr.equals("1")) {
-            StatutPublicOuInterneDTO statutPublicOuInterneDTO = demarchesDataProvider.getStatutPublicOuInterne(demandeId, "VALIDATION_HIERARCHIQUE");
-            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO,
-                    AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
+            demandesStatutsService.updateStatut(demandeId, "VALIDATION_HIERARCHIQUE", AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
         } else {
             demandesDataService.saveOrUpdateDemandeData(demandeId, dataKeyStr,
                     dataValueStr);

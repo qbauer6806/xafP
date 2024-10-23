@@ -66,9 +66,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 
     @Autowired
     private PaysCache paysCache;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
     
     @Autowired
     private PropertiesService propertiesService;
@@ -167,7 +164,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
     		cell.setCellValue(demande.getIdentifiant());
     		cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
-    		cell.setCellValue(afBackUtils.getStatutPublicOuInterne(demande).getLibelle());
+    		cell.setCellValue(demande.getDernierStatut().getLibelle());
 		}
 		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
         genererColonnes(workbook, sections, row, demande, header);

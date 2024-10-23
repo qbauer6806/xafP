@@ -137,8 +137,8 @@
 											<td
 												th:text="${#dates.format(demande.dateCreation,'dd/MM/yyyy')}" />
 											<td><span
-												th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(AfBackUtils.getStatutPublicOuInterne(demande))}"
-												th:text="${AfBackUtils.getStatutPublicOuInterne(demande)}"></span></td>
+												th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(demande.dernierStatut.getName())}"
+												th:text="${demande.dernierStatut.getLibelle()}"></span></td>
 											<td th:text="${demande.canal}" />
 											<td th:text="${demande.langue}" />
 										</tr>

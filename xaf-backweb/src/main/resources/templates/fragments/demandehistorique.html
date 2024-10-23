@@ -26,7 +26,7 @@
 							<div class="panel-body">
 								<span th:each="histo : ${histos}"> <span
 									style="vertical-align: middle;"
-									th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(histo.contenu.statutPublicOuInterne)}">&nbsp;</span>
+									th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(histo.contenu.statutName)}">&nbsp;</span>
 									<span style="font-weight: bold"
 									th:text="'&nbsp;' + ${#dates.format(histo.demHistorique.date,'dd/MM/yyyy - HH:mm')} + '&nbsp;'" />
 									<span th:utext="${histo.contenu.html}" />&nbsp;

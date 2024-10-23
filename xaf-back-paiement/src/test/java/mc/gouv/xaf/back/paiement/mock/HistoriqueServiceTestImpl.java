@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.paiement.mock;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -86,7 +86,7 @@ public class HistoriqueServiceTestImpl implements AfHistoService {
     }
 
     @Override
-    public DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, StatutPublicOuInterneDTO spoi, String agentId) {
+    public DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, String statutName, String agentId) {
         return null;
     }
 

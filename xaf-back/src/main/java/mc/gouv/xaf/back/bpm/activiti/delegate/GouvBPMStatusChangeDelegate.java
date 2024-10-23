@@ -2,8 +2,6 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import lombok.Getter;
 import lombok.Setter;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.common.engine.api.delegate.Expression;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Component;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.StatutInputDTO;
 
 /**
  * 
@@ -39,9 +36,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
     @Autowired
     private DemandesStatutsService demandesStatutsService;
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
     private Expression codeMotif;
 
     @Override
@@ -49,12 +43,12 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         LOGGER.info("==== xaf-back CHANGEMENT STATUT ...");
 
-        String statut = getTargetState(execution);
+        String statutName = getTargetState(execution);
 
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         LOGGER.info("Demande : {}", demandeId);
-        LOGGER.info("Statut à mettre : {}", statut);
+        LOGGER.info("Statut à mettre : {}", statutName);
 
         String codeMotifStr = null;
         if (codeMotif != null && codeMotif.getValue(execution) != null) {
@@ -86,17 +80,14 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate
         // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
         // par défaut l'agent authentifié
-        StatutInputDTO statutInput = new StatutInputDTO();
-        StatutPublicOuInterneDTO statutPublicOuInterneDTO = demarchesDataProvider.getStatutPublicOuInterne(demandeId, statut);
         if (usagerId != null) {
-            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO, null,
+            demandesStatutsService.updateStatut(demandeId, statutName, null,
                     Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
-            statutInput.setUsagerId(Integer.parseInt(usagerId));
         } else if (agentId != null) {
-            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO, agentId,
+            demandesStatutsService.updateStatut(demandeId, statutName, agentId,
                     null, codeMotifStr, commentaireUsager, texteAEnvoyer);
         } else {
-            demandesStatutsService.updateStatut(demandeId, statutPublicOuInterneDTO,
+            demandesStatutsService.updateStatut(demandeId, statutName,
                     AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager, texteAEnvoyer);
         }
 

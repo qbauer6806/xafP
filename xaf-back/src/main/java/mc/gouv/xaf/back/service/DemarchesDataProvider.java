@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
-import mc.gouv.xaf.shared.dto.GenericStatusDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -19,23 +17,26 @@ import org.apache.commons.lang3.StringUtils;
  */
 public interface DemarchesDataProvider {
 
-    String getStatusLibelle(String status);
+    /**
+     * @return TSCODEDemandeStatutEnum.valueOf(status).getLibelle();
+     */
+    String getStatusLibelle(String statusName);
 
-    String getStatusColorClass(StatutPublicOuInterneDTO statutPublicOuInterne);
+    String getStatusColorClass(String statutName);
 
     String getDemandeur(DemandeDTO contenuDemandeDTO);
 
-    List<GenericStatusDTO> getCandidateStatusesForMotifs();
-
-    StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto);
-
+    /**
+     * @return TSCODEDemandeStatutEnum.getMap();
+     */
     Map<String, String> getStatusMap();
 
+    /**
+     * @return TSCODEDemandeStatutEnum.getPrivateStatuts();
+     */
     Map<String, String> getPrivateStatusMap();
 
     String getVersion();
-
-    StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutName);
 
     boolean getDemarcheCanGenerateCourriers();
 
@@ -93,9 +94,9 @@ public interface DemarchesDataProvider {
     }
 
     /**
-     * @return return new StatutPublicOuInterneDTO(TSCODEDemandeStatutEnum.ANNULEE.name(), TSCODEDemandeStatutEnum.ANNULEE.libelle);
+     * @return TSCODEDemandeStatutEnum.ANNULEE.name()
      */
-    StatutPublicOuInterneDTO getStatutAnnulee();
+    String getStatutAnnulee();
 
     /**
      * @return TSCODECodeMotifEnum.ANNULATION_PAR_USAGER.name()
@@ -108,9 +109,9 @@ public interface DemarchesDataProvider {
     String getCodeMotifAnnulationDesinscription();
 
     /**
-     * @return return new StatutPublicOuInterneDTO(TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name(), TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.libelle);
+     * @return return TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name()
      */
-    StatutPublicOuInterneDTO getPremierStatutCreationDemande();
+    String getPremierStatutCreationDemande();
 
     /**
      * @return TSCODEDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name()
@@ -119,10 +120,6 @@ public interface DemarchesDataProvider {
         return null;
     }
 
-    /**
-     * TSCODEGenericContenuProjectDemandeDTO contenu = TSCODEUtils.getGenericContenuDemande(demande);
-     * return contenu != null && contenu.getDonnee().getDemandeur().getNomusage() != null && StringUtils.equalsIgnoreCase(contenu.getDonnee().getDemandeur().getNomusage(), stringToCheck);
-     */
     boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck);
 
     /**
@@ -150,11 +147,6 @@ public interface DemarchesDataProvider {
      * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER_OBJET.name();
      */
     String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager();
-
-    /**
-     * @return TSCODEDemandeStatutEnum.getAllStatuts();
-     */
-    String[] getAllStatuts();
 
     /**
      * Retourne le libellé du statut brouillon non transmis

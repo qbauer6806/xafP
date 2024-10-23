@@ -9,7 +9,7 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class UsagersServiceImpl implements UsagersService {
     private DemarchesDataProvider demarchesDataProvider;
 
     @Override
-    public void desinscriptionUsager(Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif) {
+    public void desinscriptionUsager(Integer usagerId, String statutAnnulation, String codeMotif) {
 
         LOGGER.info("Récupération des demandes liées à l'usager...");
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
@@ -60,7 +60,7 @@ public class UsagersServiceImpl implements UsagersService {
         LOGGER.info("Mise à jour du statut des demandes...");
         for (DemandeDTO demande : demandes) {
             boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()).equals(StatutSimplifieEnum.TERMINEE);
-            if (!isFinal && !statutAnnulation.getName().equals(demande.getDernierStatut().getName())) {
+            if (!isFinal && !statutAnnulation.equals(demande.getDernierStatut().getName())) {
                 demandesStatutsService.updateStatut(demande.getPkDemandes(), statutAnnulation,
                         null, usagerId, codeMotif, null, null);
             }

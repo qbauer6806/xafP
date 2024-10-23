@@ -8,8 +8,8 @@ import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
@@ -109,7 +109,7 @@ public interface DemandesService {
      *
      * @return La demande sauvegardée
      */
-    DemandeDTO saveDemande(DemandeDTO demande, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException;
+    DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes) throws IOException;
 
 
     /**
@@ -118,9 +118,9 @@ public interface DemandesService {
      * @param partialUpdate true si il faut effectuer une mise à jour partielle
      * @return La demande sauvegardée ou mise à jour
      */
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut) throws IOException, SAXException;
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException;
 
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException, SAXException;
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName, JsonNode donneesExternes) throws IOException, SAXException;
 
 
     /**

@@ -1,8 +1,10 @@
 package mc.gouv.xaf.backweb.web.config.advice;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,9 +42,16 @@ public class AfBackWebControllerAdvice {
     @Value("${application.name}")
     private String applicationName;
 
-    private long buildTimestamp = 0;
+    @Value("${mc.gouv.logon.url:OPTIONAL}")
+    private String logonUrl;
 
-    public static final String DATE_FORMAT_TS_MAVEN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private long buildTimestamp = 0;
+    private String nomDemarche = null;
+
+    private static final String DATE_FORMAT_TS_MAVEN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     @ModelAttribute(name = "helpUrl")
     public String addHelpUrl() {
@@ -100,4 +109,29 @@ public class AfBackWebControllerAdvice {
         return StringUtils.upperCase(applicationName);
     }
 
+    @ModelAttribute(name = "logonUrl")
+    public String getGouvSharedLogonUrl() {
+        return logonUrl;
+    }
+
+    /**
+     * Permets de récupérer le nom de la demarche de façon global.
+     * On retourne une chaine vide en cas d'exception pour éviter d'afficher la stacktrace à l'usager.
+     * Il s'agit d'une Expression EL de Thymeleaf
+     *
+     * @return
+     */
+    @ModelAttribute("nomDemarche")
+    public String globalNomDemarche() {
+        try {
+            //Pour éviter plusieurs appels à la base
+            if (StringUtils.isBlank(nomDemarche)) {
+                nomDemarche = afBackUtils.getDemarcheNom();
+            }
+            return nomDemarche;
+        } catch (Exception ex) {
+            LOGGER.error("Erreur de recuperation du nom de la demarche", ex);
+            return StringUtils.EMPTY;
+        }
+    }
 }

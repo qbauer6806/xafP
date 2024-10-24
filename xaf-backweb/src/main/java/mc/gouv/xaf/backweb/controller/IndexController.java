@@ -22,8 +22,6 @@ public class IndexController extends AbstractController {
 
     @Autowired
     private IndexControllerInterface indexControllerInterface;
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @GetMapping
     public ModelAndView form() {
@@ -31,8 +29,6 @@ public class IndexController extends AbstractController {
         LOGGER.info("======================= Appel de la page /");
 
         ModelAndView mav = indexControllerInterface.form();
-        mav.addObject("nomDemarche", afBackUtils.getDemarcheNom());
-        mav.addObject("logonUrl", afBackUtils.getLogonUrl());
 
         LOGGER.info("======================= Fin /");
         return mav;
@@ -45,8 +41,6 @@ public class IndexController extends AbstractController {
 
         ModelAndView mav = indexControllerInterface.formIndex();
         mav.addObject("agentId", AfBackUtils.getAuthenticatedAgentId());
-        mav.addObject("nomDemarche", afBackUtils.getDemarcheNom());
-        mav.addObject("logonUrl", afBackUtils.getLogonUrl());
 
         LOGGER.info("======================= Fin /index");
         return mav;

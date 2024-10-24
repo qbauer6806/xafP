@@ -60,7 +60,7 @@ APP.getConfigurationDataTableCourriers = function (columns, imprimes) {
     language: frenchTranslation,
     iDisplayLength: 5,
     lengthChange: false,
-    order: [[1, "desc"]],
+    order: [ [1, "desc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
     // bugfix #29868 - afficher les tooltips dans les datatable
     drawCallback: function (settings) {
       $('[data-toggle="tooltip"]').tooltip();

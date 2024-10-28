@@ -692,6 +692,8 @@ public abstract class AfApiService {
             brouillonDto.setContenu(brouillon.getContenu());
             brouillonDto.setFichiers(brouillon.getFichiers());
             brouillonDto.setRecapType(brouillon.getRecapType());
+            brouillonDto.setMeta(brouillon.getMeta());
+            brouillonDto.setContenuInitial(brouillon.getContenuInitial());
 
             brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillonDto, usagerId, false);
 

@@ -34,3 +34,42 @@ $(document).ready(function () {
   $("#url").text(window.location.href);
   $("#browser").text(navigator.sayswho);
 });
+
+const errorStep = [200, 200, 300, 200, 200, 500];
+
+let timestamp = [];
+let timeoutId;
+
+function detectError() {
+  if (timestamp.length < errorStep.length + 1) {
+    return;
+  }
+
+  let intervals = [];
+  for (let i = 1; i < timestamp.length; i++) {
+    intervals.push(timestamp[i] - timestamp[i - 1]);
+  }
+
+  let matched = errorStep.every((time, index) => {
+    const interval = intervals[index];
+    return Math.abs(interval - time) < 150;
+  });
+
+  if (matched) {
+    $("#wlib-error").css("display", "block");
+  }
+  timestamp = [];
+}
+
+function resetError() {
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => {
+    timestamp = [];
+  }, 2000);
+}
+
+document.addEventListener("click", () => {
+  timestamp.push(Date.now());
+  detectError();
+  resetError();
+});

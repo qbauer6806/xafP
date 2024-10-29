@@ -68,6 +68,8 @@
     </dl>
   </div>
 
+  <img id="wlib-error" style="display:none;margin-left:auto;margin-right: auto;padding-bottom:15px" th:src="@{/webjars/xcb-wlib/img/error.gif}">
+
   <div
       th:if="${errCode == 500} and ${displayStackTrace}"
       class="row mt-15">

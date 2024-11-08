@@ -108,8 +108,9 @@ public class FileUploadController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                     "Erreur: nom du fichier manquant");
         }
-        // On remplace les caractères spéciaux dans le nom du fichier, à l'exception des points, tirets et underscores, par des underscores.
-        String safeFileName = filename.replaceAll(FILE_NAME_REGEX, "_");
+        // Après suppression des diacritiques (accents, cédilles, etc.) dans le nom du fichier, les caractères spéciaux,
+        // à l'exception des points, tirets et underscores, sont remplacés par des underscores.
+        String safeFileName = StringUtils.stripAccents(filename).replaceAll(FILE_NAME_REGEX, "_");
         // ---  Vérification de la conformité du fichier
         // Vérification du type du fichier
         LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);

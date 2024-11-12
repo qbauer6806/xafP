@@ -142,7 +142,7 @@ public class FileUploadController extends AbstractXafController {
             }
 
             // Génération de l'UUID
-            UUID uuid = XafFrontserverUtils.generateUUID();
+            UUID uuid = UUID.randomUUID();
             LOGGER.debug("UUID généré : {}", uuid);
 
             String accountId = propertiesResolver.getDemarcheId().toUpperCase();

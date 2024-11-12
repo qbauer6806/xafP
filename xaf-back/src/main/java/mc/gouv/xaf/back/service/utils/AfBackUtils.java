@@ -1,12 +1,12 @@
 package mc.gouv.xaf.back.service.utils;
 
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import mc.gouv.file.apiclient.FileClient;
@@ -68,9 +67,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
-import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -238,16 +234,6 @@ public class AfBackUtils {
             }
         }
         return StringEscapeUtils.escapeHtml4(builder.toString());
-    }
-
-    /**
-     * Génère un UUID version 1 (time+location based UUID)
-     * TODO copié de afservlet, supprimer dans l'un des deux
-     */
-    public static UUID generateUUID() {
-        EthernetAddress addr = EthernetAddress.fromInterface();
-        TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-        return uuidGenerator.generate();
     }
 
     /**

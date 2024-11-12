@@ -2,18 +2,14 @@ package mc.gouv.xaf.front.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -120,17 +116,6 @@ public class XafFrontserverUtils {
     public ResponseEntity logAndSendError(Logger logger, int httpStatusCode, String errMsg) {
         logger.error(errMsg);
         return ResponseEntity.status(HttpStatus.valueOf(httpStatusCode)).build();
-    }
-
-    /**
-     * Génère un UUID version 1 (time+location based UUID)
-     *
-     * @return UUID
-     */
-    public static UUID generateUUID() {
-        EthernetAddress addr = EthernetAddress.fromInterface();
-        TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-        return uuidGenerator.generate();
     }
 
     /**

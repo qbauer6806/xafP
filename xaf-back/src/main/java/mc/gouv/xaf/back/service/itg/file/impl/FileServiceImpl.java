@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import mc.gouv.file.shared.dto.FileBatchDTO;
 import mc.gouv.vscan.shared.dto.ScanDTO;
@@ -129,7 +130,7 @@ public class FileServiceImpl implements FileService {
         // On part du principe que le fichier a été généré côté back et n'est pas malicieux
         Map<String, String> customHeaders = createCustomHeaders(demande, true);
 
-        filename = demande.getFkAccess() + SLASH_DELIMITER + AfBackUtils.generateUUID() + SLASH_DELIMITER + filename;
+        filename = demande.getFkAccess() + SLASH_DELIMITER + UUID.randomUUID() + SLASH_DELIMITER + filename;
 
         LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
 
@@ -153,7 +154,7 @@ public class FileServiceImpl implements FileService {
         boolean vscanActivation = prepareSave(file);
 
         String filename =
-                SLASH_DELIMITER + demande.getFkAccess() + SLASH_DELIMITER + AfBackUtils.generateUUID() + SLASH_DELIMITER
+                SLASH_DELIMITER + demande.getFkAccess() + SLASH_DELIMITER + UUID.randomUUID() + SLASH_DELIMITER
                         + URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
         LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
@@ -196,7 +197,7 @@ public class FileServiceImpl implements FileService {
 
         boolean vscanActivation = prepareSave(file);
 
-        String filename = "/publications/" + AfBackUtils.generateUUID() + SLASH_DELIMITER + URLEncoder.encode(
+        String filename = "/publications/" + UUID.randomUUID() + SLASH_DELIMITER + URLEncoder.encode(
                 file.getOriginalFilename(), StandardCharsets.UTF_8);
 
         LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);

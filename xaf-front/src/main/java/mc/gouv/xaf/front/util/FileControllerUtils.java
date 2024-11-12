@@ -359,7 +359,7 @@ public class FileControllerUtils {
     public ResponseEntity uploadToFILE(UsagerInfosDTO usagerInfosDTO, String filename, String typeModele,
             InputStream filestream) throws URISyntaxException, IOException {
         // Génération de l'UUID
-        UUID uuid = XafFrontserverUtils.generateUUID();
+        UUID uuid = UUID.randomUUID();
         LOGGER.debug("UUID généré : {}", uuid);
 
         // Récupération de l'AccessID via appel WS à Demarches

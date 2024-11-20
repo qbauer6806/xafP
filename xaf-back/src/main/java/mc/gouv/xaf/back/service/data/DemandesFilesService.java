@@ -51,15 +51,8 @@ public interface DemandesFilesService {
      *
      * @param demandeDTO
      *         La demande à supprimer
-     * @param statutCheck
-     *         Flag permettant de savoir si on fait un check des statuts ou pas
-     * @param statuts
-     *         Liste des statuts à check
-     * @param jours
-     *         nombre de jour avant la suppression
      */
-    void suppressionDesFichiers(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours);
+    void suppressionDesFichiers(DemandeDTO demandeDTO);
 
-    void deleteAllOrphans();
 
 }

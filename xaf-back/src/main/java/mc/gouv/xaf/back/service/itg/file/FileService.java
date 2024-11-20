@@ -78,4 +78,7 @@ public interface FileService {
 
     void deleteFiles(String containerId, List<String> fileName);
 
+    boolean isFileDeletable(String fileName);
+
+    boolean isFileFromDemande(String fileUrl);
 }

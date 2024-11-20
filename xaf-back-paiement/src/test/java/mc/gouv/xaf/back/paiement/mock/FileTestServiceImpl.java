@@ -82,4 +82,15 @@ public class FileTestServiceImpl implements FileService {
     public void deleteFiles(String containerId, List<String> fileName) {
 
     }
+
+    @Override
+    public boolean isFileDeletable(String fileName) {
+        return false;
+    }
+
+    @Override
+    public boolean isFileFromDemande(String fileUrl) {
+        return false;
+    }
+
 }

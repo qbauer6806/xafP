@@ -144,6 +144,10 @@ public class DocHolderFileController extends AbstractXafController {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
+        if (fileControllerUtils.limiteUploadAtteinte(usagerInfosDTO.getId())) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
+        }
         LOGGER.info(VERIFICATION);
         DocHolderFilePostDTO filePostDTO;
         try {
@@ -183,6 +187,7 @@ public class DocHolderFileController extends AbstractXafController {
                             LOGGER.error(IMPOSSIBLE_MAJ);
                         }
                     }
+                    fileControllerUtils.cleanLimiteUpload(usagerInfosDTO.getId());
                     LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
 
                     return ResponseEntity.status(statusCode)
@@ -281,7 +286,10 @@ public class DocHolderFileController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
-
+        if (fileControllerUtils.limiteUploadAtteinte(usagerInfosDTO.getId())) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
+        }
         LOGGER.info(VERIFICATION);
         DocHolderFileUpdateDTO fileUpdateDTO = null;
         try {
@@ -316,6 +324,7 @@ public class DocHolderFileController extends AbstractXafController {
                     LOGGER.error(IMPOSSIBLE_MAJ);
                 }
             }
+            fileControllerUtils.cleanLimiteUpload(usagerInfosDTO.getId());
             LOGGER.info("====================== Fin {} doPatch()", req.getServletPath());
             return ResponseEntity.status(statusCode)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));

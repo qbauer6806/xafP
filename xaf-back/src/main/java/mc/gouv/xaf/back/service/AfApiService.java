@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +18,6 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
@@ -29,6 +30,7 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
@@ -59,6 +61,7 @@ import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import org.apache.commons.lang3.StringUtils;
@@ -131,6 +134,9 @@ public abstract class AfApiService {
 
     @Autowired
     private BrouillonsService brouillonsService;
+
+    @Autowired
+    private FileService fileService;
 
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
@@ -706,13 +712,12 @@ public abstract class AfApiService {
     }
 
     public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
-        BrouillonDTO brouillonDto = null;
+        BrouillonDTO brouillonDto;
         try {
 
             brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillon, usagerId, false);
 
         } catch (Exception e) {
-            LOGGER.error("Erreur lors de la mise à jour d'un brouillon {}", brouillonDto);
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la mise à jour d'un brouillon", e);
         }
@@ -733,6 +738,19 @@ public abstract class AfApiService {
 
     public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
         brouillonsService.deleteBrouillon(pkBrouillons, usagerId);
+    }
+
+    public void deleteFile(String fileUrl) {
+        // vérifier que le fichier n'est pas déjà dans une demande (pour éviter que l'usager utilise l'endpoint de manière malveillante)
+        // et vérifier que le fichier n'est pas utilisé dans un autre brouillon ou autre demande
+        if (!fileService.isFileFromDemande(fileUrl) && fileService.isFileDeletable(fileUrl)) {
+            String url = URLEncoder.encode(fileUrl, StandardCharsets.UTF_8);
+            fileService.deleteFile("ROOT", url);
+        } else {
+            LOGGER.info(
+                    "Le fichier n'a pas été supprimé de FILE car déjà utilisé ailleurs, ou tentative de suppression d'un fichier d'une demande {}",
+                    fileUrl);
+        }
     }
 
     @Transactional

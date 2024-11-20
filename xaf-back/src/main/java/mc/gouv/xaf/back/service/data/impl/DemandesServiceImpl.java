@@ -711,7 +711,7 @@ public class DemandesServiceImpl implements DemandesService {
 
         DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
         LOGGER.info("Suppression des fichiers de la demande {}...", demandeId);
-        demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
+        demandesFilesService.suppressionDesFichiers(demandeDTO);
         LOGGER.info("Suppression des fichiers complémentaires de la demande {}...", demandeId);
         demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
 

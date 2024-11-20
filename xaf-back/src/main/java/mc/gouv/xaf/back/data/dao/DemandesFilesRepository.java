@@ -1,11 +1,8 @@
 package mc.gouv.xaf.back.data.dao;
 
 import java.util.List;
-
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import org.springframework.data.repository.CrudRepository;
 
 /**
  * @author qdeme
@@ -21,8 +18,5 @@ public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO,
     List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndMeta(Integer pkDemande, String meta);
 
     Integer countByUrl(String url);
-
-    @Query("select DF from DemandesFilesBO DF where DF.fkDemandes.pkDemandes not in (select D.pkDemandes from DemandeBO D)")
-    List<DemandesFilesBO> findAllNonReferencedFiles();
 
 }

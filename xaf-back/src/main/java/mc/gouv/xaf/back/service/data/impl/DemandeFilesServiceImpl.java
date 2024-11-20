@@ -10,17 +10,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -52,9 +48,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     private DemandesFilesRepository demandesFilesRepository;
 
     @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
     private DemandesService demandesService;
 
     @Autowired
@@ -62,9 +55,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private DemandeFileTransformer demandeFileTransformer;
-
-    @Autowired
-    private DemandesTransformer demandesTransformer;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -215,18 +205,13 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     }
 
     @Override
-    public void suppressionDesFichiers(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours) {
+    public void suppressionDesFichiers(DemandeDTO demandeDTO) {
         if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
             for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
                 // On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
                 // demande ou ses enfants (ie les demandes dupliquées qui découlent de cette demande)
                 // On vérifie également si le fichier est présent dans un brouillon, dans ce cas on ne supprime pas
-                List<DemandesFilesBO> existingFiles = demandesFilesRepository.findAllByUrl(
-                        currentFileToDelete.getUrl());
-                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(
-                        currentFileToDelete.getUrl());
-                if (null != existingFiles && isFileDeletable(existingFiles, existingFilesBrouillons, statutCheck,
-                        statuts, jours)) {
+                if (fileService.isFileDeletable(currentFileToDelete.getUrl())) {
                     String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
                     fileService.deleteFile("ROOT", url);
                 }
@@ -234,46 +219,5 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
-    private boolean isFileDeletable(List<DemandesFilesBO> existingFiles,
-            List<BrouillonsFilesBO> existingFilesBrouillons, boolean statutCheck, List<String> statuts, int jours) {
-        boolean isFileDeletable = false;
-        if (existingFiles.size() <= 1 && (existingFilesBrouillons == null || existingFilesBrouillons.isEmpty())) {
-            if (statutCheck) {
-                for (DemandesFilesBO demandesFilesBO : existingFiles) {
-                    DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
-                    DemandeDTO concernedDemandeDTO = demandesTransformer.bo2Dto(concernedDemandeBO);
-                    isFileDeletable = isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-                    LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise",
-                            demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
-                }
-            } else {
-                return true;
-            }
-        }
-        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande",
-                existingFiles.get(0).getName());
-        return isFileDeletable;
-    }
 
-    private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
-        long diffInMillies = Math.abs(
-                new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
-        long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return statuts.contains(concernedDemandeDTO.getDernierStatut().getName()) && diff >= jours;
-    }
-
-    @Override
-    public void deleteAllOrphans() {
-        for (DemandesFilesBO fichierOrphelin : demandesFilesRepository.findAllNonReferencedFiles()) {
-            Integer refs = demandesFilesRepository.countByUrl(fichierOrphelin.getUrl());
-            LOGGER.debug("L'url du fichier est utilisée par {}", refs);
-            if (refs == 0) {
-                String url = URLEncoder.encode(fichierOrphelin.getUrl(), StandardCharsets.UTF_8);
-                fileService.deleteFile("ROOT", url);
-            }
-
-            demandesFilesRepository.delete(fichierOrphelin);
-        }
-
-    }
 }

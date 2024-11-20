@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 import mc.gouv.xaf.front.dto.DocHolderFilePostDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
@@ -37,6 +38,8 @@ class DocHolderControllerTest {
     private HttpServletRequest request;
     @Mock
     private XafFrontserverUtils servletUtilsMocked;
+    @Mock
+    private FileControllerUtils fileControllerUtils;
     @InjectMocks
     private DocHolderTypedocController docHolderTypedocController;
     @InjectMocks

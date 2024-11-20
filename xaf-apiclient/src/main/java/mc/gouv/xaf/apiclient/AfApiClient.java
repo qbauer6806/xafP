@@ -343,6 +343,13 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
     }
 
+    public void deleteFile(String fileUrl) {
+        Response res = getTarget().path("/file/" + fileUrl).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         Response res = getTarget().path("brouillonspage").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam("page", paramDTO.getPage()).queryParam("size", paramDTO.getSize())

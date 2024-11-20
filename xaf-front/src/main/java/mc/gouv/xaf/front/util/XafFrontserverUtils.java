@@ -33,8 +33,6 @@ public class XafFrontserverUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XafFrontserverUtils.class);
 
-    public static final String DEMARCHEID_KEY = "DemarcheID";
-
     public static final String CONTAINER_ROOT = "ROOT";
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";

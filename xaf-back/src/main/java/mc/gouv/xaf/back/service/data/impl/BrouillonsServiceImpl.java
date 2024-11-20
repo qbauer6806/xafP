@@ -13,12 +13,10 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -74,9 +72,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private FileService fileService;
-
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
 
     @Autowired
     private DemandesConfigService demandesConfigService;
@@ -267,11 +262,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
         if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
             for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
-                List<DemandesFilesBO> existingFilesDemandes = demandesFilesRepository.findAllByUrl(
-                        currentFileToDelete.getUrl());
-                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(
-                        currentFileToDelete.getUrl());
-                if (isFileDeletable(existingFilesDemandes, existingFilesBrouillons)) {
+                if (fileService.isFileDeletable(currentFileToDelete.getUrl())) {
                     String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
                     fileService.deleteFile("ROOT", url);
                 }
@@ -281,13 +272,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         access.getBrouillons().remove(brouillonBo);
         accessRepository.save(access);
         brouillonsRepository.delete(brouillonBo);
-    }
-
-    private boolean isFileDeletable(List<DemandesFilesBO> existingFilesDemandes,
-            List<BrouillonsFilesBO> existingFilesBrouillons) {
-        // le fichier du brouillon est supprimable uniquement s'il n'est pas utilisé dans une autre demande, et s'il n'est pas utilisé dans un autre brouillon
-        return existingFilesDemandes != null && existingFilesDemandes.isEmpty() && existingFilesBrouillons != null
-                && existingFilesBrouillons.size() <= 1;
     }
 
     /**

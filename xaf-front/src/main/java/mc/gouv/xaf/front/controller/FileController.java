@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -26,6 +27,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Servlet servant à télécharger ou visualiser un fichier de FILE.
@@ -45,11 +50,15 @@ public class FileController extends AbstractXafController {
 
     private static final String SLASH = "/";
 
-    public ResponseEntity doGet(String accessId, String uuid, String filename, HttpServletRequest request,
-            boolean isPreview) throws IOException {
-        LOGGER.info("====================== /fileservlet doGet()");
+    @GetMapping(value = { "/file/{accessId}/{uuid}/{filename}" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity doGet(@PathVariable(required = false) String accessId,
+            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename,
+            @RequestParam(value = "mode", required = false) String mode, HttpServletRequest request)
+            throws IOException {
+        LOGGER.info("====================== /filedownload doGet()");
 
         try {
+            LOGGER.info("====================== /fileservlet doGet()");
             UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
             if (usagerInfosDTO == null) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
@@ -110,9 +119,8 @@ public class FileController extends AbstractXafController {
                 if (header.getName().startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                     response.header(header.getName(), header.getValue());
                 } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
-                    String headerValue = isPreview
-                            ? header.getValue().replace("attachment;", "inline;")
-                            : header.getValue();
+                    String headerValue = "preview".equalsIgnoreCase(mode) ? header.getValue()
+                            .replace("attachment;", "inline;") : header.getValue();
                     response.header(header.getName(), URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
                 }
             }
@@ -120,8 +128,40 @@ public class FileController extends AbstractXafController {
             LOGGER.info("====================== Fin /fileservlet doGet()");
 
             return response.body(new InputStreamResource(getResponse.getEntity().getContent()));
-        } catch (IOException | NumberFormatException e) {
-            LOGGER.error("FileServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+
+        } catch (Exception e) {
+            LOGGER.error("FileController - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping(value = { "/file/{accessId}/{uuid}/{filename}" })
+    public ResponseEntity doDelete(@PathVariable(required = false) String accessId,
+            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename,
+            HttpServletRequest request) {
+        LOGGER.info("====================== /file doDelete()");
+        UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
+        }
+        if (StringUtils.isBlank(filename)) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    "Erreur: nom ou ID du fichier manquant");
+        }
+        if (accessId != null && (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId()
+                .equals(Integer.parseInt(accessId)))) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                    "Erreur: accès à ce fichier non autorisé");
+        }
+        AfApiClient afApiClient = getAfApiClient();
+
+        LOGGER.info("Appel à la démarche pour supprimer le brouillon");
+        try {
+            afApiClient.deleteFile(accessId + "/" + uuid + "/" + filename);
+            return ResponseEntity.ok().build();
+        } catch (NumberFormatException e) {
+            LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);
             return ResponseEntity.internalServerError().build();
         }
     }

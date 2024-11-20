@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 import mc.gouv.file.shared.dto.FileBatchDTO;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
+import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
@@ -90,6 +92,12 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private PropertiesService propertiesService;
+
+    @Autowired
+    private DemandesFilesRepository demandesFilesRepository;
+
+    @Autowired
+    private BrouillonsFilesRepository brouillonsFilesRepository;
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
@@ -479,6 +487,23 @@ public class FileServiceImpl implements FileService {
             LOGGER.error("Erreur lors de la suppression du batch de fichiers : {}", StringUtils.join(fileList, "-"));
         }
 
+    }
+
+    @Override
+    public boolean isFileDeletable(String fileUrl) {
+        int existingFiles = demandesFilesRepository.findAllByUrl(fileUrl).size();
+        int existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(fileUrl).size();
+        if (existingFiles + existingFilesBrouillons <= 1) {
+            return true;
+        }
+        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
+        return false;
+    }
+
+    @Override
+    public boolean isFileFromDemande(String fileUrl) {
+        int existingFiles = demandesFilesRepository.findAllByUrl(fileUrl).size();
+        return existingFiles >= 1;
     }
 
 }

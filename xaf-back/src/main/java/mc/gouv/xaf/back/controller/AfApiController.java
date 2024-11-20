@@ -267,6 +267,13 @@ public class AfApiController {
         afApiService.deleteBrouillon(brouillonId, usagerId);
     }
 
+    @DeleteMapping(value = "/file/{accessId}/{uuid}/{filename}")
+    public void deleteFileRequest(@PathVariable(required = false) String accessId,
+            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename) {
+        LOGGER.info("AbstractAfApiController.deleteFileRequest({},{},{})", accessId, uuid, filename);
+        afApiService.deleteFile("/" + accessId + "/" + uuid + "/" + filename);
+    }
+
     @GetMapping(value = "/brouillonspage")
     public @ResponseBody Page<BrouillonDTO> getBrouillonsPageableRequest(
             @RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page, @RequestParam int size,

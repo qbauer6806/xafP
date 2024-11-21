@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +48,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.postprocessing.PostProcessingProvider;
+import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
@@ -105,7 +106,7 @@ public class DemandesServiceImpl implements DemandesService {
     private PurgeFilesRepository purgeFilesRepository;
 
     @Autowired
-    private PostProcessingProvider postProcessingProvider;
+    private AfPostProcessingProvider afPostProcessingProvider;
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;
@@ -203,7 +204,7 @@ public class DemandesServiceImpl implements DemandesService {
 
         LOGGER.info("Postprocessing de la demande...");
         try {
-            demande = postProcessingProvider.postprocess(demande, donneesExternes);
+            demande = afPostProcessingProvider.postprocess(demande, donneesExternes);
         } catch (Exception e) {
             LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
         }
@@ -993,6 +994,38 @@ public class DemandesServiceImpl implements DemandesService {
             this.deleteDemandeInGivenStatus(demandeId, statuts, jours);
         }
 
+    }
+
+    @Override
+    public List<DemandeDTO> retrieveDemandesFilteredByDate(String plainStartDate, String plainEndDate) {
+        List<DemandeDTO> demandeDTOS;
+        try {
+            Date startDate = null;
+            Date endDate = null;
+
+            SimpleDateFormat frenchDateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
+            if (StringUtils.isNotEmpty(plainStartDate)) {
+                startDate = frenchDateFormat.parse(plainStartDate);
+            }
+            if (StringUtils.isNotEmpty(plainEndDate)) {
+                endDate = frenchDateFormat.parse(plainEndDate);
+
+                // Last moment of days
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(endDate);
+                cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+                cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+                cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+                endDate = cal.getTime();
+            }
+
+            demandeDTOS = getAllDemandesFilteredByDate(startDate, endDate);
+        } catch (ParseException e) {
+            LOGGER.error("Problème dans le parsing des dates, recherche sur toutes les demandes", e);
+            demandeDTOS = getAllDemandes();
+        }
+
+        return demandeDTOS;
     }
 
 }

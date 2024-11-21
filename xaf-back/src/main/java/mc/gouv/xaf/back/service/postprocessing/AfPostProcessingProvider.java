@@ -12,14 +12,17 @@ import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class AbstractPostProcessingProviderImpl implements PostProcessingProvider {
+public class AfPostProcessingProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPostProcessingProviderImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AfPostProcessingProvider.class);
 
-    @Override
+    @Autowired
+    private PostProcessingProvider postProcessingProvider;
+
     public DemandeDTO postprocess(DemandeDTO demande, JsonNode donneesExternes) {
         JsonNode contenu = demande.getContenu();
         if (donneesExternes != null) {
@@ -82,6 +85,9 @@ public abstract class AbstractPostProcessingProviderImpl implements PostProcessi
         }
 
         demande.setContenu(contenu);
+
+        // code spécifique TS si besoin
+        demande = postProcessingProvider.postprocess(demande, donneesExternes);
         return demande;
     }
 

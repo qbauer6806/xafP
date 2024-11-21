@@ -22,7 +22,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
@@ -81,7 +81,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     private PropertiesService propertiesService;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -165,7 +165,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         }
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
-        Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demandeDTO);
 
         // Calcul de la date expiration de la demande avec valeur par défaut à 35 jours
         PropertiesDTO prop = propertiesService.getProperty(NB_JOURS_AVANT_EXPIRATION_PAIEMENT);

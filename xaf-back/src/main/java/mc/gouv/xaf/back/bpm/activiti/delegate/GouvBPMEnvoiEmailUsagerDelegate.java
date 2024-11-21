@@ -7,7 +7,7 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -45,7 +45,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     private DemandesService demandesService;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Setter
     @Getter
@@ -115,7 +115,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         String commentaire = (String) execution.getVariable(
                 GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
         commentaire = mailService.formatCommentaire(commentaire);
-        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+        Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), codeMotif, commentaire);
 
         try {

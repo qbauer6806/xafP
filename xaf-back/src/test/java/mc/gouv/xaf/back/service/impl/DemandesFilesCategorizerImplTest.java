@@ -1,23 +1,45 @@
 package mc.gouv.xaf.back.service.impl;
 
-import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
-import mc.gouv.xaf.shared.dto.*;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.List;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.FileCategoryDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+@ExtendWith(MockitoExtension.class)
 class DemandesFilesCategorizerImplTest {
 
     private static final String FRONT_FILE = "FRONT_FILE";
     private static final String JUSTIFICATIF_DEMANDE = "JUSTIFICATIF_DEMANDE";
     private static final String FICHIER_INTERNE = "FICHIER_INTERNE";
 
-    private final DemandeFilesCategorizer demandeFilesCategorizer = new AbstractDemandeFilesCategorizerImpl() {
+    @Mock
+    private PropertiesService propertiesService;
 
-    };
+    @InjectMocks
+    private DemandeFilesCategorizerImpl demandeFilesCategorizer;
+
+    @BeforeEach
+    void setUp() {
+        // Mock behavior for the PropertiesService
+        PropertiesDTO mockProperties = new PropertiesDTO();
+        mockProperties.setValue("{\"STAGE\":\"Stage\",\"STAGIAIRE\":\"Stagiaire\"}");
+        when(propertiesService.getProperty("XAF_SECTIONS_FICHIERS_DEMANDE")).thenReturn(mockProperties);
+    }
 
     private DemandeFileDTO createFile(String meta, String name, String url, Date date) {
         DemandeFileDTO file = new DemandeFileDTO();
@@ -75,10 +97,11 @@ class DemandesFilesCategorizerImplTest {
         assertEquals(4, result.size());
         assertEquals("Fichiers de la demande initiale", result.getFirst().getName());
         List<DemandeFileDTO> fileList = result.getFirst().getFiles();
-        assertEquals(2, fileList.size());
-        assertEquals("vide", fileList.get(0).getName());
-        assertEquals("file", fileList.get(1).getName());
-        assertEquals("Fichiers complémentaires", result.get(1).getName());
+        assertEquals(0, fileList.size());
+        List<DemandeFileDTO> fileListSub = result.getFirst().getSubCategories().getFirst().getFiles();
+        assertEquals("vide", fileListSub.get(0).getName());
+        assertEquals("file", fileListSub.get(1).getName());
+        assertEquals("Fichiers complémentaires de l'usager", result.get(1).getName());
         fileList = result.get(1).getFiles();
         assertEquals(1, fileList.size());
         assertEquals("complement", fileList.getFirst().getName());
@@ -101,7 +124,7 @@ class DemandesFilesCategorizerImplTest {
         assertEquals("Fichiers de la demande initiale", result.getFirst().getName());
         List<DemandeFileDTO> fileList = result.get(0).getFiles();
         assertEquals(0, fileList.size());
-        assertEquals("Fichiers complémentaires", result.get(1).getName());
+        assertEquals("Fichiers complémentaires de l'usager", result.get(1).getName());
         fileList = result.get(1).getFiles();
         assertEquals(0, fileList.size());
         assertEquals("Fichiers remis par l'Administration", result.get(2).getName());

@@ -7,6 +7,8 @@ public interface DemandesStatutsRefreshService {
      *
      * @return Un message indiquant le succès ou l'échec de l'update.
      */
-    String refreshStatuts();
+    default String refreshStatuts() {
+        return "Aucun statut n'est à rafraîchir.";
+    }
 
 }

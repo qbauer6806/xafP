@@ -3,15 +3,8 @@ package mc.gouv.xaf.back.service.itg.mail.impl;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import mc.gouv.xaf.shared.SharedMessages;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
+import java.util.Map.Entry;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
@@ -19,14 +12,25 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
 
 @Component
-public abstract class AbstractMailTemplateModelProviderImpl implements MailTemplateModelProvider {
+public class AfMailTemplateModelProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AfMailTemplateModelProvider.class);
 
     @Autowired
     private MotifsCache motifsCache;
@@ -49,8 +53,13 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
     @Autowired
     private MessageSource messageSource;
 
-    @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+    @Autowired
+    private MailTemplateModelProvider mailTemplateModelProvider;
+
+    @Value("${mc.gouv.gichuni.front.url}")
+    private String gichuniFrontUrl;
+
+    private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             Map<String, Object> bpmVariables) {
         Map<String, Object> model = new HashMap<>();
         if (demande != null) {
@@ -98,7 +107,7 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
         return model;
     }
 
-    private Map<String, Object> setAgent(Map<String, Object> model, Map<String, Object> bpmVariables) {
+    private void setAgent(Map<String, Object> model, Map<String, Object> bpmVariables) {
         if (bpmVariables != null) {
             Object mapBpm = bpmVariables.get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
             if (mapBpm != null) {
@@ -107,15 +116,12 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
                 model.put("utilisateur", utilisateursUtils.getUserNameFromID(agentId));
             }
         }
-        return model;
     }
 
-    @Override
     public Map<String, Object> getGenericModelDemande(DemandeDTO demande) {
         return getGenericModelDemande(demande, null, null, null);
     }
 
-    @Override
     public Map<String, Object> getGenericModel() {
         Map<String, Object> model = new HashMap<>();
         DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
@@ -136,8 +142,23 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
         model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
         model.put("urlFicheDemarcheFr", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_FR").getValue());
         model.put("urlFicheDemarcheEn", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_EN").getValue());
+        model.put("gichuniFrontUrl", gichuniFrontUrl);
         return model;
 
+    }
+
+    public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande,
+            Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
+        LOGGER.info("Construction du modèle pour le template (demandeId= {} ...", demande.getPkDemandes());
+
+        Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, bpmVariables);
+        mailTemplateModelProvider.setModel(model, bodyTemplateCode, bpmVariables);
+
+        return model;
+    }
+
+    public Entry<String, String> getMailTemplateCodesForAction(String action) {
+        return mailTemplateModelProvider.getMailTemplateCodesForAction(action);
     }
 
 }

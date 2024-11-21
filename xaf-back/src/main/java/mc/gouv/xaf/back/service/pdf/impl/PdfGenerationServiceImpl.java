@@ -8,12 +8,21 @@ import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.IContext;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.Map.Entry;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
-import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
@@ -26,17 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.Map.Entry;
 
 /**
  * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de génération de PDF (implémenté dans la
@@ -51,7 +49,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
     private static final String APPEL_MESSAGE = "Appel au TemplateAndModelProvider de la démarche {}...";
 
     @Autowired
-    private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+    private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
 
     @Autowired
     private FileService fileService;
@@ -124,7 +122,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     private File generatePdf(DemandeDTO demande, PdfTypeEnum pdfType) {
         LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
-        PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider.getTemplateAndModel(demande, pdfType);
+        PdfTemplateAndModelDTO dto = afPdfTemplateAndModelProvider.getTemplateAndModel(demande, pdfType);
         return generateToFile(demande, dto);
     }
 
@@ -133,14 +131,14 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
             String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType) {
 
         LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
-        PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider.getTemplateAndModelForPreview(demande, statutSuivant,
+        PdfTemplateAndModelDTO dto = afPdfTemplateAndModelProvider.getTemplateAndModelForPreview(demande, statutSuivant,
                 codeMotif, langue, commentaire, texteAEnvoyer, pdfType);
         return generateToFile(demande, dto);
     }
 
     public byte[] generatePdfToStream(DemandeDTO demande) throws IOException, XDocReportException {
         LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
-        PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider.getTemplateAndModel(demande, PdfTypeEnum.COURRIER);
+        PdfTemplateAndModelDTO dto = afPdfTemplateAndModelProvider.getTemplateAndModel(demande, PdfTypeEnum.COURRIER);
         return generateToStream(dto);
     }
 
@@ -185,7 +183,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
             Options options = Options.getTo(ConverterTypeTo.PDF);
 
             LOGGER.info("Récupération des PdfOptions...");
-            PdfOptions pdfOptions = pdfTemplateAndModelProvider.getPdfOptions();
+            PdfOptions pdfOptions = afPdfTemplateAndModelProvider.getPdfOptions();
             if (pdfOptions != null) {
                 options.subOptions(pdfOptions);
             }

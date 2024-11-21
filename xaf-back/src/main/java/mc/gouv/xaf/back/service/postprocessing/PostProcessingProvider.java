@@ -5,6 +5,9 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface PostProcessingProvider {
 
-    DemandeDTO postprocess(DemandeDTO demande, JsonNode donneesExternes);
+    // si post processing spécifique au TS possibilité d'override
+    default DemandeDTO postprocess(DemandeDTO demande, JsonNode donneesExternes) {
+        return demande;
+    }
 
 }

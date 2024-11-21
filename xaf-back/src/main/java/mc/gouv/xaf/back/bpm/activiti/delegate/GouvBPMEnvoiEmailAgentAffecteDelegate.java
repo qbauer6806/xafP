@@ -7,15 +7,15 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
     private DemandesService demandesService;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Setter
     @Getter
@@ -96,7 +96,7 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
                 String commentaire = (String) execution.getVariable(
                         GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
-                Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode,
+                Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode,
                         demande, execution.getVariables(), codeMotif, commentaire);
 
                 try {

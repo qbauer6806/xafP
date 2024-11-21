@@ -1,10 +1,18 @@
 package mc.gouv.xaf.backweb.ws;
 
-import java.util.Map;
-
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
+import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +20,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
-import mc.gouv.xaf.back.service.excel.ExcelExportService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 /**
  * Controller pour l'extraction des données des demandes (export excel)
@@ -38,6 +39,9 @@ public class DemandeExportController extends AbstractController {
 
     @Autowired
     private DemarchesService demarchesService;
+
+    @Autowired
+    private DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
@@ -62,7 +66,7 @@ public class DemandeExportController extends AbstractController {
             excelRechercheDTO.setCreationEndDate(creationEndDate);
 
             LOGGER.info("Constitution du modèle pour la génération Excel...");
-            Map<String, Object> model = excelExportModelProvider.getModel(excelRechercheDTO);
+            Map<String, Object> model = getModel(excelRechercheDTO);
 
             LOGGER.info("Appel export Excel...");
             excelExportService.exportExcel("demandes.xlsx", model, response.getOutputStream());
@@ -72,6 +76,22 @@ public class DemandeExportController extends AbstractController {
         }
 
         LOGGER.info("======================= Fin /ws/export/excel");
+    }
+
+    private Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
+        LOGGER.info("DemandeExportController.getModel()");
+
+        Map<String, Object> model = new HashMap<>();
+        List<Object> demandesFlat = demandesService.retrieveDemandesFilteredByDate(
+                        excelRecherche.getCreationStartDate(), excelRecherche.getCreationEndDate()).stream()
+                .map(excelExportModelProvider::getDemandeFlat).collect(Collectors.toList());
+
+        model.put("demandes", demandesFlat);
+
+        LOGGER.info("Fin DemandeExportController.getModel()");
+
+        return model;
+
     }
 
 }

@@ -1,11 +1,9 @@
 package mc.gouv.xaf.back.service.excel;
 
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
-
-import java.util.Map;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface ExcelExportModelProvider {
 
-    Map<String, Object> getModel(ExcelRechercheDTO excelRecherche);
+    Object getDemandeFlat(DemandeDTO demande);
 
 }

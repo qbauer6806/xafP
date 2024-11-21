@@ -1,26 +1,24 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
-import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe service appelée par le process Activiti pour envoyer un email aux agents.
@@ -42,7 +40,7 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
     private DemandesService demandesService;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Setter
     @Getter
@@ -78,7 +76,7 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
         DemandeDTO demande = demandesService.getDemande(demandeId);
 
-        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+        Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), codeMotif, commentaire);
 
         try {

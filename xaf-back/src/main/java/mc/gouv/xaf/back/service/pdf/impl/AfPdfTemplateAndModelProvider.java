@@ -6,23 +6,30 @@ import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.util.HashMap;
 import java.util.Map;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvider {
+@Component
+public class AfPdfTemplateAndModelProvider {
 
     @Autowired
     private MotifsCache motifsCache;
 
     @Autowired
     private AfBackUtils afBackUtils;
+
+    @Autowired
+    private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
 
     private String getFontPath(int style) {
         String path = null;
@@ -45,7 +52,6 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         return path;
     }
 
-    @Override
     public PdfOptions getPdfOptions() {
         PdfOptions pdfOptions = PdfOptions.create();
         pdfOptions.fontProvider((familyName, encoding, size, style, color) -> {
@@ -63,8 +69,7 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         return pdfOptions;
     }
 
-    @Override
-    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
+    private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             String texteAEnvoyer) {
         Map<String, Object> model = new HashMap<>();
         model.put("identifiant", demande.getIdentifiant());
@@ -82,8 +87,7 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         return model;
     }
 
-    @Override
-    public Map<String, Object> getGenericModel() {
+    private Map<String, Object> getGenericModel() {
         Map<String, Object> model = new HashMap<>();
         DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
         model.put("nomTs", demarcheInfos.getNom());
@@ -101,6 +105,31 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
         return model;
 
+    }
+
+    public PdfTemplateAndModelDTO getTemplateAndModel(DemandeDTO demande, PdfTypeEnum pdfType) {
+
+        return this.getTemplateAndModelGeneric(demande, demande.getDernierStatut().getName(),
+                demande.getDernierStatut().getCodeMotif(), demande.getDernierStatut().getCommentaire(),
+                demande.getDernierStatut().getTexteAEnvoyer(), pdfType);
+    }
+
+    public PdfTemplateAndModelDTO getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,
+            String codeMotif, String langue, String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType) {
+
+        return this.getTemplateAndModelGeneric(demande, statutSuivant, codeMotif, commentaire, texteAEnvoyer, pdfType);
+    }
+
+    private PdfTemplateAndModelDTO getTemplateAndModelGeneric(DemandeDTO demande, String statutSuivant,
+            String codeMotif, String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType) {
+
+        Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, texteAEnvoyer);
+
+        PdfTemplateAndModelDTO dto = new PdfTemplateAndModelDTO();
+        dto.setModel(model);
+        pdfTemplateAndModelProvider.setTemplateAndModel(dto, demande, statutSuivant, pdfType);
+
+        return dto;
     }
 
 }

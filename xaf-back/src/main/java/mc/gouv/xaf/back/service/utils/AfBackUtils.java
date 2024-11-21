@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
@@ -65,6 +67,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -918,5 +921,21 @@ public class AfBackUtils {
         return COURRIER.equals(demande.getCanal()) || GUICHET_PHYSIQUE.equals(demande.getCanal())
                 ? TypeConnexionUsagerEnum.AGENT
                 : TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE;
+    }
+
+    public static boolean isDocumentsValidesActif(DemandeDTO demande) {
+        List<DemandeFileDTO> fichiers = FileUtils.getAllFileDemande(demande);
+        return fichiers.stream().anyMatch(
+                demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc()) && !"NON_APPLICABLE".equals(
+                        demandeFileDTO.getTypedoc()));
+    }
+
+    public static boolean hasRole(final String role) {
+        if (SecurityContextHolder.getContext() == null) {
+            return false;
+        }
+        Collection<? extends GrantedAuthority> auth = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities();
+        return auth.stream().anyMatch(grantedAuthority -> (grantedAuthority.getAuthority().equals(role)));
     }
 }

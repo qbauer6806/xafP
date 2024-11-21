@@ -15,7 +15,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
@@ -53,7 +53,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Autowired
     private UtilisateursCache utilisateursCache;
@@ -124,7 +124,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
 
         DemandeDTO demande = demandesService.getDemande(demandeId);
 
-        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+        Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), null, null);
 
         try {

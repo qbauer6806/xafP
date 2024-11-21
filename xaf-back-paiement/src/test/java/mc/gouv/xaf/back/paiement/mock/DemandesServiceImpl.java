@@ -2,20 +2,18 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 @Component
 public class DemandesServiceImpl implements DemandesService {
@@ -219,5 +217,10 @@ public class DemandesServiceImpl implements DemandesService {
     public void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException {
 
+    }
+
+    @Override
+    public List<DemandeDTO> retrieveDemandesFilteredByDate(String plainStartDate, String plainEndDate) {
+        return List.of();
     }
 }

@@ -30,7 +30,7 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -96,7 +96,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private GouvSchedulerService gouvSchedulerService;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+
     @Autowired
     private FileService fileService;
 
@@ -243,7 +244,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             }
 
             emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
-            Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
+            Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demandeDTO);
             model.put("delai", delai);
             model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
             PropertiesDTO adresseService = propertiesService.getProperty("ADRESSE_SERVICE");
@@ -270,7 +271,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
         emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
-        Map<String, Object> model = mailTemplateModelProvider.getGenericModel();
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModel();
         model.put("demandes", demandesAPurger);
         model.put("delai", delai);
 

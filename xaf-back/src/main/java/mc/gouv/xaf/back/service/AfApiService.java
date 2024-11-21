@@ -38,7 +38,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
@@ -145,7 +145,7 @@ public abstract class AfApiService {
     private MessageSource messageSource;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Autowired
     private DemandesUsagersTransformer demandesUsagersTransformer;
@@ -608,7 +608,7 @@ public abstract class AfApiService {
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
         emailInfo.setLangue(langue);
 
-        Map<String, Object> model = mailTemplateModelProvider.getGenericModel();
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModel();
         model.put("identifiant_usager", usager.getLogin());
         String cguProp = StringUtils.equals("fr", langue) ? "XAF_CGU_URL_FR" : "XAF_CGU_URL_EN";
         model.put("cguUrl", propertiesService.getProperty(cguProp).getValue());
@@ -646,7 +646,7 @@ public abstract class AfApiService {
 
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
         emailInfo.setLangue("fr");
-        Map<String, Object> model = mailTemplateModelProvider.getGenericModel();
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModel();
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
         model.put("demandesAnnuleesPhrase", demandesImpacteesPhrase);
         try {

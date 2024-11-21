@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.service.relance;
 
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -12,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
 
 @Service
 @EnableScheduling
@@ -29,7 +28,7 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
     private RelancesUtils relanceUtils;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Override
     public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer) {
@@ -54,7 +53,7 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
             emailInfoDTO.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         }
 
-        Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demande);
         model.put("expireDans", relanceUtils.getExpirationTime(demande));
 
         try {

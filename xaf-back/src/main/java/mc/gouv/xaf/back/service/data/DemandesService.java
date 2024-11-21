@@ -259,4 +259,6 @@ public interface DemandesService {
     void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException;
 
+    List<DemandeDTO> retrieveDemandesFilteredByDate(String plainStartDate, String plainEndDate);
+
 }

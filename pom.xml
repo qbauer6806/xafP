@@ -20,7 +20,7 @@
     <java.version>21</java.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <servicerest.version>3.0.4-SNAPSHOT</servicerest.version>
+    <servicerest.version>3.0.4-rc1</servicerest.version>
     <tika.version>3.0.0</tika.version>
     <xcb-wlib.version>1.2.0</xcb-wlib.version>
     <commons-fileupload.version>1.5</commons-fileupload.version>

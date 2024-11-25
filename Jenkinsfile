@@ -97,7 +97,7 @@ pipeline {
         /*
         stage('NexusIQ analysis') {
             parallel {
-                stage('Analysing project migration-es-db') {
+                stage('Analysing project migration-xaf12-batch') {
                     steps {
                         nexusPolicyEvaluation(
                         		iqApplication: "${MC_APPLI}",

@@ -39,6 +39,9 @@ public class BatchConfig {
     private final PlatformTransactionManager transactionManager;
 
     @Autowired
+    private ResetMarqueursTasklet resetMarqueursTasklet;
+
+    @Autowired
     private DemandeFileTransformer demandeFileTransformer;
 
     @Autowired
@@ -275,6 +278,11 @@ public class BatchConfig {
                 .build();
     }
 
+    @Bean
+    public Step resetMarqueursStep() {
+        return new StepBuilder("resetMarqueursStep", jobRepository).tasklet(resetMarqueursTasklet, transactionManager)
+                .allowStartIfComplete(true).build();
+    }
 
     @Bean
     public Job batchJob() {
@@ -284,7 +292,7 @@ public class BatchConfig {
                 .next(complementsFilesStep(null))
                 .next(demandesStep(null))
                 .next(agentsStep(null))
-                .next(usagersStep(null))
+                .next(usagersStep(null)).next(resetMarqueursStep())
                 .build();
     }
 

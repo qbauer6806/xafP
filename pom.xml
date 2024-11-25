@@ -24,10 +24,10 @@
     </properties>
 
 	<groupId>mc.gouv.xaf</groupId>
-	<artifactId>migration-es-db</artifactId>
+  <artifactId>migration-xaf12-batch</artifactId>
 	<version>${revision}</version>
-	<name>migration-es-db</name>
-	<description>migration-es-db</description>
+  <name>migration-xaf12-batch</name>
+  <description>migration-xaf12-batch</description>
 
   <dependencies>
     <dependency>

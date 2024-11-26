@@ -1,16 +1,13 @@
 package mc.gouv.xaf.back.config.filter;
 
-import java.io.IOException;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,11 +19,6 @@ public class MDCLogFilterAPI implements Filter {
 
     private static final String USER_KEY = "USER";
     private static final String JSESSIONID_KEY = "JSESSIONID";
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Rien à faire
-    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -65,11 +57,6 @@ public class MDCLogFilterAPI implements Filter {
                 MDC.remove(JSESSIONID_KEY);
             }
         }
-    }
-
-    @Override
-    public void destroy() {
-        // Rien à faire
     }
 
 }

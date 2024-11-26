@@ -1,6 +1,14 @@
 package mc.gouv.xaf.front.controller;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -12,10 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
 
 /**
  * Servlet permettant de faire apparaître dans les logs du frontserver, les erreurs survenant dans la console du
@@ -53,7 +57,7 @@ public class ErrorController extends AbstractXafController {
                 buffer.append(line);
             }
 
-            if (buffer.toString().length() == 0) {
+            if (buffer.toString().isEmpty()) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, "Erreur: JSON manquant");
             }
 

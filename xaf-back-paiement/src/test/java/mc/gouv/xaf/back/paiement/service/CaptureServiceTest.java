@@ -1,11 +1,21 @@
 package mc.gouv.xaf.back.paiement.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.paiement.data.dao.*;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
@@ -15,7 +25,12 @@ import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
-import mc.gouv.xaf.back.paiement.dto.*;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.ContenuTestDTO;
+import mc.gouv.xaf.back.paiement.dto.Paiement;
+import mc.gouv.xaf.back.paiement.dto.Tableau;
+import mc.gouv.xaf.back.paiement.dto.Titre;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -25,15 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Disabled
 @ExtendWith(MockitoExtension.class)

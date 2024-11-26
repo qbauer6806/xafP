@@ -26,7 +26,6 @@ import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -55,8 +54,6 @@ import org.springframework.stereotype.Component;
 public class FileControllerUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileControllerUtils.class);
-    private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
-    private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String SLASH = "/";
     private static final String BEARER = "Bearer ";
 
@@ -68,9 +65,6 @@ public class FileControllerUtils {
 
     @Autowired
     private FrontGouvPropertiesResolver propertiesResolver;
-
-    @Autowired
-    private FrontControllerPropertiesCache propertiesCache;
 
     public boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");
@@ -87,10 +81,10 @@ public class FileControllerUtils {
 
     public List<String> getExtensionsWhitelist() {
         List<String> extensions = new ArrayList<>();
-        PropertiesDTO extensionsProperty = propertiesCache.getFrontProperty(EXTENSIONS_WHITELIST);
+        String extensionsProperty = propertiesResolver.getExtensionsWhitelist();
 
-        if (extensionsProperty != null) {
-            String propertyString = extensionsProperty.getValue().replace("*.", "").replace(" ", "");
+        if (extensionsProperty != null && !extensionsProperty.isEmpty()) {
+            String propertyString = extensionsProperty.replace("*.", "").replace(" ", "");
             String[] types = propertyString.split(",");
             Collections.addAll(extensions, types);
         }
@@ -99,12 +93,16 @@ public class FileControllerUtils {
     }
 
     public boolean tailleFichierValide(Part part) {
-        PropertiesDTO propMaxTailleFichiers = propertiesCache.getFrontProperty(MAX_TAILLE_FICHIER);
-        if (propMaxTailleFichiers == null) {
-            throw new PropertyNotFoundException("La propriété obligatoire MAX_TAILLE_FICHIER ne semble pas définie");
+        String maxFileSize = propertiesResolver.getMaxFileSize();
+        if (maxFileSize == null || maxFileSize.isEmpty()) {
+            throw new PropertyNotFoundException(
+                    "La propriété obligatoire spring.servlet.multipart.max-file-size ne semble pas définie");
         }
+        // Suppression de la partie "MB" pour récupérer uniquement le chiffre
+        String numberPart = maxFileSize.replaceAll("[^0-9]", "");
 
-        long tailleMaxFichier = Long.parseLong(propMaxTailleFichiers.getValue());
+        // Conversion de la partie numérique en Long
+        long tailleMaxFichier = Long.parseLong(numberPart);
         // transformation MB en B: 1 Mo = 1 048 576 octets
         long tailleMaxFichierB = tailleMaxFichier * 1048576;
 
@@ -112,7 +110,7 @@ public class FileControllerUtils {
     }
 
     public void cleanLimiteUpload(Integer usagerId) {
-        // Supression des sessions inutilisées chaque 50 requêtes d'upload
+        // Suppression des sessions inutilisées chaque 50 requêtes d'upload
         if (compteurCleanSessions > 50) {
             reinitialierSessionsInutilisees();
             compteurCleanSessions = 0;

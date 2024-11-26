@@ -1,6 +1,6 @@
 package mc.gouv.xaf.rio.utils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 public class DitheringUtils {

@@ -1,11 +1,16 @@
 package mc.gouv.xaf.apiclient2tiers.exception;
 
-import mc.gouv.xapi.error.exception.WebException;
-import mc.gouv.xapi.error.exception.client.*;
-import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
-
 import jakarta.ws.rs.core.Response;
 import java.net.HttpURLConnection;
+import mc.gouv.xapi.error.exception.WebException;
+import mc.gouv.xapi.error.exception.client.BadRequestWebException;
+import mc.gouv.xapi.error.exception.client.ForbiddenWebException;
+import mc.gouv.xapi.error.exception.client.MethodNotAllowedWebException;
+import mc.gouv.xapi.error.exception.client.NotAcceptableWebException;
+import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
+import mc.gouv.xapi.error.exception.client.UnsupportedMediaTypeWebException;
+import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
 
 /**
  * @author qdeme

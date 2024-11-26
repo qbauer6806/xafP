@@ -108,6 +108,12 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.2tiers.bo.jwt:OPTIONAL}")
     private String _2tiersBoJwt;
 
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private String maxFileSize;
+
+    @Value("${mc.gouv.file.extensions.whitelist}")
+    private String extensionsWhitelist;
+
     @Autowired
     private KafkaProperties kafkaProperties;
 
@@ -434,5 +440,15 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String get2TiersBoJwt() {
         return _2tiersBoJwt;
+    }
+
+    @Override
+    public String getMaxFileSize() {
+        return maxFileSize;
+    }
+
+    @Override
+    public String getExtensionsWhitelist() {
+        return extensionsWhitelist;
     }
 }

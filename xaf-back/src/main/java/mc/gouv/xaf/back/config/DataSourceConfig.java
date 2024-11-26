@@ -1,5 +1,13 @@
 package mc.gouv.xaf.back.config;
 
+import java.lang.management.ManagementFactory;
+import java.sql.SQLException;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -8,11 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-
-import javax.management.*;
-import javax.sql.DataSource;
-import java.lang.management.ManagementFactory;
-import java.sql.SQLException;
 
 @Profile("gouv")
 @Configuration

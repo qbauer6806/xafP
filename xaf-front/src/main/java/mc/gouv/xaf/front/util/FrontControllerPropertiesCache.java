@@ -45,7 +45,7 @@ public class FrontControllerPropertiesCache {
     public PropertiesDTO getFrontProperty(String key) {
         List<PropertiesDTO> propFiltrees = getFrontProperties().stream().filter(prop -> prop.getKey().equals(key))
                 .toList();
-        return (!propFiltrees.isEmpty()) ? propFiltrees.get(0) : null;
+        return (!propFiltrees.isEmpty()) ? propFiltrees.getFirst() : null;
     }
 
 }

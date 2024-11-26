@@ -1,13 +1,16 @@
 package mc.gouv.xaf.back.bpm;
 
-import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.*;
-import org.apache.tika.exception.TikaException;
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
+import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
 
 /**
  * Composant exposant le BPM interne d'AppFactory

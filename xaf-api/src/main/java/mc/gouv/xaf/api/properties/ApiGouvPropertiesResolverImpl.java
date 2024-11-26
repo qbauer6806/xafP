@@ -1,6 +1,6 @@
 package mc.gouv.xaf.api.properties;
 
-import mc.gouv.xaf.back.properties.*;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolverImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;

@@ -1,6 +1,14 @@
 package mc.gouv.xaf.rio.activiti.delegate;
 
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.filtrerTache;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.getAllFichiers;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.getReferencesTaches;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -11,20 +19,13 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TacheDTO;
 import mc.gouv.xaf.shared.enums.StatutTachesEnum;
+import org.apache.commons.collections4.MapUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
-import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Predicate;
-
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.*;
 
 @Component
 public class GouvBPMArchivageTachesDelegate implements JavaDelegate {

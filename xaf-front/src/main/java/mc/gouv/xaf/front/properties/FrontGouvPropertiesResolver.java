@@ -130,6 +130,12 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
     private boolean proxy2tiersActivation;
 
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private String maxFileSize;
+
+    @Value("${mc.gouv.file.extensions.whitelist}")
+    private String extensionsWhitelist;
+
     @Value("${mc.gouv.gichuni.demarche.particulier.url.fr}")
     private String gichuniDemarcheParticulierUrlFr;
     @Value("${mc.gouv.gichuni.demarche.particulier.url.en}")

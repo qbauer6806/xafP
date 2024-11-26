@@ -746,9 +746,9 @@ public class AfBackUtils {
         // [contenu,donnee,demandeur,prenom]
         List<String> donneeExterneKeyArray = new ArrayList<>(Arrays.asList(path.split("\\.")));
         // [donnee,demandeur,prenom]
-        donneeExterneKeyArray.remove(0);
+        donneeExterneKeyArray.removeFirst();
         //	 "[donnee,demandeur]" / field = prenom
-        String field = donneeExterneKeyArray.remove(donneeExterneKeyArray.size() - 1);
+        String field = donneeExterneKeyArray.removeLast();
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);
         ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);

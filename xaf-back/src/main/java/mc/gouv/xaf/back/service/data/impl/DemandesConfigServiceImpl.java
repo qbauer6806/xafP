@@ -18,11 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Service permettant la manipulation des demandes.
- *
- * @author qdeme
- */
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class DemandesConfigServiceImpl implements DemandesConfigService {

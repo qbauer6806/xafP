@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,7 +37,6 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,8 +74,6 @@ public class FileServiceImpl implements FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
 
-    private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
-    private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String AUTHORIZATION_PREFIX = "Bearer ";
     private static final String FILENAME_DONNER_FILE_LOG_MESSAGE = "Filename à donner à FILE : {}";
     private static final String FILECLIENT_SAVE_FILE_LOG_MESSAGE = "FileClient.saveFile({}, {}, {})";
@@ -239,14 +237,19 @@ public class FileServiceImpl implements FileService {
         }
 
         // Vérification de la taille maximum du fichier
-        PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(MAX_TAILLE_FICHIER);
-        int tailleMaxFichiers = Integer.parseInt(tailleMaxFichiersProp.getValue());
+        String maxFileSize = gouvPropertiesResolver.getMaxFileSize();
+        if (maxFileSize == null || maxFileSize.isEmpty()) {
+            throw new PropertyNotFoundException(
+                    "La propriété obligatoire spring.servlet.multipart.max-file-size ne semble pas définie");
+        }
+        // Suppression de la partie "MB" pour récupérer uniquement le chiffre
+        String numberPart = maxFileSize.replaceAll("[^0-9]", "");
 
-        // transformation B en MB: 1 Mo = 1 048 576 octets
-        int tailleMaxFichierMB = tailleMaxFichiers * 1048576;
-        if (file.getSize() > tailleMaxFichierMB) {
-            LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})",
-                    tailleMaxFichiers);
+        // Conversion de la partie numérique en Long
+        long tailleMaxFichier = Long.parseLong(numberPart);
+        // transformation MB en B: 1 Mo = 1 048 576 octets
+        long tailleMaxFichierB = tailleMaxFichier * 1048576;
+        if (file.getSize() > tailleMaxFichierB) {
             throw new FileUploadException("Erreur: la taille du fichier transféré dépasse la limite autorisée",
                     FileUploadErrorEnum.TAILLE_MAX_ERROR);
         }
@@ -276,11 +279,11 @@ public class FileServiceImpl implements FileService {
     }
 
     private List<String> getExtensionsWhitelist() {
-        PropertiesDTO extensionsProperty = propertiesService.getProperty(EXTENSIONS_WHITELIST);
+        String extensionsProperty = gouvPropertiesResolver.getExtensionsWhitelist();
         List<String> extensions = new ArrayList<>();
 
-        if (extensionsProperty != null) {
-            String propertyString = extensionsProperty.getValue().replace("*.", "").replace(" ", "");
+        if (extensionsProperty != null && !extensionsProperty.isEmpty()) {
+            String propertyString = extensionsProperty.replace("*.", "").replace(" ", "");
             String[] types = propertyString.split(",");
             Collections.addAll(extensions, types);
         }

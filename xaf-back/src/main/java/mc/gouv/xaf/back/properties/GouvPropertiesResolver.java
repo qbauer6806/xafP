@@ -101,4 +101,8 @@ public interface GouvPropertiesResolver {
 
     String get2TiersBoJwt();
 
+    String getMaxFileSize();
+
+    String getExtensionsWhitelist();
+
 }

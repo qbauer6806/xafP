@@ -1,16 +1,24 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.back.dsp.dto.*;
-import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
-import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
-import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
+import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 public interface ResidApiService {
 

@@ -247,7 +247,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         ObjectMapper mapper = new ObjectMapper();
         String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportConfig);
-        LOGGER.info("Fin de l'export de la configuration, fichier exporté {}", exportedConfig);
+        LOGGER.debug("Fin de l'export de la configuration, fichier exporté {}", exportedConfig);
         return exportedConfig;
     }
 
@@ -257,7 +257,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         LOGGER.info("Début de l'import de la configuration");
 
         ObjectMapper mapper = new ObjectMapper();
-        ExportImportConfigDTO config = null;
+        ExportImportConfigDTO config;
         try {
             config = mapper.readValue(file, ExportImportConfigDTO.class);
         } catch (JsonParseException | JsonMappingException e) {

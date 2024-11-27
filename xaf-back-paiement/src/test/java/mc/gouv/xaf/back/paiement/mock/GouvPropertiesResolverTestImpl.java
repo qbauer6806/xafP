@@ -253,4 +253,14 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public String get2TiersBoJwt() {
         return null;
     }
+
+    @Override
+    public String getMaxFileSize() {
+        return "";
+    }
+
+    @Override
+    public String getExtensionsWhitelist() {
+        return "";
+    }
 }

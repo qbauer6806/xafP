@@ -249,8 +249,8 @@ public class AbstractTraitementController extends AbstractController {
      */
     protected ModelAndView checkActiveTask(Integer pkDemande, GouvBPMTask activeTask, String activeTaskDefinitionKey,
             String messageCode, final RedirectAttributes redirectAttributes) {
-
-        LOGGER.info("Vérification {} = {}", activeTaskDefinitionKey, activeTask.getTaskDefinitionKey());
+        String safeActiveTask = AfBackUtils.logSafe(activeTaskDefinitionKey);
+        LOGGER.info("Vérification {} = {}", safeActiveTask, activeTask.getTaskDefinitionKey());
         // Si l'active n'est plus la bonne souhaitée
         if (!StringUtils.equals(activeTaskDefinitionKey, activeTask.getTaskDefinitionKey())) {
             return returnErrorMessage(pkDemande, messageCode, redirectAttributes);

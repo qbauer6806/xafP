@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
@@ -84,7 +83,7 @@ public class DemandeExportController extends AbstractController {
         Map<String, Object> model = new HashMap<>();
         List<Object> demandesFlat = demandesService.retrieveDemandesFilteredByDate(
                         excelRecherche.getCreationStartDate(), excelRecherche.getCreationEndDate()).stream()
-                .map(excelExportModelProvider::getDemandeFlat).collect(Collectors.toList());
+                .map(excelExportModelProvider::getDemandeFlat).toList();
 
         model.put("demandes", demandesFlat);
 

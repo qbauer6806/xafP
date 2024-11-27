@@ -15,7 +15,6 @@ import mc.gouv.xaf.front.dto.FileUploadCompteurDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,9 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class FileControllerUtilsTest {
-
-    private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
-    private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
 
     @Mock
     private FrontControllerPropertiesCache frontControllerPropertiesCache;
@@ -45,9 +41,7 @@ class FileControllerUtilsTest {
 
     @Test
     void testExtensionsWhitelist() {
-        PropertiesDTO extensionsProperty = mock(PropertiesDTO.class);
-        when(extensionsProperty.getValue()).thenReturn("*.pdf,*.png,*.jpg,*.jpeg");
-        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(extensionsProperty);
+        when(frontGouvPropertiesResolver.getExtensionsWhitelist()).thenReturn("*.pdf,*.png,*.jpg,*.jpeg");
 
         List<String> expected = List.of("pdf", "png", "jpg", "jpeg");
         List<String> actual = fileControllerUtils.getExtensionsWhitelist();
@@ -56,9 +50,8 @@ class FileControllerUtilsTest {
 
     @Test
     void testEstExtensionWhitelist() {
-        PropertiesDTO extensionsProperty = mock(PropertiesDTO.class);
-        when(extensionsProperty.getValue()).thenReturn("*.doc, *.docx, *.rtf, *.pdf, *.jpg, *.jpeg, *.png, *.tif");
-        when(frontControllerPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(extensionsProperty);
+        when(frontGouvPropertiesResolver.getExtensionsWhitelist()).thenReturn(
+                "*.doc, *.docx, *.rtf, *.pdf, *.jpg, *.jpeg, *.png, *.tif");
 
         assertTrue(fileControllerUtils.estExtensionDansWhitelist("document.pdf"));
         assertFalse(fileControllerUtils.estExtensionDansWhitelist("document.txt"));
@@ -67,9 +60,7 @@ class FileControllerUtilsTest {
 
     @Test
     void testTailleFichierValide() {
-        PropertiesDTO tailleMaxProperty = mock(PropertiesDTO.class);
-        when(tailleMaxProperty.getValue()).thenReturn("3"); // 3 MB
-        when(frontControllerPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER)).thenReturn(tailleMaxProperty);
+        when(frontGouvPropertiesResolver.getMaxFileSize()).thenReturn("3MB");
 
         Part bigfile = mock(Part.class);
         when(bigfile.getSize()).thenReturn(4L * 1024 * 1024); // Larger than 3 MB
@@ -82,7 +73,7 @@ class FileControllerUtilsTest {
 
     @Test
     void testTailleFichierPropertyNotFoundException() {
-        when(frontControllerPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER)).thenReturn(null);
+        when(frontGouvPropertiesResolver.getMaxFileSize()).thenReturn(null);
         assertThrows(PropertyNotFoundException.class, () -> fileControllerUtils.tailleFichierValide(mock(Part.class)));
     }
 

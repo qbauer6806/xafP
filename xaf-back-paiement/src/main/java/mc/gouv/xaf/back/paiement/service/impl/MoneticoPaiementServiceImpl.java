@@ -409,7 +409,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
                 gouvBPM.setProcessBusinessVariables(pkDemande, variables);
 
-                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).get(0);
+                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
                 try {
                     gouvBPM.claimTask(task, user);
                     gouvBPM.completeTask(task, pkDemande);

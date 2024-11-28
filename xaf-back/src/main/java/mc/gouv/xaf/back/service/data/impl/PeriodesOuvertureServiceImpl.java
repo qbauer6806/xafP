@@ -57,7 +57,7 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
                 date);
         PeriodeOuvertureDTO dto = null;
         if (!periodesOuvertureBOS.isEmpty()) {
-            PeriodesOuvertureBO bo = periodesOuvertureBOS.get(0);
+            PeriodesOuvertureBO bo = periodesOuvertureBOS.getFirst();
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
             dto = PeriodeOuvertureTransformer.bo2Dto(bo);
         } else {

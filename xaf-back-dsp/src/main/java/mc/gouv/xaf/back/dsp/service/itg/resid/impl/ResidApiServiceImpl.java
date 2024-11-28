@@ -325,7 +325,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         // On récupère uniquement le premier élément (on s'attend à ce qu'il y en ai maximum un)
         if (retList != null && !retList.isEmpty()) {
-            statut = retList.get(0);
+            statut = retList.getFirst();
         }
         return statut;
     }

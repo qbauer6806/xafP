@@ -387,7 +387,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
             }
         }
         LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande",
-                existingFiles.get(0).getName());
+                existingFiles.getFirst().getName());
         return isComplementFileDeletable;
     }
 

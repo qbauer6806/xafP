@@ -5,11 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,9 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private UtilisateursCache utilisateursCache;
 
     @Autowired
     private AfMailTemplateModelProvider afMailTemplateModelProvider;
@@ -76,9 +80,11 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
                 afBackUtils.getDemarcheInfos().getEmailReplytoNom());
 
-        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
-        DemandeDTO demande = demandesService.getDemande(demandeId);
-        DemandeAgentDTO agent = demande.getAgent();
+        // On récupère l'agent dans le bpmn parce qu'en cas de demande info compl, agent sera null dans demandeDto car il considère
+        // que l'appel provient du front, et donc l'agent est caché pour raison de confidentialité
+        Object agentIdObject = execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
+        String agentId = agentIdObject != null ? (String) agentIdObject : null;
+        User agent = utilisateursCache.get(agentId);
         if (agent != null) {
             LOGGER.info("Adresse / Nom de l'agent affecté à la demande : {} / {}", agent.getMail(), agent.getNom());
             emailInfo.addTo(agent.getMail(), agent.getNom());
@@ -95,6 +101,9 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
                 String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
                 String commentaire = (String) execution.getVariable(
                         GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+
+                Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
+                DemandeDTO demande = demandesService.getDemande(demandeId);
 
                 Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode,
                         demande, execution.getVariables(), codeMotif, commentaire);

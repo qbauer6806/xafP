@@ -38,7 +38,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     public MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) {
         MotifDTO motif = motifsCache.getMotif(codeMotif, langue);
         List<MotifDTO> populatedMotifs = populateMotifs(demande, Collections.singletonList(motif));
-        return (!populatedMotifs.isEmpty()) ? populatedMotifs.get(0) : null;
+        return (!populatedMotifs.isEmpty()) ? populatedMotifs.getFirst() : null;
     }
 
     public List<MotifDTO> getMotifs(DemandeDTO demande, String langue, String statut) {

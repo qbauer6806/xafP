@@ -27,7 +27,7 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
         List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findByDemande_PkDemandesOrderByCommande_DateCreationDesc(
                 demandeId);
         if (!commandeDemandeBOS.isEmpty()) {
-            return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.get(0));
+            return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.getFirst());
         }
         return null;
     }

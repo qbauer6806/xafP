@@ -92,7 +92,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
         DemandeFileDTO file = new DemandeFileDTO();
         if (!files.isEmpty()) {
-            file = files.get(0);
+            file = files.getFirst();
             LOGGER.info("Suppression de l'ancien fichier dans FILES...");
             String urlASuppr = URLEncoder.encode(file.getUrl(), StandardCharsets.UTF_8);
             fileService.deleteFile("ROOT", urlASuppr);

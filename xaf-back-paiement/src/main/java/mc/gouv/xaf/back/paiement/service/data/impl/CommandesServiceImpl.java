@@ -20,7 +20,7 @@ public class CommandesServiceImpl implements CommandesService {
     public CommandeDTO getDerniereCommande(Integer demandeId) {
         List<CommandeBO> commandeBOs = commandeRepository.findByCommandesDemandes_Demande_PkDemandesOrderByDateCreationDesc(
                 demandeId);
-        return CommandeTransformer.bo2Dto(commandeBOs.get(0));
+        return CommandeTransformer.bo2Dto(commandeBOs.getFirst());
     }
 
     @Override

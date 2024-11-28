@@ -367,7 +367,7 @@ public abstract class AfApiService {
         }
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
-        GouvBPMTask task = gouvBPM.getActiveTasksForDemande(demandeId).get(0);
+        GouvBPMTask task = gouvBPM.getActiveTasksForDemande(demandeId).getFirst();
 
         try {
             gouvBPM.claimTask(task, user);
@@ -379,8 +379,12 @@ public abstract class AfApiService {
         // Ajout d'une ligne à l'historique
         LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
+        // On récupère l'agent dans le bpmn parce qu'en cas de demande info compl, agent sera null dans demandeDto car il considère
+        // que l'appel provient du front, et donc l'agent est caché pour raison de confidentialité
+        Object assigneeIdObject = variables.get(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
+        String assigneeId = assigneeIdObject != null ? (String) assigneeIdObject : null;
         DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId, demande.getDernierStatut().getName(),
-                usagerId, agentId, demande.getAgent() != null ? demande.getAgent().getId() : null);
+                usagerId, agentId, assigneeId);
         this.saveHistorique(demandeId, histo);
 
         return demandeComplementsDto;
@@ -408,7 +412,7 @@ public abstract class AfApiService {
                 LOGGER.error(
                         "ATTENTION : plus d'une demande retournée, état de la base incohérent. Prise en compte de la 1ère du tableau...");
             }
-            demande = demandes.get(0);
+            demande = demandes.getFirst();
 
             LOGGER.info("Demande trouvée : {}", demande);
 

@@ -88,7 +88,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         if (!usagersInternetIds.isEmpty()) {
             LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
             if (usagersInternetIds.size() == 1) {
-                GichuniUsagerDTO usagerBean = gichuniApiClient.getUsager(usagersInternetIds.get(0));
+                GichuniUsagerDTO usagerBean = gichuniApiClient.getUsager(usagersInternetIds.getFirst());
                 if (usagerBean != null) {
                     usagers.add(usagerBean);
                 }

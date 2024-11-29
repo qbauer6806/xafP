@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,9 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 
     @Autowired
     private DemandesConfigTransformer demandesConfigTransformer;
+
+    @Value("${maven.version}")
+    private String mavenVersion;
 
     private static final String MODEL_PATH = "modelPaths";
 
@@ -67,6 +71,10 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             // on génère les marqueurs pour la nouvelle config
             marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId,
                     getModelPaths(config.get(MODEL_PATH).get("rechercheAvancee")));
+        } else if (configBO.getVersion() != null && !configBO.getVersion().equals(mavenVersion)) {
+            // si la config existe déjà, on met à jour la version avec la + récente si la version est différente
+            configBO.setVersion(mavenVersion);
+            configBO = demandesConfigRepository.save(configBO);
         }
         return demandesConfigTransformer.bo2Json(configBO);
     }

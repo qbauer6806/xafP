@@ -833,7 +833,7 @@ public class AfBackUtils {
         return adresseComplete;
     }
 
-    public String genererAdresseComplete(Map<String, String> marqueurs, String marqueurIdentifiant) {
+    public static String genererAdresseComplete(Map<String, String> marqueurs, String marqueurIdentifiant) {
         String codePostal = marqueurs.get(marqueurIdentifiant + "CodePostal");
         String ville = marqueurs.get(marqueurIdentifiant + "Ville");
         String adresseComplete = genererAdresse(marqueurs, marqueurIdentifiant);

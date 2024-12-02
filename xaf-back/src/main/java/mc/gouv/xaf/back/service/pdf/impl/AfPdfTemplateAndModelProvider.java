@@ -72,6 +72,7 @@ public class AfPdfTemplateAndModelProvider {
     private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             String texteAEnvoyer) {
         Map<String, Object> model = new HashMap<>();
+        model.put("demande", demande);
         model.put("identifiant", demande.getIdentifiant());
         DemandeAgentDTO agent = demande.getAgent();
         model.put("nomAgent", agent != null ? agent.getNom() : "");

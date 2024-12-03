@@ -25,14 +25,20 @@ public interface AfHistoService {
     DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
             Integer usagerId, String agentId);
 
-    DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
-            Integer usagerId, String agentId, boolean isModif);
+    default DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
+            Integer usagerId, String agentId, boolean isModif) {
+        return null;
+    }
 
-    DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
-            Integer usagerId, String agentId, String codeMotif);
+    default DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
+            Integer usagerId, String agentId, String codeMotif) {
+        return null;
+    }
 
-    DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
-            Integer usagerId, String agentId, boolean isModif, String codeMotif);
+    default DemandeHistoriqueDTO statusChange(Integer demandeId, String targetState, String customContextParam,
+            Integer usagerId, String agentId, boolean isModif, String codeMotif) {
+        return null;
+    }
 
     DemandeHistoriqueDTO prendreEnCharge(Integer demandeId, String targetState, String agentId);
 
@@ -60,7 +66,9 @@ public interface AfHistoService {
         return null;
     }
 
-    DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, String statutName, String agentId);
+    default DemandeHistoriqueDTO reprendreEnCharge(Integer demandeId, String statutName, String agentId) {
+        return null;
+    }
 
     void saveHisto(Integer demandeId, DemandeHistoriqueDTO histo);
 

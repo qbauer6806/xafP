@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.data;
 
 import java.io.IOException;
 import java.util.List;
+import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 
 public interface MarqueursService {
@@ -12,7 +13,7 @@ public interface MarqueursService {
 
     void deleteMarqueur(Integer pkMarqueur);
 
-    void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths);
+    void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths, JsonNode sections);
 
     void resetMarqueurs();
 

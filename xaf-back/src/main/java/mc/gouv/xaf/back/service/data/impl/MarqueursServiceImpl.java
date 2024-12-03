@@ -1,11 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.MarqueursRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
@@ -75,7 +76,8 @@ public class MarqueursServiceImpl implements MarqueursService {
     }
 
     @Override
-    public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths) {
+    public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths,
+            JsonNode sections) {
         if (lastBuildId != null) {
             List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
             // on copie les marqueurs du précédent build id s'il y en a
@@ -90,7 +92,7 @@ public class MarqueursServiceImpl implements MarqueursService {
                 }
             }
             // on génère tous les autres
-            setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId);
+            setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId, sections);
 
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
         }
@@ -102,14 +104,16 @@ public class MarqueursServiceImpl implements MarqueursService {
         List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
         for (DemandeConfigBO config : configs) {
             List<MarqueurDTO> marqueurDTOS = new ArrayList<>();
+
             setMarqueursFromModelPaths(
                     demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("rechercheAvancee")),
-                    marqueurDTOS, config.getBuildId());
+                    marqueurDTOS, config.getBuildId(), config.getContenu().get("recap").get("sections"));
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
         }
     }
 
-    private void setMarqueursFromModelPaths(List<String> modelPaths, List<MarqueurDTO> marqueurDTOS, String buildId) {
+    private void setMarqueursFromModelPaths(List<String> modelPaths, List<MarqueurDTO> marqueurDTOS, String buildId,
+            JsonNode sections) {
         for (String modelPath : modelPaths) {
             String id = pathToCamelCase(modelPath);
             // si le marqueur est déjà présent (du précédent buildId par exemple), on ne génère pas le marqueur
@@ -118,9 +122,43 @@ public class MarqueursServiceImpl implements MarqueursService {
                 marqueur.setChemin(modelPath);
                 marqueur.setIdentifiant(id);
                 marqueur.setBuildId(buildId);
+                marqueur.setDescription(getDescriptionFromTranslations(sections, modelPath));
                 marqueurDTOS.add(marqueur);
             }
         }
+    }
+
+    private String getDescriptionFromTranslations(JsonNode sections, String modelPath) {
+        String modifiedModelPath = modelPath;
+        String suffixeFound = null;
+        String[] possibleSuffixesToRemove = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
+                "iban", "indicatif", "numero" };
+        for (String suffix : possibleSuffixesToRemove) {
+            String suffixDot = "." + suffix;
+            if (modelPath.endsWith(suffixDot)) {
+                suffixeFound = suffix;
+                modifiedModelPath = modelPath.substring(0, modelPath.length() - suffixDot.length());
+                break;
+            }
+        }
+        for (JsonNode section : sections) {
+            // section
+            if (section.get("type").asText().equals("champs")) {
+                for (JsonNode champ : section.get("champs")) {
+                    if (champ.get("path").asText().equals(modifiedModelPath)) {
+                        // si c'est un type particulier on ajoute le suffixe
+                        String description = champ.get("label").asText();
+                        if (suffixeFound != null) {
+                            description = description + " - " + suffixeFound;
+                        }
+                        return description;
+                    }
+                }
+
+            }
+        }
+
+        return null;
     }
 
     private String pathToCamelCase(String input) {

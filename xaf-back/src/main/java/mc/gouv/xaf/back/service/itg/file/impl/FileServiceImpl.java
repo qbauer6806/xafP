@@ -30,7 +30,6 @@ import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -87,9 +86,6 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private PropertiesService propertiesService;
 
     @Autowired
     private DemandesFilesRepository demandesFilesRepository;

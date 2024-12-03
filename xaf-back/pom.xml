@@ -379,6 +379,13 @@
       <artifactId>spring-cloud-starter-openfeign</artifactId>
       <version>4.2.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.velocity.tools</groupId>
+      <artifactId>velocity-tools-generic</artifactId>
+      <version>3.1</version>
+    </dependency>
+
   </dependencies>
 
 </project>

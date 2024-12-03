@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -854,36 +852,6 @@ public class AfBackUtils {
             adresseComplete += "\n" + escapeChars(adresse3);
         }
         return adresseComplete;
-    }
-
-    /**
-     * Convertit la syntaxe velocity vers thymeleaf (${dateDebut} vers <th:block th:utext="${dateDebut}"></th:block>)
-     *
-     * @param input
-     * @return
-     */
-    public String convertToThymeleaf(String input) {
-        // 1ère étape : Rechercher les balises <a th:href="${...}"> et autres avec des attributs th:href ou th:utext
-        String attributePattern = "(<a[^>]*\\s+(th:href|th:utext)=\"[^\"]*\")";
-        List<String> attributeMatches = new ArrayList<>();
-
-        Matcher matcher = Pattern.compile(attributePattern).matcher(input);
-        while (matcher.find()) {
-            attributeMatches.add(matcher.group(1));
-        }
-
-        // Remplacer temporairement les balises ayant th:href ou th:utext pour ne pas les toucher
-        String tempInput = input.replaceAll(attributePattern, "PLACEHOLDER");
-
-        // 2ème étape : Remplacer les ${...} qui ne sont pas dans un attribut de balise
-        String output = tempInput.replaceAll("\\$\\{([^\\s}]+)\\}", "<th:block th:utext=\"\\$\\{$1\\}\"></th:block>");
-
-        // 3ème étape : Restaurer les balises <a th:href="..."> ou th:utext="..." à leur place
-        for (String match : attributeMatches) {
-            output = output.replaceFirst("PLACEHOLDER", Matcher.quoteReplacement(match));
-        }
-
-        return output;
     }
 
     /**

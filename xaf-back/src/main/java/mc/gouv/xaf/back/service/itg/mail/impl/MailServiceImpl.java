@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.itg.mail.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -28,16 +29,16 @@ import mc.gouv.xaf.shared.dto.mail.ParamDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.tools.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.exceptions.TemplateProcessingException;
 
 /**
  * Composant permettant l'envoi d'emails "templatés"
@@ -60,9 +61,7 @@ public class MailServiceImpl implements MailService {
     @Autowired
     private PropertiesService propertiesService;
 
-    @Autowired
-    @Qualifier("customTemplateEngine")
-    private TemplateEngine templateEngine;
+    private ToolManager manager = new ToolManager();
 
     /**
      * {@inheritDoc}
@@ -164,46 +163,57 @@ public class MailServiceImpl implements MailService {
         LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
 
-        LOGGER.info("Appel à Thymeleaf pour le templating du corps et du sujet de l'email...");
-        Context context = getContext(model);
-
-        String mailBodyToSend = processTemplate(afBackUtils.convertToThymeleaf(templateBody.getContenu()), context);
-        String mailSubjectToSend = processTemplate(afBackUtils.convertToThymeleaf(templateSubject.getContenu()),
-                context);
+        LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
+        Velocity.init();
+        Context context = getContext();
+        if (model != null) {
+            for (Map.Entry<String, Object> entry : model.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
+            }
+        }
+        StringWriter output = new StringWriter();
+        if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
+            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        String mailBodyToSend = output.toString();
+        output = new StringWriter();
+        if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
+            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du subject n'a pas fonctionné.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        String mailSubjectToSend = output.toString();
 
         // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
         if (afBackUtils.isEmailHtmlEnabled()) {
-            LOGGER.info("Intégration du corps de l'email dans le template HTML de XAF...");
-            context.setVariable("emailBodyToSend", mailBodyToSend);
-            if ("en".equals(langue) && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
-                context.setVariable("titreTs", afBackUtils.getDemarcheNomEn());
+            LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
+            Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
+            Velocity.init();
+            context = getContext();
+            context.put("emailBodyToSend", mailBodyToSend);
+            if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
+                context.put("titreTs", afBackUtils.getDemarcheNomEn());
             } else {
-                context.setVariable("titreTs", afBackUtils.getDemarcheNom());
+                context.put("titreTs", afBackUtils.getDemarcheNom());
             }
-
             InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
             String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            mailBodyToSend = processTemplate(contenu, context);
+            output = new StringWriter();
+            if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
+                throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.",
+                        HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            mailBodyToSend = output.toString();
         }
 
         return new String[] { mailSubjectToSend, mailBodyToSend };
     }
 
-    private Context getContext(Map<String, Object> model) {
-        Context context = new Context();
-        if (model != null) {
-            context.setVariables(model);
-        }
+    private Context getContext() {
+        Context context = manager.createContext();
+        context.put("StringUtils", StringUtils.class);
         return context;
-    }
-
-    private String processTemplate(String templateContent, Context context) {
-        try {
-            return templateEngine.process(templateContent, context);
-        } catch (TemplateProcessingException e) {
-            throw new DemarchesServiceException("Thymeleaf template processing failed.",
-                    HttpStatus.INTERNAL_SERVER_ERROR, e);
-        }
     }
 
     /**

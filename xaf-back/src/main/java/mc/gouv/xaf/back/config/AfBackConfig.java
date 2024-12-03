@@ -19,9 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.thymeleaf.templateresolver.StringTemplateResolver;
 
 /**
  * Classe de configuration
@@ -78,13 +75,6 @@ public class AfBackConfig {
                     DefaultFlowable5SpringCompatibilityHandler::new);
         };
 
-    }
-
-    @Bean
-    public TemplateEngine customTemplateEngine() {
-        TemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(new StringTemplateResolver());
-        return templateEngine;
     }
 
 }

@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.motifs.impl;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,17 +12,23 @@ import mc.gouv.xaf.back.service.motifs.MotifsTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.tools.ToolManager;
+import org.apache.velocity.tools.generic.DateTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.exceptions.TemplateProcessingException;
 
 @Component
 public class MotifTemplateServiceImpl implements MotifTemplateService {
 
-    private static final String ECHEC_THYMELEAF = "Thymeleaf template processing failed.";
+    private static final String ECHEC_VELOCITY = "Velocity template processing failed.";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MotifTemplateServiceImpl.class);
 
     @Autowired
     private MotifsCache motifsCache;
@@ -29,8 +36,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     @Autowired
     private MotifsTemplateModelProvider motifsTemplateModelProvider;
 
-    @Autowired
-    private TemplateEngine templateEngine;
+    private ToolManager manager = new ToolManager();
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -71,35 +77,37 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     private List<MotifDTO> getPopulatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) {
 
         List<MotifDTO> motifDTOList = new ArrayList<>();
-        Context context = getContext(model);
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
+        Velocity.init();
 
+        Context context = getContext(model);
         for (MotifDTO motif : motifsList) {
 
             // Cloner l'objet pour ne pas impacter le cache
             MotifDTO clonedMotif = new MotifDTO(motif);
 
             // Population du motif
-            try {
-                String populatedLibelle = templateEngine.process(
-                        afBackUtils.convertToThymeleaf(clonedMotif.getLibelle()), context);
-                clonedMotif.setLibelle(populatedLibelle);
+            StringWriter output = new StringWriter();
+            if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getLibelle())) {
+                throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            clonedMotif.setLibelle(output.toString());
 
-                // Population du commentaire prérempli
-                if (motif.getCommentairePrerempli() != null) {
-                    String populatedCommentaire = templateEngine.process(
-                            afBackUtils.convertToThymeleaf(clonedMotif.getCommentairePrerempli()), context);
-                    clonedMotif.setCommentairePrerempli(populatedCommentaire);
+            // Population du commentaire préremplis
+            if (motif.getCommentairePrerempli() != null) {
+                output = new StringWriter();
+                if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getCommentairePrerempli())) {
+                    throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-
-                // Population du texte à envoyer
-                if (motif.getTexteAEnvoyer() != null) {
-                    String populatedTexte = templateEngine.process(
-                            afBackUtils.convertToThymeleaf(clonedMotif.getTexteAEnvoyer()), context);
-                    clonedMotif.setTexteAEnvoyer(populatedTexte);
+                clonedMotif.setCommentairePrerempli(output.toString());
+            }
+            // Population du texte à envoyer
+            if (motif.getTexteAEnvoyer() != null) {
+                output = new StringWriter();
+                if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getTexteAEnvoyer())) {
+                    throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-
-            } catch (TemplateProcessingException e) {
-                throw new DemarchesServiceException(ECHEC_THYMELEAF, HttpStatus.INTERNAL_SERVER_ERROR, e);
+                clonedMotif.setTexteAEnvoyer(output.toString());
             }
 
             motifDTOList.add(clonedMotif);
@@ -109,8 +117,15 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     }
 
     private Context getContext(Map<String, Object> model) {
-        Context context = new Context();
-        context.setVariables(model);
+        Context context = manager.createContext();
+        context.put("StringUtils", StringUtils.class);
+        context.put("date", new DateTool());
+        if (model != null) {
+            for (Map.Entry<String, Object> entry : model.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
+            }
+        }
+
         return context;
     }
 }

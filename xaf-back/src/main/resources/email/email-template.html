@@ -7,7 +7,7 @@
     <td>
       <div
           style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;margin-right:100%;">
-        <span th:text="${titreTs}"></span>
+        ${titreTs}
       </div>
       <img src="https://documents.gouv.mc/www/monguichet/monGuichetEmailLogo5px.jpg"
            alt="Logo du portail Monguichet.mc"/>
@@ -20,7 +20,7 @@
       <img src="https://documents.gouv.mc/www/monguichet/ChevronRouge.png"
            style="display:inline-block; vertical-align: middle"
            alt="Logo du portail Monguichet.mc"/>
-      <span style="vertical-align: middle; font-size: 18px" th:text="${titreTs}"></span>
+      <span style="vertical-align: middle; font-size: 18px">${titreTs}</span>
     </td>
     <td></td>
   </tr>
@@ -47,7 +47,7 @@
         </tr>
         <tr>
           <td align="left" style="background-color: #ffffff;">
-            <div th:utext="${emailBodyToSend}"></div>
+            ${emailBodyToSend}
           </td>
           <td style="background-color: #ffffff;"></td>
           <td style="background-color: #ffffff;"></td>

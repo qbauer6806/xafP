@@ -46,8 +46,6 @@ public class AfBackWebControllerAdvice {
     private String logonUrl;
 
     private long buildTimestamp = 0;
-    private String nomDemarche = null;
-
     private static final String DATE_FORMAT_TS_MAVEN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     @Autowired
@@ -124,11 +122,7 @@ public class AfBackWebControllerAdvice {
     @ModelAttribute("nomDemarche")
     public String globalNomDemarche() {
         try {
-            //Pour éviter plusieurs appels à la base
-            if (StringUtils.isBlank(nomDemarche)) {
-                nomDemarche = afBackUtils.getDemarcheNom();
-            }
-            return nomDemarche;
+            return afBackUtils.getDemarcheNom();
         } catch (Exception ex) {
             LOGGER.error("Erreur de recuperation du nom de la demarche", ex);
             return StringUtils.EMPTY;

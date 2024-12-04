@@ -51,4 +51,8 @@ public class DemandeDTO extends AbstractDemandeDTO {
         this.typeConnexionUsager = typeConnexionUsager;
     }
 
+    public String getAgentAffecteId() {
+        return agent != null ? agent.getId() : null;
+    }
+
 }

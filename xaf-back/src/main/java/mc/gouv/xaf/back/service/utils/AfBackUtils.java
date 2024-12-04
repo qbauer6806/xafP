@@ -321,7 +321,7 @@ public class AfBackUtils {
      */
     public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
         DemandeFlatDTO flat = new DemandeFlatDTO();
-        flat.setAgentAffecteId(demande.getAgent() != null ? demande.getAgent().getId() : null);
+        flat.setAgentAffecteId(demande.getAgentAffecteId());
         String agent = demande.getAgent() != null ? demande.getAgent().getNomAffichage() : "";
         flat.setAgentAffecteNom(getSafeString(agent));
         flat.setCanal(demande.getCanal().toString());
@@ -822,8 +822,8 @@ public class AfBackUtils {
     }
 
     public String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
-        String codePostal = demande.getMarqueurs().get(marqueurIdentifiant + "CodePostal");
-        String ville = demande.getMarqueurs().get(marqueurIdentifiant + "Ville");
+        String codePostal = demande.getMarqueur(marqueurIdentifiant + "CodePostal");
+        String ville = demande.getMarqueur(marqueurIdentifiant + "Ville");
         String adresseComplete = genererAdresse(demande.getMarqueurs(), marqueurIdentifiant);
         if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
             adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);

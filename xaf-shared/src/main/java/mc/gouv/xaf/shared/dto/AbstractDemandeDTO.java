@@ -45,4 +45,11 @@ public class AbstractDemandeDTO implements Serializable {
     @JsonIgnore
     protected boolean updated = false;
 
+    public String getMarqueur(String marqueurId) {
+        if (marqueurs != null) {
+            return marqueurs.get(marqueurId);
+        }
+        return null;
+    }
+
 }

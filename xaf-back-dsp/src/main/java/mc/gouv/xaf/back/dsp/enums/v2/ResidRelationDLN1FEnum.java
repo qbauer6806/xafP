@@ -18,7 +18,8 @@ public enum ResidRelationDLN1FEnum {
     EPO("EPO"),
     XPO("XPO"),
     CDV("CDV"),
-    CON("CON");
+    CON("CON"),
+    ONC("ONC");
 
     public String value;
 

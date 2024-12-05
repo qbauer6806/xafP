@@ -150,10 +150,6 @@ public class DemandesTransformer {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
 
-        if (bo.getTypeConnexionUsager() != null) {
-            dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
-        }
-
         // Mapper le contenu de la demande
         dto.setContenu(bo.getContenu());
 

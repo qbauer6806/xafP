@@ -44,12 +44,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private transient JsonNode contenuInitial;
     private transient JsonNode meta;
     private transient DemandeAgentDTO agent;
-
     private TypeConnexionUsagerEnum typeConnexionUsager;
-
-    public void setTypeConnexionUsager(TypeConnexionUsagerEnum typeConnexionUsager) {
-        this.typeConnexionUsager = typeConnexionUsager;
-    }
 
     public String getAgentAffecteId() {
         return agent != null ? agent.getId() : null;

@@ -60,7 +60,6 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
-import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
@@ -193,9 +192,6 @@ public abstract class AfApiService {
         // Récupération des informations usager pour stockage
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
         demandeDto.setUsager(demandesUsagersTransformer.user2Dto(usager));
-        demandeDto.setTypeConnexionUsager(demande.getDonneesMConnect() == null
-                ? TypeConnexionUsagerEnum.AUTHENTIFICATION_FAIBLE
-                : TypeConnexionUsagerEnum.MCONNECT);
 
         try {
             demandeDto = demandesService.saveOrUpdateDemande(demandeDto, false,

@@ -39,15 +39,15 @@
                      th:id="'iconeTacheAccordeon' + ${tache.pkTaches}"></i>
                   <span th:text="${TachesUtils.getTitre(tache)}"></span>
                   <span
-                      th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutAgent, statutPublicOuInterneDTO)}"
+                      th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutAgent, statutName)}"
                       th:id="'statutAgent' + ${tache.pkTaches}"
                       th:if="!${tache.locked}"
-                      th:text="${TachesUtils.getStatutAgent(tache, statutPublicOuInterneDTO)}"></span>
+                      th:text="${TachesUtils.getStatutAgent(tache, statutName)}"></span>
                 </div>
                 <!-- On affiche le statut de l'agent valideur que pour l'étape de validation ou s'il s'agit du statut VALIDER ou REFUSER lors d'un retour au guichet -->
                 <div class="col-xs-2 nopadding text-right"
                      th:id="'statutValideur' + ${tache.pkTaches}"
-                     th:if="${tache.statutValideur != null and (statutValidationTache == statutPublicOuInterneDTO.name or tache.statutValideur.name != 'RETOUR_GUICHET')}">
+                     th:if="${tache.statutValideur != null and (statutValidationTache == statutName or tache.statutValideur.name != 'RETOUR_GUICHET')}">
                   <div
                       th:class="${'label statusbox ' + TachesUtils.getStatutColorClass(tache.statutValideur, null)}">
                     <span th:text="${tache.statutValideur.libelle}"></span>
@@ -74,7 +74,7 @@
                     <input class="custom" data-toggle="button" name="actionChoisie"
                            onchange="setTacheForm(this)"
                            th:data-name="${tache.pkTaches}"
-                           th:disabled="${statutPublicOuInterneDTO.name == statutValidationTache ? tache.statutValideur != null : tache.statutAgent != null}"
+                           th:disabled="${statutName == statutValidationTache ? tache.statutValideur != null : tache.statutAgent != null}"
                            th:field="*{actionChoisie}"
                            th:id="action + ${iter.index} + ${tache.pkTaches}"
                            th:value="${item.statut}"
@@ -98,7 +98,7 @@
                            th:for="${'motifTacheSelect' + tache.pkTaches}">Motif</label><span
                       class="mandatory">&nbsp;*</span>
                     <select class="form-control"
-                            th:disabled="${tache.locked} or (${statutPublicOuInterneDTO.name} != ${statutValidationTache} and ${tache.statutAgent} != null) or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
+                            th:disabled="${tache.locked} or (${statutName} != ${statutValidationTache} and ${tache.statutAgent} != null) or (${statutName} == ${statutValidationTache} and ${tache.statutValideur} != null)"
                             th:field="*{codeMotifChoisi}"
                             th:id="${'motifTacheSelect' + tache.pkTaches}">
                     </select>
@@ -112,7 +112,7 @@
                     <label class="titre" th:for="${'commentaireTache' + tache.pkTaches}">Commentaire
                       (envoyé à l'agent traitant) :</label>
                     <textarea class="form-control greyTooltip"
-                              th:disabled="${tache.locked} or ${statutPublicOuInterneDTO.name} != ${statutValidationTache} or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
+                              th:disabled="${tache.locked} or ${statutName} != ${statutValidationTache} or (${statutName} == ${statutValidationTache} and ${tache.statutValideur} != null)"
                               th:field="*{commentaireTache}"
                               th:id="${'commentaireTache' + tache.pkTaches}"
                     ></textarea>
@@ -126,7 +126,7 @@
                 <!-- Input cachée contenant l'identifiant de la demande actuelle (ne pas enlever) -->
                 <input name="idDemande" th:value="${demandeDTO.identifiant}" type="hidden"/>
                 <!-- Input cachée contenant le statut de la demande actuelle (ne pas enlever) -->
-                <input name="statut" th:value="${statutPublicOuInterneDTO.name}" type="hidden"/>
+                <input name="statut" th:value="${statutName}" type="hidden"/>
                 <!-- Input cachée contenant le type de la tâche actuelle (ne pas enlever) -->
                 <input th:id="${'codeTypeTache' + tache.pkTaches}" th:value="${tache.codeType}"
                        type="hidden"/>

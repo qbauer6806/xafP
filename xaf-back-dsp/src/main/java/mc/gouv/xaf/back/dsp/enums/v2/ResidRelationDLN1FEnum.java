@@ -17,7 +17,7 @@ public enum ResidRelationDLN1FEnum {
     BFR("BFR"),
     EPO("EPO"),
     XPO("XPO"),
-    CDV("CDV"),
+    PAT("PAT"),
     CON("CON"),
     ONC("ONC");
 

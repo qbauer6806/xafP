@@ -17,11 +17,6 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public String getStatusColorClass(String statutName) {
-        return "";
-    }
-
-    @Override
     public String getDemandeur(DemandeDTO contenuDemandeDTO) {
         return "";
     }
@@ -44,11 +39,6 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     @Override
     public boolean getDemarcheCanGenerateCourriers() {
         return false;
-    }
-
-    @Override
-    public StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic) {
-        return null;
     }
 
     @Override

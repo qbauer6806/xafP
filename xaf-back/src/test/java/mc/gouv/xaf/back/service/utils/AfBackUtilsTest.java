@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class AfBackUtilsTest {
+
+    @InjectMocks
+    private AfBackUtils afBackUtils;
 
     @Test
     void parseDoubleTest() {
@@ -106,6 +110,18 @@ class AfBackUtilsTest {
         assertEquals(safe, resultSafe);
         String resultUnsafe = AfBackUtils.logSafe("Unsafe\nSt\rring");
         assertEquals("Unsafe_St_ring", resultUnsafe);
+    }
+
+    @Test
+    void testGetStatusColorClassWhenStatutPuclicIsNullThenReturnDefautStatutColor() {
+        String statusColorClass = afBackUtils.getStatusColorClass(null);
+        assertEquals("default-status-color", statusColorClass);
+    }
+
+    @Test
+    void testGetStatusColorClassWhenStatutPuclicIsValideeThenReturnStatutColorValidee() {
+        String statusColorClass = afBackUtils.getStatusColorClass("VALIDEE");
+        assertEquals("validee", statusColorClass);
     }
 
 }

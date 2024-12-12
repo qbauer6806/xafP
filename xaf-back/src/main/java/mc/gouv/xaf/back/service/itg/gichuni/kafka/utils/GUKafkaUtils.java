@@ -100,7 +100,7 @@ public class GUKafkaUtils {
             recap.setDemandeId(r.getPkDemandes());
             recap.setIdentifiant(r.getIdentifiant());
             recap.setDateCreation(r.getDateCreation());
-            StatutSimplifieEnum statutSimplifie = demarchesDataProvider.getStatutSimplifieFromStatutPublic(
+            StatutSimplifieEnum statutSimplifie = demarchesDataProvider.getStatutSimplifie(
                     r.getDernierStatut());
             recap.setStatutSimplifie(statutSimplifie.name());
             demandeRecaps.add(recap);

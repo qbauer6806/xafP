@@ -380,14 +380,17 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne la classe CSS de la couleur associée à un statut Attention, changer la fonction js getStatusColorClass
+     * Retourne la classe CSS de la couleur associée à un statut
      * Utilisé dans les fichiers html/thymeleaf
      *
      * @param statutName
      * @return
      */
     public String getStatusColorClass(String statutName) {
-        return demarchesDataProvider.getStatusColorClass(statutName);
+        if (statutName == null || statutName.isEmpty()) {
+            return "default-status-color";
+        }
+        return statutName.toLowerCase().replace("_", "-");
     }
 
     /**

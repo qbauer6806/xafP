@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import mc.gouv.xaf.shared.enums.XafDemandeStatus;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
@@ -24,16 +23,6 @@ public interface DemarchesDataProvider {
      */
     String getStatusLibelle(String statusName);
 
-    String getStatusColorClass(String statutName);
-
-    default <T extends Enum<T> & XafDemandeStatus> String getStatusColorClass(String statutName, Class<T> statutClass) {
-        try {
-            return Enum.valueOf(statutClass, statutName).getCouleur();
-        } catch (Exception e) {
-            return "default-status-color";
-        }
-    }
-
     String getDemandeur(DemandeDTO contenuDemandeDTO);
 
     /**
@@ -42,7 +31,7 @@ public interface DemarchesDataProvider {
     Map<String, String> getStatusMap();
 
     /**
-     * @return XafDemandeStatus.getPrivateStatuts(TSCODEDemandeStatutEnum.class);;
+     * @return XafDemandeStatus.getPrivateStatuts(TSCODEDemandeStatutEnum.class);
      */
     default Map<String, String> getPrivateStatusMap() {
         return new LinkedHashMap<>();
@@ -71,8 +60,6 @@ public interface DemarchesDataProvider {
     default String[] getGUKafkaSupportedVersions() {
         return new String[] { "v1" };
     }
-
-    StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
     List<String> getStatutsAPurger();
 

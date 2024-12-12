@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.service.itg.rest.impl;
 
-import org.springframework.context.annotation.Profile;
-
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.caching.GouvMemoryCache;
@@ -11,7 +9,6 @@ import mc.gouv.xaf.caching.GouvMemoryCache;
  *
  * @author qdeme
  */
-@Profile("gouv")
 public class UsagersCacheImpl extends GouvMemoryCache<Integer, GichuniUsagerDTO> implements UsagersCache {
 
     public UsagersCacheImpl(UsagersCacheDataProvider gouvCacheDataProvider, long cacheDuration) {

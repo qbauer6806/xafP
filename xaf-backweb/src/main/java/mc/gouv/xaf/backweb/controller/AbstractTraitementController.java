@@ -3,6 +3,13 @@ package mc.gouv.xaf.backweb.controller;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -16,7 +23,11 @@ import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.backweb.ws.FileController;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.FileCategoryDTO;
+import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,9 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.util.*;
 
 public class AbstractTraitementController extends AbstractController {
 

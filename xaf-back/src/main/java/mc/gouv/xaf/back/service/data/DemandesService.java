@@ -187,14 +187,6 @@ public interface DemandesService {
     List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate, String statut);
 
     /**
-     * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
-     *
-     * @param statut
-     *         libellé du statut
-     */
-    List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(Date startDate, Date endDate, String statut);
-
-    /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
      *
      * @param statut
@@ -259,6 +251,6 @@ public interface DemandesService {
     void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException;
 
-    List<DemandeDTO> retrieveDemandesFilteredByDate(String plainStartDate, String plainEndDate);
+    List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut);
 
 }

@@ -468,62 +468,6 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(Date startDate, Date endDate,
-            String statut) {
-
-        LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
-
-        List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Name(statut);
-
-        // Dans le cas où on ne séléctionne pas de dates on retourne toute la list
-        if (startDate == null && endDate == null) {
-            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-            return demandesTransformer.bo2Dto(demandes);
-        }
-
-        List<DemandeBO> demandesFiltres = new ArrayList<>();
-
-        for (DemandeBO demande : demandes) {
-            if (demande.getData() != null) {
-                // Recherche de l'attribut dateAcceptation
-                for (DemandesDataBO dataBO : demande.getData()) {
-                    if (ajouterDemande(dataBO, startDate, endDate)) {
-                        demandesFiltres.add(demande);
-                    }
-                }
-            }
-        }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(demandesFiltres);
-    }
-
-    private boolean ajouterDemande(DemandesDataBO dataBO, Date startDate, Date endDate) {
-        boolean ajouterDemande = false;
-        final String DATE_ACCEPTATION = "dateValidationDemande";
-        if (StringUtils.equals(DATE_ACCEPTATION, dataBO.getKey())) {
-            try {
-                Date dateAComparer = AfBackUtils.convertDate(dataBO.getValue(), false);
-                // Ajouter une heure pour éviter l'exclusion sur la date de départ
-                dateAComparer = DateUtils.addHours(dateAComparer, 1);
-                if (startDate != null && endDate != null) {
-                    ajouterDemande = startDate.before(dateAComparer) && endDate.after(dateAComparer);
-                } else if (startDate != null) {
-                    ajouterDemande = startDate.before(dateAComparer);
-                } else {
-                    ajouterDemande = endDate.after(dateAComparer);
-                }
-            } catch (ParseException e) {
-                LOGGER.error("Problème lors de la conversion de la date d'accepation", e);
-            }
-        }
-        return ajouterDemande;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
         List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Name(statut);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
@@ -997,7 +941,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> retrieveDemandesFilteredByDate(String plainStartDate, String plainEndDate) {
+    public List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut) {
         List<DemandeDTO> demandeDTOS;
         try {
             Date startDate = null;
@@ -1019,7 +963,11 @@ public class DemandesServiceImpl implements DemandesService {
                 endDate = cal.getTime();
             }
 
-            demandeDTOS = getAllDemandesFilteredByDate(startDate, endDate);
+            if (statut == null) {
+                demandeDTOS = getAllDemandesFilteredByDate(startDate, endDate);
+            } else {
+                demandeDTOS = getAllDemandesFilteredByDateAndStatut(startDate, endDate, statut);
+            }
         } catch (ParseException e) {
             LOGGER.error("Problème dans le parsing des dates, recherche sur toutes les demandes", e);
             demandeDTOS = getAllDemandes();

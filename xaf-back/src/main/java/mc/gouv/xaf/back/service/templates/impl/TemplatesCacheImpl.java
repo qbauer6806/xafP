@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
@@ -12,7 +11,6 @@ import mc.gouv.xaf.caching.GouvMemoryCache;
  *
  * @author qdeme
  */
-@Profile("gouv")
 @Component
 public class TemplatesCacheImpl extends GouvMemoryCache<Integer, TemplateDTO> implements TemplatesCache {
 

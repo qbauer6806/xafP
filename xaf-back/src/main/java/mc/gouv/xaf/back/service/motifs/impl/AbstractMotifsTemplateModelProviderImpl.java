@@ -4,6 +4,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.motifs.MotifsTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public abstract class AbstractMotifsTemplateModelProviderImpl implements MotifsT
     private AfBackUtils afBackUtils;
 
     @Override
-    public Map<String, Object> getGenericModel() {
+    public Map<String, Object> getGenericModel(DemandeDTO demandeDTO) {
         Map<String, Object> model = new HashMap<>();
         DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
         model.put("nomTs", demarcheInfos.getNom());
@@ -44,6 +45,7 @@ public abstract class AbstractMotifsTemplateModelProviderImpl implements MotifsT
         model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
         model.put("urlFicheDemarcheFr", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_FR").getValue());
         model.put("urlFicheDemarcheEn", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_EN").getValue());
+        model.put("identifiant", demandeDTO.getIdentifiant());
         return model;
     }
 

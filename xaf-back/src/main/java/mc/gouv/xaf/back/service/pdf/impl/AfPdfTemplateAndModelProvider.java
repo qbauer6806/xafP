@@ -4,7 +4,11 @@ import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
@@ -22,6 +26,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AfPdfTemplateAndModelProvider {
 
+    private final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+
+    private final String FORMAT_LITTERAIRE = "dd MMMM yyyy";
+
     @Autowired
     private MotifsCache motifsCache;
 
@@ -30,6 +38,7 @@ public class AfPdfTemplateAndModelProvider {
 
     @Autowired
     private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+
 
     private String getFontPath(int style) {
         String path = null;
@@ -84,6 +93,13 @@ public class AfPdfTemplateAndModelProvider {
         model.put("commentaire", commentaire);
         model.put("texteAEnvoyer", texteAEnvoyer);
         model.put("marqueurs", demande.getMarqueurs());
+
+        // Si demande courrier
+        if (demande.getCourrierDateReception() != null) {
+            model.put("dateReception", DATE_FORMAT.format(demande.getCourrierDateReception()));
+        }
+        model.put("refCourrier", demande.getCourrierRefInterne());
+
         model.putAll(getGenericModel());
         return model;
     }
@@ -104,6 +120,7 @@ public class AfPdfTemplateAndModelProvider {
         model.put("nomDirectionEn", demarcheInfos.getNomDirectionEn());
         model.put("nomSousDirectionEn", demarcheInfos.getNomSousDirectionEn());
         model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
+        model.put("dateCourante", new SimpleDateFormat(FORMAT_LITTERAIRE, Locale.FRANCE).format(new Date()));
         return model;
 
     }

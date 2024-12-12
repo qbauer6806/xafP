@@ -11,5 +11,5 @@ public interface MotifsTemplateModelProvider {
      */
     Map<String, Object> getModel(DemandeDTO demande);
 
-    Map<String, Object> getGenericModel();
+    Map<String, Object> getGenericModel(DemandeDTO demande);
 }

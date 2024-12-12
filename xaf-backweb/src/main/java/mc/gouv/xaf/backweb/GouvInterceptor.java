@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,7 +16,6 @@ import org.springframework.web.servlet.ModelAndView;
  * @author qdeme
  */
 @Component
-@Profile("gouv")
 public class GouvInterceptor implements HandlerInterceptor {
 
     @Autowired

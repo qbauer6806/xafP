@@ -9,6 +9,6 @@ import java.util.Map;
 public class MotifsTemplateModelProviderImpl extends AbstractMotifsTemplateModelProviderImpl {
 
     public Map<String, Object> getModel(DemandeDTO demande) {
-        return getGenericModel();
+        return getGenericModel(demande);
     }
 }

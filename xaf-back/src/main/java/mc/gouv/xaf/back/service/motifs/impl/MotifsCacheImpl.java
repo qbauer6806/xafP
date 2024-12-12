@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.motifs.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
@@ -15,7 +14,6 @@ import mc.gouv.xaf.caching.GouvMemoryCache;
  *
  * @author qdeme
  */
-@Profile("gouv")
 @Component
 public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implements MotifsCache {
 

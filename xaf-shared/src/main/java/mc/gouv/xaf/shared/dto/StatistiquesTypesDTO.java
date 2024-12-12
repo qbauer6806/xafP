@@ -15,4 +15,8 @@ public class StatistiquesTypesDTO {
 
     private String value;
 
+    public StatistiquesTypesDTO(String identifiantDemande, String value) {
+        this.identifiantDemande = identifiantDemande;
+        this.value = value;
+    }
 }

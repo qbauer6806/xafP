@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
+public class AbstractDynamicJSServiceImpl implements DynamicJSService {
 
     protected static final String DEBUT = "\n(\"";
     protected static final String FIN = "\";\n}\n";

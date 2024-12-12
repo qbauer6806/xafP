@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 
-@Profile("gouv")
 @Component
 public class TemplatesCacheDataProvider implements GouvCacheDataProvider<Integer, TemplateDTO> {
 

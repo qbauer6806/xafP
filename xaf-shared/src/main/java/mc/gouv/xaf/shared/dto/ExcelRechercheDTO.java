@@ -14,10 +14,6 @@ public class ExcelRechercheDTO {
 
     private String creationEndDate;
 
-    private String dateAcceptationStartDate;
-
-    private String dateAcceptationEndDate;
-
     private String statut;
 
 }

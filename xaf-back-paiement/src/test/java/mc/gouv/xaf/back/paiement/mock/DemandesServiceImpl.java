@@ -164,12 +164,6 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(Date startDate, Date endDate,
-            String statut) {
-        return List.of();
-    }
-
-    @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
         return List.of();
     }
@@ -220,7 +214,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> retrieveDemandesFilteredByDate(String plainStartDate, String plainEndDate) {
+    public List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut) {
         return List.of();
     }
 }

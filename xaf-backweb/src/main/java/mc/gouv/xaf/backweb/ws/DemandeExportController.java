@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
+import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class DemandeExportController extends AbstractController {
     private ExcelExportService excelExportService;
 
     @Autowired
-    private ExcelExportModelProvider excelExportModelProvider;
+    private AfExcelExportModelProvider excelExportModelProvider;
 
     @Autowired
     private DemarchesService demarchesService;
@@ -81,8 +82,8 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("DemandeExportController.getModel()");
 
         Map<String, Object> model = new HashMap<>();
-        List<Object> demandesFlat = demandesService.retrieveDemandesFilteredByDate(
-                        excelRecherche.getCreationStartDate(), excelRecherche.getCreationEndDate()).stream()
+        List<AfDemandeExcelFlatDTO> demandesFlat = demandesService.retrieveDemandesFiltered(
+                        excelRecherche.getCreationStartDate(), excelRecherche.getCreationEndDate(), excelRecherche.getStatut()).stream()
                 .map(excelExportModelProvider::getDemandeFlat).toList();
 
         model.put("demandes", demandesFlat);
@@ -92,5 +93,4 @@ public class DemandeExportController extends AbstractController {
         return model;
 
     }
-
 }

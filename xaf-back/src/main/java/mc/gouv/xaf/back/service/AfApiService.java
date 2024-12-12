@@ -69,9 +69,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-public abstract class AfApiService {
+@Component
+public class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";

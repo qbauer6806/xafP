@@ -30,6 +30,9 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
     private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
+    private AfBackUtils afBackUtils;
+
+    @Autowired
     private CommandesDemandesService commandesDemandesService;
 
     @Autowired
@@ -45,7 +48,7 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
             PaiementStatutEnum statutEnum = PaiementStatutEnum.valueOf(statutPaiement.getValue());
             mav.addObject("statutPaiementCode", statutEnum.name());
             mav.addObject("statutPaiement", statutEnum.getLibelle());
-            mav.addObject("statutPaiementColor", demarchesDataProvider.getStatusColorClass(statutEnum.name()));
+            mav.addObject("statutPaiementColor", afBackUtils.getStatusColorClass(statutEnum.name()));
         }
         DemandeDataDTO dateExpirationEmpreinte = demandesDataService.getDemandeData(demandeId,
                 PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name());

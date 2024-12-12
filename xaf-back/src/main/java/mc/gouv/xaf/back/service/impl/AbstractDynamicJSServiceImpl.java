@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.DynamicJSService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
 
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     String js = null;
 
@@ -44,7 +48,7 @@ public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
     private boolean appendStatuts(StringBuilder builder, boolean first, String name) {
         boolean result = ifElse(builder, first);
         builder.append(DEBUT).append(name).append("\" === statutName) {\n");
-        builder.append(RETURN).append(demarchesDataProvider.getStatusColorClass(name));
+        builder.append(RETURN).append(afBackUtils.getStatusColorClass(name));
         builder.append(FIN);
         return result;
     }

@@ -10,7 +10,8 @@ import java.util.Map.Entry;
  */
 public interface MailTemplateModelProvider {
 
-    void setModel(Map<String, Object> model, String bodyTemplateCode, Map<String, Object> bpmVariables);
+    default void setModel(Map<String, Object> model, String bodyTemplateCode, Map<String, Object> bpmVariables) {
+    }
 
     Entry<String, String> getMailTemplateCodesForAction(String action);
 }

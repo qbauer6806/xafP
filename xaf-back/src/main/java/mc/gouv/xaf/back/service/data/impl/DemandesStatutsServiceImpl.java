@@ -119,7 +119,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         demande.setDernierStatut(statutBo);
         demande = demandesRepository.save(demande);
 
-        StatutSimplifieEnum statutSimplifieInitial = demarchesDataProvider.getStatutSimplifieFromStatutPublic(
+        StatutSimplifieEnum statutSimplifieInitial = demarchesDataProvider.getStatutSimplifie(
                 statutInitial);
         if (statutSimplifieInitial == null) {
             LOGGER.info(
@@ -128,7 +128,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
             LOGGER.info(
                     "Le statut simplifié initial est TERMINEE, il s'agit donc probablement d'une duplication de demande, donc aucun message à envoyer au Guichet Unique via Kafka");
         } else {
-            StatutSimplifieEnum statutSimplifieNouveau = demarchesDataProvider.getStatutSimplifieFromStatutPublic(
+            StatutSimplifieEnum statutSimplifieNouveau = demarchesDataProvider.getStatutSimplifie(
                     statutName);
             if (statutSimplifieInitial.equals(statutSimplifieNouveau)) {
                 LOGGER.info("Le statut simplifié n'a pas changé, pas d'envoi de message au Guichet Unique via Kafka.");

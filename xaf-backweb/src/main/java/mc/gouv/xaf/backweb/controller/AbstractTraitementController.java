@@ -267,7 +267,8 @@ public class AbstractTraitementController extends AbstractController {
         return null;
     }
 
-    public ModelAndView form(ModelAndView mav, DemandeDTO demande) {
+    public ModelAndView form(String path, DemandeDTO demande) {
+        ModelAndView mav = new ModelAndView(path);
         XafTraitementFormBean xafTraitementFormBean = new XafTraitementFormBean();
         xafTraitementFormBean.setObservations(demande.getObservations());
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);

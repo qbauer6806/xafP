@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,8 +110,15 @@ public class GenerateConfigFromRecaps {
                         // sous section
                         else if (section.get("type").asText().equals("sousSections")) {
                             for (JsonNode sousSection : section.get("sousSections")) {
-                                for (JsonNode champ : sousSection.get("champs")) {
-                                    traitementChamp(champ, recapFront);
+                                String type = sousSection.get("type").asText();
+                                if ("tableau".equals(type)) {
+                                    for (JsonNode columns : sousSection.get("columns")) {
+                                        traitementChamp(columns, recapFront);
+                                    }
+                                } else if ("champs".equals(type)) {
+                                    for (JsonNode champ : sousSection.get("champs")) {
+                                        traitementChamp(champ, recapFront);
+                                    }
                                 }
                             }
                         }
@@ -290,6 +299,23 @@ public class GenerateConfigFromRecaps {
         }
 
         // find idPrefix, dans des vieux recaps il n'est pas présent, uniquement dans le recapFront
+        String idPrefix = getIdPrefix(champ, recapFront);
+        // add labelKey
+        ((ObjectNode) champ).put("labelKey", "ts.donnee.projectDemande." + idPrefix);
+    }
+
+    private static String getIdPrefix(JsonNode champ, JsonNode recapFront) {
+        String idPrefix = "";
+        String idPrefixChamp = getIdPrefixChamp(champ, recapFront);
+        if (StringUtils.isNotBlank(idPrefixChamp)) {
+            idPrefix = idPrefixChamp.concat(".nomChamp");
+        } else if (champ.get("path").asText().contains("Tableau")) {
+            idPrefix = champ.get("path").asText() + ".nomHeader";
+        }
+        return idPrefix;
+    }
+
+    private static String getIdPrefixChamp(JsonNode champ, JsonNode recapFront) {
         String idPrefix = "";
         for (Iterator<Entry<String, JsonNode>> it = recapFront.get("initDonnees").get("projectDemande")
                 .get("displayFields").fields(); it.hasNext(); ) {
@@ -306,8 +332,7 @@ public class GenerateConfigFromRecaps {
             }
 
         }
-        // add labelKey
-        ((ObjectNode) champ).put("labelKey", "ts.donnee.projectDemande." + idPrefix + ".nomChamp");
+        return idPrefix;
     }
 
     private static JsonNode readJsonFromFile(String filePath) throws IOException {

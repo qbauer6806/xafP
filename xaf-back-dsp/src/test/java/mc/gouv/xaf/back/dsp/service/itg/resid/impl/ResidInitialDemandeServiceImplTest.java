@@ -33,7 +33,7 @@ class ResidInitialDemandeServiceImplTest {
     @Mock
     private ResidPropertiesResolver residPropertiesResolver;
     @Spy
-    private ResidInitialDemandeMapper<?> residInitialDemandeMapper;
+    private ResidInitialDemandeMapper residInitialDemandeMapper;
 
     @InjectMocks
     private ResidInitialDemandeServiceImpl residInitialDemandeService;
@@ -66,7 +66,7 @@ class ResidInitialDemandeServiceImplTest {
             residInitialDemandeService.getInitialDemande(1, getParams());
         });
 
-        verify(residPropertiesResolver, Mockito.never()).getResidApiUrlV2();
+        verify(residPropertiesResolver, Mockito.never()).getResidApiUrl();
         verify(residApiService, Mockito.never()).getUsagerDln1f(any(), any(), any(), any());
         verify(residInitialDemandeMapper, Mockito.never()).mapperDonneesResid(any(), any(), any());
     }
@@ -75,7 +75,7 @@ class ResidInitialDemandeServiceImplTest {
     void testGetInitialDemandeWhenUrlResidIsEmptyThenThrowException() throws ParseException, JsonProcessingException {
 
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
-        when(residPropertiesResolver.getResidApiUrlV2()).thenReturn(null);
+        when(residPropertiesResolver.getResidApiUrl()).thenReturn(null);
 
         assertThrows(ResidHttpResponseException.class, () -> {
             // When
@@ -90,7 +90,7 @@ class ResidInitialDemandeServiceImplTest {
     void testGetInitialDemandeWhenResidReturnNullThenReturnNOK()
             throws ParseException, JsonProcessingException, ResidHttpResponseException {
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
-        when(residPropertiesResolver.getResidApiUrlV2()).thenReturn("mocked_url");
+        when(residPropertiesResolver.getResidApiUrl()).thenReturn("mocked_url");
         // Mocking ResidApiService response
         when(residApiService.getUsagerDln1f(any(), any(), any(), any())).thenReturn(null);
 
@@ -111,7 +111,7 @@ class ResidInitialDemandeServiceImplTest {
             throws ParseException, JsonProcessingException, ResidHttpResponseException {
         // Mocking external services
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
-        when(residPropertiesResolver.getResidApiUrlV2()).thenReturn("mocked_url");
+        when(residPropertiesResolver.getResidApiUrl()).thenReturn("mocked_url");
         // Mocking ResidApiService response
         when(residApiService.getUsagerDln1f(any(), any(), any(), any())).thenReturn(new ResidUsagerNpdhlDTO());
 

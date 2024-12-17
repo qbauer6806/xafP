@@ -760,4 +760,9 @@ public class AfApiService {
         return demandesConfigService.saveConfig(config);
     }
 
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params)
+            throws JsonProcessingException {
+        return null;
+    }
+
 }

@@ -4,7 +4,7 @@ public interface ResidPropertiesResolver {
 
     String getResidApiJwt();
 
-    String getResidApiUrlV2();
+    String getResidApiUrl();
 
     String getResidBackUrl();
 

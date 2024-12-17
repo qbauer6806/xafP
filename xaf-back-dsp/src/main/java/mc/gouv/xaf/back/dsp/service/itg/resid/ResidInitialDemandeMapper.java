@@ -3,10 +3,11 @@ package mc.gouv.xaf.back.dsp.service.itg.resid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 import java.text.ParseException;
 
-public interface ResidInitialDemandeMapper<T> {
+public interface ResidInitialDemandeMapper {
 
     /**
      * Permets de transformer les données reçues de RESID
@@ -21,6 +22,6 @@ public interface ResidInitialDemandeMapper<T> {
      * @throws JsonProcessingException
      * @throws ParseException
      */
-    T mapperDonneesResid(ResidUsagerNpdhlDTO usagerNpdhlDTO, Integer usagerId, ResidInitialDemandeParamDTO paramDTO)
+    DemandeDTO mapperDonneesResid(ResidUsagerNpdhlDTO usagerNpdhlDTO, Integer usagerId, ResidInitialDemandeParamDTO paramDTO)
             throws JsonProcessingException, ParseException;
 }

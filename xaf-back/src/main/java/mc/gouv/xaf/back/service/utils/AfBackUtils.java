@@ -827,27 +827,17 @@ public class AfBackUtils {
     public String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
         String codePostal = demande.getMarqueur(marqueurIdentifiant + "CodePostal");
         String ville = demande.getMarqueur(marqueurIdentifiant + "Ville");
-        String adresseComplete = genererAdresse(demande.getMarqueurs(), marqueurIdentifiant);
+        String adresseComplete = genererAdresse(demande, marqueurIdentifiant);
         if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
             adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
         }
         return adresseComplete;
     }
 
-    public static String genererAdresseComplete(Map<String, String> marqueurs, String marqueurIdentifiant) {
-        String codePostal = marqueurs.get(marqueurIdentifiant + "CodePostal");
-        String ville = marqueurs.get(marqueurIdentifiant + "Ville");
-        String adresseComplete = genererAdresse(marqueurs, marqueurIdentifiant);
-        if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
-            adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
-        }
-        return adresseComplete;
-    }
-
-    public static String genererAdresse(Map<String, String> marqueurs, String marqueurIdentifiant) {
-        String adresseComplete = escapeChars(marqueurs.get(marqueurIdentifiant + "Ligne1"));
-        String adresse2 = marqueurs.get(marqueurIdentifiant + "Ligne2");
-        String adresse3 = marqueurs.get(marqueurIdentifiant + "Ligne3");
+    public static String genererAdresse(DemandeDTO demandeDTO, String marqueurIdentifiant) {
+        String adresseComplete = escapeChars(demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne1"));
+        String adresse2 = demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne2");
+        String adresse3 = demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne3");
         if (!StringUtils.isEmpty(adresse2)) {
             adresseComplete += "\n" + escapeChars(adresse2);
         }

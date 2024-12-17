@@ -43,7 +43,7 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
     @Autowired
     private ResidPropertiesResolver residPropertiesResolver;
     @Autowired
-    private ResidInitialDemandeMapper<?> residInitialDemandeMapper;
+    private ResidInitialDemandeMapper residInitialDemandeMapper;
 
     static final ObjectMapper mapper = new ObjectMapper();
 
@@ -72,7 +72,7 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
         if (StringUtils.isBlank(jwt)) {
             throw new ResidHttpResponseException("Le TOKEN pour l'appel à RESID est null");
         }
-        String residApiUrlV2 = residPropertiesResolver.getResidApiUrlV2();
+        String residApiUrlV2 = residPropertiesResolver.getResidApiUrl();
         if (StringUtils.isBlank(residApiUrlV2)) {
             throw new ResidHttpResponseException("L'url pour l'appel à RESID est null");
         }
@@ -109,9 +109,7 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
 
         LOGGER.info("REPONSE API RESID: {}", usagerDln1f);
 
-        DemandeDTO demandeDTO = new DemandeDTO();
-        Object value = residInitialDemandeMapper.mapperDonneesResid(usagerDln1f, usagerId, initialDemandeDTO);
-        demandeDTO.setContenu(mapper.valueToTree(value));
+        DemandeDTO demandeDTO = residInitialDemandeMapper.mapperDonneesResid(usagerDln1f, usagerId, initialDemandeDTO);
 
         DonneesExternesDemandeDTO donneesExternesDemandeDTO = new DonneesExternesDemandeDTO();
         donneesExternesDemandeDTO.setDemande(demandeDTO);

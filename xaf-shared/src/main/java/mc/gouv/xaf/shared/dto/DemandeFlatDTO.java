@@ -47,6 +47,6 @@ public class DemandeFlatDTO {
 
     private String motif;
 
-    private Map<String, String> marqueurs;
+    private Map<String, Object> marqueurs;
 
 }

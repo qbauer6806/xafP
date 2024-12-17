@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.tuple.Pair;
 
 @Setter
 @Getter
@@ -29,7 +30,7 @@ public class AbstractDemandeDTO implements Serializable {
 
     protected transient JsonNode config;
 
-    protected transient Map<String, String> marqueurs;
+    protected transient Map<String, Object> marqueurs;
 
     protected String langue;
 
@@ -46,8 +47,15 @@ public class AbstractDemandeDTO implements Serializable {
     protected boolean updated = false;
 
     public String getMarqueur(String marqueurId) {
-        if (marqueurs != null) {
-            return marqueurs.get(marqueurId);
+        if (marqueurs != null && marqueurs.get(marqueurId) instanceof String str) {
+            return str;
+        }
+        return null;
+    }
+
+    public Pair<String, String> getMarqueurEnum(String marqueurId) {
+        if (marqueurs != null && marqueurs.get(marqueurId) instanceof Pair<?, ?> pair) {
+            return (Pair<String, String>) pair;
         }
         return null;
     }

@@ -46,8 +46,9 @@ public class DemandeTransformer {
                     JsonNode enumKeyNode = getNodeFromPath(contenuTrad, path);
                     if (enumKeyNode != null && !enumKeyNode.isNull()) {
                         String enumValue = "";
+                        JsonNode isDynamic = champ.get("isDynamic");
                         String enumKey = enumKeyNode.asText();
-                        if (!champ.get("isDynamic").asBoolean()) {
+                        if (isDynamic != null && !isDynamic.asBoolean()) {
                             enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values").get(enumKey).asText();
                         } else if (mapping.asText().equals("nationalites")) {
                             enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNationalite();

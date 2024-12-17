@@ -3,9 +3,13 @@ package mc.gouv.xaf.back.service.data.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.MarqueursRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
@@ -208,6 +212,92 @@ public class MarqueursServiceImpl implements MarqueursService {
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurList));
         }
 
+    }
+
+    @Override
+    public JsonNode buildDemande(Map<String, String> donnees, List<Map<String, String>> donneesTableaux) {
+        // Configuration initiale
+        String lastBuildId = demandesConfigService.getLastBuildId();
+        List<MarqueurDTO> marqueurs = getMarqueurs(lastBuildId);
+
+        // Utilisation de ObjectMapper pour créer un ObjectNode
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode demandeNode = mapper.createObjectNode();
+
+        // Iteration sur chaque entrée
+        donnees.forEach((marqueur, valeur) -> {
+            MarqueurDTO marqueurMatch = marqueurs.stream().filter(m -> m.getIdentifiant().equals(marqueur)).findFirst()
+                    .orElse(null);
+
+            if (marqueurMatch != null) {
+                String chemin = marqueurMatch.getChemin();
+                String[] segments = chemin.split("\\.");
+
+                // Permet d'itérer et de configurer chaque niveau du chemin
+                ObjectNode currentNode = demandeNode;
+                for (int i = 0; i < segments.length; i++) {
+                    String segment = segments[i];
+
+                    // Si c'est le dernier segment, ajouter la valeur
+                    if (i == segments.length - 1) {
+                        currentNode.put(segment, valeur);
+                    } else {
+                        // Si le segment n'existe pas, créer une nouvelle branche
+                        if (!currentNode.has(segment)) {
+                            currentNode.set(segment, mapper.createObjectNode());
+                        }
+                        // Descendre d'un niveau dans le noeud courant
+                        currentNode = (ObjectNode) currentNode.get(segment);
+                    }
+                }
+            }
+        });
+
+        if (donneesTableaux != null) {
+            // Traitement des tableaux
+            donneesTableaux.forEach(tableau -> {
+                // Assume que tous les objets du tableau partagent le même chemin initial commun
+                Optional<String> cheminCommumOptionnel = tableau.keySet().stream()
+                        .map(marqueur -> marqueurs.stream().filter(m -> m.getIdentifiant().equals(marqueur)).findFirst()
+                                .map(MarqueurDTO::getChemin).orElse(null)).filter(Objects::nonNull).findFirst();
+
+                if (cheminCommumOptionnel.isPresent()) {
+                    String cheminCommum = cheminCommumOptionnel.get();
+                    String[] segments = cheminCommum.split("\\.");
+
+                    ObjectNode currentNode = demandeNode;
+                    ArrayNode arrayNode;
+
+                    for (int i = 0; i < segments.length - 2; i++) { // Traverse jusqu'à deux segments avant la fin
+                        String segment = segments[i];
+
+                        if (!currentNode.has(segment)) {
+                            currentNode.set(segment, mapper.createObjectNode());
+                        }
+                        currentNode = (ObjectNode) currentNode.get(segment);
+                    }
+
+                    String segmentFinal = segments[segments.length - 2]; // fin correcte du chemin
+                    if (!currentNode.has(segmentFinal)) {
+                        arrayNode = mapper.createArrayNode();
+                        currentNode.set(segmentFinal, arrayNode);
+                    } else {
+                        arrayNode = (ArrayNode) currentNode.get(segmentFinal);
+                    }
+
+                    ObjectNode itemNode = mapper.createObjectNode();
+                    tableau.forEach(itemNode::put);
+                    arrayNode.add(itemNode);
+                }
+            });
+        }
+
+        return demandeNode;
+    }
+
+    @Override
+    public JsonNode buildDemande(Map<String, String> donnees) {
+        return buildDemande(donnees, null);
     }
 
 }

@@ -13,7 +13,7 @@ import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.backweb.dto.CustomMotifDTO;
 import mc.gouv.xaf.backweb.formbean.MotifsFormBean;
-import mc.gouv.xaf.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.shared.dto.GenericEnumDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class GestionParametresController extends AbstractController {
         ModelAndView mav = new ModelAndView(PARAMETRE_NEW_URL);
         try {
             // Liste des enum actuellement utilisés
-            List<GenericStatusDTO> list = getListEnumsContainsMotifs();
+            List<GenericEnumDTO> list = getListEnumsContainsMotifs();
             mav.addObject(STATUT_PARAM, list);
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans formInit (/newInit)");
@@ -198,7 +198,7 @@ public class GestionParametresController extends AbstractController {
         ModelAndView mav = new ModelAndView(PARAMETRE_NEW_URL);
 
         // Liste des enum actuellement utilisés
-        List<GenericStatusDTO> list = getListEnumsContainsMotifs();
+        List<GenericEnumDTO> list = getListEnumsContainsMotifs();
         mav.addObject(STATUT_PARAM, list);
         mav.addObject(ERROR_LIST, errorList);
 
@@ -371,16 +371,16 @@ public class GestionParametresController extends AbstractController {
         return mav;
     }
 
-    private List<GenericStatusDTO> getListEnumsContainsMotifs() {
-        List<GenericStatusDTO> genericStatusDTOS = new ArrayList<>();
+    private List<GenericEnumDTO> getListEnumsContainsMotifs() {
+        List<GenericEnumDTO> genericEnumDTOS = new ArrayList<>();
         List<String> statuts = motifsService.getMotifs().stream().map(MotifDTO::getStatut).distinct().toList();
         for (String statutName : statuts) {
-            GenericStatusDTO statut = new GenericStatusDTO();
+            GenericEnumDTO statut = new GenericEnumDTO();
             statut.setName(statutName);
             statut.setLibelle(demarchesDataProvider.getStatusLibelle(statutName));
-            genericStatusDTOS.add(statut);
+            genericEnumDTOS.add(statut);
         }
-        return genericStatusDTOS;
+        return genericEnumDTOS;
     }
 
     private String getDateArchiveStr(MotifDTO motif) {

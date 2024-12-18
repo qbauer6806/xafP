@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.data.transformer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -161,12 +162,9 @@ public class DemandesTransformer {
             dto.setConfig(demandesConfigTransformer.bo2Json(config));
 
             // mapper les marqueurs
-            dto.setMarqueurs(config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
-                    marqueur -> afBackUtils.getMarqueurValue(bo.getContenuTrad(), marqueur.getChemin()),
-                    (existing, replacement) -> {
-                        // en cas de doublon d'identifiant, on utilise la 1ère valeur
-                        return existing;
-                    })));
+            dto.setMarqueurs(buildMarqueur(config, bo.getContenu()));
+            // mapper les marqueurs
+            dto.setMarqueursTrad(buildMarqueur(config, bo.getContenuTrad()));
         }
 
         // Mapper les demandes d'informations complémentaires
@@ -231,6 +229,14 @@ public class DemandesTransformer {
 
         dto = bo2DtoProcessJsonFields(bo, dto);
         return dto;
+    }
+
+    private Map<String, Object> buildMarqueur(DemandeConfigBO config, JsonNode contenu) {
+        return config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin()), (existing, replacement) -> {
+                    // en cas de doublon d'identifiant, on utilise la 1ère valeur
+                    return existing;
+                }));
     }
 
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {

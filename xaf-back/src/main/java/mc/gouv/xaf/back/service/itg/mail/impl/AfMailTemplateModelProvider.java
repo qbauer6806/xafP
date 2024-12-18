@@ -100,7 +100,7 @@ public class AfMailTemplateModelProvider {
 
             setAgent(model, bpmVariables);
 
-            model.put("marqueurs", demande.getMarqueurs());
+            model.put("marqueurs", demande.getMarqueursTrad());
         }
         model.putAll(getGenericModel());
 

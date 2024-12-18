@@ -92,7 +92,7 @@ public class AfPdfTemplateAndModelProvider {
         model.put("motif", motif);
         model.put("commentaire", commentaire);
         model.put("texteAEnvoyer", texteAEnvoyer);
-        model.put("marqueurs", demande.getMarqueurs());
+        model.put("marqueurs", demande.getMarqueursTrad());
 
         // Si demande courrier
         if (demande.getCourrierDateReception() != null) {

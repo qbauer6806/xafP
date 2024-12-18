@@ -431,7 +431,7 @@ public class AfBackUtils {
             flat.setMotif(motif != null ? motif.getLibelle() : null);
         }
         // marqueurs
-        flat.setMarqueurs(demande.getMarqueurs());
+        flat.setMarqueurs(demande.getMarqueursTrad());
         return flat;
     }
 

@@ -47,7 +47,15 @@ public class AbstractDemandeDTO implements Serializable {
     protected boolean updated = false;
 
     public String getMarqueur(String marqueurId) {
-        if (marqueurs != null && marqueurs.get(marqueurId) instanceof String str) {
+        return getMap(marqueurs, marqueurId);
+    }
+
+    public String getMarqueurTrad(String marqueurId) {
+        return getMap(marqueursTrad, marqueurId);
+    }
+
+    private String getMap(Map<String, Object> map, String marqueurId) {
+        if (map != null && map.get(marqueurId) instanceof String str) {
             return str;
         }
         return null;

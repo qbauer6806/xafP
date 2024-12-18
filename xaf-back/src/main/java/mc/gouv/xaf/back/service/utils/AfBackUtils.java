@@ -3,10 +3,14 @@ package mc.gouv.xaf.back.service.utils;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -27,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
@@ -55,6 +60,7 @@ import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PaysTraductionAlpha3DTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
@@ -116,6 +122,18 @@ public class AfBackUtils {
 
     public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
 
+    public static final String CODE_ALPHA2_APATRIDE = "SP";
+
+    public static final String CODE_ALPHA2_NONCONNU = "ZZ";
+
+    public static final String CODE_ALPHA3_NATIONALITEE_NONCONNU = "XXX";
+
+    public static final String CODE_ALPHA3_PAYS_NONCONNU = "000";
+
+    public static final String CODE_ALPHA3_APATRIDE = "XXA";
+
+    public static final String XAF_CODES_PAYS_ISO_3166_3 = "XAF_CODES_PAYS_ISO_3166_3";
+
     @Autowired
     @Lazy
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -170,6 +188,15 @@ public class AfBackUtils {
     public static final short GENDER_MME_INDEX = 1;
     public static final short GENDER_MLLE_INDEX = 2;
 
+    /* pour n'utiliser qu'une seule instance d'objectmapper (threadsafe). */
+    static final ObjectMapper mapper = new ObjectMapper();
+    static {
+        mapper.registerModule(new JavaTimeModule()); // pour la gestion des OffsetDateTime
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
     public static String getAuthenticatedAgentId() {
         if (SecurityContextHolder.getContext() != null
                 && SecurityContextHolder.getContext().getAuthentication() != null) {
@@ -207,6 +234,64 @@ public class AfBackUtils {
             isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
         }
         return isoCodeMap.get(alpha3Code);
+    }
+
+    public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) throws JsonProcessingException {
+        String alpha3 = null;
+        PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
+        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(), new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>(){});
+        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream().filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
+        if (pays.isPresent()) {
+            alpha3 = pays.get().getAlpha3().toUpperCase();
+        }
+
+        if(null != alpha2) {
+            if(alpha2.equals(CODE_ALPHA2_APATRIDE)) {
+                if (fromPays) {
+                    alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
+                } else {
+                    alpha3 = CODE_ALPHA3_APATRIDE;
+                }
+            }
+
+            if(alpha2.equals(CODE_ALPHA2_NONCONNU)) {
+                if(fromPays) {
+                    alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
+                } else {
+                    alpha3 = CODE_ALPHA3_NATIONALITEE_NONCONNU;
+                }
+            }
+        }
+        return alpha3;
+    }
+
+    public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) throws JsonProcessingException {
+        String alpha2 = null;
+        PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
+        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(), new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>(){});
+        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream().filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
+        if (pays.isPresent()) {
+            alpha2 = pays.get().getAlpha2().toUpperCase();
+        }
+
+        if(null != alpha3) {
+            if(alpha3.equals(CODE_ALPHA3_APATRIDE)) {
+                if (fromPays) {
+                    alpha2 = CODE_ALPHA2_NONCONNU;
+                } else {
+                    alpha2 = CODE_ALPHA2_APATRIDE;
+                }
+            }
+
+            if(alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
+                if(fromPays) {
+                    alpha2 = CODE_ALPHA2_NONCONNU;
+                } else {
+                    alpha2 = CODE_ALPHA2_APATRIDE;
+                }
+            }
+        }
+        return alpha2;
     }
 
     /**

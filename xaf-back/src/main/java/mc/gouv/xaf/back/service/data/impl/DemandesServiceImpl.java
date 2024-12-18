@@ -280,7 +280,7 @@ public class DemandesServiceImpl implements DemandesService {
                     if (enumKeyNode != null && !enumKeyNode.isNull()) {
                         String enumValue = "";
                         String enumKey = enumKeyNode.asText();
-                        if (!champ.get("isDynamic").asBoolean()) {
+                        if (champ.get("isDynamic") != null && !champ.get("isDynamic").asBoolean()) {
                             enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
                                     .get(enumKey).asText();
                         } else if (mapping.asText().equals("nationalites")) {

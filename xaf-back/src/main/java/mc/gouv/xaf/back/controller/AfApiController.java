@@ -192,10 +192,9 @@ public class AfApiController {
 
     @GetMapping(value = "/donneesexternes")
     public JsonNode getDonneesExternesRequest(HttpServletRequest request,
-            @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) throws Exception {
         LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
-        // à implémenter si besoin dans le TS
-        return null;
+        return afApiService.getDonneesExternes(usagerId, request.getParameterMap());
     }
 
     @GetMapping(value = "/properties")

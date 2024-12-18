@@ -761,7 +761,7 @@ public class AfApiService {
     }
 
     public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params)
-            throws JsonProcessingException {
+            throws Exception {
         return null;
     }
 

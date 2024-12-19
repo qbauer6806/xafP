@@ -19,6 +19,10 @@ public class ResidDemandeBaseDTO implements Serializable {
     private ResidDemandeurTypeEnum demandeur;
 
     private String demandeurNom;
+    
+    private String enqueteurMatricule;
+    
+    private String administrateurNom;
 
     private List<ResidPieceJustificativeDTO> piecesJustificatives;
 
@@ -53,4 +57,20 @@ public class ResidDemandeBaseDTO implements Serializable {
     public void setPiecesJustificatives(List<ResidPieceJustificativeDTO> piecesJustificatives) {
         this.piecesJustificatives = piecesJustificatives;
     }
+
+	public String getEnqueteurMatricule() {
+		return enqueteurMatricule;
+	}
+
+	public void setEnqueteurMatricule(String enqueteurMatricule) {
+		this.enqueteurMatricule = enqueteurMatricule;
+	}
+
+	public String getAdministrateurNom() {
+		return administrateurNom;
+	}
+
+	public void setAdministrateurNom(String administrateurNom) {
+		this.administrateurNom = administrateurNom;
+	}
 }

@@ -875,7 +875,17 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
-        demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
+        if (agentAffecteId != null) {
+            if (demandeBo.getAgent() != null) {
+                demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
+            } else {
+                User user = utilisateursCache.get(agentAffecteId);
+                demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
+            }
+        } else {
+            demandeBo.setAgent(null);
+        }
+
         demandesRepository.save(demandeBo);
         DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
         LOGGER.info("Fin changement affectation...");

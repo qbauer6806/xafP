@@ -4,6 +4,7 @@
 <body>
 <div id="sectiondiscussion" th:fragment="sectiondiscussion"
      th:remove="tag">
+  <div class="col-xs-12">
     <form id="discussion-demande" action="#"
           th:action="@{/demandes/commentaires}" method="post">
       <div class="panel-group accordion" role="tablist"
@@ -94,7 +95,8 @@
           </div>
         </div>
       </div>
-  </form>
+    </form>
+  </div>
 </div>
 </body>
 </html>

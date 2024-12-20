@@ -36,6 +36,7 @@ import java.util.Set;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
+import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -810,13 +811,52 @@ public class AfBackUtils {
         return afApiClient2Tiers;
     }
 
-    public String getMarqueurValue(JsonNode contenu, String path) {
+    public Object getMarqueurValue(JsonNode contenu, String path, Set<MarqueurBO> marqueurs) {
         if (path != null) {
             JsonNode node = getNodeFromPath(contenu, path);
-            boolean hasValue = node != null && !"null".equals(node.asText());
-            return hasValue ? node.asText() : "";
+            if (node != null) {
+                if (node.isTextual() && !"null".equals(node.asText())) {
+                    // texte
+                    return node.asText();
+                } else if (node.isArray()) {
+                    // tableau
+                    List<Map<String, String>> list = new ArrayList<>();
+                    for (JsonNode arrayElement : node) {
+                        Map<String, String> map = new HashMap<>();
+                        arrayElement.fields().forEachRemaining(tableauDonnee -> {
+                            String donneeTableauPath = path + "." + tableauDonnee.getKey();
+                            // retrouver le nom du marqueur à partir du nouveau path
+                            Optional<MarqueurBO> marqueurFound = marqueurs.stream()
+                                    .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
+                            if (marqueurFound.isPresent()) {
+                                putMarqueur(map, tableauDonnee, marqueurFound.get());
+                            } else {
+                                // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
+                                String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
+                                        "bic", "iban", "indicatif", "numero" };
+                                for (String suffixe : suffixes) {
+                                    String suffixedPath = donneeTableauPath + "." + suffixe;
+                                    marqueurFound = marqueurs.stream()
+                                            .filter(marqueur -> suffixedPath.equals(marqueur.getChemin())).findFirst();
+                                    marqueurFound.ifPresent(marqueurBO -> putMarqueur(map, tableauDonnee, marqueurBO));
+                                }
+                            }
+                        });
+                        list.add(map);
+                    }
+                    return list;
+                }
+            }
         }
         return "";
+    }
+
+    private void putMarqueur(Map<String, String> map, Map.Entry<String, JsonNode> tableauDonnee,
+            MarqueurBO marqueurFound) {
+        String donneeTableauValue =
+                tableauDonnee.getValue() != null && tableauDonnee.getValue().isTextual() && !"null".equals(
+                        tableauDonnee.getValue().asText()) ? tableauDonnee.getValue().asText() : "";
+        map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 
     public static JsonNode getNodeFromPath(JsonNode contenu, String path) {
@@ -824,7 +864,7 @@ public class AfBackUtils {
         return contenu.at(chemin);
     }
 
-    public static String getCheminRelatif(String path) {
+    private static String getCheminRelatif(String path) {
         return path.replace("contenu.", "/").replace(".", "/");
     }
 

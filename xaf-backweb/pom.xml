@@ -96,6 +96,11 @@
       <version>1.11.4</version>
     </dependency>
     <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>datatables-plugins</artifactId>
+      <version>1.11.4</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
     </dependency>

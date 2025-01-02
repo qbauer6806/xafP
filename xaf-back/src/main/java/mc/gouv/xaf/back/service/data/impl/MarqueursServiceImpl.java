@@ -82,24 +82,22 @@ public class MarqueursServiceImpl implements MarqueursService {
     @Override
     public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths,
             JsonNode sections) {
-        if (lastBuildId != null) {
-            List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
-            // on copie les marqueurs du précédent build id s'il y en a
-            if (!marqueurDTOS.isEmpty()) {
-                for (MarqueurDTO marqueurDTO : marqueurDTOS) {
-                    marqueurDTO.setPkMarqueur(null);
-                    marqueurDTO.setBuildId(buildId);
-                    // vérifier si le chemin existe toujours dans le nouveau config
-                    if (marqueurDTO.getChemin() != null && !modelPaths.contains(marqueurDTO.getChemin())) {
-                        marqueurDTO.setChemin(null);
-                    }
+        List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
+        // on copie les marqueurs du précédent build id s'il y en a
+        if (!marqueurDTOS.isEmpty()) {
+            for (MarqueurDTO marqueurDTO : marqueurDTOS) {
+                marqueurDTO.setPkMarqueur(null);
+                marqueurDTO.setBuildId(buildId);
+                // vérifier si le chemin existe toujours dans le nouveau config
+                if (marqueurDTO.getChemin() != null && !modelPaths.contains(marqueurDTO.getChemin())) {
+                    marqueurDTO.setChemin(null);
                 }
             }
-            // on génère tous les autres
-            setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId, sections);
-
-            marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
         }
+        // on génère tous les autres
+        setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId, sections);
+
+        marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
     }
 
     @Override

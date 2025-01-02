@@ -162,9 +162,9 @@ public class DemandesTransformer {
             dto.setConfig(demandesConfigTransformer.bo2Json(config));
 
             // mapper les marqueurs
-            dto.setMarqueurs(buildMarqueur(config, bo.getContenu()));
+            dto.setMarqueurs(buildMarqueurs(config, bo.getContenu()));
             // mapper les marqueurs
-            dto.setMarqueursTrad(buildMarqueur(config, bo.getContenuTrad()));
+            dto.setMarqueursTrad(buildMarqueurs(config, bo.getContenuTrad()));
         }
 
         // Mapper les demandes d'informations complémentaires
@@ -231,9 +231,10 @@ public class DemandesTransformer {
         return dto;
     }
 
-    private Map<String, Object> buildMarqueur(DemandeConfigBO config, JsonNode contenu) {
+    private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
         return config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
-                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin()), (existing, replacement) -> {
+                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), config.getMarqueurs()),
+                (existing, replacement) -> {
                     // en cas de doublon d'identifiant, on utilise la 1ère valeur
                     return existing;
                 }));

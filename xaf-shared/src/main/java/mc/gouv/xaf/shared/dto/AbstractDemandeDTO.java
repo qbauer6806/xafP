@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,5 +61,24 @@ public class AbstractDemandeDTO implements Serializable {
         }
         return null;
     }
+
+    public List<Map<String, String>> getMarqueurTableau(String marqueurId) {
+        if (marqueurs != null && marqueurs.get(marqueurId) instanceof List list) {
+            if (!list.isEmpty() && list.getFirst() instanceof Map) {
+                return list;
+            }
+        }
+        return null;
+    }
+
+    public List<String> getMarqueurChoixMultiple(String marqueurId) {
+        if (marqueurs != null && marqueurs.get(marqueurId) instanceof List list) {
+            if (!list.isEmpty() && list.getFirst() instanceof String) {
+                return list;
+            }
+        }
+        return null;
+    }
+
 
 }

@@ -33,6 +33,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -947,6 +949,22 @@ public class AfBackUtils {
         } catch (ParseException e) {
             return "";
         }
+    }
+
+    public static String getSimpleDate(String fullDate) {
+        if (StringUtils.isBlank(fullDate)) {
+            return "";
+        }
+
+        String dateRegex = "(\\d{4})-(\\d{2})-(\\d{2})";
+        String simpleDate = "";
+        Matcher matcher = Pattern.compile(dateRegex).matcher(fullDate);
+
+        if (matcher.find()) {
+            simpleDate = String.format("%s/%s/%s", matcher.group(3), matcher.group(2), matcher.group(1));
+        }
+
+        return StringUtils.isNotBlank(simpleDate) ? simpleDate : fullDate;
     }
 
     /**

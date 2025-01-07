@@ -143,24 +143,69 @@ public class MarqueursServiceImpl implements MarqueursService {
                 break;
             }
         }
-        for (JsonNode section : sections) {
-            // section
-            if (section.get("type").asText().equals("champs")) {
-                for (JsonNode champ : section.get("champs")) {
-                    if (champ.get("path").asText().equals(modifiedModelPath)) {
-                        // si c'est un type particulier on ajoute le suffixe
-                        String description = champ.get("label").asText();
-                        if (suffixeFound != null) {
-                            description = description + " - " + suffixeFound;
-                        }
-                        return description;
+        // récupérer tous les champs, qu'ils soient dans des sections ou des sous sections
+        List<JsonNode> champsNodes = sections.findValues("champs");
+        for (JsonNode champs : champsNodes) {
+            for (JsonNode champ : champs) {
+                if (champ.get("path").asText().equals(modifiedModelPath)) {
+                    // si c'est un type particulier on ajoute le suffixe
+                    String description = champ.get("label").asText();
+                    if (suffixeFound != null) {
+                        description = description + " - " + suffixeFound;
                     }
+                    return description;
                 }
-
             }
         }
+        // si on a rien, on va chercher du côté des tableaux
+        List<Map.Entry<String, JsonNode>> tableauWithTitle = new ArrayList<>();
+        extractTableauNodesWithParents(sections, null, tableauWithTitle);
+        for (Map.Entry<String, JsonNode> entry : tableauWithTitle) {
+            String title = "Tableau " + entry.getKey();
+            JsonNode tableau = entry.getValue();
+            // on regarde d'abord si c'est le chemin racine du tableau
+            if (tableau.get("path").asText().equals(modifiedModelPath)) {
+                return title;
+            }
+            for (JsonNode column : tableau.get("columns")) {
+                if (column.get("path").asText()
+                        .equals(modifiedModelPath.substring(modifiedModelPath.lastIndexOf('.') + 1))) {
+                    // si c'est un type particulier on ajoute le suffixe
+                    String description = column.get("label").asText();
+                    if (suffixeFound != null) {
+                        description = description + " - " + suffixeFound;
+                    }
+                    return title + " - " + description;
+                }
+            }
+
+        }
+
 
         return null;
+    }
+
+    private static void extractTableauNodesWithParents(JsonNode node, String parentTitle,
+            List<Map.Entry<String, JsonNode>> tableauWithTitle) {
+        if (node.isObject()) {
+            JsonNode typeNode = node.get("type");
+            if (typeNode != null && "tableau".equals(typeNode.asText())) {
+                // On suppose que le titre est dans le nœud parent direct
+                tableauWithTitle.add(Map.entry(parentTitle, node));
+            }
+
+            JsonNode titreNode = node.get("titre");
+            String currentTitle = (titreNode != null) ? titreNode.asText() : parentTitle;
+
+            // Parcourir les enfants de l'objet
+            node.fields().forEachRemaining(
+                    entry -> extractTableauNodesWithParents(entry.getValue(), currentTitle, tableauWithTitle));
+        } else if (node.isArray()) {
+            // Si le nœud est un tableau
+            for (int i = 0; i < node.size(); i++) {
+                extractTableauNodesWithParents(node.get(i), parentTitle, tableauWithTitle);
+            }
+        }
     }
 
     private String pathToCamelCase(String input) {

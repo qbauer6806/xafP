@@ -951,7 +951,7 @@ public class AfBackUtils {
         return utilisateurAffecte;
     }
 
-    public String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
+    public static String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
         String codePostal = demande.getMarqueur(marqueurIdentifiant + "CodePostal");
         String ville = demande.getMarqueur(marqueurIdentifiant + "Ville");
         String adresseComplete = genererAdresse(demande, marqueurIdentifiant);

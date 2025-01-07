@@ -46,8 +46,8 @@ public class GenerateConfigFromRecaps {
 
             // modelPaths
             JsonNode modelPaths = mapper.createObjectNode();
-            // rechercheAvancee
-            ArrayNode rechercheAvancee = mapper.createArrayNode();
+            // marqueurs
+            ArrayNode marqueurs = mapper.createArrayNode();
             JsonNode displayFields = recapFront.get("initDonnees").get("projectDemande").get("displayFields");
             for (JsonNode displayField : displayFields) {
                 String type = displayField.get("type").asText();
@@ -55,28 +55,46 @@ public class GenerateConfigFromRecaps {
                 if (type.equals("adresse") || type.equals("adresseMc") || type.equals("iban") || type.equals(
                         "telephone")) {
                     for (JsonNode d : data) {
-                        rechercheAvancee.add(d.asText());
+                        marqueurs.add(d.asText());
                     }
                 } else if (!type.equals("fichier") && data.asText().startsWith("contenu.")) {
-                    rechercheAvancee.add(data.asText());
+                    marqueurs.add(data.asText());
                 }
             }
-            ((ObjectNode) modelPaths).put("rechercheAvancee", rechercheAvancee);
-            // all
-            ArrayNode all = mapper.createArrayNode();
-            for (JsonNode displayField : displayFields) {
-                String type = displayField.get("type").asText();
-                JsonNode data = displayField.get("data");
-                if (type.equals("adresse") || type.equals("adresseMc") || type.equals("iban") || type.equals(
-                        "telephone")) {
-                    for (JsonNode d : data) {
-                        all.add(d.asText());
+            // chercher les tableaux, dans le recapBack
+            List<JsonNode> tableauxNodes = new ArrayList<>();
+            extractTableauNodes(recapBack, tableauxNodes);
+            for (JsonNode tableau : tableauxNodes) {
+                String rootPath = tableau.get("path").asText();
+                marqueurs.add(rootPath);
+                for (JsonNode champ : tableau.get("columns")) {
+                    // sur les types adresse, telephone... il n'y a pas de path
+                    JsonNode pathNode = champ.get("path");
+                    String path = rootPath + ".";
+                    if (pathNode != null) {
+                        path += champ.get("path").asText();
+                    } else {
+                        String type = champ.get("type").asText();
+                        if (type.equals("adresse") || type.equals("adresseMc")) {
+                            String suffix = "Ligne1";
+                            String pathWithSuffix = champ.get("ligne1").asText();
+                            path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                        } else if (type.equals("iban")) {
+                            String suffix = "Iban";
+                            String pathWithSuffix = champ.get("iban").asText();
+                            path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                        } else if (type.equals("telephone")) {
+                            String suffix = "Indicatif";
+                            String pathWithSuffix = champ.get("indicatif").asText();
+                            path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                        }
                     }
-                } else if (data.asText().startsWith("contenu.")) {
-                    all.add(data.asText());
+                    addToPathByType(marqueurs, champ, path);
                 }
             }
-            ((ObjectNode) modelPaths).put("all", all);
+
+            ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
+            // pas besoin d'ajouter le noeud rechercheAvancee dans modelPaths car dans tous les cas un nouveau fichier config sera utilisé sur une montée de version XAF 12
             ((ObjectNode) config).put("modelPaths", modelPaths);
 
             JsonNode properties = recapFront.get("properties");
@@ -219,6 +237,56 @@ public class GenerateConfigFromRecaps {
 
     }
 
+    private static void extractTableauNodes(JsonNode node, List<JsonNode> tableauNodes) {
+        if (node.isObject()) {
+            // Si le nœud est un objet JSON
+            JsonNode columnsNode = node.get("columns");
+            if (columnsNode != null && columnsNode.isArray()) {
+                tableauNodes.add(node);
+            }
+
+            // Parcourir les enfants de l'objet
+            node.fields().forEachRemaining(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+        } else if (node.isArray()) {
+            // Si le nœud est un tableau
+            node.forEach(childNode -> extractTableauNodes(childNode, tableauNodes));
+        }
+    }
+
+    private static void addToPathByType(ArrayNode arrayNode, JsonNode champ, String path) {
+        if (!path.isEmpty()) {
+            String type = champ.get("type").asText();
+            switch (type) {
+                case "adresse" -> {
+                    addToPath(arrayNode, path, "ligne1");
+                    addToPath(arrayNode, path, "ligne2");
+                    addToPath(arrayNode, path, "ligne3");
+                    addToPath(arrayNode, path, "ville");
+                    addToPath(arrayNode, path, "pays");
+                }
+                case "adresseMc" -> {
+                    addToPath(arrayNode, path, "ligne1");
+                    addToPath(arrayNode, path, "ligne2");
+                    addToPath(arrayNode, path, "ligne3");
+                }
+                case "iban" -> {
+                    addToPath(arrayNode, path, "iban");
+                    addToPath(arrayNode, path, "bic");
+                    addToPath(arrayNode, path, "titulaire");
+                }
+                case "telephone" -> {
+                    addToPath(arrayNode, path, "indicatif");
+                    addToPath(arrayNode, path, "numero");
+                }
+                default -> arrayNode.add(path);
+            }
+        }
+    }
+
+    private static void addToPath(ArrayNode arrayNode, String path, String suffixe) {
+        arrayNode.add(path + "." + suffixe);
+    }
+
     private static void cleanApostrophes(ObjectNode node) {
         Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
 
@@ -292,6 +360,7 @@ public class GenerateConfigFromRecaps {
             ((ObjectNode) champ).put("path", champ.get("iban").asText().replace(".iban", ""));
             ((ObjectNode) champ).remove("iban");
             ((ObjectNode) champ).remove("bic");
+            ((ObjectNode) champ).remove("titulaire");
         } else if (champ.get("type").asText().equals("telephone")) {
             ((ObjectNode) champ).put("path", champ.get("indicatif").asText().replace(".indicatif", ""));
             ((ObjectNode) champ).remove("indicatif");

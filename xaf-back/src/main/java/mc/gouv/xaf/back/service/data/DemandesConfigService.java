@@ -8,7 +8,7 @@ public interface DemandesConfigService {
 
     List<String> getModelPathsRechercheAvancee();
 
-    List<String> getModelPathsRechercheAvancee(String buildId);
+    List<String> getModelPathsMarqueurs(String buildId);
 
     List<DemandeConfigBO> getConfigsBO();
 

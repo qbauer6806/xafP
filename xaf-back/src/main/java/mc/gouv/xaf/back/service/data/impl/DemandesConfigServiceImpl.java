@@ -7,13 +7,15 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.transformer.DemandesConfigTransformer;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,22 +63,105 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         String buildId = config.get("buildId").asText();
         // si la config existe et que son contenu et != null, on ne la sauvegarde pas
         DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
+
         if (configBO == null || configBO.getContenu() == null) {
             // on récupère tous les config avant d'ajouter le nouveau
             List<DemandeConfigBO> configs = getConfigsBO();
             String lastBuildId = getLastBuildId();
+            // on ajoute à la config le noeud modelPaths
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode modelPaths = mapper.createObjectNode();
+            ArrayNode marqueurs = mapper.createArrayNode();
+            ArrayNode rechercheAvancee = mapper.createArrayNode();
+            findPaths(config.get("recap"), marqueurs, rechercheAvancee);
+            ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
+            // le noeud rechercheAvancee ne contient pas les chemins des tableaux
+            ((ObjectNode) modelPaths).put("rechercheAvancee", rechercheAvancee);
+            ((ObjectNode) config).put("modelPaths", modelPaths);
             configBO = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(config));
-            // on recalcule les autres config pour vérifier si elles sont toujours le même modèle ou si le modèle a changé
+            // on recalcule les autres config pour vérifier si elles ont toujours le même modèle ou si le modèle a changé
             checkIfDernierModele(configs, configBO);
             // on génère les marqueurs pour la nouvelle config
             marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId,
-                    getModelPaths(config.get(MODEL_PATH).get("rechercheAvancee")), config.get("recap").get("sections"));
+                    getModelPaths(config.get(MODEL_PATH).get("marqueurs")), config.get("recap").get("sections"));
         } else if (configBO.getVersion() != null && !configBO.getVersion().equals(mavenVersion)) {
             // si la config existe déjà, on met à jour la version avec la + récente si la version est différente
             configBO.setVersion(mavenVersion);
             configBO = demandesConfigRepository.save(configBO);
         }
         return demandesConfigTransformer.bo2Json(configBO);
+    }
+
+    private void findPaths(JsonNode recap, ArrayNode marqueurs, ArrayNode rechercheAvancee) {
+        List<JsonNode> champsNodes = recap.findValues("champs");
+        for (JsonNode champs : champsNodes) {
+            for (JsonNode champ : champs) {
+                String path = champ.get("path").asText();
+                addToPathByType(marqueurs, champ, path);
+                addToPathByType(rechercheAvancee, champ, path);
+            }
+        }
+        // récupérer aussi les champs tableau
+        List<JsonNode> tableauxNodes = new ArrayList<>();
+        extractTableauNodes(recap, tableauxNodes);
+        for (JsonNode tableau : tableauxNodes) {
+            String rootPath = tableau.get("path").asText();
+            marqueurs.add(rootPath);
+            for (JsonNode champ : tableau.get("columns")) {
+                String path = rootPath + "." + champ.get("path").asText();
+                addToPathByType(marqueurs, champ, path);
+            }
+        }
+    }
+
+    private void addToPathByType(ArrayNode arrayNode, JsonNode champ, String path) {
+        if (!path.isEmpty()) {
+            String type = champ.get("type").asText();
+            switch (type) {
+                case "adresse" -> {
+                    addToPath(arrayNode, path, "ligne1");
+                    addToPath(arrayNode, path, "ligne2");
+                    addToPath(arrayNode, path, "ligne3");
+                    addToPath(arrayNode, path, "ville");
+                    addToPath(arrayNode, path, "pays");
+                }
+                case "adresseMc" -> {
+                    addToPath(arrayNode, path, "ligne1");
+                    addToPath(arrayNode, path, "ligne2");
+                    addToPath(arrayNode, path, "ligne3");
+                }
+                case "iban" -> {
+                    addToPath(arrayNode, path, "iban");
+                    addToPath(arrayNode, path, "bic");
+                    addToPath(arrayNode, path, "titulaire");
+                }
+                case "telephone" -> {
+                    addToPath(arrayNode, path, "indicatif");
+                    addToPath(arrayNode, path, "numero");
+                }
+                default -> arrayNode.add(path);
+            }
+        }
+    }
+
+    private void addToPath(ArrayNode arrayNode, String path, String suffixe) {
+        arrayNode.add(path + "." + suffixe);
+    }
+
+    private void extractTableauNodes(JsonNode node, List<JsonNode> tableauNodes) {
+        if (node.isObject()) {
+            // Si le nœud est un objet JSON
+            JsonNode columnsNode = node.get("columns");
+            if (columnsNode != null && columnsNode.isArray()) {
+                tableauNodes.add(node);
+            }
+
+            // Parcourir les enfants de l'objet
+            node.fields().forEachRemaining(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+        } else if (node.isArray()) {
+            // Si le nœud est un tableau
+            node.forEach(childNode -> extractTableauNodes(childNode, tableauNodes));
+        }
     }
 
     private void checkIfDernierModele(List<DemandeConfigBO> configs, DemandeConfigBO lastConfig) {
@@ -100,13 +185,14 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
 
     @Override
     public List<String> getModelPathsRechercheAvancee() {
-        return getModelPathsRechercheAvancee(getLastBuildId());
+        DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(getLastBuildId());
+        return getModelPaths(configBO.getContenu().get(MODEL_PATH).get("rechercheAvancee"));
     }
 
     @Override
-    public List<String> getModelPathsRechercheAvancee(String buildId) {
+    public List<String> getModelPathsMarqueurs(String buildId) {
         DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
-        return getModelPaths(configBO.getContenu().get(MODEL_PATH).get("rechercheAvancee"));
+        return getModelPaths(configBO.getContenu().get(MODEL_PATH).get("marqueurs"));
     }
 
     @Override

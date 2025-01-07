@@ -843,7 +843,7 @@ public class AfBackUtils {
                             } else {
                                 // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
                                 String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
-                                        "bic", "iban", "indicatif", "numero" };
+                                        "bic", "iban", "titulaire", "indicatif", "numero" };
                                 for (String suffixe : suffixes) {
                                     String suffixedPath = donneeTableauPath + "." + suffixe;
                                     marqueurFound = marqueurs.stream()

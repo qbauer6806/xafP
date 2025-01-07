@@ -108,7 +108,7 @@ public class MarqueursServiceImpl implements MarqueursService {
             List<MarqueurDTO> marqueurDTOS = new ArrayList<>();
 
             setMarqueursFromModelPaths(
-                    demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("rechercheAvancee")),
+                    demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("marqueurs")),
                     marqueurDTOS, config.getBuildId(), config.getContenu().get("recap").get("sections"));
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
         }
@@ -134,7 +134,7 @@ public class MarqueursServiceImpl implements MarqueursService {
         String modifiedModelPath = modelPath;
         String suffixeFound = null;
         String[] possibleSuffixesToRemove = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
-                "iban", "indicatif", "numero" };
+                "iban", "titulaire", "indicatif", "numero" };
         for (String suffix : possibleSuffixesToRemove) {
             String suffixDot = "." + suffix;
             if (modelPath.endsWith(suffixDot)) {

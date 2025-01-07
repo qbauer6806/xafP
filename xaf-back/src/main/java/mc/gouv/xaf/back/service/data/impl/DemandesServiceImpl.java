@@ -24,7 +24,6 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
-import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
@@ -61,7 +60,6 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -273,41 +271,77 @@ public class DemandesServiceImpl implements DemandesService {
             for (JsonNode champ : champs) {
                 JsonNode mapping = champ.get("mapping");
                 String path = champ.get("path").asText();
-                // le champ a un mapping
-                if (mapping != null) {
-                    // on récupère le champ correspondant dans le contenu s'il existe
-                    JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
-                    if (enumKeyNode != null && !enumKeyNode.isNull()) {
-                        String enumValue = "";
-                        String enumKey = enumKeyNode.asText();
-                        if (champ.get("isDynamic") != null && !champ.get("isDynamic").asBoolean()) {
-                            enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
-                                    .get(enumKey).asText();
-                        } else if (mapping.asText().equals("nationalites")) {
-                            enumValue = StringUtils.isBlank(enumKey)
-                                    ? ""
-                                    : paysCache.get(enumKey, "fr").getNationalite();
-                        } else if (mapping.asText().equals("pays")) {
-                            enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
-                        }
-                        AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
-                    }
-                } else if (champ.get("type").asText().equals("adresse")) {
-                    // le champ est de type adresse donc on doit remplacer le pays
-                    path += ".pays";
-                    JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
-                    if (enumKeyNode != null && !enumKeyNode.isNull()) {
-                        String enumKey = enumKeyNode.asText();
-                        String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
-                        AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
-                    }
-                } else if (champ.get("type").asText().equals("date")) {
-                    JsonNode dateNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
-                    if (dateNode != null && !dateNode.isNull()) {
-                        String date = dateNode.asText();
-                        AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(date));
-                    }
+                processContenuTrad(contenuTrad, mappings, mapping, champ, path);
+            }
+        }
+        // récupérer aussi les champs tableau
+        List<JsonNode> tableauxNodes = new ArrayList<>();
+        extractTableauNodes(config.get("recap"), tableauxNodes);
+        for (JsonNode tableau : tableauxNodes) {
+            String rootPath = tableau.get("path").asText();
+            // on regarde si dans le contenu on a une array correspondant à ce path
+            JsonNode array = AfBackUtils.getNodeFromPath(contenuTrad, rootPath);
+            for (JsonNode champ : tableau.get("columns")) {
+                JsonNode mapping = champ.get("mapping");
+                // il faut itérer sur chaque contenu du tableau
+                for (int i = 0; i < array.size(); i++) {
+                    String path = rootPath + "." + i + "." + champ.get("path").asText();
+                    processContenuTrad(contenuTrad, mappings, mapping, champ, path);
                 }
+
+            }
+        }
+    }
+
+    private void extractTableauNodes(JsonNode node, List<JsonNode> tableauNodes) {
+        if (node.isObject()) {
+            // Si le nœud est un objet JSON
+            JsonNode columnsNode = node.get("columns");
+            if (columnsNode != null && columnsNode.isArray()) {
+                tableauNodes.add(node);
+            }
+
+            // Parcourir les enfants de l'objet
+            node.fields().forEachRemaining(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+        } else if (node.isArray()) {
+            // Si le nœud est un tableau
+            node.forEach(childNode -> extractTableauNodes(childNode, tableauNodes));
+        }
+    }
+
+    private void processContenuTrad(JsonNode contenuTrad, JsonNode mappings, JsonNode mapping, JsonNode champ,
+            String path) {
+        // le champ a un mapping
+        if (mapping != null) {
+            // on récupère le champ correspondant dans le contenu s'il existe
+            JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
+            if (enumKeyNode != null && !enumKeyNode.isNull()) {
+                String enumValue = "";
+                String enumKey = enumKeyNode.asText();
+                if (champ.get("isDynamic") != null && !champ.get("isDynamic").asBoolean()) {
+                    enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values").get(enumKey)
+                            .asText();
+                } else if (mapping.asText().equals("nationalites")) {
+                    enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNationalite();
+                } else if (mapping.asText().equals("pays")) {
+                    enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+                }
+                AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
+            }
+        } else if (champ.get("type").asText().equals("adresse")) {
+            // le champ est de type adresse donc on doit remplacer le pays
+            path += ".pays";
+            JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
+            if (enumKeyNode != null && !enumKeyNode.isNull()) {
+                String enumKey = enumKeyNode.asText();
+                String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+                AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
+            }
+        } else if (champ.get("type").asText().equals("date")) {
+            JsonNode dateNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
+            if (dateNode != null && !dateNode.isNull()) {
+                String date = dateNode.asText();
+                AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(date));
             }
         }
     }

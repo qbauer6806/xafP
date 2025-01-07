@@ -381,10 +381,23 @@
       <version>3.1</version>
     </dependency>
 
+
+    <!--  Le jour où Mockserver corrigera la CVE sur mozilla rhino, supprimer l'exclusion et la surcharge de la dépendance plus bas  -->
     <dependency>
       <groupId>org.mock-server</groupId>
       <artifactId>mockserver-netty</artifactId>
       <version>5.15.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.mozilla</groupId>
+          <artifactId>rhino</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
+      <version>1.7.14</version>
     </dependency>
 
 

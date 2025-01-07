@@ -551,6 +551,14 @@ public class AfBackUtils {
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
+    public static String changeSimpleDateStringFormat(final String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return " ";
+        }
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE)
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+    }
+
     public static String changeDateStringFormat(final String dateString) {
         if (StringUtils.isBlank(dateString)) {
             return " ";

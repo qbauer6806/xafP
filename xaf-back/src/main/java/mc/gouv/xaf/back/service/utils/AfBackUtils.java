@@ -831,7 +831,7 @@ public class AfBackUtils {
                             Optional<MarqueurBO> marqueurFound = marqueurs.stream()
                                     .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
                             if (marqueurFound.isPresent()) {
-                                putMarqueur(map, tableauDonnee, marqueurFound.get());
+                                putMarqueur(map, tableauDonnee.getValue(), marqueurFound.get());
                             } else {
                                 // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
                                 String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
@@ -840,7 +840,9 @@ public class AfBackUtils {
                                     String suffixedPath = donneeTableauPath + "." + suffixe;
                                     marqueurFound = marqueurs.stream()
                                             .filter(marqueur -> suffixedPath.equals(marqueur.getChemin())).findFirst();
-                                    marqueurFound.ifPresent(marqueurBO -> putMarqueur(map, tableauDonnee, marqueurBO));
+                                    marqueurFound.ifPresent(
+                                            marqueurBO -> putMarqueur(map, tableauDonnee.getValue().get(suffixe),
+                                                    marqueurBO));
                                 }
                             }
                         });
@@ -853,11 +855,12 @@ public class AfBackUtils {
         return "";
     }
 
-    private void putMarqueur(Map<String, String> map, Map.Entry<String, JsonNode> tableauDonnee,
+    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode,
             MarqueurBO marqueurFound) {
         String donneeTableauValue =
-                tableauDonnee.getValue() != null && tableauDonnee.getValue().isTextual() && !"null".equals(
-                        tableauDonnee.getValue().asText()) ? tableauDonnee.getValue().asText() : "";
+                tableauDonneeNode != null && tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())
+                        ? tableauDonneeNode.asText()
+                        : "";
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 

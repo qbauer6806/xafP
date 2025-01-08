@@ -122,6 +122,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
                     addToPath(arrayNode, path, "ligne1");
                     addToPath(arrayNode, path, "ligne2");
                     addToPath(arrayNode, path, "ligne3");
+                    addToPath(arrayNode, path, "codePostal");
                     addToPath(arrayNode, path, "ville");
                     addToPath(arrayNode, path, "pays");
                 }

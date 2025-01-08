@@ -21,3 +21,4 @@ pom.xml.versionsBackup
 .flattened-pom.xml
 
 xaf-sup/src/main/resources/xaf12
+/**/application-local.properties

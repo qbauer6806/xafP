@@ -318,13 +318,27 @@ public class DemandesServiceImpl implements DemandesService {
             if (enumKeyNode != null && !enumKeyNode.isNull()) {
                 String enumValue = "";
                 String enumKey = enumKeyNode.asText();
-                if (champ.get("isDynamic") != null && !champ.get("isDynamic").asBoolean()) {
-                    enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values").get(enumKey)
-                            .asText();
+                JsonNode isDynamic = champ.get("isDynamic");
+                if (isDynamic != null && !isDynamic.asBoolean()) {
+                    JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                            .get(enumKey);
+                    if (enumFound != null) {
+                        // si on trouve l'enum, alors on récupère la valeur
+                        enumValue = enumFound.asText();
+                    } else {
+                        // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
+                        enumValue = enumKey;
+                    }
                 } else if (mapping.asText().equals("nationalites")) {
-                    enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNationalite();
+                    enumValue = StringUtils.isBlank(enumKey)
+                            ? ""
+                            : paysCache.get(enumKey, "fr") != null
+                                    ? paysCache.get(enumKey, "fr").getNationalite()
+                                    : enumKey;
                 } else if (mapping.asText().equals("pays")) {
-                    enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+                    enumValue = StringUtils.isBlank(enumKey)
+                            ? ""
+                            : paysCache.get(enumKey, "fr") != null ? paysCache.get(enumKey, "fr").getNom() : enumKey;
                 }
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
@@ -334,7 +348,11 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull()) {
                 String enumKey = enumKeyNode.asText();
-                String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+                String enumValue = StringUtils.isBlank(enumKey)
+                        ? ""
+                        : paysCache.get(enumKey, "fr") != null
+                                ? paysCache.get(enumKey, "fr").getNationalite()
+                                : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
         } else if (champ.get("type").asText().equals("date")) {

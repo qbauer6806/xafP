@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -563,8 +564,13 @@ public class AfBackUtils {
         if (StringUtils.isBlank(dateString)) {
             return " ";
         }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+        try {
+            return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                    .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+        } catch (DateTimeParseException e) {
+            // impossible de parser la date, elle est sûrement déjà au bon format
+            return dateString;
+        }
     }
 
     public static String changeTimeStringFormat(final String dateString) {

@@ -57,6 +57,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.mail.api.url}")
     private String mailUrl;
+    
+    @Value("${mc.gouv.sms.api.url:OPTIONAL}")
+    private String smsUrl;
 
     @Value("${mc.gouv.vscan.api.url}")
     private String vscanUrl;
@@ -89,6 +92,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.${application.name}.shared.backapi.file.jwt}")
     private String fileJwt;
+    
+    @Value("${mc.gouv.${application.name}.shared.backapi.sms.jwt:OPTIONAL}")
+    private String smsJwt;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
     private String paiementEnabled;
@@ -242,6 +248,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public String getSmsUrl() {
+        return smsUrl;
+    }
+    
+    @Override
     public String getFileJwt() {
         return fileJwt;
     }
@@ -251,6 +262,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return mailJwt;
     }
 
+    @Override
+    public String getSmsJwt() {
+        return smsJwt;
+    }
+    
     @Override
     public String getFrontUrl() {
         return frontUrl;

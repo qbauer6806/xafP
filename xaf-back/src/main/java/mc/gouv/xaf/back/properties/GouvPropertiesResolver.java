@@ -14,6 +14,10 @@ public interface GouvPropertiesResolver {
     String getMailUrl();
 
     String getMailJwt();
+    
+    String getSmsUrl();
+    
+    String getSmsJwt();
 
     String getDemarcheId();
 

@@ -5,6 +5,12 @@ import java.util.List;
 import mc.gouv.xaf.shared.dto.mail.AddressBlockDTO;
 import mc.gouv.xaf.shared.dto.mail.ParamDTO;
 
+/**
+ * 
+ * Transformer pour les emails
+ * 
+ * @author qdeme
+ */
 public class EmailTransformer {
 
     private EmailTransformer() {

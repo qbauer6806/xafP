@@ -23,7 +23,7 @@ import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 
 /**
- * Controller la modification de templates
+ * Controller pour la modification de templates d'e-mails
  *
  * @author mpavone
  */

@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.util.Date;
 import java.util.List;
 
-import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,8 @@ import mc.gouv.xaf.back.data.dao.TemplatesRepository;
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.TemplatesService;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 /**
@@ -32,9 +31,6 @@ public class TemplatesServiceImpl implements TemplatesService {
 
     @Autowired
     private TemplatesRepository templatesRepository;
-
-    @Autowired
-    private DemarchesService demarchesService;
 
     private TemplateBO getTemplateBO(Integer templateId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);

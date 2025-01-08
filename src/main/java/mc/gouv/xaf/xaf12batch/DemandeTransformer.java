@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,11 +50,26 @@ public class DemandeTransformer {
                         JsonNode isDynamic = champ.get("isDynamic");
                         String enumKey = enumKeyNode.asText();
                         if (isDynamic != null && !isDynamic.asBoolean()) {
-                            enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values").get(enumKey).asText();
+                            JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                                    .get(enumKey);
+                            if (enumFound != null) {
+                                // si on trouve l'enum, alors on récupère la valeur
+                                enumValue = enumFound.asText();
+                            } else {
+                                // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
+                                enumValue = enumKey;
+                            }
                         } else if (mapping.asText().equals("nationalites")) {
-                            enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNationalite();
+                            enumValue = StringUtils.isBlank(enumKey)
+                                    ? ""
+                                    : paysCache.get(enumKey, "fr") != null ? paysCache.get(enumKey, "fr")
+                                            .getNationalite() : enumKey;
                         } else if (mapping.asText().equals("pays")) {
-                            enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+                            enumValue = StringUtils.isBlank(enumKey)
+                                    ? ""
+                                    : paysCache.get(enumKey, "fr") != null
+                                            ? paysCache.get(enumKey, "fr").getNom()
+                                            : enumKey;
                         }
                         setNodeValue(contenuTrad, path, enumValue);
                     }
@@ -63,7 +79,11 @@ public class DemandeTransformer {
                     JsonNode enumKeyNode = getNodeFromPath(contenuTrad, path);
                     if (enumKeyNode != null && !enumKeyNode.isNull()) {
                         String enumKey = enumKeyNode.asText();
-                        String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+                        String enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
+                                : paysCache.get(enumKey, "fr") != null
+                                        ? paysCache.get(enumKey, "fr").getNationalite()
+                                        : enumKey;
                         setNodeValue(contenuTrad, path, enumValue);
                     }
                 } else if (champ.get("type").asText().equals("date")) {
@@ -81,8 +101,13 @@ public class DemandeTransformer {
         if (StringUtils.isBlank(dateString)) {
             return " ";
         }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+        try {
+            return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                    .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+        } catch (DateTimeParseException e) {
+            // impossible de parser la date, elle est sûrement déjà au bon format
+            return dateString;
+        }
     }
 
     public void setNodeValue(JsonNode contenu, String path, String nouvelleValeur){

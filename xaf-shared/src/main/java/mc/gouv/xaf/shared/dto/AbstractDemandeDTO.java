@@ -89,5 +89,14 @@ public class AbstractDemandeDTO implements Serializable {
         return null;
     }
 
+    public List<String> getMarqueurChoixTrad(String marqueurId) {
+        if (marqueursTrad != null && marqueursTrad.get(marqueurId) instanceof List list) {
+            if (!list.isEmpty() && list.getFirst() instanceof String) {
+                return list;
+            }
+        }
+        return null;
+    }
+
 
 }

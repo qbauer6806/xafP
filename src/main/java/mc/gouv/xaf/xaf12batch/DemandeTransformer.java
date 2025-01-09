@@ -2,18 +2,19 @@ package mc.gouv.xaf.xaf12batch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import mc.gouv.servicerest.caching.PaysNationalitesCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class DemandeTransformer {
@@ -121,7 +122,7 @@ public class DemandeTransformer {
                 String enumValue = StringUtils.isBlank(enumKey)
                         ? ""
                         : paysCache.get(enumKey, "fr") != null
-                                ? paysCache.get(enumKey, "fr").getNationalite()
+                        ? paysCache.get(enumKey, "fr").getNom()
                                 : enumKey;
                 setNodeValue(contenuTrad, path, enumValue);
             }

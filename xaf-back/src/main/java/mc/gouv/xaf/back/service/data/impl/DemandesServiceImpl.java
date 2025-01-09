@@ -351,7 +351,7 @@ public class DemandesServiceImpl implements DemandesService {
                 String enumValue = StringUtils.isBlank(enumKey)
                         ? ""
                         : paysCache.get(enumKey, "fr") != null
-                                ? paysCache.get(enumKey, "fr").getNationalite()
+                                ? paysCache.get(enumKey, "fr").getNom()
                                 : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }

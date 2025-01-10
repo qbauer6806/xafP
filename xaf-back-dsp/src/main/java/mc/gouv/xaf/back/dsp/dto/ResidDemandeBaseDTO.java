@@ -24,6 +24,9 @@ public class ResidDemandeBaseDTO implements Serializable {
 
     private String demandeurNom;
 
-    private List<ResidPieceJustificativeDTO> piecesJustificatives;
+    private String enqueteurMatricule;
 
+    private String administrateurNom;
+
+    private List<ResidPieceJustificativeDTO> piecesJustificatives;
 }

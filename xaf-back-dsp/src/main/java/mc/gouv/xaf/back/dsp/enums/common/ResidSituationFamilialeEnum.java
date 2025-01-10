@@ -8,8 +8,7 @@ public enum ResidSituationFamilialeEnum {
     MAR("MAR"),
     SEP("SEP"),
     VEU("VEU"),
-    PAR("PAR"),
-    COH("COH");
+    PAR("PAR");
 
     String value;
 

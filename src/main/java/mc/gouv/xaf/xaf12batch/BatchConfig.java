@@ -1,6 +1,5 @@
 package mc.gouv.xaf.xaf12batch;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManagerFactory;
 import mc.gouv.xaf.xaf12batch.dto.DemandeBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesAgentsBO;
@@ -155,9 +154,14 @@ public class BatchConfig {
         return demande -> {
             LOGGER.info("Traitement de la demande ID {}", demande.getPkDemandes());
             if (demande.getConfig() != null) {
-                JsonNode contenuTrad = demande.getContenuTrad();
-                demandeTransformer.setContenuTrad(contenuTrad, demande.getConfig().getContenu());
-                demande.setContenuTrad(contenuTrad);
+                // changer les valeur/valeurExtra
+                demandeTransformer.changeChoixAdditionnel(demande.getContenu());
+                demandeTransformer.changeChoixAdditionnel(demande.getContenuTrad());
+                // changer les choix multiple avec le nouveau format
+                demandeTransformer.changeChoixMultiple(demande.getConfig().getContenu(), demande.getContenu());
+                demandeTransformer.changeChoixMultiple(demande.getConfig().getContenu(), demande.getContenuTrad());
+                // transformer les clés qui sont dans contenuTrad en libellé
+                demandeTransformer.setContenuTrad(demande.getContenuTrad(), demande.getConfig().getContenu());
             }
             return demande;
         };

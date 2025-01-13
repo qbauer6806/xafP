@@ -1,6 +1,8 @@
 package mc.gouv.xaf.xaf12batch;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.servicerest.caching.PaysNationalitesCache;
 import org.apache.commons.lang3.StringUtils;
@@ -12,9 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class DemandeTransformer {
@@ -87,37 +87,62 @@ public class DemandeTransformer {
             // on récupère le champ correspondant dans le contenu s'il existe
             JsonNode enumKeyNode = getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull()) {
-                String enumValue = "";
-                String enumKey = enumKeyNode.asText();
-                JsonNode isDynamic = champ.get("isDynamic");
-                if (isDynamic != null && !isDynamic.asBoolean()) {
-                    JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
-                            .get(enumKey);
-                    if (enumFound != null) {
-                        // si on trouve l'enum, alors on récupère la valeur
-                        enumValue = enumFound.asText();
-                    } else {
-                        // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
-                        enumValue = enumKey;
+                if (enumKeyNode.isArray()) {
+                    // choix multiple
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    ArrayNode arrayNodeValues = objectMapper.createArrayNode();
+                    for (JsonNode element : enumKeyNode) {
+                        String enumValue;
+                        String enumKey = element.asText();
+                        JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                                .get(enumKey);
+                        if (enumFound != null) {
+                            // si on trouve l'enum, alors on récupère la valeur
+                            enumValue = enumFound.asText();
+                        } else {
+                            // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
+                            enumValue = enumKey;
+                        }
+                        arrayNodeValues.add(enumValue);
                     }
-                } else if (mapping.asText().equals("nationalites")) {
-                    enumValue = StringUtils.isBlank(enumKey)
-                            ? ""
-                            : paysCache.get(enumKey, "fr") != null
-                                    ? paysCache.get(enumKey, "fr").getNationalite()
-                                    : enumKey;
-                } else if (mapping.asText().equals("pays")) {
-                    enumValue = StringUtils.isBlank(enumKey)
-                            ? ""
-                            : paysCache.get(enumKey, "fr") != null ? paysCache.get(enumKey, "fr").getNom() : enumKey;
+                    setNodeValueArray(contenuTrad, path, arrayNodeValues);
+                } else {
+                    // choix
+                    String enumValue = "";
+                    String enumKey = enumKeyNode.asText();
+                    JsonNode isDynamic = champ.get("isDynamic");
+                    if (isDynamic != null && !isDynamic.asBoolean()) {
+                        JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                                .get(enumKey);
+                        if (enumFound != null) {
+                            // si on trouve l'enum, alors on récupère la valeur
+                            enumValue = enumFound.asText();
+                        } else {
+                            // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
+                            enumValue = enumKey;
+                        }
+                    } else if (mapping.asText().equals("nationalites")) {
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
+                                : paysCache.get(enumKey, "fr") != null
+                                        ? paysCache.get(enumKey, "fr").getNationalite()
+                                        : enumKey;
+                    } else if (mapping.asText().equals("pays")) {
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
+                                : paysCache.get(enumKey, "fr") != null
+                                        ? paysCache.get(enumKey, "fr").getNom()
+                                        : enumKey;
+                    }
+                    setNodeValue(contenuTrad, path, enumValue);
                 }
-                setNodeValue(contenuTrad, path, enumValue);
+
             }
         } else if (champ.get("type").asText().equals("adresse")) {
             // le champ est de type adresse donc on doit remplacer le pays
             path += ".pays";
             JsonNode enumKeyNode = getNodeFromPath(contenuTrad, path);
-            if (enumKeyNode != null && !enumKeyNode.isNull()) {
+            if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
                 String enumValue = StringUtils.isBlank(enumKey)
                         ? ""
@@ -159,6 +184,90 @@ public class DemandeTransformer {
         String p = "/" + String.join("/", donneeExterneKeyArray);
         ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
     }
+
+    public void setNodeValueArray(JsonNode contenu, String path, ArrayNode nouvelleValeur) {
+        // [contenu,donnee,demandeur,prenom]
+        List<String> donneeExterneKeyArray = new ArrayList<>(Arrays.asList(path.split("\\.")));
+        // [donnee,demandeur,prenom]
+        donneeExterneKeyArray.removeFirst();
+        //	 "[donnee,demandeur]" / field = prenom
+        String field = donneeExterneKeyArray.removeLast();
+        // "/donnee/demandeur"
+        String p = "/" + String.join("/", donneeExterneKeyArray);
+        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+    }
+
+    public void changeChoixAdditionnel(JsonNode node) {
+        if (node.isObject()) {
+            ObjectNode objectNode = (ObjectNode) node;
+            for (Iterator<Map.Entry<String, JsonNode>> it = objectNode.fields(); it.hasNext(); ) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                JsonNode valueNode = entry.getValue();
+                if (valueNode.isObject() && valueNode.has("valeur") && valueNode.has("valeurExtra")) {
+                    String valeur = valueNode.path("valeur").asText();
+                    String valeurExtra = valueNode.path("valeurExtra")
+                            .asText(null); // returns null if field not present
+                    String finalValue = (valeurExtra != null && !valeurExtra.isEmpty()) ? valeurExtra : valeur;
+
+                    // Replace the original object node with the resolved value
+                    it.remove();
+                    objectNode.put(entry.getKey(), finalValue);
+                } else {
+                    // Process children nodes
+                    changeChoixAdditionnel(valueNode);
+                }
+            }
+        } else if (node.isArray()) {
+            for (JsonNode arrayNode : node) {
+                changeChoixAdditionnel(arrayNode);
+            }
+        }
+    }
+
+    public void changeChoixMultiple(JsonNode config, JsonNode contenu) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<JsonNode> champsNodes = config.get("recap").findValues("champs");
+        for (JsonNode champs : champsNodes) {
+            for (JsonNode champ : champs) {
+                JsonNode type = champ.get("type");
+                if ("choixMultiple".equals(type.asText())) {
+                    ArrayNode arrayNodeValues = objectMapper.createArrayNode();
+                    JsonNode mappingValues = champ.get("mappingValues");
+                    String path = champ.get("path").asText();
+                    JsonNode node = getNodeFromPath(contenu, path);
+                    // si c'est une array ça veut dire que le format a déjà changé
+                    if (node != null && !node.isNull() && !node.isArray()) {
+                        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+                        while (fields.hasNext()) {
+                            Map.Entry<String, JsonNode> field = fields.next();
+                            String key = field.getKey();
+                            // chercher la key camelCase dans le champ
+                            boolean mappingFound = false;
+                            for (JsonNode mapppingValue : mappingValues) {
+                                if (mapppingValue.get("camelKey").asText().equals(key)) {
+                                    arrayNodeValues.add(mapppingValue.get("key").asText());
+                                    mappingFound = true;
+                                    break;
+                                }
+                            }
+                            // si on n'a pas trouvé la key camelCase, alors c'est un champ custom autre donc on met le libellé
+                            if (!mappingFound) {
+                                arrayNodeValues.add(field.getValue().asText());
+                            }
+                        }
+                        // on remplace l'ancien noeud choixMultiple du contenu par la liste de string
+                        int lastDotIndex = path.lastIndexOf('.');
+                        String rootPath = path.substring(0, lastDotIndex);
+                        String nodeName = path.substring(lastDotIndex + 1);
+                        JsonNode rootNode = getNodeFromPath(contenu, rootPath);
+                        // Remplacer le noeud existant avec le nouveau ArrayNode
+                        ((ObjectNode) rootNode).set(nodeName, arrayNodeValues);
+                    }
+                }
+            }
+        }
+    }
+
 
 
 }

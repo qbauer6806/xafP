@@ -32,7 +32,7 @@ public class BatchXaf12 implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         try {
             // Lancer le job
             LOGGER.info("Lancement du job...");

@@ -241,18 +241,19 @@ public class DemandeTransformer {
                         while (fields.hasNext()) {
                             Map.Entry<String, JsonNode> field = fields.next();
                             String key = field.getKey();
-                            // chercher la key camelCase dans le champ
-                            boolean mappingFound = false;
-                            for (JsonNode mapppingValue : mappingValues) {
-                                if (mapppingValue.get("camelKey").asText().equals(key)) {
-                                    arrayNodeValues.add(mapppingValue.get("key").asText());
-                                    mappingFound = true;
-                                    break;
+                            JsonNode value = field.getValue();
+                            // on regarde d'abord que la valeur est bien un boolean et true
+                            if (value.isBoolean() && value.asBoolean()) {
+                                // chercher la key camelCase dans le champ
+                                for (JsonNode mapppingValue : mappingValues) {
+                                    if (mapppingValue.get("camelKey").asText().equals(key)) {
+                                        arrayNodeValues.add(mapppingValue.get("key").asText());
+                                        break;
+                                    }
                                 }
-                            }
-                            // si on n'a pas trouvé la key camelCase, alors c'est un champ custom autre donc on met le libellé
-                            if (!mappingFound) {
-                                arrayNodeValues.add(field.getValue().asText());
+                            } else if (value.isTextual()) {
+                                // c'est un champ custom autre donc on met le libellé
+                                arrayNodeValues.add(value.asText());
                             }
                         }
                         // on remplace l'ancien noeud choixMultiple du contenu par la liste de string

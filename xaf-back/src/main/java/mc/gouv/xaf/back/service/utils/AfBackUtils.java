@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
@@ -893,6 +894,18 @@ public class AfBackUtils {
         // [donnee,demandeur,prenom]
         donneeExterneKeyArray.removeFirst();
         //	 "[donnee,demandeur]" / field = prenom
+        String field = donneeExterneKeyArray.removeLast();
+        // "/donnee/demandeur"
+        String p = "/" + String.join("/", donneeExterneKeyArray);
+        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+    }
+
+    public static void setNodeValueArray(JsonNode contenu, String path, ArrayNode nouvelleValeur) {
+        // [contenu,donnee,demandeur,prenom]
+        List<String> donneeExterneKeyArray = new ArrayList<>(Arrays.asList(path.split("\\.")));
+        // [donnee,demandeur,prenom]
+        donneeExterneKeyArray.removeFirst();
+        //     "[donnee,demandeur]" / field = prenom
         String field = donneeExterneKeyArray.removeLast();
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);

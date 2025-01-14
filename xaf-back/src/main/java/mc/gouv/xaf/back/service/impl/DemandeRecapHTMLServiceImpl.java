@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,7 +13,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -353,7 +350,6 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     /**
      * Génération du code pour un champs HTML (titre / valeur)
      *
-     * @param demandeSource
      */
     private void getFirstLevelChamps(DemandeDTO demande, DemandeDTO demandeSource, JSONObject section,
             boolean isPdfRecap, StringBuilder html, List<SourceFiableDTO> donneesCertifiees) {
@@ -468,7 +464,6 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     /**
      * Génération du code pour un tableau
      *
-     * @param demandeSource
      */
     private void getFirstLevelTableau(DemandeDTO demande, DemandeDTO demandeSource, JSONObject section,
             boolean isPdfRecap, StringBuilder html, List<SourceFiableDTO> donneesCertifiees) {
@@ -581,7 +576,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             }
             return escape(node0.asText(), isPdfRecap);
         } else if (StringUtils.equals(type, "choix")) {
-            return buildChoixHTML(node, champ, isPdfRecap);
+            return buildChoixHTML(node, champ);
         } else if (StringUtils.equals(type, "date")) {
             return buildDateHTML(node, champ);
         } else if (StringUtils.equals(type, "choixMultiple")) {
@@ -636,7 +631,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         return result;
     }
 
-    private String buildChoixHTML(JsonNode node, JSONObject champ, boolean isPdfRecap) {
+    private String buildChoixHTML(JsonNode node, JSONObject champ) {
 
         String mapping = champ.get("mapping").toString();
 
@@ -649,24 +644,6 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         if (mapping.startsWith("properties_")) {
             String key = mapping.substring(11) + "_FR";
             return propertiesService.getPropertyPourRecap(key, pathNode, true);
-        }
-
-        return buildOtherHTML(node, pathNode, chemin, isPdfRecap);
-    }
-
-    private String buildOtherHTML(JsonNode node, JsonNode pathNode, String path, boolean isPdfRecap) {
-
-        // Prise en compte valeur/valeurExtra
-        if (pathNode instanceof ObjectNode) {
-            pathNode = node.at(path + "/valeur");
-            if (pathNode instanceof MissingNode || pathNode instanceof NullNode || (pathNode instanceof TextNode
-                    && pathNode.textValue().equals("AUTRE"))) {
-                JsonNode node0 = node.at(path + "/valeurExtra");
-                if (node0 == null || node0 instanceof NullNode) {
-                    return "";
-                }
-                return escape(node0.textValue(), isPdfRecap);
-            }
         }
 
         String enumField = pathNode.asText();
@@ -785,34 +762,18 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private String buildChoixMultipleHTML(JsonNode node, JSONObject champ) {
-
         JsonNode n = getNode(node, champ);
-        if (n instanceof ObjectNode list) {
-            Iterator<Map.Entry<String, JsonNode>> it = list.fields();
+        if (n instanceof ArrayNode list) {
             StringBuilder retBuilder = new StringBuilder();
-            while (it.hasNext()) {
-                Map.Entry<String, JsonNode> entry = it.next();
-                appendChoixHTML(entry, retBuilder);
+            for (JsonNode value : list) {
+                if (!retBuilder.isEmpty()) {
+                    retBuilder.append(", ");
+                }
+                retBuilder.append(value.asText());
             }
             return retBuilder.toString();
         }
         return "";
-    }
-
-    private void appendChoixHTML(Map.Entry<String, JsonNode> entry, StringBuilder retBuilder) {
-
-        if (entry.getValue().asBoolean()) {
-            if (!retBuilder.isEmpty()) {
-                retBuilder.append(", ");
-            }
-            retBuilder.append(entry.getKey());
-        }
-        if (StringUtils.equals("autre", entry.getKey())) {
-            if (!retBuilder.isEmpty()) {
-                retBuilder.append(", ");
-            }
-            retBuilder.append("Autre: ").append(entry.getValue());
-        }
     }
 
     private String buildTelephoneHTML(JsonNode node, JSONObject champ, boolean isPdfRecap) {

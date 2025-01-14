@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -316,37 +317,61 @@ public class DemandesServiceImpl implements DemandesService {
             // on récupère le champ correspondant dans le contenu s'il existe
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull()) {
-                String enumValue = "";
-                String enumKey = enumKeyNode.asText();
-                JsonNode isDynamic = champ.get("isDynamic");
-                if (isDynamic != null && !isDynamic.asBoolean()) {
-                    JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
-                            .get(enumKey);
-                    if (enumFound != null) {
-                        // si on trouve l'enum, alors on récupère la valeur
-                        enumValue = enumFound.asText();
-                    } else {
-                        // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
-                        enumValue = enumKey;
+                if (enumKeyNode.isArray()) {
+                    // choix multiple
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    ArrayNode arrayNodeValues = objectMapper.createArrayNode();
+                    for (JsonNode element : enumKeyNode) {
+                        String enumValue;
+                        String enumKey = element.asText();
+                        JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                                .get(enumKey);
+                        if (enumFound != null) {
+                            // si on trouve l'enum, alors on récupère la valeur
+                            enumValue = enumFound.asText();
+                        } else {
+                            // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
+                            enumValue = enumKey;
+                        }
+                        arrayNodeValues.add(enumValue);
                     }
-                } else if (mapping.asText().equals("nationalites")) {
-                    enumValue = StringUtils.isBlank(enumKey)
-                            ? ""
-                            : paysCache.get(enumKey, "fr") != null
-                                    ? paysCache.get(enumKey, "fr").getNationalite()
-                                    : enumKey;
-                } else if (mapping.asText().equals("pays")) {
-                    enumValue = StringUtils.isBlank(enumKey)
-                            ? ""
-                            : paysCache.get(enumKey, "fr") != null ? paysCache.get(enumKey, "fr").getNom() : enumKey;
+                    AfBackUtils.setNodeValueArray(contenuTrad, path, arrayNodeValues);
+                } else {
+                    // choix
+                    String enumValue = "";
+                    String enumKey = enumKeyNode.asText();
+                    JsonNode isDynamic = champ.get("isDynamic");
+                    if (isDynamic != null && !isDynamic.asBoolean()) {
+                        JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                                .get(enumKey);
+                        if (enumFound != null) {
+                            // si on trouve l'enum, alors on récupère la valeur
+                            enumValue = enumFound.asText();
+                        } else {
+                            // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
+                            enumValue = enumKey;
+                        }
+                    } else if (mapping.asText().equals("nationalites")) {
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
+                                : paysCache.get(enumKey, "fr") != null
+                                        ? paysCache.get(enumKey, "fr").getNationalite()
+                                        : enumKey;
+                    } else if (mapping.asText().equals("pays")) {
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
+                                : paysCache.get(enumKey, "fr") != null
+                                        ? paysCache.get(enumKey, "fr").getNom()
+                                        : enumKey;
+                    }
+                    AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }
-                AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
         } else if (champ.get("type").asText().equals("adresse")) {
             // le champ est de type adresse donc on doit remplacer le pays
             path += ".pays";
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
-            if (enumKeyNode != null && !enumKeyNode.isNull()) {
+            if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
                 String enumValue = StringUtils.isBlank(enumKey)
                         ? ""

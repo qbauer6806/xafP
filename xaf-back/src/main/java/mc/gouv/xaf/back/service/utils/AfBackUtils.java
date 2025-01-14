@@ -836,34 +836,46 @@ public class AfBackUtils {
                     // texte
                     return node.asText();
                 } else if (node.isArray()) {
-                    // tableau
-                    List<Map<String, String>> list = new ArrayList<>();
-                    for (JsonNode arrayElement : node) {
-                        Map<String, String> map = new HashMap<>();
-                        arrayElement.fields().forEachRemaining(tableauDonnee -> {
-                            String donneeTableauPath = path + "." + tableauDonnee.getKey();
-                            // retrouver le nom du marqueur à partir du nouveau path
-                            Optional<MarqueurBO> marqueurFound = marqueurs.stream()
-                                    .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
-                            if (marqueurFound.isPresent()) {
-                                putMarqueur(map, tableauDonnee.getValue(), marqueurFound.get());
-                            } else {
-                                // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
-                                String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
-                                        "bic", "iban", "titulaire", "indicatif", "numero" };
-                                for (String suffixe : suffixes) {
-                                    String suffixedPath = donneeTableauPath + "." + suffixe;
-                                    marqueurFound = marqueurs.stream()
-                                            .filter(marqueur -> suffixedPath.equals(marqueur.getChemin())).findFirst();
-                                    marqueurFound.ifPresent(
-                                            marqueurBO -> putMarqueur(map, tableauDonnee.getValue().get(suffixe),
-                                                    marqueurBO));
-                                }
+                    if (!node.isEmpty() && node.get(0).isTextual()) {
+                        // choixMultiple
+                        List<String> choices = new ArrayList<>();
+                        node.forEach(arrayElement -> {
+                            if (arrayElement.isTextual()) {
+                                choices.add(arrayElement.asText());
                             }
                         });
-                        list.add(map);
+                        return choices;
+                    } else {
+                        // tableau
+                        List<Map<String, String>> list = new ArrayList<>();
+                        for (JsonNode arrayElement : node) {
+                            Map<String, String> map = new HashMap<>();
+                            arrayElement.fields().forEachRemaining(tableauDonnee -> {
+                                String donneeTableauPath = path + "." + tableauDonnee.getKey();
+                                // retrouver le nom du marqueur à partir du nouveau path
+                                Optional<MarqueurBO> marqueurFound = marqueurs.stream()
+                                        .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
+                                if (marqueurFound.isPresent()) {
+                                    putMarqueur(map, tableauDonnee.getValue(), marqueurFound.get());
+                                } else {
+                                    // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
+                                    String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
+                                            "bic", "iban", "titulaire", "indicatif", "numero" };
+                                    for (String suffixe : suffixes) {
+                                        String suffixedPath = donneeTableauPath + "." + suffixe;
+                                        marqueurFound = marqueurs.stream()
+                                                .filter(marqueur -> suffixedPath.equals(marqueur.getChemin()))
+                                                .findFirst();
+                                        marqueurFound.ifPresent(
+                                                marqueurBO -> putMarqueur(map, tableauDonnee.getValue().get(suffixe),
+                                                        marqueurBO));
+                                    }
+                                }
+                            });
+                            list.add(map);
+                        }
+                        return list;
                     }
-                    return list;
                 }
             }
         }

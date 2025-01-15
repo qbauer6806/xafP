@@ -1,8 +1,9 @@
 package mc.gouv.xaf.back.service.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+
+import java.util.List;
 
 public interface DemandesConfigService {
 
@@ -13,6 +14,8 @@ public interface DemandesConfigService {
     List<DemandeConfigBO> getConfigsBO();
 
     DemandeConfigBO getLastConfig();
+
+    DemandeConfigBO getConfig(String buildId);
 
     JsonNode saveConfig(JsonNode config);
 

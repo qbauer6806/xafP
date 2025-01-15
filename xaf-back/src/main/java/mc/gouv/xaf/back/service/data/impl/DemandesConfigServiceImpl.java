@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
@@ -20,6 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -56,6 +57,11 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     @Override
     public DemandeConfigBO getLastConfig() {
         return demandesConfigRepository.findFirstByOrderByBuildIdDesc();
+    }
+
+    @Override
+    public DemandeConfigBO getConfig(String buildId) {
+        return demandesConfigRepository.findOneByBuildId(buildId);
     }
 
     @Override

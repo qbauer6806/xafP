@@ -23,6 +23,8 @@ public class MarqueursTransformer {
         bo.setIdentifiant(dto.getIdentifiant());
         bo.setChemin(dto.getChemin());
         bo.setBuildId(dto.getBuildId());
+        bo.setType(dto.getType());
+        bo.setOptions(dto.getOptions());
         return bo;
     }
 

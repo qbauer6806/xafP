@@ -44,13 +44,14 @@ public class MarqueursService {
                 marqueur.setChemin(modelPath);
                 marqueur.setIdentifiant(id);
                 marqueur.setBuildId(buildId);
-                setDescriptionTypeOptions(marqueur, config, modelPath);
+                setDescriptionTypeOptions(marqueur, config);
                 marqueurDTOS.add(marqueur);
             }
         }
     }
 
-    private MarqueurDTO setDescriptionTypeOptions(MarqueurDTO marqueurDTO, JsonNode config, String modelPath) {
+    private MarqueurDTO setDescriptionTypeOptions(MarqueurDTO marqueurDTO, JsonNode config) {
+        String modelPath = marqueurDTO.getChemin();
         JsonNode sections = config.get("recap").get("sections");
         JsonNode mappings = config.get("mappings");
         String modifiedModelPath = modelPath;
@@ -77,12 +78,7 @@ public class MarqueursService {
                     }
                     marqueurDTO.setDescription(description);
                     marqueurDTO.setType(champ.get("type").asText());
-                    // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
-                    if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType()))
-                            && !champ.get("isDynamic").asBoolean()) {
-                        marqueurDTO.setOptions(
-                                mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
-                    }
+                    setMarqueursOptions(marqueurDTO, champ, mappings);
                     return marqueurDTO;
                 }
             }
@@ -111,12 +107,7 @@ public class MarqueursService {
                     }
                     marqueurDTO.setDescription(title + " - " + description);
                     marqueurDTO.setType(column.get("type").asText());
-                    // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
-                    if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType()))
-                            && !column.get("isDynamic").asBoolean()) {
-                        marqueurDTO.setOptions(
-                                mappings.get(column.get("mapping").asText()).get("languages").get("fr").get("values"));
-                    }
+                    setMarqueursOptions(marqueurDTO, column, mappings);
                     return marqueurDTO;
                 }
             }
@@ -126,7 +117,16 @@ public class MarqueursService {
         return marqueurDTO;
     }
 
-    private static void extractTableauNodesWithParents(JsonNode node, String parentTitle,
+    private void setMarqueursOptions(MarqueurDTO marqueurDTO, JsonNode champ, JsonNode mappings) {
+        // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
+        if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && !champ.get(
+                "isDynamic").asBoolean()) {
+            marqueurDTO.setOptions(
+                    mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
+        }
+    }
+
+    private void extractTableauNodesWithParents(JsonNode node, String parentTitle,
             List<Map.Entry<String, JsonNode>> tableauWithTitle) {
         if (node.isObject()) {
             JsonNode typeNode = node.get("type");

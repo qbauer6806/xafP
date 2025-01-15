@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class AbstractDemandeDTO implements Serializable {
                 return list;
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public List<Map<String, String>> getMarqueurTableauTrad(String marqueurId) {
@@ -77,7 +78,7 @@ public class AbstractDemandeDTO implements Serializable {
                 return list;
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public List<String> getMarqueurChoixMultiple(String marqueurId) {
@@ -86,16 +87,16 @@ public class AbstractDemandeDTO implements Serializable {
                 return list;
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
-    public List<String> getMarqueurChoixTrad(String marqueurId) {
+    public List<String> getMarqueurChoixMultipleTrad(String marqueurId) {
         if (marqueursTrad != null && marqueursTrad.get(marqueurId) instanceof List list) {
             if (!list.isEmpty() && list.getFirst() instanceof String) {
                 return list;
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
 

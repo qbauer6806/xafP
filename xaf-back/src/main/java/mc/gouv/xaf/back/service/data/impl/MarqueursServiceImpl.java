@@ -80,8 +80,7 @@ public class MarqueursServiceImpl implements MarqueursService {
     }
 
     @Override
-    public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths,
-            JsonNode sections) {
+    public void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths, JsonNode config) {
         List<MarqueurDTO> marqueurDTOS = getMarqueurs(lastBuildId);
         // on copie les marqueurs du précédent build id s'il y en a
         if (!marqueurDTOS.isEmpty()) {
@@ -95,7 +94,7 @@ public class MarqueursServiceImpl implements MarqueursService {
             }
         }
         // on génère tous les autres
-        setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId, sections);
+        setMarqueursFromModelPaths(modelPaths, marqueurDTOS, buildId, config);
 
         marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
     }
@@ -109,13 +108,13 @@ public class MarqueursServiceImpl implements MarqueursService {
 
             setMarqueursFromModelPaths(
                     demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("marqueurs")),
-                    marqueurDTOS, config.getBuildId(), config.getContenu().get("recap").get("sections"));
+                    marqueurDTOS, config.getBuildId(), config.getContenu());
             marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
         }
     }
 
     private void setMarqueursFromModelPaths(List<String> modelPaths, List<MarqueurDTO> marqueurDTOS, String buildId,
-            JsonNode sections) {
+            JsonNode config) {
         for (String modelPath : modelPaths) {
             String id = pathToCamelCase(modelPath);
             // si le marqueur est déjà présent (du précédent buildId par exemple), on ne génère pas le marqueur
@@ -124,13 +123,15 @@ public class MarqueursServiceImpl implements MarqueursService {
                 marqueur.setChemin(modelPath);
                 marqueur.setIdentifiant(id);
                 marqueur.setBuildId(buildId);
-                marqueur.setDescription(getDescriptionFromTranslations(sections, modelPath));
+                setDescriptionTypeOptions(marqueur, config, modelPath);
                 marqueurDTOS.add(marqueur);
             }
         }
     }
 
-    private String getDescriptionFromTranslations(JsonNode sections, String modelPath) {
+    private MarqueurDTO setDescriptionTypeOptions(MarqueurDTO marqueurDTO, JsonNode config, String modelPath) {
+        JsonNode sections = config.get("recap").get("sections");
+        JsonNode mappings = config.get("mappings");
         String modifiedModelPath = modelPath;
         String suffixeFound = null;
         String[] possibleSuffixesToRemove = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
@@ -153,7 +154,15 @@ public class MarqueursServiceImpl implements MarqueursService {
                     if (suffixeFound != null) {
                         description = description + " - " + suffixeFound;
                     }
-                    return description;
+                    marqueurDTO.setDescription(description);
+                    marqueurDTO.setType(champ.get("type").asText());
+                    // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
+                    if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType()))
+                            && !champ.get("isDynamic").asBoolean()) {
+                        marqueurDTO.setOptions(
+                                mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
+                    }
+                    return marqueurDTO;
                 }
             }
         }
@@ -165,7 +174,9 @@ public class MarqueursServiceImpl implements MarqueursService {
             JsonNode tableau = entry.getValue();
             // on regarde d'abord si c'est le chemin racine du tableau
             if (tableau.get("path").asText().equals(modifiedModelPath)) {
-                return title;
+                marqueurDTO.setDescription(title);
+                marqueurDTO.setType(tableau.get("type").asText());
+                return marqueurDTO;
             }
             for (JsonNode column : tableau.get("columns")) {
                 String path = column.get("path").asText();
@@ -177,14 +188,20 @@ public class MarqueursServiceImpl implements MarqueursService {
                     if (suffixeFound != null) {
                         description = description + " - " + suffixeFound;
                     }
-                    return title + " - " + description;
+                    marqueurDTO.setDescription(title + " - " + description);
+                    marqueurDTO.setType(column.get("type").asText());
+                    // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
+                    if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType()))
+                            && !column.get("isDynamic").asBoolean()) {
+                        marqueurDTO.setOptions(
+                                mappings.get(column.get("mapping").asText()).get("languages").get("fr").get("values"));
+                    }
+                    return marqueurDTO;
                 }
             }
 
         }
-
-
-        return null;
+        return marqueurDTO;
     }
 
     private static void extractTableauNodesWithParents(JsonNode node, String parentTitle,

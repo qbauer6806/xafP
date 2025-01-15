@@ -125,6 +125,7 @@
               <th>ID</th>
               <th>Description</th>
               <th>Identifiant technique</th>
+              <th>Type</th>
               <th>Référence dans le formulaire usager</th>
               <th>Actions</th>
             </tr>
@@ -136,6 +137,32 @@
   </div>
 
   <!-- FIN CONTENU -->
+
+  <!-- OPTIONS MODAL -->
+  <div id="optionsModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="row no-margin-row">
+            <div class="col-xs-12 text-center">
+              <h2 id="titreOptions"></h2>
+            </div>
+            <table class="table" id="optionsTable">
+              <thead>
+              <tr>
+                <th>Clé</th>
+                <th>Valeur</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN OPTIONS MODAL -->
 
   <!-- EDITION MODAL -->
   <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
@@ -255,6 +282,12 @@
       }
     },
     {
+      data: "type",
+      render: function (data, type, marqueur) {
+        return marqueur.type;
+      }
+    },
+    {
       data: "chemin",
       render: function (data, type, marqueur) {
         if (marqueur.chemin != null) {
@@ -267,6 +300,12 @@
       orderable: false,
       searchable: false,
       render: function (data, type, marqueur) {
+        var optionsButton = marqueur.options != null
+            ? '<button class="btn btn-action ripple-effect greyTooltip boutonOptions" style="margin-right: 8px" data-toggle="tooltip"'
+            + ' data-options="' + encodeURIComponent(JSON.stringify(marqueur.options)) + '"' // encode JSON string
+            + ' data-placement="bottom" data-original-title="Voir les valeurs possibles" data-identifiant="'
+            + marqueur.identifiant + '"><i class="icon-action_voir"></i></button>'
+            : "";
         return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" style="margin-right: 8px" data-toggle="tooltip"'
             + ' data-placement="bottom" data-original-title="Modifier le marqueur" data-pkmarqueur="'
             + marqueur.pkMarqueur + '" data-description="' + marqueur.description
@@ -274,9 +313,9 @@
             + '"><i class="icon-action_modifier"></i></button>' +
             '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip"' +
             'data-pkmarqueur="' + marqueur.pkMarqueur + '" ' +
-            'data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer le marqueur">'
+            'data-toggle="tooltip" style="margin-right: 8px" data-placement="bottom" data-original-title="Supprimer le marqueur">'
             +
-            '<i class="icon-action_supprimer"></i></button>';
+            '<i class="icon-action_supprimer"></i></button>' + optionsButton;
       }
     }];
 
@@ -292,7 +331,10 @@
       order: [ [2, 'asc']], // NE PAS supprimer l'espace entre les deux accolades de debut
       columns: columnsMarqueurs,
       data: marqueurs,
-      language: frenchTranslation
+      language: frenchTranslation,
+      drawCallback: function (settings) {
+        $('[data-toggle="tooltip"]').tooltip();
+      }
     });
     $("#marqueursTableCounter").text(marqueurs.length);
 
@@ -319,6 +361,37 @@
       $('#chemin').val($(this).data('chemin'));
 
       $('#editionModal').modal();
+      return true;
+    });
+
+    table.on('click', 'button.boutonOptions', function (e) {
+      e.preventDefault();
+
+      $('#titreOptions').html($(this).data('identifiant'));
+
+      $('#optionsTable tbody').empty();
+
+      var encodedOptions = $(this).data('options');
+      if (encodedOptions) {
+        try {
+          var optionsString = decodeURIComponent(encodedOptions);
+
+          var options = JSON.parse(optionsString);
+
+          for (var key in options) {
+            if (options.hasOwnProperty(key)) {
+              var value = options[key];
+              $('#optionsTable tbody').append('<tr><td>' + key + '</td><td>' + value + '</td></tr>');
+            }
+          }
+        } catch (e) {
+          console.error('Failed to parse options JSON', e);
+        }
+      } else {
+        $('#optionsTable tbody').append('<tr><td colspan="2">No options available</td></tr>');
+      }
+
+      $('#optionsModal').modal();
       return true;
     });
 

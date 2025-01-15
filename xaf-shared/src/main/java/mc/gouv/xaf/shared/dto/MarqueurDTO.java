@@ -1,5 +1,6 @@
 package mc.gouv.xaf.shared.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +18,7 @@ public class MarqueurDTO {
     private String identifiant;
     private String chemin;
     private String buildId;
+    private String type;
+    private JsonNode options;
 
 }

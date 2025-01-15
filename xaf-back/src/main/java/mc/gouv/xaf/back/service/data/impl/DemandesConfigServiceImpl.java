@@ -83,7 +83,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             checkIfDernierModele(configs, configBO);
             // on génère les marqueurs pour la nouvelle config
             marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId,
-                    getModelPaths(config.get(MODEL_PATH).get("marqueurs")), config.get("recap").get("sections"));
+                    getModelPaths(config.get(MODEL_PATH).get("marqueurs")), config);
         } else if (configBO.getVersion() != null && !configBO.getVersion().equals(mavenVersion)) {
             // si la config existe déjà, on met à jour la version avec la + récente si la version est différente
             configBO.setVersion(mavenVersion);

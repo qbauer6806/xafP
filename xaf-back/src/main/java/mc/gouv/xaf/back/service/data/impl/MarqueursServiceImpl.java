@@ -304,6 +304,7 @@ public class MarqueursServiceImpl implements MarqueursService {
 
             if (marqueurMatch != null) {
                 String chemin = marqueurMatch.getChemin();
+                chemin = chemin.replaceFirst("^contenu\\.", "");
                 String[] segments = chemin.split("\\.");
 
                 // Permet d'itérer et de configurer chaque niveau du chemin
@@ -336,6 +337,8 @@ public class MarqueursServiceImpl implements MarqueursService {
 
                 if (cheminCommumOptionnel.isPresent()) {
                     String cheminCommum = cheminCommumOptionnel.get();
+                    // Suppression de "contenu"
+                    cheminCommum = cheminCommum.replaceFirst("^contenu\\.", "");
                     String[] segments = cheminCommum.split("\\.");
 
                     ObjectNode currentNode = demandeNode;

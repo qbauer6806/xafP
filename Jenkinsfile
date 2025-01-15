@@ -31,7 +31,7 @@ pipeline {
                     def nexusIqStage = "develop"
 
                     if (env.TAG_NAME != null && env.TAG_NAME.length() > 0) {
-                        def matcher = env.TAG_NAME =~ /^[a-zA-Z]+-(?<version>\d+\.\d+\.\d+(?<prerelease>-[a-zA-Z0-9-_.]+)?)$/
+                        def matcher = env.TAG_NAME =~ /^[a-zA-Z]+-(?<version>\d+\.\d+\.\d+(\.\d+)?(?<prerelease>-[a-zA-Z0-9-_.]+)?)$/
                         if (matcher.matches()) {
                             mvnVersion = matcher.group("version")
                             if (matcher.group("prerelease")) {
@@ -48,7 +48,7 @@ pipeline {
                                 nexusIqStage = "build"
                             }
                             mvnVersion = "0.0.0-${env.BRANCH_NAME}-SNAPSHOT"
-                        } else if (env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+(-[a-zA-Z0-9-_]+)?$/) {
+                        } else if (env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+(\.\d+)?(-[a-zA-Z0-9-_]+)?$/) {
                             mvnVersion= env.BRANCH_NAME.substring(1) + "-SNAPSHOT"
                          } else if (env.BRANCH_NAME ==~ /^\#\d+.*$/) {
                                 def matcher = env.BRANCH_NAME =~ /^\#(?<redmine>\d+).*$/

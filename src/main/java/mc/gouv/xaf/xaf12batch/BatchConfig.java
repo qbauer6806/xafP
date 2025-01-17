@@ -160,6 +160,9 @@ public class BatchConfig {
                 // changer les choix multiple avec le nouveau format
                 demandeTransformer.changeChoixMultiple(demande.getConfig().getContenu(), demande.getContenu());
                 demandeTransformer.changeChoixMultiple(demande.getConfig().getContenu(), demande.getContenuTrad());
+                // changer les types complexes dans les tableaux
+                demandeTransformer.changeTableauComplexe(demande.getConfig().getContenu(), demande.getContenu());
+                demandeTransformer.changeTableauComplexe(demande.getConfig().getContenu(), demande.getContenuTrad());
                 // transformer les clés qui sont dans contenuTrad en libellé
                 demandeTransformer.setContenuTrad(demande.getContenuTrad(), demande.getConfig().getContenu());
             }

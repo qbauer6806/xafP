@@ -182,7 +182,11 @@ public class DemandeTransformer {
         String field = donneeExterneKeyArray.removeLast();
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);
-        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+        // Vérifier si le nœud existe
+        JsonNode targetNode = contenu.at(p);
+        if (!targetNode.isMissingNode()) {
+            ((ObjectNode) targetNode).put(field, nouvelleValeur);
+        }
     }
 
     public void setNodeValueArray(JsonNode contenu, String path, ArrayNode nouvelleValeur) {
@@ -267,6 +271,55 @@ public class DemandeTransformer {
                 }
             }
         }
+    }
+
+    public void changeTableauComplexe(JsonNode config, JsonNode contenu) {
+        List<JsonNode> tableauxNodes = new ArrayList<>();
+        extractTableauNodes(config.get("recap"), tableauxNodes);
+        for (JsonNode tableau : tableauxNodes) {
+            String rootPath = tableau.get("path").asText();
+            JsonNode array = getNodeFromPath(contenu, rootPath);
+            for (JsonNode champ : tableau.get("columns")) {
+                JsonNode type = champ.get("type");
+                // si c'est un type complexe on fait la transformation
+                if (type != null) {
+                    String key = champ.get("path").asText();
+                    if (type.asText().equals("adresse")) {
+                        setComplexElements(new String[]{"ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal"}, key, array);
+                    } else if (type.asText().equals("adresseMc")) {
+                        setComplexElements(new String[]{"ligne1", "ligne2", "ligne3"}, key, array);
+                    } else if (type.asText().equals("telephone")) {
+                        setComplexElements(new String[]{"indicatif", "numero"}, key, array);
+                    } else if (type.asText().equals("iban")) {
+                        setComplexElements(new String[]{"iban", "bic"}, key, array);
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void setComplexElements(String[] possibleSuffixes, String key, JsonNode array) {
+        ObjectMapper mapper = new ObjectMapper();
+        for (JsonNode element : array) {
+            ObjectNode newNode = mapper.createObjectNode();
+            for (String suffix : possibleSuffixes) {
+                String suffixWithUpperCase = suffix.substring(0, 1).toUpperCase() + suffix.substring(1);
+                String contenuKey = key + suffixWithUpperCase;
+                JsonNode propertyNode = element.get(contenuKey);
+                if (propertyNode != null && !propertyNode.isNull() && !propertyNode.isMissingNode()) {
+                    // on ajoute dans la nouvelle structure
+                    newNode.put(suffix, propertyNode.asText());
+                    // et on supprime
+                    ((ObjectNode) element).remove(contenuKey);
+                }
+            }
+            // si le newNode n'est pas vide, on l'ajoute
+            if (!newNode.isEmpty()) {
+                ((ObjectNode) element).put(key, newNode);
+            }
+        }
+
     }
 
 

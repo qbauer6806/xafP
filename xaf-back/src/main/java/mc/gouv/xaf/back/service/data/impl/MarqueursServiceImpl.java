@@ -185,9 +185,7 @@ public class MarqueursServiceImpl implements MarqueursService {
             }
             for (JsonNode column : tableau.get("columns")) {
                 String path = column.get("path").asText();
-                // on enlève Ligne1 à la fin s'il est présent, car sur des vieux récaps le path de l'adresse contient ce suffixe
-                if (path.replaceAll("Ligne1$", "")
-                        .equals(modifiedModelPath.substring(modifiedModelPath.lastIndexOf('.') + 1))) {
+                if (path.equals(modifiedModelPath.substring(modifiedModelPath.lastIndexOf('.') + 1))) {
                     if (marqueurDTO.getDescription() == null || marqueurDTO.getDescription().isEmpty()) {
                         // si c'est un type particulier on ajoute le suffixe
                         String description = column.get("label").asText();

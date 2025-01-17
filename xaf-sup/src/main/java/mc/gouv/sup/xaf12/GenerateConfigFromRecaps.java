@@ -349,8 +349,10 @@ public class GenerateConfigFromRecaps {
 
     private static void traitementChamp(JsonNode champ, JsonNode recapFront) {
         // add path
+        // dans les champs classique on a .ligne1 à la fin des path, mais dans les tableaux on a Ligne1
         if (champ.get("type").asText().equals("adresseMc") || champ.get("type").asText().equals("adresse")) {
-            ((ObjectNode) champ).put("path", champ.get("ligne1").asText().replace(".ligne1", ""));
+            ((ObjectNode) champ).put("path",
+                    champ.get("ligne1").asText().replace(".ligne1", "").replaceAll("Ligne1$", ""));
             ((ObjectNode) champ).remove("ligne1");
             ((ObjectNode) champ).remove("ligne2");
             ((ObjectNode) champ).remove("ligne3");
@@ -358,12 +360,13 @@ public class GenerateConfigFromRecaps {
             ((ObjectNode) champ).remove("ville");
             ((ObjectNode) champ).remove("pays");
         } else if (champ.get("type").asText().equals("iban")) {
-            ((ObjectNode) champ).put("path", champ.get("iban").asText().replace(".iban", ""));
+            ((ObjectNode) champ).put("path", champ.get("iban").asText().replace(".iban", "").replaceAll("Iban$", ""));
             ((ObjectNode) champ).remove("iban");
             ((ObjectNode) champ).remove("bic");
             ((ObjectNode) champ).remove("titulaire");
         } else if (champ.get("type").asText().equals("telephone")) {
-            ((ObjectNode) champ).put("path", champ.get("indicatif").asText().replace(".indicatif", ""));
+            ((ObjectNode) champ).put("path",
+                    champ.get("indicatif").asText().replace(".indicatif", "").replaceAll("Indicatif$", ""));
             ((ObjectNode) champ).remove("indicatif");
             ((ObjectNode) champ).remove("numero");
         }

@@ -371,7 +371,9 @@ public class MarqueursServiceImpl implements MarqueursService {
                             String[] elements = path.split("\\.");
                             String lastPath = elements[elements.length - 1];
                             String value = entry.getValue();
-                            if (marqueur.getType().equals("adresse")) {
+                            String type = marqueur.getType();
+                            if (type.equals("adresse") || type.equals("adresseMC") || type.equals(
+                                    "telephone") || type.equals("iban")) {
                                 // cas des types spéciaux
                                 // récupérer l'avant-dernier élément du tableau
                                 String rootPath = elements[elements.length - 2];

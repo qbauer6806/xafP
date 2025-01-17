@@ -362,7 +362,35 @@ public class MarqueursServiceImpl implements MarqueursService {
                     }
 
                     ObjectNode itemNode = mapper.createObjectNode();
-                    tableau.forEach(itemNode::put);
+                    for (Map.Entry<String, String> entry : tableau.entrySet()) {
+                        String key = entry.getKey();
+                        MarqueurDTO marqueur = marqueurs.stream().filter(m -> m.getIdentifiant().equals(key))
+                                .findFirst().orElse(null);
+                        if (marqueur != null) {
+                            String path = marqueur.getChemin();
+                            String[] elements = path.split("\\.");
+                            String lastPath = elements[elements.length - 1];
+                            String value = entry.getValue();
+                            if (marqueur.getType().equals("adresse")) {
+                                // cas des types spéciaux
+                                // récupérer l'avant-dernier élément du tableau
+                                String rootPath = elements[elements.length - 2];
+                                // vérifier si le noeud existe déjà
+                                JsonNode rootNode = itemNode.get(rootPath);
+                                if (rootNode != null && !rootNode.isMissingNode()) {
+                                    ((ObjectNode) rootNode).put(lastPath, value);
+                                } else {
+                                    ObjectNode newNode = mapper.createObjectNode();
+                                    newNode.put(lastPath, value);
+                                    itemNode.put(rootPath, newNode);
+                                }
+                            } else {
+                                // cas type simple
+                                itemNode.put(lastPath, value);
+                            }
+
+                        }
+                    }
                     arrayNode.add(itemNode);
                 }
             });

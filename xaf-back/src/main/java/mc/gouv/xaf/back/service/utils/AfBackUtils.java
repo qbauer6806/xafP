@@ -909,7 +909,11 @@ public class AfBackUtils {
         String field = donneeExterneKeyArray.removeLast();
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);
-        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+        // Vérifier si le nœud existe
+        JsonNode targetNode = contenu.at(p);
+        if (!targetNode.isMissingNode()) {
+            ((ObjectNode) targetNode).put(field, nouvelleValeur);
+        }
     }
 
     public static void setNodeValueArray(JsonNode contenu, String path, ArrayNode nouvelleValeur) {
@@ -921,7 +925,11 @@ public class AfBackUtils {
         String field = donneeExterneKeyArray.removeLast();
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);
-        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+        // Vérifier si le nœud existe
+        JsonNode targetNode = contenu.at(p);
+        if (!targetNode.isMissingNode()) {
+            ((ObjectNode) targetNode).put(field, nouvelleValeur);
+        }
     }
 
     /**

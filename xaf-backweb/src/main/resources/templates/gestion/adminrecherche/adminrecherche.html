@@ -146,7 +146,7 @@
                     </div>
                   </div>
 
-                  <div class="row ">
+                  <div class="row">
                     <div class=" text-right">
                       <a class="annuler-preview btn btn-action ripple-effect"
                          id="cancelDeleteCategoryButton">Annuler</a> <a
@@ -161,102 +161,104 @@
         </div><!-- /.modal -->
         <div id="saveCategoriesConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document">
-            <div class="modal-body">
-              <div class="container-fluid">
-                <div class="row">
-                  <div class="col-xs-12" id="saveCategoriesConfirmationMsg"
-                       style="padding: 20px">Êtes-vous sûr de vouloir mettre à
-                    jour les catégories ?
-                  </div>
-                </div>
-
-                <div class="row ">
-                  <div class=" text-right">
-                    <a class="annuler-preview btn btn-action ripple-effect"
-                       id="cancelSaveCategoriesButton">Annuler</a> <a
-                      class="valider-preview btn btn-action ripple-effect"
-                      id="saveCategoriesButton">Valider</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-      </div><!-- /.modal -->
-      <div id="savePropertiesConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-body">
-              <div class="container-fluid">
-                <div class="row">
-                  <div class="col-xs-12" id="savePropertiesConfirmationMsg"
-                       style="padding: 20px">Êtes-vous sûr de vouloir mettre à
-                    jour les facets ?
-                  </div>
-                </div>
-
-                <div class="row ">
-                  <div class=" text-right">
-                    <a class="annuler-preview btn btn-action ripple-effect"
-                       id="cancelSavePropertiesButton">Annuler</a> <a
-                      class="valider-preview btn btn-action ripple-effect"
-                      id="savePropertiesConfirmButton">Valider</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-      </div><!-- /.modal -->
-
-      <div id="addCategoryPanel" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document" style="width:400px">
-          <div class="modal-content">
-            <div class="modal-body">
-              <form>
+            <div class="modal-content">
+              <div class="modal-body">
                 <div class="container-fluid">
                   <div class="row">
-                    <h1>Ajouter une catégorie</h1>
-                  </div>
-                  <div class="row">
-                    <div class="form-group" id="addCategoryMsgDiv">
-                      <p id="catErrorMessage" class="bg-danger"
-                         style="padding: 15px; visibility: hidden; display: none;"></p>
-                    </div>
-                    <div class="form-group">
-                      <label for=libelleCatInput>Catégorie</label> <input
-                        class="form-control" id="libelleCatInput">
-                    </div>
-                  </div>
-                  <div class="row ">
-                    <div class="text-right">
-                      <input class="annuler-preview btn btn-action ripple-effect"
-                             id="cancelAddCategoryConfirmButton" value="Annuler"/> <input
-                        class="valider-preview btn btn-action ripple-effect"
-                        id="addCategoryConfirmButton" value="Valider"/>
+                    <div class="col-xs-12" id="saveCategoriesConfirmationMsg"
+                         style="padding: 20px">Êtes-vous sûr de vouloir mettre à
+                      jour les catégories ?
                     </div>
                   </div>
 
+                  <div class="row ">
+                    <div class=" text-right">
+                      <a class="annuler-preview btn btn-action ripple-effect"
+                         id="cancelSaveCategoriesButton">Annuler</a> <a
+                        class="valider-preview btn btn-action ripple-effect"
+                        id="saveCategoriesButton">Valider</a>
+                    </div>
+                  </div>
                 </div>
-              </form>
-            </div>
-          </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-      </div><!-- /.modal -->
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <div id="savePropertiesConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-xs-12" id="savePropertiesConfirmationMsg"
+                         style="padding: 20px">Êtes-vous sûr de vouloir mettre à
+                      jour les facets ?
+                    </div>
+                  </div>
+
+                  <div class="row ">
+                    <div class=" text-right">
+                      <a class="annuler-preview btn btn-action ripple-effect"
+                         id="cancelSavePropertiesButton">Annuler</a> <a
+                        class="valider-preview btn btn-action ripple-effect"
+                        id="savePropertiesConfirmButton">Valider</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <div id="addCategoryPanel" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document" style="width:400px">
+            <div class="modal-content">
+              <div class="modal-body">
+                <form>
+                  <div class="container-fluid">
+                    <div class="row">
+                      <h1>Ajouter une catégorie</h1>
+                    </div>
+                    <div class="row">
+                      <div class="form-group" id="addCategoryMsgDiv">
+                        <p id="catErrorMessage" class="bg-danger"
+                           style="padding: 15px; visibility: hidden; display: none;"></p>
+                      </div>
+                      <div class="form-group">
+                        <label for=libelleCatInput>Catégorie</label> <input
+                          class="form-control" id="libelleCatInput">
+                      </div>
+                    </div>
+                    <div class="row ">
+                      <div class="text-right">
+                        <input class="annuler-preview btn btn-action ripple-effect"
+                               id="cancelAddCategoryConfirmButton" value="Annuler"/> <input
+                          class="valider-preview btn btn-action ripple-effect"
+                          id="addCategoryConfirmButton" value="Valider"/>
+                      </div>
+                    </div>
+
+                  </div>
+                </form>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+      </div>
 
     </div>
 
+    <input type="hidden" href="javascript:void(0);" data-type="success"
+           data-delay="5000" data-message="" id="successMessage"
+           class="notification"/> <input type="hidden"
+                                         href="javascript:void(0);" data-type="danger"
+                                         data-delay="0"
+                                         data-message="" id="errorMessage" class="notification"/>
+
+
+    <!-- FIN CONTENU -->
   </div>
-
-  <input type="hidden" href="javascript:void(0);" data-type="success"
-         data-delay="5000" data-message="" id="successMessage"
-         class="notification"/> <input type="hidden"
-                                       href="javascript:void(0);" data-type="danger" data-delay="0"
-                                       data-message="" id="errorMessage" class="notification"/>
-
-
-  <!-- FIN CONTENU -->
-</div>
 
 </div>
 

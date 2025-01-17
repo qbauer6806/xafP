@@ -283,11 +283,12 @@ public class DemandeTransformer {
                 JsonNode type = champ.get("type");
                 // si c'est un type complexe on fait la transformation
                 if (type != null) {
+                    // on enlève Ligne1 à la fin s'il est présent, car sur des vieux récaps le path de l'adresse contient ce suffixe
                     String key = champ.get("path").asText();
                     if (type.asText().equals("adresse")) {
-                        setComplexElements(new String[]{"ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal"}, key, array);
+                        setComplexElements(new String[]{"ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal"}, key.replaceAll("Ligne1$", ""), array);
                     } else if (type.asText().equals("adresseMc")) {
-                        setComplexElements(new String[]{"ligne1", "ligne2", "ligne3"}, key, array);
+                        setComplexElements(new String[]{"ligne1", "ligne2", "ligne3"}, key.replaceAll("Ligne1$", ""), array);
                     } else if (type.asText().equals("telephone")) {
                         setComplexElements(new String[]{"indicatif", "numero"}, key, array);
                     } else if (type.asText().equals("iban")) {

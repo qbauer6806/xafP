@@ -119,8 +119,8 @@ public class MarqueursService {
 
     private void setMarqueursOptions(MarqueurDTO marqueurDTO, JsonNode champ, JsonNode mappings) {
         // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
-        if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && !champ.get(
-                "isDynamic").asBoolean()) {
+        if (("choix".equals(marqueurDTO.getType()) && !champ.get(
+                "isDynamic").asBoolean() || "choixMultiple".equals(marqueurDTO.getType())) ) {
             marqueurDTO.setOptions(
                     mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
         }

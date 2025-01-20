@@ -171,7 +171,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
                 predicatsStatuts.add(cb.equal(dernierStatut.<String> get("name"), statut));
             }
             predicates.add(cb.or(predicatsStatuts.toArray(Predicate[]::new)));
-        } else if (demandeRecherche.getAucunStatut()) {
+        } else if (demandeRecherche.isAucunStatut()) {
             predicates.add(cb.and(cb.equal(dernierStatut.<String> get("name"), "")));
         }
 
@@ -182,7 +182,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
                 predicatsCanaux.add(cb.equal(root.<String> get(CANAL), canal.name()));
             }
             predicates.add(cb.or(predicatsCanaux.toArray(Predicate[]::new)));
-        } else if (demandeRecherche.getAucunCanal()) {
+        } else if (demandeRecherche.isAucunCanal()) {
             predicates.add(cb.and(cb.equal(root.<String> get(CANAL), "")));
         }
 
@@ -200,7 +200,9 @@ public class RechercheDemandesUtils extends RechercheUtils {
         }
 
         // Créer un prédicat pour l'agent affecté
-        if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
+        if (demandeRecherche.isAucunAgentAffecte()) {
+            predicates.add(cb.isNull(root.join(AGENT, JoinType.LEFT)));
+        } else if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
             Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
             predicates.add(cb.equal(agent.<String> get("id"), demandeRecherche.getAgentAffecteId()));
         }

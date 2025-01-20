@@ -54,6 +54,7 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "data", required = false) DataRechercheDTO data,
             @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
             @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
+            @RequestParam(value = "aucunAgentAffecte", required = false) boolean aucunAgentAffecte,
             @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
             @RequestParam(value = "searchFields", required = false) String[] searchFields, Pageable pageable) {
         String safeAgent = AfBackUtils.logSafe(agentId);
@@ -74,6 +75,7 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setIdentifiant(null);
         demandeRecherche.setAucunCanal(aucunCanal);
         demandeRecherche.setAucunStatut(aucunStatut);
+        demandeRecherche.setAucunAgentAffecte(aucunAgentAffecte);
         demandeRecherche.setCheckTimestamp(checkTimestamp);
         demandeRecherche.setSearchFields(searchFields);
 

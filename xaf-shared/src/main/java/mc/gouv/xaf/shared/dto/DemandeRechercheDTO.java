@@ -49,12 +49,14 @@ public class DemandeRechercheDTO {
     @Getter
     private String[] searchFields;
 
+    @Getter
     private boolean aucunCanal;
 
+    @Getter
     private boolean aucunStatut;
 
     @Getter
-    private boolean aucunResponsable;
+    private boolean aucunAgentAffecte;
 
     @Getter
     private boolean checkTimestamp;
@@ -71,14 +73,6 @@ public class DemandeRechercheDTO {
         this.creationEndDate = creationEndDate;
         this.data = data;
         this.identifiant = identifiant;
-    }
-
-    public boolean getAucunCanal() {
-        return aucunCanal;
-    }
-
-    public boolean getAucunStatut() {
-        return aucunStatut;
     }
 
 }

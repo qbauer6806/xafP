@@ -65,37 +65,41 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     }
 
     @Override
-    public JsonNode saveConfig(JsonNode config) {
-        String buildId = config.get("buildId").asText();
+    public JsonNode saveConfig(JsonNode configNode) {
+        ObjectMapper mapper = new ObjectMapper();
+        String buildId = configNode.get("buildId").asText();
         // si la config existe et que son contenu et != null, on ne la sauvegarde pas
-        DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(buildId);
+        DemandeConfigBO existingConfig = demandesConfigRepository.findOneByBuildId(buildId);
 
-        if (configBO == null || configBO.getContenu() == null) {
-            // on récupère tous les config avant d'ajouter le nouveau
-            List<DemandeConfigBO> configs = getConfigsBO();
-            String lastBuildId = getLastBuildId();
-            // on ajoute à la config le noeud modelPaths
-            ObjectMapper mapper = new ObjectMapper();
+        if (existingConfig == null || existingConfig.getContenu() == null) {
+            // on génère le noeud modelPaths
             JsonNode modelPaths = mapper.createObjectNode();
             ArrayNode marqueurs = mapper.createArrayNode();
             ArrayNode rechercheAvancee = mapper.createArrayNode();
-            findPaths(config.get("recap"), marqueurs, rechercheAvancee);
+            findPaths(configNode.get("recap"), marqueurs, rechercheAvancee);
+            // le noeud marqueurs contient tous les chemins
             ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
             // le noeud rechercheAvancee ne contient pas les chemins des tableaux
             ((ObjectNode) modelPaths).put("rechercheAvancee", rechercheAvancee);
-            ((ObjectNode) config).put("modelPaths", modelPaths);
-            configBO = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(config));
-            // on recalcule les autres config pour vérifier si elles ont toujours le même modèle ou si le modèle a changé
-            checkIfDernierModele(configs, configBO);
+            ((ObjectNode) configNode).put("modelPaths", modelPaths);
+            // on récupère la dernière config avant d'ajouter la nouvelle
+            DemandeConfigBO lastConfig = getLastConfig();
+            String lastBuildId = lastConfig != null ? lastConfig.getBuildId() : null;
+            // on sauvegarde la nouvelle config
+            DemandeConfigBO newConfig = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(configNode));
+            if (lastBuildId != null) {
+                // on vérifie par rapport à la dernière config si la nouvelle a le même modèle ou si le modèle a changé
+                checkIfModelChanged(lastConfig, newConfig);
+            }
             // on génère les marqueurs pour la nouvelle config
             marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId,
-                    getModelPaths(config.get(MODEL_PATH).get("marqueurs")), config);
-        } else if (configBO.getVersion() != null && !configBO.getVersion().equals(mavenVersion)) {
+                    getModelPaths(configNode.get(MODEL_PATH).get("marqueurs")), configNode);
+        } else if (existingConfig.getVersion() != null && !existingConfig.getVersion().equals(mavenVersion)) {
             // si la config existe déjà, on met à jour la version avec la + récente si la version est différente
-            configBO.setVersion(mavenVersion);
-            configBO = demandesConfigRepository.save(configBO);
+            existingConfig.setVersion(mavenVersion);
+            demandesConfigRepository.save(existingConfig);
         }
-        return demandesConfigTransformer.bo2Json(configBO);
+        return mapper.createObjectNode();
     }
 
     private void findPaths(JsonNode recap, ArrayNode marqueurs, ArrayNode rechercheAvancee) {
@@ -171,22 +175,17 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         }
     }
 
-    private void checkIfDernierModele(List<DemandeConfigBO> configs, DemandeConfigBO lastConfig) {
-        for (DemandeConfigBO config : configs) {
-            List<String> all = getModelPaths(config.getContenu().get(MODEL_PATH).get("all"));
-            List<String> allLastConfig = getModelPaths(lastConfig.getContenu().get(MODEL_PATH).get("all"));
-            // Vérifier si les deux listes ont la même taille
-            if (all.size() == allLastConfig.size()) {
-                // Créer des copies pour ne pas modifier les listes originales
-                List<String> sortedList1 = all.stream().sorted().toList();
-                List<String> sortedList2 = allLastConfig.stream().sorted().toList();
-                if (sortedList1.equals(sortedList2)) {
-                    // même modèle, on se permet de mettre tous les brouillons associés à ce buildId au nouveau buildId
-                    // utile notamment pour savoir si un brouillon est obsolète
-                    brouillonsService.updateBrouillonsBuildId(config.getBuildId(), lastConfig.getBuildId());
-                }
-            }
-            demandesConfigRepository.save(config);
+    private void checkIfModelChanged(DemandeConfigBO lastConfig, DemandeConfigBO newConfig) {
+        // on compare les noeuds recap et mappings
+        JsonNode recap = lastConfig.getContenu().get("recap");
+        JsonNode mappings = lastConfig.getContenu().get("mappings");
+        JsonNode recapNewConfig = newConfig.getContenu().get("recap");
+        JsonNode mappingsNewConfig = newConfig.getContenu().get("mappings");
+        // Vérifier si les deux listes ont la même taille
+        if (recap.equals(recapNewConfig) && mappings.equals(mappingsNewConfig)) {
+            // même modèle, on se permet de mettre tous les brouillons associés à ce buildId au nouveau buildId
+            // utile notamment pour savoir si un brouillon est obsolète
+            brouillonsService.updateBrouillonsBuildId(lastConfig.getBuildId(), newConfig.getBuildId());
         }
     }
 

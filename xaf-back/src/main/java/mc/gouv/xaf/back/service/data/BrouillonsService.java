@@ -47,5 +47,5 @@ public interface BrouillonsService {
 
     long getNombreBrouillons();
 
-    void updateBrouillonsBuildId(String buildId, String lastBuildId);
+    void updateBrouillonsBuildId(String buildId, String newBuildId);
 }

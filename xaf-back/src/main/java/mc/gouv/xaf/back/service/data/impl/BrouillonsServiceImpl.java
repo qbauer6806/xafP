@@ -290,8 +290,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
-    public void updateBrouillonsBuildId(String buildId, String lastBuildId) {
-        brouillonsRepository.updateBuildIdForBrouillons(buildId, lastBuildId);
+    public void updateBrouillonsBuildId(String buildId, String newBuildId) {
+        brouillonsRepository.updateBuildIdForBrouillons(buildId, newBuildId);
     }
 
     @Override

@@ -209,9 +209,6 @@ public class GenerateConfigFromRecaps {
                     // name
                     ((ObjectNode) recapConfig).put("name", n.get("name").asText());
 
-                    // buildId
-                    ((ObjectNode) recapConfig).put("buildId", n.get("buildId"));
-
                     // donnee
                     ((ObjectNode) recapConfig).put("donnee", n.get("donnee").asText());
 

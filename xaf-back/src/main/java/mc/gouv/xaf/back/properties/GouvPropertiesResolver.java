@@ -108,5 +108,7 @@ public interface GouvPropertiesResolver {
     String getMaxFileSize();
 
     String getExtensionsWhitelist();
+    
+    boolean getSmsEnabled();
 
 }

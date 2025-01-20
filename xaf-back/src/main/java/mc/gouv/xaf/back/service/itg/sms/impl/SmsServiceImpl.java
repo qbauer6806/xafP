@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.itg.sms.impl;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.sms.SmsDTO;
 import mc.gouv.xaf.back.service.itg.sms.SmsInfoDTO;
 import mc.gouv.xaf.back.service.itg.sms.SmsParamDTO;
@@ -43,6 +45,9 @@ public class SmsServiceImpl implements SmsService {
     private AfBackUtils afBackUtils;
 
     private ToolManager manager = new ToolManager();
+    
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Override
 	public SmsDTO getSms(String identifiant) {
@@ -109,9 +114,26 @@ public class SmsServiceImpl implements SmsService {
         if (sms == null) {
             return null;
         }
-        LOGGER.info("Appel à SMS pour envoi du SMS...");
-        SmsClient smsClient = afBackUtils.getSmsClient();
-        return smsClient.sendSms(sms);
+        
+        SmsDTO smsEnvoye = null;
+        
+        if (gouvPropertiesResolver.getSmsEnabled()) {        
+	        LOGGER.info("Appel à SMS pour envoi du SMS...");
+	        SmsClient smsClient = afBackUtils.getSmsClient();
+	        smsEnvoye = smsClient.sendSms(sms);
+        }
+        else {
+        	LOGGER.info("Envoi d'SMS désactivé. Log des informations de SMS pour débug : " + sms);
+        	smsEnvoye = new SmsDTO();
+        	smsEnvoye.setIdentifiant("TEST");
+        	smsEnvoye.setParams(new ArrayList<SmsParamDTO>());
+        	smsEnvoye.setSender("");
+        	smsEnvoye.setStatusLibel(AfBackUtils.SMS_ENVOYE_STATUT);
+        	smsEnvoye.setText(sms.getText());
+        	smsEnvoye.setTo(sms.getTo());
+        }
+        
+        return smsEnvoye;
     }
     
     private Context getContext() {

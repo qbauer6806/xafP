@@ -119,6 +119,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.file.extensions.whitelist}")
     private String extensionsWhitelist;
+    
+    @Value("${mc.gouv.${application.name}.shared.backapi.sms.enabled:false}")
+    private boolean smsEnabled;
 
     @Autowired
     private KafkaProperties kafkaProperties;
@@ -467,4 +470,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getExtensionsWhitelist() {
         return extensionsWhitelist;
     }
+
+	@Override
+	public boolean getSmsEnabled() {
+		return smsEnabled;
+	}
 }

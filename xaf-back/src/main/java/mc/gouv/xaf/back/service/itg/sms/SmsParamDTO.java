@@ -36,4 +36,9 @@ public class SmsParamDTO {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return "SmsParamDTO [key=" + key + ", value=" + value + "]";
+	}
+	
 }

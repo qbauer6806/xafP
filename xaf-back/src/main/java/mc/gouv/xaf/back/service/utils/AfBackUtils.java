@@ -82,8 +82,12 @@ import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 public class AfBackUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackUtils.class);
+    
+    public static final String SMS_ENVOYE_STATUT = "Envoyé";
 
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
+    
+    public static final String SMS_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     public static final String STATUT_PUBLIC_SUPPRIMEE = "SUPPRIMEE";
 

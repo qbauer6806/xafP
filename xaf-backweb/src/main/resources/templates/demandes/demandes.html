@@ -467,7 +467,7 @@
           $("input[name='statut']").prop('checked', false);
         });
         $('#datatable-demandes').on('click', 'tbody td', function () {
-          const lien = $(this).closest('tr').find('td:eq(1) a').attr('href');
+          const lien = $(this).closest('tr').find('td:eq(0) a').attr('href');
           if (lien) {
             window.location = lien;
           }

@@ -194,6 +194,7 @@ public class AfApiService {
         // Récupération des informations usager pour stockage
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
         demandeDto.setUsager(demandesUsagersTransformer.user2Dto(usager));
+        demandeDto.setDonneesMConnect(demande.getDonneesMConnect());
 
         try {
             demandeDto = demandesService.saveOrUpdateDemande(demandeDto, false,

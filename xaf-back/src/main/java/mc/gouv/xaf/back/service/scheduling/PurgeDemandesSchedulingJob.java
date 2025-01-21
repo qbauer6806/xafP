@@ -50,7 +50,7 @@ public class PurgeDemandesSchedulingJob implements Job {
         // Récupération de la liste des statuts à purger dans le contexte du job detail
         Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statuts");
         if (statutsJob instanceof List) {
-            statuts = (ArrayList<String>) statutsJob;
+            statuts = (List<String>) statutsJob;
         }
         return statuts;
     }

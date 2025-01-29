@@ -55,6 +55,7 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                     demandesCommentaireRepository.save(demandesCommentaireBO);
                 }
             }
+            runtimeService.removeVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");
         }
         LOGGER.info("Fin de la migration des commentaires BPM");
         return RepeatStatus.FINISHED;

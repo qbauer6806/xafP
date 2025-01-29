@@ -4,28 +4,29 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version>
+    <version>3.4.2</version>
 		<relativePath/>
 		<!-- lookup parent from repository -->
 	</parent>
 
-	<properties>
-        <!-- Nexus repo url -->
-        <repo.public.url>https://nexus.monaco-gouvernement.mc/repository/public/</repo.public.url>
-        <repo.releases.url>https://nexus.monaco-gouvernement.mc/repository/releases/</repo.releases.url>
-        <repo.snapshots.url>https://nexus.monaco-gouvernement.mc/repository/snapshots/</repo.snapshots.url>
+  <properties>
+    <!-- Nexus repo url -->
+    <repo.public.url>https://nexus.monaco-gouvernement.mc/repository/public/</repo.public.url>
+    <repo.releases.url>https://nexus.monaco-gouvernement.mc/repository/releases/</repo.releases.url>
+    <repo.snapshots.url>https://nexus.monaco-gouvernement.mc/repository/snapshots/
+    </repo.snapshots.url>
 
-        <revision>0.0.0-SNAPSHOT</revision>
-        <java.version>21</java.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+    <revision>0.0.0-SNAPSHOT</revision>
+    <java.version>21</java.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <flowable.version>7.1.0</flowable.version>
+    <jacoco.version>0.8.12</jacoco.version>
+  </properties>
 
-		<jacoco.version>0.8.12</jacoco.version>
-    </properties>
-
-	<groupId>mc.gouv.xaf</groupId>
+  <groupId>mc.gouv.xaf</groupId>
   <artifactId>migration-xaf12-batch</artifactId>
-	<version>${revision}</version>
+  <version>${revision}</version>
   <name>migration-xaf12-batch</name>
   <description>migration-xaf12-batch</description>
 
@@ -98,6 +99,29 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-spring-boot-starter</artifactId>
+      <version>${flowable.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable5-spring</artifactId>
+      <version>${flowable.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable5-compatibility</artifactId>
+      <version>${flowable.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable5-spring-compatibility</artifactId>
+      <version>${flowable.version}</version>
+    </dependency>
+
   </dependencies>
 	<build>
 		<plugins>

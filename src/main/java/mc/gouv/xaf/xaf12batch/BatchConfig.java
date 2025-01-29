@@ -41,6 +41,9 @@ public class BatchConfig {
     private ResetMarqueursTasklet resetMarqueursTasklet;
 
     @Autowired
+    private MigrateCommentairesBpmTasklet migrateCommentairesBpmTasklet;
+
+    @Autowired
     private DemandeFileTransformer demandeFileTransformer;
 
     @Autowired
@@ -292,14 +295,20 @@ public class BatchConfig {
     }
 
     @Bean
+    public Step migrateCommentaireBpmStep() {
+        return new StepBuilder("migrateCommentaireBpmStep", jobRepository).tasklet(migrateCommentairesBpmTasklet,
+                transactionManager).allowStartIfComplete(true).build();
+    }
+
+    @Bean
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(filesStep(null))
                 .next(complementsFilesStep(null))
                 .next(demandesStep(null))
-                .next(agentsStep(null))
-                .next(usagersStep(null)).next(resetMarqueursStep())
+                .next(agentsStep(null)).next(usagersStep(null)).next(resetMarqueursStep())
+                .next(migrateCommentaireBpmStep())
                 .build();
     }
 

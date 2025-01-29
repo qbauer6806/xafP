@@ -34,7 +34,6 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         LOGGER.info("Début de la migration des commentaires BPM");
-        demandesCommentaireRepository.deleteAll();
         List<Task> tasks = taskService.createTaskQuery().active().list();
         for (Task t : tasks) {
             List<CommentaireInterneDTO> commInternes;

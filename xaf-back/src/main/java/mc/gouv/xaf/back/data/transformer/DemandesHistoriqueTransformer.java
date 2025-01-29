@@ -23,7 +23,6 @@ public class DemandesHistoriqueTransformer {
         dto.setFkStatut(DemandesStatutsTransformer.bo2Dto(bo.getFkStatut()));
         dto.setPkDemandeHistorique(bo.getPkDemandesHistorique());
         dto.setUsagerId(bo.getUsagerId());
-        dto.setJustificatifTraitement(bo.getJustificatifTraitement());
         return dto;
     }
 
@@ -37,7 +36,6 @@ public class DemandesHistoriqueTransformer {
         bo.setDate(dto.getDate());
         bo.setPkDemandesHistorique(dto.getPkDemandeHistorique());
         bo.setUsagerId(dto.getUsagerId());
-        bo.setJustificatifTraitement(dto.getJustificatifTraitement());
         return bo;
     }
 

@@ -17,5 +17,5 @@ public interface DemandesHistoriqueRepository extends CrudRepository<DemandesHis
 
     @Modifying
     @Query("delete from DemandesHistoriqueBO histo where histo.fkDemandes.pkDemandes =:pkDemandes ")
-    public void deleteHistoForGivenPkDemandes(Integer pkDemandes);
+    void deleteHistoForGivenPkDemandes(Integer pkDemandes);
 }

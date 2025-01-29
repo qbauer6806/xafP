@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
@@ -25,6 +24,7 @@ import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.backweb.ws.FileController;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -81,6 +81,9 @@ public class AbstractTraitementController extends AbstractController {
     private AfApiService afApiService;
 
     @Autowired
+    private DemandesCommentaireService demandesCommentaireService;
+
+    @Autowired
     private BackGouvPropertiesResolver backGouvPropertiesResolver;
     @Autowired
     private MotifsCache motifsCache;
@@ -118,21 +121,21 @@ public class AbstractTraitementController extends AbstractController {
     @ResponseBody
     @PostMapping(value = "/commentaires")
     @Transactional
-    public CommentaireInterneDTO sauvegarderComm(
+    public DemandeCommentaireDTO sauvegarderComm(
             @ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
             @RequestParam() Integer pkDemande) {
 
         LOGGER.info("======================= Appel de la page /traitement/commentaires action=Ajouter ({})", pkDemande);
 
         String commString = xafTraitementFormBean.getCommentaireInterne();
-        CommentaireInterneDTO commInterne = new CommentaireInterneDTO();
+        DemandeCommentaireDTO commInterne = new DemandeCommentaireDTO();
         if (!StringUtils.isBlank(commString)) {
             String safeComm = AfBackUtils.logSafe(commString);
             LOGGER.info("Commentaire : {}", safeComm);
             commInterne.setAgentId(AfBackUtils.getAuthenticatedAgentId());
             commInterne.setDate(new Date());
             commInterne.setCommentaire(commString);
-            gouvBPM.putCommentaireInterne(pkDemande, commInterne);
+            demandesCommentaireService.putCommentaireInterne(pkDemande, commInterne);
 
         } else {
             throw new DemarcheException("Impossible d'insérer un commentaire vide");

@@ -11,7 +11,6 @@ import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMException;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -293,42 +292,6 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public void jump(Integer demandeId, GouvBPMTask taskFrom, GouvBPMTask taskTo) {
         // ne semble pas utile ici mais obligation d'implémenter
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId) {
-        LOGGER.debug("getCommentairesInternes({})", demandeId);
-        List<CommentaireInterneDTO> commInternes = new ArrayList<>();
-        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
-        if (processInstance != null) {
-            commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(processInstance.getId(),
-                    GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
-            if (commInternes == null) {
-                commInternes = new ArrayList<>();
-            }
-        } else {
-            LOGGER.error(NULL_PI);
-        }
-        return commInternes;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
-        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
-        if (processInstance != null) {
-            List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(
-                    processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
-            if (commInternes == null) {
-                commInternes = new ArrayList<>();
-            }
-            commInternes.add(commentaire);
-            runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name(),
-                    commInternes);
-        } else {
-            LOGGER.error(NULL_PI);
-        }
     }
 
     @Override

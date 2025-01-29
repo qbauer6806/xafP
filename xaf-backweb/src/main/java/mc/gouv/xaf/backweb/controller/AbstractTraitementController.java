@@ -135,8 +135,8 @@ public class AbstractTraitementController extends AbstractController {
             commInterne.setAgentId(AfBackUtils.getAuthenticatedAgentId());
             commInterne.setDate(new Date());
             commInterne.setCommentaire(commString);
-            demandesCommentaireService.putCommentaireInterne(pkDemande, commInterne);
-
+            commInterne.setFkDemandes(pkDemande);
+            demandesCommentaireService.putCommentaireInterne(commInterne);
         } else {
             throw new DemarcheException("Impossible d'insérer un commentaire vide");
         }

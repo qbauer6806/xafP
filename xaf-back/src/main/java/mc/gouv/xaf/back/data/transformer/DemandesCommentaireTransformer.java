@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.data.transformer;
 
 import java.util.ArrayList;
 import java.util.List;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesCommentaireBO;
 import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 
@@ -26,6 +27,9 @@ public class DemandesCommentaireTransformer {
         bo.setCommentaire(dto.getCommentaire());
         bo.setDate(dto.getDate());
         bo.setPkDemandesCommentaire(dto.getPkDemandeCommentaire());
+        DemandeBO bo2 = new DemandeBO();
+        bo2.setPkDemandes(dto.getFkDemandes());
+        bo.setFkDemandes(bo2);
         return bo;
     }
 

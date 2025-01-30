@@ -17,7 +17,9 @@ import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
 import mc.gouv.xaf.back.service.AfApiService;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
@@ -28,6 +30,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,8 +82,12 @@ public class AbstractTraitementController extends AbstractController {
 
     @Autowired
     private BackGouvPropertiesResolver backGouvPropertiesResolver;
+    @Autowired
+    private MotifsCache motifsCache;
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
-    // Pour les informations liées à la demande
+    // Pour les informations liées à la demande
     private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
 
     private static final String REDIRECT = "redirect:";
@@ -271,6 +278,10 @@ public class AbstractTraitementController extends AbstractController {
         ModelAndView mav = new ModelAndView(path);
         XafTraitementFormBean xafTraitementFormBean = new XafTraitementFormBean();
         xafTraitementFormBean.setObservations(demande.getObservations());
+        MotifDTO motif = motifsCache.getMotif(demarchesDataProvider.getCodeMotifDemandeRectification(), "fr");
+        if (motif != null) {
+            xafTraitementFormBean.setTexteDemandeRectification(motif.getCommentairePrerempli());
+        }
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);
         return mav;
     }

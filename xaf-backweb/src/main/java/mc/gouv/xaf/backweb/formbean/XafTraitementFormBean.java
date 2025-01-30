@@ -8,7 +8,7 @@ import lombok.Setter;
 public class XafTraitementFormBean {
 
     private String observations;
-
     private String commentaireInterne;
+    private String texteDemandeRectification;
 
 }

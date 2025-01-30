@@ -1,11 +1,12 @@
 package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
+import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.text.StringEscapeUtils;
@@ -31,16 +32,14 @@ class DemandeRectificationServiceImplTest {
 
     @Mock
     private DemarchesDataProvider demarchesDataProvider;
-
     @Mock
     private GouvBPM gouvBPM;
-
     @Mock
     private AfHistoService histoService;
-
     @Mock
     private DemandesHistoriqueService demandesHistoriqueService;
-
+    @Mock
+    private DemandesCommentaireService demandesCommentaireService;
     @InjectMocks
     private DemandeRectificationServiceImpl demandeRectificationService;
 
@@ -61,7 +60,7 @@ class DemandeRectificationServiceImplTest {
         verify(gouvBPM).demanderRectification(eq(pkDemande), any(GouvBPMUser.class),
                 eq("CODE_MOTIF"), eq(StringEscapeUtils.escapeHtml4(commentaire)), eq("STATUT_ATTENTE"));
         verify(demandesHistoriqueService).saveHistorique(eq(pkDemande), any(DemandeHistoriqueDTO.class));
-        verify(gouvBPM).putCommentaireInterne(eq(pkDemande), any(CommentaireInterneDTO.class));
+        verify(demandesCommentaireService).putCommentaireInterne(any(DemandeCommentaireDTO.class));
     }
 
     @Test
@@ -99,6 +98,6 @@ class DemandeRectificationServiceImplTest {
         verify(gouvBPM).demanderRectification(eq(pkDemande), any(GouvBPMUser.class), eq("CODE_MOTIF"),
                 eq(StringEscapeUtils.escapeHtml4(commentaire)), eq("STATUT_ATTENTE"));
         verify(demandesHistoriqueService).saveHistorique(eq(pkDemande), any(DemandeHistoriqueDTO.class));
-        verify(gouvBPM).putCommentaireInterne(eq(pkDemande), any(CommentaireInterneDTO.class));
+        verify(demandesCommentaireService).putCommentaireInterne(any(DemandeCommentaireDTO.class));
     }
 }

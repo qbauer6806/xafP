@@ -181,7 +181,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             for (DemandesFilesBO fileBo : filesBo) {
                 fileBo.setPkDemandesFiles(null);
                 fileBo.setFkDemandes(newDemandeBo);
-                fileBo.setTypedoc(null);
                 demandesFilesRepository.save(fileBo);
             }
             newDemandeBo.setFiles(new HashSet<>(filesBo));

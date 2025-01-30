@@ -571,3 +571,10 @@ dd span {
 #print-box > .modal-dialog {
   width: auto;
 }
+
+#canvas-container {
+  max-height: 80vh;
+  overflow-y: auto;
+  border: solid;
+  margin: 10px 1px 1px;
+}

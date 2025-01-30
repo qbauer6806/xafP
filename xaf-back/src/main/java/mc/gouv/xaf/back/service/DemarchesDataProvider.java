@@ -207,4 +207,11 @@ public interface DemarchesDataProvider {
         return 12;
     }
 
+    /**
+     * @return TSCODECodeMotifEnum.DEMANDE_RECTIFICATION.name()
+     */
+    default String getCodeMotifDemandeRectification(){
+        return null;
+    }
+
 }

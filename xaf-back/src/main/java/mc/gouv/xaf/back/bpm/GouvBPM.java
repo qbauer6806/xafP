@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -206,25 +205,6 @@ public interface GouvBPM {
     @SuppressWarnings("unused")
     List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
             GouvBPMUser user);
-
-    /**
-     * Permet de récupérer les commentaires internes liés à une demande
-     *
-     * @param demandeId
-     *         L'id de la demande
-     * @return La liste des commentaires
-     */
-    List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId);
-
-    /**
-     * Permet d'ajouter un commentaire interne à une demande
-     *
-     * @param demandeId
-     *         L'id de la demande
-     * @param commentaire
-     *         Le commentaire à ajouter
-     */
-    void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire);
 
     /**
      * Permet de compléter une tâche en lui donnant les données du formulaire qu'elle requiert

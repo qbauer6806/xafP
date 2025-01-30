@@ -1,39 +1,25 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Date;
-
-import jakarta.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-/**
- * Modélise le contenu d'une ligne d'historique
- *
- * @author qdeme
- */
 @Setter
 @Getter
 @ToString
-public class DemandeHistoriqueDTO {
+public class DemandeCommentaireDTO {
 
-    private Integer pkDemandeHistorique;
+    private Integer pkDemandeCommentaire;
 
     private Integer fkDemandes;
 
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     private Date date;
 
-    private DemandeStatutDTO fkStatut;
-
     private String agentId;
 
-    private Integer usagerId;
-
-    @NotNull
-    private JsonNode contenu;
+    private String commentaire;
 
 }

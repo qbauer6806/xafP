@@ -7,15 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.apache.tika.exception.TikaException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -24,6 +17,10 @@ import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import org.apache.tika.exception.TikaException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
 @Component
 public class GouvBPMTestImpl implements GouvBPM {
@@ -126,16 +123,6 @@ public class GouvBPMTestImpl implements GouvBPM {
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
             GouvBPMUser user) {
         return null;
-    }
-
-    @Override
-    public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId) {
-        return null;
-    }
-
-    @Override
-    public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
-
     }
 
     @Override

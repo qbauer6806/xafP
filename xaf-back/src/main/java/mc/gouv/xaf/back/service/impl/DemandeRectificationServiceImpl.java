@@ -1,13 +1,14 @@
 package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.DemandeRectificationService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,8 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
     private DemarchesDataProvider demarchesDataProvider;
     @Autowired
     private GouvBPM gouvBPM;
+    @Autowired
+    private DemandesCommentaireService demandesCommentaireService;
     @Autowired
     private AfHistoService histoService;
     @Autowired
@@ -70,10 +73,11 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
         }
 
         // ajout d'un commentaire dans la discussion
-        CommentaireInterneDTO commInterne = new CommentaireInterneDTO();
+        DemandeCommentaireDTO commInterne = new DemandeCommentaireDTO();
         commInterne.setAgentId(AfBackUtils.getAuthenticatedAgentId());
         commInterne.setDate(new Date());
+        commInterne.setFkDemandes(pkDemande);
         commInterne.setCommentaire("<b>Demande de rectification : </b>" + commentaire);
-        gouvBPM.putCommentaireInterne(pkDemande, commInterne);
+        demandesCommentaireService.putCommentaireInterne(commInterne);
     }
 }

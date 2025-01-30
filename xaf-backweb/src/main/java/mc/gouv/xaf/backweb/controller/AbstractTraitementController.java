@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
 import mc.gouv.xaf.back.service.AfApiService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;

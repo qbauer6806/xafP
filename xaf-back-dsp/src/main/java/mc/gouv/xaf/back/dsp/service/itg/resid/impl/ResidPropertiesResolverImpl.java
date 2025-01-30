@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResidPropertiesResolverImpl implements ResidPropertiesResolver {
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.resid.api.jwt}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.resid.jwt}")
     private String residApiJwt;
 
     @Value("${mc.gouv.resid.api.url}")

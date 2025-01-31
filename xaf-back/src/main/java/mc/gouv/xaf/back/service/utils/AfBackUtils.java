@@ -1102,4 +1102,17 @@ public class AfBackUtils {
                 .getAuthorities();
         return auth.stream().anyMatch(grantedAuthority -> (grantedAuthority.getAuthority().equals(role)));
     }
+
+    /**
+     * Remplacement des sauts de ligne par des balises <br> pour un affichage HTML correct
+     * @param commentaire
+     * @return
+     */
+    public static String formatCommentaire(String commentaire) {
+        if (StringUtils.isBlank(commentaire)) {
+            return commentaire;
+        }
+        return commentaire.replaceAll("\\r?\\n", "<br/>");
+    }
+
 }

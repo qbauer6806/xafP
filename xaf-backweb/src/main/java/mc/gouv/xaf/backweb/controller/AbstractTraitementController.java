@@ -142,6 +142,9 @@ public class AbstractTraitementController extends AbstractController {
             throw new DemarcheException("Impossible d'insérer un commentaire vide");
         }
 
+        String commentaireFormate = AfBackUtils.formatCommentaire(commInterne.getCommentaire());
+        commInterne.setCommentaire(commentaireFormate);
+
         LOGGER.info("======================= Fin /traitement/commentaires action=Ajouter");
 
         return commInterne;

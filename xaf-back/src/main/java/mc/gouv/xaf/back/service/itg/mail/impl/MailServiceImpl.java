@@ -221,11 +221,7 @@ public class MailServiceImpl implements MailService {
      */
     @Override
     public String formatCommentaire(String commentaire) {
-        if (!StringUtils.isBlank(commentaire)) {
-            String lineSep = System.lineSeparator();
-            commentaire = commentaire.replace(lineSep, "<br/>");
-        }
-        return commentaire;
+        return AfBackUtils.formatCommentaire(commentaire);
     }
 
     /**

@@ -56,6 +56,8 @@ public class MailPreviewController extends AbstractController {
 
         DemandeDTO demande = demandesService.getDemande(pkDemande);
 
+        // Remplacement des sauts de ligne par des balises <br> pour un affichage HTML correct
+        commentaire = AfBackUtils.formatCommentaire(commentaire);
         Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 bpmVariables, codeMotifChoisi, commentaire);
 

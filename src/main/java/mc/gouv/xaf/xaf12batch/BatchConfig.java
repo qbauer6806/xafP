@@ -11,6 +11,9 @@ import mc.gouv.xaf.xaf12batch.gichuni.GichuniUsagerDTO;
 import mc.gouv.xaf.xaf12batch.logon.UtilisateursCache;
 import mc.gouv.xaf.xaf12batch.logon.dto.User;
 import mc.gouv.xboot.caching.GouvCache;
+import org.activiti.compatibility.spring.DefaultFlowable5SpringCompatibilityHandler;
+import org.flowable.spring.SpringProcessEngineConfiguration;
+import org.flowable.spring.boot.EngineConfigurationConfigurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -310,6 +313,16 @@ public class BatchConfig {
                 .next(agentsStep(null)).next(usagersStep(null)).next(resetMarqueursStep())
                 .next(migrateCommentaireBpmStep())
                 .build();
+    }
+
+    @Bean
+    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableFlowable5CompatibilityConfigurer() {
+        return (SpringProcessEngineConfiguration processEngineConfiguration) -> {
+            processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
+            processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(
+                    DefaultFlowable5SpringCompatibilityHandler::new);
+        };
+
     }
 
 }

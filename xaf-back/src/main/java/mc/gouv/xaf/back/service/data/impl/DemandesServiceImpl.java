@@ -274,9 +274,11 @@ public class DemandesServiceImpl implements DemandesService {
         List<JsonNode> champsNodes = config.get("recap").findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                JsonNode mapping = champ.get("mapping");
-                String path = champ.get("path").asText();
-                processContenuTrad(contenuTrad, mappings, mapping, champ, path);
+                if (!champs.get("type").asText().equals("tableau")) {
+                    JsonNode mapping = champ.get("mapping");
+                    String path = champ.get("path").asText();
+                    processContenuTrad(contenuTrad, mappings, mapping, champ, path);
+                }
             }
         }
         // récupérer aussi les champs tableau

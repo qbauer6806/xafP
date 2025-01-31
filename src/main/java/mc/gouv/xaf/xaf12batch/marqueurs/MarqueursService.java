@@ -70,7 +70,8 @@ public class MarqueursService {
         List<JsonNode> champsNodes = sections.findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                if (champ.get("path").asText().equals(modifiedModelPath)) {
+                if (champ.get("path").asText().equals(modifiedModelPath) && !champ.get("type").asText()
+                        .equals("tableau")) {
                     // si c'est un type particulier on ajoute le suffixe
                     String description = champ.get("label").asText();
                     if (suffixeFound != null) {

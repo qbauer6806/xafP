@@ -154,7 +154,8 @@ public class MarqueursServiceImpl implements MarqueursService {
         List<JsonNode> champsNodes = sections.findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                if (champ.get("path").asText().equals(modifiedModelPath)) {
+                if (champ.get("path").asText().equals(modifiedModelPath) && !champ.get("type").asText()
+                        .equals("tableau")) {
                     if (marqueurDTO.getDescription() == null || marqueurDTO.getDescription().isEmpty()) {
                         // si c'est un type particulier on ajoute le suffixe
                         String description = champ.get("label").asText();

@@ -301,7 +301,7 @@ public class AfApiService {
             DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
 
             DemandeHistoriqueDTO histo = histoService.updateDemande(demandeDto, usagerId, demande.getCreeParAgentId(),
-                    statut.getLibelle());
+                    statut.getName());
 
             if (histo != null) {
                 this.saveHistorique(demandeDto.getPkDemandes(), histo);

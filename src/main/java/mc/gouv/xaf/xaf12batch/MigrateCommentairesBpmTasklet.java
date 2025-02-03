@@ -1,6 +1,5 @@
 package mc.gouv.xaf.xaf12batch;
 
-import java.util.List;
 import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireBO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireRepository;
@@ -16,6 +15,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class MigrateCommentairesBpmTasklet implements Tasklet {
@@ -42,16 +43,20 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                 Integer demandeId = Integer.parseInt(
                         runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
                                 .singleResult().getBusinessKey());
-                // on migre les données
-                for(CommentaireInterneDTO commInterne : commInternes) {
-                    DemandeBO demandeBO = new DemandeBO();
-                    demandeBO.setPkDemandes(demandeId);
-                    DemandesCommentaireBO demandesCommentaireBO = new DemandesCommentaireBO();
-                    demandesCommentaireBO.setCommentaire(commInterne.getCommentaire());
-                    demandesCommentaireBO.setAgentId(commInterne.getAgentId());
-                    demandesCommentaireBO.setDate(commInterne.getDate());
-                    demandesCommentaireBO.setFkDemandes(demandeBO);
-                    demandesCommentaireRepository.save(demandesCommentaireBO);
+                DemandeBO demandeBO = new DemandeBO();
+                demandeBO.setPkDemandes(demandeId);
+                if (demandesCommentaireRepository.existsByFkDemandes(demandeBO)) {
+                    // on migre les données
+                    for (CommentaireInterneDTO commInterne : commInternes) {
+                        DemandesCommentaireBO demandesCommentaireBO = new DemandesCommentaireBO();
+                        demandesCommentaireBO.setCommentaire(commInterne.getCommentaire());
+                        demandesCommentaireBO.setAgentId(commInterne.getAgentId());
+                        demandesCommentaireBO.setDate(commInterne.getDate());
+                        demandesCommentaireBO.setFkDemandes(demandeBO);
+                        demandesCommentaireRepository.save(demandesCommentaireBO);
+                    }
+                } else {
+                    LOGGER.info("La demande avec l'ID {} n'existe pas, commentaires non sauvegardés.", demandeId);
                 }
             }
             runtimeService.removeVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");

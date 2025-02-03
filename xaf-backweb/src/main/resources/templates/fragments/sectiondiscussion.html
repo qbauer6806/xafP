@@ -45,7 +45,7 @@
                           la récupération des informations du commentaire...
                         </div>
                         <div th:if="comm.commentaire != null"
-                             th:text="${comm.commentaire}" style="margin: 5px 0 8px 0;"></div>
+                             th:utext="${comm.commentaire}" style="margin: 5px 0 8px 0; white-space: pre-wrap;"></div>
                       </div>
 
                       <div th:unless="comm != null" class="col-xs-12"

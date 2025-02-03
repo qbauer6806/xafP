@@ -5,11 +5,14 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -24,6 +27,8 @@ public interface DemarchesDataProvider {
     String getStatusLibelle(String statusName);
 
     String getDemandeur(DemandeDTO contenuDemandeDTO);
+    
+    String getUsagerTelephone(GichuniUsagerDTO usager);
 
     /**
      * @return TSCODEDemandeStatutEnum.getMap();
@@ -205,6 +210,13 @@ public interface DemarchesDataProvider {
      */
     default int getTaileTexteEnteteTableauxRecapPdf() {
         return 12;
+    }
+
+    /**
+     * @return TSCODECodeMotifEnum.DEMANDE_RECTIFICATION.name()
+     */
+    default String getCodeMotifDemandeRectification(){
+        return null;
     }
 
 }

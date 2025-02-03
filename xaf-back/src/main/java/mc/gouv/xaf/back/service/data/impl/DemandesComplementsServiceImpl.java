@@ -320,7 +320,6 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
                     for (DemandesComplementsFilesBO dcfileBo : dcfilesBo) {
                         dcfileBo.setPkDemandesComplementsFiles(null);
                         dcfileBo.setFkDemandesComplements(dcBo);
-                        dcfileBo.setTypedoc(null);
                         demandesComplementsFilesRepository.save(dcfileBo);
                     }
                     dcBo.setFiles(new HashSet<>(dcfilesBo));

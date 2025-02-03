@@ -106,9 +106,13 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         List<JsonNode> champsNodes = recap.findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                String path = champ.get("path").asText();
-                addToPathByType(marqueurs, champ, path);
-                addToPathByType(rechercheAvancee, champ, path);
+                String type = champ.get("type").asText();
+                if (!type.equals("tableau")) {
+                    String path = champ.get("path").asText();
+                    addToPathByType(marqueurs, type, path);
+                    addToPathByType(rechercheAvancee, type, path);
+                }
+
             }
         }
         // récupérer aussi les champs tableau
@@ -119,14 +123,13 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             marqueurs.add(rootPath);
             for (JsonNode champ : tableau.get("columns")) {
                 String path = rootPath + "." + champ.get("path").asText();
-                addToPathByType(marqueurs, champ, path);
+                addToPathByType(marqueurs, champ.get("type").asText(), path);
             }
         }
     }
 
-    private void addToPathByType(ArrayNode arrayNode, JsonNode champ, String path) {
+    private void addToPathByType(ArrayNode arrayNode, String type, String path) {
         if (!path.isEmpty()) {
-            String type = champ.get("type").asText();
             switch (type) {
                 case "adresse" -> {
                     addToPath(arrayNode, path, "ligne1");

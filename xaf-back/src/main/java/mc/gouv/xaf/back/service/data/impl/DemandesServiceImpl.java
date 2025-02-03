@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
+import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
@@ -112,6 +113,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private DemandesHistoriqueRepository demandesHistoriqueRepository;
+
+    @Autowired
+    private DemandesCommentaireRepository demandesCommentaireRepository;
 
     @Autowired
     private DemarchesService demarchesService;
@@ -270,9 +274,11 @@ public class DemandesServiceImpl implements DemandesService {
         List<JsonNode> champsNodes = config.get("recap").findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                JsonNode mapping = champ.get("mapping");
-                String path = champ.get("path").asText();
-                processContenuTrad(contenuTrad, mappings, mapping, champ, path);
+                if (!champ.get("type").asText().equals("tableau")) {
+                    JsonNode mapping = champ.get("mapping");
+                    String path = champ.get("path").asText();
+                    processContenuTrad(contenuTrad, mappings, mapping, champ, path);
+                }
             }
         }
         // récupérer aussi les champs tableau
@@ -724,7 +730,7 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteDemande(Integer demandeId) throws JsonProcessingException {
+    public void deleteDemande(Integer demandeId) {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
         if (demandeBo == null) {
@@ -781,8 +787,7 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours)
-            throws JsonProcessingException {
+    public void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) {
 
         LOGGER.info("Suppression de la demande {}...", demandeId);
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
@@ -804,7 +809,10 @@ public class DemandesServiceImpl implements DemandesService {
 
         // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
         LOGGER.info("Suppression de l'historique de la demande...");
-        demandesHistoriqueRepository.deleteHistoForGivenPkDemandes(demandeId);
+        demandesHistoriqueRepository.deleteByFkDemandesPkDemandes(demandeId);
+        // Suppression des commentaires de la demande (pas géré par cascade, donc le faire ici)
+        LOGGER.info("Suppression des commentaires de la demande...");
+        demandesCommentaireRepository.deleteByFkDemandesPkDemandes(demandeId);
 
         /*** Sauvegarde des fichiers à purger avant suppression de la demande. */
         /*** Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande */

@@ -59,7 +59,7 @@ public class AfPostProcessingProvider {
                             nouvelleValeur = demande.getDonneesMConnect().getAuthority();
                             break;
                         case "birthPlaceCountry":
-                            nouvelleValeur = demande.getDonneesMConnect().getBirthPlaceCountry();
+                            nouvelleValeur = AfBackUtils.getAlpha2Code(demande.getDonneesMConnect().getBirthPlaceCountry());
                             break;
                         case "birthPlaceCity":
                             nouvelleValeur = demande.getDonneesMConnect().getBirthPlaceCity();

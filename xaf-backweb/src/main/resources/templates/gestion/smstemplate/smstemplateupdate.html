@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <title th:text="${titre}"></title>
+
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+
+  <!-- Main Quill library -->
+  <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+  <!-- Theme included stylesheets -->
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <style>
+    /* Hack charte graphique pour avoir un toggle toujours bleu */
+    input:checked + .slider, input + input[type="hidden"] + .slider {
+      outline: 3px solid #0F607C;
+    }
+
+    input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
+      background-color: #0F607C;
+    }
+
+    form .form-group span {
+      padding-top: 0;
+    }
+  </style>
+
+</head>
+
+<body th:with="pageConfigurationActive='active'">
+
+<div>
+
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div id="wrapper">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+
+      <div class="breadcrumbContent">
+        <div class="breadcrumb">
+          <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
+            id="ariane1" th:href="@{/gestion/smstemplate}"
+            class="breadcrumb-link">TEMPLATES SMS</a> &gt; <span>MODIFICATION</span>
+        </div>
+        <div class="triangleTopright"></div>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-xs-6">
+            <h1 class="titre">Formulaire de modification du template</h1>
+          </div>
+
+          <div class="col-xs-6 text-right">
+							<span th:if="${!frOnly}">
+								<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
+								<div class="toggle" style="display:inline-block; transform: translateY(35%);">
+									<label class="switch">
+										<input class="switch-input" id="switchLangue" type="checkbox" checked=""
+                           name="langue" value="LANGUE"/>
+										<input type="hidden" checked=""/>
+										<span class="slider"></span>
+									</label>
+
+								</div>
+								<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
+							</span>
+
+            <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
+                    name="exportSql" type="button"
+                    value="Export SQL" style="margin-left: 30px">
+              Export SQL
+            </button>
+          </div>
+        </div>
+        <div class="row"
+             th:if="${smsTemplateFormBean.corps} != null and ${smsTemplateFormBean.corps} != ''">
+
+          <form class="form-horizontal"
+                id="formTemplate"
+                th:action="@{/gestion/smstemplate/update}" method="POST"
+                th:object="${smsTemplateFormBean}">
+
+            <input type="hidden" name="code" th:field="*{code}" class="form-control"/>
+            <input type="hidden" name="langue" th:field="*{langue}" class="form-control"/>
+
+            <div class="col-xs-12">
+              <div class="panel panel-simple">
+                <div class="row container-fluid">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="code">Code<span class="required"></span>: </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <input type="text" id="code" th:field="*{code}" class="form-control"
+                             disabled="disabled"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="sender">Sender du SMS: </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <input type="text" id="sender" name="sender" th:field="*{sender}"
+                      		title="Le champ Sender est limité à 11 caractères"
+                             class="form-control"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="editor">Corps du SMS<span class="required"></span>: </label>
+                    </div>
+                    <div class="col-xs-10">
+                        <textarea class="form-control greyTooltip"
+                                  oninput="checkObservationValidity()" data-toggle="tooltip"
+                                  data-placement="bottom" id="corps"
+                                  title="Le champ Corps est limité à 450 caractères"
+                                  th:field="*{corps}"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-15">
+                  <div class="col-xs-12 text-right">
+                    <a id="btnRetourMotifs" class="btn btn-action-second ripple-effect"
+                       th:href="@{/gestion/smstemplate}">Retour</a>
+                    <input id="validerBtn" type="submit" value="Valider"
+                           class="btn btn-action ripple-effect"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+          <div class="container-fluid">
+            <small>Les champs obligatoires sont suivis par *</small>
+          </div>
+        </div>
+
+        <div class="row"
+             th:if="${smsTemplateFormBean.corps} == null or ${smsTemplateFormBean.corps} == ''">
+          <div class="col-xs-12 text-center">
+            <h2>Aucun template trouvé pour cette langue</h2>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<div th:replace="~{fragments/message :: message}"></div>
+
+<script th:inline="javascript">
+
+  function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+  var exportSQLTemplate = function (tsCode, templateCode, templateSender, templateCorps, templateLangue) {
+    var sqlFinal = "";
+    sqlFinal += "delete from " + tsCode + ".DEM_SMS_TEMPLATES where code = '" + templateCode + "' and langue = '" + templateLangue + "';\r\n";
+    sqlFinal += "insert into " + tsCode + ".DEM_SMS_TEMPLATES values (default, '" + templateCode + "', '" + templateSender + "', '" + templateCorps.replaceAll("\'", "\'\'") + "', '" + templateLangue + "');\r\n\r\n";
+    return sqlFinal;
+  };
+
+  $(document).ready(function () {
+
+    /*<![CDATA[*/
+
+    var smsTemplateFormBean = /*[[(${smsTemplateFormBean})]]*/;
+    var tsCode = /*[[(${tsCode})]]*/;
+
+    $("#switchLangue").prop('checked', smsTemplateFormBean.langue === 'fr');
+
+    $("#exportSqlBouton").click(function () {
+      var sqlGenere = exportSQLTemplate(tsCode, smsTemplateFormBean.code, smsTemplateFormBean.sender, smsTemplateFormBean.corps, smsTemplateFormBean.langue);
+      download("exportSQL-" + smsTemplateFormBean.code + ".sql", sqlGenere);
+    });
+
+    $("#switchLangue").click(function () {
+      var langue = smsTemplateFormBean.langue === 'fr' ? 'en' : 'fr';
+      window.location.href = APP.getContextPath() + '/gestion/smstemplate/update?code=' + smsTemplateFormBean.code + '&langue=' + langue;
+    });
+
+    var successMessage = /*[[${successMessages}]]*/'';
+    if (successMessage) {
+      $.notify({message: successMessage}, {type: 'success'});
+    }
+
+    var messagesErrorList = /*[[${errorMessages}]]*/'default';
+    if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+      $.each(messagesErrorList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'danger'
+        });
+      });
+    }
+
+    /*]]>*/
+
+  });
+</script>
+</body>
+</html>

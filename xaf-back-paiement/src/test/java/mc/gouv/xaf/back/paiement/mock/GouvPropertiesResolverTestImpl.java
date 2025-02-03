@@ -263,4 +263,20 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public String getExtensionsWhitelist() {
         return "";
     }
+
+	@Override
+	public String getSmsUrl() {
+		return "";
+	}
+
+	@Override
+	public String getSmsJwt() {
+		return "";
+	}
+
+	@Override
+	public boolean getSmsEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

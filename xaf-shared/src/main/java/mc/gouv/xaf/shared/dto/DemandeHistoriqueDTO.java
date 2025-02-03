@@ -33,8 +33,6 @@ public class DemandeHistoriqueDTO {
 
     private Integer usagerId;
 
-    private String justificatifTraitement;
-
     @NotNull
     private JsonNode contenu;
 

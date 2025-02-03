@@ -55,6 +55,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.mail.api.url}")
     private String mailUrl;
+    
+    @Value("${mc.gouv.nomen.api.url}")
+    private String nomenUrl;
+
 
     @Value("${mc.gouv.vscan.api.url}")
     private String vscanUrl;
@@ -79,6 +83,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.usagerscache.duration}")
     private String usagersCacheDuration;
 
+    @Value("${mc.gouv.${application.name}.shared.backapi.payscache.duration}")
+    private String paysCacheDuration;
+    
     @Value("${mc.gouv.${application.name}.shared.backapi.vscan.jwt}")
     private String vscanJwt;
 
@@ -87,6 +94,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.${application.name}.shared.backapi.file.jwt}")
     private String fileJwt;
+    
+    @Value("${mc.gouv.${application.name}.shared.backapi.nomen.jwt}")
+    private String nomenJwt;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
     private String paiementEnabled;
@@ -238,6 +248,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getMailUrl() {
         return mailUrl;
     }
+    
+    @Override
+    public String getNomenUrl() {
+        return nomenUrl;
+    }
 
     @Override
     public String getFileJwt() {
@@ -247,6 +262,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getMailJwt() {
         return mailJwt;
+    }
+    
+    @Override
+    public String getNomenJwt() {
+        return nomenJwt;
     }
 
     @Override
@@ -272,6 +292,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public long getUsagersCacheDuration() {
         return Long.parseLong(usagersCacheDuration);
+    }
+    
+    @Override
+    public long getPaysCacheDuration() {
+        return Long.parseLong(paysCacheDuration);
     }
 
     @Override

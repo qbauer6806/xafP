@@ -2,18 +2,18 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.util.Comparator;
 
-import mc.gouv.servicerest.pays.model.PaysBean;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 
 /**
  * Classe servant à trier des pays par nom
  *
  * @author qdeme
  */
-public class PaysComparator implements Comparator<PaysBean> {
+public class PaysComparator implements Comparator<PaysDTO> {
 
     @Override
-    public int compare(PaysBean p1, PaysBean p2) {
-        return p1.getNom().compareTo(p2.getNom());
+    public int compare(PaysDTO p1, PaysDTO p2) {
+        return p1.getLibelle().compareTo(p2.getLibelle());
     }
 
 }

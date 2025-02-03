@@ -263,4 +263,22 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public String getExtensionsWhitelist() {
         return "";
     }
+
+	@Override
+	public String getNomenUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getNomenJwt() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getPaysCacheDuration() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

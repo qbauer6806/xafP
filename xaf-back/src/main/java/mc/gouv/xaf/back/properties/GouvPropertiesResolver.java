@@ -14,6 +14,10 @@ public interface GouvPropertiesResolver {
     String getMailUrl();
 
     String getMailJwt();
+    
+    String getNomenUrl();
+
+    String getNomenJwt();
 
     String getDemarcheId();
 
@@ -22,6 +26,8 @@ public interface GouvPropertiesResolver {
     String getContainerId();
 
     long getUsagersCacheDuration();
+    
+    long getPaysCacheDuration();
 
     String getGouvSharedLogonUrl();
 

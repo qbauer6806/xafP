@@ -40,7 +40,7 @@ public class DemandeTransformer {
         List<JsonNode> champsNodes = config.get("recap").findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                if (!champs.get("type").asText().equals("tableau")) {
+                if (!champ.get("type").asText().equals("tableau")) {
                     JsonNode mapping = champ.get("mapping");
                     String path = champ.get("path").asText();
                     processContenuTrad(contenuTrad, mappings, mapping, champ, path);

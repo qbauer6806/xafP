@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.bpm.model;
+package mc.gouv.xaf.xaf12batch.bpm;
 
 import java.io.Serializable;
 import java.util.Date;

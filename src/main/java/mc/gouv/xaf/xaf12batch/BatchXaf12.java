@@ -12,9 +12,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @SpringBootApplication
 @EnableFeignClients(basePackages = { "mc.gouv.xaf.xaf12batch.logon" })
 public class BatchXaf12 implements CommandLineRunner {
@@ -31,19 +28,6 @@ public class BatchXaf12 implements CommandLineRunner {
     private ConfigurableApplicationContext context;
 
     public static void main(String[] args) {
-        // Initialise le mapping des packages
-        Map<String, String> packageReplacement = new HashMap<>();
-        packageReplacement.put("mc.gouv.af.back.bpm.model", "mc.gouv.xaf.xaf12batch.bpm");
-        packageReplacement.put("mc.gouv.xaf.back.bpm.model", "mc.gouv.xaf.xaf12batch.bpm");
-
-        // Crée le CustomClassLoader
-        CustomClassLoader customClassLoader = new CustomClassLoader(BatchXaf12.class.getClassLoader(),
-                packageReplacement);
-
-        // Défini le ClassLoader par défaut
-        Thread.currentThread().setContextClassLoader(customClassLoader);
-
-        // Démarrage de l'application Spring
         SpringApplication.run(BatchXaf12.class, args);
     }
 

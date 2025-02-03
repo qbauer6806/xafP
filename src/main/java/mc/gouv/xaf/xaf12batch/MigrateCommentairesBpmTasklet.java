@@ -1,8 +1,7 @@
 package mc.gouv.xaf.xaf12batch;
 
 import java.util.List;
-
-import mc.gouv.xaf.xaf12batch.bpm.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireBO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireRepository;
 import mc.gouv.xaf.xaf12batch.dto.DemandeBO;

@@ -10,6 +10,11 @@ import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 
+/**
+ * Data provider du cache de templates email
+ *
+ * @author qdeme
+ */
 @Component
 public class TemplatesCacheDataProvider implements GouvCacheDataProvider<Integer, TemplateDTO> {
 

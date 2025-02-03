@@ -2,6 +2,7 @@ package mc.gouv.xaf.back;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.springframework.stereotype.Component;
 
@@ -95,4 +96,9 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     public String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager() {
         return "";
     }
+
+	@Override
+	public String getUsagerTelephone(GichuniUsagerDTO usager) {
+		return "";
+	}
 }

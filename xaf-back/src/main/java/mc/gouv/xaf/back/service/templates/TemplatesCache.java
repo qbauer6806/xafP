@@ -4,7 +4,7 @@ import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.caching.GouvCache;
 
 /**
- * Implémentation de l'interface UsagersCache
+ * Interface pour le cache des templates d'e-mail
  *
  * @author qdeme
  */

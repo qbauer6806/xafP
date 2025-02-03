@@ -14,6 +14,10 @@ public interface GouvPropertiesResolver {
     String getMailUrl();
 
     String getMailJwt();
+    
+    String getSmsUrl();
+    
+    String getSmsJwt();
 
     String getDemarcheId();
 
@@ -104,5 +108,7 @@ public interface GouvPropertiesResolver {
     String getMaxFileSize();
 
     String getExtensionsWhitelist();
+    
+    boolean getSmsEnabled();
 
 }

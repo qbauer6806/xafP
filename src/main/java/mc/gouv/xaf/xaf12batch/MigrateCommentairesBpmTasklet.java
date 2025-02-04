@@ -40,13 +40,14 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
             Integer demandeId = Integer.parseInt(
                     runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
                             .singleResult().getBusinessKey());
-            LOGGER.info("Récupération des commentaires liés à la demande {} ...", demandeId);
-            List<CommentaireInterneDTO> commInternes;
-            commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");
-            if (commInternes != null && !commInternes.isEmpty()) {
-                DemandeBO demandeBO = new DemandeBO();
-                demandeBO.setPkDemandes(demandeId);
-                if (demandesCommentaireRepository.existsByFkDemandes(demandeBO)) {
+            DemandeBO demandeBO = new DemandeBO();
+            demandeBO.setPkDemandes(demandeId);
+            if (demandesCommentaireRepository.existsByFkDemandes(demandeBO)) {
+                LOGGER.info("Récupération des commentaires liés à la demande {} ...", demandeId);
+                List<CommentaireInterneDTO> commInternes;
+                commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(t.getProcessInstanceId(),
+                        "MC_COMMINTERNES");
+                if (commInternes != null && !commInternes.isEmpty()) {
                     // on migre les données
                     for (CommentaireInterneDTO commInterne : commInternes) {
                         DemandesCommentaireBO demandesCommentaireBO = new DemandesCommentaireBO();
@@ -59,9 +60,9 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                         LOGGER.info("Commentaire ID {} sauvegardé en base",
                                 savedCommentaire.getPkDemandesCommentaire());
                     }
-                } else {
-                    LOGGER.info("La demande avec l'ID {} n'existe pas, commentaires non sauvegardés.", demandeId);
                 }
+            } else {
+                LOGGER.info("La demande avec l'ID {} n'existe pas, commentaires non sauvegardés.", demandeId);
             }
             runtimeService.removeVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");
         }

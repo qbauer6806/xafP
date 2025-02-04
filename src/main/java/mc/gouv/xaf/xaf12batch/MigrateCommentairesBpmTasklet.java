@@ -37,12 +37,13 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
         LOGGER.info("Début de la migration des commentaires BPM");
         List<Task> tasks = taskService.createTaskQuery().active().list();
         for (Task t : tasks) {
+            Integer demandeId = Integer.parseInt(
+                    runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
+                            .singleResult().getBusinessKey());
+            LOGGER.info("Récupération des commentaires liés à la demande {} ...", demandeId);
             List<CommentaireInterneDTO> commInternes;
             commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");
             if (commInternes != null && !commInternes.isEmpty()) {
-                Integer demandeId = Integer.parseInt(
-                        runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
-                                .singleResult().getBusinessKey());
                 DemandeBO demandeBO = new DemandeBO();
                 demandeBO.setPkDemandes(demandeId);
                 if (demandesCommentaireRepository.existsByFkDemandes(demandeBO)) {
@@ -53,7 +54,10 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                         demandesCommentaireBO.setAgentId(commInterne.getAgentId());
                         demandesCommentaireBO.setDate(commInterne.getDate());
                         demandesCommentaireBO.setFkDemandes(demandeBO);
-                        demandesCommentaireRepository.save(demandesCommentaireBO);
+                        DemandesCommentaireBO savedCommentaire = demandesCommentaireRepository.save(
+                                demandesCommentaireBO);
+                        LOGGER.info("Commentaire ID {} sauvegardé en base",
+                                savedCommentaire.getPkDemandesCommentaire());
                     }
                 } else {
                     LOGGER.info("La demande avec l'ID {} n'existe pas, commentaires non sauvegardés.", demandeId);

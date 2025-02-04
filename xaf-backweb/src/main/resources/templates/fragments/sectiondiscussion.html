@@ -39,7 +39,7 @@
                              style="font-size: 0.8em; font-weight: bold; color: rgb(94, 97, 100);"></div>
                         <div style="font-weight: bold;"
                              th:if="comm.agentId != null"
-                             th:text="${AfBackUtils.getUserNameFromID(comm.agentId)}"></div>
+                             th:utext="${AfBackUtils.getUserNameFromID(comm.agentId)}"></div>
                         <div th:unless="comm.agentId != null"
                              style="font-weight: bold; color: red;">Erreur dans
                           la récupération des informations du commentaire...

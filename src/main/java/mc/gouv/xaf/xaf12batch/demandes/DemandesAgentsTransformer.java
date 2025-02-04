@@ -1,4 +1,4 @@
-package mc.gouv.xaf.xaf12batch;
+package mc.gouv.xaf.xaf12batch.demandes;
 
 import mc.gouv.xaf.xaf12batch.dto.DemandesAgentsBO;
 import mc.gouv.xaf.xaf12batch.logon.dto.User;

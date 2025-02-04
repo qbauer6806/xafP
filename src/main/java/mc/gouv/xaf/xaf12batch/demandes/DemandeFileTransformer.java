@@ -1,4 +1,4 @@
-package mc.gouv.xaf.xaf12batch;
+package mc.gouv.xaf.xaf12batch.demandes;
 
 import java.io.IOException;
 import java.io.InputStream;

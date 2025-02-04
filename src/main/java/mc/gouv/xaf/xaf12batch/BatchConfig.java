@@ -1,6 +1,9 @@
 package mc.gouv.xaf.xaf12batch;
 
 import jakarta.persistence.EntityManagerFactory;
+import mc.gouv.xaf.xaf12batch.demandes.DemandeFileTransformer;
+import mc.gouv.xaf.xaf12batch.demandes.DemandeTransformer;
+import mc.gouv.xaf.xaf12batch.demandes.DemandesAgentsTransformer;
 import mc.gouv.xaf.xaf12batch.dto.DemandeBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesAgentsBO;
 import mc.gouv.xaf.xaf12batch.dto.DemandesComplementsFilesBO;

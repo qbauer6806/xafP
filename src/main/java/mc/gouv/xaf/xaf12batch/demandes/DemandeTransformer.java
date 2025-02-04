@@ -1,4 +1,4 @@
-package mc.gouv.xaf.xaf12batch;
+package mc.gouv.xaf.xaf12batch.demandes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

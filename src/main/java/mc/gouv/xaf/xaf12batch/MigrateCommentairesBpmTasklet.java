@@ -1,8 +1,10 @@
 package mc.gouv.xaf.xaf12batch;
 
+import java.util.List;
 import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireBO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireRepository;
+import mc.gouv.xaf.xaf12batch.demandes.DemandesRepository;
 import mc.gouv.xaf.xaf12batch.dto.DemandeBO;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
@@ -16,8 +18,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class MigrateCommentairesBpmTasklet implements Tasklet {
 
@@ -30,6 +30,9 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
     private TaskService taskService;
 
     @Autowired
+    private DemandesRepository demandesRepository;
+
+    @Autowired
     private DemandesCommentaireRepository demandesCommentaireRepository;
 
     @Override
@@ -40,14 +43,14 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
             Integer demandeId = Integer.parseInt(
                     runtimeService.createProcessInstanceQuery().processInstanceId(t.getProcessInstanceId())
                             .singleResult().getBusinessKey());
-            DemandeBO demandeBO = new DemandeBO();
-            demandeBO.setPkDemandes(demandeId);
-            if (demandesCommentaireRepository.existsByFkDemandes(demandeBO)) {
+            if (demandesRepository.existsById(demandeId)) {
                 LOGGER.info("Récupération des commentaires liés à la demande {} ...", demandeId);
                 List<CommentaireInterneDTO> commInternes;
                 commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(t.getProcessInstanceId(),
                         "MC_COMMINTERNES");
                 if (commInternes != null && !commInternes.isEmpty()) {
+                    DemandeBO demandeBO = new DemandeBO();
+                    demandeBO.setPkDemandes(demandeId);
                     // on migre les données
                     for (CommentaireInterneDTO commInterne : commInternes) {
                         DemandesCommentaireBO demandesCommentaireBO = new DemandesCommentaireBO();
@@ -61,8 +64,6 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                                 savedCommentaire.getPkDemandesCommentaire());
                     }
                 }
-            } else {
-                LOGGER.info("La demande avec l'ID {} n'existe pas, commentaires non sauvegardés.", demandeId);
             }
             runtimeService.removeVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");
         }

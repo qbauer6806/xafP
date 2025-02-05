@@ -20,5 +20,10 @@ public class NomenNomenclatureLienDTO {
 	private String lienCode;
 	
 	private String lienDescription;
+
+	@Override
+	public String toString() {
+		return "NomenNomenclatureLienDTO [lienCode=" + lienCode + ", lienDescription=" + lienDescription + "]";
+	}
 	
 }

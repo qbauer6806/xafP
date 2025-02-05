@@ -37,5 +37,12 @@ public class NomenValeurDTO {
 	private List<NomenValeurValeurLienDTO> valeurLiens;
 	
 	private List<NomenValeurValeurParametreDTO> valeurParametres;
+
+	@Override
+	public String toString() {
+		return "NomenValeurDTO [code=" + code + ", etat=" + etat + ", dateDebut=" + dateDebut + ", dateFin=" + dateFin
+				+ ", libelleCourt=" + libelleCourt + ", libelleLong=" + libelleLong + ", ordre=" + ordre
+				+ ", valeurLiens=" + valeurLiens + ", valeurParametres=" + valeurParametres + "]";
+	}
 	
 }

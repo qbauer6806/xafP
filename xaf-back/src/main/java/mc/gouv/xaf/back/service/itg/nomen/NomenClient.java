@@ -1,10 +1,5 @@
 package mc.gouv.xaf.back.service.itg.nomen;
 
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -22,6 +17,8 @@ import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
 public class NomenClient extends ApiClient {
 	
 	public static final String SMS_PATH = "nomenclatures";
+	
+	public static final String VALEUR_PATH = "/valeurs";
 
     /**
      * Crée une instance du client avec sécurisation JWT
@@ -32,12 +29,11 @@ public class NomenClient extends ApiClient {
      *            JWT à utiliser pour l'authentification
      */
     public NomenClient(String serviceUrl, String jwtToken) {
-        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken),
-                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken));
     }
 
     public NomenNomenclatureDTO getNomenclature(String identifiant) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + "/valeurs")
+        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
@@ -47,7 +43,7 @@ public class NomenClient extends ApiClient {
     }
     
     public NomenNomenclatureDTO getNomenclatureAvecLocale(String identifiant, String locale) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + "/valeurs")
+        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH)
         		.queryParam("valeurLangue", locale)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
@@ -58,7 +54,7 @@ public class NomenClient extends ApiClient {
     }
     
     public NomenNomenclatureDTO getNomenclatureValeur(String identifiant, String valeur) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + "/valeurs")
+        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH)
         		.queryParam("valeurCode", valeur)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
@@ -69,7 +65,7 @@ public class NomenClient extends ApiClient {
     }
     
     public NomenNomenclatureDTO getNomenclatureValeurAvecLocale(String identifiant, String valeur, String locale) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + "/valeurs")
+        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH)
         		.queryParam("valeurCode", valeur)
         		.queryParam("valeurLangue", locale)
                 .request(MediaType.APPLICATION_JSON)

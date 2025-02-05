@@ -27,4 +27,11 @@ public class NomenNomenclatureParametreDTO {
 	
 	private String parametreFormat;
 
+	@Override
+	public String toString() {
+		return "NomenNomenclatureParametreDTO [parametreNom=" + parametreNom + ", parametreType=" + parametreType
+				+ ", parametreObligatoire=" + parametreObligatoire + ", parametreLongueur=" + parametreLongueur
+				+ ", parametreFormat=" + parametreFormat + "]";
+	}
+
 }

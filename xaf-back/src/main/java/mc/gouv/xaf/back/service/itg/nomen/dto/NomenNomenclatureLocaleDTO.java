@@ -21,4 +21,9 @@ public class NomenNomenclatureLocaleDTO {
 	
 	private String localeLibelle;
 
+	@Override
+	public String toString() {
+		return "NomenNomenclatureLocaleDTO [localeCode=" + localeCode + ", localeLibelle=" + localeLibelle + "]";
+	}
+
 }

@@ -51,5 +51,15 @@ public class NomenNomenclatureDTO {
 	private List<NomenNomenclatureParametreDTO> nomenclatureParametres;
 	
 	private List<NomenValeurDTO> valeurs;
+
+	@Override
+	public String toString() {
+		return "NomenNomenclatureDTO [code=" + code + ", type=" + type + ", categorie=" + categorie + ", etat=" + etat
+				+ ", dateFin=" + dateFin + ", version=" + version + ", versionDate=" + versionDate + ", source="
+				+ source + ", serviceResponsableCode=" + serviceResponsableCode + ", titre=" + titre + ", description="
+				+ description + ", remarques=" + remarques + ", nomenclatureLiens=" + nomenclatureLiens
+				+ ", nomenclatureLocales=" + nomenclatureLocales + ", nomenclatureParametres=" + nomenclatureParametres
+				+ ", valeurs=" + valeurs + "]";
+	}
 	
 }

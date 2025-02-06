@@ -217,16 +217,6 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesFilterFiles(Integer usagerId);
 
-    /**
-     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
-     *
-     * @param dernierStatutDateDebut
-     *         : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
-     * @param dernierStatutList
-     * @return
-     */
-    List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux);
 
     List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
             List<String> canaux);
@@ -245,12 +235,8 @@ public interface DemandesService {
     List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
             List<String> dernierStatutList);
 
-    List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList);
-
-    void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
-            throws JsonProcessingException;
-
     List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut);
+
+    void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 
 }

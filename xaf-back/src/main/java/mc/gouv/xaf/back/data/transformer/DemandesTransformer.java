@@ -227,6 +227,8 @@ public class DemandesTransformer {
             dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<>(bo.getData())).toArray(DemandeDataDTO[]::new));
         }
 
+        dto.setContenuInitial(bo.getContenuInitial());
+
         dto = bo2DtoProcessJsonFields(bo, dto);
         return dto;
     }
@@ -243,11 +245,6 @@ public class DemandesTransformer {
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            // Mapper le contenu de la demande préremplie
-            if (bo.getContenuInitial() != null) {
-                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
-            }
-
             // Meta
             if (bo.getMeta() != null) {
                 dto.setMeta(mapper.readTree(bo.getMeta()));
@@ -319,15 +316,10 @@ public class DemandesTransformer {
         }
         bo.setContenu(dto.getContenu());
         bo.setContenuTrad(dto.getContenuTrad());
+        bo.setContenuInitial(dto.getContenuInitial());
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-
-            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
-            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
-                bo.setContenuInitial(null);
-            }
             bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);

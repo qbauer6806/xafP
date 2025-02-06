@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -269,7 +268,8 @@ public class DemandesServiceImpl implements DemandesService {
         return demandeDTO;
     }
 
-    private void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
+    @Override
+    public void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
         JsonNode mappings = config.get("mappings");
         List<JsonNode> champsNodes = config.get("recap").findValues("champs");
         for (JsonNode champs : champsNodes) {
@@ -713,16 +713,7 @@ public class DemandesServiceImpl implements DemandesService {
 
     private void setContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
         if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
-                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
-                    demandeBo.setContenuInitial(null);
-                }
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Problème lors de la conversion JSON", e);
-            }
+            demandeBo.setContenuInitial(demande.getContenuInitial());
         }
     }
 
@@ -988,17 +979,6 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux) {
-
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(
-                        dernierStatutDateDebut, dernierStatutList, canaux));
-
-    }
-
-    @Override
     public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
             List<String> dernierStatutList) {
 
@@ -1015,24 +995,6 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
         return demandesRepository.findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(
                 dernierStatutDateDebut, dernierStatutList, canaux);
-    }
-
-    @Override
-    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList) {
-
-        LOGGER.info("Appel à DemandeService.getAllDemandeIdsForRelanceAvantPurge");
-        return demandesRepository.findPkDemandesByDernierStatut_DateBetweenAndDernierStatut_NameIn(
-                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList);
-    }
-
-    @Override
-    public void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
-            throws JsonProcessingException {
-        for (Integer demandeId : demandeIdList) {
-            this.deleteDemandeInGivenStatus(demandeId, statuts, jours);
-        }
-
     }
 
     @Override

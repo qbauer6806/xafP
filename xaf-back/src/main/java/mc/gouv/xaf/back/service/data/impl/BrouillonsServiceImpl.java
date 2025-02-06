@@ -204,9 +204,11 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
+        brouillonBo.setContenu(brouillon.getContenu());
+
         ObjectMapper mapper = new ObjectMapper();
         try {
-            brouillonBo.setContenu(mapper.writeValueAsString(brouillon.getContenu()));
+
             if (brouillon.getMeta() != null) {
                 brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
             }

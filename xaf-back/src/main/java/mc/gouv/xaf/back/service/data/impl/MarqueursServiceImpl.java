@@ -206,9 +206,10 @@ public class MarqueursServiceImpl implements MarqueursService {
     }
 
     private void setMarqueursOptions(MarqueurDTO marqueurDTO, JsonNode champ, JsonNode mappings) {
-        // si choix ou choixMutiple on sauvegarde les valeurs possibles dans options
-        if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && !champ.get(
-                "isDynamic").asBoolean()) {
+        // si choix ou choixMultiple on sauvegarde les valeurs possibles dans options
+        JsonNode isDynamic = champ.get("isDynamic");
+        if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && (
+                isDynamic == null || !isDynamic.asBoolean())) {
             marqueurDTO.setOptions(
                     mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
         }

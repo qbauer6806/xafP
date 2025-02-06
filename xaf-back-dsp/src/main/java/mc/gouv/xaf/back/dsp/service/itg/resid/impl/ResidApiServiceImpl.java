@@ -52,6 +52,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -238,15 +240,17 @@ public class ResidApiServiceImpl implements ResidApiService {
             Map<Integer, DemandeFileDTO> files, String residUrl, final String entryPoint, String jwt)
             throws IOException {
 
-        MultiValueMap<String, Object> parts = createMultiparts(residObject, files);
+        MultiValueMap<String, Object> parts = this.createMultiparts(residObject, files);
         HttpHeaders headers = getResidMultipartRequestHeaders(jwt);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
 
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler())
+                .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
+                .build();
         rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         String requestUrl = residUrl + entryPoint;
-        URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
 
         ObjectMapper mapper = new ObjectMapper();
         LOGGER.debug("-- Appel RESID submit nouvelle carte");
@@ -277,19 +281,8 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.info("Ajout des fichiers");
 
         for (Map.Entry<Integer, DemandeFileDTO> entry : files.entrySet()) {
-            String filePathEncoded = URLEncoder.encode(entry.getValue().getUrl(), StandardCharsets.UTF_8);
-            InputStream isf = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
-
             HttpHeaders requestHeadersAttachment = new HttpHeaders();
-            ByteArrayResource fileAsResource = new ByteArrayResource(IOUtils.toByteArray(isf)) {
-
-                @Override
-                public String getFilename() {
-                    // Format index-filename pour éviter les doublons de noms
-                    // ex. 1-Toto.txt
-                    return FileUtils.formatFilenameResid(entry.getValue().getName(), entry.getKey());
-                }
-            };
+            ByteArrayResource fileAsResource = this.getByteArrayResource(entry);
             HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
             parts.add("files", attachmentPart);
         }
@@ -297,6 +290,19 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.debug("Multiparts\n{}", parts);
 
         return parts;
+    }
+
+    private ByteArrayResource getByteArrayResource(Map.Entry<Integer, DemandeFileDTO> entry) throws IOException {
+        String filePathEncoded = URLEncoder.encode(entry.getValue().getUrl(), StandardCharsets.UTF_8);
+        InputStream isf = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
+        return new ByteArrayResource(IOUtils.toByteArray(isf)) {
+            @Override
+            public String getFilename() {
+                // Format index-filename pour éviter les doublons de noms
+                // ex. 1-Toto.txt
+                return FileUtils.formatFilenameResid(entry.getValue().getName(), entry.getKey());
+            }
+        };
     }
 
     private HttpHeaders getResidMultipartRequestHeaders(String jwt) {
@@ -342,7 +348,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
         String requestUrl = url + RESID_ETATS_DEMANDES_BY_ID_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(requestUrl);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
 
         // Construction de la requête
         ObjectMapper mapper = new ObjectMapper();
@@ -380,7 +386,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
         String requestUrl = url + RESID_ETATS_DEMANDES_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(requestUrl);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
         try {
             builder.queryParam("updatedAfter", URLEncoder.encode(updatedAfter, StandardCharsets.UTF_8));
         } catch (Exception e) {
@@ -423,7 +429,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         HttpHeaders headers = getResidRequestHeaders(jwt);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH)
                 .queryParam("numeroCarte", numeroCarte);
 
         URI uri = builder.build().encode().toUri();
@@ -455,7 +461,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         HttpHeaders headers = getResidRequestHeaders(jwt);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)
                 .queryParam("nom", paramDTO.getNom()).queryParam("prenoms", paramDTO.getPrenom())
                 .queryParam("dateNaissance", convertMConnectDateToResidDate(paramDTO.getDateNaissance()))
                 .queryParam("heureNaissance", convertMConnectDateToResidHourMinute(paramDTO.getDateNaissance()))

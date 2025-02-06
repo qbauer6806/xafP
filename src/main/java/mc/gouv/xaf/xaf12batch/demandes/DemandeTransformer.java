@@ -204,100 +204,109 @@ public class DemandeTransformer {
     }
 
     public void changeChoixAdditionnel(JsonNode node) {
-        if (node.isObject()) {
-            ObjectNode objectNode = (ObjectNode) node;
-            for (Iterator<Map.Entry<String, JsonNode>> it = objectNode.fields(); it.hasNext(); ) {
-                Map.Entry<String, JsonNode> entry = it.next();
-                JsonNode valueNode = entry.getValue();
-                if (valueNode.isObject() && valueNode.has("valeur") && valueNode.has("valeurExtra")) {
-                    String valeur = valueNode.path("valeur").asText();
-                    String valeurExtra = valueNode.path("valeurExtra")
-                            .asText(null); // returns null if field not present
-                    String finalValue = (valeurExtra != null && !valeurExtra.isEmpty()) ? valeurExtra : valeur;
+        if (node != null) {
+            if (node.isObject()) {
+                ObjectNode objectNode = (ObjectNode) node;
+                for (Iterator<Map.Entry<String, JsonNode>> it = objectNode.fields(); it.hasNext(); ) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    JsonNode valueNode = entry.getValue();
+                    if (valueNode.isObject() && valueNode.has("valeur") && valueNode.has("valeurExtra")) {
+                        String valeur = valueNode.path("valeur").asText();
+                        String valeurExtra = valueNode.path("valeurExtra")
+                                .asText(null); // returns null if field not present
+                        String finalValue = (valeurExtra != null && !valeurExtra.isEmpty()) ? valeurExtra : valeur;
 
-                    // Replace the original object node with the resolved value
-                    it.remove();
-                    objectNode.put(entry.getKey(), finalValue);
-                } else {
-                    // Process children nodes
-                    changeChoixAdditionnel(valueNode);
+                        // Replace the original object node with the resolved value
+                        it.remove();
+                        objectNode.put(entry.getKey(), finalValue);
+                    } else {
+                        // Process children nodes
+                        changeChoixAdditionnel(valueNode);
+                    }
+                }
+            } else if (node.isArray()) {
+                for (JsonNode arrayNode : node) {
+                    changeChoixAdditionnel(arrayNode);
                 }
             }
-        } else if (node.isArray()) {
-            for (JsonNode arrayNode : node) {
-                changeChoixAdditionnel(arrayNode);
-            }
         }
+
     }
 
     public void changeChoixMultiple(JsonNode config, JsonNode contenu) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<JsonNode> champsNodes = config.get("recap").findValues("champs");
-        for (JsonNode champs : champsNodes) {
-            for (JsonNode champ : champs) {
-                JsonNode type = champ.get("type");
-                if ("choixMultiple".equals(type.asText())) {
-                    ArrayNode arrayNodeValues = objectMapper.createArrayNode();
-                    JsonNode mappingValues = champ.get("mappingValues");
-                    String path = champ.get("path").asText();
-                    JsonNode node = getNodeFromPath(contenu, path);
-                    // si c'est une array ça veut dire que le format a déjà changé
-                    if (node != null && !node.isNull() && !node.isArray()) {
-                        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-                        while (fields.hasNext()) {
-                            Map.Entry<String, JsonNode> field = fields.next();
-                            String key = field.getKey();
-                            JsonNode value = field.getValue();
-                            // on regarde d'abord que la valeur est bien un boolean et true
-                            if (value.isBoolean() && value.asBoolean()) {
-                                // chercher la key camelCase dans le champ
-                                for (JsonNode mapppingValue : mappingValues) {
-                                    if (mapppingValue.get("camelKey").asText().equals(key)) {
-                                        arrayNodeValues.add(mapppingValue.get("key").asText());
-                                        break;
+        if (contenu != null) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<JsonNode> champsNodes = config.get("recap").findValues("champs");
+            for (JsonNode champs : champsNodes) {
+                for (JsonNode champ : champs) {
+                    JsonNode type = champ.get("type");
+                    if ("choixMultiple".equals(type.asText())) {
+                        ArrayNode arrayNodeValues = objectMapper.createArrayNode();
+                        JsonNode mappingValues = champ.get("mappingValues");
+                        String path = champ.get("path").asText();
+                        JsonNode node = getNodeFromPath(contenu, path);
+                        // si c'est une array ça veut dire que le format a déjà changé
+                        if (node != null && !node.isNull() && !node.isArray()) {
+                            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+                            while (fields.hasNext()) {
+                                Map.Entry<String, JsonNode> field = fields.next();
+                                String key = field.getKey();
+                                JsonNode value = field.getValue();
+                                // on regarde d'abord que la valeur est bien un boolean et true
+                                if (value.isBoolean() && value.asBoolean()) {
+                                    // chercher la key camelCase dans le champ
+                                    for (JsonNode mapppingValue : mappingValues) {
+                                        if (mapppingValue.get("camelKey").asText().equals(key)) {
+                                            arrayNodeValues.add(mapppingValue.get("key").asText());
+                                            break;
+                                        }
                                     }
+                                } else if (value.isTextual()) {
+                                    // c'est un champ custom autre donc on met le libellé
+                                    arrayNodeValues.add(value.asText());
                                 }
-                            } else if (value.isTextual()) {
-                                // c'est un champ custom autre donc on met le libellé
-                                arrayNodeValues.add(value.asText());
                             }
+                            // on remplace l'ancien noeud choixMultiple du contenu par la liste de string
+                            int lastDotIndex = path.lastIndexOf('.');
+                            String rootPath = path.substring(0, lastDotIndex);
+                            String nodeName = path.substring(lastDotIndex + 1);
+                            JsonNode rootNode = getNodeFromPath(contenu, rootPath);
+                            // Remplacer le noeud existant avec le nouveau ArrayNode
+                            ((ObjectNode) rootNode).set(nodeName, arrayNodeValues);
                         }
-                        // on remplace l'ancien noeud choixMultiple du contenu par la liste de string
-                        int lastDotIndex = path.lastIndexOf('.');
-                        String rootPath = path.substring(0, lastDotIndex);
-                        String nodeName = path.substring(lastDotIndex + 1);
-                        JsonNode rootNode = getNodeFromPath(contenu, rootPath);
-                        // Remplacer le noeud existant avec le nouveau ArrayNode
-                        ((ObjectNode) rootNode).set(nodeName, arrayNodeValues);
                     }
                 }
             }
         }
+
     }
 
     public void changeTableauComplexe(JsonNode config, JsonNode contenu) {
-        List<JsonNode> tableauxNodes = new ArrayList<>();
-        extractTableauNodes(config.get("recap"), tableauxNodes);
-        for (JsonNode tableau : tableauxNodes) {
-            String rootPath = tableau.get("path").asText();
-            JsonNode array = getNodeFromPath(contenu, rootPath);
-            for (JsonNode champ : tableau.get("columns")) {
-                JsonNode type = champ.get("type");
-                // si c'est un type complexe on fait la transformation
-                if (type != null) {
-                    String key = champ.get("path").asText();
-                    if (type.asText().equals("adresse")) {
-                        setComplexElements(new String[] { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal" },
-                                key, array);
-                    } else if (type.asText().equals("adresseMc")) {
-                        setComplexElements(new String[] { "ligne1", "ligne2", "ligne3" }, key, array);
-                    } else if (type.asText().equals("telephone")) {
-                        setComplexElements(new String[]{"indicatif", "numero"}, key, array);
-                    } else if (type.asText().equals("iban")) {
-                        setComplexElements(new String[]{"iban", "bic"}, key, array);
+        if (contenu != null) {
+            List<JsonNode> tableauxNodes = new ArrayList<>();
+            extractTableauNodes(config.get("recap"), tableauxNodes);
+            for (JsonNode tableau : tableauxNodes) {
+                String rootPath = tableau.get("path").asText();
+                JsonNode array = getNodeFromPath(contenu, rootPath);
+                for (JsonNode champ : tableau.get("columns")) {
+                    JsonNode type = champ.get("type");
+                    // si c'est un type complexe on fait la transformation
+                    if (type != null) {
+                        String key = champ.get("path").asText();
+                        if (type.asText().equals("adresse")) {
+                            setComplexElements(
+                                    new String[] { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal" }, key,
+                                    array);
+                        } else if (type.asText().equals("adresseMc")) {
+                            setComplexElements(new String[] { "ligne1", "ligne2", "ligne3" }, key, array);
+                        } else if (type.asText().equals("telephone")) {
+                            setComplexElements(new String[] { "indicatif", "numero" }, key, array);
+                        } else if (type.asText().equals("iban")) {
+                            setComplexElements(new String[] { "iban", "bic" }, key, array);
+                        }
                     }
-                }
 
+                }
             }
         }
     }

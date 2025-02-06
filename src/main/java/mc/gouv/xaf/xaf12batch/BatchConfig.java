@@ -1,5 +1,6 @@
 package mc.gouv.xaf.xaf12batch;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManagerFactory;
 import mc.gouv.xaf.xaf12batch.demandes.DemandeFileTransformer;
 import mc.gouv.xaf.xaf12batch.demandes.DemandeTransformer;
@@ -163,17 +164,25 @@ public class BatchConfig {
         return demande -> {
             LOGGER.info("Traitement de la demande ID {}", demande.getPkDemandes());
             if (demande.getConfig() != null) {
+                JsonNode config = demande.getConfig().getContenu();
+                JsonNode contenu = demande.getContenu();
+                JsonNode contenuTrad = demande.getContenuTrad();
+                JsonNode contenuInitial =
+                        demande.getContenuInitial() != null ? demande.getContenuInitial().get("contenu") : null;
                 // changer les valeur/valeurExtra
-                demandeTransformer.changeChoixAdditionnel(demande.getContenu());
-                demandeTransformer.changeChoixAdditionnel(demande.getContenuTrad());
+                demandeTransformer.changeChoixAdditionnel(contenu);
+                demandeTransformer.changeChoixAdditionnel(contenuTrad);
+                demandeTransformer.changeChoixAdditionnel(contenuInitial);
                 // changer les choix multiple avec le nouveau format
-                demandeTransformer.changeChoixMultiple(demande.getConfig().getContenu(), demande.getContenu());
-                demandeTransformer.changeChoixMultiple(demande.getConfig().getContenu(), demande.getContenuTrad());
+                demandeTransformer.changeChoixMultiple(config, contenu);
+                demandeTransformer.changeChoixMultiple(config, contenuTrad);
+                demandeTransformer.changeChoixMultiple(config, contenuInitial);
                 // changer les types complexes dans les tableaux
-                demandeTransformer.changeTableauComplexe(demande.getConfig().getContenu(), demande.getContenu());
-                demandeTransformer.changeTableauComplexe(demande.getConfig().getContenu(), demande.getContenuTrad());
+                demandeTransformer.changeTableauComplexe(config, contenu);
+                demandeTransformer.changeTableauComplexe(config, contenuTrad);
+                demandeTransformer.changeTableauComplexe(config, contenuInitial);
                 // transformer les clés qui sont dans contenuTrad en libellé
-                demandeTransformer.setContenuTrad(demande.getContenuTrad(), demande.getConfig().getContenu());
+                demandeTransformer.setContenuTrad(contenuTrad, config);
             }
             return demande;
         };

@@ -7,7 +7,7 @@ public enum ResidLoyerPeriodiciteEnum {
     TRIMESTRIEL("TRIMESTRIEL"),
     SEMESTRIEL("SEMESTRIEL"),
     ANNUEL("ANNUEL"),
-    AUCUN("AUCUN");
+    AUCUNE("AUCUNE");
 
     String value;
 

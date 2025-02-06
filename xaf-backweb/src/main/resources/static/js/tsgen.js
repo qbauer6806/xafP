@@ -159,3 +159,53 @@ $.ajaxSetup({
     }
   }
 });
+
+/**
+ * Permet d'ajouter un commentaire à la discussion sans recharger toute la demande
+ * @param $this L'objet jQuery du formulaire
+ */
+function ajouterCommentaireDiscussion($this) {
+  console.log("toto");
+  const commentaire = $('#com-interne-input');
+  if (!commentaire.val()) {
+    $.notify({
+      message: "Veuillez renseigner un commentaire."
+    }, {
+      type: 'danger'
+    });
+    return false;
+  }
+  $('#envoyer-commentaire-button').addClass("loading");
+  // Envoi de la requête HTTP en mode asynchrone
+  $.ajax({
+    dataType: "json",
+    url: $this.attr('action'), // Le nom du fichier indiqué dans le formulaire
+    type: $this.attr('method'), // La méthode indiquée dans le formulaire (get ou post)
+    data: $this.serialize(), // On sérialise les données (on envoie toutes les valeurs présentes dans le formulaire)
+    success: function (json) { // On récupère la réponse du fichier PHP
+      //json retourné {"agentId":"19723","date":"2017-05-03T17:24:41+0200","commentaire":"salut 3"}
+      //On récupère le commentaire sauvegardé pour pouvoir l'afficher.
+      const contentMsg = '<div class="row"><div class="col-xs-12" style="background-color: #ffffff;line-height:1em"><div style="font-size:0.8em;font-weight:bold;color: rgb(94,97,100);">'
+          + moment(json.date).format("DD/MM/YYYY HH:mm:ss")
+          + '</div><div style="font-weight: bold;">' + utilisateurConnecte
+          + '</div><div style="margin: 5px 0 8px 0 ;">' + filterXSS(
+              json.commentaire) + '</div></div>'
+
+      $("#commentairesInternes").append(contentMsg)
+
+      //Scroll en bas pour voir le nouveau commentaire
+      scrollCommentairesToBottom();
+      //Remise à 0 du commentaire
+      commentaire.val("");
+      $('#envoyer-commentaire-button').removeClass("loading");
+    },
+    error: function () {
+      $.notify({
+        message: "Un problème est survenu lors de la publication du commentaire."
+      }, {
+        type: 'danger'
+      });
+      $('#envoyer-commentaire-button').removeClass("loading");
+    }
+  });
+}

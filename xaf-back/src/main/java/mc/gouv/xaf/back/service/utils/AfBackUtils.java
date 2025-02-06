@@ -224,18 +224,6 @@ public class AfBackUtils {
         return null;
     }
 
-    public static String getAuthenticatedAgentName() {
-        if (SecurityContextHolder.getContext() != null
-                && SecurityContextHolder.getContext().getAuthentication() != null) {
-            Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (o instanceof User user) {
-                return user.getNom();
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Retourne le code alpha2 de la nationalitée en fonction du code alpha3 donné en paramètre
      *

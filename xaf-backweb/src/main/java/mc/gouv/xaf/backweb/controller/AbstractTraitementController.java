@@ -290,6 +290,8 @@ public class AbstractTraitementController extends AbstractController {
             xafTraitementFormBean.setTexteDemandeRectification(motif.getCommentairePrerempli());
         }
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);
+        mav.addObject("isDiscussionPanelDisplayed",
+                !demarchesDataProvider.getPremierStatutCreationDemande().equals(demande.getDernierStatut().getName()));
         return mav;
     }
 

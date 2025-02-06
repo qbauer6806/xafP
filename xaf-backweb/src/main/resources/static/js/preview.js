@@ -55,14 +55,6 @@ var makePdfPreviewCall = function (form, pdfType, successCallback) {
   });
 };
 
-var generateURI = function (form, pdfType) {
-  return APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + form.pkDemande
-      + '&statut=' + form.statutChoisi + '&texteAEnvoyer='
-      + encodeURIComponent(form.texteAEnvoyer) + '&commentaire='
-      + encodeURIComponent(form.commentaire) + '&codeMotif='
-      + form.motifChoisiCode + '&pdfType=' + pdfType;
-};
-
 var openMailModal = function (containerId, canvasId, contentId, data) {
   $(contentId).html(data);
   $(containerId).modal();

@@ -97,7 +97,7 @@ public class AfTemplateModelProvider {
 
             setAgent(model, bpmVariables);
 
-            model.put("marqueurs", demande.getMarqueurs());
+            model.put("marqueurs", demande.getMarqueursTrad());
         }
         model.putAll(getGenericModel());
 

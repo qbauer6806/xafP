@@ -2,6 +2,7 @@ package mc.gouv.xaf.shared.enums;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public interface XafDemandeStatus {
     }
 
     static <T extends Enum<T> & XafDemandeStatus> Map<String, String> getMap(Class<T> statutClass) {
-        Map<String, String> statuts = new HashMap<>();
+        Map<String, String> statuts = new LinkedHashMap<>();
         for (T statut : statutClass.getEnumConstants()) {
             statuts.put(statut.name(), statut.getLibelle());
         }

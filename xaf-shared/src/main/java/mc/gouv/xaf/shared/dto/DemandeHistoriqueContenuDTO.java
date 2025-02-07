@@ -22,7 +22,10 @@ public class DemandeHistoriqueContenuDTO {
     private String html;
 
     public DemandeHistoriqueContenuDTO(String name, String role, String action, String statutName) {
-        StringBuilder htmlBuilder = new StringBuilder("<span class='histo-user'>").append(role);
+        StringBuilder htmlBuilder = new StringBuilder("<span class='histo-user'>");
+        if (StringUtils.isNotBlank(role)) {
+            htmlBuilder.append(role);
+        }
         if (StringUtils.isNotBlank(name)) {
             htmlBuilder.append(' ').append(name);
         }

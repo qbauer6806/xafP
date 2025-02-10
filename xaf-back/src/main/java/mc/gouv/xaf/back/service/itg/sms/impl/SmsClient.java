@@ -1,10 +1,5 @@
 package mc.gouv.xaf.back.service.itg.sms.impl;
 
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -32,8 +27,7 @@ public class SmsClient extends ApiClient {
      *            JWT à utiliser pour l'authentification
      */
     public SmsClient(String serviceUrl, String jwtToken) {
-        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken),
-                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken));
     }
 
     public SmsDTO sendSms(SmsDTO sms) {

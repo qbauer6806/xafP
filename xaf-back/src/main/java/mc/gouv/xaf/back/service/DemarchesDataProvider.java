@@ -28,7 +28,9 @@ public interface DemarchesDataProvider {
 
     String getDemandeur(DemandeDTO contenuDemandeDTO);
     
-    String getUsagerTelephone(GichuniUsagerDTO usager);
+    default String getUsagerTelephone(GichuniUsagerDTO usager) {
+    	return null;
+    }
 
     /**
      * @return TSCODEDemandeStatutEnum.getMap();
@@ -218,5 +220,15 @@ public interface DemarchesDataProvider {
     default String getCodeMotifDemandeRectification(){
         return null;
     }
+
+    /**
+     * Permet d'indiquer si la démarche permet l'envoi de SMS et donc d'afficher le menu
+     * de paramétrage des templates de SMS ou non
+     * 
+     * @return
+     */
+	default boolean getDemarcheCanSendSms() {
+		return false;
+	}
 
 }

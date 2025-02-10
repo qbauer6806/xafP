@@ -123,10 +123,10 @@ public class SmsServiceImpl implements SmsService {
 	        smsEnvoye = smsClient.sendSms(sms);
         }
         else {
-        	LOGGER.info("Envoi d'SMS désactivé. Log des informations de SMS pour débug : " + sms);
+        	LOGGER.info("Envoi d'SMS désactivé. Log des informations de SMS pour débug : {}", sms);
         	smsEnvoye = new SmsDTO();
         	smsEnvoye.setIdentifiant("TEST");
-        	smsEnvoye.setParams(new ArrayList<SmsParamDTO>());
+        	smsEnvoye.setParams(new ArrayList<>());
         	smsEnvoye.setSender("");
         	smsEnvoye.setStatusLibel(AfBackUtils.SMS_ENVOYE_STATUT);
         	smsEnvoye.setText(sms.getText());

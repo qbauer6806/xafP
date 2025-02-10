@@ -642,6 +642,15 @@ public class AfBackUtils {
     public boolean getDemarcheCanHandleProperties() {
         return demarchesDataProvider.getDemarcheCanHandleProperties();
     }
+    
+    /**
+     * Permet de savoir si la démarche envoie des SMS ou non
+     *
+     * @return
+     */
+    public boolean getDemarcheCanSendSms() {
+        return demarchesDataProvider.getDemarcheCanSendSms();
+    }
 
     /**
      * Permet de parser une string en un objet Date au format déclaré dans AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT

@@ -190,7 +190,7 @@
               Modèles de courriels
             </a>
           </li>
-          <li>
+          <li th:if="${AfBackUtils.getDemarcheCanSendSms()}">
             <a id="menuGestionSmsTemplate" th:href="@{/gestion/smstemplate}">
               <div class="whiteBullet"></div>
               Modèles de SMS

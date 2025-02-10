@@ -196,6 +196,15 @@ public interface DemandesService {
     List<DemandeDTO> getAllDemandesFilteredByStatut(String statut);
 
     /**
+     * Récupère les demandes qui ont pour dernier statut ceux en paramètres
+     *
+     * @param statuts
+     *         les statuts à filtrer
+     * @return une liste de demandes ayant les mêmes statuts.
+     */
+    List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts);
+
+    /**
      * Récupère les demandes qui sont passées en dernier statut à partir d'une date donnée et pour le statut donné
      *
      * @param statut

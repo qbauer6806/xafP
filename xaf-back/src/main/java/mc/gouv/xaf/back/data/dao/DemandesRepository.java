@@ -38,6 +38,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByIdentifiantIn(List<String> identifiants);
 
     List<DemandeBO> findAllByDernierStatut_Name(String dernierStatut);
+    List<DemandeBO> findAllByDernierStatut_NameIn(List<String> statuts);
 
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
 

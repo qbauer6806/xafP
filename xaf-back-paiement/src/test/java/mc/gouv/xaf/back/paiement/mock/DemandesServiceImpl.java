@@ -167,6 +167,10 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
         return List.of();
     }
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts) {
+        return List.of();
+    }
 
     @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {

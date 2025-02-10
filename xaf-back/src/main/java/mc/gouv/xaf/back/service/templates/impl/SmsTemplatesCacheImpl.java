@@ -12,7 +12,6 @@ import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
  *
  * @author qdeme
  */
-@Profile("gouv")
 @Component
 public class SmsTemplatesCacheImpl extends GouvMemoryCache<Integer, SmsTemplateDTO> implements SmsTemplatesCache {
 

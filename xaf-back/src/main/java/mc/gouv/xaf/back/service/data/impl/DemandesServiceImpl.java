@@ -17,6 +17,7 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
+import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
@@ -25,6 +26,7 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
@@ -59,6 +61,7 @@ import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -160,6 +163,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private RechercheDemandesUtils rechercheDemandesUtils;
+
+    @Autowired
+    private DemandesComplementsRepository demandesComplementsRepository;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -884,6 +890,15 @@ public class DemandesServiceImpl implements DemandesService {
         newDemandeBo = demandesRepository.save(newDemandeBo);
 
         LOGGER.info("Duplication terminée");
+
+        // On passe tous les demandes complements à repondue pour la demande dupliquée
+        // cf #66472 - [INCIDENT] [BO] erreur 500 sur demande d'info comp sur une demande annulée et dupliquée
+        for (DemandesComplementsBO compl : newDemandeBo.getDemandesComplements()) {
+            compl.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
+            demandesComplementsRepository.save(compl);
+            LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
+                    compl.getPkDemandesComplements(), pkDemande);
+        }
 
         return demandesTransformer.bo2Dto(newDemandeBo);
     }

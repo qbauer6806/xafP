@@ -13,53 +13,42 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
  *
  * @author qdeme
  */
+@Getter
 @Setter
 @ToString
 @NoArgsConstructor
 public class DemandeRechercheDTO {
 
-    @Getter
     private String texte;
 
-    @Getter
     private List<String> statuts;
 
-    @Getter
     private List<DemandeCanalEnum> canaux;
 
-    @Getter
     private String agentAffecteId;
 
-    @Getter
     private Integer usagerId;
 
-    @Getter
     private Date creationStartDate;
 
-    @Getter
     private Date creationEndDate;
 
     // Pour le moment on gère la recherhe pour une data
-    @Getter
     private DataRechercheDTO data;
 
-    @Getter
     private String identifiant;
 
-    @Getter
     private String[] searchFields;
 
-    @Getter
     private boolean aucunCanal;
 
-    @Getter
     private boolean aucunStatut;
 
-    @Getter
     private boolean aucunAgentAffecte;
 
-    @Getter
     private boolean checkTimestamp;
+
+    private boolean trad = true;
 
     public DemandeRechercheDTO(String texte, List<String> statuts, List<DemandeCanalEnum> canaux, String agentAffecteId,
             Integer usagerId, Date creationStartDate, Date creationEndDate, DataRechercheDTO data, String identifiant) {

@@ -11,6 +11,16 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
@@ -31,16 +41,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
-import java.lang.reflect.Field;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 
 @Service
 public class RechercheDemandesUtils extends RechercheUtils {
@@ -148,7 +148,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
         // Créer des prédicats pour la recherche avec facet cliqué
         if (searchFields != null && searchFields.length > 0 && texte != null && !texte.isEmpty()) {
             LOGGER.info("Recherche avancée - texte, facet : {}, {}", texte, searchFields[0]);
-            setFacetPredicates(searchFields[0], root, predicates, cb, texte);
+            setFacetPredicates(searchFields[0], root, predicates, cb, texte, demandeRecherche.isTrad());
         } else if (!StringUtils.isBlank(texte)) {
             LOGGER.info("Recherche avancée - texte: {}", texte);
             // Créer des prédicats pour la recherche textuelle (sans facet cliqué)
@@ -236,8 +236,24 @@ public class RechercheDemandesUtils extends RechercheUtils {
         DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
         if (dataRechercheDTO != null) {
             SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
-            predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), dataRechercheDTO.getValue()),
-                    cb.equal(demandesData.<String> get("key"), dataRechercheDTO.getKey())));
+            String value = dataRechercheDTO.getValue();
+            // vérifier c'est une array
+            if (isArrayString(value)) {
+                String[] tableau = value.substring(1, value.length() - 1).split(",");
+                // Pour gérer chaque élément du tableau :
+                List<Predicate> orPredicates = new ArrayList<>();
+                for (String element : tableau) {
+                    // Supprimer les espaces autour de l'élément pour éviter les erreurs
+                    element = element.trim();
+                    // Créer un prédicat LIKE pour chaque élément
+                    Predicate likePredicate = cb.like(demandesData.get("value"), "%" + element + "%");
+                    orPredicates.add(likePredicate);
+                }
+                predicates.add(cb.or(orPredicates.toArray(Predicate[]::new)));
+            } else {
+                predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), dataRechercheDTO.getValue()),
+                        cb.equal(demandesData.<String> get("key"), dataRechercheDTO.getKey())));
+            }
         }
 
         cq.where(predicates.toArray(Predicate[]::new));
@@ -245,19 +261,51 @@ public class RechercheDemandesUtils extends RechercheUtils {
         return root;
     }
 
+    private boolean isArrayString(String string) {
+        // Vérifie si la chaîne commence par '[' et se termine par ']'
+        return string != null && string.startsWith("[") && string.endsWith("]");
+    }
+
+
     private void setFacetPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates,
-            CriteriaBuilder cb, String texte) {
+            CriteriaBuilder cb, String texte, boolean trad) {
         // cas contenu de la demande
         if (searchField.startsWith(CONTENU)) {
             String[] jsonKeys = searchField.replace(CONTENU, "").split("\\.");
             List<Expression<?>> expressions = new ArrayList<>();
-            expressions.add(root.<String> get("contenuTrad"));
+            expressions.add(root.<String> get(trad ? "contenuTrad" : "contenu"));
             for (String jsonKey : jsonKeys) {
                 expressions.add(cb.literal(jsonKey));
             }
-            predicates.add(cb.equal(cb.upper(
-                            cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new))),
-                    texte.toUpperCase()));
+            // différencier recherche sur un choix multiple (via un texte sous forme de tableau), et une recherche simple
+            if (isArrayString(texte)) {
+                String[] tableau = texte.substring(1, texte.length() - 1).split(",");
+                List<Predicate> arrayPredicates = new ArrayList<>();
+
+                for (String element : tableau) {
+                    // Nettoyer l'élément (supprimer les espaces et guillemets inutiles)
+                    String cleanedElement = element.trim().replaceAll("^\"|\"$", "");
+
+                    // Créer un tableau JSONB valide pour l'élément
+                    String jsonbElement = "[\"" + cleanedElement + "\"]";
+
+                    // Extraire le tableau JSONB
+                    Expression<Object> jsonExtracted = cb.function("jsonb_extract_path", Object.class,
+                            expressions.toArray(Expression[]::new));
+
+                    // Vérifier si l'élément est présent dans le tableau JSONB
+                    Predicate containsPredicate = cb.isTrue(
+                            cb.function("jsonb_contains", Boolean.class, jsonExtracted, cb.literal(jsonbElement)));
+                    arrayPredicates.add(containsPredicate);
+                }
+
+                // Combiner les prédicats avec un OR pour vérifier si au moins un élément est présent
+                predicates.add(cb.or(arrayPredicates.toArray(new Predicate[0])));
+            } else {
+                predicates.add(cb.equal(cb.upper(
+                                cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new))),
+                        texte.toUpperCase()));
+            }
         } else if (searchField.startsWith("agent.")) {
             // cas agent
             Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);

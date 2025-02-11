@@ -59,10 +59,11 @@ public class DocHolderController extends AbstractXafController {
 
         try {
             ClassicHttpResponse response = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
+            String contentType = response.getEntity().getContentType();
 
             LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
             return ResponseEntity.status(response.getCode())
-                    .contentType(MediaType.valueOf(response.getEntity().getContentType()))
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (UnsupportedOperationException | IOException e) {
@@ -91,10 +92,11 @@ public class DocHolderController extends AbstractXafController {
 
         try {
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
+            String contentType = serviceResponse.getEntity().getContentType();
 
             LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
             return ResponseEntity.status(serviceResponse.getCode())
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (UnsupportedOperationException | IOException e) {
@@ -144,10 +146,11 @@ public class DocHolderController extends AbstractXafController {
 
             LOGGER.info("Suppression du porte-documents côté GU");
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
+            String contentType = serviceResponse.getEntity().getContentType();
 
             LOGGER.info("====================== Fin {} doDelete()", req.getServletPath());
             return ResponseEntity.status(serviceResponse.getCode())
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (UnsupportedOperationException | IOException e) {

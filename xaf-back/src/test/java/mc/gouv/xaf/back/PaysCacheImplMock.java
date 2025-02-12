@@ -6,39 +6,27 @@ import java.util.Map;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.servicerest.pays.model.PaysBean;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 
 @Component
 @Profile("test")
 public class PaysCacheImplMock implements PaysCache {
 
     @Override
-    public PaysBean get(String codeIso, String locale) {
+    public Map<String, PaysDTO> getAll() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String getNationalite(String codeIso, String locale) {
+    public PaysDTO get(String key) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Map<Integer, PaysBean> getAll() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public PaysBean get(Integer key) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public PaysBean get(Integer key, boolean forceUpdate) {
+    public PaysDTO get(String key, boolean forceUpdate) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -50,19 +38,19 @@ public class PaysCacheImplMock implements PaysCache {
     }
 
     @Override
-    public void add(Integer key, PaysBean value) {
+    public void add(String key, PaysDTO value) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public Collection<PaysBean> getValues() {
+    public Collection<PaysDTO> getValues() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Collection<Integer> getKeys() {
+    public Collection<String> getKeys() {
         // TODO Auto-generated method stub
         return null;
     }

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -235,14 +234,12 @@ public class DemandesTransformer {
     }
 
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
-        Map<String, Object> marqueursMap = new LinkedHashMap<>();
-        for (MarqueurBO marqueur : config.getMarqueurs()) {
-            if (!marqueursMap.containsKey(marqueur.getIdentifiant())) {
-                Object valeur = afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), config.getMarqueurs());
-                marqueursMap.put(marqueur.getIdentifiant(), valeur);
-            }
-        }
-        return marqueursMap;
+        return config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), config.getMarqueurs()),
+                (existing, replacement) -> {
+                    // en cas de doublon d'identifiant, on utilise la 1ère valeur
+                    return existing;
+                }));
     }
 
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {

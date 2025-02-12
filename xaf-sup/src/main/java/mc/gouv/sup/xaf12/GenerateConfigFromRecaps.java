@@ -372,6 +372,11 @@ public class GenerateConfigFromRecaps {
         String idPrefix = getIdPrefix(champ, recapFront);
         // add labelKey
         ((ObjectNode) champ).put("labelKey", "ts.donnee.projectDemande." + idPrefix);
+        // add idPrefix if not present, only in tableaux
+        if ((champ.get("idPrefix") == null || champ.get("idPrefix").isNull()) && champ.get("path").asText()
+                .contains("Tableau")) {
+            ((ObjectNode) champ).put("idPrefix", champ.get("path").asText());
+        }
     }
 
     private static String getIdPrefix(JsonNode champ, JsonNode recapFront) {

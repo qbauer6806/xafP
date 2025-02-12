@@ -23,14 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +63,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
@@ -161,6 +158,8 @@ public class AfBackUtils {
     
     private SmsClient smsClient = null;
 
+    private NomenClient nomenClient = null;
+
     @Autowired
     @Lazy
     private UsagersCache usagersCache;
@@ -246,14 +245,17 @@ public class AfBackUtils {
     public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) throws JsonProcessingException {
         String alpha3 = null;
         PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(), new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>(){});
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream().filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
+        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
+                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
+                });
+        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
+                .filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
         if (pays.isPresent()) {
             alpha3 = pays.get().getAlpha3().toUpperCase();
         }
 
-        if(null != alpha2) {
-            if(alpha2.equals(CODE_ALPHA2_APATRIDE)) {
+        if (null != alpha2) {
+            if (alpha2.equals(CODE_ALPHA2_APATRIDE)) {
                 if (fromPays) {
                     alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
                 } else {
@@ -261,8 +263,8 @@ public class AfBackUtils {
                 }
             }
 
-            if(alpha2.equals(CODE_ALPHA2_NONCONNU)) {
-                if(fromPays) {
+            if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {
+                if (fromPays) {
                     alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
                 } else {
                     alpha3 = CODE_ALPHA3_NATIONALITEE_NONCONNU;
@@ -275,14 +277,17 @@ public class AfBackUtils {
     public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) throws JsonProcessingException {
         String alpha2 = null;
         PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(), new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>(){});
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream().filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
+        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
+                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
+                });
+        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
+                .filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
         if (pays.isPresent()) {
             alpha2 = pays.get().getAlpha2().toUpperCase();
         }
 
-        if(null != alpha3) {
-            if(alpha3.equals(CODE_ALPHA3_APATRIDE)) {
+        if (null != alpha3) {
+            if (alpha3.equals(CODE_ALPHA3_APATRIDE)) {
                 if (fromPays) {
                     alpha2 = CODE_ALPHA2_NONCONNU;
                 } else {
@@ -290,8 +295,8 @@ public class AfBackUtils {
                 }
             }
 
-            if(alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
-                if(fromPays) {
+            if (alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
+                if (fromPays) {
                     alpha2 = CODE_ALPHA2_NONCONNU;
                 } else {
                     alpha2 = CODE_ALPHA2_APATRIDE;
@@ -367,6 +372,13 @@ public class AfBackUtils {
             smsClient = new SmsClient(smsUrl, smsJwt);
         }
         return smsClient;
+    }
+
+    public NomenClient getNomenClient() {
+        if (nomenClient == null) {
+            nomenClient = new NomenClient(gouvPropertiesResolver.getNomenUrl(), gouvPropertiesResolver.getNomenJwt());
+        }
+        return nomenClient;
     }
 
     /**
@@ -849,66 +861,61 @@ public class AfBackUtils {
     }
 
     public Object getMarqueurValue(JsonNode contenu, String path, Set<MarqueurBO> marqueurs) {
-        if (path == null) {
-            return "";
-        }
-
-        JsonNode node = getNodeFromPath(contenu, path);
-        if (node == null || node.isNull()) {
-            return "";
-        }
-
-        if (node.isTextual() && !"null".equals(node.asText())) {
-            return node.asText();
-        }
-
-        if (node.isArray()) {
-            if (!node.isEmpty() && node.get(0).isTextual()) {
-                // ChoixMultiple
-                return StreamSupport.stream(node.spliterator(), false)
-                        .filter(JsonNode::isTextual)
-                        .map(JsonNode::asText)
-                        .toList();
-            }
-
-            // Tableau
-
-            Map<String, MarqueurBO> marqueurMap = marqueurs.stream()
-                    .collect(Collectors.toMap(MarqueurBO::getChemin, Function.identity()));
-
-            return node.findValuesAsText("value").isEmpty() ? new ArrayList<>() :
-                    StreamSupport.stream(node.spliterator(), false)
-                            .map(arrayElement -> {
-                                Map<String, String> map = new HashMap<>();
-                                arrayElement.fields().forEachRemaining(tableauDonnee -> {
-                                    String donneeTableauPath = path + "." + tableauDonnee.getKey();
-
-                                    MarqueurBO marqueur = marqueurMap.get(donneeTableauPath);
-                                    if (marqueur != null) {
-                                        putMarqueur(map, tableauDonnee.getValue(), marqueur);
-                                    } else {
-                                        String[] suffixes = {"ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic", "iban", "titulaire", "indicatif", "numero"};
-                                        Arrays.stream(suffixes)
-                                                .map(suffixe -> donneeTableauPath + "." + suffixe)
-                                                .map(marqueurMap::get)
-                                                .filter(Objects::nonNull)
-                                                .forEach(marqueurSuffixe -> putMarqueur(map, tableauDonnee.getValue().get(marqueurSuffixe.getChemin().substring(donneeTableauPath.length() + 1)), marqueurSuffixe));
+        if (path != null) {
+            JsonNode node = getNodeFromPath(contenu, path);
+            if (node != null) {
+                if (node.isTextual() && !"null".equals(node.asText())) {
+                    // texte
+                    return node.asText();
+                } else if (node.isArray()) {
+                    if (!node.isEmpty() && node.get(0).isTextual()) {
+                        // choixMultiple
+                        List<String> choices = new ArrayList<>();
+                        node.forEach(arrayElement -> {
+                            if (arrayElement.isTextual()) {
+                                choices.add(arrayElement.asText());
+                            }
+                        });
+                        return choices;
+                    } else {
+                        // tableau
+                        List<Map<String, String>> list = new ArrayList<>();
+                        for (JsonNode arrayElement : node) {
+                            Map<String, String> map = new HashMap<>();
+                            arrayElement.fields().forEachRemaining(tableauDonnee -> {
+                                String donneeTableauPath = path + "." + tableauDonnee.getKey();
+                                // retrouver le nom du marqueur à partir du nouveau path
+                                Optional<MarqueurBO> marqueurFound = marqueurs.stream()
+                                        .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
+                                if (marqueurFound.isPresent()) {
+                                    putMarqueur(map, tableauDonnee.getValue(), marqueurFound.get());
+                                } else {
+                                    // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
+                                    String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
+                                            "bic", "iban", "titulaire", "indicatif", "numero" };
+                                    for (String suffixe : suffixes) {
+                                        String suffixedPath = donneeTableauPath + "." + suffixe;
+                                        marqueurFound = marqueurs.stream()
+                                                .filter(marqueur -> suffixedPath.equals(marqueur.getChemin()))
+                                                .findFirst();
+                                        marqueurFound.ifPresent(marqueurBO -> putMarqueur(map,
+                                                tableauDonnee.getValue().get(suffixe), marqueurBO));
                                     }
-                                });
-                                return map;
-                            })
-                            .toList();
+                                }
+                            });
+                            list.add(map);
+                        }
+                        return list;
+                    }
+                }
+            }
         }
-
         return "";
     }
 
-    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode,
-            MarqueurBO marqueurFound) {
-        String donneeTableauValue =
-                tableauDonneeNode != null && tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())
-                        ? tableauDonneeNode.asText()
-                        : "";
+    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
+        String donneeTableauValue = tableauDonneeNode != null && tableauDonneeNode.isTextual()
+                && !"null".equals(tableauDonneeNode.asText()) ? tableauDonneeNode.asText() : "";
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 
@@ -1110,9 +1117,8 @@ public class AfBackUtils {
 
     public static boolean isDocumentsValidesActif(DemandeDTO demande) {
         List<DemandeFileDTO> fichiers = FileUtils.getAllFileDemande(demande);
-        return fichiers.stream().anyMatch(
-                demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc()) && !"NON_APPLICABLE".equals(
-                        demandeFileDTO.getTypedoc()));
+        return fichiers.stream().anyMatch(demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc())
+                && !"NON_APPLICABLE".equals(demandeFileDTO.getTypedoc()));
     }
 
     public static boolean hasRole(final String role) {

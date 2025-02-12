@@ -17,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,8 +117,10 @@ public class CustomRequestController extends AbstractXafController {
         try {
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
+            String contentType = serviceResponse.getEntity().getContentType();
+
             return ResponseEntity.status(statusCode)
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(serviceResponse.getEntity().getContent());
         } catch (Exception e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,

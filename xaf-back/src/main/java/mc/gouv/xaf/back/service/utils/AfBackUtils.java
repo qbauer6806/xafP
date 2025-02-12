@@ -63,6 +63,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
@@ -157,6 +158,8 @@ public class AfBackUtils {
     
     private SmsClient smsClient = null;
 
+    private NomenClient nomenClient = null;
+
     @Autowired
     @Lazy
     private UsagersCache usagersCache;
@@ -242,14 +245,17 @@ public class AfBackUtils {
     public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) throws JsonProcessingException {
         String alpha3 = null;
         PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(), new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>(){});
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream().filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
+        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
+                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
+                });
+        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
+                .filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
         if (pays.isPresent()) {
             alpha3 = pays.get().getAlpha3().toUpperCase();
         }
 
-        if(null != alpha2) {
-            if(alpha2.equals(CODE_ALPHA2_APATRIDE)) {
+        if (null != alpha2) {
+            if (alpha2.equals(CODE_ALPHA2_APATRIDE)) {
                 if (fromPays) {
                     alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
                 } else {
@@ -257,8 +263,8 @@ public class AfBackUtils {
                 }
             }
 
-            if(alpha2.equals(CODE_ALPHA2_NONCONNU)) {
-                if(fromPays) {
+            if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {
+                if (fromPays) {
                     alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
                 } else {
                     alpha3 = CODE_ALPHA3_NATIONALITEE_NONCONNU;
@@ -271,14 +277,17 @@ public class AfBackUtils {
     public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) throws JsonProcessingException {
         String alpha2 = null;
         PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(), new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>(){});
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream().filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
+        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
+                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
+                });
+        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
+                .filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
         if (pays.isPresent()) {
             alpha2 = pays.get().getAlpha2().toUpperCase();
         }
 
-        if(null != alpha3) {
-            if(alpha3.equals(CODE_ALPHA3_APATRIDE)) {
+        if (null != alpha3) {
+            if (alpha3.equals(CODE_ALPHA3_APATRIDE)) {
                 if (fromPays) {
                     alpha2 = CODE_ALPHA2_NONCONNU;
                 } else {
@@ -286,8 +295,8 @@ public class AfBackUtils {
                 }
             }
 
-            if(alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
-                if(fromPays) {
+            if (alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
+                if (fromPays) {
                     alpha2 = CODE_ALPHA2_NONCONNU;
                 } else {
                     alpha2 = CODE_ALPHA2_APATRIDE;
@@ -363,6 +372,13 @@ public class AfBackUtils {
             smsClient = new SmsClient(smsUrl, smsJwt);
         }
         return smsClient;
+    }
+
+    public NomenClient getNomenClient() {
+        if (nomenClient == null) {
+            nomenClient = new NomenClient(gouvPropertiesResolver.getNomenUrl(), gouvPropertiesResolver.getNomenJwt());
+        }
+        return nomenClient;
     }
 
     /**
@@ -882,9 +898,8 @@ public class AfBackUtils {
                                         marqueurFound = marqueurs.stream()
                                                 .filter(marqueur -> suffixedPath.equals(marqueur.getChemin()))
                                                 .findFirst();
-                                        marqueurFound.ifPresent(
-                                                marqueurBO -> putMarqueur(map, tableauDonnee.getValue().get(suffixe),
-                                                        marqueurBO));
+                                        marqueurFound.ifPresent(marqueurBO -> putMarqueur(map,
+                                                tableauDonnee.getValue().get(suffixe), marqueurBO));
                                     }
                                 }
                             });
@@ -898,12 +913,9 @@ public class AfBackUtils {
         return "";
     }
 
-    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode,
-            MarqueurBO marqueurFound) {
-        String donneeTableauValue =
-                tableauDonneeNode != null && tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())
-                        ? tableauDonneeNode.asText()
-                        : "";
+    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
+        String donneeTableauValue = tableauDonneeNode != null && tableauDonneeNode.isTextual()
+                && !"null".equals(tableauDonneeNode.asText()) ? tableauDonneeNode.asText() : "";
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 
@@ -1105,9 +1117,8 @@ public class AfBackUtils {
 
     public static boolean isDocumentsValidesActif(DemandeDTO demande) {
         List<DemandeFileDTO> fichiers = FileUtils.getAllFileDemande(demande);
-        return fichiers.stream().anyMatch(
-                demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc()) && !"NON_APPLICABLE".equals(
-                        demandeFileDTO.getTypedoc()));
+        return fichiers.stream().anyMatch(demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc())
+                && !"NON_APPLICABLE".equals(demandeFileDTO.getTypedoc()));
     }
 
     public static boolean hasRole(final String role) {

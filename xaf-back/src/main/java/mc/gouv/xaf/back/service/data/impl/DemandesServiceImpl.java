@@ -1,8 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -14,6 +11,24 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
@@ -49,7 +64,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -63,18 +78,6 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -364,17 +367,11 @@ public class DemandesServiceImpl implements DemandesService {
                             enumValue = enumKey;
                         }
                     } else if (mapping.asText().equals("nationalites")) {
-                        enumValue = StringUtils.isBlank(enumKey)
-                                ? ""
-                                : paysCache.get(enumKey, "fr") != null
-                                        ? paysCache.get(enumKey, "fr").getNationalite()
-                                        : enumKey;
+                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                                : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getNationalite() : enumKey;
                     } else if (mapping.asText().equals("pays")) {
-                        enumValue = StringUtils.isBlank(enumKey)
-                                ? ""
-                                : paysCache.get(enumKey, "fr") != null
-                                        ? paysCache.get(enumKey, "fr").getNom()
-                                        : enumKey;
+                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                                : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }
@@ -385,11 +382,8 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
-                String enumValue = StringUtils.isBlank(enumKey)
-                        ? ""
-                        : paysCache.get(enumKey, "fr") != null
-                                ? paysCache.get(enumKey, "fr").getNom()
-                                : enumKey;
+                String enumValue = StringUtils.isBlank(enumKey) ? ""
+                        : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
         } else if (champ.get("type").asText().equals("date")) {
@@ -1008,9 +1002,8 @@ public class DemandesServiceImpl implements DemandesService {
             List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
-                        dernierStatutDateFin, dernierStatutList));
+        return demandesTransformer.bo2Dto(demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(
+                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
 
     }
 

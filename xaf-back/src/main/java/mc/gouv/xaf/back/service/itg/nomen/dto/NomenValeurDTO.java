@@ -20,29 +20,29 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NomenValeurDTO {
 
-	private String code;
-	
-	private String etat;
-	
-	private Date dateDebut;
-	
-	private Date dateFin;
-	
-	private String libelleCourt;
-	
-	private String libelleLong;
-	
-	private Integer ordre;
-	
-	private List<NomenValeurValeurLienDTO> valeurLiens;
-	
-	private List<NomenValeurValeurParametreDTO> valeurParametres;
+    private String code;
 
-	@Override
-	public String toString() {
-		return "NomenValeurDTO [code=" + code + ", etat=" + etat + ", dateDebut=" + dateDebut + ", dateFin=" + dateFin
-				+ ", libelleCourt=" + libelleCourt + ", libelleLong=" + libelleLong + ", ordre=" + ordre
-				+ ", valeurLiens=" + valeurLiens + ", valeurParametres=" + valeurParametres + "]";
-	}
-	
+    private String etat;
+
+    private Date dateDebut;
+
+    private Date dateFin;
+
+    private String libelleCourt;
+
+    private String libelleLong;
+
+    private Integer ordre;
+
+    private List<NomenValeurValeurLienDTO> valeurLiens;
+
+    private List<NomenValeurValeurParametreDTO> valeurParametres;
+
+    @Override
+    public String toString() {
+        return "NomenValeurDTO [code=" + code + ", etat=" + etat + ", dateDebut=" + dateDebut + ", dateFin=" + dateFin
+                + ", libelleCourt=" + libelleCourt + ", libelleLong=" + libelleLong + ", ordre=" + ordre
+                + ", valeurLiens=" + valeurLiens + ", valeurParametres=" + valeurParametres + "]";
+    }
+
 }

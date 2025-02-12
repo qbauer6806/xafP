@@ -317,8 +317,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                         // Prise en compte valeur/valeurExtra
                         if (pathNode instanceof ObjectNode) {
                             pathNode = node.at(path + "/valeur");
-                            if (pathNode instanceof MissingNode || pathNode instanceof NullNode || (
-                                    pathNode instanceof TextNode && pathNode.textValue().equals("AUTRE"))) {
+                            if (pathNode instanceof MissingNode || pathNode instanceof NullNode
+                                    || (pathNode instanceof TextNode && pathNode.textValue().equals("AUTRE"))) {
                                 JsonNode node0 = node.at(path + "/valeurExtra");
                                 if (node0 == null || node0 instanceof NullNode) {
                                     return "";

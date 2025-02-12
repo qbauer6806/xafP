@@ -17,13 +17,13 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NomenNomenclatureLienDTO {
 
-	private String lienCode;
-	
-	private String lienDescription;
+    private String lienCode;
 
-	@Override
-	public String toString() {
-		return "NomenNomenclatureLienDTO [lienCode=" + lienCode + ", lienDescription=" + lienDescription + "]";
-	}
-	
+    private String lienDescription;
+
+    @Override
+    public String toString() {
+        return "NomenNomenclatureLienDTO [lienCode=" + lienCode + ", lienDescription=" + lienDescription + "]";
+    }
+
 }

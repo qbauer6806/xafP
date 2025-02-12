@@ -355,17 +355,11 @@ public class DemandesServiceImpl implements DemandesService {
                             enumValue = enumKey;
                         }
                     } else if (mapping.asText().equals("nationalites")) {
-                        enumValue = StringUtils.isBlank(enumKey)
-                                ? ""
-                                : paysCache.get(enumKey) != null
-                                        ? paysCache.get(enumKey).getNationalite()
-                                        : enumKey;
+                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                                : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getNationalite() : enumKey;
                     } else if (mapping.asText().equals("pays")) {
-                        enumValue = StringUtils.isBlank(enumKey)
-                                ? ""
-                                : paysCache.get(enumKey) != null
-                                        ? paysCache.get(enumKey).getLibelle()
-                                        : enumKey;
+                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                                : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }
@@ -376,11 +370,8 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
-                String enumValue = StringUtils.isBlank(enumKey)
-                        ? ""
-                        : paysCache.get(enumKey) != null
-                                ? paysCache.get(enumKey).getLibelle()
-                                : enumKey;
+                String enumValue = StringUtils.isBlank(enumKey) ? ""
+                        : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
         } else if (champ.get("type").asText().equals("date")) {
@@ -987,8 +978,8 @@ public class DemandesServiceImpl implements DemandesService {
             List<String> canaux) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(
+        return demandesTransformer
+                .bo2Dto(demandesRepository.findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(
                         dernierStatutDateDebut, dernierStatutList, canaux));
 
     }
@@ -998,9 +989,8 @@ public class DemandesServiceImpl implements DemandesService {
             List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
-                        dernierStatutDateFin, dernierStatutList));
+        return demandesTransformer.bo2Dto(demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(
+                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
 
     }
 

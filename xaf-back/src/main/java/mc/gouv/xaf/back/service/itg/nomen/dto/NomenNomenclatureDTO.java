@@ -20,46 +20,46 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NomenNomenclatureDTO {
 
-	private String code;
-	
-	private String type;
-	
-	private String categorie;
-	
-	private String etat;
-	
-	private Date dateFin;
-	
-	private String version;
-	
-	private Date versionDate;
-	
-	private String source;
-	
-	private String serviceResponsableCode;
-	
-	private String titre;
-	
-	private String description;
-	
-	private String remarques;
-	
-	private List<NomenNomenclatureLienDTO> nomenclatureLiens;
-	
-	private List<NomenNomenclatureLocaleDTO> nomenclatureLocales;
-	
-	private List<NomenNomenclatureParametreDTO> nomenclatureParametres;
-	
-	private List<NomenValeurDTO> valeurs;
+    private String code;
 
-	@Override
-	public String toString() {
-		return "NomenNomenclatureDTO [code=" + code + ", type=" + type + ", categorie=" + categorie + ", etat=" + etat
-				+ ", dateFin=" + dateFin + ", version=" + version + ", versionDate=" + versionDate + ", source="
-				+ source + ", serviceResponsableCode=" + serviceResponsableCode + ", titre=" + titre + ", description="
-				+ description + ", remarques=" + remarques + ", nomenclatureLiens=" + nomenclatureLiens
-				+ ", nomenclatureLocales=" + nomenclatureLocales + ", nomenclatureParametres=" + nomenclatureParametres
-				+ ", valeurs=" + valeurs + "]";
-	}
-	
+    private String type;
+
+    private String categorie;
+
+    private String etat;
+
+    private Date dateFin;
+
+    private String version;
+
+    private Date versionDate;
+
+    private String source;
+
+    private String serviceResponsableCode;
+
+    private String titre;
+
+    private String description;
+
+    private String remarques;
+
+    private List<NomenNomenclatureLienDTO> nomenclatureLiens;
+
+    private List<NomenNomenclatureLocaleDTO> nomenclatureLocales;
+
+    private List<NomenNomenclatureParametreDTO> nomenclatureParametres;
+
+    private List<NomenValeurDTO> valeurs;
+
+    @Override
+    public String toString() {
+        return "NomenNomenclatureDTO [code=" + code + ", type=" + type + ", categorie=" + categorie + ", etat=" + etat
+                + ", dateFin=" + dateFin + ", version=" + version + ", versionDate=" + versionDate + ", source="
+                + source + ", serviceResponsableCode=" + serviceResponsableCode + ", titre=" + titre + ", description="
+                + description + ", remarques=" + remarques + ", nomenclatureLiens=" + nomenclatureLiens
+                + ", nomenclatureLocales=" + nomenclatureLocales + ", nomenclatureParametres=" + nomenclatureParametres
+                + ", valeurs=" + valeurs + "]";
+    }
+
 }

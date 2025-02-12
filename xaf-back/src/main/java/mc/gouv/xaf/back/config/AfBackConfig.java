@@ -69,12 +69,10 @@ public class AfBackConfig {
     public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableFlowable5CompatibilityConfigurer() {
         return (SpringProcessEngineConfiguration processEngineConfiguration) -> {
             processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
-            processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(
-                    DefaultFlowable5SpringCompatibilityHandler::new);
+            processEngineConfiguration
+                    .setFlowable5CompatibilityHandlerFactory(DefaultFlowable5SpringCompatibilityHandler::new);
         };
 
     }
 
 }
-
-

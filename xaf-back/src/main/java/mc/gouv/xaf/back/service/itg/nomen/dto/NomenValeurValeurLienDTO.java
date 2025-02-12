@@ -17,10 +17,10 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NomenValeurValeurLienDTO {
 
-	private String lienNomenclatureCode;
-	
-	private String lienValeurCode;
-	
-	private String lienValeurLibelle;
-	
+    private String lienNomenclatureCode;
+
+    private String lienValeurCode;
+
+    private String lienValeurLibelle;
+
 }

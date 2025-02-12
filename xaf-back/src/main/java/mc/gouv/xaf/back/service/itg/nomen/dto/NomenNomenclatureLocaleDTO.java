@@ -16,14 +16,14 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NomenNomenclatureLocaleDTO {
-	
-	private String localeCode;
-	
-	private String localeLibelle;
 
-	@Override
-	public String toString() {
-		return "NomenNomenclatureLocaleDTO [localeCode=" + localeCode + ", localeLibelle=" + localeLibelle + "]";
-	}
+    private String localeCode;
+
+    private String localeLibelle;
+
+    @Override
+    public String toString() {
+        return "NomenNomenclatureLocaleDTO [localeCode=" + localeCode + ", localeLibelle=" + localeLibelle + "]";
+    }
 
 }

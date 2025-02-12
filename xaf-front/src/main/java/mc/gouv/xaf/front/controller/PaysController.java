@@ -57,30 +57,33 @@ public class PaysController extends AbstractXafController {
         }
 
         try {
-            URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/PAY-1/valeurs").addParameter("valeurLangue", locale.toUpperCase()).build();
+            URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/PAY-1/valeurs")
+                    .addParameter("valeurLangue", locale.toUpperCase()).build();
             LOGGER.debug("Appel à {}", uri);
             Request serviceRequest = Request.get(uri);
             serviceRequest.setHeader("Authorization", "Bearer " + propertiesResolver.getNomenJwt());
-            try (ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse()) {
-				int statusCode = serviceResponse.getCode();
+            try (ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute()
+                    .returnResponse()) {
+                int statusCode = serviceResponse.getCode();
 
-				if (statusCode == HttpStatus.OK.value()) {
-					ObjectMapper objectMapper = new ObjectMapper();
-					NomenNomenclatureDTO nomenNomenclatureDTO = objectMapper.readValue(
-							new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8),
-							NomenNomenclatureDTO.class);
+                if (statusCode == HttpStatus.OK.value()) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    NomenNomenclatureDTO nomenNomenclatureDTO = objectMapper.readValue(
+                            new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8),
+                            NomenNomenclatureDTO.class);
 
-					List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
+                    List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
 
-					String valeursJson = objectMapper.writeValueAsString(valeurs);
+                    String valeursJson = objectMapper.writeValueAsString(valeurs);
 
-					return ResponseEntity.status(statusCode)
-							.contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType())).body(valeursJson);
-				}
-				LOGGER.info("====================== Fin /pays doGet()");
+                    return ResponseEntity.status(statusCode)
+                            .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                            .body(valeursJson);
+                }
+                LOGGER.info("====================== Fin /pays doGet()");
 
-				return ResponseEntity.status(statusCode).build();
-			}
+                return ResponseEntity.status(statusCode).build();
+            }
         } catch (Exception e) {
             LOGGER.error("PaysServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             return ResponseEntity.status(getCodeErreur(e)).build();
@@ -99,32 +102,34 @@ public class PaysController extends AbstractXafController {
         }
 
         try {
-        	// Attention: la nomenclature NATIO ne connait que la langue française !
-            URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/NATIO/valeurs").addParameter("valeurLangue", "FR")
-                    .build();
+            // Attention: la nomenclature NATIO ne connait que la langue française !
+            URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/NATIO/valeurs")
+                    .addParameter("valeurLangue", "FR").build();
             LOGGER.debug("Appel à {}", uri);
             Request serviceRequest = Request.get(uri);
             serviceRequest.setHeader("Authorization", "Bearer " + propertiesResolver.getNomenJwt());
-            try (ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse()) {
-				int statusCode = serviceResponse.getCode();
+            try (ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute()
+                    .returnResponse()) {
+                int statusCode = serviceResponse.getCode();
 
-				if (statusCode == HttpStatus.OK.value()) {
-					ObjectMapper objectMapper = new ObjectMapper();
-					NomenNomenclatureDTO nomenNomenclatureDTO = objectMapper.readValue(
-							new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8),
-							NomenNomenclatureDTO.class);
+                if (statusCode == HttpStatus.OK.value()) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    NomenNomenclatureDTO nomenNomenclatureDTO = objectMapper.readValue(
+                            new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8),
+                            NomenNomenclatureDTO.class);
 
-					List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
+                    List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
 
-					String valeursJson = objectMapper.writeValueAsString(valeurs);
+                    String valeursJson = objectMapper.writeValueAsString(valeurs);
 
-					return ResponseEntity.status(statusCode)
-							.contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType())).body(valeursJson);
-				}
-				LOGGER.info("====================== Fin /pays doGet()");
+                    return ResponseEntity.status(statusCode)
+                            .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                            .body(valeursJson);
+                }
+                LOGGER.info("====================== Fin /pays doGet()");
 
-				return ResponseEntity.status(statusCode).build();
-			}
+                return ResponseEntity.status(statusCode).build();
+            }
         } catch (Exception e) {
             LOGGER.error("PaysServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             return ResponseEntity.status(getCodeErreur(e)).build();

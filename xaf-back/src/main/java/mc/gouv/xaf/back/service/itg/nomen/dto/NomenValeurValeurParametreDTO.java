@@ -16,9 +16,9 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NomenValeurValeurParametreDTO {
-	
-	private String parametreNom;
-	
-	private String parametreValeur;
+
+    private String parametreNom;
+
+    private String parametreValeur;
 
 }

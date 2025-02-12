@@ -33,11 +33,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getPaysRestUrl() {
-        return null;
-    }
-
-    @Override
     public String getContainerId() {
         return null;
     }
@@ -264,21 +259,21 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
         return "";
     }
 
-	@Override
-	public String getNomenUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNomenUrl() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getNomenJwt() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNomenJwt() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public long getPaysCacheDuration() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public long getPaysCacheDuration() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -121,7 +122,7 @@ public class PaysController extends AbstractXafController {
             try (ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute()
                     .returnResponse()) {
                 int statusCode = serviceResponse.getCode();
-            String contentType = serviceResponse.getEntity().getContentType();
+                String contentType = serviceResponse.getEntity().getContentType();
 
                 if (statusCode == HttpStatus.OK.value()) {
                     ObjectMapper objectMapper = new ObjectMapper();
@@ -136,8 +137,7 @@ public class PaysController extends AbstractXafController {
 
                     String valeursJson = objectMapper.writeValueAsString(valeurs);
 
-                    return ResponseEntity.status(statusCode)
-                            .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    return ResponseEntity.status(statusCode).header(HttpHeaders.CONTENT_TYPE, contentType)
                             .body(valeursJson);
                 }
                 LOGGER.info("====================== Fin /pays doGet()");
@@ -162,7 +162,7 @@ public class PaysController extends AbstractXafController {
             try (ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute()
                     .returnResponse()) {
                 int statusCode = serviceResponse.getCode();
-            String contentType = serviceResponse.getEntity().getContentType();
+                String contentType = serviceResponse.getEntity().getContentType();
 
                 if (statusCode == HttpStatus.OK.value()) {
                     ObjectMapper objectMapper = new ObjectMapper();
@@ -177,8 +177,7 @@ public class PaysController extends AbstractXafController {
 
                     String valeursJson = objectMapper.writeValueAsString(valeurs);
 
-                    return ResponseEntity.status(statusCode)
-                            .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    return ResponseEntity.status(statusCode).header(HttpHeaders.CONTENT_TYPE, contentType)
                             .body(valeursJson);
                 }
                 LOGGER.info("====================== Fin /pays doGet()");

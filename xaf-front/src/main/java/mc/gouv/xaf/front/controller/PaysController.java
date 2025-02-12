@@ -2,6 +2,8 @@ package mc.gouv.xaf.front.controller;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.hc.client5.http.fluent.Request;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +48,14 @@ public class PaysController extends AbstractXafController {
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
+    private List<NomenValeurDTO> listePays = new ArrayList<>();
+
+    private Date listePaysLastUpdate = null;
+
+    private List<NomenValeurDTO> listeNationalites = new ArrayList<>();
+
+    private Date listeNationalitesLastUpdate = null;
+
     @GetMapping
     public ResponseEntity doGet(@RequestParam(required = false) String locale, HttpServletRequest request) {
         LOGGER.info("====================== /pays doGet()");
@@ -56,6 +67,51 @@ public class PaysController extends AbstractXafController {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
+        if (!listePays.isEmpty() && !isTimeToRefreshCache(listePaysLastUpdate)) {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String valeursJson;
+            try {
+                valeursJson = objectMapper.writeValueAsString(listePays);
+
+                return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(valeursJson);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Erreur lors du objectMapper.writeValueAsString()", e);
+            }
+        }
+
+        return getPays(locale);
+    }
+
+    @GetMapping("/nationalites")
+    public ResponseEntity doGetNationalites(@RequestParam(required = false) String locale, HttpServletRequest request) {
+        LOGGER.info("====================== /pays/nationalités doGet()");
+
+        // Vérification si l'usager est connecté
+        UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
+        }
+
+        if (!listeNationalites.isEmpty() && !isTimeToRefreshCache(listeNationalitesLastUpdate)) {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String valeursJson;
+            try {
+                valeursJson = objectMapper.writeValueAsString(listeNationalites);
+
+                return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(valeursJson);
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Erreur lors du objectMapper.writeValueAsString()", e);
+            }
+        }
+
+        return getNationalites();
+    }
+
+    private ResponseEntity getPays(String locale) {
+        LOGGER.info("Refresh du cache Pays...");
         try {
             URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/PAY-1/valeurs")
                     .addParameter("valeurLangue", locale.toUpperCase()).build();
@@ -74,6 +130,9 @@ public class PaysController extends AbstractXafController {
 
                     List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
 
+                    listePays = valeurs;
+                    listePaysLastUpdate = new Date();
+
                     String valeursJson = objectMapper.writeValueAsString(valeurs);
 
                     return ResponseEntity.status(statusCode)
@@ -90,17 +149,8 @@ public class PaysController extends AbstractXafController {
         }
     }
 
-    @GetMapping("/nationalites")
-    public ResponseEntity doGetNationalites(@RequestParam(required = false) String locale, HttpServletRequest request) {
-        LOGGER.info("====================== /pays/nationalités doGet()");
-
-        // Vérification si l'usager est connecté
-        UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
-                    SharedMessages.UTILISATEUR_NON_AUTORISE);
-        }
-
+    private ResponseEntity getNationalites() {
+        LOGGER.info("Refresh du cache Nationalites...");
         try {
             // Attention: la nomenclature NATIO ne connait que la langue française !
             URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/NATIO/valeurs")
@@ -120,6 +170,9 @@ public class PaysController extends AbstractXafController {
 
                     List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
 
+                    listeNationalites = valeurs;
+                    listeNationalitesLastUpdate = new Date();
+
                     String valeursJson = objectMapper.writeValueAsString(valeurs);
 
                     return ResponseEntity.status(statusCode)
@@ -134,6 +187,14 @@ public class PaysController extends AbstractXafController {
             LOGGER.error("PaysServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             return ResponseEntity.status(getCodeErreur(e)).build();
         }
+    }
+
+    private boolean isTimeToRefreshCache(Date lastUpdate) {
+        if (listePaysLastUpdate == null) {
+            return true;
+        }
+        return new Date()
+                .getTime() > (lastUpdate.getTime() + Integer.parseInt(propertiesResolver.getPaysCacheDuration()));
     }
 
 }

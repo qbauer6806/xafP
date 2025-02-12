@@ -59,10 +59,11 @@ public class PaysController extends AbstractXafController {
             serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.getType());
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
+            String contentType = serviceResponse.getEntity().getContentType();
 
             if (statusCode == HttpStatus.OK.value()) {
                 return ResponseEntity.status(statusCode)
-                        .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                        .header(HttpHeaders.CONTENT_TYPE, contentType)
                         .body(new String(serviceResponse.getEntity().getContent().readAllBytes(),
                                 StandardCharsets.UTF_8));
             }
@@ -94,10 +95,11 @@ public class PaysController extends AbstractXafController {
             serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON.getType());
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
+            String contentType = serviceResponse.getEntity().getContentType();
 
             if (statusCode == HttpStatus.OK.value()) {
                 return ResponseEntity.status(statusCode)
-                        .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                        .header(HttpHeaders.CONTENT_TYPE, contentType)
                         .body(new String(serviceResponse.getEntity().getContent().readAllBytes(),
                                 StandardCharsets.UTF_8));
             }

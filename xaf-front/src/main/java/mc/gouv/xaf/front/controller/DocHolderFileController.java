@@ -115,8 +115,9 @@ public class DocHolderFileController extends AbstractXafController {
             }
 
             LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
+            String contentType = serviceResponse.getEntity().getContentType();
 
-            return response.contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+            return response.header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (URISyntaxException e) {

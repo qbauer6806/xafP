@@ -167,6 +167,10 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
         return List.of();
     }
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts) {
+        return List.of();
+    }
 
     @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
@@ -184,12 +188,6 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux) {
-        return List.of();
-    }
-
-    @Override
     public List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
             List<String> canaux) {
         return List.of();
@@ -202,19 +200,12 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList) {
-        return List.of();
-    }
-
-    @Override
-    public void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
-            throws JsonProcessingException {
-
-    }
-
-    @Override
     public List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut) {
         return List.of();
+    }
+
+    @Override
+    public void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
+
     }
 }

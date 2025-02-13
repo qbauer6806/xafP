@@ -32,7 +32,7 @@ public class DataRechercheDTO {
         if (keyValue != null) {
             StringTokenizer operandArray = new StringTokenizer(keyValue, SEPARATOR_AFTER_OPERAND);
             if (operandArray.countTokens() == 2) {
-                //Une operand a étét saisie
+                //Une operand a été saisie
                 this.operand = DataRechercheOperand.valueOf(operandArray.nextToken().toUpperCase());
             }
             StringTokenizer keyValueArray = new StringTokenizer(operandArray.nextToken(), SEPARATOR);
@@ -42,10 +42,6 @@ public class DataRechercheDTO {
 
             }
         }
-    }
-
-    public String generateParamUrl() {
-        return operand + SEPARATOR_AFTER_OPERAND + key + SEPARATOR + value;
     }
 
 }

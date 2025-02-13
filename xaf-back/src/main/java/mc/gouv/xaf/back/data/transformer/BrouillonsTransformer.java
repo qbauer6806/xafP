@@ -41,16 +41,14 @@ public class BrouillonsTransformer {
         }
         ObjectMapper mapper = new ObjectMapper();
         try {
-            dto.setContenu(mapper.readTree(bo.getContenu()));
             if (bo.getMeta() != null) {
                 dto.setMeta(mapper.readTree(bo.getMeta()));
-            }
-            if (bo.getContenuInitial() != null) {
-                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
             }
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+        dto.setContenu(bo.getContenu());
+        dto.setContenuInitial(bo.getContenuInitial());
         dto.setBuildId(bo.getConfig().getBuildId());
         dto.setRecapType(bo.getRecapType());
         return dto;
@@ -79,18 +77,14 @@ public class BrouillonsTransformer {
         bo.setRecapType(dto.getRecapType());
         ObjectMapper mapper = new ObjectMapper();
         try {
-            bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
             if (dto.getMeta() != null) {
                 bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-            }
-            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
-            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
-                bo.setContenuInitial(null);
             }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+        bo.setContenu(dto.getContenu());
+        bo.setContenuInitial(dto.getContenuInitial());
         return bo;
     }
 

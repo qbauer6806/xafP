@@ -81,7 +81,9 @@ public class AfPostProcessingProvider {
                     sourceFiableDTOS.add(new SourceFiableDTO(donneeExterneKey, sourceFiablesEnum));
                 }
             }
-            demande.setDonneesCertifiees(sourceFiableDTOS.toArray(SourceFiableDTO[]::new));
+            if (!sourceFiableDTOS.isEmpty()) {
+                demande.setDonneesCertifiees(sourceFiableDTOS.toArray(SourceFiableDTO[]::new));
+            }
         }
 
         demande.setContenu(contenu);

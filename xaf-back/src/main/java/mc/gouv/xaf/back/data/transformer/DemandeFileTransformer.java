@@ -65,13 +65,19 @@ public class DemandeFileTransformer {
      */
     public void setContenu(DemandeComplementsFileDTO fichier) throws IOException {
         if (fichier != null) {
-            fichier.setContenu(getFileText(fichier.getUrl()));
+            String texte = getFileText(fichier.getUrl());
+            if (texte != null && !texte.isEmpty() && texte.length() < 100000) {
+                fichier.setContenu(texte);
+            }
         }
     }
 
     public void setContenu(DemandeFileDTO fichier) throws IOException {
         if (fichier != null) {
-            fichier.setContenu(getFileText(fichier.getUrl()));
+            String texte = getFileText(fichier.getUrl());
+            if (texte != null && !texte.isEmpty() && texte.length() < 100000) {
+                fichier.setContenu(texte);
+            }
         }
     }
 

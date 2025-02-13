@@ -1,9 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -15,9 +11,28 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
+import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
@@ -26,6 +41,7 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
@@ -48,7 +64,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -60,19 +76,8 @@ import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -161,6 +166,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private RechercheDemandesUtils rechercheDemandesUtils;
+
+    @Autowired
+    private DemandesComplementsRepository demandesComplementsRepository;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -269,7 +277,8 @@ public class DemandesServiceImpl implements DemandesService {
         return demandeDTO;
     }
 
-    private void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
+    @Override
+    public void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
         JsonNode mappings = config.get("mappings");
         List<JsonNode> champsNodes = config.get("recap").findValues("champs");
         for (JsonNode champs : champsNodes) {
@@ -358,17 +367,11 @@ public class DemandesServiceImpl implements DemandesService {
                             enumValue = enumKey;
                         }
                     } else if (mapping.asText().equals("nationalites")) {
-                        enumValue = StringUtils.isBlank(enumKey)
-                                ? ""
-                                : paysCache.get(enumKey, "fr") != null
-                                        ? paysCache.get(enumKey, "fr").getNationalite()
-                                        : enumKey;
+                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                                : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getNationalite() : enumKey;
                     } else if (mapping.asText().equals("pays")) {
-                        enumValue = StringUtils.isBlank(enumKey)
-                                ? ""
-                                : paysCache.get(enumKey, "fr") != null
-                                        ? paysCache.get(enumKey, "fr").getNom()
-                                        : enumKey;
+                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                                : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }
@@ -379,11 +382,8 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
-                String enumValue = StringUtils.isBlank(enumKey)
-                        ? ""
-                        : paysCache.get(enumKey, "fr") != null
-                                ? paysCache.get(enumKey, "fr").getNom()
-                                : enumKey;
+                String enumValue = StringUtils.isBlank(enumKey) ? ""
+                        : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
         } else if (champ.get("type").asText().equals("date")) {
@@ -561,6 +561,16 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
+    public List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts) {
+        List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_NameIn(statuts);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return demandesTransformer.bo2Dto(demandes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
         List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_NameAndDernierStatutDateLessThan(statut,
                 date);
@@ -713,16 +723,7 @@ public class DemandesServiceImpl implements DemandesService {
 
     private void setContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
         if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
-                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
-                    demandeBo.setContenuInitial(null);
-                }
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Problème lors de la conversion JSON", e);
-            }
+            demandeBo.setContenuInitial(demande.getContenuInitial());
         }
     }
 
@@ -894,6 +895,15 @@ public class DemandesServiceImpl implements DemandesService {
 
         LOGGER.info("Duplication terminée");
 
+        // On passe tous les demandes complements à repondue pour la demande dupliquée
+        // cf #66472 - [INCIDENT] [BO] erreur 500 sur demande d'info comp sur une demande annulée et dupliquée
+        for (DemandesComplementsBO compl : newDemandeBo.getDemandesComplements()) {
+            compl.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
+            demandesComplementsRepository.save(compl);
+            LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
+                    compl.getPkDemandesComplements(), pkDemande);
+        }
+
         return demandesTransformer.bo2Dto(newDemandeBo);
     }
 
@@ -988,24 +998,12 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandeForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux) {
-
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(
-                        dernierStatutDateDebut, dernierStatutList, canaux));
-
-    }
-
-    @Override
     public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
             List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
-                        dernierStatutDateFin, dernierStatutList));
+        return demandesTransformer.bo2Dto(demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(
+                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
 
     }
 
@@ -1015,24 +1013,6 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
         return demandesRepository.findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(
                 dernierStatutDateDebut, dernierStatutList, canaux);
-    }
-
-    @Override
-    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList) {
-
-        LOGGER.info("Appel à DemandeService.getAllDemandeIdsForRelanceAvantPurge");
-        return demandesRepository.findPkDemandesByDernierStatut_DateBetweenAndDernierStatut_NameIn(
-                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList);
-    }
-
-    @Override
-    public void deleteDemandeBulkInGivenStatus(List<Integer> demandeIdList, List<String> statuts, int jours)
-            throws JsonProcessingException {
-        for (Integer demandeId : demandeIdList) {
-            this.deleteDemandeInGivenStatus(demandeId, statuts, jours);
-        }
-
     }
 
     @Override

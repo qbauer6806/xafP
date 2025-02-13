@@ -19,7 +19,7 @@ public class AfSmsTemplateModelProvider extends AfTemplateModelProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfSmsTemplateModelProvider.class);
 
-    @Autowired
+    @Autowired(required = false)
     private SmsTemplateModelProvider smsTemplateModelProvider;
 
     public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande,

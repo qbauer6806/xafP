@@ -1,6 +1,13 @@
 package mc.gouv.xaf.back.properties;
 
-import lombok.Getter;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.PostConstruct;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
 
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement.
@@ -55,9 +56,12 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.mail.api.url}")
     private String mailUrl;
-    
+
     @Value("${mc.gouv.sms.api.url:OPTIONAL}")
     private String smsUrl;
+
+    @Value("${mc.gouv.nomen.api.url}")
+    private String nomenUrl;
 
     @Value("${mc.gouv.vscan.api.url}")
     private String vscanUrl;
@@ -65,9 +69,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Getter
     @Value("${mc.gouv.vscan.activated}")
     private boolean vscanActivated;
-
-    @Value("${mc.gouv.servicerest.api.pays.url}")
-    private String paysRestUrl;
 
     @Value("${mc.gouv.gichkey.url}")
     private String gichkeyUrl;
@@ -79,8 +80,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.file.containerId}")
     private String containerId;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.usagerscache.duration}")
+    @Value("${mc.gouv.backapi.usagerscache.duration}")
     private String usagersCacheDuration;
+
+    @Value("${mc.gouv.payscache.duration}")
+    private String paysCacheDuration;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.vscan.jwt}")
     private String vscanJwt;
@@ -90,9 +94,12 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.${application.name}.shared.backapi.file.jwt}")
     private String fileJwt;
-    
+
     @Value("${mc.gouv.${application.name}.shared.backapi.sms.jwt:OPTIONAL}")
     private String smsJwt;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.nomen.jwt}")
+    private String nomenJwt;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
     private String paiementEnabled;
@@ -117,7 +124,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.file.extensions.whitelist}")
     private String extensionsWhitelist;
-    
+
     @Value("${mc.gouv.${application.name}.shared.backapi.sms.enabled:false}")
     private boolean smsEnabled;
 
@@ -157,13 +164,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
             // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
             // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
-            boolean pasIgnorerSSL = method.getDeclaredAnnotation(GouvSSLProperty.class) == null || (
-                    method.getDeclaredAnnotation(GouvSSLProperty.class) != null && sslEnabled);
+            boolean pasIgnorerSSL = method.getDeclaredAnnotation(GouvSSLProperty.class) == null
+                    || (method.getDeclaredAnnotation(GouvSSLProperty.class) != null && sslEnabled);
 
             // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
             // archivage.enabled=false ou pas présente
-            boolean pasIgnorerArchivage = method.getDeclaredAnnotation(GouvArchivageProperty.class) == null || (
-                    method.getDeclaredAnnotation(GouvArchivageProperty.class) != null && archivageEnabled);
+            boolean pasIgnorerArchivage = method.getDeclaredAnnotation(GouvArchivageProperty.class) == null
+                    || (method.getDeclaredAnnotation(GouvArchivageProperty.class) != null && archivageEnabled);
 
             if (pasIgnorerSSL && pasIgnorerArchivage) {
                 Object value = method.invoke(this);
@@ -194,8 +201,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         List<String> propertiesNotFound = new ArrayList<>();
         try {
 
-            for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(GouvPropertiesResolverImpl.class,
-                    Object.class).getPropertyDescriptors()) {
+            for (PropertyDescriptor propertyDescriptor : Introspector
+                    .getBeanInfo(GouvPropertiesResolverImpl.class, Object.class).getPropertyDescriptors()) {
 
                 Method method = getMethod(propertyDescriptor);
 
@@ -234,11 +241,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getPaysRestUrl() {
-        return paysRestUrl;
-    }
-
-    @Override
     public String getVscanJwt() {
         return vscanJwt;
     }
@@ -252,7 +254,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getSmsUrl() {
         return smsUrl;
     }
-    
+
+    public String getNomenUrl() {
+        return nomenUrl;
+    }
+
     @Override
     public String getFileJwt() {
         return fileJwt;
@@ -267,7 +273,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getSmsJwt() {
         return smsJwt;
     }
-    
+
+    public String getNomenJwt() {
+        return nomenJwt;
+    }
+
     @Override
     public String getFrontUrl() {
         return frontUrl;
@@ -291,6 +301,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public long getUsagersCacheDuration() {
         return Long.parseLong(usagersCacheDuration);
+    }
+
+    @Override
+    public long getPaysCacheDuration() {
+        return Long.parseLong(paysCacheDuration);
     }
 
     @Override
@@ -469,8 +484,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return extensionsWhitelist;
     }
 
-	@Override
-	public boolean getSmsEnabled() {
-		return smsEnabled;
-	}
+    @Override
+    public boolean getSmsEnabled() {
+        return smsEnabled;
+    }
 }

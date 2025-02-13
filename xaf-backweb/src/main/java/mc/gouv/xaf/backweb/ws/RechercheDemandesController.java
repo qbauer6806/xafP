@@ -56,7 +56,9 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
             @RequestParam(value = "aucunAgentAffecte", required = false) boolean aucunAgentAffecte,
             @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
-            @RequestParam(value = "searchFields", required = false) String[] searchFields, Pageable pageable) {
+            @RequestParam(value = "searchFields", required = false) String[] searchFields,
+            @RequestParam(value = "fields", required = false) String[] fields,
+            @RequestParam(value = "trad", required = false, defaultValue = "true") boolean trad, Pageable pageable) {
         String safeAgent = AfBackUtils.logSafe(agentId);
         String safeTexte = AfBackUtils.logSafe(texte);
         LOGGER.debug(
@@ -78,10 +80,13 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setAucunAgentAffecte(aucunAgentAffecte);
         demandeRecherche.setCheckTimestamp(checkTimestamp);
         demandeRecherche.setSearchFields(searchFields);
+        demandeRecherche.setTrad(trad);
+
+        String[] rechercheFields = fields == null ? new String[] {} : fields;
 
         Order order = pageable.getSort().iterator().next();
         if (order != null) {
-            return processCustomData(demandesService.getDemandes(demandeRecherche, pageable, new String[] {}));
+            return processCustomData(demandesService.getDemandes(demandeRecherche, pageable, rechercheFields));
         }
 
         Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
@@ -89,7 +94,7 @@ public class RechercheDemandesController extends AbstractController {
 
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
 
-        return processCustomData(demandesService.getDemandes(demandeRecherche, newPageable, new String[] {}));
+        return processCustomData(demandesService.getDemandes(demandeRecherche, newPageable, rechercheFields));
     }
 
     private Page<AfBackDemandeDTO> processCustomData(Page<DemandeDTO> demandes) {

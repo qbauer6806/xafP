@@ -1,8 +1,6 @@
 package mc.gouv.xaf.back.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -322,27 +320,25 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private String getFirstLevelHTML(DemandeDTO demande, String sectionType, JSONObject section, boolean isPdfRecap,
             List<SourceFiableDTO> donneesCertifiees) throws IllegalArgumentException, SecurityException {
-        DemandeDTO demandeSource = null;
+        JsonNode contenuSource = null;
 
         if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper om = new ObjectMapper();
-            try {
-                demandeSource = om.treeToValue(demande.getContenuInitial(), DemandeDTO.class);
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Impossible de parser le contenu initial de la demande" + demande.getIdentifiant(), e);
-            }
+            // récupérer le contenu de la demandeInitial et traduire
+            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
+            demandesService.setContenuTrad(contenuSource, demande.getConfig());
         } else if (demande.getPkDemandeSource() != null) {
-            demandeSource = demandesService.getDemande(demande.getPkDemandeSource());
+            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
+            contenuSource = d != null ? d.getContenuTrad() : null;
         }
 
         // On créé un nouveau SB de façon à ne pas générer la section si aucune donnée n'est renseignée.
         StringBuilder html = new StringBuilder();
         if (StringUtils.equals(sectionType, CHAMPS)) {
             // Génération du code pour un champs HTML (titre / valeur)
-            getFirstLevelChamps(demande, demandeSource, section, isPdfRecap, html, donneesCertifiees);
+            getFirstLevelChamps(demande, contenuSource, section, isPdfRecap, html, donneesCertifiees);
         } else if (StringUtils.equals(sectionType, "tableau")) {
             // Génération du code pour un tableau
-            getFirstLevelTableau(demande, demandeSource, section, isPdfRecap, html, donneesCertifiees);
+            getFirstLevelTableau(demande, contenuSource, section, isPdfRecap, html, donneesCertifiees);
         }
         return html.toString();
     }
@@ -351,7 +347,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
      * Génération du code pour un champs HTML (titre / valeur)
      *
      */
-    private void getFirstLevelChamps(DemandeDTO demande, DemandeDTO demandeSource, JSONObject section,
+    private void getFirstLevelChamps(DemandeDTO demande, JsonNode contenuSource, JSONObject section,
             boolean isPdfRecap, StringBuilder html, List<SourceFiableDTO> donneesCertifiees) {
 
         JSONArray champs = (JSONArray) section.get(CHAMPS);
@@ -360,12 +356,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             JSONObject champ = (JSONObject) o;
             String value = getSecondLevelHTML(demande.getContenuTrad(), champ, isPdfRecap, false, donneesCertifiees);
             if (!StringUtils.isBlank(value)) {
-                buildHTML(html, demandeSource, value, isPdfRecap, champ, demande, donneesCertifiees);
+                buildHTML(html, contenuSource, value, isPdfRecap, champ, demande, donneesCertifiees);
             }
         }
     }
 
-    private void buildHTML(StringBuilder html, DemandeDTO demandeSource, String value, boolean isPdfRecap,
+    private void buildHTML(StringBuilder html, JsonNode contenuSource, String value, boolean isPdfRecap,
             JSONObject champ, DemandeDTO demande, List<SourceFiableDTO> donneesCertifiees) {
 
         String type = (String) champ.get("type");
@@ -389,8 +385,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         String imgTag = this.getImgTag(isPdfRecap);
 
-        String valueSource = getSourceValue(demandeSource, champ, isPdfRecap, donneesCertifiees);
-        if (demandeSource != null && !value.equalsIgnoreCase(valueSource)
+        String valueSource = getSourceValue(contenuSource, champ, isPdfRecap, donneesCertifiees);
+        if (contenuSource != null && !value.equalsIgnoreCase(valueSource)
                 && demarchesDataProvider.isAfficheDemandeSource() && StringUtils.isBlank(sourceDonneesFiable)) {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
@@ -465,7 +461,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
      * Génération du code pour un tableau
      *
      */
-    private void getFirstLevelTableau(DemandeDTO demande, DemandeDTO demandeSource, JSONObject section,
+    private void getFirstLevelTableau(DemandeDTO demande, JsonNode contenuSource, JSONObject section,
             boolean isPdfRecap, StringBuilder html, List<SourceFiableDTO> donneesCertifiees) {
 
         ArrayNode newValeurs = (ArrayNode) getNode(demande.getContenuTrad(), section);
@@ -483,8 +479,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             }
             html.append("</tr></thead>");
             Iterator<JsonNode> itNew = newValeurs.elements();
-            if (demandeSource != null && null != demandeSource.getContenuTrad()) {
-                contructTableauWithDiff(demandeSource, section, isPdfRecap, html, itNew, donneesCertifiees);
+            if (contenuSource != null) {
+                contructTableauWithDiff(contenuSource, section, isPdfRecap, html, itNew, donneesCertifiees);
             } else {
                 contructSimpleTableau(demande, section, isPdfRecap, html, donneesCertifiees);
             }
@@ -512,9 +508,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         }
     }
 
-    private void contructTableauWithDiff(DemandeDTO demandeSource, JSONObject section, boolean isPdfRecap,
+    private void contructTableauWithDiff(JsonNode contenuSource, JSONObject section, boolean isPdfRecap,
             StringBuilder html, Iterator<JsonNode> itNew, List<SourceFiableDTO> donneesCertifiees) {
-        ArrayNode demandeSourceValeurs = (ArrayNode) getNode(demandeSource.getContenuTrad(), section);
+        ArrayNode demandeSourceValeurs = (ArrayNode) getNode(contenuSource, section);
         Iterator<JsonNode> itDemandeSource = demandeSourceValeurs.elements();
         html.append("<tbody>");
         JSONArray columns = (JSONArray) section.get(COLUMNS);
@@ -793,10 +789,10 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
      * Mise en valeur des données modifiées par rapport à la demande source, si cette demande est issue d'un
      * renouvellement
      */
-    private String getSourceValue(DemandeDTO demandeSource, JSONObject champ, boolean isPdfRecap,
+    private String getSourceValue(JsonNode contenuSource, JSONObject champ, boolean isPdfRecap,
             List<SourceFiableDTO> donneesCertifiees) {
-        if (demandeSource != null) {
-            return getSecondLevelHTML(demandeSource.getContenuTrad(), champ, isPdfRecap, false, donneesCertifiees);
+        if (contenuSource != null) {
+            return getSecondLevelHTML(contenuSource, champ, isPdfRecap, false, donneesCertifiees);
         }
         return null;
     }

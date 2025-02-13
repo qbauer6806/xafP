@@ -1,32 +1,24 @@
 package mc.gouv.xaf.back.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
-import mc.gouv.xaf.back.service.DemandeExcelGenerationService;
-import mc.gouv.xaf.back.service.DemandeExcelRechercheProvider;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
@@ -38,14 +30,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import mc.gouv.xaf.back.service.DemandeExcelGenerationService;
+import mc.gouv.xaf.back.service.DemandeExcelRechercheProvider;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 /**
  * Classe permettant de générer un fichier Excel à partir des fichiers Recap de la démarche, avec une feuille Excel par
@@ -283,14 +285,14 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                         return "";
                     } else {
-                        return paysCache.get(node0.asText(), "fr").getNationalite();
+                        return paysCache.get(node0.asText()).getNationalite();
                     }
                 } else if (StringUtils.equals(mapping.toLowerCase(), "pays")) {
                     JsonNode node0 = getNode(node, jsonObject, "path");
                     if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                         return "";
                     } else {
-                        return paysCache.get(node0.asText(), "fr").getNom();
+                        return paysCache.get(node0.asText()).getLibelle();
                     }
                 } else if (mapping.toLowerCase().startsWith("properties_")) {
                     String path = jsonObject.get("path").toString().replace(CONTENU, "/").replace(".", "/");
@@ -315,8 +317,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                         // Prise en compte valeur/valeurExtra
                         if (pathNode instanceof ObjectNode) {
                             pathNode = node.at(path + "/valeur");
-                            if (pathNode instanceof MissingNode || pathNode instanceof NullNode || (
-                                    pathNode instanceof TextNode && pathNode.textValue().equals("AUTRE"))) {
+                            if (pathNode instanceof MissingNode || pathNode instanceof NullNode
+                                    || (pathNode instanceof TextNode && pathNode.textValue().equals("AUTRE"))) {
                                 JsonNode node0 = node.at(path + "/valeurExtra");
                                 if (node0 == null || node0 instanceof NullNode) {
                                     return "";
@@ -385,7 +387,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     String pays = getNode(node, jsonObject, "pays").textValue();
                     ret += "\n" + codePostal + " " + ville;
                     if (StringUtils.isNotBlank(pays)) {
-                        ret += "\n" + paysCache.get(pays, "fr").getNom();
+                        ret += "\n" + paysCache.get(pays).getLibelle();
                     }
                 }
                 return ret;

@@ -55,10 +55,11 @@ public class DocHolderTypedocController extends AbstractXafController {
         try {
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
+            String contentType = serviceResponse.getEntity().getContentType();
 
             LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
             return ResponseEntity.status(statusCode)
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
         } catch (ClientProtocolException e) {
             LOGGER.error("Erreur lors de l'exécution de l'appel à monguichet, erreur protocole HTTP", e);

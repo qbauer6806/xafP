@@ -76,10 +76,11 @@ public class DocHolderSearchController extends AbstractXafController {
         try {
             serviceRequest.bodyString(mapper.writeValueAsString(fileSearchDTO), ContentType.APPLICATION_JSON);
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
+            String contentType = serviceResponse.getEntity().getContentType();
 
             LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
             return ResponseEntity.status(serviceResponse.getCode())
-                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType()))
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
         } catch (UnsupportedOperationException | IOException e) {

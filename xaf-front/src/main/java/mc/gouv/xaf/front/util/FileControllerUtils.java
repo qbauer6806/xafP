@@ -230,10 +230,11 @@ public class FileControllerUtils {
 
             LOGGER.info("Appel du WS FILE");
             ClassicHttpResponse getResponse = (ClassicHttpResponse) client.execute(getRequest);
+            String contentType = getResponse.getEntity().getContentType();
 
             LOGGER.info("Constitution de la réponse pour retour au client");
             ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getCode())
-                    .contentType(MediaType.valueOf(getResponse.getEntity().getContentType()));
+                    .header(HttpHeaders.CONTENT_TYPE, contentType);
             // Ajout de la métadonnée indiquant le demandeId lié
             for (Header header : getResponse.getHeaders()) {
                 if (header.getName().startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {

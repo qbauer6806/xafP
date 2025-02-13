@@ -130,8 +130,9 @@ public class DemandeBO {
     @Column(name = "MODIFICATION_TIMESTAMP")
     private Long modificationTimestamp;
 
-    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT")
-    private String contenuInitial;
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode contenuInitial;
 
     @Column(name = "META", columnDefinition = "TEXT")
     private String meta;

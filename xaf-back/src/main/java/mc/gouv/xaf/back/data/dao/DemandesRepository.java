@@ -38,6 +38,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByIdentifiantIn(List<String> identifiants);
 
     List<DemandeBO> findAllByDernierStatut_Name(String dernierStatut);
+    List<DemandeBO> findAllByDernierStatut_NameIn(List<String> statuts);
 
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
 
@@ -66,17 +67,6 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      */
     List<DemandeBO> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Date startDate, String dernierStatut);
 
-    /**
-     * Permet de récupérer les demandes à purger avant une certaine date. Utile pour l'opération de purge
-     *
-     * @param dernierStatutDateDebut
-     * @param dernierStatutList
-     * @param canaux
-     * @return
-     */
-    List<DemandeBO> findByDernierStatut_DateBeforeAndDernierStatut_NameInAndCanalIn(Date dernierStatutDateDebut,
-            List<String> dernierStatutList, List<String> canaux);
-
     @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
             + "WHERE ds.date < :dernierStatutDateDebut " + "AND ds.name IN :dernierStatutList "
             + "AND d.canal IN :canaux")
@@ -94,9 +84,6 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      * @return
      */
     List<DemandeBO> findByDernierStatut_DateBetweenAndDernierStatut_NameIn(Date dernierStatutDateDebut,
-            Date dernierStatutDateFin, List<String> dernierStatutList);
-
-    List<Integer> findPkDemandesByDernierStatut_DateBetweenAndDernierStatut_NameIn(Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList);
 
     /**

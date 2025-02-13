@@ -19,13 +19,17 @@ public interface GouvPropertiesResolver {
     
     String getSmsJwt();
 
-    String getDemarcheId();
+    String getNomenUrl();
 
-    String getPaysRestUrl();
+    String getNomenJwt();
+
+    String getDemarcheId();
 
     String getContainerId();
 
     long getUsagersCacheDuration();
+
+    long getPaysCacheDuration();
 
     String getGouvSharedLogonUrl();
 

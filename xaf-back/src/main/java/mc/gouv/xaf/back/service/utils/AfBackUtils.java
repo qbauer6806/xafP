@@ -3,6 +3,16 @@ package mc.gouv.xaf.back.service.utils;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -20,36 +30,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
-
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -84,6 +73,16 @@ import mc.gouv.xaf.shared.dto.PaysTraductionAlpha3DTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -441,7 +440,7 @@ public class AfBackUtils {
         flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
         flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
         flat.setDateCreation(convertDateToString(demande.getDateCreation()));
-        flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getName()));
+        flat.setDernierStatut(demande.getDernierStatut().getLibelle());
         flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
         flat.setLangue(getSafeString(demande.getLangue()));
         flat.setObservations(getSafeString(demande.getObservations()));
@@ -861,55 +860,69 @@ public class AfBackUtils {
     }
 
     public Object getMarqueurValue(JsonNode contenu, String path, Set<MarqueurBO> marqueurs) {
-        if (path != null) {
-            JsonNode node = getNodeFromPath(contenu, path);
-            if (node != null) {
-                if (node.isTextual() && !"null".equals(node.asText())) {
-                    // texte
-                    return node.asText();
-                } else if (node.isArray()) {
-                    if (!node.isEmpty() && node.get(0).isTextual()) {
-                        // choixMultiple
-                        List<String> choices = new ArrayList<>();
-                        node.forEach(arrayElement -> {
-                            if (arrayElement.isTextual()) {
-                                choices.add(arrayElement.asText());
-                            }
-                        });
-                        return choices;
-                    } else {
-                        // tableau
-                        List<Map<String, String>> list = new ArrayList<>();
-                        for (JsonNode arrayElement : node) {
-                            Map<String, String> map = new HashMap<>();
-                            arrayElement.fields().forEachRemaining(tableauDonnee -> {
-                                String donneeTableauPath = path + "." + tableauDonnee.getKey();
-                                // retrouver le nom du marqueur à partir du nouveau path
-                                Optional<MarqueurBO> marqueurFound = marqueurs.stream()
-                                        .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
-                                if (marqueurFound.isPresent()) {
-                                    putMarqueur(map, tableauDonnee.getValue(), marqueurFound.get());
-                                } else {
-                                    // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
-                                    String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
-                                            "bic", "iban", "titulaire", "indicatif", "numero" };
-                                    for (String suffixe : suffixes) {
-                                        String suffixedPath = donneeTableauPath + "." + suffixe;
-                                        marqueurFound = marqueurs.stream()
-                                                .filter(marqueur -> suffixedPath.equals(marqueur.getChemin()))
-                                                .findFirst();
-                                        marqueurFound.ifPresent(marqueurBO -> putMarqueur(map,
-                                                tableauDonnee.getValue().get(suffixe), marqueurBO));
-                                    }
-                                }
-                            });
-                            list.add(map);
-                        }
-                        return list;
+        if (path == null) {
+            return "";
+        }
+
+        JsonNode node = getNodeFromPath(contenu, path);
+        if (node == null || (node.isTextual() && "null".equals(node.asText()))) {
+            return "";
+        }
+
+        // Mise en cache des marqueurs pour un accès rapide O(1)
+        Map<String, MarqueurBO> marqueursMap = new HashMap<>();
+        for (MarqueurBO marqueur : marqueurs) {
+            marqueursMap.put(marqueur.getChemin(), marqueur);
+        }
+
+        // Si c'est un texte simple
+        if (node.isTextual()) {
+            return node.asText();
+        }
+
+        // Si c'est un tableau contenant des chaînes de caractères
+        if (node.isArray()) {
+            if (!node.isEmpty() && node.get(0).isTextual()) {
+                List<String> choices = new ArrayList<>(node.size());
+                for (JsonNode arrayElement : node) {
+                    if (arrayElement.isTextual()) {
+                        choices.add(arrayElement.asText());
                     }
                 }
+                return choices;
             }
+
+            // Sinon, c'est un tableau complexe
+            List<Map<String, String>> list = new ArrayList<>(node.size());
+            for (JsonNode arrayElement : node) {
+                Map<String, String> map = new HashMap<>();
+                Iterator<Entry<String, JsonNode>> fields = arrayElement.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> tableauDonnee = fields.next();
+                    String donneeTableauPath = path + "." + tableauDonnee.getKey();
+
+                    // Récupération directe du marqueur
+                    MarqueurBO marqueur = marqueursMap.get(donneeTableauPath);
+                    if (marqueur != null) {
+                        putMarqueur(map, tableauDonnee.getValue(), marqueur);
+                    } else {
+                        // Vérifier si le chemin a un suffixe connu
+                        String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
+                                "iban", "titulaire", "indicatif", "numero" };
+                        for (String suffixe : suffixes) {
+                            String suffixedPath = donneeTableauPath + "." + suffixe;
+                            marqueur = marqueursMap.get(suffixedPath);
+                            if (marqueur != null) {
+                                putMarqueur(map, tableauDonnee.getValue().get(suffixe), marqueur);
+                            }
+                        }
+                    }
+                }
+                list.add(map);
+            }
+            return list;
         }
+
         return "";
     }
 

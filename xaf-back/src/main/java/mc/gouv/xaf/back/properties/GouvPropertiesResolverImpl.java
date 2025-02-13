@@ -80,10 +80,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.file.containerId}")
     private String containerId;
 
-    @Value("${mc.gouv.shared.backapi.usagerscache.duration}")
+    @Value("${mc.gouv.backapi.usagerscache.duration}")
     private String usagersCacheDuration;
 
-    @Value("${mc.gouv.shared.backapi.payscache.duration}")
+    @Value("${mc.gouv.payscache.duration}")
     private String paysCacheDuration;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.vscan.jwt}")

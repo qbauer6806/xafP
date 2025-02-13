@@ -94,7 +94,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.nomen.jwt}")
     private String nomenJwt;
 
-    @Value("${mc.gouv.shared.frontserver.payscache.duration}")
+    @Value("${mc.gouv.payscache.duration}")
     private String paysCacheDuration;
 
     @Value("${mc.gouv.frontserver.max.upload.intervalle}")

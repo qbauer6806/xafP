@@ -47,6 +47,7 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
@@ -497,11 +498,15 @@ public class AfApiService {
                 demarchesDataProvider.getCodeMotifAnnulationDesinscription());
 
         LOGGER.info(
-                "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes qui passent à l'état Annulée suite à la désinscription...");
-        envoiEmailAgents(demandesImpacteesPk, demandesImpacteesPhrase, usager);
+                "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes " +
+                        "qui passent à l'état Annulée suite à la désinscription...");
+        Map<String, Object> model = afMailTemplateModelProvider.getModelDesinscriptionUsager(usagerId, demandes);
+        DemarcheDTO demarcheDTO = afBackUtils.getDemarcheInfos();
+
+        envoiEmailAgents(demandesImpacteesPk, demandesImpacteesPhrase, usager, model, demarcheDTO);
 
         LOGGER.info("Envoi d'un email à l'usager suite à la désinscription...");
-        envoiEmailUsager(demandesImpacteesPk, usager, langue);
+        envoiEmailUsager(demandesImpacteesPk, usager, langue, model, demarcheDTO);
 
         // Génération de l'historique pour chaque demande impactée
         for (DemandeDTO demande : demandes) {
@@ -590,15 +595,14 @@ public class AfApiService {
         }
     }
 
-    private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue) {
+    private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue,
+                                  Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourUsager());
         emailInfo.setSubjectTemplateCode(
                 demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager());
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         String prenom = StringUtils.EMPTY;
         String nom = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(usager.getPrenom())) {
@@ -611,7 +615,6 @@ public class AfApiService {
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
         emailInfo.setLangue(langue);
 
-        Map<String, Object> model = afMailTemplateModelProvider.getGenericModel();
         model.put("identifiant_usager", usager.getLogin());
         String cguProp = StringUtils.equals("fr", langue) ? "XAF_CGU_URL_FR" : "XAF_CGU_URL_EN";
         model.put("cguUrl", propertiesService.getProperty(cguProp).getValue());
@@ -624,15 +627,14 @@ public class AfApiService {
         }
     }
 
-    private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager) {
+    private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager,
+                                  Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourAgents());
         emailInfo.setSubjectTemplateCode(
                 demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents());
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 
         Set<User> destinataires = afBackUtils.getAgentsWithRoles(new String[] { "TRAITEMENT" });
         if (destinataires != null && !destinataires.isEmpty()) {
@@ -649,7 +651,6 @@ public class AfApiService {
 
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
         emailInfo.setLangue("fr");
-        Map<String, Object> model = afMailTemplateModelProvider.getGenericModel();
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
         model.put("demandesAnnuleesPhrase", demandesImpacteesPhrase);
         try {

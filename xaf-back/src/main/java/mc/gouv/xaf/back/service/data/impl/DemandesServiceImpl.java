@@ -679,7 +679,7 @@ public class DemandesServiceImpl implements DemandesService {
         setContenu(demandeBo, demande, partialUpdate);
 
         // Mise à jour du contenu initial
-        this.setContenuInitial(demande, partialUpdate, demandeBo);
+        setContenuInitial(demande, partialUpdate, demandeBo);
 
         // Mise à jour du timestamp pour verrouillage
         demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
@@ -714,11 +714,14 @@ public class DemandesServiceImpl implements DemandesService {
         return dto;
     }
 
-    private DemandeBO setContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
+    private void setContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
         if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
             demandeBo.setContenu(demande.getContenu());
+            // set contenuTrad
+            JsonNode contenuTrad = demande.getContenu().deepCopy();
+            setContenuTrad(contenuTrad, demandeBo.getConfig().getContenu());
+            demandeBo.setContenuTrad(contenuTrad);
         }
-        return demandeBo;
     }
 
     private void setContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {

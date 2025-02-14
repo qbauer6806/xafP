@@ -37,7 +37,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -858,7 +857,7 @@ public class AfBackUtils {
         return afApiClient2Tiers;
     }
 
-    public Object getMarqueurValue(JsonNode contenu, String path, Set<MarqueurBO> marqueurs) {
+    public Object getMarqueurValue(JsonNode contenu, String path, Map<String, MarqueurBO> marqueursMap) {
         if (path == null) {
             return "";
         }
@@ -867,10 +866,6 @@ public class AfBackUtils {
         if (node == null || (node.isTextual() && "null".equals(node.asText()))) {
             return "";
         }
-
-        // Mise en cache des marqueurs pour un accès rapide O(1)
-        Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
-                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur));
 
         // Si c'est un texte simple
         if (node.isTextual()) {

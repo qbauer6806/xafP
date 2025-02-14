@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
@@ -234,8 +235,13 @@ public class DemandesTransformer {
     }
 
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
-        return config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
-                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), config.getMarqueurs()),
+        Set<MarqueurBO> marqueurs = config.getMarqueurs();
+
+        // Mise en cache des marqueurs pour un accès rapide O(1)
+        Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
+                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur));
+        return marqueurs.stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), marqueursMap),
                 (existing, replacement) -> {
                     // en cas de doublon d'identifiant, on utilise la 1ère valeur
                     return existing;

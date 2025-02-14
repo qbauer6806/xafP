@@ -51,6 +51,7 @@ import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
@@ -67,10 +68,11 @@ import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PaysTraductionAlpha3DTO;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -134,6 +136,7 @@ public class AfBackUtils {
     public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
 
     public static final String CODE_ALPHA2_APATRIDE = "SP";
+    public static final String CODE_ALPHA2_APATRIDE_NOMEN = "XX";
 
     public static final String CODE_ALPHA2_NONCONNU = "ZZ";
 
@@ -142,8 +145,6 @@ public class AfBackUtils {
     public static final String CODE_ALPHA3_PAYS_NONCONNU = "000";
 
     public static final String CODE_ALPHA3_APATRIDE = "XXA";
-
-    public static final String XAF_CODES_PAYS_ISO_3166_3 = "XAF_CODES_PAYS_ISO_3166_3";
 
     @Autowired
     @Lazy
@@ -196,6 +197,9 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifsCache motifsCache;
+    @Autowired
+    @Lazy
+    private PaysCache paysCache;
 
     private AfApiClient afApiClient2Tiers = null;
 
@@ -238,69 +242,49 @@ public class AfBackUtils {
         }
         return isoCodeMap.get(alpha3Code);
     }
-
-    public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) throws JsonProcessingException {
-        String alpha3 = null;
-        PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
-                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
-                });
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
-                .filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
-        if (pays.isPresent()) {
-            alpha3 = pays.get().getAlpha3().toUpperCase();
+    /**
+     * Convertit un code ISO Alpha-2 en code ISO Alpha-3.
+     *
+     * @param alpha2   Code ISO Alpha-2 à convertir.
+     * @param fromPays Indique si la conversion concerne un pays (true) ou une nationalité (false).
+     * @return         Le code ISO Alpha-3 correspondant, ou null si le code Alpha-2 est invalide ou inconnu.
+     */
+    public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) {
+        if (StringUtils.isBlank(alpha2)) {
+            return null;
         }
-
-        if (null != alpha2) {
-            if (alpha2.equals(CODE_ALPHA2_APATRIDE)) {
-                if (fromPays) {
-                    alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
-                } else {
-                    alpha3 = CODE_ALPHA3_APATRIDE;
-                }
-            }
-
-            if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {
-                if (fromPays) {
-                    alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
-                } else {
-                    alpha3 = CODE_ALPHA3_NATIONALITEE_NONCONNU;
-                }
-            }
+        if (alpha2.equals(CODE_ALPHA2_APATRIDE)) {
+            return fromPays ? CODE_ALPHA3_PAYS_NONCONNU : CODE_ALPHA3_APATRIDE;
         }
-        return alpha3;
+        if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {
+            return fromPays ? CODE_ALPHA3_PAYS_NONCONNU : CODE_ALPHA3_NATIONALITEE_NONCONNU;
+        }
+        PaysDTO paysDTO = paysCache.get(alpha2);
+        return paysDTO != null ? paysDTO.getCodeAlpha3() : null;
     }
 
-    public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) throws JsonProcessingException {
-        String alpha2 = null;
-        PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
-                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
-                });
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
-                .filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
-        if (pays.isPresent()) {
-            alpha2 = pays.get().getAlpha2().toUpperCase();
+    /**
+     * Convertit un code ISO Alpha-3 en code ISO Alpha-2.
+     *
+     * @param alpha3   Code ISO Alpha-3 à convertir.
+     * @param fromPays Indique si la conversion concerne un pays (true) ou une nationalité (false).
+     * @return         Le code ISO Alpha-2 correspondant, ou null si le code Alpha-3 est invalide ou inconnu.
+     */
+    public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) {
+        if (StringUtils.isBlank(alpha3)) {
+            return null;
         }
-
-        if (null != alpha3) {
-            if (alpha3.equals(CODE_ALPHA3_APATRIDE)) {
-                if (fromPays) {
-                    alpha2 = CODE_ALPHA2_NONCONNU;
-                } else {
-                    alpha2 = CODE_ALPHA2_APATRIDE;
-                }
-            }
-
-            if (alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
-                if (fromPays) {
-                    alpha2 = CODE_ALPHA2_NONCONNU;
-                } else {
-                    alpha2 = CODE_ALPHA2_APATRIDE;
-                }
-            }
+        if (alpha3.equals(CODE_ALPHA3_APATRIDE) || alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
+            return fromPays ? CODE_ALPHA2_NONCONNU : CODE_ALPHA2_APATRIDE_NOMEN;
         }
-        return alpha2;
+        Collection<PaysDTO> values = paysCache.getValues();
+        if (CollectionUtils.isEmpty(values)) {
+            return null;
+        }
+        return values.stream()
+                .filter(paysDTO -> StringUtils.equalsIgnoreCase(paysDTO.getCodeAlpha3(), alpha3))
+                .findFirst().map(PaysDTO::getCode)
+                .orElse(null);
     }
 
     /**

@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -230,6 +229,8 @@ public class DemandesTransformer {
 
         dto.setContenuInitial(bo.getContenuInitial());
 
+        dto.setMeta(bo.getMeta());
+
         dto = bo2DtoProcessJsonFields(bo, dto);
         return dto;
     }
@@ -251,11 +252,6 @@ public class DemandesTransformer {
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            // Meta
-            if (bo.getMeta() != null) {
-                dto.setMeta(mapper.readTree(bo.getMeta()));
-            }
-
             dto.setDonneesCertifiees(mapper.treeToValue(bo.getDonneesCertifiees(), SourceFiableDTO[].class));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
@@ -323,14 +319,9 @@ public class DemandesTransformer {
         bo.setContenu(dto.getContenu());
         bo.setContenuTrad(dto.getContenuTrad());
         bo.setContenuInitial(dto.getContenuInitial());
+        bo.setMeta(dto.getMeta());
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-            bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
-
+        bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
         return bo;
     }
 

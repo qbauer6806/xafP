@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurLienDTO;
+import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurParametreDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.PaysDTO;
@@ -26,6 +27,8 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheDataProvider.class);
 
+    private static final String CODE_ALPHA3_PARAMETRE = "CODE_ALPHA3";
+
     @Autowired
     private AfBackUtils afBackUtils;
 
@@ -37,12 +40,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         ConcurrentHashMap<String, PaysDTO> map = new ConcurrentHashMap<>();
         NomenNomenclatureDTO nomenclature = afBackUtils.getNomenClient().getNomenclature("PAY-1");
         for (NomenValeurDTO valeur : nomenclature.getValeurs()) {
-            PaysDTO pays = new PaysDTO();
-            pays.setCode(valeur.getCode());
-            pays.setLibelle(valeur.getLibelleCourt());
-            pays.setLibelleLong(valeur.getLibelleLong());
-            pays.setNationalite(getNationaliteFromValeur(valeur));
-            pays.setOrdre(valeur.getOrdre());
+            PaysDTO pays = getPaysFromNomenValeur(valeur);
             map.put(pays.getCode(), pays);
         }
 
@@ -65,12 +63,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
 
         NomenNomenclatureDTO nomenclature = afBackUtils.getNomenClient().getNomenclatureValeur("PAY-1", key);
         NomenValeurDTO valeur = nomenclature.getValeurs().get(0);
-        PaysDTO pays = new PaysDTO();
-        pays.setCode(valeur.getCode());
-        pays.setLibelle(valeur.getLibelleCourt());
-        pays.setLibelleLong(valeur.getLibelleLong());
-        pays.setNationalite(getNationaliteFromValeur(valeur));
-        pays.setOrdre(valeur.getOrdre());
+        PaysDTO pays = getPaysFromNomenValeur(valeur);
 
         LOGGER.info("Appel (EN) de l'API NOMEN (nomenclature PAY-1), pour récupérer le pays de code {}", key);
 
@@ -91,6 +84,23 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
             }
         }
         return null;
+    }
+
+    private PaysDTO getPaysFromNomenValeur(NomenValeurDTO valeur) {
+        PaysDTO pays = new PaysDTO();
+        pays.setCode(valeur.getCode());
+        pays.setLibelle(valeur.getLibelleCourt());
+        pays.setLibelleLong(valeur.getLibelleLong());
+        pays.setNationalite(getNationaliteFromValeur(valeur));
+        pays.setOrdre(valeur.getOrdre());
+
+        for (NomenValeurValeurParametreDTO param : valeur.getValeurParametres()) {
+            if (CODE_ALPHA3_PARAMETRE.equals(param.getParametreNom())) {
+                pays.setCodeAlpha3(param.getParametreValeur());
+            }
+        }
+
+        return pays;
     }
 
 }

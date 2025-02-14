@@ -14,6 +14,8 @@ public class PaysDTO {
 
     private String code;
 
+    private String codeAlpha3;
+
     private String libelle;
 
     private String libelleEn;

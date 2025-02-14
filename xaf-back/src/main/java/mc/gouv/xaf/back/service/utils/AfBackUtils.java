@@ -30,15 +30,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -870,10 +869,8 @@ public class AfBackUtils {
         }
 
         // Mise en cache des marqueurs pour un accès rapide O(1)
-        Map<String, MarqueurBO> marqueursMap = new HashMap<>();
-        for (MarqueurBO marqueur : marqueurs) {
-            marqueursMap.put(marqueur.getChemin(), marqueur);
-        }
+        Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
+                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur));
 
         // Si c'est un texte simple
         if (node.isTextual()) {
@@ -884,21 +881,19 @@ public class AfBackUtils {
         if (node.isArray()) {
             if (!node.isEmpty() && node.get(0).isTextual()) {
                 List<String> choices = new ArrayList<>(node.size());
-                for (JsonNode arrayElement : node) {
+                node.forEach(arrayElement -> {
                     if (arrayElement.isTextual()) {
                         choices.add(arrayElement.asText());
                     }
-                }
+                });
                 return choices;
             }
 
             // Sinon, c'est un tableau complexe
             List<Map<String, String>> list = new ArrayList<>(node.size());
-            for (JsonNode arrayElement : node) {
+            node.forEach(arrayElement -> {
                 Map<String, String> map = new HashMap<>();
-                Iterator<Entry<String, JsonNode>> fields = arrayElement.fields();
-                while (fields.hasNext()) {
-                    Map.Entry<String, JsonNode> tableauDonnee = fields.next();
+                arrayElement.fields().forEachRemaining(tableauDonnee -> {
                     String donneeTableauPath = path + "." + tableauDonnee.getKey();
 
                     // Récupération directe du marqueur
@@ -914,12 +909,13 @@ public class AfBackUtils {
                             marqueur = marqueursMap.get(suffixedPath);
                             if (marqueur != null) {
                                 putMarqueur(map, tableauDonnee.getValue().get(suffixe), marqueur);
+                                break; // Sortir de la boucle une fois le marqueur trouvé
                             }
                         }
                     }
-                }
+                });
                 list.add(map);
-            }
+            });
             return list;
         }
 

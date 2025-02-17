@@ -5,7 +5,6 @@ import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -557,21 +555,17 @@ public class AfBackUtils {
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
-    public static String changeSimpleDateStringFormat(final String dateString) {
-        if (StringUtils.isBlank(dateString)) {
-            return " ";
-        }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+    public static String changeDateStringFormat(final String dateString) {
+        return changeDateStringFormat(DEFAULT_FRENCH_DATE_FORMAT, dateString);
     }
 
-    public static String changeDateStringFormat(final String dateString) {
+    public static String changeDateStringFormat(final String format, final String dateString) {
         if (StringUtils.isBlank(dateString)) {
-            return " ";
+            return "";
         }
         try {
             return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                    .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+                    .format(DateTimeFormatter.ofPattern(format));
         } catch (DateTimeParseException e) {
             // impossible de parser la date, elle est sûrement déjà au bon format
             return dateString;
@@ -579,19 +573,11 @@ public class AfBackUtils {
     }
 
     public static String changeTimeStringFormat(final String dateString) {
-        if (StringUtils.isBlank(dateString)) {
-            return " ";
-        }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_TIME_FORMAT));
+        return changeDateStringFormat(DEFAULT_FRENCH_TIME_FORMAT, dateString);
     }
 
     public static String changeDateTimeStringFormat(final String dateString) {
-        if (StringUtils.isBlank(dateString)) {
-            return " ";
-        }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_HOURS_FORMAT));
+        return changeDateStringFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT, dateString);
     }
 
     public static String getSafeString(final String value) {

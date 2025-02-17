@@ -395,7 +395,13 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode dateNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (dateNode != null && !dateNode.isNull()) {
                 String date = dateNode.asText();
-                AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(date));
+                // Si la date a un format d'affichage
+                String format = "dd/MM/yyyy";
+                JsonNode formatNode = champ.get("displayJavaFormat");
+                if (formatNode != null && !formatNode.isNull()) {
+                    format = formatNode.asText();
+                }
+                AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(format, date));
             }
         }
     }

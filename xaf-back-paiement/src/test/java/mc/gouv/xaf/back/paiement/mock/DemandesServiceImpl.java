@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -149,18 +150,14 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandes() {
-        return List.of();
+    public Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate) {
+        return null;
     }
 
     @Override
-    public List<DemandeDTO> getAllDemandesFilteredByDate(Date startDate, Date endDate) {
-        return List.of();
-    }
-
-    @Override
-    public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate, String statut) {
-        return List.of();
+    public Page<DemandeBO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+            String statut) {
+        return null;
     }
 
     @Override
@@ -200,12 +197,13 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut) {
-        return List.of();
+    public void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
+
     }
 
     @Override
-    public void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
+    public void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate,
+            String plainEndDate, String statut) {
 
     }
 }

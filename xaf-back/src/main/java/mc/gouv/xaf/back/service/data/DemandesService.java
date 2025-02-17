@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -169,14 +170,9 @@ public interface DemandesService {
     DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId);
 
     /**
-     * Retourne toutes les demandes, même celles associées à des accès inactifs
-     */
-    List<DemandeDTO> getAllDemandes();
-
-    /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée
      */
-    List<DemandeDTO> getAllDemandesFilteredByDate(Date startDate, Date endDate);
+    Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate);
 
     /**
      * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
@@ -184,7 +180,7 @@ public interface DemandesService {
      * @param statut
      *         libellé du statut
      */
-    List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate, String statut);
+    Page<DemandeBO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate, String statut);
 
     /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
@@ -244,8 +240,9 @@ public interface DemandesService {
     List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
             List<String> dernierStatutList);
 
-    List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut);
-
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
+
+    void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate, String plainEndDate,
+            String statut);
 
 }

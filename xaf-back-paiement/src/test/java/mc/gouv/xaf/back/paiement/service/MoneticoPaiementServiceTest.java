@@ -56,6 +56,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -298,9 +301,22 @@ class MoneticoPaiementServiceTest {
         String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
-        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle)
-                .toList()
-                .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+        int pageNumber = 0;
+        int pageSize = 250;  // Taille de chaque batch
+
+        Page<DemandeBO> page;
+
+        do {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+            page = demandesRepository.findAll(pageable);
+
+            page.getContent().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).toList()
+                    .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+
+            pageNumber++;
+
+        } while (page.hasNext());
 
         String status = "paiement";
         MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
@@ -319,8 +335,20 @@ class MoneticoPaiementServiceTest {
         MoyenPaiementBO moyenPaiementBO = optionalMoyenPaiementBO.get();
         assertThat(moyenPaiementBO.getMoyenPaiementStatut()).isEqualTo(MoyenPaiementStatutEnum.VALIDE);
 
-        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle)
-                .toList().forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
+        pageNumber = 0;
+
+        do {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+            page = demandesRepository.findAll(pageable);
+
+            page.getContent().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).toList()
+                    .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
+
+            pageNumber++;
+
+        } while (page.hasNext());
+
         paiementHistoriqueRepository.findAll().forEach(histo -> {
             assertThat(histo.getContenu()).isEqualTo("Usager Jon Doe : Effectue une empreinte bancaire");
             assertThat(histo.getStatut()).isEqualTo(PaiementStatutEnum.EMPREINTE_VALIDE.name());
@@ -428,9 +456,22 @@ class MoneticoPaiementServiceTest {
         String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
-        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle)
-                .toList()
-                .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+        int pageNumber = 0;
+        int pageSize = 250;  // Taille de chaque batch
+
+        Page<DemandeBO> page;
+
+        do {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+            page = demandesRepository.findAll(pageable);
+
+            page.getContent().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).toList()
+                    .forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+
+            pageNumber++;
+
+        } while (page.hasNext());
 
         String status = "paiement";
         MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();

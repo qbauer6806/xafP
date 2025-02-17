@@ -1029,7 +1029,7 @@ public class DemandesServiceImpl implements DemandesService {
         }
 
         int pageNumber = 0;
-        int pageSize = 250;  // Taille de chaque batch
+        int pageSize = 100;  // Taille de chaque batch
 
         Page<DemandeBO> page;
 

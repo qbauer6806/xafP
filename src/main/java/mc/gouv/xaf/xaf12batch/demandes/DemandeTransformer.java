@@ -157,18 +157,24 @@ public class DemandeTransformer {
             JsonNode dateNode = getNodeFromPath(contenuTrad, path);
             if (dateNode != null && !dateNode.isNull()) {
                 String date = dateNode.asText();
-                setNodeValue(contenuTrad, path, changeDateStringFormat(date));
+                // Si la date a un format d'affichage
+                String format = DEFAULT_FRENCH_DATE_FORMAT;
+                JsonNode formatNode = champ.get("displayJavaFormat");
+                if (formatNode != null && !formatNode.isNull()) {
+                    format = formatNode.asText();
+                }
+                setNodeValue(contenuTrad, path, changeDateStringFormat(format, date));
             }
         }
     }
 
-    private String changeDateStringFormat(final String dateString) {
+    private String changeDateStringFormat(final String format, final String dateString) {
         if (StringUtils.isBlank(dateString)) {
             return " ";
         }
         try {
             return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                    .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+                    .format(DateTimeFormatter.ofPattern(format));
         } catch (DateTimeParseException e) {
             // impossible de parser la date, elle est sûrement déjà au bon format
             return dateString;

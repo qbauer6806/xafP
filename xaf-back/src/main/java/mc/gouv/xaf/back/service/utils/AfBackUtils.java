@@ -251,7 +251,7 @@ public class AfBackUtils {
         if (StringUtils.isBlank(alpha2)) {
             return null;
         }
-        if (alpha2.equals(CODE_ALPHA2_APATRIDE)) {
+        if (alpha2.equals(CODE_ALPHA2_APATRIDE) || alpha2.equals(CODE_ALPHA2_APATRIDE_NOMEN)) {
             return fromPays ? CODE_ALPHA3_PAYS_NONCONNU : CODE_ALPHA3_APATRIDE;
         }
         if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {

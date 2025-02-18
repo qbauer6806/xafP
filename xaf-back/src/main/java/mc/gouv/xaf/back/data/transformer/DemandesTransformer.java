@@ -224,7 +224,7 @@ public class DemandesTransformer {
         statutDto.setAgentId(null);
         Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
         // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
-        if (privateStatus.get(statutDto.getName()) != null) {
+        if (privateStatus.get(statutDto.getName()) != null && demandeDTO.getStatuts() != null) {
             List<DemandeStatutDTO> allStatus = Arrays.asList(demandeDTO.getStatuts());
             allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
             for (DemandeStatutDTO demandeStatutDTO : allStatus) {

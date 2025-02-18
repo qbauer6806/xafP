@@ -35,11 +35,6 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId, boolean active) {
-        return List.of();
-    }
-
-    @Override
     public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
         return null;
     }
@@ -72,11 +67,6 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
-        return null;
-    }
-
-    @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
         return null;
     }
 
@@ -164,6 +154,7 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
         return List.of();
     }
+
     @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts) {
         return List.of();

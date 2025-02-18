@@ -5,19 +5,19 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
+import org.springframework.stereotype.Service;
 
 /**
  * @author qdeme
  */
+@Service
 public class DemandesComplementsTransformer {
 
     private DemandesComplementsTransformer() {
@@ -31,10 +31,6 @@ public class DemandesComplementsTransformer {
         DemandeComplementsDTO dto = new DemandeComplementsDTO();
         if (bo.getAgentId() != null || bo.getDateCreation() != null || bo.getQuestion() != null) {
             DemandeComplementsQuestionDTO question = new DemandeComplementsQuestionDTO();
-            // Cacher l'agentId au Front Office
-            if (!DemarchesUtils.isFrontUser()) {
-                question.setAgentId(bo.getAgentId());
-            }
             question.setDate(bo.getDateCreation());
             question.setTexte(bo.getQuestion());
             question.setCodeMotif(bo.getCodeMotif());
@@ -43,10 +39,7 @@ public class DemandesComplementsTransformer {
         if (bo.getReponseAgentId() != null || bo.getReponseUsagerId() != null || bo.getDateReponse() != null || (
                 bo.getFiles() != null && !bo.getFiles().isEmpty()) || bo.getReponse() != null) {
             DemandeComplementsReponseDTO reponse = new DemandeComplementsReponseDTO();
-            // Cacher l'agentId au Front Office
-            if (!DemarchesUtils.isFrontUser()) {
-                reponse.setAgentId(bo.getReponseAgentId());
-            }
+            reponse.setAgentId(bo.getReponseAgentId());
             reponse.setUsagerId(bo.getReponseUsagerId());
             reponse.setDate(bo.getDateReponse());
             if (null != bo.getFiles()) {
@@ -61,6 +54,35 @@ public class DemandesComplementsTransformer {
         dto.setPkDemandeComplements(bo.getPkDemandesComplements());
         dto.setStatut(DemandeComplementsStatutEnum.valueOf(bo.getStatut()));
         return dto;
+    }
+
+    public void hideInfos(DemandeComplementsDTO demandeComplementsDTO) {
+        if (demandeComplementsDTO != null) {
+            DemandeComplementsQuestionDTO question = demandeComplementsDTO.getQuestion();
+            if (question != null) {
+                question.setAgentId(null);
+            }
+            DemandeComplementsReponseDTO response = demandeComplementsDTO.getReponse();
+            if (response != null) {
+                response.setAgentId(null);
+            }
+        }
+    }
+
+    public void hideInfos(DemandeComplementsDTO[] complementsDTOs) {
+        if (complementsDTOs != null) {
+            for (DemandeComplementsDTO complementsDTO : complementsDTOs) {
+                hideInfos(complementsDTO);
+            }
+        }
+    }
+
+    public void hideInfos(List<DemandeComplementsDTO> complementsDTOs) {
+        if (complementsDTOs != null) {
+            for (DemandeComplementsDTO complementsDTO : complementsDTOs) {
+                hideInfos(complementsDTO);
+            }
+        }
     }
 
     /**

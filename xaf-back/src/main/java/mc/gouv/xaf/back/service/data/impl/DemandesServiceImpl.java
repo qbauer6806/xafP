@@ -434,20 +434,12 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return getDemandesUsager(usagerId, true);
+        return getDemandesUsager(usagerId);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId, boolean active) {
-        return getDemandesUsager(usagerId, active);
-    }
-
-    private List<DemandeDTO> getDemandesUsager(Integer usagerId, boolean active) {
+    private List<DemandeDTO> getDemandesUsager(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
-        AccessBO accessBo = accessService.getAccessBO(usagerId, active);
+        AccessBO accessBo = accessService.getAccessBO(usagerId, true);
         if (accessBo == null) {
             throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
         }
@@ -646,20 +638,9 @@ public class DemandesServiceImpl implements DemandesService {
         return demandesTransformer.bo2Dto(demandeBo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
-        return updateDemande(demande, partialUpdate, true);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, checkActive);
+        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, true);
 
         // Mise à jour du contenu
         setContenu(demandeBo, demande, partialUpdate);

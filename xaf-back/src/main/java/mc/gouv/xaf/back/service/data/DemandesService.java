@@ -2,9 +2,6 @@ package mc.gouv.xaf.back.service.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -13,6 +10,10 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -35,11 +36,6 @@ public interface DemandesService {
      * Permet de récupérer les demandes correspondant UsagerID
      */
     List<DemandeDTO> getDemandes(Integer usagerId);
-
-    /**
-     * Permet de récupérer les demandes correspondant aux UsagerID avec un accès inactif
-     */
-    List<DemandeDTO> getDemandes(Integer usagerId, boolean active);
 
     /**
      * Méthode permettant de récupérer les demandes
@@ -91,15 +87,6 @@ public interface DemandesService {
      * @return La demande modifiée
      */
     DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate);
-
-    /**
-     * Permet de modifier une demande
-     *
-     * @param partialUpdate
-     *         true si il faut effectuer une mise à jour partielle
-     * @return La demande modifiée
-     */
-    DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive);
 
     /**
      * Permet de supprimer une demande à partir de l'UsagerID

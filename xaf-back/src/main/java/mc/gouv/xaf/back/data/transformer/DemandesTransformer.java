@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +19,6 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -56,6 +56,9 @@ public class DemandesTransformer {
 
     @Autowired
     private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
+    private DemandesComplementsTransformer demandesComplementsTransformer;
 
     @Autowired
     private DemandesConfigTransformer demandesConfigTransformer;
@@ -135,9 +138,7 @@ public class DemandesTransformer {
         dto.setObservations(bo.getObservations());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
-        if (!DemarchesUtils.isFrontUser()) {
-            dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
-        }
+        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
         dto.setIdentifiant(bo.getIdentifiant());
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
@@ -186,26 +187,6 @@ public class DemandesTransformer {
         if (bo.getDernierStatut() != null) {
             DemandesStatutsBO statut = bo.getDernierStatut();
             DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
-            if (DemarchesUtils.isFrontUser()) {
-                // Cacher l'agentId au Front Office
-                statutDto.setAgentId(null);
-                Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
-                // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
-                if (privateStatus.get(statutDto.getName()) != null) {
-                    List<DemandeStatutDTO> allStatus = DemandesStatutsTransformer.bo2Dto(
-                            new ArrayList<>(bo.getStatuts()));
-                    allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
-                    for (DemandeStatutDTO demandeStatutDTO : allStatus) {
-                        // si on tombe sur un statut public, on utilise celui-là
-                        if (privateStatus.get(demandeStatutDTO.getName()) == null) {
-                            statutDto.setName(demandeStatutDTO.getName());
-                            statutDto.setLibelle(demandeStatutDTO.getLibelle());
-                            break;
-                        }
-                    }
-                    statutDto.setCodeMotif(null);
-                }
-            }
             dto.setDernierStatut(statutDto);
         }
 
@@ -235,6 +216,38 @@ public class DemandesTransformer {
         return dto;
     }
 
+    public void hideInfos(DemandeDTO demandeDTO) {
+        demandeDTO.setStatuts(null);
+        demandeDTO.setAgent(null);
+        DemandeStatutDTO statutDto = demandeDTO.getDernierStatut();
+        // Cacher l'agentId au Front Office
+        statutDto.setAgentId(null);
+        Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
+        // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
+        if (privateStatus.get(statutDto.getName()) != null) {
+            List<DemandeStatutDTO> allStatus = Arrays.asList(demandeDTO.getStatuts());
+            allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
+            for (DemandeStatutDTO demandeStatutDTO : allStatus) {
+                // si on tombe sur un statut public, on utilise celui-là
+                if (privateStatus.get(demandeStatutDTO.getName()) == null) {
+                    statutDto.setName(demandeStatutDTO.getName());
+                    statutDto.setLibelle(demandeStatutDTO.getLibelle());
+                    break;
+                }
+            }
+            // si c'est un statut privé on cache le motif
+            statutDto.setCodeMotif(null);
+        }
+        demandeDTO.setDernierStatut(statutDto);
+        demandesComplementsTransformer.hideInfos(demandeDTO.getComplements());
+    }
+
+    public void hideInfos(List<DemandeDTO> demandeDTOS) {
+        for (DemandeDTO demandeDTO : demandeDTOS) {
+            hideInfos(demandeDTO);
+        }
+    }
+
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
         Set<MarqueurBO> marqueurs = config.getMarqueurs();
 
@@ -261,7 +274,7 @@ public class DemandesTransformer {
 
     private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {
         // Mapper les statuts
-        if (addStatutsField && !DemarchesUtils.isFrontUser()) {
+        if (addStatutsField) {
             dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
                     .toArray(DemandeStatutDTO[]::new));
         }

@@ -18,7 +18,6 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
@@ -47,11 +46,11 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
@@ -81,8 +80,6 @@ public class AfApiService {
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
     private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
     private GouvBPM gouvBPM;
 
@@ -234,8 +231,7 @@ public class AfApiService {
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
 
-        gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(),
-                gouvPropertiesResolver.getDemarcheId(), variables);
+        gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(), variables);
 
         LOGGER.info("Envoi du message au Guichet Unique via Kafka (création demande)...");
         List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(usagerId);
@@ -281,7 +277,7 @@ public class AfApiService {
             LOGGER.info("DTO reconstitué : {}", demandeDto);
 
             // Partial update sur contenu et fichiers uniquement
-            demandeDto = demandesService.saveOrUpdateDemande(demandeDto, true, null);
+            demandeDto = demandesService.updateDemande(demandeDto, true);
 
             LOGGER.info("DTO après sauvegarde en base : {}", demandeDto);
 

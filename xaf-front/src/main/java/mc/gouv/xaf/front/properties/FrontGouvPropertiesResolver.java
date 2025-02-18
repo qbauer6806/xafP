@@ -178,7 +178,7 @@ public class FrontGouvPropertiesResolver {
     private String supportUrlEn;
     @Value("${mc.gouv.appfactory.compte.particulier.url.fr}")
     private String compteParticulierUrlFr;
-    @Value("${mc.gouv.appfactory.compte.particulier.url.fr}")
+    @Value("${mc.gouv.appfactory.compte.particulier.url.en}")
     private String compteParticulierUrlEn;
     @Value("${mc.gouv.appfactory.compte.entreprise.url.fr}")
     private String compteEntrepriseUrlFr;

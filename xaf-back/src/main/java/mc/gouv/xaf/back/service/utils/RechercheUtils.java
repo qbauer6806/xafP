@@ -28,9 +28,9 @@ public class RechercheUtils {
     public void setFTSPredicates(List<Path> roots, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
         List<Predicate> predicatFTS = new ArrayList<>();
 
-        // Ne fait rien si le texte est uniquement composé de caractères spéciaux ou d'espaces
+        // Ne fait rien si le texte est uniquement composé d'espaces ou *
         String texteTrimmed = texte.replaceAll(" ", "");
-        if (texteTrimmed.isEmpty()) {
+        if (texteTrimmed.isEmpty() || texteTrimmed.equals("*")) {
             return;
         }
         if (!isOnlySpecialCharacters(texteTrimmed)) {

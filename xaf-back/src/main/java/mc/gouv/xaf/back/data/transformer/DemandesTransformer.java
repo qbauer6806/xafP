@@ -250,10 +250,11 @@ public class DemandesTransformer {
 
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
         Set<MarqueurBO> marqueurs = config.getMarqueurs();
-
         // Mise en cache des marqueurs pour un accès rapide O(1)
         Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
-                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur));
+                .filter(marqueurBO -> marqueurBO.getChemin() != null) // Pour éviter les nulles
+                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur,
+                        (existing, replacement) -> existing)); // On garde la première valeur en cas de doublon sur le chemin
         return marqueurs.stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
                 marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), marqueursMap),
                 (existing, replacement) -> {

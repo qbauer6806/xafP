@@ -252,7 +252,7 @@ public class DemandeTransformer {
                         String path = champ.get("path").asText();
                         JsonNode node = getNodeFromPath(contenu, path);
                         // si c'est une array ça veut dire que le format a déjà changé
-                        if (node != null && !node.isNull() && !node.isArray()) {
+                        if (node != null && !node.isNull() && !node.isMissingNode() && !node.isArray()) {
                             Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
                             while (fields.hasNext()) {
                                 Map.Entry<String, JsonNode> field = fields.next();

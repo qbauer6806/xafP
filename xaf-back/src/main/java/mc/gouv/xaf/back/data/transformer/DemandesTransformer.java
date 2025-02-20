@@ -217,7 +217,6 @@ public class DemandesTransformer {
     }
 
     public void hideInfos(DemandeDTO demandeDTO) {
-        demandeDTO.setStatuts(null);
         demandeDTO.setAgent(null);
         DemandeStatutDTO statutDto = demandeDTO.getDernierStatut();
         // Cacher l'agentId au Front Office
@@ -238,6 +237,7 @@ public class DemandesTransformer {
             // si c'est un statut privé on cache le motif
             statutDto.setCodeMotif(null);
         }
+        demandeDTO.setStatuts(null);
         demandeDTO.setDernierStatut(statutDto);
         demandesComplementsTransformer.hideInfos(demandeDTO.getComplements());
     }

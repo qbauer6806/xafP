@@ -56,6 +56,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String AGENT = "agent";
     private static final String DATE_CREATION = "dateCreation";
     private static final String CONTENU = "contenu.";
+    private static final String CONTENU_TRAD = "contenuTrad.";
     private static final String FILES = "files";
     private static final String SEARCH_VECTOR = "searchVector";
 
@@ -114,6 +115,14 @@ public class RechercheDemandesUtils extends RechercheUtils {
                 groupBy.add(f.get("nomAffichage"));
             } else if (order.getProperty().startsWith(CONTENU)) {
                 String[] jsonKeys = order.getProperty().replace(CONTENU, "").split("\\.");
+                List<Expression<?>> expressions = new ArrayList<>();
+                expressions.add(root.<String> get("contenu"));
+                for (String jsonKey : jsonKeys) {
+                    expressions.add(cb.literal(jsonKey));
+                }
+                e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
+            } else if (order.getProperty().startsWith(CONTENU_TRAD)) {
+                String[] jsonKeys = order.getProperty().replace(CONTENU_TRAD, "").split("\\.");
                 List<Expression<?>> expressions = new ArrayList<>();
                 expressions.add(root.<String> get("contenuTrad"));
                 for (String jsonKey : jsonKeys) {

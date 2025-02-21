@@ -247,7 +247,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler())
                 .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
                 .build();
-        rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         String requestUrl = residUrl + entryPoint;
         URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
@@ -343,7 +343,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         // Construction du rest template
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
@@ -381,7 +381,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         // Construction du rest template
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
@@ -426,7 +426,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.info("Appel à l'API RESID v2 /usagers pour demander les usagers correspondants");
 
         RestTemplate rest = new RestTemplate();
-        rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         HttpHeaders headers = getResidRequestHeaders(jwt);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH)
@@ -458,7 +458,7 @@ public class ResidApiServiceImpl implements ResidApiService {
             Integer usagerId) throws ParseException {
         LOGGER.info("Appel à l'API RESID v2 /usagers/npdhl pour demander l'usager correspondant");
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         HttpHeaders headers = getResidRequestHeaders(jwt);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)

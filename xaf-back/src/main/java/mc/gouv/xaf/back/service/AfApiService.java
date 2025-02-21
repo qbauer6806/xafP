@@ -22,6 +22,7 @@ import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.MotifsService;
@@ -46,6 +47,7 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
@@ -79,6 +81,7 @@ public class AfApiService {
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
     private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
+    private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
 
     @Autowired
     private GouvBPM gouvBPM;
@@ -148,6 +151,9 @@ public class AfApiService {
 
     @Autowired
     private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
+    private DemandesDataService demandesDataService;
 
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -382,6 +388,12 @@ public class AfApiService {
         DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId, demande.getDernierStatut().getName(),
                 usagerId, agentId, assigneeId);
         this.saveHistorique(demandeId, histo);
+
+        DemandeDataDTO demandeData = demandesDataService.getDemandeData(demande.getPkDemandes(),
+                DEMANDE_IC_DEJA_RELANCEE_KEY);
+        if (null != demandeData) {
+            demandesDataService.deleteDemandeData(demandeId, DEMANDE_IC_DEJA_RELANCEE_KEY);
+        }
 
         return demandeComplementsDto;
     }

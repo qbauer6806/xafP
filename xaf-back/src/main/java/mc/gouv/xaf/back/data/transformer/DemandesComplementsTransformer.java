@@ -31,6 +31,7 @@ public class DemandesComplementsTransformer {
         DemandeComplementsDTO dto = new DemandeComplementsDTO();
         if (bo.getAgentId() != null || bo.getDateCreation() != null || bo.getQuestion() != null) {
             DemandeComplementsQuestionDTO question = new DemandeComplementsQuestionDTO();
+            question.setAgentId(bo.getAgentId());
             question.setDate(bo.getDateCreation());
             question.setTexte(bo.getQuestion());
             question.setCodeMotif(bo.getCodeMotif());

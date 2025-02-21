@@ -376,8 +376,7 @@ public class ResidApiServiceImpl implements ResidApiService {
     }
 
     @Override
-    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt)
-            throws ResidHttpResponseException {
+    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
 
         // Construction du rest template
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();

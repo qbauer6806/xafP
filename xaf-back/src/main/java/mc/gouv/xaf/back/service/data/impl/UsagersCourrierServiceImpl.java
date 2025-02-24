@@ -269,7 +269,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      */
     @Override
     public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds) {
-        List<DemandeDTO> listDemandes = demandesService.getDemandes(usagerId, true);
+        List<DemandeDTO> listDemandes = demandesService.getDemandes(usagerId);
         return listDemandes.stream()
                 .filter(dem -> statuts.contains(dem.getDernierStatut().getName()) && buildIds.contains(
                         dem.getConfig().get("buildId").asText())).max(Comparator.comparing(DemandeDTO::getDateCreation))

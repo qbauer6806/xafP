@@ -265,8 +265,10 @@ public class MarqueursServiceImpl implements MarqueursService {
     public String exportConfig() throws IOException {
         Iterable<MarqueurBO> marqueurs = marqueursRepository.findAll();
         List<MarqueurDTO> list = new ArrayList<>();
-        for (MarqueurBO marqueur : marqueurs) {
-            list.add(marqueursTransformer.bo2Dto(marqueur));
+        for (MarqueurBO marqueurBo : marqueurs) {
+            MarqueurDTO marqueurDTO = marqueursTransformer.bo2Dto(marqueurBo);
+            marqueurDTO.setPkMarqueur(null);
+            list.add(marqueurDTO);
         }
 
         ObjectMapper mapper = new ObjectMapper();

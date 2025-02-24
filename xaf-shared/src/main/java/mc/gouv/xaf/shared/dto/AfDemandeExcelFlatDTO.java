@@ -11,8 +11,6 @@ public class AfDemandeExcelFlatDTO {
 
     protected DemandeFlatDTO generic;
 
-    private String etatInterne;
-
     public AfDemandeExcelFlatDTO(DemandeFlatDTO generic) {
         this.generic = generic;
     }

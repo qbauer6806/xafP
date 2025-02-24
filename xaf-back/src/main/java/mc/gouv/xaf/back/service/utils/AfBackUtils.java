@@ -3,6 +3,15 @@ package mc.gouv.xaf.back.service.utils;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -23,33 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
-
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -64,6 +49,7 @@ import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
@@ -80,10 +66,21 @@ import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PaysTraductionAlpha3DTO;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -137,6 +134,7 @@ public class AfBackUtils {
     public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
 
     public static final String CODE_ALPHA2_APATRIDE = "SP";
+    public static final String CODE_ALPHA2_APATRIDE_NOMEN = "XX";
 
     public static final String CODE_ALPHA2_NONCONNU = "ZZ";
 
@@ -145,8 +143,6 @@ public class AfBackUtils {
     public static final String CODE_ALPHA3_PAYS_NONCONNU = "000";
 
     public static final String CODE_ALPHA3_APATRIDE = "XXA";
-
-    public static final String XAF_CODES_PAYS_ISO_3166_3 = "XAF_CODES_PAYS_ISO_3166_3";
 
     @Autowired
     @Lazy
@@ -199,6 +195,9 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifsCache motifsCache;
+    @Autowired
+    @Lazy
+    private PaysCache paysCache;
 
     private AfApiClient afApiClient2Tiers = null;
 
@@ -241,69 +240,49 @@ public class AfBackUtils {
         }
         return isoCodeMap.get(alpha3Code);
     }
-
-    public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) throws JsonProcessingException {
-        String alpha3 = null;
-        PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
-                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
-                });
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
-                .filter(p -> p.getAlpha2().equalsIgnoreCase(alpha2)).findFirst();
-        if (pays.isPresent()) {
-            alpha3 = pays.get().getAlpha3().toUpperCase();
+    /**
+     * Convertit un code ISO Alpha-2 en code ISO Alpha-3.
+     *
+     * @param alpha2   Code ISO Alpha-2 à convertir.
+     * @param fromPays Indique si la conversion concerne un pays (true) ou une nationalité (false).
+     * @return         Le code ISO Alpha-3 correspondant, ou null si le code Alpha-2 est invalide ou inconnu.
+     */
+    public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) {
+        if (StringUtils.isBlank(alpha2)) {
+            return null;
         }
-
-        if (null != alpha2) {
-            if (alpha2.equals(CODE_ALPHA2_APATRIDE)) {
-                if (fromPays) {
-                    alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
-                } else {
-                    alpha3 = CODE_ALPHA3_APATRIDE;
-                }
-            }
-
-            if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {
-                if (fromPays) {
-                    alpha3 = CODE_ALPHA3_PAYS_NONCONNU;
-                } else {
-                    alpha3 = CODE_ALPHA3_NATIONALITEE_NONCONNU;
-                }
-            }
+        if (alpha2.equals(CODE_ALPHA2_APATRIDE) || alpha2.equals(CODE_ALPHA2_APATRIDE_NOMEN)) {
+            return fromPays ? CODE_ALPHA3_PAYS_NONCONNU : CODE_ALPHA3_APATRIDE;
         }
-        return alpha3;
+        if (alpha2.equals(CODE_ALPHA2_NONCONNU)) {
+            return fromPays ? CODE_ALPHA3_PAYS_NONCONNU : CODE_ALPHA3_NATIONALITEE_NONCONNU;
+        }
+        PaysDTO paysDTO = paysCache.get(alpha2);
+        return paysDTO != null ? paysDTO.getCodeAlpha3() : null;
     }
 
-    public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) throws JsonProcessingException {
-        String alpha2 = null;
-        PropertiesDTO listeCodePays = propertiesService.getProperty(XAF_CODES_PAYS_ISO_3166_3);
-        List<PaysTraductionAlpha3DTO> listeCodesPays = mapper.readValue(listeCodePays.getValue(),
-                new TypeReference<ArrayList<PaysTraductionAlpha3DTO>>() {
-                });
-        Optional<PaysTraductionAlpha3DTO> pays = listeCodesPays.stream()
-                .filter(p -> p.getAlpha3().equalsIgnoreCase(alpha3)).findFirst();
-        if (pays.isPresent()) {
-            alpha2 = pays.get().getAlpha2().toUpperCase();
+    /**
+     * Convertit un code ISO Alpha-3 en code ISO Alpha-2.
+     *
+     * @param alpha3   Code ISO Alpha-3 à convertir.
+     * @param fromPays Indique si la conversion concerne un pays (true) ou une nationalité (false).
+     * @return         Le code ISO Alpha-2 correspondant, ou null si le code Alpha-3 est invalide ou inconnu.
+     */
+    public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) {
+        if (StringUtils.isBlank(alpha3)) {
+            return null;
         }
-
-        if (null != alpha3) {
-            if (alpha3.equals(CODE_ALPHA3_APATRIDE)) {
-                if (fromPays) {
-                    alpha2 = CODE_ALPHA2_NONCONNU;
-                } else {
-                    alpha2 = CODE_ALPHA2_APATRIDE;
-                }
-            }
-
-            if (alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
-                if (fromPays) {
-                    alpha2 = CODE_ALPHA2_NONCONNU;
-                } else {
-                    alpha2 = CODE_ALPHA2_APATRIDE;
-                }
-            }
+        if (alpha3.equals(CODE_ALPHA3_APATRIDE) || alpha3.equals(CODE_ALPHA3_PAYS_NONCONNU)) {
+            return fromPays ? CODE_ALPHA2_NONCONNU : CODE_ALPHA2_APATRIDE_NOMEN;
         }
-        return alpha2;
+        Collection<PaysDTO> values = paysCache.getValues();
+        if (CollectionUtils.isEmpty(values)) {
+            return null;
+        }
+        return values.stream()
+                .filter(paysDTO -> StringUtils.equalsIgnoreCase(paysDTO.getCodeAlpha3(), alpha3))
+                .findFirst().map(PaysDTO::getCode)
+                .orElse(null);
     }
 
     /**
@@ -441,7 +420,7 @@ public class AfBackUtils {
         flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
         flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
         flat.setDateCreation(convertDateToString(demande.getDateCreation()));
-        flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getName()));
+        flat.setDernierStatut(demande.getDernierStatut().getLibelle());
         flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
         flat.setLangue(getSafeString(demande.getLangue()));
         flat.setObservations(getSafeString(demande.getObservations()));
@@ -576,21 +555,17 @@ public class AfBackUtils {
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
-    public static String changeSimpleDateStringFormat(final String dateString) {
-        if (StringUtils.isBlank(dateString)) {
-            return " ";
-        }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+    public static String changeDateStringFormat(final String dateString) {
+        return changeDateStringFormat(DEFAULT_FRENCH_DATE_FORMAT, dateString);
     }
 
-    public static String changeDateStringFormat(final String dateString) {
+    public static String changeDateStringFormat(final String format, final String dateString) {
         if (StringUtils.isBlank(dateString)) {
-            return " ";
+            return "";
         }
         try {
             return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                    .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+                    .format(DateTimeFormatter.ofPattern(format));
         } catch (DateTimeParseException e) {
             // impossible de parser la date, elle est sûrement déjà au bon format
             return dateString;
@@ -598,19 +573,11 @@ public class AfBackUtils {
     }
 
     public static String changeTimeStringFormat(final String dateString) {
-        if (StringUtils.isBlank(dateString)) {
-            return " ";
-        }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_TIME_FORMAT));
+        return changeDateStringFormat(DEFAULT_FRENCH_TIME_FORMAT, dateString);
     }
 
     public static String changeDateTimeStringFormat(final String dateString) {
-        if (StringUtils.isBlank(dateString)) {
-            return " ";
-        }
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_HOURS_FORMAT));
+        return changeDateStringFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT, dateString);
     }
 
     public static String getSafeString(final String value) {
@@ -860,56 +827,63 @@ public class AfBackUtils {
         return afApiClient2Tiers;
     }
 
-    public Object getMarqueurValue(JsonNode contenu, String path, Set<MarqueurBO> marqueurs) {
-        if (path != null) {
-            JsonNode node = getNodeFromPath(contenu, path);
-            if (node != null) {
-                if (node.isTextual() && !"null".equals(node.asText())) {
-                    // texte
-                    return node.asText();
-                } else if (node.isArray()) {
-                    if (!node.isEmpty() && node.get(0).isTextual()) {
-                        // choixMultiple
-                        List<String> choices = new ArrayList<>();
-                        node.forEach(arrayElement -> {
-                            if (arrayElement.isTextual()) {
-                                choices.add(arrayElement.asText());
-                            }
-                        });
-                        return choices;
-                    } else {
-                        // tableau
-                        List<Map<String, String>> list = new ArrayList<>();
-                        for (JsonNode arrayElement : node) {
-                            Map<String, String> map = new HashMap<>();
-                            arrayElement.fields().forEachRemaining(tableauDonnee -> {
-                                String donneeTableauPath = path + "." + tableauDonnee.getKey();
-                                // retrouver le nom du marqueur à partir du nouveau path
-                                Optional<MarqueurBO> marqueurFound = marqueurs.stream()
-                                        .filter(marqueur -> donneeTableauPath.equals(marqueur.getChemin())).findFirst();
-                                if (marqueurFound.isPresent()) {
-                                    putMarqueur(map, tableauDonnee.getValue(), marqueurFound.get());
-                                } else {
-                                    // si on ne trouve pas ça veut dire que c'est une adresse / une telephone / un rib...
-                                    String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal",
-                                            "bic", "iban", "titulaire", "indicatif", "numero" };
-                                    for (String suffixe : suffixes) {
-                                        String suffixedPath = donneeTableauPath + "." + suffixe;
-                                        marqueurFound = marqueurs.stream()
-                                                .filter(marqueur -> suffixedPath.equals(marqueur.getChemin()))
-                                                .findFirst();
-                                        marqueurFound.ifPresent(marqueurBO -> putMarqueur(map,
-                                                tableauDonnee.getValue().get(suffixe), marqueurBO));
-                                    }
-                                }
-                            });
-                            list.add(map);
-                        }
-                        return list;
-                    }
-                }
-            }
+    public Object getMarqueurValue(JsonNode contenu, String path, Map<String, MarqueurBO> marqueursMap) {
+        if (path == null) {
+            return "";
         }
+
+        JsonNode node = getNodeFromPath(contenu, path);
+        if (node == null || (node.isTextual() && "null".equals(node.asText()))) {
+            return "";
+        }
+
+        // Si c'est un texte simple
+        if (node.isTextual()) {
+            return node.asText();
+        }
+
+        // Si c'est un tableau contenant des chaînes de caractères
+        if (node.isArray()) {
+            if (!node.isEmpty() && node.get(0).isTextual()) {
+                List<String> choices = new ArrayList<>(node.size());
+                node.forEach(arrayElement -> {
+                    if (arrayElement.isTextual()) {
+                        choices.add(arrayElement.asText());
+                    }
+                });
+                return choices;
+            }
+
+            // Sinon, c'est un tableau complexe
+            List<Map<String, String>> list = new ArrayList<>(node.size());
+            node.forEach(arrayElement -> {
+                Map<String, String> map = new HashMap<>();
+                arrayElement.fields().forEachRemaining(tableauDonnee -> {
+                    String donneeTableauPath = path + "." + tableauDonnee.getKey();
+
+                    // Récupération directe du marqueur
+                    MarqueurBO marqueur = marqueursMap.get(donneeTableauPath);
+                    if (marqueur != null) {
+                        putMarqueur(map, tableauDonnee.getValue(), marqueur);
+                    } else {
+                        // Vérifier si le chemin a un suffixe connu
+                        String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
+                                "iban", "titulaire", "indicatif", "numero" };
+                        for (String suffixe : suffixes) {
+                            String suffixedPath = donneeTableauPath + "." + suffixe;
+                            marqueur = marqueursMap.get(suffixedPath);
+                            if (marqueur != null) {
+                                putMarqueur(map, tableauDonnee.getValue().get(suffixe), marqueur);
+                                break; // Sortir de la boucle une fois le marqueur trouvé
+                            }
+                        }
+                    }
+                });
+                list.add(map);
+            });
+            return list;
+        }
+
         return "";
     }
 

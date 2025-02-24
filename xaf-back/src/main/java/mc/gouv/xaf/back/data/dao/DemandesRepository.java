@@ -33,11 +33,11 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     Page<DemandeBO> findAll(Pageable pageRequest);
 
-    List<DemandeBO> findAll();
-
     List<DemandeBO> findAllByIdentifiantIn(List<String> identifiants);
 
     List<DemandeBO> findAllByDernierStatut_Name(String dernierStatut);
+
+    Page<DemandeBO> findAllByDernierStatut_Name(Pageable pageable, String dernierStatut);
     List<DemandeBO> findAllByDernierStatut_NameIn(List<String> statuts);
 
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
@@ -45,27 +45,29 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Permet de récupérer les demandes créées entre deux dates
      */
-    List<DemandeBO> findByDateCreationBetween(Date startDate, Date endDate);
+    Page<DemandeBO> findByDateCreationBetween(Pageable pageRequest, Date startDate, Date endDate);
 
     /**
      * Permet de récupérer les demandes créées à partir d'une date donnée
      */
-    List<DemandeBO> findByDateCreationGreaterThanEqual(Date startDate);
+    Page<DemandeBO> findByDateCreationGreaterThanEqual(Pageable pageRequest, Date startDate);
 
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
      */
-    List<DemandeBO> findByDateCreationLessThanEqual(Date endDate);
+    Page<DemandeBO> findByDateCreationLessThanEqual(Pageable pageRequest, Date endDate);
 
     /**
      * Permet de récupérer les demandes créées entre deux dates
      */
-    List<DemandeBO> findByDateCreationBetweenAndDernierStatut_Name(Date startDate, Date endDate, String dernierStatut);
+    Page<DemandeBO> findByDateCreationBetweenAndDernierStatut_Name(Pageable pageRequest, Date startDate, Date endDate,
+            String dernierStatut);
 
     /**
      * Permet de récupérer les demandes créées à partir d'une date donnée
      */
-    List<DemandeBO> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Date startDate, String dernierStatut);
+    Page<DemandeBO> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Pageable pageRequest, Date startDate,
+            String dernierStatut);
 
     @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
             + "WHERE ds.date < :dernierStatutDateDebut " + "AND ds.name IN :dernierStatutList "
@@ -89,7 +91,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
      */
-    List<DemandeBO> findByDateCreationLessThanEqualAndDernierStatut_Name(Date endDate, String dernierStatut);
+    Page<DemandeBO> findByDateCreationLessThanEqualAndDernierStatut_Name(Pageable pageable, Date endDate,
+            String dernierStatut);
 
     /**
      * Récupération demandes de l'usager FRONT (paginée)

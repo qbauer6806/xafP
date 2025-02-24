@@ -1,6 +1,7 @@
 package mc.gouv.xaf.backweb.ws;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,9 +83,10 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("DemandeExportController.getModel()");
 
         Map<String, Object> model = new HashMap<>();
-        List<AfDemandeExcelFlatDTO> demandesFlat = demandesService.retrieveDemandesFiltered(
-                        excelRecherche.getCreationStartDate(), excelRecherche.getCreationEndDate(), excelRecherche.getStatut()).stream()
-                .map(excelExportModelProvider::getDemandeFlat).toList();
+
+        List<AfDemandeExcelFlatDTO> demandesFlat = new ArrayList<>();
+        demandesService.retrieveDemandesFiltered(demandesFlat, excelRecherche.getCreationStartDate(),
+                excelRecherche.getCreationEndDate(), excelRecherche.getStatut());
 
         model.put("demandes", demandesFlat);
 

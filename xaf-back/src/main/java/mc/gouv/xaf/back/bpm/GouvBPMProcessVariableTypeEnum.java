@@ -8,7 +8,6 @@ package mc.gouv.xaf.back.bpm;
 public enum GouvBPMProcessVariableTypeEnum {
 
     MC_USERID,
-    MC_CODEAPPLI,
     MC_TARGETSTATE,
     MC_TARGETSTATE_ORIGINATOR_AGENT,
     MC_TARGETSTATE_ORIGINATOR_USAGER,

@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,6 +171,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private DemandesComplementsRepository demandesComplementsRepository;
+
+    @Autowired
+    private AfExcelExportModelProvider excelExportModelProvider;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -390,7 +395,13 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode dateNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (dateNode != null && !dateNode.isNull()) {
                 String date = dateNode.asText();
-                AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(date));
+                // Si la date a un format d'affichage
+                String format = "dd/MM/yyyy";
+                JsonNode formatNode = champ.get("displayJavaFormat");
+                if (formatNode != null && !formatNode.isNull()) {
+                    format = formatNode.asText();
+                }
+                AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(format, date));
             }
         }
     }
@@ -423,20 +434,12 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return getDemandesUsager(usagerId, true);
+        return getDemandesUsager(usagerId);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId, boolean active) {
-        return getDemandesUsager(usagerId, active);
-    }
-
-    private List<DemandeDTO> getDemandesUsager(Integer usagerId, boolean active) {
+    private List<DemandeDTO> getDemandesUsager(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
-        AccessBO accessBo = accessService.getAccessBO(usagerId, active);
+        AccessBO accessBo = accessService.getAccessBO(usagerId, true);
         if (accessBo == null) {
             throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
         }
@@ -493,58 +496,33 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> getAllDemandes() {
-        LOGGER.info(RECUPERATION_DEMANDES);
-        List<DemandeBO> demandes = demandesRepository.findAll();
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(demandes);
+    public Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate) {
+        if (startDate != null && endDate != null) {
+            return demandesRepository.findByDateCreationBetween(pageable, startDate, endDate);
+        } else if (startDate != null) {
+            return demandesRepository.findByDateCreationGreaterThanEqual(pageable, startDate);
+        } else if (endDate != null) {
+            return demandesRepository.findByDateCreationLessThanEqual(pageable, endDate);
+        }
+        return demandesRepository.findAll(pageable);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> getAllDemandesFilteredByDate(Date startDate, Date endDate) {
-
-        LOGGER.info("Récupération en base des demandes filtrées par date...");
-
-        List<DemandeBO> demandes;
+    public Page<DemandeBO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+            String statut) {
         if (startDate != null && endDate != null) {
-            demandes = demandesRepository.findByDateCreationBetween(startDate, endDate);
+            return demandesRepository.findByDateCreationBetweenAndDernierStatut_Name(pageable, startDate, endDate,
+                    statut);
         } else if (startDate != null) {
-            demandes = demandesRepository.findByDateCreationGreaterThanEqual(startDate);
+            return demandesRepository.findByDateCreationGreaterThanEqualAndDernierStatut_Name(pageable, startDate,
+                    statut);
         } else if (endDate != null) {
-            demandes = demandesRepository.findByDateCreationLessThanEqual(endDate);
-        } else {
-            demandes = demandesRepository.findAll();
+            return demandesRepository.findByDateCreationLessThanEqualAndDernierStatut_Name(pageable, endDate, statut);
         }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        // pour l'export, on réduit le nombre de fields récupérés pour optimiser le temps de traitement, si besoin il faudra rajouter le field data par exemple
-        return demandesTransformer.bo2Dto(demandes, new String[] {});
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Date startDate, Date endDate, String statut) {
-
-        LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
-
-        List<DemandeBO> demandes;
-        if (startDate != null && endDate != null) {
-            demandes = demandesRepository.findByDateCreationBetweenAndDernierStatut_Name(startDate, endDate, statut);
-        } else if (startDate != null) {
-            demandes = demandesRepository.findByDateCreationGreaterThanEqualAndDernierStatut_Name(startDate, statut);
-        } else if (endDate != null) {
-            demandes = demandesRepository.findByDateCreationLessThanEqualAndDernierStatut_Name(endDate, statut);
-        } else {
-            demandes = demandesRepository.findAllByDernierStatut_Name(statut);
-        }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(demandes);
+        return demandesRepository.findAllByDernierStatut_Name(pageable, statut);
     }
 
     /**
@@ -660,26 +638,15 @@ public class DemandesServiceImpl implements DemandesService {
         return demandesTransformer.bo2Dto(demandeBo);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
-        return updateDemande(demande, partialUpdate, true);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, checkActive);
+        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, true);
 
         // Mise à jour du contenu
         setContenu(demandeBo, demande, partialUpdate);
 
         // Mise à jour du contenu initial
-        this.setContenuInitial(demande, partialUpdate, demandeBo);
+        setContenuInitial(demande, partialUpdate, demandeBo);
 
         // Mise à jour du timestamp pour verrouillage
         demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
@@ -714,11 +681,14 @@ public class DemandesServiceImpl implements DemandesService {
         return dto;
     }
 
-    private DemandeBO setContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
+    private void setContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
         if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
             demandeBo.setContenu(demande.getContenu());
+            // set contenuTrad
+            JsonNode contenuTrad = demande.getContenu().deepCopy();
+            setContenuTrad(contenuTrad, demandeBo.getConfig().getContenu());
+            demandeBo.setContenuTrad(contenuTrad);
         }
-        return demandeBo;
     }
 
     private void setContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
@@ -1016,39 +986,56 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate, String statut) {
-        List<DemandeDTO> demandeDTOS;
-        try {
-            Date startDate = null;
-            Date endDate = null;
+    public void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate,
+            String plainEndDate, String statut) {
+        Date startDate = null;
+        Date endDate = null;
 
-            SimpleDateFormat frenchDateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
-            if (StringUtils.isNotEmpty(plainStartDate)) {
+        SimpleDateFormat frenchDateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
+        if (StringUtils.isNotEmpty(plainStartDate)) {
+            try {
                 startDate = frenchDateFormat.parse(plainStartDate);
+            } catch (ParseException e) {
+                throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            if (StringUtils.isNotEmpty(plainEndDate)) {
+        }
+        if (StringUtils.isNotEmpty(plainEndDate)) {
+            try {
                 endDate = frenchDateFormat.parse(plainEndDate);
-
-                // Last moment of days
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(endDate);
-                cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
-                cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
-                cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
-                endDate = cal.getTime();
+            } catch (ParseException e) {
+                throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            if (statut == null) {
-                demandeDTOS = getAllDemandesFilteredByDate(startDate, endDate);
-            } else {
-                demandeDTOS = getAllDemandesFilteredByDateAndStatut(startDate, endDate, statut);
-            }
-        } catch (ParseException e) {
-            LOGGER.error("Problème dans le parsing des dates, recherche sur toutes les demandes", e);
-            demandeDTOS = getAllDemandes();
+            // Last moment of days
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(endDate);
+            cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+            cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+            cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+            endDate = cal.getTime();
         }
 
-        return demandeDTOS;
+        int pageNumber = 0;
+        int pageSize = 100;  // Taille de chaque batch
+
+        Page<DemandeBO> page;
+
+        do {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+            if (statut == null) {
+                page = getAllDemandesFilteredByDate(pageable, startDate, endDate);
+            } else {
+                page = getAllDemandesFilteredByDateAndStatut(pageable, startDate, endDate, statut);
+            }
+
+            page.getContent().stream().map(demande -> excelExportModelProvider.getDemandeFlat(
+                    demandesTransformer.bo2Dto(demande, new String[] { "data" }))).forEach(demandeExcelFlatDTOS::add);
+
+            pageNumber++;
+
+        } while (page.hasNext());
+
     }
 
 }

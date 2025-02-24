@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.AfApiService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -29,7 +31,6 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,6 +62,12 @@ public class AfApiController {
     @Autowired
     private AfApiService afApiService;
 
+    @Autowired
+    private DemandesTransformer demandesTransformer;
+
+    @Autowired
+    private DemandesComplementsTransformer demandesComplementsTransformer;
+
     @PutMapping(value = "/demandes/{demandeId}/annuler")
     public void annulerDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @RequestParam(value = "usagerId") Integer usagerId) {
@@ -79,7 +86,9 @@ public class AfApiController {
     public DemandeDTO updateDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @Valid @RequestBody DemandeInputDTO demande, @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.updateDemande({}, {}, {})", demandeId, demande, usagerId);
-        return afApiService.updateDemande(demandeId, demande, usagerId);
+        DemandeDTO demandeDTO = afApiService.updateDemande(demandeId, demande, usagerId);
+        demandesTransformer.hideInfos(demandeDTO);
+        return demandeDTO;
     }
 
     @PutMapping(value = "/demandes/{demandeId}/lock")
@@ -108,13 +117,17 @@ public class AfApiController {
     public @ResponseBody DemandeDTO getDemandeRequest(@PathVariable(value = "usagerId") Integer usagerId,
             @PathVariable(value = "demandeId") Integer demandeId) {
         LOGGER.info("AbstractAfApiController.getDemande({}, {})", usagerId, demandeId);
-        return afApiService.getDemande(usagerId, demandeId);
+        DemandeDTO demandeDTO = afApiService.getDemande(usagerId, demandeId);
+        demandesTransformer.hideInfos(demandeDTO);
+        return demandeDTO;
     }
 
     @GetMapping(value = "/demandes")
     public @ResponseBody List<DemandeDTO> getDemandesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getDemandes({})", usagerId);
-        return afApiService.getDemandes(usagerId);
+        List<DemandeDTO> demandeDTOS = afApiService.getDemandes(usagerId);
+        demandesTransformer.hideInfos(demandeDTOS);
+        return demandeDTOS;
     }
 
     @GetMapping(value = "/demandespage")
@@ -122,21 +135,28 @@ public class AfApiController {
             @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
             @RequestParam String status, @RequestParam String lang) {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
-        return afApiService.getDemandesPageable(usagerId, new PageParamDTO(page, size, sort, direction, status, lang));
+        Page<DemandeDTO> demandeDTOS = afApiService.getDemandesPageable(usagerId,
+                new PageParamDTO(page, size, sort, direction, status, lang));
+        demandesTransformer.hideInfos(demandeDTOS.getContent());
+        return demandeDTOS;
     }
 
     @GetMapping(value = "/demandes/{demandeId}/complements")
     public @ResponseBody List<DemandeComplementsDTO> getDemandeComplementsRequest(
             @PathVariable(value = "demandeId") Integer demandeId) {
         LOGGER.info("AbstractAfApiController.getDemandeComplements({})", demandeId);
-        return afApiService.getDemandeComplements(demandeId);
+        List<DemandeComplementsDTO> demandeComplementsDTOS = afApiService.getDemandeComplements(demandeId);
+        demandesComplementsTransformer.hideInfos(demandeComplementsDTOS);
+        return demandeComplementsDTOS;
     }
 
     @GetMapping(value = "/demandes/{demandeId}/complements/{icId}")
     public @ResponseBody DemandeComplementsDTO getDemandeComplementsRequest(
             @PathVariable(value = "demandeId") Integer demandeId, @PathVariable(value = "icId") Integer icId) {
         LOGGER.info("AbstractAfApiController.getDemandeComplements({}, {})", demandeId, icId);
-        return afApiService.getDemandeComplements(demandeId, icId);
+        DemandeComplementsDTO demandeComplementsDTO = afApiService.getDemandeComplements(demandeId, icId);
+        demandesComplementsTransformer.hideInfos(demandeComplementsDTO);
+        return demandeComplementsDTO;
     }
 
     @PostMapping(value = "/demandes/associerDemandeCourrier")
@@ -147,7 +167,9 @@ public class AfApiController {
         String safeNom = AfBackUtils.logSafe(nomProprio);
         LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", safeIndentifiant, safeNom,
                 usagerId);
-        return afApiService.associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
+        DemandeDTO demandeDTO = afApiService.associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
+        demandesTransformer.hideInfos(demandeDTO);
+        return demandeDTO;
     }
 
     @DeleteMapping(value = "/accesses/{usagerId}")

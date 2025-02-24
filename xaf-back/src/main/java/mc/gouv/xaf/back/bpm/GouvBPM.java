@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
@@ -27,12 +26,10 @@ public interface GouvBPM {
      *         Utilisateur à l'origine de l'action
      * @param demandeId
      *         Identifiant de la demande liée à l'instance
-     * @param codeAppli
-     *         Code de l'application concernée
      * @param businessVariables
      *         Variables métier destinées à être stockées dans l'instance
      */
-    void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
+    void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId,
             Map<String, Object> businessVariables);
 
     /**
@@ -89,16 +86,6 @@ public interface GouvBPM {
     void completeTask(GouvBPMTask task, Integer demandeId) throws IOException, TikaException, SAXException;
 
     /**
-     * Permet de lister les tâches actives sur lesquelles un utilisateur est assigné
-     *
-     * @param user
-     *         Utilisateur
-     * @return Une liste de tâche assignées à l'utilisateur
-     */
-    @SuppressWarnings("unused")
-    List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user);
-
-    /**
      * Permet de lister les tâches actives concernant une demande
      *
      * @param demandeId
@@ -108,53 +95,6 @@ public interface GouvBPM {
     List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId);
 
     /**
-     * Permet de récupérer le nombres de tâches dans un certain état
-     *
-     * @param name
-     *         Le nom de l'état
-     * @return La liste des ids dont les tâches sont à l'état donné
-     */
-    List<String> getNumberActiveDemandesInState(String name);
-
-    /**
-     * Permet de lister les tâches pour lesquelles un utilisateur est désigné comme candidat
-     *
-     * @param user
-     *         Utilisateur concerné
-     * @param codeAppli
-     *         Code de l'application concernée
-     * @return La liste des tâches
-     */
-    @SuppressWarnings("unused")
-    List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli);
-
-    /**
-     * Permet de lister les tâches d'une demande pour lesquelles un utilisateur est désigné comme candidat
-     *
-     * @param user
-     *         Utilisateur concerné
-     * @param codeAppli
-     *         Code de l'application concernée
-     * @param demandeId
-     *         Demande concernée
-     * @return La liste des tâches associées à l'utilisateur
-     */
-    @SuppressWarnings("unused")
-    List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli, Integer demandeId);
-
-    /**
-     * Permet de lister les tâches pour lesquelles un groupe est désigné comme candidat
-     *
-     * @param group
-     *         Groupe concerné
-     * @param codeAppli
-     *         Code de l'application concernée
-     * @return La liste des tâches associées à l'utilisateur
-     */
-    @SuppressWarnings("unused")
-    List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli);
-
-    /**
      * Permet de savoir si l'instance de process liée à une demande est vivante ou terminée
      *
      * @param demandeId
@@ -162,49 +102,6 @@ public interface GouvBPM {
      * @return L'état de l'instance
      */
     boolean isProcessInstanceAlive(Integer demandeId);
-
-    /**
-     * Permet de sauter d'une tâche à une autre
-     *
-     * @param demandeId
-     *         L'id de la demande associée aux tâches
-     * @param taskFrom
-     *         La tâche actuelle
-     * @param taskTo
-     *         La tâche suivante
-     */
-    @SuppressWarnings("unused")
-    void jump(Integer demandeId, GouvBPMTask taskFrom, GouvBPMTask taskTo);
-
-    /**
-     * Permet de lister les DemandeID d'une demarche (codeAppli) qui sont dans une certaine tâche courante Exemple : on
-     * souhaite lister toutes les demandes en attente de validation d'une démarche
-     *
-     * @param codeAppli
-     *         Le code appli de la démarche
-     * @param task
-     *         La tâche à filtrer
-     * @return L'id des demandes de la démarche à la tâche donnée
-     */
-    @SuppressWarnings("unused")
-    List<Integer> getDemandesIdsByCodeAppliAndTacheCourante(String codeAppli, GouvBPMTask task);
-
-    /**
-     * Permet de lister les DemandeID d'une demarche (codeAppli) qui sont dans une certaine tâche courante et qu'un
-     * certain utilisateur pourrait compléter. Exemple : on souhaite lister toutes les demandes en attente de validation
-     * d'une démarche par un certain utilisateur
-     *
-     * @param codeAppli
-     *         Le code appli de la démarche
-     * @param task
-     *         La tâche à filtrer
-     * @param user
-     *         L'utilisateur à filtrer
-     * @return L'id des demandes de la démarche à la tâche donnée
-     */
-    @SuppressWarnings("unused")
-    List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
-            GouvBPMUser user);
 
     /**
      * Permet de compléter une tâche en lui donnant les données du formulaire qu'elle requiert
@@ -268,12 +165,10 @@ public interface GouvBPM {
      *         Utilisateur à l'origine de l'action
      * @param demandeId
      *         Identifiant de la demande liée à l'instance
-     * @param codeAppli
-     *         Code de l'application concernée
      * @param businessVariables
      *         Variables métier destinées à être stockées dans l'instance
      */
-    void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
+    void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId,
             Map<String, Object> businessVariables);
 
     void setAssignee(Integer demandeId, String assignee);

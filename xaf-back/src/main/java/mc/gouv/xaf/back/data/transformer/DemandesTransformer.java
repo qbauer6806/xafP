@@ -1,14 +1,15 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
@@ -18,7 +19,6 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -56,6 +56,9 @@ public class DemandesTransformer {
 
     @Autowired
     private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
+    private DemandesComplementsTransformer demandesComplementsTransformer;
 
     @Autowired
     private DemandesConfigTransformer demandesConfigTransformer;
@@ -135,9 +138,7 @@ public class DemandesTransformer {
         dto.setObservations(bo.getObservations());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
-        if (!DemarchesUtils.isFrontUser()) {
-            dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
-        }
+        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
         dto.setIdentifiant(bo.getIdentifiant());
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
@@ -186,26 +187,6 @@ public class DemandesTransformer {
         if (bo.getDernierStatut() != null) {
             DemandesStatutsBO statut = bo.getDernierStatut();
             DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
-            if (DemarchesUtils.isFrontUser()) {
-                // Cacher l'agentId au Front Office
-                statutDto.setAgentId(null);
-                Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
-                // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
-                if (privateStatus.get(statutDto.getName()) != null) {
-                    List<DemandeStatutDTO> allStatus = DemandesStatutsTransformer.bo2Dto(
-                            new ArrayList<>(bo.getStatuts()));
-                    allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
-                    for (DemandeStatutDTO demandeStatutDTO : allStatus) {
-                        // si on tombe sur un statut public, on utilise celui-là
-                        if (privateStatus.get(demandeStatutDTO.getName()) == null) {
-                            statutDto.setName(demandeStatutDTO.getName());
-                            statutDto.setLibelle(demandeStatutDTO.getLibelle());
-                            break;
-                        }
-                    }
-                    statutDto.setCodeMotif(null);
-                }
-            }
             dto.setDernierStatut(statutDto);
         }
 
@@ -229,13 +210,53 @@ public class DemandesTransformer {
 
         dto.setContenuInitial(bo.getContenuInitial());
 
+        dto.setMeta(bo.getMeta());
+
         dto = bo2DtoProcessJsonFields(bo, dto);
         return dto;
     }
 
+    public void hideInfos(DemandeDTO demandeDTO) {
+        demandeDTO.setAgent(null);
+        DemandeStatutDTO statutDto = demandeDTO.getDernierStatut();
+        // Cacher l'agentId au Front Office
+        statutDto.setAgentId(null);
+        Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
+        // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
+        if (privateStatus.get(statutDto.getName()) != null && demandeDTO.getStatuts() != null) {
+            List<DemandeStatutDTO> allStatus = Arrays.asList(demandeDTO.getStatuts());
+            allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
+            for (DemandeStatutDTO demandeStatutDTO : allStatus) {
+                // si on tombe sur un statut public, on utilise celui-là
+                if (privateStatus.get(demandeStatutDTO.getName()) == null) {
+                    statutDto.setName(demandeStatutDTO.getName());
+                    statutDto.setLibelle(demandeStatutDTO.getLibelle());
+                    break;
+                }
+            }
+            // si c'est un statut privé on cache le motif
+            statutDto.setCodeMotif(null);
+        }
+        demandeDTO.setStatuts(null);
+        demandeDTO.setDernierStatut(statutDto);
+        demandesComplementsTransformer.hideInfos(demandeDTO.getComplements());
+    }
+
+    public void hideInfos(List<DemandeDTO> demandeDTOS) {
+        for (DemandeDTO demandeDTO : demandeDTOS) {
+            hideInfos(demandeDTO);
+        }
+    }
+
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
-        return config.getMarqueurs().stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
-                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), config.getMarqueurs()),
+        Set<MarqueurBO> marqueurs = config.getMarqueurs();
+        // Mise en cache des marqueurs pour un accès rapide O(1)
+        Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
+                .filter(marqueurBO -> marqueurBO.getChemin() != null) // Pour éviter les nulles
+                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur,
+                        (existing, replacement) -> existing)); // On garde la première valeur en cas de doublon sur le chemin
+        return marqueurs.stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+                marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), marqueursMap),
                 (existing, replacement) -> {
                     // en cas de doublon d'identifiant, on utilise la 1ère valeur
                     return existing;
@@ -245,11 +266,6 @@ public class DemandesTransformer {
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            // Meta
-            if (bo.getMeta() != null) {
-                dto.setMeta(mapper.readTree(bo.getMeta()));
-            }
-
             dto.setDonneesCertifiees(mapper.treeToValue(bo.getDonneesCertifiees(), SourceFiableDTO[].class));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
@@ -259,7 +275,7 @@ public class DemandesTransformer {
 
     private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {
         // Mapper les statuts
-        if (addStatutsField && !DemarchesUtils.isFrontUser()) {
+        if (addStatutsField) {
             dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
                     .toArray(DemandeStatutDTO[]::new));
         }
@@ -317,14 +333,9 @@ public class DemandesTransformer {
         bo.setContenu(dto.getContenu());
         bo.setContenuTrad(dto.getContenuTrad());
         bo.setContenuInitial(dto.getContenuInitial());
+        bo.setMeta(dto.getMeta());
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-            bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
-
+        bo.setDonneesCertifiees(mapper.valueToTree(dto.getDonneesCertifiees()));
         return bo;
     }
 

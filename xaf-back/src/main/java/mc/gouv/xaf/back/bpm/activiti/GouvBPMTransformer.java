@@ -2,14 +2,8 @@ package mc.gouv.xaf.back.bpm.activiti;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.flowable.idm.api.Group;
-import org.flowable.idm.api.User;
-import org.flowable.task.api.Task;
-
-import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import org.flowable.task.api.Task;
 
 /**
  * Transformer pour les classes métier du gouvernement vs. celles d'Activiti
@@ -37,40 +31,6 @@ public class GouvBPMTransformer {
             gouvTasks.add(toGouvModelTask(task));
         }
         return gouvTasks;
-    }
-
-    public static GouvBPMUser toGouvModelUser(User user) {
-        GouvBPMUser gouvUser = new GouvBPMUser();
-        gouvUser.setId(user.getId());
-        gouvUser.setFirstName(user.getFirstName());
-        gouvUser.setLastName(user.getLastName());
-        gouvUser.setEmail(user.getEmail());
-        gouvUser.setPassword(user.getPassword());
-        return gouvUser;
-    }
-
-    public static List<GouvBPMUser> toGouvModelUsers(List<User> users) {
-        ArrayList<GouvBPMUser> gouvUsers = new ArrayList<>();
-        for (User user : users) {
-            gouvUsers.add(toGouvModelUser(user));
-        }
-        return gouvUsers;
-    }
-
-    public static GouvBPMGroup toGouvModelGroup(Group group) {
-        GouvBPMGroup gouvGroup = new GouvBPMGroup();
-        gouvGroup.setId(group.getId());
-        gouvGroup.setName(group.getName());
-        gouvGroup.setType(group.getType());
-        return gouvGroup;
-    }
-
-    public static List<GouvBPMGroup> toGouvModelGroups(List<Group> groups) {
-        ArrayList<GouvBPMGroup> gouvGroups = new ArrayList<>();
-        for (Group group : groups) {
-            gouvGroups.add(toGouvModelGroup(group));
-        }
-        return gouvGroups;
     }
 
 }

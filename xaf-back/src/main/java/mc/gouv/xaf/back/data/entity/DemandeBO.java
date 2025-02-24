@@ -134,8 +134,9 @@ public class DemandeBO {
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode contenuInitial;
 
-    @Column(name = "META", columnDefinition = "TEXT")
-    private String meta;
+    @Column(name = "META", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode meta;
 
     @Column(name = "TYPE_CONNEXION_USAGER", length = 256)
     private String typeConnexionUsager;

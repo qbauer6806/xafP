@@ -199,6 +199,9 @@ public class AfApiService {
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
         demandeDto.setUsager(demandesUsagersTransformer.user2Dto(usager));
         demandeDto.setDonneesMConnect(demande.getDonneesMConnect());
+        demandeDto.setPkDemandeSource(demande.getDemandeSourceId());
+        demandeDto.setMeta(demande.getMeta());
+        traiterContenuInitial(demande, usagerId, demandeDto);
 
         try {
             demandeDto = demandesService.saveOrUpdateDemande(demandeDto, false,
@@ -252,6 +255,18 @@ public class AfApiService {
         }
         return demandeDto;
     }
+
+    private void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
+        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            demandeDto.setContenuInitial(demande.getContenuInitial());
+        } else if (demande.getBrouillonId() != null) {
+            BrouillonDTO brouillon = brouillonsService.getBrouillon(demande.getBrouillonId(), usagerId);
+            if (brouillon.getContenuInitial() != null && !brouillon.getContenuInitial().isNull()) {
+                demandeDto.setContenuInitial(brouillon.getContenuInitial());
+            }
+        }
+    }
+
 
     private void saveHistorique(Integer demandeDto, DemandeHistoriqueDTO histo) {
         LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);

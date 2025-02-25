@@ -27,7 +27,7 @@ import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -70,6 +70,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private static final String CODE_POSTAL = "codePostal";
     private static final String VILLE = "ville";
     private static final String ADRESSE_MC = "adresseMc";
+    private static final String TABLEAU = "tableau";
 
     private final DateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
@@ -335,10 +336,10 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         StringBuilder html = new StringBuilder();
         if (StringUtils.equals(sectionType, CHAMPS)) {
             // Génération du code pour un champs HTML (titre / valeur)
-            getFirstLevelChamps(demande, contenuSource, section, isPdfRecap, html, donneesCertifiees);
-        } else if (StringUtils.equals(sectionType, "tableau")) {
+            this.getFirstLevelChamps(demande, contenuSource, section, isPdfRecap, html, donneesCertifiees);
+        } else if (StringUtils.equals(TABLEAU, sectionType)) {
             // Génération du code pour un tableau
-            getFirstLevelTableau(demande, contenuSource, section, isPdfRecap, html, donneesCertifiees);
+            this.getFirstLevelTableau(demande, contenuSource, section, isPdfRecap, html, donneesCertifiees);
         }
         return html.toString();
     }
@@ -354,9 +355,15 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         for (Object o : champs) {
             JSONObject champ = (JSONObject) o;
-            String value = getSecondLevelHTML(demande.getContenuTrad(), champ, isPdfRecap, false, donneesCertifiees);
-            if (!StringUtils.isBlank(value)) {
-                buildHTML(html, contenuSource, value, isPdfRecap, champ, demande, donneesCertifiees);
+            String type = (String) champ.get("type");
+            if (StringUtils.equals(TABLEAU, type)) {
+                // Génération du code pour un tableau
+                this.getFirstLevelTableau(demande, contenuSource, champ, isPdfRecap, html, donneesCertifiees);
+            } else {
+                String value = this.getSecondLevelHTML(demande.getContenuTrad(), champ, isPdfRecap, false, donneesCertifiees);
+                if (StringUtils.isNotBlank(value)) {
+                    buildHTML(html, contenuSource, value, isPdfRecap, champ, demande, donneesCertifiees);
+                }
             }
         }
     }
@@ -656,13 +663,6 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             return "";
         }
         try {
-            //            LocalDateTime dateTime = LocalDateTime.parse(node0.asText(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            //            // Si la date a un format d'affichage
-            //            String format = (String) champ.get("displayJavaFormat");
-            //            if (StringUtils.isBlank(format)) {
-            //                format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
-            //            }
-            //            return dateTime.format(DateTimeFormatter.ofPattern(format));
             return node0.asText();
         } catch (Exception e) {
             LOGGER.error("buildDateHTML exception: vérifier le format en entrée");

@@ -53,9 +53,8 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
             emailInfoDTO.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         }
 
-        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demande);
-        model.put("expireDans", relanceUtils.getExpirationTime(demande));
-
+        Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+                null, null, null);
         try {
             mailService.sendMail(emailInfoDTO, model);
         } catch (Exception e) {

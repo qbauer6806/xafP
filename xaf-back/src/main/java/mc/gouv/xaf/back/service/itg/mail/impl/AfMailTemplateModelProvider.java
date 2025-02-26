@@ -26,7 +26,7 @@ public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
         LOGGER.info("Construction du modèle pour le template (demandeId= {} ...", demande.getPkDemandes());
 
         Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, bpmVariables);
-        mailTemplateModelProvider.setModel(model, bodyTemplateCode, bpmVariables);
+        mailTemplateModelProvider.setModel(model, bodyTemplateCode, bpmVariables, demande);
 
         return model;
     }

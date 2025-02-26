@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.front.util.DocHolderUtils;
 import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -41,9 +40,6 @@ public class DocHolderToFileController extends AbstractXafController {
 
     @Autowired
     private FileControllerUtils fileControllerUtils;
-
-    @Autowired
-    private DocHolderUtils docHolderUtils;
 
     /**
      * Méthode qui permet de transférer un fichier du porte-document à FILE
@@ -89,7 +85,9 @@ public class DocHolderToFileController extends AbstractXafController {
 
             if (docholderResponse.getCode() == 200) {
                 LOGGER.info("Téléversement du fichier {} dans FILE", filename);
-                return fileControllerUtils.uploadToFILE(usagerInfosDTO, filename, "AUTRES",
+                // encodage du nom de fichier
+                String safeFileName = fileControllerUtils.getSafeFileName(filename);
+                return fileControllerUtils.uploadToFILE(usagerInfosDTO, safeFileName, "AUTRES",
                         docholderResponse.getEntity().getContent());
 
             } else {

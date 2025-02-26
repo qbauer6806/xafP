@@ -52,8 +52,6 @@ public class FileUploadController extends AbstractXafController {
 
     private static final String SLASH = "/";
 
-    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9.\\-_]";
-
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
@@ -85,9 +83,7 @@ public class FileUploadController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                     "Erreur: nom du fichier manquant");
         }
-        // Après suppression des diacritiques (accents, cédilles, etc.) dans le nom du fichier, les caractères spéciaux,
-        // à l'exception des points, tirets et underscores, sont remplacés par des underscores.
-        String safeFileName = StringUtils.stripAccents(filename).replaceAll(FILE_NAME_REGEX, "_");
+        String safeFileName = fileControllerUtils.getSafeFileName(filename);
         // Vérification de la conformité du fichier
         // Vérification du type du fichier
         LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);

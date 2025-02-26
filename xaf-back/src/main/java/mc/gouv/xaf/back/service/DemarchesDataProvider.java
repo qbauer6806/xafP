@@ -133,9 +133,12 @@ public interface DemarchesDataProvider {
      */
     StatutSimplifieEnum getStatutSimplifie(String statut);
     /**
-     * Permets de définir la liste des statuts des demandes à annuler lors de la désinscription d'un usager
+     * Permets de définir la liste des statuts des demandes à ne pas annuler lors de la désinscription d'un usager
+     * Par défaut, c'est la liste des statuts dont le StatutSimplifieEnum = TERMINEE
      */
-    List<String> getStatutsDemandeAnnuleeDesinscriptionUsager();
+    default List<String> getStatutsDemandeNonAnnuleeDesinscriptionUsager(){
+        return getStatutsAPurger();
+    }
 
     /**
      * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT_CORPS.name();

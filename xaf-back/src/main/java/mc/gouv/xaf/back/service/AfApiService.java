@@ -561,9 +561,9 @@ public class AfApiService {
         boolean first = true;
         for (DemandeDTO demande : demandes) {
             String statutDemande = demande.getDernierStatut().getName();
-            List<String> listeStatuts = demarchesDataProvider.getStatutsDemandeAnnuleeDesinscriptionUsager();
-
-            if (listeStatuts.contains(statutDemande)) {
+            List<String> listeStatuts = demarchesDataProvider.getStatutsDemandeNonAnnuleeDesinscriptionUsager();
+            //Si le statut de la demande n'est pas dans la liste des statuts à exclure
+            if (!listeStatuts.contains(statutDemande)) {
 
                 // Statut non final et non "Annulée", alors passage au statut annulé
 

@@ -77,14 +77,6 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> getStatutsDemandeAnnuleeDesinscriptionUsager() {
-        return List.of();
-    }
-
     @Override
     public String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents() {
         return "";

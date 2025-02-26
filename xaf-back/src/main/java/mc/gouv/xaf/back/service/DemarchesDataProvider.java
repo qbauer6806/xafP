@@ -132,6 +132,10 @@ public interface DemarchesDataProvider {
      * TSCODEDemandeStatutEnum s = TSCODEDemandeStatutEnum.valueOf(statut); return s.statutSimplifie;
      */
     StatutSimplifieEnum getStatutSimplifie(String statut);
+    /**
+     * Permets de définir la liste des statuts des demandes à annuler lors de la désinscription d'un usager
+     */
+    List<String> getStatutsDemandeAnnuleeDesinscriptionUsager();
 
     /**
      * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT_CORPS.name();

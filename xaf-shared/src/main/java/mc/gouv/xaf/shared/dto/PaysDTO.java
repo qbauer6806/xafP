@@ -28,4 +28,6 @@ public class PaysDTO {
 
     private String nationalite;
 
+    private String nationaliteCode;
+
 }

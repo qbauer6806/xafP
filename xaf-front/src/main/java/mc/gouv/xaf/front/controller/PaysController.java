@@ -172,6 +172,12 @@ public class PaysController extends AbstractXafController {
 
                     List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
 
+                    valeurs.forEach(valeur -> {
+                        if (valeur.getCode() != null) {
+                            valeur.setCode(valeur.getCode().toUpperCase());
+                        }
+                    });
+
                     listeNationalites = valeurs;
                     listeNationalitesLastUpdate = new Date();
 

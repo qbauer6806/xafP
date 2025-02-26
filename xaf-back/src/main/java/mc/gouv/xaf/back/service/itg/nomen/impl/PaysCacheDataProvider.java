@@ -80,7 +80,17 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         List<NomenValeurValeurLienDTO> liens = valeur.getValeurLiens();
         for (NomenValeurValeurLienDTO lien : liens) {
             if ("NATIO".equals(lien.getLienNomenclatureCode())) {
-                return lien.getLienValeurLibelle();
+                return lien.getLienValeurLibelle().toUpperCase();
+            }
+        }
+        return null;
+    }
+
+    private String getNationaliteCodeFromValeur(NomenValeurDTO valeur) {
+        List<NomenValeurValeurLienDTO> liens = valeur.getValeurLiens();
+        for (NomenValeurValeurLienDTO lien : liens) {
+            if ("NATIO".equals(lien.getLienNomenclatureCode())) {
+                return lien.getLienValeurCode().toUpperCase();
             }
         }
         return null;
@@ -92,6 +102,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         pays.setLibelle(valeur.getLibelleCourt());
         pays.setLibelleLong(valeur.getLibelleLong());
         pays.setNationalite(getNationaliteFromValeur(valeur));
+        pays.setNationaliteCode(getNationaliteCodeFromValeur(valeur));
         pays.setOrdre(valeur.getOrdre());
 
         for (NomenValeurValeurParametreDTO param : valeur.getValeurParametres()) {

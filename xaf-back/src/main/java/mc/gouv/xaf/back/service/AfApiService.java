@@ -61,7 +61,6 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
@@ -507,18 +506,18 @@ public class AfApiService {
 
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
-
-        String[] tab = getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO);
+        String statutAnnulee = demarchesDataProvider.getStatutAnnulee();
+        String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO, statutAnnulee);
         String demandesImpacteesPhrase = tab[0];
         String demandesImpacteesPk = tab[1];
 
         LOGGER.info(
                 "Mise à jour des variables BPM concernant les demandes impactées et déclenchement signaux d'annulation...");
-        miseAJourDesVariablesBPM(demandesAPasserEnAnnuleeDTO, usagerId);
+        this.miseAJourDesVariablesBPM(demandesAPasserEnAnnuleeDTO, usagerId, statutAnnulee);
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
-        usagersService.desinscriptionUsager(usagerId, demarchesDataProvider.getStatutAnnulee(),
-                demarchesDataProvider.getCodeMotifAnnulationDesinscription());
+
+        usagersService.desinscriptionUsager(usagerId, statutAnnulee, demarchesDataProvider.getCodeMotifAnnulationDesinscription());
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes " +
@@ -555,19 +554,18 @@ public class AfApiService {
      * Constitution de la liste des demandes impactées (celles qui passent au statut ANNULEE) pour l'envoi de l'email
      */
     private String[] getDemandesImpactees(List<DemandeDTO> demandes, List<Integer> demandesAPasserEnAnnulee,
-            List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
+            List<DemandeDTO> demandesAPasserEnAnnuleeDTO, String statutAnnuleeName) {
 
         StringBuilder demandesImpacteesIdentifiants = new StringBuilder();
         StringBuilder demandesImpacteesPk = new StringBuilder();
         boolean first = true;
-        String statutAnnuleeName = demarchesDataProvider.getStatutAnnulee();
         for (DemandeDTO demande : demandes) {
-            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName())
-                    .equals(StatutSimplifieEnum.TERMINEE);
+            String statutDemande = demande.getDernierStatut().getName();
+            List<String> listeStatuts = demarchesDataProvider.getStatutsDemandeNonAnnuleeDesinscriptionUsager();
+            //Si le statut de la demande n'est pas dans la liste des statuts à exclure
+            if (!listeStatuts.contains(statutDemande)) {
 
-            if (!isFinal && !statutAnnuleeName.equals(demande.getDernierStatut().getName())) {
-
-                // Statut non final et non "Annulée", alors passage au statut annulée
+                // Statut non final et non "Annulée", alors passage au statut annulé
 
                 if (!first) {
                     demandesImpacteesIdentifiants.append("<br/>");
@@ -598,7 +596,7 @@ public class AfApiService {
         return new String[] { demandesAnnuleesPhrase, demandesImpacteesPk.toString() };
     }
 
-    private void miseAJourDesVariablesBPM(List<DemandeDTO> demandesAPasserEnAnnuleeDTO, Integer usagerId) {
+    private void miseAJourDesVariablesBPM(List<DemandeDTO> demandesAPasserEnAnnuleeDTO, Integer usagerId, String statutAnnuleeName) {
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
 
@@ -613,8 +611,7 @@ public class AfApiService {
             }
 
             gouvBPM.annulerDemande(demande.getPkDemandes(), null, user,
-                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null,
-                    demarchesDataProvider.getStatutAnnulee());
+                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, statutAnnuleeName);
         }
     }
 

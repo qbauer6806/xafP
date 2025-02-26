@@ -1,4 +1,4 @@
-package mc.gouv.xaf.front.config;
+package mc.gouv.xaf.shared.config;
 
 import org.mockserver.integration.ClientAndServer;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ public class XafMockserverConfig {
     @Value("${server.port}")
     private Integer serverPort;
 
-    @Value("${mc.gouv.${application.name}.api.mockserverInitializerAbsolutePath}")
+    @Value("${mc.gouv.${application.name}.mockserverInitializerAbsolutePath}")
     private String mockserverInitializerAbsolutePath;
 
     @Bean

@@ -7,6 +7,7 @@ import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,15 @@ public class UsagersServiceImpl implements UsagersService {
 
     @Override
     public void desinscriptionUsager(Integer usagerId, String statutAnnulation, String codeMotif,
-            List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
+                                     List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
 
         LOGGER.info("Mise à jour du statut des demandes...");
         for (DemandeDTO demande : demandesAPasserEnAnnuleeDTO) {
-            demandesStatutsService.updateStatut(demande.getPkDemandes(), statutAnnulation, null, usagerId, codeMotif,
-                    null, null);
+            //Si la demande n'a pas le même statut déjà.
+            if (!StringUtils.equals(statutAnnulation, demande.getDernierStatut().getName())) {
+                demandesStatutsService.updateStatut(demande.getPkDemandes(), statutAnnulation, null, usagerId,
+                        codeMotif, null, null);
+            }
         }
 
         LOGGER.info("Suppression des brouillons...");

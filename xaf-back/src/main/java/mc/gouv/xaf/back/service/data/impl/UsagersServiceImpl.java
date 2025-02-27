@@ -55,8 +55,15 @@ public class UsagersServiceImpl implements UsagersService {
         demandeRecherche.setUsagerId(usagerId);
         List<DemandeDTO> demandes = demandesService.getDemandes(demandeRecherche);
 
+        desinscriptionUsager(usagerId, statutAnnulation, codeMotif, demandes);
+    }
+
+    @Override
+    public void desinscriptionUsager(Integer usagerId, String statutAnnulation, String codeMotif,
+            List<DemandeDTO> demandesAPasserEnAnnuleeDTO) {
+
         LOGGER.info("Mise à jour du statut des demandes...");
-        for (DemandeDTO demande : demandes) {
+        for (DemandeDTO demande : demandesAPasserEnAnnuleeDTO) {
             boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName())
                     .equals(StatutSimplifieEnum.TERMINEE);
             if (!isFinal && !statutAnnulation.equals(demande.getDernierStatut().getName())) {

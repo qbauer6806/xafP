@@ -517,7 +517,8 @@ public class AfApiService {
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
 
-        usagersService.desinscriptionUsager(usagerId, statutAnnulee, demarchesDataProvider.getCodeMotifAnnulationDesinscription());
+        usagersService.desinscriptionUsager(usagerId, statutAnnulee,
+                demarchesDataProvider.getCodeMotifAnnulationDesinscription(), demandesAPasserEnAnnuleeDTO);
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes " +

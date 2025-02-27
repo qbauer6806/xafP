@@ -471,8 +471,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private void getFirstLevelTableau(DemandeDTO demande, JsonNode contenuSource, JSONObject section,
             boolean isPdfRecap, StringBuilder html, List<SourceFiableDTO> donneesCertifiees) {
 
-        ArrayNode newValeurs = (ArrayNode) getNode(demande.getContenuTrad(), section);
-        if (!newValeurs.isEmpty()) {
+        JsonNode jsonNode = this.getNode(demande.getContenuTrad(), section);
+        if (jsonNode instanceof ArrayNode newValeurs && !newValeurs.isEmpty()) {
             String classPdfRecap = isPdfRecap ? "pdf-recap" : "";
             html.append(
                             "<dd style=\"width: 100%\"><table id=\"datatable-demandes-recap\" class=\"table table-striped recaptable")

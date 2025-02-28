@@ -496,8 +496,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private void contructSimpleTableau(DemandeDTO demande, JSONObject section, boolean isPdfRecap, StringBuilder html,
             List<SourceFiableDTO> donneesCertifiees) throws IllegalArgumentException, SecurityException {
-        ArrayNode valeurs = (ArrayNode) getNode(demande.getContenuTrad(), section);
-        if (!valeurs.isEmpty()) {
+        JsonNode jsonNode = this.getNode(demande.getContenuTrad(), section);
+        if (jsonNode instanceof ArrayNode valeurs && !valeurs.isEmpty()) {
             JSONArray columns = (JSONArray) section.get(COLUMNS);
             Iterator<JsonNode> it = valeurs.elements();
             html.append("<tbody>");
@@ -517,21 +517,23 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private void contructTableauWithDiff(JsonNode contenuSource, JSONObject section, boolean isPdfRecap,
             StringBuilder html, Iterator<JsonNode> itNew, List<SourceFiableDTO> donneesCertifiees) {
-        ArrayNode demandeSourceValeurs = (ArrayNode) getNode(contenuSource, section);
-        Iterator<JsonNode> itDemandeSource = demandeSourceValeurs.elements();
+        JsonNode jsonNode = this.getNode(contenuSource, section);
         html.append("<tbody>");
         JSONArray columns = (JSONArray) section.get(COLUMNS);
-        while (itNew.hasNext() && itDemandeSource.hasNext()) {
-            JsonNode newValeur = itNew.next();
-            JsonNode demandeSourceValeur = itDemandeSource.next();
-            html.append("<tr>");
-            for (Object column : columns.toArray()) {
-                String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, isPdfRecap, true,
-                        donneesCertifiees);
-                String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true, donneesCertifiees);
-                this.completeTd(html, valueSource, value);
+        if(jsonNode instanceof ArrayNode demandeSourceValeurs && !demandeSourceValeurs.isEmpty()) {
+            Iterator<JsonNode> itDemandeSource = demandeSourceValeurs.elements();
+            while (itNew.hasNext() && itDemandeSource.hasNext()) {
+                JsonNode newValeur = itNew.next();
+                JsonNode demandeSourceValeur = itDemandeSource.next();
+                html.append("<tr>");
+                for (Object column : columns.toArray()) {
+                    String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, isPdfRecap, true,
+                            donneesCertifiees);
+                    String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true, donneesCertifiees);
+                    this.completeTd(html, valueSource, value);
+                }
+                html.append(CLOSING_TR);
             }
-            html.append(CLOSING_TR);
         }
         // On fini de remplir le tableau avec les nouvelles valeurs (un nouvel enfant
         // par exemple)

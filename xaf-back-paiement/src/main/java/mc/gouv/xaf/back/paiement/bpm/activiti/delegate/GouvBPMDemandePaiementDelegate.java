@@ -144,9 +144,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             } else {
                 histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
-            LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
+            //LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
             ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
-            gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
+            //gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
         }
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT <fin>");
     }

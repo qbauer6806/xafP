@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author mboutelier.ext
+ * @author xdecool.ext
  */
 public class CommandeDemandeArticleTransformer {
 
@@ -26,8 +26,8 @@ public class CommandeDemandeArticleTransformer {
     public static CommandeDemandeArticleBO dto2Bo(CommandeDemandeArticleDTO dto) {
         CommandeDemandeArticleBO bo = new CommandeDemandeArticleBO();
         bo.setPkCommandesDemandesArticles(dto.getPkCommandesDemandesArticles());
-        bo.setCodeTarif(bo.getCodeTarif());
-        bo.setMontant(bo.getMontant());
+        bo.setCodeTarif(dto.getCodeTarif());
+        bo.setMontant(dto.getMontant());
         return bo;
     }
 

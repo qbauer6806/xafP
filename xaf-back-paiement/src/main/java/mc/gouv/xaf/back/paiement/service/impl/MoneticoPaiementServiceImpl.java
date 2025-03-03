@@ -220,11 +220,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         LOGGER.info("Updated [ commande {}] ", commande);
 
         moyenPaiement.setCommande(commande);
-        moyenPaiement.setDateLimite(now.plusDays(paiementPropertiesResolver.getValiditeMaxMoyenPaiement()));
+        // TODO moyenPaiement.setDateLimite(now.plusDays(paiementPropertiesResolver.getValiditeMaxMoyenPaiement()));
         moyenPaiement.setDateDerniereModification(now);
         moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutEnum.EN_ATTENTE_DE_VALIDATION);
-        moyenPaiement.setCodeSociete(codeSociete);
-        moyenPaiement.setLangue(langue);
+        // TODO moyenPaiement.setCodeSociete(codeSociete);
+        // TODO moyenPaiement.setLangue(langue);
 
         PaiementDTO paiementDTO = new PaiementDTO(langue);
         paiementDTO.setDate(paiementSecurityService.dateFormat(new Date()));
@@ -256,7 +256,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         // Création d'une clé MAC
         String mac = paiementSecurityService.getHmacStringInterfaceAller(paiementDTO);
         paiementDTO.setMAC(mac);
-        moyenPaiement.setMac(mac);
+        // TODO moyenPaiement.setMac(mac);
         moyenPaiement = moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
         return paiementDTO;
@@ -320,12 +320,12 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         YearMonth yeaMonthValidite = YearMonth.parse(moneticoResponseDTO.getVld(), formatter);
         LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(),
                 yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
-        if (dateValidite.isBefore(moyenPaiementBO.getDateLimite())) {
+        /* TODO if (dateValidite.isBefore(moyenPaiementBO.getDateLimite())) {
             LOGGER.info("Changement date limite moyen paiement [ dateValidite {}] ", dateValidite);
             moyenPaiementBO.setDateLimite(dateValidite);
         } else {
             dateValidite = moyenPaiementBO.getDateLimite();
-        }
+        }*/
 
         if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
@@ -336,7 +336,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         } else {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.INVALIDE);
         }
-
+        /* TODO
         moyenPaiementBO.setAuthentification(moneticoResponseDTO.getAuthentification());
         moyenPaiementBO.setModepaiement(moneticoResponseDTO.getModepaiement());
         moyenPaiementBO.setOriginetr(moneticoResponseDTO.getOriginetr());
@@ -352,6 +352,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         moyenPaiementBO.setBrand(moneticoResponseDTO.getBrand());
         moyenPaiementBO.setVld(moneticoResponseDTO.getVld());
         moyenPaiementBO.setCvx(moneticoResponseDTO.getCvx());
+        */
 
         moyenPaiementRepository.save(moyenPaiementBO);
         LOGGER.info("Created [ moyenPaiementBO {}] ", moyenPaiementBO);

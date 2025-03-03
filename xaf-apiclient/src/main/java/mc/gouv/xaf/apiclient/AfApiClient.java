@@ -49,6 +49,7 @@ public class AfApiClient extends ApiClient {
         super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password), true);
     }
 
+
     /**
      * Crée une instance du client avec sécurisation JWT
      *

@@ -15,6 +15,7 @@ import lombok.Setter;
 import lombok.ToString;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
+import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
 
 @Setter
 @Getter
@@ -31,48 +32,25 @@ public class MoyenPaiementBO {
     @JoinColumn(name = "FK_COMMANDES")
     private CommandeBO commande;
 
-    private String codeSociete;
+    private LocalDateTime dateCreation;
 
-    private LocalDateTime dateLimite;
-
-    @Enumerated(EnumType.STRING)
-    private MoyenPaiementTypeEnum moyenPaiementType;
+    private LocalDateTime dateDerniereModification;
 
     @Enumerated(EnumType.STRING)
     private MoyenPaiementStatutEnum moyenPaiementStatut;
 
-    private LocalDateTime dateDerniereModification;
+    private String paymentMethodType;
 
-    private String cvx;
-    private String vld;
-    private String brand;
-    @Column(name = "num_auto")
-    public String numauto;
-    private String usage;
-    @Column(name = "type_compte")
-    public String typecompte;
-    private String ecard;
-    @Column(name = "origine_cb")
-    public String originecb;
+    private String paymentMethodToken;
 
-    @Column(name = "cb_masquee")
-    public String cbmasquee;
-    @Column(name = "bin_cb")
-    public String bincb;
-    @Column(name = "hpan_cb")
-    public String hpancb;
-    @Column(name = "ip_client")
-    public String ipclient;
-    @Column(name = "origine_tr")
-    public String originetr;
-    @Column(name = "mode_paiement")
-    public String modepaiement;
-    private String authentification;
+    private LocalDateTime cancellationDate;
 
-    @Column(name = "langue")
-    private String langue;
+    private String paymentMethodRecord;
 
-    @Column(name = "mac")
-    private String mac;
+    private String paymentMethodName;
+
+    @Enumerated(EnumType.STRING)
+    private PSPEnum paymentSupplier;
+
 
 }

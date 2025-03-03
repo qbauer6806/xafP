@@ -2,14 +2,17 @@ package mc.gouv.xaf.back.paiement.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,19 +20,26 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Classe permettant de gérer un ou plusieurs PSP (Presataire de services de paiement)
  */
-public abstract class AbstractPaiementApiController {
+@RestController
+@RequestMapping(value = "/api/v1/paiement", produces = "application/json")
+public class PaiementApiController {
 
     @Autowired
     private MoneticoPaiementService moneticoPaiementService;
 
     @Autowired
     private CommandesService commandesService;
+
+    @Autowired
+    private PaiementService paiementService;
 
     /**
      * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
@@ -104,6 +114,13 @@ public abstract class AbstractPaiementApiController {
                     HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
     }
+
+    @GetMapping(value = "/tableaupaiement")
+    public List<TableauDTO> getTableauPaiement(@RequestParam(value = "id") String objectIds,
+            @RequestParam(value = "type") String objectType, @RequestParam(value = "usagerId") Integer usagerId) {
+        return paiementService.getTableauPaiement(objectIds, objectType, usagerId);
+    }
+
 
     /**
      * Permet de traiter une exception

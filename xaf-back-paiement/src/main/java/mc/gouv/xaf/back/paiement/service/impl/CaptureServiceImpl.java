@@ -75,7 +75,7 @@ public class CaptureServiceImpl implements CaptureService {
         operation.setPkOperations(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
         LocalDateTime now = LocalDateTime.now();
         operation.setDateCreation(now);
-        operation.setDateDerniereModification(now);
+        // TODO operation.setDateDerniereModification(now);
         operation.setOperationType(OperationTypeEnum.DEBIT.name());
 
         if (resultatCapture) {
@@ -91,9 +91,9 @@ public class CaptureServiceImpl implements CaptureService {
             Optional<String> optionalNumFacture = factureApiClient.createFacture(lignes, demandeDTO);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
-                operation.setNumeroFacture(optionalNumFacture.get());
+                //TODO operation.setNumeroFacture(optionalNumFacture.get());
             } else {
-                operation.setNumeroFacture(FactureApiClient.INCIDENT);
+                //TODO operation.setNumeroFacture(FactureApiClient.INCIDENT);
             }
         }
 

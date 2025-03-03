@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.data.entity;
 
+import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,18 +9,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 
-@Setter
-@Getter
 @Entity
-@ToString
 @Table(name = "PMNT_COMMANDES_OPERATIONS")
+@Getter
+@Setter
+@ToString
 public class CommandeOperationBO {
 
     @Id
@@ -38,16 +38,11 @@ public class CommandeOperationBO {
 
     private LocalDateTime dateCreation;
 
-    private LocalDateTime dateDerniereModification;
+    private String transactionReference;
+
+    private String errorCode;
+
+    private String errorMessage;
 
     private Double montant;
-
-    private String numeroAutorisation;
-
-    private String numeroFacture;
-
-    private String codeRetour;
-
-    private String libelle;
-
 }

@@ -104,16 +104,16 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
                 Locale.of(demande.getLangue())) : defaultMailTitre;
         model.put("numTPE", paiementPropertiesResolver.getTpe());
         model.put("pkOperation", operation.getPkOperations());
-        model.put("reference", moyenPaiement.getPkMoyenPaiements());
+        //TODO model.put("reference", moyenPaiement.getPkMoyenPaiements());
         model.put("identifiant", demande.getIdentifiant());
         model.put("dateTransaction",
                 operation.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
         model.put("montant", operation.getMontant() + " EUR");
-        model.put("moyenPaiement", moyenPaiement.getModepaiement());
+        //TODO model.put("moyenPaiement", moyenPaiement.getModepaiement());
         model.put("typeTransaction", operation.getOperationType());
-        model.put("numCarte", moyenPaiement.getCbmasquee());
-        model.put("numeroAutorisation",
-                null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
+        //TODO model.put("numCarte", moyenPaiement.getCbmasquee());
+        //TODO model.put("numeroAutorisation",
+                //null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
         model.put("titre", titre);
         return model;
     }

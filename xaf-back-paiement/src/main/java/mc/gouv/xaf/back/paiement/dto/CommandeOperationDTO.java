@@ -23,16 +23,12 @@ public class CommandeOperationDTO {
 
     private LocalDateTime dateCreation;
 
-    private LocalDateTime dateDerniereModification;
-
     private Double montant;
 
-    private String numeroAutorisation;
+    private String errorCode;
 
-    private String numeroFacture;
+    private String errorMessage;
 
-    private String codeRetour;
-
-    private String libelle;
+    private String transactionReference;
 
 }

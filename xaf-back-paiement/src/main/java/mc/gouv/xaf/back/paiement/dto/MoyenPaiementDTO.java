@@ -13,28 +13,26 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MoyenPaiementDTO {
 
-    private String pkMoyenPaiements;
-    private String codeSociete;
-    private LocalDateTime dateLimite;
-    private String moyenPaiementType;
-    private String moyenPaiementStatut;
+    private String pkMoyensPaiements;
+
+    private CommandeDTO commande;
+
+    private LocalDateTime dateCreation;
+
     private LocalDateTime dateDerniereModification;
-    private String cvx;
-    private String vld;
-    private String brand;
-    private String numauto;
-    private String usage;
-    private String typecompte;
-    private String ecard;
-    private String originecb;
-    private String cbmasquee;
-    private String bincb;
-    private String hpancb;
-    private String ipclient;
-    private String originetr;
-    private String modepaiement;
-    private String authentification;
-    private String langue;
-    private String mac;
+
+    private String moyenPaiementStatut;
+
+    private String paymentMethodType;
+
+    private String paymentMethodToken;
+
+    private LocalDateTime cancellationDate;
+
+    private String paymentMethodRecord;
+
+    private String paymentMethodName;
+
+    private String paymentSupplier;
 
 }

@@ -18,30 +18,26 @@ public class CommandeOperationTransformer {
         CommandeOperationDTO dto = new CommandeOperationDTO();
         dto.setPkOperations(bo.getPkOperations());
         dto.setFkCommandes(bo.getCommande().getPkCommandes());
+        dto.setDateCreation(bo.getDateCreation());
+        dto.setMontant(bo.getMontant());
+        dto.setTransactionReference(bo.getTransactionReference());
+        dto.setErrorCode(bo.getErrorCode());
+        dto.setErrorMessage(bo.getErrorMessage());
         dto.setOperationType(OperationTypeTransformer.bo2String(bo.getOperationType()));
         dto.setOperationStatut(OperationStatutTransformer.bo2String(bo.getOperationStatut()));
-        dto.setDateCreation(bo.getDateCreation());
-        dto.setDateDerniereModification(bo.getDateDerniereModification());
-        dto.setMontant(bo.getMontant());
-        dto.setNumeroAutorisation(bo.getNumeroAutorisation());
-        dto.setNumeroFacture(bo.getNumeroFacture());
-        dto.setCodeRetour(bo.getCodeRetour());
-        dto.setLibelle(bo.getLibelle());
         return dto;
     }
 
     public static CommandeOperationBO dto2Bo(CommandeOperationDTO dto) {
         CommandeOperationBO bo = new CommandeOperationBO();
         bo.setPkOperations(dto.getPkOperations());
+        bo.setDateCreation(dto.getDateCreation());
+        bo.setMontant(dto.getMontant());
+        bo.setTransactionReference(dto.getTransactionReference());
+        bo.setErrorCode(dto.getErrorCode());
+        bo.setErrorMessage(dto.getErrorMessage());
         bo.setOperationType(OperationTypeTransformer.string2Bo(dto.getOperationType()));
         bo.setOperationStatut(OperationStatutTransformer.string2Bo(dto.getOperationStatut()));
-        bo.setDateCreation(dto.getDateCreation());
-        bo.setDateDerniereModification(dto.getDateDerniereModification());
-        bo.setMontant(dto.getMontant());
-        bo.setNumeroAutorisation(dto.getNumeroAutorisation());
-        bo.setNumeroFacture(dto.getNumeroFacture());
-        bo.setCodeRetour(dto.getCodeRetour());
-        bo.setLibelle(dto.getLibelle());
         return bo;
     }
 

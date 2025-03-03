@@ -12,15 +12,18 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 
 public interface CommandeOperationRepository extends JpaRepository<CommandeOperationBO, String> {
 
-    @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateDerniereModification between :startDate and :endDate")
+    // TODO @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateDerniereModification between :startDate and :endDate")
+    @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateCreation between :startDate and :endDate")
     List<CommandeOperationBO> findAllCommandeOperationBetween(@Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate, @Param("statut") OperationStatutEnum statut);
 
-    @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateDerniereModification >= :startDate")
+    // TODO @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateDerniereModification >= :startDate")
+    @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateCreation >= :startDate")
     List<CommandeOperationBO> findAllCommandeOperationFrom(@Param("startDate") LocalDateTime startDate,
             @Param("statut") OperationStatutEnum statut);
 
-    @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateDerniereModification <= :endDate")
+    // TODO @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateDerniereModification <= :endDate")
+    @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut and cob.dateCreation <= :endDate")
     List<CommandeOperationBO> findAllCommandeOperationUntil(@Param("endDate") LocalDateTime endDate,
             @Param("statut") OperationStatutEnum statut);
 

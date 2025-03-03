@@ -246,11 +246,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
             Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demandeDTO);
             model.put("delai", delai);
-            model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-            PropertiesDTO adresseService = propertiesService.getProperty("ADRESSE_SERVICE");
-            if (adresseService != null) {
-                model.put("adresseService", adresseService.getValue());
-            }
 
             try {
                 mailService.sendMail(emailInfoDTO, model);

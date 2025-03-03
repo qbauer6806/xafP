@@ -37,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 /**
@@ -52,8 +51,6 @@ public class FileUploadController extends AbstractXafController {
 
     private static final String SLASH = "/";
 
-    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9.\\-_]";
-
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
@@ -63,9 +60,8 @@ public class FileUploadController extends AbstractXafController {
     @Autowired
     private FileControllerUtils fileControllerUtils;
 
-    @PostMapping(value = { "/file/{filename}" })
-    public ResponseEntity<FileUploadResponseDTO> doPost(@PathVariable(required = false) String filename,
-            HttpServletRequest request) {
+    @PostMapping(value = { "/file" })
+    public ResponseEntity<FileUploadResponseDTO> doPost(HttpServletRequest request) {
         LOGGER.info("====================== /fileupload doPost()");
 
         // Vérification si l'usager est connecté
@@ -80,26 +76,25 @@ public class FileUploadController extends AbstractXafController {
                     SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
         }
 
-        // Récupération du nom du fichier à envoyer
-        if (StringUtils.isBlank(filename)) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
-                    "Erreur: nom du fichier manquant");
-        }
-        // Après suppression des diacritiques (accents, cédilles, etc.) dans le nom du fichier, les caractères spéciaux,
-        // à l'exception des points, tirets et underscores, sont remplacés par des underscores.
-        String safeFileName = StringUtils.stripAccents(filename).replaceAll(FILE_NAME_REGEX, "_");
-        // Vérification de la conformité du fichier
-        // Vérification du type du fichier
-        LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);
-        if (!fileControllerUtils.estExtensionDansWhitelist(safeFileName)) {
-            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
-                    fileControllerUtils.getExtensionsWhitelist());
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
-                    "Erreur: le type/extension du fichier soumis n'est pas valide");
-        }
-
         try {
             Part part = request.getParts().iterator().next();
+
+            String filename = part.getSubmittedFileName();
+            // Récupération du nom du fichier à envoyer
+            if (StringUtils.isBlank(filename)) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                        "Erreur: nom du fichier manquant");
+            }
+            String safeFileName = fileControllerUtils.getSafeFileName(filename);
+            // Vérification de la conformité du fichier
+            // Vérification du type du fichier
+            LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);
+            if (!fileControllerUtils.estExtensionDansWhitelist(safeFileName)) {
+                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
+                        fileControllerUtils.getExtensionsWhitelist());
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                        "Erreur: le type/extension du fichier soumis n'est pas valide");
+            }
 
             LOGGER.info("Vérification de la taille...");
             // Vérification de la taille du fichier

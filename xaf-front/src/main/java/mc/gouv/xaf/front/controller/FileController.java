@@ -29,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -50,10 +49,9 @@ public class FileController extends AbstractXafController {
 
     private static final String SLASH = "/";
 
-    @GetMapping(value = { "/file/{accessId}/{uuid}/{filename}" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity doGet(@PathVariable(required = false) String accessId,
-            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename,
-            @RequestParam(value = "mode", required = false) String mode, HttpServletRequest request)
+    @GetMapping(value = { "/file" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity doGet(@RequestParam(required = false) String mode,
+            @RequestParam(required = false) String fileId, HttpServletRequest request)
             throws IOException {
         LOGGER.info("====================== /filedownload doGet()");
 
@@ -74,6 +72,15 @@ public class FileController extends AbstractXafController {
             //                accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
             //                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], "UTF-8");
             //            }
+
+            String[] parts = fileId.split("/");
+            if (parts.length != 3) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                        "Erreur: nom ou ID du fichier manquant");
+            }
+            String accessId = parts[0];
+            String uuid = parts[1];
+            String filename = parts[2];
 
             if (StringUtils.isBlank(filename)) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
@@ -136,9 +143,8 @@ public class FileController extends AbstractXafController {
         }
     }
 
-    @DeleteMapping(value = { "/file/{accessId}/{uuid}/{filename}" })
-    public ResponseEntity doDelete(@PathVariable(required = false) String accessId,
-            @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename,
+    @DeleteMapping(value = { "/file" })
+    public ResponseEntity doDelete(@RequestParam(required = false) String fileId,
             HttpServletRequest request) {
         LOGGER.info("====================== /file doDelete()");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
@@ -146,6 +152,14 @@ public class FileController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
+        String[] parts = fileId.split("/");
+        if (parts.length != 3) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                    "Erreur: nom ou ID du fichier manquant");
+        }
+        String accessId = parts[0];
+        String uuid = parts[1];
+        String filename = parts[2];
         if (StringUtils.isBlank(filename)) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                     "Erreur: nom ou ID du fichier manquant");

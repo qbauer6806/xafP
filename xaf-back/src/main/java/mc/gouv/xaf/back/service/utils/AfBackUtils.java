@@ -874,7 +874,6 @@ public class AfBackUtils {
                             marqueur = marqueursMap.get(suffixedPath);
                             if (marqueur != null) {
                                 putMarqueur(map, tableauDonnee.getValue().get(suffixe), marqueur);
-                                break; // Sortir de la boucle une fois le marqueur trouvé
                             }
                         }
                     }

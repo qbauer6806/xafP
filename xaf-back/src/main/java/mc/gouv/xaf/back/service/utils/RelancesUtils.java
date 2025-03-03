@@ -109,9 +109,14 @@ public class RelancesUtils {
     }
 
     public String getExpirationTime(DemandeDTO demande) {
-        Integer nbJoursAvantExpiration = getNbJoursAvantExpiration();
-        if (nbJoursAvantExpiration == null) {
-            return null;
+        return getExpirationTime(demande, NB_JOURS_AVANT_EXPIRATION_KEY);
+    }
+
+    public String getExpirationTime(DemandeDTO demande, String key) {
+        PropertiesDTO prop = propertiesService.getProperty(key);
+        int nbJoursAvantExpiration = 0;
+        if (prop != null) {
+            nbJoursAvantExpiration = Integer.parseInt(prop.getValue());
         }
         Date dateStatutEnAttenteIC = demande.getDernierStatut().getDate();
         Calendar cal = Calendar.getInstance();
@@ -121,7 +126,7 @@ public class RelancesUtils {
         Date currentDate = new Date();
         Long dateExpirationTime = dateExpiration.getTime();
         Long currentDateTime = currentDate.getTime();
-        Long diff = dateExpirationTime - currentDateTime;
+        long diff = dateExpirationTime - currentDateTime;
         long days = TimeUnit.MILLISECONDS.toDays(diff);
         return String.valueOf(days);
     }

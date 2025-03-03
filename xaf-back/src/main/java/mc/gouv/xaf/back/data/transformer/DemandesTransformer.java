@@ -238,13 +238,29 @@ public class DemandesTransformer {
             statutDto.setCodeMotif(null);
         }
         demandeDTO.setStatuts(null);
+        demandeDTO.setMarqueurs(null);
+        demandeDTO.setMarqueursTrad(null);
+        demandeDTO.setContenuTrad(null);
         demandeDTO.setDernierStatut(statutDto);
         demandesComplementsTransformer.hideInfos(demandeDTO.getComplements());
+    }
+
+    public void hideInfosPageable(DemandeDTO demandeDTO) {
+        demandeDTO.setContenuInitial(null);
+        demandeDTO.setMeta(null);
+        demandeDTO.setConfig(null);
     }
 
     public void hideInfos(List<DemandeDTO> demandeDTOS) {
         for (DemandeDTO demandeDTO : demandeDTOS) {
             hideInfos(demandeDTO);
+        }
+    }
+
+    public void hideInfosPageable(List<DemandeDTO> demandeDTOS) {
+        for (DemandeDTO demandeDTO : demandeDTOS) {
+            hideInfos(demandeDTO);
+            hideInfosPageable(demandeDTO);
         }
     }
 

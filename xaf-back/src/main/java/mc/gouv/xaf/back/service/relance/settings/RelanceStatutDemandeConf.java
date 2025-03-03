@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.relance.settings;
 
+import lombok.Getter;
+import lombok.Setter;
 import java.io.Serializable;
 
 /**
@@ -11,6 +13,8 @@ import java.io.Serializable;
  *
  * @author XDECOOL.EXT
  */
+@Setter
+@Getter
 public class RelanceStatutDemandeConf implements Serializable {
 
     private static final long serialVersionUID = 6123329536305326942L;
@@ -27,35 +31,4 @@ public class RelanceStatutDemandeConf implements Serializable {
         this.clefMailPrefix = clefMailPrefix;
     }
 
-    public String getStatutARelancer() {
-        return statutARelancer;
-    }
-
-    public void setStatutARelancer(String statutARelancer) {
-        this.statutARelancer = statutARelancer;
-    }
-
-    public String getCleDelaiAvantPremiereRelance() {
-        return cleDelaiAvantPremiereRelance;
-    }
-
-    public void setCleDelaiAvantPremiereRelance(String cleDelaiAvantPremiereRelance) {
-        this.cleDelaiAvantPremiereRelance = cleDelaiAvantPremiereRelance;
-    }
-
-    public String getCleDelaiEntreDeuxRelances() {
-        return cleDelaiEntreDeuxRelances;
-    }
-
-    public void setCleDelaiEntreDeuxRelances(String cleDelaiEntreDeuxRelances) {
-        this.cleDelaiEntreDeuxRelances = cleDelaiEntreDeuxRelances;
-    }
-
-    public String getClefMailPrefix() {
-        return clefMailPrefix;
-    }
-
-    public void setClefMailPrefix(String clefMailPrefix) {
-        this.clefMailPrefix = clefMailPrefix;
-    }
 }

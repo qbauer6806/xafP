@@ -137,7 +137,7 @@ public class AfApiController {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> demandeDTOS = afApiService.getDemandesPageable(usagerId,
                 new PageParamDTO(page, size, sort, direction, status, lang));
-        demandesTransformer.hideInfos(demandeDTOS.getContent());
+        demandesTransformer.hideInfosPageable(demandeDTOS.getContent());
         return demandeDTOS;
     }
 

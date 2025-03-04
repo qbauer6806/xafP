@@ -11,8 +11,6 @@ import org.springframework.data.repository.CrudRepository;
 @SuppressWarnings("java:S100")
 public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO, Integer> {
 
-    List<DemandesFilesBO> findAllByUrl(String url);
-
     List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndTypedoc(Integer pkDemande, String typedoc);
 
     List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndMeta(Integer pkDemande, String meta);

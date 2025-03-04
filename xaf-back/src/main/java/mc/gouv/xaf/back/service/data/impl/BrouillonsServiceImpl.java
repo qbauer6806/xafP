@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
@@ -261,9 +262,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         // Suppression des fichiers liés au brouillon
-        BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
-        if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
-            for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
+        Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
+        if (brouillonsFilesBOS != null) {
+            for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
                 if (fileService.isFileDeletable(currentFileToDelete.getUrl())) {
                     String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
                     fileService.deleteFile("ROOT", url);

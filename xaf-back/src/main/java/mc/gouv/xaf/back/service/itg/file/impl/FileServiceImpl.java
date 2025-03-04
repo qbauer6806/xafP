@@ -490,8 +490,8 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public boolean isFileDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.findAllByUrl(fileUrl).size();
-        int existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(fileUrl).size();
+        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
+        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
         if (existingFiles + existingFilesBrouillons <= 1) {
             return true;
         }
@@ -501,8 +501,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public boolean isFileFromDemande(String fileUrl) {
-        int existingFiles = demandesFilesRepository.findAllByUrl(fileUrl).size();
-        return existingFiles >= 1;
+        return demandesFilesRepository.countByUrl(fileUrl) >= 1;
     }
 
 }

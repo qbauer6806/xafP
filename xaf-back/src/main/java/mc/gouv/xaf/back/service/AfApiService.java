@@ -294,12 +294,12 @@ public class AfApiService {
             demandeDto.setContenu(demande.getContenu());
             demandeDto.setFichiers(demande.getFichiers());
 
-            LOGGER.info("DTO reconstitué : {}", demandeDto);
+            LOGGER.debug("DTO reconstitué : {}", demandeDto);
 
             // Partial update sur contenu et fichiers uniquement
             demandeDto = demandesService.updateDemande(demandeDto, true);
 
-            LOGGER.info("DTO après sauvegarde en base : {}", demandeDto);
+            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDto);
 
             // Utiliser le BPM afin d'exécuter les tâches qui suivent la rectification
             if (demandeEnBase.getDernierStatut().getName()
@@ -436,7 +436,7 @@ public class AfApiService {
             }
             demande = demandes.getFirst();
 
-            LOGGER.info("Demande trouvée : {}", demande);
+            LOGGER.debug("Demande trouvée : {}", demande);
 
             if (demarchesDataProvider.checkAssociationCourrier(demande, stringToCheck)) {
 
@@ -454,7 +454,7 @@ public class AfApiService {
                 gouvBPM.setProcessBusinessVariable(demande.getPkDemandes(),
                         GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), usagerId);
 
-                LOGGER.info("Association terminée. Demande : {}", demande);
+                LOGGER.debug("Association terminée. Demande : {}", demande);
 
                 LOGGER.info("Ajout d'une ligne dans l'historique de la demande...");
 

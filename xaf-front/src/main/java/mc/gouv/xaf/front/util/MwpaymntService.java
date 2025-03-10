@@ -6,23 +6,34 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.CompanyEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.PaymentMethodStatusEnum;
 import mc.gouv.xaf.front.dto.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.shared.paiement.infopaiement.AnswerDTO;
+import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementOutputDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementOutputDTO;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.security.SecureRandom;
 
 @Service
 public class MwpaymntService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MwpaymntService.class);
 
+    @Autowired
+    private FrontGouvPropertiesResolver gouvPropertiesResolver;
+
 
     public RegisterInputDTO getRegisterInput(UsagerInfosDTO usagerInfosDTO) {
+        LOGGER.info("Création du RegisterInputDTO utilisé pour appeler le middleware de paiement");
         RegisterInputDTO registerInputDTO = new RegisterInputDTO();
         registerInputDTO.setAction(ActionEnum.REGISTER.name());
         registerInputDTO.setCompany(CompanyEnum.DSP.name());
@@ -39,7 +50,7 @@ public class MwpaymntService {
         transactionInformation.setMetadatakey("Téléservice");
         // TODO réfléchir à l'avoir en paramètre pour identifier l'appelant
         transactionInformation.setMetadatavalue("RESCART");
-        transactionInformation.setOrderId("TestOrderId");
+        transactionInformation.setOrderId(generateOrderId(gouvPropertiesResolver.getDemarcheId()));
         registerInputDTO.setTransactionInformation(transactionInformation);
 
         // Transaction ID
@@ -93,5 +104,22 @@ public class MwpaymntService {
         StringBuilder result = new StringBuilder();
         result.append(expiryMonth).append("/").append(expiryYear);
         return result.toString();
+    }
+
+    private String generateOrderId(String demarcheId) {
+        StringBuilder result = new StringBuilder();
+        result.append(demarcheId.toUpperCase()).append("-");
+        result.append(RandomStringUtils.random(12, 0, 0, true, true, null, new SecureRandom()));
+        return result.toString();
+
+    }
+
+    public InfoPaiementOutputDTO mwpaymtRegisterResponseToInfoPaiementOutputDTO(String orderId, RegisterOutputDTO mwpaymtResponse) {
+        InfoPaiementOutputDTO paiementOutputDTO = new InfoPaiementOutputDTO();
+        paiementOutputDTO.setOrderId(orderId);
+        //TODO pas de valeur fixe
+        paiementOutputDTO.setStatus("SUCCESS");
+        paiementOutputDTO.setAnswer(new AnswerDTO(mwpaymtResponse.getFormToken()));
+        return paiementOutputDTO;
     }
 }

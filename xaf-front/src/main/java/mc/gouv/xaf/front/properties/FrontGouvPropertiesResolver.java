@@ -192,6 +192,15 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.appfactory.monguichet.cgu.url.en}")
     private String monguichetCguUrlEn;
 
+    @Value("${mc.gouv.appfactory.external.lyra.javascript.url}")
+    private String lyraJavascriptUrl;
+    @Value("${mc.gouv.appfactory.external.lyra.additional.css.url}")
+    private String lyraJavascriptCssUrl;
+    @Value("${mc.gouv.appfactory.external.lyra.additional.javascript.url}")
+    private String lyraJavascriptAdditionalUrl;
+    @Value("${mc.gouv.appfactory.rescart.external.lyra.public.key}")
+    private String lyraPublicKey;
+
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
             GouvPropertyNotFoundException {
@@ -312,6 +321,11 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.fr", getMonguichetCguUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.en", getMonguichetCguUrlEn()));
 
+        // TODO a voir si on bouge cette partie ailleurs
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.javascript.url", getLyraJavascriptUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.css.url", getLyraJavascriptCssUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.javascript.url", getLyraJavascriptAdditionalUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory." + demarcheId + ".external.lyra.public.key", getLyraPublicKey()));
         return propertiesDTOS;
     }
 }

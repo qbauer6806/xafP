@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.PaymentMethodStatusEnum;
@@ -22,10 +23,11 @@ import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
+import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementInputDTO;
+import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementOutputDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementOutputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,8 +129,9 @@ public class PaiementController extends AbstractXafController {
         } else if (infoPaiementInput.getProviderName().equalsIgnoreCase(PSPEnum.LYRA.name())) {
             // TODO Stockage en db des infos de paiement en fonction du body d'entrée
 
+
             // Puis call au middleware de paiement
-            return processMwpaymntCall(usagerInfosDTO);
+            return processMwpaymntCall(usagerInfosDTO, infoPaiementInput);
         }
         return ResponseEntity.ok().build();
     }
@@ -210,8 +213,9 @@ public class PaiementController extends AbstractXafController {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        InfoFacturationResponseDTO infoFacturation = getPaiementApiClient().getInfoFacturation(usagerInfosDTO.getId());
         LOGGER.info("====================== /info-facturation GET end...");
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(infoFacturation);
     }
 
     @PostMapping(value = { "/info-facturation" })
@@ -251,11 +255,17 @@ public class PaiementController extends AbstractXafController {
         return ResponseEntity.ok(tableauPaiementResponse);
     }
 
-    private ResponseEntity processMwpaymntCall(UsagerInfosDTO usagerInfosDTO) {
+    private ResponseEntity processMwpaymntCall(UsagerInfosDTO usagerInfosDTO, InfoPaiementInputDTO infoPaiementInput) {
+        RegisterInputDTO registerInput = mwpaymntService.getRegisterInput(usagerInfosDTO);
         RegisterOutputDTO token = getMwpaymtApiClient(usagerInfosDTO.getTokenInfo().getAccessToken()).getToken(
-                mwpaymntService.getRegisterInput(usagerInfosDTO));
+                registerInput);
+        String orderId = registerInput.getTransactionInformation().getOrderId();
+        getPaiementApiClient().createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO.getId(), orderId);
+        InfoPaiementOutputDTO infoPaiementOutputDTO = mwpaymntService.mwpaymtRegisterResponseToInfoPaiementOutputDTO(
+                orderId, token);
+
         LOGGER.info("====================== /info-paiement POST end...");
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(infoPaiementOutputDTO);
     }
 
     private ResponseEntity processMoneticoCall(UsagerInfosDTO usagerInfosDTO, InfoPaiementInputDTO infoPaiementInput) {

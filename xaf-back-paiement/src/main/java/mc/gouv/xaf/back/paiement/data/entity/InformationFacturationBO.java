@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @Table(name = "PMNT_INFORMATIONS_FACTURATIONS")
 @Getter
 @Setter
-@ToString
 public class InformationFacturationBO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,5 +54,25 @@ public class InformationFacturationBO {
     private String pays;
 
     private String email;
+
+    @Override
+    public String toString() {
+        return "InformationsFacturationBO{" +
+                "pkInformationsFacturation='" + pkInformationsFacturation + '\'' +
+                ", commande=" + commande +
+                ", dateCreation='" + dateCreation + '\'' +
+                ", civilite='" + civilite + '\'' +
+                ", prenom=" + prenom +
+                ", nom=" + nom +
+                ", raisonSociale=" + raisonSociale +
+                ", adresseLigne1='" + adresseLigne1 + '\'' +
+                ", adresseLigne2='" + adresseLigne2 + '\'' +
+                ", adresseLigne3='" + adresseLigne3 + '\'' +
+                ", codePostal='" + codePostal + '\'' +
+                ", ville='" + ville + '\'' +
+                ", pays='" + pays + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 
 }

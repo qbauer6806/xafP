@@ -19,7 +19,6 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 @Table(name = "PMNT_COMMANDES_OPERATIONS")
 @Getter
 @Setter
-@ToString
 public class CommandeOperationBO {
 
     @Id
@@ -45,4 +44,19 @@ public class CommandeOperationBO {
     private String errorMessage;
 
     private Double montant;
+
+    @Override
+    public String toString() {
+        return "CommandeOperationBO{" +
+                "pkOperation='" + pkOperations + '\'' +
+                ", operationType=" + operationType +
+                ", operationStatut=" + operationStatut +
+                ", dateCreation=" + dateCreation +
+                ", errorCode=" + errorCode +
+                ", errorMessage=" + errorMessage +
+                ", montant=" + montant +
+                ", transactionReference='" + transactionReference + '\'' +
+                '}';
+    }
+
 }

@@ -52,5 +52,18 @@ public class MoyenPaiementBO {
     @Enumerated(EnumType.STRING)
     private PSPEnum paymentSupplier;
 
-
+    @Override
+    public String toString() {
+        return "MoyenPaiementBO{" +
+                "pkMoyenPaiement='" + pkMoyensPaiements + '\'' +
+                ", commande=" + commande +
+                ", dateCreation='" + dateCreation + '\'' +
+                ", dateDerniereModification='" + dateDerniereModification + '\'' +
+                ", paymentMethodType=" + paymentMethodType +
+                ", paymentMethodToken=" + paymentMethodToken +
+                ", cancellationDate=" + cancellationDate +
+                ", paymentMethodRecord='" + paymentMethodRecord + '\'' +
+                ", paymentMethodName='" + paymentMethodName + '\'' +
+                '}';
+    }
 }

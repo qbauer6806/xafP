@@ -2,14 +2,17 @@ package mc.gouv.xaf.back.paiement.data.transformer;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import java.time.LocalDateTime;
+import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
+import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
+import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
 
 public class InfoFacturationTransformer {
 
     private InfoFacturationTransformer() {
     }
 
-    public static InformationFacturationBO infoFacturationResponseDTOToInfoFacturationBO(/*InfoFacturationResponseDTO dto, CommandeBO commande*/) {
-        /*InformationFacturationBO bo = new InformationFacturationBO();
+    public static InformationFacturationBO infoFacturationResponseDTOToInfoFacturationBO(InfoFacturationResponseDTO dto, CommandeBO commande) {
+        InformationFacturationBO bo = new InformationFacturationBO();
         bo.setDateCreation(LocalDateTime.now());
         VousDTO vous = dto.getVous();
         bo.setCivilite(vous.getTitre());
@@ -24,14 +27,12 @@ public class InfoFacturationTransformer {
         bo.setVille(adresse.getVille());
         bo.setPays(adresse.getPays());
         bo.setEmail(dto.getEmail());
-        bo.setCommande(commande);*/
-        return null;
-
-        //return bo;
+        bo.setCommande(commande);
+        return bo;
     }
 
-    public static InformationFacturationBO infoFacturationResponseDTOToInfoFacturationBO(String toto/*InfoFacturationResponseDTO dto*/) {
-        /*InformationFacturationBO bo = new InformationFacturationBO();
+    public static InformationFacturationBO infoFacturationResponseDTOToInfoFacturationBO(InfoFacturationResponseDTO dto) {
+        InformationFacturationBO bo = new InformationFacturationBO();
         bo.setDateCreation(LocalDateTime.now());
         VousDTO vous = dto.getVous();
         bo.setCivilite(vous.getTitre());
@@ -45,9 +46,8 @@ public class InfoFacturationTransformer {
         bo.setCodePostal(adresse.getCodePostal());
         bo.setVille(adresse.getVille());
         bo.setPays(adresse.getPays());
-        bo.setEmail(dto.getEmail());*/
-        return null;
-        //return bo;
+        bo.setEmail(dto.getEmail());
+        return bo;
     }
 
 }

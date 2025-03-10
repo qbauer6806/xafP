@@ -1150,7 +1150,8 @@ public class AfBackUtils {
 
     public Map<String, Object> getGenericModelPdf(DemandeDTO demandeDTO) {
         Map<String, Object> map = getGenericModelMail(demandeDTO);
-        map.put("adresseService", StringUtils.replace("adresseService", "<br/>", System.lineSeparator()));
+        map.put("adresseService",
+                StringUtils.replace(getDemarcheInfos().getAdresseService(), "<br/>", System.lineSeparator()));
         map.put("dateCourante", new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE).format(new Date()));
         return map;
     }

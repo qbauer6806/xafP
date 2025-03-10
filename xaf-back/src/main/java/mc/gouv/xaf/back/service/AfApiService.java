@@ -482,6 +482,10 @@ public class AfApiService {
         return demandesService.getDemandeFilterFiles(demandeId, usagerId);
     }
 
+    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId) {
+        return demandesService.getDemandeRecap(demandeId, usagerId);
+    }
+
     public List<DemandeDTO> getDemandes(Integer usagerId) {
         return demandesService.getDemandesFilterFiles(usagerId);
     }

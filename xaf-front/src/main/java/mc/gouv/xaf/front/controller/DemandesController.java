@@ -3,9 +3,9 @@ package mc.gouv.xaf.front.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -154,6 +155,20 @@ public class DemandesController extends AbstractXafController {
         DemandeDTO demandeDto = getAfApiClient().getDemande(usagerInfosDTO.getId(), demandeId);
 
         return ResponseEntity.ok(demandeDto);
+    }
+
+    @GetMapping(value = { "/demandes/{demandeId}/recap" }, produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> doGetRecap(@PathVariable Integer demandeId, HttpServletRequest request) {
+        LOGGER.info("====================== /demandes doGetRecap()");
+
+        UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+        byte[] pdfBytes = getAfApiClient().getDemandeRecap(usagerInfosDTO.getId(), demandeId);
+
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).body(pdfBytes);
     }
 
     @GetMapping("/demandes/{demandeId}/complements/{demandeInfoComplId}")

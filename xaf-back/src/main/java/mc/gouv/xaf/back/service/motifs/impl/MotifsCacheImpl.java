@@ -33,6 +33,16 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
         return null;
     }
 
+    public MotifDTO getMotif(String codeMotif, String langue, String statut) {
+        for (MotifDTO motif : getValues()) {
+            if (motif.getCode().equals(codeMotif) && motif.getLangue().equals(langue) && motif.getStatut()
+                    .equals(statut)) {
+                return motif;
+            }
+        }
+        return null;
+    }
+
     public List<MotifDTO> getMotifs(String langue) {
         List<MotifDTO> motifs = new ArrayList<>();
         for (MotifDTO motif : getValues()) {

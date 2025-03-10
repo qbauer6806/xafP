@@ -122,6 +122,13 @@ public class AfApiController {
         return demandeDTO;
     }
 
+    @GetMapping(value = "/usagers/{usagerId}/demandes/recap/{demandeId}")
+    public @ResponseBody byte[] getDemandeRecapRequest(@PathVariable(value = "usagerId") Integer usagerId,
+            @PathVariable(value = "demandeId") Integer demandeId) {
+        LOGGER.info("AbstractAfApiController.getDemandeRecapRequest({}, {})", usagerId, demandeId);
+        return afApiService.getDemandeRecap(usagerId, demandeId);
+    }
+
     @GetMapping(value = "/demandes")
     public @ResponseBody List<DemandeDTO> getDemandesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getDemandes({})", usagerId);

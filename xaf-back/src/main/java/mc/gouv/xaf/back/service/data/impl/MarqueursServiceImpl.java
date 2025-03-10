@@ -44,6 +44,15 @@ public class MarqueursServiceImpl implements MarqueursService {
     }
 
     @Override
+    public MarqueurDTO getMarqueur(String buildId, String marqueurId) {
+        List<MarqueurBO> marqueurBO = marqueursRepository.findAllByBuildIdAndIdentifiant(buildId, marqueurId);
+        if (!marqueurBO.isEmpty()) {
+            return marqueursTransformer.bo2Dto(marqueurBO.getFirst());
+        }
+        return null;
+    }
+
+    @Override
     public MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueurDTO) {
         // on calcule le type
         DemandeConfigBO config = demandesConfigService.getConfig(marqueurDTO.getBuildId());

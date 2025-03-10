@@ -9,7 +9,6 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.motifs.MotifsTemplateModelProvider;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -37,9 +36,6 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     private MotifsTemplateModelProvider motifsTemplateModelProvider;
 
     private ToolManager manager = new ToolManager();
-
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     public MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) {
         MotifDTO motif = motifsCache.getMotif(codeMotif, langue);

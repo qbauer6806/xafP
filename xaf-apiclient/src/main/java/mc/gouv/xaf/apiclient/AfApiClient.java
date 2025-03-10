@@ -137,6 +137,17 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(DemandeDTO.class);
     }
 
+    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId) {
+        Response res = getTarget().path(
+                        "/usagers/" + usagerId + '/' + RequestConstant.DEMANDES_PATH + "/recap/" + demandeId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(byte[].class);
+    }
+
     public List<DemandeDTO> getDemandes(Integer usagerId) {
         Response res = getTarget().path(RequestConstant.DEMANDES_PATH)
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)

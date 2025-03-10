@@ -238,4 +238,13 @@ public interface DemarchesDataProvider {
 		return false;
 	}
 
+    /**
+     * Utilisé pour afficher des données de la demande dans le recap généré par le bouton FO "télécharger ma demande"
+     *
+     * @return
+     */
+    default List<String> getMarqueursForRecap() {
+        return null;
+    }
+
 }

@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
 
@@ -25,5 +26,7 @@ public interface DemandeFilesCategorizer {
      * @return la liste des catégories construites
      */
     List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande, Comparator<FileSubCategoryDTO> comparator);
+
+    List<DemandeFileDTO> fichiersAdministration(DemandeFileDTO[] demandeFiles);
 
 }

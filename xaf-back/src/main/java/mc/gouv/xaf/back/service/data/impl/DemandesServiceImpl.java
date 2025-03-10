@@ -1,6 +1,18 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.converter.Options;
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.DateFormat;
@@ -9,28 +21,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-
-import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
-import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
@@ -50,6 +45,8 @@ import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
@@ -58,7 +55,9 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -67,19 +66,39 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.velocity.tools.generic.DateTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -174,6 +193,21 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private AfExcelExportModelProvider excelExportModelProvider;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
+
+    @Autowired
+    private MotifsCache motifsCache;
+
+    @Autowired
+    private DemandeFilesCategorizer demandeFilesCategorizer;
+
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
+    private MarqueursService marqueursService;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -626,6 +660,88 @@ public class DemandesServiceImpl implements DemandesService {
             demande.setFichiers(DemarchesUtils.filterFiles(fichiers));
         }
         return demande;
+    }
+
+    @Override
+    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId) {
+        DemandeDTO demande = getDemande(pkDemande, usagerId);
+        demandesTransformer.hideDernierStatut(demande);
+        // transformer les complements pour affichage
+        if (demande.getComplements() != null) {
+            for (DemandeComplementsDTO demandeComplementsDTO : demande.getComplements()) {
+                String codeMotif = demandeComplementsDTO.getQuestion().getCodeMotif();
+                demandeComplementsDTO.getQuestion().setCodeMotif(motifsCache.getMotif(codeMotif, "fr").getLibelle());
+            }
+        }
+        // transformer le motif
+        String codeMotif = demande.getDernierStatut().getCodeMotif();
+        if (codeMotif != null) {
+            demande.getDernierStatut().setCodeMotif(motifsCache.getMotif(codeMotif, "fr").getLibelle());
+        }
+        byte[] bytes;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            InputStream in = this.getClass().getResourceAsStream("/pdfrecap/DemandeRecap.docx");
+            IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
+
+            LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
+            IContext context = report.createContext();
+            for (Entry<String, Object> entry : afBackUtils.getGenericModelPdf(demande).entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
+            }
+            context.put("demande", demande);
+            context.put("Utils", AfBackUtils.class);
+            context.put("date", new DateTool());
+            context.put("mconnect", TypeConnexionUsagerEnum.MCONNECT.equals(demande.getTypeConnexionUsager()));
+            List<String> marqueursForRecap = demarchesDataProvider.getMarqueursForRecap();
+            Map<String, String> map = null;
+            if (marqueursForRecap != null) {
+                map = new HashMap<>();
+                for (String identifiant : marqueursForRecap) {
+                    MarqueurDTO marqueur = marqueursService.getMarqueur(demande.getConfig().get("buildId").asText(),
+                            identifiant);
+                    if (marqueur != null) {
+                        String valeur;
+                        if ("choixMultiple".equals(marqueur.getType())) {
+                            List<String> choix = demande.getMarqueurChoixMultipleTrad(identifiant);
+                            valeur = String.join(", ", choix);
+                        } else {
+                            valeur = demande.getMarqueurTrad(identifiant);
+                        }
+                        map.put(marqueur.getDescription(), valeur);
+                    }
+                }
+            }
+            context.put("infosDemande", map);
+
+            Options options = Options.getTo(ConverterTypeTo.PDF);
+
+            report.convert(context, options, bos);
+            bytes = bos.toByteArray();
+            in.close();
+        } catch (IOException | XDocReportException e) {
+            throw new DemarchesServiceException("Erreur lors de la génération", HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+
+        try (PDDocument mainDocument = Loader.loadPDF(bytes);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            PDFMergerUtility mergerUtility = new PDFMergerUtility();
+
+            // Ajouter les PDFs des URLs
+            for (DemandeFileDTO file : demandeFilesCategorizer.fichiersAdministration(demande.getFichiers())) {
+                try (InputStream inputStream = fileService.getFile(
+                        gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/"
+                                + file.getUrl()); PDDocument urlPdf = Loader.loadPDF(inputStream.readAllBytes())) {
+                    mergerUtility.appendDocument(mainDocument, urlPdf);
+                }
+            }
+
+            // Sauvegarder le document fusionné en byte[]
+            mainDocument.save(outputStream);
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new DemarchesServiceException("Erreur lors de la génération", HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
     }
 
     /**

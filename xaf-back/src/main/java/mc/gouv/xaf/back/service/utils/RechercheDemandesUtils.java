@@ -247,7 +247,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
             SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
             String value = dataRechercheDTO.getValue();
             // vérifier c'est une array
-            if (isArrayString(value)) {
+            if (value != null && isArrayString(value)) {
                 String[] tableau = value.substring(1, value.length() - 1).split(",");
                 // Pour gérer chaque élément du tableau :
                 List<Predicate> orPredicates = new ArrayList<>();
@@ -260,7 +260,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
                 }
                 predicates.add(cb.or(orPredicates.toArray(Predicate[]::new)));
             } else {
-                predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), dataRechercheDTO.getValue()),
+                predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), value),
                         cb.equal(demandesData.<String> get("key"), dataRechercheDTO.getKey())));
             }
         }
@@ -272,7 +272,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
     private boolean isArrayString(String string) {
         // Vérifie si la chaîne commence par '[' et se termine par ']'
-        return string != null && string.startsWith("[") && string.endsWith("]");
+        return string.startsWith("[") && string.endsWith("]");
     }
 
 
@@ -293,7 +293,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
                 for (String element : tableau) {
                     // Nettoyer l'élément (supprimer les espaces et guillemets inutiles)
-                    String cleanedElement = element.trim().replaceAll("^\"|\"$", "");
+                    String cleanedElement = element.trim().replaceAll("(^\")|(\"$)", "");
 
                     // Créer un tableau JSONB valide pour l'élément
                     String jsonbElement = "[\"" + cleanedElement + "\"]";

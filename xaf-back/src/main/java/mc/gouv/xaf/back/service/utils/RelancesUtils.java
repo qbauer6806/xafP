@@ -52,14 +52,6 @@ public class RelancesUtils {
         }
     }
 
-    private Integer getNbJoursAvantExpiration() {
-        PropertiesDTO prop = propertiesService.getProperty(NB_JOURS_AVANT_EXPIRATION_KEY);
-        if (prop != null) {
-            return Integer.parseInt(prop.getValue());
-        }
-        return null;
-    }
-
     /*
      * (non-Javadoc)
      *

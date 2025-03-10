@@ -102,11 +102,9 @@ public class FileController extends AbstractXafController {
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
             String fullFilename = accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
             String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + fullFilename;
-            LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
             URL url = new URL(propertiesResolver.getFileUrl() + virtualPath);
-            LOGGER.info("URL d'appel : {}", url);
 
             // Constitution de la requête
             HttpClient client = HttpClientBuilder.create().build();

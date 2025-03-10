@@ -246,7 +246,6 @@ public class DemandesTransformer {
             // si c'est un statut privé on cache le motif
             statutDto.setCodeMotif(null);
         }
-        ;
         demandeDTO.setDernierStatut(statutDto);
     }
 

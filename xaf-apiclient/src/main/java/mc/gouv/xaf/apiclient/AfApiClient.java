@@ -324,18 +324,6 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(BrouillonDTO.class);
     }
 
-    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-        Response res = getTarget().path(RequestConstant.BROUILLONS_PATH)
-                .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(new GenericType<List<BrouillonDTO>>() {
-
-        });
-    }
-
     public BrouillonDTO getBrouillon(Integer brouillonId, Integer usagerId) {
         Response res = getTarget().path('/' + RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)

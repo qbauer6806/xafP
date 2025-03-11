@@ -52,7 +52,4 @@ public class AccessBO {
     @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandeBO> demandes;
 
-    @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<BrouillonBO> brouillons;
-
 }

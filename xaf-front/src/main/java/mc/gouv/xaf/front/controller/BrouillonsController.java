@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +112,7 @@ public class BrouillonsController extends XafFrontserverUtils {
     }
 
     @GetMapping(value = { "/brouillons", "/brouillons/{brouillonId}" })
-    public ResponseEntity doGet(@PathVariable(required = false) String brouillonId, HttpServletRequest request) {
+    public ResponseEntity doGet(@PathVariable String brouillonId, HttpServletRequest request) {
         LOGGER.info("====================== /brouillons doGet()");
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
@@ -125,21 +123,14 @@ public class BrouillonsController extends XafFrontserverUtils {
         }
 
         try {
-            if (StringUtils.isBlank(brouillonId)) {
-                LOGGER.info("Appel à la démarche pour récupérer tous les brouillons de l'usager");
-                List<BrouillonDTO> brouillonDtos = afApiClient.getBrouillons(usagerInfosDTO.getId());
-                return ResponseEntity.ok(brouillonDtos);
-            } else {
-                LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
-                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId),
-                        usagerInfosDTO.getId());
+            LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
+            BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
 
-                if (brouillonDto.getContenuInitial() != null) {
-                    request.getSession()
-                            .setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, brouillonDto.getContenuInitial());
-                }
-                return ResponseEntity.ok(brouillonDto);
+            if (brouillonDto.getContenuInitial() != null) {
+                request.getSession()
+                        .setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, brouillonDto.getContenuInitial());
             }
+            return ResponseEntity.ok(brouillonDto);
         } catch (Exception e) {
             LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             return ResponseEntity.internalServerError().build();

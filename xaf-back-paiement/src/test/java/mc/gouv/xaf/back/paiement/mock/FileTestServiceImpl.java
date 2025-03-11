@@ -89,8 +89,12 @@ public class FileTestServiceImpl implements FileService {
     }
 
     @Override
-    public boolean isFileFromDemande(String fileUrl) {
+    public boolean isFileBrouillonDeletable(String fileName) {
         return false;
     }
 
+    @Override
+    public boolean isFileFromBrouillonDeletable(String fileUrl) {
+        return false;
+    }
 }

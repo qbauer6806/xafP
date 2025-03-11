@@ -280,12 +280,6 @@ public class AfApiController {
         return afApiService.updateBrouillon(brouillon, usagerId);
     }
 
-    @GetMapping(value = "/brouillons")
-    public @ResponseBody List<BrouillonDTO> getBrouillonsRequest(@RequestParam(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getBrouillonsRequest({})", usagerId);
-        return afApiService.getBrouillons(usagerId);
-    }
-
     @GetMapping(value = "/brouillons/{brouillonId}")
     public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
             @RequestParam(value = "usagerId") Integer usagerId) {

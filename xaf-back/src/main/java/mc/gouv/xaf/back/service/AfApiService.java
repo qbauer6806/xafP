@@ -753,10 +753,6 @@ public class AfApiService {
         return brouillonDto;
     }
 
-    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-        return brouillonsService.getBrouillons(usagerId);
-    }
-
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
     }
@@ -770,9 +766,8 @@ public class AfApiService {
     }
 
     public void deleteFile(String fileUrl) {
-        // vérifier que le fichier n'est pas déjà dans une demande (pour éviter que l'usager utilise l'endpoint de manière malveillante)
-        // et vérifier que le fichier n'est pas utilisé dans un autre brouillon ou autre demande
-        if (!fileService.isFileFromDemande(fileUrl) && fileService.isFileDeletable(fileUrl)) {
+        // vérifier que le fichier n'est pas utilisé dans une demande (pour éviter que l'usager utilise l'endpoint de manière malveillante)
+        if (fileService.isFileFromBrouillonDeletable(fileUrl)) {
             String url = URLEncoder.encode(fileUrl, StandardCharsets.UTF_8);
             fileService.deleteFile("ROOT", url);
         } else {

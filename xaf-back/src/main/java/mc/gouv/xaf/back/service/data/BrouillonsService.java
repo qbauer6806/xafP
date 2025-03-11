@@ -5,17 +5,11 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 
-import java.util.List;
-
 public interface BrouillonsService {
 
     BrouillonDTO saveBrouillon(BrouillonDTO brouillon);
 
     BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate);
-
-    List<BrouillonDTO> getBrouillons(Integer usagerId);
-
-    List<BrouillonDTO> getAllBrouillons();
 
     BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId);
 

@@ -80,5 +80,8 @@ public interface FileService {
 
     boolean isFileDeletable(String fileName);
 
-    boolean isFileFromDemande(String fileUrl);
+    boolean isFileBrouillonDeletable(String fileName);
+
+    boolean isFileFromBrouillonDeletable(String fileUrl);
+
 }

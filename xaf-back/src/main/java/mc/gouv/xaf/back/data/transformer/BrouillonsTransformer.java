@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
@@ -9,10 +9,6 @@ import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author qdeme
@@ -39,14 +35,7 @@ public class BrouillonsTransformer {
             dto.setFichiers(BrouillonsFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles()))
                     .toArray(new BrouillonFileDTO[bo.getFiles().size()]));
         }
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            if (bo.getMeta() != null) {
-                dto.setMeta(mapper.readTree(bo.getMeta()));
-            }
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
+        dto.setMeta(bo.getMeta());
         dto.setContenu(bo.getContenu());
         dto.setContenuInitial(bo.getContenuInitial());
         dto.setBuildId(bo.getConfig().getBuildId());
@@ -75,14 +64,7 @@ public class BrouillonsTransformer {
         bo.setDateDerModif(dto.getDateDerModif());
         bo.setPkBrouillons(dto.getPkBrouillons());
         bo.setRecapType(dto.getRecapType());
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            if (dto.getMeta() != null) {
-                bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-            }
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
+        bo.setMeta(dto.getMeta());
         bo.setContenu(dto.getContenu());
         bo.setContenuInitial(dto.getContenuInitial());
         return bo;

@@ -48,7 +48,7 @@ public class BrouillonsFilesBO {
     private String url;
 
     @Column(name = "meta", length = 512)
-    @Size(min = 0, max = 512)
+    @Size(max = 512)
     private String meta;
 
     @Column(name = "DATE")

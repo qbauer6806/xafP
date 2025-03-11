@@ -193,11 +193,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return afBackUtils.getAfApiClient2Tiers().updateBrouillon(brouillon, brouillon.getPkBrouillons(), usagerId);
     }
 
-    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-        LOGGER.info("AfApiService2Tiers.getBrouillons({})", usagerId);
-        return afBackUtils.getAfApiClient2Tiers().getBrouillons(usagerId);
-    }
-
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getBrouillonsPageable({})", usagerId);
         return afBackUtils.getAfApiClient2Tiers().getBrouillonsPageable(usagerId, paramDTO);

@@ -33,7 +33,7 @@ public interface DemarchesDataProvider {
     }
 
     /**
-     * @return TSCODEDemandeStatutEnum.getMap();
+     * @return XafDemandeStatus.getMap(TSCODEDemandeStatutEnum.class):
      */
     Map<String, String> getStatusMap();
 
@@ -245,6 +245,10 @@ public interface DemarchesDataProvider {
      */
     default List<String> getMarqueursForRecap() {
         return null;
+    }
+
+    default String getDernierStatut(DemandeDTO demande) {
+        return demande.getDernierStatut().getLibelle();
     }
 
 }

@@ -712,6 +712,8 @@ public class DemandesServiceImpl implements DemandesService {
                 }
             }
             context.put("infosDemande", map);
+            // hack rescart pour récupérer le nom du statut dans les trad du config.json
+            context.put("dernierStatut", demarchesDataProvider.getDernierStatut(demande));
 
             Options options = Options.getTo(ConverterTypeTo.PDF);
 

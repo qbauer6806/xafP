@@ -122,6 +122,13 @@ public class AfApiController {
         return demandeDTO;
     }
 
+    @GetMapping(value = "/usagers/{usagerId}/demandes/recap/{demandeId}")
+    public @ResponseBody byte[] getDemandeRecapRequest(@PathVariable(value = "usagerId") Integer usagerId,
+            @PathVariable(value = "demandeId") Integer demandeId) {
+        LOGGER.info("AbstractAfApiController.getDemandeRecapRequest({}, {})", usagerId, demandeId);
+        return afApiService.getDemandeRecap(usagerId, demandeId);
+    }
+
     @GetMapping(value = "/demandes")
     public @ResponseBody List<DemandeDTO> getDemandesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getDemandes({})", usagerId);
@@ -271,12 +278,6 @@ public class AfApiController {
         LOGGER.info("AbstractAfApiController.updateBrouillonRequest({}, {}, {})", brouillon, brouillonId, usagerId);
         brouillon.setPkBrouillons(brouillonId);
         return afApiService.updateBrouillon(brouillon, usagerId);
-    }
-
-    @GetMapping(value = "/brouillons")
-    public @ResponseBody List<BrouillonDTO> getBrouillonsRequest(@RequestParam(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getBrouillonsRequest({})", usagerId);
-        return afApiService.getBrouillons(usagerId);
     }
 
     @GetMapping(value = "/brouillons/{brouillonId}")

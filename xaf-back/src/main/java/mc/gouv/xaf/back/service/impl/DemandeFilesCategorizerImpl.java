@@ -122,7 +122,8 @@ public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
         return files;
     }
 
-    private List<DemandeFileDTO> fichiersAdministration(DemandeFileDTO[] demandeFiles) {
+    @Override
+    public List<DemandeFileDTO> fichiersAdministration(DemandeFileDTO[] demandeFiles) {
         List<DemandeFileDTO> files = new ArrayList<>();
         if (demandeFiles != null) {
             for (DemandeFileDTO file : demandeFiles) {

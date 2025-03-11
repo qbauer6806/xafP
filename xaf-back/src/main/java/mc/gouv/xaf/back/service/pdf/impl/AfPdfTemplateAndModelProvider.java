@@ -6,9 +6,7 @@ import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
@@ -16,7 +14,6 @@ import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +24,6 @@ import org.springframework.stereotype.Component;
 public class AfPdfTemplateAndModelProvider {
 
     private final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-
-    private final String FORMAT_LITTERAIRE = "dd MMMM yyyy";
 
     @Autowired
     private MotifsCache motifsCache;
@@ -82,7 +77,6 @@ public class AfPdfTemplateAndModelProvider {
             String texteAEnvoyer) {
         Map<String, Object> model = new HashMap<>();
         model.put("demande", demande);
-        model.put("identifiant", demande.getIdentifiant());
         DemandeAgentDTO agent = demande.getAgent();
         model.put("nomAgent", agent != null ? agent.getNom() : "");
         String motif = "";
@@ -100,29 +94,8 @@ public class AfPdfTemplateAndModelProvider {
         }
         model.put("refCourrier", demande.getCourrierRefInterne());
 
-        model.putAll(getGenericModel());
+        model.putAll(afBackUtils.getGenericModelPdf(demande));
         return model;
-    }
-
-    private Map<String, Object> getGenericModel() {
-        Map<String, Object> model = new HashMap<>();
-        DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
-        model.put("nomTs", demarcheInfos.getNom());
-        model.put("nomTsEn", demarcheInfos.getNomEn());
-        model.put("nomDirection", demarcheInfos.getNomDirection());
-        model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
-        model.put("nomFooter", demarcheInfos.getNomFooter());
-        model.put("adresseService",
-                StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", System.lineSeparator()));
-        model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
-        model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
-        model.put("telephoneService", demarcheInfos.getTelephoneService());
-        model.put("nomDirectionEn", demarcheInfos.getNomDirectionEn());
-        model.put("nomSousDirectionEn", demarcheInfos.getNomSousDirectionEn());
-        model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
-        model.put("dateCourante", new SimpleDateFormat(FORMAT_LITTERAIRE, Locale.FRANCE).format(new Date()));
-        return model;
-
     }
 
     public PdfTemplateAndModelDTO getTemplateAndModel(DemandeDTO demande, PdfTypeEnum pdfType) {

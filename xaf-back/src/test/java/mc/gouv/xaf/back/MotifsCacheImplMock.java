@@ -63,6 +63,11 @@ public class MotifsCacheImplMock implements MotifsCache {
     }
 
     @Override
+    public MotifDTO getMotif(String codeMotif, String langue, String statut) {
+        return null;
+    }
+
+    @Override
     public List<MotifDTO> getMotifs(String langue) {
         // TODO Auto-generated method stub
         return null;

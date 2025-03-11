@@ -205,8 +205,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public void suppressionDesFichiers(DemandeDTO demandeDTO) {
-        if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
-            for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
+        DemandeFileDTO[] fichiers = demandeDTO.getFichiers();
+        if (null != fichiers) {
+            for (DemandeFileDTO currentFileToDelete : fichiers) {
                 // On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
                 // demande ou ses enfants (ie les demandes dupliquées qui découlent de cette demande)
                 // On vérifie également si le fichier est présent dans un brouillon, dans ce cas on ne supprime pas

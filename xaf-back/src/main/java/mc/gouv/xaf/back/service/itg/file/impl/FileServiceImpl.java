@@ -24,6 +24,8 @@ import mc.gouv.file.shared.dto.FileBatchDTO;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.exception.FileUploadException;
@@ -91,7 +93,13 @@ public class FileServiceImpl implements FileService {
     private DemandesFilesRepository demandesFilesRepository;
 
     @Autowired
+    private DemandesCourriersRepository demandesCourriersRepository;
+
+    @Autowired
     private BrouillonsFilesRepository brouillonsFilesRepository;
+
+    @Autowired
+    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
@@ -490,9 +498,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public boolean isFileDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.findAllByUrl(fileUrl).size();
-        int existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(fileUrl).size();
-        if (existingFiles + existingFilesBrouillons <= 1) {
+        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
+        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
+        if (existingFiles <= 1 && existingFilesBrouillons == 0) {
             return true;
         }
         LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
@@ -500,9 +508,28 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean isFileFromDemande(String fileUrl) {
-        int existingFiles = demandesFilesRepository.findAllByUrl(fileUrl).size();
-        return existingFiles >= 1;
+    public boolean isFileBrouillonDeletable(String fileUrl) {
+        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
+        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
+        if (existingFiles == 0 && existingFilesBrouillons <= 1) {
+            return true;
+        }
+        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
+        return false;
+    }
+
+    @Override
+    public boolean isFileFromBrouillonDeletable(String fileUrl) {
+        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
+        int existingFilesCourriers = demandesCourriersRepository.countByUrl(fileUrl);
+        int existingFilesComplements = demandesComplementsFilesRepository.countByUrl(fileUrl);
+        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
+        if (existingFiles == 0 && existingFilesCourriers == 0 && existingFilesComplements == 0
+                && existingFilesBrouillons <= 1) {
+            return true;
+        }
+        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
+        return false;
     }
 
 }

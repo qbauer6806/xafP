@@ -171,6 +171,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId) {
+        return new byte[0];
+    }
+
+    @Override
     public List<DemandeDTO> getDemandesFilterFiles(Integer usagerId) {
         return List.of();
     }

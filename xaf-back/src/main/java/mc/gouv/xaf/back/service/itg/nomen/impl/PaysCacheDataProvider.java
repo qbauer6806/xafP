@@ -80,7 +80,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         List<NomenValeurValeurLienDTO> liens = valeur.getValeurLiens();
         for (NomenValeurValeurLienDTO lien : liens) {
             if ("NATIO".equals(lien.getLienNomenclatureCode())) {
-                return lien.getLienValeurLibelle().toUpperCase();
+                return lien.getLienValeurLibelle();
             }
         }
         return null;

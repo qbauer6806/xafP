@@ -1,16 +1,13 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import mc.gouv.xaf.back.data.dao.AccessRepository;
+import java.util.Set;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -56,13 +53,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     private BrouillonsRepository brouillonsRepository;
 
     @Autowired
-    BrouillonsFilesService brouillonsFilesService;
+    private BrouillonsFilesService brouillonsFilesService;
 
     @Autowired
     private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
-    private AccessRepository accessRepository;
 
     @Autowired
     private AccessService accessService;
@@ -111,28 +105,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 
-    @Override
-    public List<BrouillonDTO> getAllBrouillons() {
-
-        LOGGER.info("Récupération en base des brouillons...");
-
-        List<BrouillonBO> brouillons = new ArrayList<>();
-        List<AccessBO> accessBos = accessRepository.findAll();
-        for (AccessBO access : accessBos) {
-            brouillons.addAll(access.getBrouillons());
-        }
-
-        LOGGER.info("Transformation bo -> dto ...");
-
-        List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
-        String lastBuildId = demandesConfigService.getLastBuildId();
-        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
-                demarchesDataProvider.getBrouillonStatutNotTransmitted(),
-                demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
-        return brouillonsDTO;
-
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -147,17 +119,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             brouillonDTO = saveBrouillon(brouillon);
         }
         return brouillonDTO;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        AccessBO accessBo = accessService.getAccessBOActive(usagerId);
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return BrouillonsTransformer.bo2Dto(new ArrayList<>(accessBo.getBrouillons()));
     }
 
     @Override
@@ -206,15 +167,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         brouillonBo.setContenu(brouillon.getContenu());
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-
-            if (brouillon.getMeta() != null) {
-                brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
-            }
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Problème lors de la conversion JSON", e);
-        }
+        brouillonBo.setMeta(brouillon.getMeta());
 
         // Mise à jour de la date de dernière modification
         brouillonBo.setDateDerModif(new Date());
@@ -261,18 +214,15 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         // Suppression des fichiers liés au brouillon
-        BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
-        if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
-            for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
-                if (fileService.isFileDeletable(currentFileToDelete.getUrl())) {
+        Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
+        if (brouillonsFilesBOS != null) {
+            for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
+                if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
                     String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
                     fileService.deleteFile("ROOT", url);
                 }
             }
         }
-
-        access.getBrouillons().remove(brouillonBo);
-        accessRepository.save(access);
         brouillonsRepository.delete(brouillonBo);
     }
 

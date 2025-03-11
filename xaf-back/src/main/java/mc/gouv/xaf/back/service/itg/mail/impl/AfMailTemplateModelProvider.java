@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
     
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande,
             Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
@@ -45,7 +49,7 @@ public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
     public Map<String, Object> getModelDesinscriptionUsager(Integer usagerId, List<DemandeDTO> demandes) {
         LOGGER.info("Construction du modèle pour le template de désinscription d'un usager...");
 
-        Map<String, Object> model = getGenericModel();
+        Map<String, Object> model = afBackUtils.getGenericModelMail();
         mailTemplateModelProvider.setModelDesinscriptionUsager(usagerId, model, demandes);
 
         return model;

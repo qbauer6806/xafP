@@ -8,4 +8,6 @@ public interface MarqueursRepository extends CrudRepository<MarqueurBO, Integer>
 
     List<MarqueurBO> findAllByBuildId(String buildId);
 
+    List<MarqueurBO> findAllByBuildIdAndIdentifiant(String buildId, String identifiant);
+
 }

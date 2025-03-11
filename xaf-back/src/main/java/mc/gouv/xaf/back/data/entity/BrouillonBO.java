@@ -61,8 +61,9 @@ public class BrouillonBO {
     @Size(max = 256)
     private String recapType;
 
-    @Column(name = "META", columnDefinition = "TEXT")
-    private String meta;
+    @Column(name = "META", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode meta;
 
     @Column(name = "CONTENU_INITIAL", columnDefinition = "JSONB")
     @JdbcTypeCode(SqlTypes.JSON)

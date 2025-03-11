@@ -10,6 +10,8 @@ public interface MarqueursService {
 
     List<MarqueurDTO> getMarqueurs(String buildId);
 
+    MarqueurDTO getMarqueur(String buildId, String marqueurId);
+
     MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueur);
 
     void deleteMarqueur(Integer pkMarqueur);

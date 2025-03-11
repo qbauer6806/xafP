@@ -1,12 +1,9 @@
 package mc.gouv.xaf.back.data.dao;
 
+import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
-
-import java.util.List;
 
 /**
  * @author qdeme
@@ -14,8 +11,6 @@ import java.util.List;
 public interface BrouillonsFilesRepository extends CrudRepository<BrouillonsFilesBO, Integer> {
 
     Integer countByUrl(String url);
-
-    List<BrouillonsFilesBO> findAllByUrl(String url);
 
     @Modifying
     @Query("delete from BrouillonsFilesBO BFBO where BFBO.fkBrouillons.pkBrouillons in (select BBO.pkBrouillons from BrouillonBO BBO where BBO.config.buildId != :buildIdCourant )")

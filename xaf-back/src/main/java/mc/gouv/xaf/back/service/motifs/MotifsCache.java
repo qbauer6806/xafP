@@ -14,6 +14,8 @@ public interface MotifsCache extends GouvCache<Integer, MotifDTO> {
 
     MotifDTO getMotif(String codeMotif, String langue);
 
+    MotifDTO getMotif(String codeMotif, String langue, String statut);
+
     List<MotifDTO> getMotifs(String langue);
 
     List<MotifDTO> getMotifs(String langue, String statut);

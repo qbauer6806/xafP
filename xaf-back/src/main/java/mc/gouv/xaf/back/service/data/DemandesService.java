@@ -203,6 +203,8 @@ public interface DemandesService {
      */
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
+    byte[] getDemandeRecap(Integer pkDemande, Integer usagerId);
+
     /**
      * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du
      * FRONT

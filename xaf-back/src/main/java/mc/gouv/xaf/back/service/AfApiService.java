@@ -294,12 +294,12 @@ public class AfApiService {
             demandeDto.setContenu(demande.getContenu());
             demandeDto.setFichiers(demande.getFichiers());
 
-            LOGGER.info("DTO reconstitué : {}", demandeDto);
+            LOGGER.debug("DTO reconstitué : {}", demandeDto);
 
             // Partial update sur contenu et fichiers uniquement
             demandeDto = demandesService.updateDemande(demandeDto, true);
 
-            LOGGER.info("DTO après sauvegarde en base : {}", demandeDto);
+            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDto);
 
             // Utiliser le BPM afin d'exécuter les tâches qui suivent la rectification
             if (demandeEnBase.getDernierStatut().getName()
@@ -436,7 +436,7 @@ public class AfApiService {
             }
             demande = demandes.getFirst();
 
-            LOGGER.info("Demande trouvée : {}", demande);
+            LOGGER.debug("Demande trouvée : {}", demande);
 
             if (demarchesDataProvider.checkAssociationCourrier(demande, stringToCheck)) {
 
@@ -454,7 +454,7 @@ public class AfApiService {
                 gouvBPM.setProcessBusinessVariable(demande.getPkDemandes(),
                         GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), usagerId);
 
-                LOGGER.info("Association terminée. Demande : {}", demande);
+                LOGGER.debug("Association terminée. Demande : {}", demande);
 
                 LOGGER.info("Ajout d'une ligne dans l'historique de la demande...");
 
@@ -480,6 +480,10 @@ public class AfApiService {
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
         return demandesService.getDemandeFilterFiles(demandeId, usagerId);
+    }
+
+    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId) {
+        return demandesService.getDemandeRecap(demandeId, usagerId);
     }
 
     public List<DemandeDTO> getDemandes(Integer usagerId) {
@@ -749,10 +753,6 @@ public class AfApiService {
         return brouillonDto;
     }
 
-    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-        return brouillonsService.getBrouillons(usagerId);
-    }
-
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
     }
@@ -766,9 +766,8 @@ public class AfApiService {
     }
 
     public void deleteFile(String fileUrl) {
-        // vérifier que le fichier n'est pas déjà dans une demande (pour éviter que l'usager utilise l'endpoint de manière malveillante)
-        // et vérifier que le fichier n'est pas utilisé dans un autre brouillon ou autre demande
-        if (!fileService.isFileFromDemande(fileUrl) && fileService.isFileDeletable(fileUrl)) {
+        // vérifier que le fichier n'est pas utilisé dans une demande (pour éviter que l'usager utilise l'endpoint de manière malveillante)
+        if (fileService.isFileFromBrouillonDeletable(fileUrl)) {
             String url = URLEncoder.encode(fileUrl, StandardCharsets.UTF_8);
             fileService.deleteFile("ROOT", url);
         } else {

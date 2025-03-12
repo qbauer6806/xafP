@@ -259,15 +259,21 @@ public class FileServiceImpl implements FileService {
                     FileUploadErrorEnum.TAILLE_MAX_ERROR);
         }
 
+        // Vérification du vrai type MIME via Tika
         Tika tika = new Tika();
         try (InputStream inputStream = file.getInputStream()) {
+            List<String> mimesAthorized = new ArrayList<>();
+            for (String ext : getExtensionsWhitelist()) {
+                if (!ext.startsWith(".")) {
+                    // Ajoute le "." si absent
+                    ext = "." + ext;
+                }
+                String mimeType = tika.detect(ext);
+                mimesAthorized.add(mimeType);
+            }
+
             String detectedMimeType = tika.detect(inputStream);
-
-            List<String> whitelistMimeTypes = List.of("application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/rtf",
-                    "application/pdf", "image/jpeg", "image/png", "image/tiff");
-
-            if (!whitelistMimeTypes.contains(detectedMimeType)) {
+            if (!mimesAthorized.contains(detectedMimeType)) {
                 LOGGER.info("Le type MIME réel {} n'est pas autorisé", detectedMimeType);
                 throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide",
                         FileUploadErrorEnum.EXTENSION_ERROR);

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
@@ -93,9 +94,8 @@ public class FileUploadController extends AbstractXafController {
             // Vérification du type du fichier
             LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);
             if (!fileControllerUtils.estExtensionDansWhitelist(safeFileName)) {
-                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
-                        fileControllerUtils.getExtensionsWhitelist());
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés, pas d'upload dans FILE");
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: le type/extension du fichier soumis n'est pas valide");
             }
 
@@ -103,23 +103,28 @@ public class FileUploadController extends AbstractXafController {
             // Vérification de la taille du fichier
             if (!fileControllerUtils.tailleFichierValide(part)) {
                 LOGGER.info("La taille du fichier dépasse la taille max définie dans les propriétés");
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
             }
 
             // Vérification du vrai type MIME via Tika
             Tika tika = new Tika();
             try (InputStream inputStream = part.getInputStream()) {
-                String detectedMimeType = tika.detect(inputStream);
-                
-                List<String> whitelistMimeTypes = List.of("application/msword",
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/rtf",
-                        "application/pdf", "image/jpeg", "image/png", "image/tiff");
+                List<String> mimesAthorized = new ArrayList<>();
+                for (String ext : fileControllerUtils.getExtensionsWhitelist()) {
+                    if (!ext.startsWith(".")) {
+                        // Ajoute le "." si absent
+                        ext = "." + ext;
+                    }
+                    String mimeType = tika.detect(ext);
+                    mimesAthorized.add(mimeType);
+                }
 
-                if (!whitelistMimeTypes.contains(detectedMimeType)) {
+                String detectedMimeType = tika.detect(inputStream);
+                if (!mimesAthorized.contains(detectedMimeType)) {
                     LOGGER.info("Le type MIME réel {} n'est pas autorisé", detectedMimeType);
-                    return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
-                            "Erreur: le type de fichier soumis n'est pas valide");
+                    return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                            "Erreur: le type mime du fichier soumis n'est pas valide");
                 }
             }
 
@@ -155,7 +160,7 @@ public class FileUploadController extends AbstractXafController {
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
             if (!vscan(part, safeFileName, postRequest)) {
-                return ResponseEntity.badRequest().build();
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, "Le fichier est corrompu");
             }
 
             // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS

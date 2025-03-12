@@ -693,8 +693,7 @@ public class DemandesServiceImpl implements DemandesService {
             context.put("demande", demande);
             context.put("Utils", AfBackUtils.class);
             context.put("date", new DateTool());
-            boolean mconnect = TypeConnexionUsagerEnum.MCONNECT.equals(demande.getTypeConnexionUsager());
-            context.put("mconnect", mconnect);
+            context.put("mconnect", donneesMConnectDTO != null);
             List<String> marqueursForRecap = demarchesDataProvider.getMarqueursForRecap();
             Map<String, String> map = null;
             if (marqueursForRecap != null) {

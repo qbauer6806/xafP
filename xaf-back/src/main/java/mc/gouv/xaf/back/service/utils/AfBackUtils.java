@@ -1133,6 +1133,7 @@ public class AfBackUtils {
         model.put("nomDirection", demarcheInfos.getNomDirection());
         model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
         model.put("nomFooter", demarcheInfos.getNomFooter());
+        model.put("emailService", demarcheInfos.getEmailService());
         model.put("adresseService", demarcheInfos.getAdresseService());
         model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
         model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());

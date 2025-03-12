@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -171,7 +172,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId) {
+    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO) {
         return new byte[0];
     }
 
@@ -198,8 +199,8 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate,
-            String plainEndDate, String statut) {
-
+    public List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
+            String statut) {
+        return List.of();
     }
 }

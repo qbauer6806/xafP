@@ -53,6 +53,7 @@ import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
@@ -482,8 +483,8 @@ public class AfApiService {
         return demandesService.getDemandeFilterFiles(demandeId, usagerId);
     }
 
-    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId) {
-        return demandesService.getDemandeRecap(demandeId, usagerId);
+    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
+        return demandesService.getDemandeRecap(demandeId, usagerId, donneesMConnectDTO);
     }
 
     public List<DemandeDTO> getDemandes(Integer usagerId) {

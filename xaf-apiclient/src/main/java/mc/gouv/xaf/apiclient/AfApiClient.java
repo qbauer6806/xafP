@@ -21,6 +21,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -137,11 +138,12 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(DemandeDTO.class);
     }
 
-    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId) {
+    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
         Response res = getTarget().path(
                         "/usagers/" + usagerId + '/' + RequestConstant.DEMANDES_PATH + "/recap/" + demandeId)
                 .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.entity(donneesMConnectDTO, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
 

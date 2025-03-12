@@ -6,6 +6,7 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -203,7 +204,7 @@ public interface DemandesService {
      */
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
-    byte[] getDemandeRecap(Integer pkDemande, Integer usagerId);
+    byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO);
 
     /**
      * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du
@@ -231,7 +232,7 @@ public interface DemandesService {
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 
-    void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate, String plainEndDate,
+    List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
             String statut);
 
 }

@@ -77,6 +77,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
@@ -663,8 +664,9 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId) {
+    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO) {
         DemandeDTO demande = getDemande(pkDemande, usagerId);
+        demande.setDonneesMConnect(donneesMConnectDTO);
         demandesTransformer.hideDernierStatut(demande);
         // transformer les complements pour affichage
         if (demande.getComplements() != null) {
@@ -691,7 +693,8 @@ public class DemandesServiceImpl implements DemandesService {
             context.put("demande", demande);
             context.put("Utils", AfBackUtils.class);
             context.put("date", new DateTool());
-            context.put("mconnect", TypeConnexionUsagerEnum.MCONNECT.equals(demande.getTypeConnexionUsager()));
+            boolean mconnect = TypeConnexionUsagerEnum.MCONNECT.equals(demande.getTypeConnexionUsager());
+            context.put("mconnect", mconnect);
             List<String> marqueursForRecap = demarchesDataProvider.getMarqueursForRecap();
             Map<String, String> map = null;
             if (marqueursForRecap != null) {
@@ -1104,8 +1107,8 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate,
-            String plainEndDate, String statut) {
+    public List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
+            String statut) {
         Date startDate = null;
         Date endDate = null;
 
@@ -1136,6 +1139,8 @@ public class DemandesServiceImpl implements DemandesService {
         int pageNumber = 0;
         int pageSize = 100;  // Taille de chaque batch
 
+        List<AfDemandeExcelFlatDTO> demandesFlat = new ArrayList<>();
+
         Page<DemandeBO> page;
 
         do {
@@ -1148,11 +1153,12 @@ public class DemandesServiceImpl implements DemandesService {
             }
 
             page.getContent().stream().map(demande -> excelExportModelProvider.getDemandeFlat(
-                    demandesTransformer.bo2Dto(demande, new String[] { "data" }))).forEach(demandeExcelFlatDTOS::add);
+                    demandesTransformer.bo2Dto(demande, new String[] { "data" }))).forEach(demandesFlat::add);
 
             pageNumber++;
 
         } while (page.hasNext());
+        return demandesFlat;
 
     }
 

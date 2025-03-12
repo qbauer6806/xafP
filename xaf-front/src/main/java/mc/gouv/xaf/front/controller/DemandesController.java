@@ -166,7 +166,19 @@ public class DemandesController extends AbstractXafController {
             return ResponseEntity.internalServerError().build();
         }
 
-        byte[] pdfBytes = getAfApiClient().getDemandeRecap(usagerInfosDTO.getId(), demandeId);
+        DonneesMConnectDTO donneesMConnectDTO = null;
+        ObjectMapper mapper = new ObjectMapper();
+        if (usagerInfosDTO.getDonneesExternes() != null
+                && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
+            try {
+                donneesMConnectDTO = mapper.treeToValue(usagerInfosDTO.getDonneesExternes().get("mconnect"),
+                        DonneesMConnectDTO.class);
+            } catch (JsonProcessingException e) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            }
+        }
+
+        byte[] pdfBytes = getAfApiClient().getDemandeRecap(usagerInfosDTO.getId(), demandeId, donneesMConnectDTO);
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).body(pdfBytes);
     }

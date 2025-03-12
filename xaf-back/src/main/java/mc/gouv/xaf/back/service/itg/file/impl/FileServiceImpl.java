@@ -50,6 +50,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -256,6 +257,21 @@ public class FileServiceImpl implements FileService {
         if (file.getSize() > tailleMaxFichierB) {
             throw new FileUploadException("Erreur: la taille du fichier transféré dépasse la limite autorisée",
                     FileUploadErrorEnum.TAILLE_MAX_ERROR);
+        }
+
+        Tika tika = new Tika();
+        try (InputStream inputStream = file.getInputStream()) {
+            String detectedMimeType = tika.detect(inputStream);
+
+            List<String> whitelistMimeTypes = List.of("application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/rtf",
+                    "application/pdf", "image/jpeg", "image/png", "image/tiff");
+
+            if (!whitelistMimeTypes.contains(detectedMimeType)) {
+                LOGGER.info("Le type MIME réel {} n'est pas autorisé", detectedMimeType);
+                throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide",
+                        FileUploadErrorEnum.EXTENSION_ERROR);
+            }
         }
 
         // Appel à VSCAN pour vérifier la virulance du fichier

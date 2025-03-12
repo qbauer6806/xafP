@@ -5,9 +5,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.UUID;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
@@ -31,6 +33,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +105,22 @@ public class FileUploadController extends AbstractXafController {
                 LOGGER.info("La taille du fichier dépasse la taille max définie dans les propriétés");
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
+            }
+
+            // Vérification du vrai type MIME via Tika
+            Tika tika = new Tika();
+            try (InputStream inputStream = part.getInputStream()) {
+                String detectedMimeType = tika.detect(inputStream);
+                
+                List<String> whitelistMimeTypes = List.of("application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/rtf",
+                        "application/pdf", "image/jpeg", "image/png", "image/tiff");
+
+                if (!whitelistMimeTypes.contains(detectedMimeType)) {
+                    LOGGER.info("Le type MIME réel {} n'est pas autorisé", detectedMimeType);
+                    return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                            "Erreur: le type de fichier soumis n'est pas valide");
+                }
             }
 
             // Génération de l'UUID

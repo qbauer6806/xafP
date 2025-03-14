@@ -681,8 +681,9 @@ public class DemandesServiceImpl implements DemandesService {
             demande.getDernierStatut().setCodeMotif(motifsCache.getMotif(codeMotif, "fr").getLibelle());
         }
         byte[] bytes;
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            InputStream in = this.getClass().getResourceAsStream("/pdfrecap/DemandeRecap.docx");
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                InputStream in = this.getClass().getResourceAsStream("/pdfrecap/DemandeRecap.docx")) {
+
             IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
@@ -714,14 +715,13 @@ public class DemandesServiceImpl implements DemandesService {
                 }
             }
             context.put("infosDemande", map);
-            // hack rescart pour récupérer le nom du statut dans les trad du config.json
-            context.put("dernierStatut", demarchesDataProvider.getDernierStatut(demande));
+            // hack rescart/resprim pour récupérer le nom du statut dans les trad du config.json
+            context.put("dernierStatut", demarchesDataProvider.getLibelleDernierStatut(demande));
 
             Options options = Options.getTo(ConverterTypeTo.PDF);
 
             report.convert(context, options, bos);
             bytes = bos.toByteArray();
-            in.close();
         } catch (IOException | XDocReportException e) {
             throw new DemarchesServiceException("Erreur lors de la génération", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }

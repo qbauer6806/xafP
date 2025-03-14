@@ -247,7 +247,7 @@ public interface DemarchesDataProvider {
         return null;
     }
 
-    default String getDernierStatut(DemandeDTO demande) {
+    default String getLibelleDernierStatut(DemandeDTO demande) {
         return demande.getDernierStatut().getLibelle();
     }
 

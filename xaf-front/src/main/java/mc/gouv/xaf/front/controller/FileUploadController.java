@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.UUID;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
@@ -109,20 +107,11 @@ public class FileUploadController extends AbstractXafController {
 
             // Vérification du vrai type MIME via Tika
             Tika tika = new Tika();
+            String mimeTypeFromExtension = tika.detect(safeFileName);
             try (InputStream inputStream = part.getInputStream()) {
-                List<String> mimesAthorized = new ArrayList<>();
-                for (String ext : fileControllerUtils.getExtensionsWhitelist()) {
-                    if (!ext.startsWith(".")) {
-                        // Ajoute le "." si absent
-                        ext = "." + ext;
-                    }
-                    String mimeType = tika.detect(ext);
-                    mimesAthorized.add(mimeType);
-                }
-
                 String detectedMimeType = tika.detect(inputStream);
-                if (!mimesAthorized.contains(detectedMimeType)) {
-                    LOGGER.info("Le type MIME réel {} n'est pas autorisé", detectedMimeType);
+                if (!mimeTypeFromExtension.equals(detectedMimeType)) {
+                    LOGGER.info("Le type MIME réel n'est pas celui de l'extension du fichier");
                     return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                             "Erreur: le type mime du fichier soumis n'est pas valide");
                 }

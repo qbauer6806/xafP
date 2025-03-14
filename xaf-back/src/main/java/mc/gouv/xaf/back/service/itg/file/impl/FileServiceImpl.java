@@ -261,20 +261,11 @@ public class FileServiceImpl implements FileService {
 
         // Vérification du vrai type MIME via Tika
         Tika tika = new Tika();
+        String mimeTypeFromExtension = tika.detect(file.getOriginalFilename());
         try (InputStream inputStream = file.getInputStream()) {
-            List<String> mimesAthorized = new ArrayList<>();
-            for (String ext : getExtensionsWhitelist()) {
-                if (!ext.startsWith(".")) {
-                    // Ajoute le "." si absent
-                    ext = "." + ext;
-                }
-                String mimeType = tika.detect(ext);
-                mimesAthorized.add(mimeType);
-            }
-
             String detectedMimeType = tika.detect(inputStream);
-            if (!mimesAthorized.contains(detectedMimeType)) {
-                LOGGER.info("Le type MIME réel {} n'est pas autorisé", detectedMimeType);
+            if (!mimeTypeFromExtension.equals(detectedMimeType)) {
+                LOGGER.info("Le type MIME réel n'est pas celui de l'extension du fichier");
                 throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide",
                         FileUploadErrorEnum.EXTENSION_ERROR);
             }

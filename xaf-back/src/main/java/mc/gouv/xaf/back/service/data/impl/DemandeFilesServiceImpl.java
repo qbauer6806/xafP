@@ -15,10 +15,13 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -27,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +60,12 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private DemandeFileTransformer demandeFileTransformer;
+
+    @Autowired
+    private TransactionErrorsHandler transactionErrorsHandler;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -90,27 +101,34 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public void saveFile(DemandeFileDTO demandeFile, Integer pkDemande, boolean checkActive) {
+        try {
+            LOGGER.info("saveFile({}, {}, {})", demandeFile, pkDemande, checkActive);
 
-        LOGGER.info("saveFile({}, {}, {})", demandeFile, pkDemande, checkActive);
+            DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, checkActive);
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, checkActive);
+            DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
+            demandeFileBo.setFkDemandes(demandeBo);
 
-        DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
-        demandeFileBo.setFkDemandes(demandeBo);
+            demandeFileBo = demandesFilesRepository.save(demandeFileBo);
 
-        demandeFileBo = demandesFilesRepository.save(demandeFileBo);
+            Set<DemandesFilesBO> demandeFiles = demandeBo.getFiles();
+            if (null == demandeFiles) {
+                demandeFiles = new HashSet<>();
+            }
+            demandeFiles.add(demandeFileBo);
 
-        Set<DemandesFilesBO> demandeFiles = demandeBo.getFiles();
-        if (null == demandeFiles) {
-            demandeFiles = new HashSet<>();
+            demandeBo.setFiles(demandeFiles);
+
+            demandesRepository.save(demandeBo);
+
+            LOGGER.info("Fin saveFile()");
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de saveFile");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandeFilesServiceImpl - méthode saveFile()", pkDemande, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        demandeFiles.add(demandeFileBo);
-
-        demandeBo.setFiles(demandeFiles);
-
-        demandesRepository.save(demandeBo);
-
-        LOGGER.info("Fin saveFile()");
     }
 
     private void updateMetadata(DemandesFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes,

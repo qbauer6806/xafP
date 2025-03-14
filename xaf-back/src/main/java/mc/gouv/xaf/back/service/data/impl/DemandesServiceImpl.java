@@ -41,6 +41,7 @@ import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -58,6 +59,7 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
+import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -92,6 +94,7 @@ import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -210,6 +213,12 @@ public class DemandesServiceImpl implements DemandesService {
     @Autowired
     private MarqueursService marqueursService;
 
+    @Autowired
+    private TransactionErrorsHandler transactionErrorsHandler;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String stringDate = dateFormat.format(new Date());
@@ -243,78 +252,84 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes)
-            throws IOException {
-
-        if (demande.getCanal() == null) {
-            throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
-        }
-
-        LOGGER.info("Récupération en base de l'accès correspondant...");
-        AccessBO accessBo = accessService.getAccessBOActive(demande.getUsagerId());
-
-        LOGGER.info("Postprocessing de la demande...");
+    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes) {
         try {
-            demande = afPostProcessingProvider.postprocess(demande, donneesExternes);
-        } catch (Exception e) {
-            LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
-        }
-
-        if (demande.getFichiers() != null) {
-            for (DemandeFileDTO file : demande.getFichiers()) {
-                file.setDate(new Date());
+            if (demande.getCanal() == null) {
+                throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
             }
+            
+            LOGGER.info("Récupération en base de l'accès correspondant...");
+            AccessBO accessBo = accessService.getAccessBOActive(demande.getUsagerId());
+
+            LOGGER.info("Postprocessing de la demande...");
+            try {
+                demande = afPostProcessingProvider.postprocess(demande, donneesExternes);
+            } catch (Exception e) {
+                LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
+            }
+
+            if (demande.getFichiers() != null) {
+                for (DemandeFileDTO file : demande.getFichiers()) {
+                    file.setDate(new Date());
+                }
+            }
+
+            demande.setDateCreation(new Date());
+            demande.setDateDerModif(demande.getDateCreation());
+
+            // Génération de l'identifiant de la demande (ID public)
+            String identifiant = generatePublicID();
+            demande.setIdentifiant(identifiant);
+
+            // Création d'une nouvelle demande, ignorer les champs suivants (ils seront mis à jour plus tard lors du traitement d'une demande) :
+            demande.setObservations(null);
+            demande.setTypeConnexionUsager(AfBackUtils.getTypeConnexion(demande));
+
+            LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
+            DemandeBO demandeBo = demandesTransformer.dto2Bo(demande);
+            demandeBo.setFkAccess(accessBo);
+
+            LOGGER.info("Récupération en base de l'user correspondant...");
+            DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(demande.getUsagerId());
+            if (usagerBO != null) {
+                // si l'usager existe déjà on le réutilise
+                demandeBo.setUsager(usagerBO);
+            }
+
+            // on utilise la dernière config déjà présente en base
+            DemandeConfigBO config = demandesConfigService.getLastConfig();
+            demandeBo.setConfig(config);
+
+            // set contenuTrad
+            JsonNode contenuTrad = demande.getContenu().deepCopy();
+            setContenuTrad(contenuTrad, config.getContenu());
+            demandeBo.setContenuTrad(contenuTrad);
+
+            LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
+            demandeBo = demandesRepository.save(demandeBo);
+
+            // Maintenant on s'occupe d'attacher et de persister les pièces jointes...
+            demandesFilesService.saveFiles(demande.getFichiers(), demandeBo);
+
+            // Créer le premier statut de la demande
+            LOGGER.info("Création d'un statut \"{}\" pour la demande...", premierStatutName);
+            DemandeDTO demandeDTO = demandesStatutsService.updateStatut(demandeBo, premierStatutName, null,
+                    demandeBo.getFkAccess().getUsagerId(), null, null, null);
+
+            // Lier les fichiers de la demande au DemandeID, dans FILE
+            if (demande.getFichiers() != null) {
+                LOGGER.info("Lier ces fichiers au DemandeID dans FILE...");
+                fileService.updateFilesMetadataWithDemandeId(demande.getFichiers(), demandeBo.getPkDemandes());
+            }
+
+            return demandeDTO;
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de saveDemande");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode saveDemande()", e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        demande.setDateCreation(new Date());
-        demande.setDateDerModif(demande.getDateCreation());
-
-        // Génération de l'identifiant de la demande (ID public)
-        String identifiant = generatePublicID();
-        demande.setIdentifiant(identifiant);
-
-        // Création d'une nouvelle demande, ignorer les champs suivants (ils seront mis à jour plus tard lors du traitement d'une demande) :
-        demande.setObservations(null);
-        demande.setTypeConnexionUsager(AfBackUtils.getTypeConnexion(demande));
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
-        DemandeBO demandeBo = demandesTransformer.dto2Bo(demande);
-        demandeBo.setFkAccess(accessBo);
-
-        LOGGER.info("Récupération en base de l'user correspondant...");
-        DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(demande.getUsagerId());
-        if (usagerBO != null) {
-            // si l'usager existe déjà on le réutilise
-            demandeBo.setUsager(usagerBO);
-        }
-
-        // on utilise la dernière config déjà présente en base
-        DemandeConfigBO config = demandesConfigService.getLastConfig();
-        demandeBo.setConfig(config);
-
-        // set contenuTrad
-        JsonNode contenuTrad = demande.getContenu().deepCopy();
-        setContenuTrad(contenuTrad, config.getContenu());
-        demandeBo.setContenuTrad(contenuTrad);
-
-        LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
-        demandeBo = demandesRepository.save(demandeBo);
-
-        // Maintenant on s'occupe d'attacher et de persister les pièces jointes...
-        demandesFilesService.saveFiles(demande.getFichiers(), demandeBo);
-
-        // Créer le premier statut de la demande
-        LOGGER.info("Création d'un statut \"{}\" pour la demande...", premierStatutName);
-        DemandeDTO demandeDTO = demandesStatutsService.updateStatut(demandeBo, premierStatutName, null,
-                demandeBo.getFkAccess().getUsagerId(), null, null, null);
-
-        // Lier les fichiers de la demande au DemandeID, dans FILE
-        if (demande.getFichiers() != null) {
-            LOGGER.info("Lier ces fichiers au DemandeID dans FILE...");
-            fileService.updateFilesMetadataWithDemandeId(demande.getFichiers(), demandeBo.getPkDemandes());
-        }
-
-        return demandeDTO;
     }
 
     @Override
@@ -441,18 +456,9 @@ public class DemandesServiceImpl implements DemandesService {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName)
-            throws IOException {
-        return saveOrUpdateDemande(demande, partialUpdate, premierStatutName, null);
-    }
-
     @Override
     public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
-            JsonNode donneesExternes) throws IOException {
+            JsonNode donneesExternes) {
         DemandeDTO demandeDTO;
         if (demande.getPkDemandes() != null) {
             // ID de la demande fourni, il faut donc mettre à jour une demande
@@ -760,45 +766,53 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, true);
+        try {
+            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, true);
 
-        // Mise à jour du contenu
-        setContenu(demandeBo, demande, partialUpdate);
+            // Mise à jour du contenu
+            setContenu(demandeBo, demande, partialUpdate);
 
-        // Mise à jour du contenu initial
-        setContenuInitial(demande, partialUpdate, demandeBo);
+            // Mise à jour du contenu initial
+            setContenuInitial(demande, partialUpdate, demandeBo);
 
-        // Mise à jour du timestamp pour verrouillage
-        demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
+            // Mise à jour du timestamp pour verrouillage
+            demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
 
-        // Mise à jour des observations
-        if (!partialUpdate || demande.getObservations() != null) {
-            demandeBo.setObservations(demande.getObservations());
+            // Mise à jour des observations
+            if (!partialUpdate || demande.getObservations() != null) {
+                demandeBo.setObservations(demande.getObservations());
+            }
+            if (demande.getAgent() != null) {
+                User user = utilisateursCache.get(demande.getAgent().getId());
+                demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
+            }
+
+            // Mise à jour du canal
+            if (!partialUpdate && demande.getCanal() != null) {
+                demandeBo.setCanal(demande.getCanal().name());
+            }
+
+            // Mise à jour de la date de dernière modification
+            demandeBo.setDateDerModif(new Date());
+
+            // Supprimer les pièces jointes déjà existantes
+            if (!partialUpdate || demande.getFichiers() != null) {
+                demandesFilesService.updateFichiers(demandeBo, demande.getFichiers());
+            }
+
+            demandeBo = demandesRepository.save(demandeBo);
+
+            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+            DemandeDTO dto = demandesTransformer.bo2Dto(demandeBo);
+            dto.setUpdated(true);
+            return dto;
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de updateDemande");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode updateDemande()", demande.getPkDemandes(), e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if (demande.getAgent() != null) {
-            User user = utilisateursCache.get(demande.getAgent().getId());
-            demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-        }
-
-        // Mise à jour du canal
-        if (!partialUpdate && demande.getCanal() != null) {
-            demandeBo.setCanal(demande.getCanal().name());
-        }
-
-        // Mise à jour de la date de dernière modification
-        demandeBo.setDateDerModif(new Date());
-
-        // Supprimer les pièces jointes déjà existantes
-        if (!partialUpdate || demande.getFichiers() != null) {
-            demandesFilesService.updateFichiers(demandeBo, demande.getFichiers());
-        }
-
-        demandeBo = demandesRepository.save(demandeBo);
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        DemandeDTO dto = demandesTransformer.bo2Dto(demandeBo);
-        dto.setUpdated(true);
-        return dto;
     }
 
     private void setContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
@@ -822,27 +836,36 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public void deleteDemande(Integer demandeId) {
+        try {
+            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
+            if (demandeBo == null) {
+                throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            }
 
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
-        if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
+            LOGGER.info("Suppression des fichiers de la demande {}...", demandeId);
+            demandesFilesService.suppressionDesFichiers(demandeDTO);
+            LOGGER.info("Suppression des fichiers complémentaires de la demande {}...", demandeId);
+            demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
+
+            AccessBO access = suppressionDeLaDemande(demandeBo, demandeId);
+
+            String identifiant = demandeBo.getIdentifiant();
+            Date dateCreation = demandeBo.getDateCreation();
+            LOGGER.info(
+                    "Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+            List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
+            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+            guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation,
+                    recapDemandes);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de deleteDemande");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode deleteDemande()", demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-        LOGGER.info("Suppression des fichiers de la demande {}...", demandeId);
-        demandesFilesService.suppressionDesFichiers(demandeDTO);
-        LOGGER.info("Suppression des fichiers complémentaires de la demande {}...", demandeId);
-        demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
-
-        AccessBO access = suppressionDeLaDemande(demandeBo, demandeId);
-
-        String identifiant = demandeBo.getIdentifiant();
-        Date dateCreation = demandeBo.getDateCreation();
-        LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
-        List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
-        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation,
-                recapDemandes);
     }
 
     private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, Integer demandeId) {
@@ -879,63 +902,71 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) {
+        try {
+            LOGGER.info("Suppression de la demande {}...", demandeId);
+            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
+            if (demandeBo == null) {
+                throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            }
+            AccessBO access = demandeBo.getFkAccess();
 
-        LOGGER.info("Suppression de la demande {}...", demandeId);
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
-        if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            /*** Insertion de statistique */
+            LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
+            StatistiqueDTO stat = new StatistiqueDTO();
+            stat.setCanal(demandeBo.getCanal());
+            stat.setDate(new Date());
+            stat.setDemandeId(demandeId);
+            stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
+            stat.setIdentifiantDemande(demandeBo.getIdentifiant());
+            stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
+            statistiquesService.saveStatistique(stat);
+
+            // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Suppression de l'historique de la demande...");
+            demandesHistoriqueRepository.deleteByFkDemandesPkDemandes(demandeId);
+            // Suppression des commentaires de la demande (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Suppression des commentaires de la demande...");
+            demandesCommentaireRepository.deleteByFkDemandesPkDemandes(demandeId);
+
+            /*** Sauvegarde des fichiers à purger avant suppression de la demande. */
+            /*** Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande */
+            LOGGER.info("insertion des fichiers à purger dans la table pour la demande: {}", demandeId);
+            purgeFilesRepository.insertFilesToPurge(demandeId);
+            purgeFilesRepository.insertFilesComplementsToPurge(demandeId);
+            purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
+
+            DemandesAgentsBO agent = demandeBo.getAgent();
+            DemandesUsagersBO usager = demandeBo.getUsager();
+            /*** Suppression de la demande. */
+            LOGGER.info("Appel du répo pour la suppression...");
+            demandesRepository.delete(demandeBo);
+
+            // Suppression de l'agent (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Vérification de l'agent");
+            if (agent != null && !demandesRepository.existsByAgent(agent)) {
+                LOGGER.info("L'agent associé n'est pas utilisé ailleurs, suppression...");
+                demandesAgentsRepository.delete(agent);
+            }
+            // Suppression de l'usager (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Vérification de l'usager");
+            if (!demandesRepository.existsByUsager(usager)) {
+                LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
+                demandesUsagersRepository.delete(usager);
+            }
+
+            LOGGER.info(
+                    "Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+            List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(access.getUsagerId());
+            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+            guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, demandeBo.getIdentifiant(),
+                    demandeBo.getDateCreation(), recapDemandes);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de deleteDemandeInGivenStatus");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode deleteDemandeInGivenStatus()", demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        AccessBO access = demandeBo.getFkAccess();
-
-        /*** Insertion de statistique */
-        LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
-        StatistiqueDTO stat = new StatistiqueDTO();
-        stat.setCanal(demandeBo.getCanal());
-        stat.setDate(new Date());
-        stat.setDemandeId(demandeId);
-        stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
-        stat.setIdentifiantDemande(demandeBo.getIdentifiant());
-        stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-        statistiquesService.saveStatistique(stat);
-
-        // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
-        LOGGER.info("Suppression de l'historique de la demande...");
-        demandesHistoriqueRepository.deleteByFkDemandesPkDemandes(demandeId);
-        // Suppression des commentaires de la demande (pas géré par cascade, donc le faire ici)
-        LOGGER.info("Suppression des commentaires de la demande...");
-        demandesCommentaireRepository.deleteByFkDemandesPkDemandes(demandeId);
-
-        /*** Sauvegarde des fichiers à purger avant suppression de la demande. */
-        /*** Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande */
-        LOGGER.info("insertion des fichiers à purger dans la table pour la demande: {}", demandeId);
-        purgeFilesRepository.insertFilesToPurge(demandeId);
-        purgeFilesRepository.insertFilesComplementsToPurge(demandeId);
-        purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
-
-        DemandesAgentsBO agent = demandeBo.getAgent();
-        DemandesUsagersBO usager = demandeBo.getUsager();
-        /*** Suppression de la demande. */
-        LOGGER.info("Appel du répo pour la suppression...");
-        demandesRepository.delete(demandeBo);
-
-        // Suppression de l'agent (pas géré par cascade, donc le faire ici)
-        LOGGER.info("Vérification de l'agent");
-        if (agent != null && !demandesRepository.existsByAgent(agent)) {
-            LOGGER.info("L'agent associé n'est pas utilisé ailleurs, suppression...");
-            demandesAgentsRepository.delete(agent);
-        }
-        // Suppression de l'usager (pas géré par cascade, donc le faire ici)
-        LOGGER.info("Vérification de l'usager");
-        if (!demandesRepository.existsByUsager(usager)) {
-            LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
-            demandesUsagersRepository.delete(usager);
-        }
-
-        LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
-        List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(access.getUsagerId());
-        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, demandeBo.getIdentifiant(),
-                demandeBo.getDateCreation(), recapDemandes);
     }
 
     @Override
@@ -948,53 +979,60 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
+        try {
+            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
+            LOGGER.info("Duplication de la demande...");
+            DemandeDTO demandeDto = demandesTransformer.bo2Dto(demandeBo);
+            DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
+            newDemandeBo.setFkAccess(demandeBo.getFkAccess());
+            newDemandeBo.setPkDemandes(null);
+            newDemandeBo.setRecapType(demandeBo.getRecapType());
+            newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
+            newDemandeBo.setConfig(demandeBo.getConfig());
+            newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
+            // #4840 Enlever l'affectation
+            newDemandeBo.setAgent(null);
+            newDemandeBo.setUsager(demandeBo.getUsager());
+            newDemandeBo = demandesRepository.save(newDemandeBo);
 
-        LOGGER.info("Duplication de la demande...");
-        DemandeDTO demandeDto = demandesTransformer.bo2Dto(demandeBo);
-        DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
-        newDemandeBo.setFkAccess(demandeBo.getFkAccess());
-        newDemandeBo.setPkDemandes(null);
-        newDemandeBo.setRecapType(demandeBo.getRecapType());
-        newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
-        newDemandeBo.setConfig(demandeBo.getConfig());
-        newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
-        // #4840 Enlever l'affectation
-        newDemandeBo.setAgent(null);
-        newDemandeBo.setUsager(demandeBo.getUsager());
-        newDemandeBo = demandesRepository.save(newDemandeBo);
+            // Pièces jointes des demandes
+            demandesFilesService.clonerDesPiecesJointes(demandeBo, newDemandeBo);
 
-        // Pièces jointes des demandes
-        demandesFilesService.clonerDesPiecesJointes(demandeBo, newDemandeBo);
+            // Demandes d'informations complémentaires des demandes
+            demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
 
-        // Demandes d'informations complémentaires des demandes
-        demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
+            // Statuts des demandes
+            demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
 
-        // Statuts des demandes
-        demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
+            // Data des demandes
+            demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
 
-        // Data des demandes
-        demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
+            // Génération d'un nouvel identifiant de demande
+            String identifiant = generatePublicID();
+            newDemandeBo.setIdentifiant(identifiant);
 
-        // Génération d'un nouvel identifiant de demande
-        String identifiant = generatePublicID();
-        newDemandeBo.setIdentifiant(identifiant);
+            newDemandeBo = demandesRepository.save(newDemandeBo);
 
-        newDemandeBo = demandesRepository.save(newDemandeBo);
+            LOGGER.info("Duplication terminée");
 
-        LOGGER.info("Duplication terminée");
+            // On passe tous les demandes complements à repondue pour la demande dupliquée
+            // cf #66472 - [INCIDENT] [BO] erreur 500 sur demande d'info comp sur une demande annulée et dupliquée
+            for (DemandesComplementsBO compl : newDemandeBo.getDemandesComplements()) {
+                compl.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
+                demandesComplementsRepository.save(compl);
+                LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
+                        compl.getPkDemandesComplements(), pkDemande);
+            }
 
-        // On passe tous les demandes complements à repondue pour la demande dupliquée
-        // cf #66472 - [INCIDENT] [BO] erreur 500 sur demande d'info comp sur une demande annulée et dupliquée
-        for (DemandesComplementsBO compl : newDemandeBo.getDemandesComplements()) {
-            compl.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
-            demandesComplementsRepository.save(compl);
-            LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
-                    compl.getPkDemandesComplements(), pkDemande);
+            return demandesTransformer.bo2Dto(newDemandeBo);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de cloneDemande");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode cloneDemande()", pkDemande, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return demandesTransformer.bo2Dto(newDemandeBo);
     }
 
     @Override
@@ -1059,22 +1097,31 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
-        if (agentAffecteId != null) {
-            if (demandeBo.getAgent() != null) {
-                demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
+        try {
+            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
+            if (agentAffecteId != null) {
+                if (demandeBo.getAgent() != null) {
+                    demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
+                } else {
+                    User user = utilisateursCache.get(agentAffecteId);
+                    demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
+                }
             } else {
-                User user = utilisateursCache.get(agentAffecteId);
-                demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
+                demandeBo.setAgent(null);
             }
-        } else {
-            demandeBo.setAgent(null);
-        }
 
-        demandesRepository.save(demandeBo);
-        DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-        LOGGER.info("Fin changement affectation...");
-        return demandeDTO;
+            demandesRepository.save(demandeBo);
+            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
+
+            LOGGER.info("Fin changement affectation...");
+            return demandeDTO;
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de changerAffectationDemande");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode changerAffectationDemande()", pkDemandes, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

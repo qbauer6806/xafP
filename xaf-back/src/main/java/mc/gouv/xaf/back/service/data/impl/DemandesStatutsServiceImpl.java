@@ -9,6 +9,7 @@ import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -16,6 +17,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
@@ -28,6 +30,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +70,12 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Autowired
     private DemandesTransformer demandesTransformer;
 
+    @Autowired
+    private TransactionErrorsHandler transactionErrorsHandler;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     /**
      * {@inheritDoc}
      */
@@ -91,62 +100,69 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Override
     public DemandeDTO updateStatut(DemandeBO demande, String statutName, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
+        try {
+            LOGGER.info("updateStatut({}, {}, {}, {}, {}, {}, {})", demande.getPkDemandes(), statutName, agentId,
+                    usagerId, codeMotif, commentaire, texteAEnvoyer);
 
-        LOGGER.info("updateStatut({}, {}, {}, {}, {}, {}, {})", demande.getPkDemandes(), statutName, agentId, usagerId,
-                codeMotif, commentaire, texteAEnvoyer);
-
-        String statutInitial = null;
-        if (demande.getDernierStatut() != null) {
-            statutInitial = demande.getDernierStatut().getName();
-        }
-
-        LOGGER.info("Constitution du nouveau statut ({}) et sauvegarde en base...", statutName);
-        DemandesStatutsBO statutBo = new DemandesStatutsBO();
-        statutBo.setLibelle(demarchesDataProvider.getStatusLibelle(statutName));
-        statutBo.setName(statutName);
-        statutBo.setDate(new Date());
-        statutBo.setUsagerId(usagerId);
-        statutBo.setAgentId(agentId);
-        statutBo.setCodeMotif(codeMotif);
-        statutBo.setCommentaire(commentaire);
-        statutBo.setTexteAEnvoyer(texteAEnvoyer);
-        statutBo.setFkDemandes(demande);
-        if (demande.getStatuts() == null) {
-            demande.setStatuts(new HashSet<>());
-        }
-        statutBo = demandesStatutsRepository.save(statutBo);
-        demande.getStatuts().add(statutBo);
-        demande.setDernierStatut(statutBo);
-        demande = demandesRepository.save(demande);
-
-        StatutSimplifieEnum statutSimplifieInitial = demarchesDataProvider.getStatutSimplifie(
-                statutInitial);
-        if (statutSimplifieInitial == null) {
-            LOGGER.info(
-                    "Le statut simplifié initial est null, probablement une création de demande, donc aucun message à envoyer au Guichet Unique via Kafka");
-        } else if (statutSimplifieInitial.equals(StatutSimplifieEnum.TERMINEE)) {
-            LOGGER.info(
-                    "Le statut simplifié initial est TERMINEE, il s'agit donc probablement d'une duplication de demande, donc aucun message à envoyer au Guichet Unique via Kafka");
-        } else {
-            StatutSimplifieEnum statutSimplifieNouveau = demarchesDataProvider.getStatutSimplifie(
-                    statutName);
-            if (statutSimplifieInitial.equals(statutSimplifieNouveau)) {
-                LOGGER.info("Le statut simplifié n'a pas changé, pas d'envoi de message au Guichet Unique via Kafka.");
-            } else {
-                LOGGER.info("Le statut simplifié a changé, envoi d'un message au Guichet Unique via Kafka...");
-                List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(
-                        demande.getFkAccess().getUsagerId());
-                RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-                guKafkaProducer.sendChangementStatutDemandeMessage(demande.getFkAccess().getUsagerId(),
-                        demande.getPkDemandes(), demande.getIdentifiant(), statutSimplifieNouveau, statutBo.getDate(),
-                        recapDemandes);
+            String statutInitial = null;
+            if (demande.getDernierStatut() != null) {
+                statutInitial = demande.getDernierStatut().getName();
             }
+
+            LOGGER.info("Constitution du nouveau statut ({}) et sauvegarde en base...", statutName);
+            DemandesStatutsBO statutBo = new DemandesStatutsBO();
+            statutBo.setLibelle(demarchesDataProvider.getStatusLibelle(statutName));
+            statutBo.setName(statutName);
+            statutBo.setDate(new Date());
+            statutBo.setUsagerId(usagerId);
+            statutBo.setAgentId(agentId);
+            statutBo.setCodeMotif(codeMotif);
+            statutBo.setCommentaire(commentaire);
+            statutBo.setTexteAEnvoyer(texteAEnvoyer);
+            statutBo.setFkDemandes(demande);
+            if (demande.getStatuts() == null) {
+                demande.setStatuts(new HashSet<>());
+            }
+            statutBo = demandesStatutsRepository.save(statutBo);
+            demande.getStatuts().add(statutBo);
+            demande.setDernierStatut(statutBo);
+            demande = demandesRepository.save(demande);
+
+            StatutSimplifieEnum statutSimplifieInitial = demarchesDataProvider.getStatutSimplifie(statutInitial);
+            if (statutSimplifieInitial == null) {
+                LOGGER.info(
+                        "Le statut simplifié initial est null, probablement une création de demande, donc aucun message à envoyer au Guichet Unique via Kafka");
+            } else if (statutSimplifieInitial.equals(StatutSimplifieEnum.TERMINEE)) {
+                LOGGER.info(
+                        "Le statut simplifié initial est TERMINEE, il s'agit donc probablement d'une duplication de demande, donc aucun message à envoyer au Guichet Unique via Kafka");
+            } else {
+                StatutSimplifieEnum statutSimplifieNouveau = demarchesDataProvider.getStatutSimplifie(statutName);
+                if (statutSimplifieInitial.equals(statutSimplifieNouveau)) {
+                    LOGGER.info(
+                            "Le statut simplifié n'a pas changé, pas d'envoi de message au Guichet Unique via Kafka.");
+                } else {
+                    LOGGER.info("Le statut simplifié a changé, envoi d'un message au Guichet Unique via Kafka...");
+                    List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(
+                            demande.getFkAccess().getUsagerId());
+                    RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+                    guKafkaProducer.sendChangementStatutDemandeMessage(demande.getFkAccess().getUsagerId(),
+                            demande.getPkDemandes(), demande.getIdentifiant(), statutSimplifieNouveau,
+                            statutBo.getDate(), recapDemandes);
+                }
+            }
+
+            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demande);
+            statistiquesService.saveStatistique(demandeDTO);
+
+            return demandeDTO;
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de updateStatut");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesStatutsServiceImpl - méthode updateStatut()", demande.getPkDemandes(), e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demande);
-        statistiquesService.saveStatistique(demandeDTO);
-
-        return demandeDTO;
     }
 
     /**
@@ -154,17 +170,25 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      */
     @Override
     public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statutName) {
-        List<DemandeDTO> saved = new ArrayList<>();
-        for (DemandeDTO demandeDTO : demandes) {
-            DemandeBO demandeBO = demandesTransformer.dto2Bo(demandeDTO);
-            AccessBO accessBO = new AccessBO();
-            accessBO.setPkAccess(demandeDTO.getFkAccess());
-            accessBO.setUsagerId(demandeDTO.getUsagerId());
-            demandeBO.setFkAccess(accessBO);
-            DemandeDTO demandeDTOSaved = updateStatut(demandeBO, statutName, null, null, null, null, null);
-            saved.add(demandeDTOSaved);
+        try {
+            List<DemandeDTO> saved = new ArrayList<>();
+            for (DemandeDTO demandeDTO : demandes) {
+                DemandeBO demandeBO = demandesTransformer.dto2Bo(demandeDTO);
+                AccessBO accessBO = new AccessBO();
+                accessBO.setPkAccess(demandeDTO.getFkAccess());
+                accessBO.setUsagerId(demandeDTO.getUsagerId());
+                demandeBO.setFkAccess(accessBO);
+                DemandeDTO demandeDTOSaved = updateStatut(demandeBO, statutName, null, null, null, null, null);
+                saved.add(demandeDTOSaved);
+            }
+            return saved;
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de updateMultipleStatuts");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesStatutsServiceImpl - méthode updateMultipleStatuts()", demandes, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return saved;
     }
 
     /**

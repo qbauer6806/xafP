@@ -74,9 +74,7 @@ public interface DemandesDataService {
     void deleteDemandeData(Integer demandeId, String key);
 
     /**
-     * <p>Méthode permettant de sauvgarder plusieurs données de la demande en base.</p>
-     * <p>Cette méthode est a utiliser pour éviter de bombarder elasticsearch si on met à jours plusieurs clès
-     * valeurs</p>
+     * <p>Méthode permettant de sauvegarder plusieurs données de la demande en base.</p>
      *
      * @param demandeId
      *         Identifiant de la demande

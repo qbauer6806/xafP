@@ -68,7 +68,7 @@ public class TransactionErrorsHandler {
         ErrorEventDTO errorEventDTO = new ErrorEventDTO();
         errorEventDTO.setContexte(contexte);
         errorEventDTO.setDateTransaction(LocalDateTime.now().format(formatter));
-        errorEventDTO.setPhraseDemandes("La demande impactée avait pour id: <b>" + demandeId + "</b>.<br/>");
+        errorEventDTO.setPhraseDemandes("La demande impactée avait pour id : <b>" + demandeId + "</b>.<br/>");
         errorEventDTO.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         errorEventDTO.setException(convertExceptionToHtmlString(e));
         return errorEventDTO;

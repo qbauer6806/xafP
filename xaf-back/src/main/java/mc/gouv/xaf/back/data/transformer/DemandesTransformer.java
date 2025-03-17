@@ -243,8 +243,9 @@ public class DemandesTransformer {
                     break;
                 }
             }
-            // si c'est un statut privé on cache le motif
+            // si c'est un statut privé on cache le motif et le commentaire
             statutDto.setCodeMotif(null);
+            statutDto.setCommentaire(null);
         }
         demandeDTO.setDernierStatut(statutDto);
     }

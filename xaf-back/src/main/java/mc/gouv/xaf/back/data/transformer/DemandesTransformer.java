@@ -238,14 +238,10 @@ public class DemandesTransformer {
             for (DemandeStatutDTO demandeStatutDTO : allStatus) {
                 // si on tombe sur un statut public, on utilise celui-là
                 if (privateStatus.get(demandeStatutDTO.getName()) == null) {
-                    statutDto.setName(demandeStatutDTO.getName());
-                    statutDto.setLibelle(demandeStatutDTO.getLibelle());
+                    statutDto = demandeStatutDTO;
                     break;
                 }
             }
-            // si c'est un statut privé on cache le motif et le commentaire
-            statutDto.setCodeMotif(null);
-            statutDto.setCommentaire(null);
         }
         demandeDTO.setDernierStatut(statutDto);
     }

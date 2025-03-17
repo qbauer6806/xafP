@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -118,31 +117,6 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         return courrierBoOp.get();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeCourrierDTO> getCourriers(Integer pkDemande) {
-
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
-        if (demandeBo == null) {
-            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
-        }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return DemandesCourriersTransformer.bo2Dto(new ArrayList<>(demandeBo.getCourriers()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeCourrierDTO> getCourriers() {
-        List<DemandesCourriersBO> courriers = demandesCourriersRepository.findAll();
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return DemandesCourriersTransformer.bo2Dto(courriers);
-    }
-
     private void updateDemandeCourrier(DemandeBO demandeBo, DemandesCourriersBO courrierBo) {
         if (demandeBo.getCourriers() != null) {
             demandeBo.getCourriers().add(courrierBo);
@@ -183,31 +157,6 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
                     "DemandesCourriersServiceImpl - méthode updateCourrier()", pkDemande, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    @Override
-    public void deleteCourriers(Integer pkDemande) {
-        LOGGER.info("Suppression de la demande courrier {}...", pkDemande);
-        try {
-            List<DemandeCourrierDTO> courriersToDelete = getCourriers(pkDemande);
-            if (null != courriersToDelete && !courriersToDelete.isEmpty()) {
-                for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
-                    DemandesCourriersBO courrierBo = getCourrierBo(pkDemande, currentCourriersToDelete.getPkCourrier());
-                    if (courrierBo == null) {
-                        throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
-                    }
-                    demandesCourriersRepository.delete(courrierBo);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la suppression de courriers de la demande");
-            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
-                    "DemandesCourriersServiceImpl - méthode deleteCourriers()", pkDemande, e);
-            applicationEventPublisher.publishEvent(esErrorEventDTO);
-            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
 
     }

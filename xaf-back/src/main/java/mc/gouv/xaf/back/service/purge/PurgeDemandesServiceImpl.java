@@ -144,7 +144,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
-            envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+            envoisMailUsagerPurge(demandeDTO, delaiEnvoiEmailProp.getValue());
 
             // Ajout à la liste des demandes à envoyer
             demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
@@ -223,7 +223,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
     }
 
-    private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
+    private void envoisMailUsagerPurge(DemandeDTO demandeDTO, String delai) {
         final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
         final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 

@@ -217,12 +217,12 @@ public class DemandesTransformer {
     }
 
     public void hideInfos(DemandeDTO demandeDTO) {
+        hideDernierStatut(demandeDTO);
         demandeDTO.setAgent(null);
         demandeDTO.setStatuts(null);
         demandeDTO.setMarqueurs(null);
         demandeDTO.setMarqueursTrad(null);
         demandeDTO.setContenuTrad(null);
-        hideDernierStatut(demandeDTO);
         demandesComplementsTransformer.hideInfos(demandeDTO.getComplements());
     }
 

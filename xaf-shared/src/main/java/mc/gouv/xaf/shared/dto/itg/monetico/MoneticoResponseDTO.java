@@ -55,30 +55,88 @@ public class MoneticoResponseDTO {
     public String toStringHmac() {
         //#49733: le champ motifrefusautorisation n’est pas présent dans le cas de demande d’autorisation acceptée
         // ou Une transaction en échec à la suite d’un échec authentification 3DS
-        return StringUtils.isBlank(motifrefusautorisation) ? toStringHmacAutorisation() : toStringHmacRefus();
+        if (StringUtils.isNotBlank(numauto)) {
+            return toStringHmacAutorisation();
+        }
+        return StringUtils.isBlank(motifrefusautorisation) ? toStringHmacRefus() : toStringHmacRefusAutorisation();
     }
 
     private String toStringHmacAutorisation() {
-        return String.join("*", "TPE=" + this.getTpe(), "authentification=" + this.getAuthentification(),
-                "bincb=" + this.getBincb(), "brand=" + this.getBrand(), "cbmasquee=" + this.getCbmasquee(),
-                "code-retour=" + this.getCodeRetour(), "cvx=" + this.getCvx(), "date=" + this.getDate(),
-                "ecard=" + this.getEcard(), "hpancb=" + this.getHpancb(), "ipclient=" + this.getIpclient(),
-                "modepaiement=" + this.getModepaiement(), "montant=" + this.getMontant(),
-                "motifrefus=" + this.getMotifrefus(), "originecb=" + this.getOriginecb(),
-                "originetr=" + this.getOriginetr(), "reference=" + this.getReference(),
-                "texte-libre=" + this.getTexteLibre(), "typecompte=" + this.getTypecompte(), "usage=" + this.getUsage(),
-                "vld=" + this.getVld());
+        return String.join("*",
+                "TPE=" + this.getTpe(),
+                "authentification=" + this.getAuthentification(),
+                "bincb=" + this.getBincb(),
+                "brand=" + this.getBrand(),
+                "cbmasquee=" + this.getCbmasquee(),
+                "code-retour=" + this.getCodeRetour(),
+                "cvx=" + this.getCvx(),
+                "date=" + this.getDate(),
+                "ecard=" + this.getEcard(),
+                "hpancb=" + this.getHpancb(),
+                "ipclient=" + this.getIpclient(),
+                "modepaiement=" + this.getModepaiement(),
+                "montant=" + this.getMontant(),
+                "numauto=" + this.getNumauto(),
+                "originecb=" + this.getOriginecb(),
+                "originetr=" + this.getOriginetr(),
+                "reference=" + this.getReference(),
+                "texte-libre=" + this.getTexteLibre(),
+                "typecompte=" + this.getTypecompte(),
+                "usage=" + this.getUsage(),
+                "vld=" + this.getVld()
+        );
     }
 
     private String toStringHmacRefus() {
-        return String.join("*", "TPE=" + this.getTpe(), "authentification=" + this.getAuthentification(),
-                "bincb=" + this.getBincb(), "brand=" + this.getBrand(), "cbmasquee=" + this.getCbmasquee(),
-                "code-retour=" + this.getCodeRetour(), "cvx=" + this.getCvx(), "date=" + this.getDate(),
-                "ecard=" + this.getEcard(), "hpancb=" + this.getHpancb(), "ipclient=" + this.getIpclient(),
-                "modepaiement=" + this.getModepaiement(), "montant=" + this.getMontant(),
-                "motifrefus=" + this.getMotifrefus(), "motifrefusautorisation=" + this.getMotifrefusautorisation(),
-                "originecb=" + this.getOriginecb(), "originetr=" + this.getOriginetr(),
-                "reference=" + this.getReference(), "texte-libre=" + this.getTexteLibre(),
-                "typecompte=" + this.getTypecompte(), "usage=" + this.getUsage(), "vld=" + this.getVld());
+        return String.join("*",
+                "TPE=" + this.getTpe(),
+                "authentification=" + this.getAuthentification(),
+                "bincb=" + this.getBincb(),
+                "brand=" + this.getBrand(),
+                "cbmasquee=" + this.getCbmasquee(),
+                "code-retour=" + this.getCodeRetour(),
+                "cvx=" + this.getCvx(),
+                "date=" + this.getDate(),
+                "ecard=" + this.getEcard(),
+                "hpancb=" + this.getHpancb(),
+                "ipclient=" + this.getIpclient(),
+                "modepaiement=" + this.getModepaiement(),
+                "montant=" + this.getMontant(),
+                "motifrefus=" + this.getMotifrefus(),
+                "originecb=" + this.getOriginecb(),
+                "originetr=" + this.getOriginetr(),
+                "reference=" + this.getReference(),
+                "texte-libre=" + this.getTexteLibre(),
+                "typecompte=" + this.getTypecompte(),
+                "usage=" + this.getUsage(),
+                "vld=" + this.getVld()
+        );
+    }
+
+    private String toStringHmacRefusAutorisation() {
+        return String.join("*",
+                "TPE=" + this.getTpe(),
+                "authentification=" + this.getAuthentification(),
+                "bincb=" + this.getBincb(),
+                "brand=" + this.getBrand(),
+                "cbmasquee=" + this.getCbmasquee(),
+                "code-retour=" + this.getCodeRetour(),
+                "cvx=" + this.getCvx(),
+                "date=" + this.getDate(),
+                "ecard=" + this.getEcard(),
+                "hpancb=" + this.getHpancb(),
+                "ipclient=" + this.getIpclient(),
+                "modepaiement=" + this.getModepaiement(),
+                "montant=" + this.getMontant(),
+                "motifrefus=" + this.getMotifrefus(),
+                "motifrefusautorisation=" + this.getMotifrefusautorisation(),
+                "originecb=" + this.getOriginecb(),
+                "originetr=" + this.getOriginetr(),
+                "reference=" + this.getReference(),
+                "texte-libre=" + this.getTexteLibre(),
+                "typecompte=" + this.getTypecompte(),
+                "usage=" + this.getUsage(),
+                "vld=" + this.getVld()
+        );
     }
 }

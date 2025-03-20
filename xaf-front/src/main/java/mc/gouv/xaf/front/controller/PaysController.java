@@ -5,9 +5,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.util.PaysUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.net.URIBuilder;
@@ -44,6 +47,7 @@ import mc.gouv.xaf.shared.SharedMessages;
 public class PaysController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysController.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Autowired
     private FrontGouvPropertiesResolver propertiesResolver;
@@ -51,11 +55,11 @@ public class PaysController extends AbstractXafController {
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
-    private List<NomenValeurDTO> listePays = new ArrayList<>();
+    private final Map<String, List<NomenValeurDTO>> paysCache = new HashMap<>();
 
     private Date listePaysLastUpdate = null;
 
-    private List<NomenValeurDTO> listeNationalites = new ArrayList<>();
+    private final Map<String, List<NomenValeurDTO>> nationalitesCache = new HashMap<>();
 
     private Date listeNationalitesLastUpdate = null;
 
@@ -69,13 +73,11 @@ public class PaysController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
-
-        if (!listePays.isEmpty() && !isTimeToRefreshCache(listePaysLastUpdate)) {
-
-            ObjectMapper objectMapper = new ObjectMapper();
+        List<NomenValeurDTO> listePays = StringUtils.isNotBlank(locale) ? paysCache.get(locale) : new ArrayList<>();
+        if (listePays != null && !listePays.isEmpty() && !isTimeToRefreshCache(listePaysLastUpdate)) {
             String valeursJson;
             try {
-                valeursJson = objectMapper.writeValueAsString(listePays);
+                valeursJson = OBJECT_MAPPER.writeValueAsString(listePays);
 
                 return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(valeursJson);
             } catch (JsonProcessingException e) {
@@ -96,13 +98,11 @@ public class PaysController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
-
-        if (!listeNationalites.isEmpty() && !isTimeToRefreshCache(listeNationalitesLastUpdate)) {
-
-            ObjectMapper objectMapper = new ObjectMapper();
+        List<NomenValeurDTO> listeNationalites = StringUtils.isNotBlank(locale) ? nationalitesCache.get(locale) : new ArrayList<>();
+        if (listeNationalites != null && !listeNationalites.isEmpty() && !isTimeToRefreshCache(listeNationalitesLastUpdate)) {
             String valeursJson;
             try {
-                valeursJson = objectMapper.writeValueAsString(listeNationalites);
+                valeursJson = OBJECT_MAPPER.writeValueAsString(listeNationalites);
 
                 return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(valeursJson);
             } catch (JsonProcessingException e) {
@@ -113,7 +113,7 @@ public class PaysController extends AbstractXafController {
         return getNationalites(locale);
     }
 
-    private ResponseEntity getPays(String locale) {
+    private ResponseEntity<?> getPays(String locale) {
         LOGGER.info("Refresh du cache Pays...");
         try {
             URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/PAY-1/valeurs")
@@ -137,7 +137,7 @@ public class PaysController extends AbstractXafController {
                     NomenValeurDTO pays = this.getPaysNonConnu(PaysUtils.initPaysNonConnu(), locale);
                     valeurs.add(pays);
 
-                    listePays = valeurs;
+                    paysCache.put(locale, valeurs);
                     listePaysLastUpdate = new Date();
 
                     String valeursJson = objectMapper.writeValueAsString(valeurs);
@@ -150,7 +150,7 @@ public class PaysController extends AbstractXafController {
                 return ResponseEntity.status(statusCode).build();
             }
         } catch (Exception e) {
-            LOGGER.error("PaysServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            LOGGER.error("PaysController - Une erreur est survenue lors de l'appel à la méthode GET", e);
             return ResponseEntity.status(getCodeErreur(e)).build();
         }
     }
@@ -165,7 +165,7 @@ public class PaysController extends AbstractXafController {
         return pays;
     }
 
-    private ResponseEntity getNationalites(String locale) {
+    private ResponseEntity<?> getNationalites(String locale) {
         LOGGER.info("Refresh du cache Nationalites...");
         try {
             // Attention: la nomenclature NATIO ne connait que la langue française !
@@ -196,7 +196,7 @@ public class PaysController extends AbstractXafController {
                     NomenValeurDTO nationalite = this.getPaysNonConnu(PaysUtils.initNationaliteNonConnu(), locale);
                     valeurs.add(nationalite);
 
-                    listeNationalites = valeurs;
+                    nationalitesCache.put(locale, valeurs);
                     listeNationalitesLastUpdate = new Date();
 
                     String valeursJson = objectMapper.writeValueAsString(valeurs);
@@ -209,7 +209,7 @@ public class PaysController extends AbstractXafController {
                 return ResponseEntity.status(statusCode).build();
             }
         } catch (Exception e) {
-            LOGGER.error("PaysServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            LOGGER.error("PaysController - Une erreur est survenue lors de l'appel à la méthode GET", e);
             return ResponseEntity.status(getCodeErreur(e)).build();
         }
     }

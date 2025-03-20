@@ -8,22 +8,18 @@ import mc.gouv.xaf.shared.dto.PaysDTO;
 public class PaysUtils {
 
     private static final String LIBELLE_NON_CONNU_FR = "Non connu";
-    private static final String LIBELLE_NON_CONNU_EN = "Not known";
+    private static final String LIBELLE_NON_CONNU_EN = "Unknown";
 
     private PaysUtils() {
         //DO NOTHING
     }
 
     public static PaysDTO initPaysNonConnu() {
-        PaysDTO paysDTO = getPaysDTO("00", "000");
-
-        return paysDTO;
+        return getPaysDTO("00", "000");
     }
 
     public static PaysDTO initNationaliteNonConnu() {
-        PaysDTO paysDTO = getPaysDTO("ZZ", "XXX");
-
-        return paysDTO;
+        return getPaysDTO("ZZ", "XXX");
     }
 
     private static PaysDTO getPaysDTO(String code, String codeAlpha3) {

@@ -23,14 +23,13 @@ import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
-import mc.gouv.xaf.back.service.histo.HistoService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -79,9 +78,7 @@ import org.xml.sax.SAXException;
 public class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
-    private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
-    private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
     private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
 
     @Autowired
@@ -89,9 +86,6 @@ public class AfApiService {
 
     @Autowired
     private AfBackUtils afBackUtils;
-
-    @Autowired
-    private HistoService histoService;
 
     @Autowired
     private UsagersCache usagersCache;
@@ -173,9 +167,10 @@ public class AfApiService {
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
                 demarchesDataProvider.getStatutAnnulee());
 
-        DemandeHistoriqueDTO histo = histoService.statusChangeUsager(demarchesDataProvider.getStatutAnnulee(),
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeUsager(
+                demarchesDataProvider.getStatutAnnulee(),
                 usagerId);
-        this.saveHistorique(demandeId, histo);
+        demandesHistoriqueService.saveHisto(demandeId, histo);
 
     }
 
@@ -220,12 +215,11 @@ public class AfApiService {
         // Ajout d'une ligne à l'historique
         LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
-        DemandeHistoriqueDTO histo = histoService.statusChange(demarchesDataProvider.getPremierStatutCreationDemande(),
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChange(
+                demarchesDataProvider.getPremierStatutCreationDemande(),
                 usagerId,
                 demande.getCreeParAgentId());
-        if (histo != null) {
-            this.saveHistorique(demandeDto.getPkDemandes(), histo);
-        }
+        demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
 
         LOGGER.info("Création d'une instance de process dans le BPM pour cette demande {}", demandeDto.getPkDemandes());
         GouvBPMUser user = new GouvBPMUser();
@@ -269,17 +263,6 @@ public class AfApiService {
         }
     }
 
-
-    private void saveHistorique(Integer demandeDto, DemandeHistoriqueDTO histo) {
-        LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
-        try {
-            demandesHistoriqueService.saveHistorique(demandeDto, histo);
-
-        } catch (Exception e) {
-            LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
-        }
-    }
-
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
 
@@ -320,12 +303,9 @@ public class AfApiService {
             demandeEnBase = demandesService.getDemande(demandeId);
             DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
 
-            DemandeHistoriqueDTO histo = histoService.updateDemande(usagerId, demande.getCreeParAgentId(),
+            DemandeHistoriqueDTO histo = demandesHistoriqueService.updateDemande(usagerId, demande.getCreeParAgentId(),
                     statut.getName());
-
-            if (histo != null) {
-                this.saveHistorique(demandeDto.getPkDemandes(), histo);
-            }
+            demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
 
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
@@ -404,9 +384,9 @@ public class AfApiService {
         String assigneeId = assigneeIdObject != null ? (String) assigneeIdObject : null;
         // on est obligé de rafraichir la demande afin de récupérer le nouveau statut qui a tout juste changé grâce au bpmn
         demande = demandesService.getDemande(demandeId);
-        DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demande.getDernierStatut().getName(),
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.reponseDemandeCompl(demande.getDernierStatut().getName(),
                 usagerId, agentId, assigneeId);
-        this.saveHistorique(demandeId, histo);
+        demandesHistoriqueService.saveHisto(demandeId, histo);
 
         DemandeDataDTO demandeData = demandesDataService.getDemandeData(demande.getPkDemandes(),
                 DEMANDE_IC_DEJA_RELANCEE_KEY);
@@ -463,11 +443,8 @@ public class AfApiService {
 
                 LOGGER.info("Ajout d'une ligne dans l'historique de la demande...");
 
-                DemandeHistoriqueDTO histo = histoService.associationDemandeCourrier(usagerId);
-
-                if (histo != null) {
-                    this.saveHistorique(demande.getPkDemandes(), histo);
-                }
+                DemandeHistoriqueDTO histo = demandesHistoriqueService.associationDemandeCourrier(usagerId);
+                demandesHistoriqueService.saveHisto(demande.getPkDemandes(), histo);
 
                 return demande;
 
@@ -543,13 +520,11 @@ public class AfApiService {
         // Génération de l'historique pour chaque demande impactée
         for (DemandeDTO demande : demandes) {
             LOGGER.info("Génération de l'historique pour la demande {}", demande.getPkDemandes());
-            DemandeHistoriqueDTO histo = histoService.desinscriptionUsager(demande.getDernierStatut().getName(),
+            DemandeHistoriqueDTO histo = demandesHistoriqueService.desinscriptionUsager(
+                    demande.getDernierStatut().getName(),
                     usagerId,
                     demandesAPasserEnAnnulee.contains(demande.getPkDemandes()));
-
-            if (histo != null) {
-                this.saveHistorique(demande.getPkDemandes(), histo);
-            }
+            demandesHistoriqueService.saveHisto(demande.getPkDemandes(), histo);
         }
 
         if (!fromGU) {

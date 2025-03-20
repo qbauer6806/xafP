@@ -6,8 +6,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.service.DemandeRectificationService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
-import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
-import mc.gouv.xaf.back.service.histo.HistoService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
@@ -29,8 +28,6 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
     private GouvBPM gouvBPM;
     @Autowired
     private DemandesCommentaireService demandesCommentaireService;
-    @Autowired
-    private HistoService histoService;
     @Autowired
     private DemandesHistoriqueService demandesHistoriqueService;
 
@@ -62,14 +59,9 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
                 statutEnAttenteRectification);
 
         // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = histoService.statusChangeAgent(statutEnAttenteRectification);
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(statutEnAttenteRectification);
         LOGGER.info("Appel à DEM pour historique...");
-        try {
-            demandesHistoriqueService.saveHistorique(pkDemande, histo);
-
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
-        }
+        demandesHistoriqueService.saveHisto(pkDemande, histo);
 
         // ajout d'un commentaire dans la discussion
         DemandeCommentaireDTO commInterne = new DemandeCommentaireDTO();

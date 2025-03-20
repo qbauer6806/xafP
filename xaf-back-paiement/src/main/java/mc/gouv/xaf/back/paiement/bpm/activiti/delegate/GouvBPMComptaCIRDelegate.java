@@ -5,7 +5,7 @@ import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.histo.HistoService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
     private GouvBPM gouvBPM;
 
     @Autowired
-    private HistoService histoService;
+    private DemandesHistoriqueService demandesHistoriqueService;
 
     @Autowired
     private DemandesDataService demandesDataService;
@@ -44,12 +44,13 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
             factureService.saveFacture(reference, demandeId);
 
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, true);
-            histoService.actionSysteme(demandeId, "SUCCES", "Ecriture comptable automatique réalisée avec succès");
+            demandesHistoriqueService.actionSysteme(demandeId, "SUCCES",
+                    "Ecriture comptable automatique réalisée avec succès");
 
         } catch (Exception e) {
             LOGGER.error("Error compta CIR", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, false);
-            histoService.actionSysteme(demandeId, "ECHEC", "Ecriture comptable automatique en échec");
+            demandesHistoriqueService.actionSysteme(demandeId, "ECHEC", "Ecriture comptable automatique en échec");
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(),
                     FactureApiClient.INCIDENT);
         }

@@ -160,7 +160,7 @@ public class PaysController extends AbstractXafController {
         pays.setCode(paysDTO.getCode());
         pays.setLibelleCourt("EN".equalsIgnoreCase(langue) ? paysDTO.getLibelleEn() : paysDTO.getLibelle());
         pays.setLibelleLong("EN".equalsIgnoreCase(langue) ? paysDTO.getLibelleLongEn() : paysDTO.getLibelleLong());
-        pays.setOrdre(pays.getOrdre());
+        pays.setOrdre(paysDTO.getOrdre());
 
         return pays;
     }
@@ -203,6 +203,8 @@ public class PaysController extends AbstractXafController {
 
                     return ResponseEntity.status(statusCode).header(HttpHeaders.CONTENT_TYPE, contentType)
                             .body(valeursJson);
+                } else {
+
                 }
                 LOGGER.info("====================== Fin /pays doGet()");
 

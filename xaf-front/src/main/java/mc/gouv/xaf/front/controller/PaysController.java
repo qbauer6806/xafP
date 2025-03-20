@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.shared.dto.PaysDTO;
+import mc.gouv.xaf.shared.util.PaysUtils;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.net.URIBuilder;
@@ -108,7 +110,7 @@ public class PaysController extends AbstractXafController {
             }
         }
 
-        return getNationalites();
+        return getNationalites(locale);
     }
 
     private ResponseEntity getPays(String locale) {
@@ -131,6 +133,9 @@ public class PaysController extends AbstractXafController {
                             NomenNomenclatureDTO.class);
 
                     List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
+                    //On surcharge une valeur (Non connu) dans la liste des pays
+                    NomenValeurDTO pays = this.getPaysNonConnu(PaysUtils.initPaysNonConnu(), locale);
+                    valeurs.add(pays);
 
                     listePays = valeurs;
                     listePaysLastUpdate = new Date();
@@ -150,12 +155,22 @@ public class PaysController extends AbstractXafController {
         }
     }
 
-    private ResponseEntity getNationalites() {
+    private NomenValeurDTO getPaysNonConnu(PaysDTO paysDTO, String langue) {
+        NomenValeurDTO pays = new NomenValeurDTO();
+        pays.setCode(paysDTO.getCode());
+        pays.setLibelleCourt("EN".equalsIgnoreCase(langue) ? paysDTO.getLibelleEn() : paysDTO.getLibelle());
+        pays.setLibelleLong("EN".equalsIgnoreCase(langue) ? paysDTO.getLibelleLongEn() : paysDTO.getLibelleLong());
+        pays.setOrdre(pays.getOrdre());
+
+        return pays;
+    }
+
+    private ResponseEntity getNationalites(String locale) {
         LOGGER.info("Refresh du cache Nationalites...");
         try {
             // Attention: la nomenclature NATIO ne connait que la langue française !
             URI uri = new URIBuilder(propertiesResolver.getNomenUrl() + "/nomenclatures/NATIO/valeurs")
-                    .addParameter("valeurLangue", "FR").build();
+                    .addParameter("valeurLangue", locale.toUpperCase()).build();
             LOGGER.debug("Appel à {}", uri);
             Request serviceRequest = Request.get(uri);
             serviceRequest.setHeader("Authorization", "Bearer " + propertiesResolver.getNomenJwt());
@@ -177,6 +192,9 @@ public class PaysController extends AbstractXafController {
                             valeur.setCode(valeur.getCode().toUpperCase());
                         }
                     });
+                    //On surcharge une valeur (Non connu) dans la liste des nationalités
+                    NomenValeurDTO nationalite = this.getPaysNonConnu(PaysUtils.initNationaliteNonConnu(), locale);
+                    valeurs.add(nationalite);
 
                     listeNationalites = valeurs;
                     listeNationalitesLastUpdate = new Date();
@@ -197,7 +215,7 @@ public class PaysController extends AbstractXafController {
     }
 
     private boolean isTimeToRefreshCache(Date lastUpdate) {
-        if (listePaysLastUpdate == null) {
+        if (lastUpdate == null) {
             return true;
         }
         return new Date()

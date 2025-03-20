@@ -1,0 +1,43 @@
+package mc.gouv.xaf.shared.util;
+
+import mc.gouv.xaf.shared.dto.PaysDTO;
+
+/**
+ * Classe utilitaire pour initialiser une valeur non connu dans les listes des pays et nationalités
+ */
+public class PaysUtils {
+
+    private static final String LIBELLE_NON_CONNU_FR = "Non connu";
+    private static final String LIBELLE_NON_CONNU_EN = "Not known";
+
+    private PaysUtils() {
+        //DO NOTHING
+    }
+
+    public static PaysDTO initPaysNonConnu() {
+        PaysDTO paysDTO = getPaysDTO("00", "000");
+
+        return paysDTO;
+    }
+
+    public static PaysDTO initNationaliteNonConnu() {
+        PaysDTO paysDTO = getPaysDTO("ZZ", "XXX");
+
+        return paysDTO;
+    }
+
+    private static PaysDTO getPaysDTO(String code, String codeAlpha3) {
+        PaysDTO paysDTO = new PaysDTO();
+        paysDTO.setCode(code);
+        paysDTO.setCodeAlpha3(codeAlpha3);
+        paysDTO.setLibelle(LIBELLE_NON_CONNU_FR);
+        paysDTO.setLibelleEn(LIBELLE_NON_CONNU_EN);
+        paysDTO.setLibelleLong(LIBELLE_NON_CONNU_FR);
+        paysDTO.setLibelleLongEn(LIBELLE_NON_CONNU_EN);
+        paysDTO.setOrdre(9999);
+        paysDTO.setNationalite(LIBELLE_NON_CONNU_FR);
+        paysDTO.setNationaliteCode(code);
+
+        return paysDTO;
+    }
+}

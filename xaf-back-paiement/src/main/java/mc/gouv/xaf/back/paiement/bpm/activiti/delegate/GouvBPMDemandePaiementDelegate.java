@@ -16,10 +16,10 @@ import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.histo.HistoService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
@@ -66,7 +66,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     private PaiementHistoriqueService paiementHistoriqueService;
 
     @Autowired
-    private AfHistoService histoService;
+    private HistoService histoService;
 
     @Autowired
     private MailService mailService;

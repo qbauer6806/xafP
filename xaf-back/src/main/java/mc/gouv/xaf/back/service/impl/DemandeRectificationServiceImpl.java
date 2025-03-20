@@ -1,12 +1,13 @@
 package mc.gouv.xaf.back.service.impl;
 
+import java.util.Date;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.DemandeRectificationService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.histo.HistoService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
@@ -17,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 @Component
 public class DemandeRectificationServiceImpl implements DemandeRectificationService {
@@ -31,7 +30,7 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
     @Autowired
     private DemandesCommentaireService demandesCommentaireService;
     @Autowired
-    private AfHistoService histoService;
+    private HistoService histoService;
     @Autowired
     private DemandesHistoriqueService demandesHistoriqueService;
 
@@ -63,7 +62,7 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
                 statutEnAttenteRectification);
 
         // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = histoService.demanderRectification(pkDemande, AfBackUtils.getAuthenticatedAgentId());
+        DemandeHistoriqueDTO histo = histoService.statusChangeAgent(statutEnAttenteRectification);
         LOGGER.info("Appel à DEM pour historique...");
         try {
             demandesHistoriqueService.saveHistorique(pkDemande, histo);

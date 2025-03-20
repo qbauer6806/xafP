@@ -30,6 +30,7 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
+import mc.gouv.xaf.back.service.histo.HistoService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -90,7 +91,7 @@ public class AfApiService {
     private AfBackUtils afBackUtils;
 
     @Autowired
-    private AfHistoService histoService;
+    private HistoService histoService;
 
     @Autowired
     private UsagersCache usagersCache;
@@ -172,8 +173,8 @@ public class AfApiService {
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
                 demarchesDataProvider.getStatutAnnulee());
 
-        DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee(),
-                null, usagerId, null);
+        DemandeHistoriqueDTO histo = histoService.statusChangeUsager(demarchesDataProvider.getStatutAnnulee(),
+                usagerId);
         this.saveHistorique(demandeId, histo);
 
     }
@@ -219,7 +220,8 @@ public class AfApiService {
         // Ajout d'une ligne à l'historique
         LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
-        DemandeHistoriqueDTO histo = histoService.creationDemande(demandeDto.getPkDemandes(), usagerId,
+        DemandeHistoriqueDTO histo = histoService.statusChange(demarchesDataProvider.getPremierStatutCreationDemande(),
+                usagerId,
                 demande.getCreeParAgentId());
         if (histo != null) {
             this.saveHistorique(demandeDto.getPkDemandes(), histo);
@@ -318,7 +320,7 @@ public class AfApiService {
             demandeEnBase = demandesService.getDemande(demandeId);
             DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
 
-            DemandeHistoriqueDTO histo = histoService.updateDemande(demandeDto, usagerId, demande.getCreeParAgentId(),
+            DemandeHistoriqueDTO histo = histoService.updateDemande(usagerId, demande.getCreeParAgentId(),
                     statut.getName());
 
             if (histo != null) {
@@ -400,7 +402,9 @@ public class AfApiService {
         // que l'appel provient du front, et donc l'agent est caché pour raison de confidentialité
         Object assigneeIdObject = variables.get(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
         String assigneeId = assigneeIdObject != null ? (String) assigneeIdObject : null;
-        DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId, demande.getDernierStatut().getName(),
+        // on est obligé de rafraichir la demande afin de récupérer le nouveau statut qui a tout juste changé grâce au bpmn
+        demande = demandesService.getDemande(demandeId);
+        DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demande.getDernierStatut().getName(),
                 usagerId, agentId, assigneeId);
         this.saveHistorique(demandeId, histo);
 
@@ -459,7 +463,7 @@ public class AfApiService {
 
                 LOGGER.info("Ajout d'une ligne dans l'historique de la demande...");
 
-                DemandeHistoriqueDTO histo = histoService.associationDemandeCourrier(demande, usagerId);
+                DemandeHistoriqueDTO histo = histoService.associationDemandeCourrier(usagerId);
 
                 if (histo != null) {
                     this.saveHistorique(demande.getPkDemandes(), histo);
@@ -539,7 +543,8 @@ public class AfApiService {
         // Génération de l'historique pour chaque demande impactée
         for (DemandeDTO demande : demandes) {
             LOGGER.info("Génération de l'historique pour la demande {}", demande.getPkDemandes());
-            DemandeHistoriqueDTO histo = histoService.desinscriptionUsager(demande, usagerId,
+            DemandeHistoriqueDTO histo = histoService.desinscriptionUsager(demande.getDernierStatut().getName(),
+                    usagerId,
                     demandesAPasserEnAnnulee.contains(demande.getPkDemandes()));
 
             if (histo != null) {

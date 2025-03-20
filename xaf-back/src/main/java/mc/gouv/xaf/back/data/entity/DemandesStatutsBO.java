@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.data.entity;
 
-import jakarta.validation.constraints.NotBlank;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,10 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Classe BO de la table DEM.STATUTS
@@ -23,6 +23,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@ToString
 @Entity
 @Table(name = "DEM_DEMANDES_STATUTS")
 public class DemandesStatutsBO {
@@ -65,12 +66,5 @@ public class DemandesStatutsBO {
 
     @Column(name = "TEXTE_A_ENVOYER", columnDefinition = "TEXT")
     private String texteAEnvoyer;
-
-    @Override
-    public String toString() {
-        return "DemandesStatutsBO [libelle=" + libelle + ", date=" + date + ", agentId=" + agentId + ", usagerId="
-                + usagerId + ", codeMotif=" + codeMotif + ", commentaire=" + commentaire + ", textAEnvoyer="
-                + texteAEnvoyer + "]";
-    }
 
 }

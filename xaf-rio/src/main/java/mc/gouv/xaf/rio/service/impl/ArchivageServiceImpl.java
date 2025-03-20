@@ -19,10 +19,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.histo.HistoService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -82,7 +82,7 @@ public class ArchivageServiceImpl implements ArchivageService {
     @Autowired
     private AfBackUtils afBackUtils;
     @Autowired
-    private AfHistoService histoService;
+    private HistoService histoService;
     @Autowired
     private DemandesDataService demandesDataService;
 

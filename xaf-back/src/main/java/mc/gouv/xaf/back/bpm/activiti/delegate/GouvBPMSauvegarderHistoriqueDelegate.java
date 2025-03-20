@@ -3,13 +3,12 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.histo.HistoService;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
     private Expression targetState;
 
     @Autowired
-    private AfHistoService histoService;
+    private HistoService histoService;
 
     @Autowired
     private DemandesHistoriqueService demandesHistoriqueService;
@@ -46,8 +45,7 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         LOGGER.info("targetState = {}, pkDemande = {} ...", statut, pkDemande);
 
         // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = histoService.traiterFinal(pkDemande, statut,
-                AfBackUtils.getAuthenticatedAgentId());
+        DemandeHistoriqueDTO histo = histoService.statusChangeAgent(statut);
         LOGGER.info("Appel à DEM pour historique...");
         try {
             demandesHistoriqueService.saveHistoriqueActionAuto(pkDemande, histo);

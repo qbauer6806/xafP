@@ -4,8 +4,8 @@ import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
+import mc.gouv.xaf.back.service.histo.HistoService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
     private GouvBPM gouvBPM;
 
     @Autowired
-    private AfHistoService histoService;
+    private HistoService histoService;
 
     @Autowired
     private DemandesDataService demandesDataService;

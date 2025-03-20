@@ -203,8 +203,6 @@ public class PaysController extends AbstractXafController {
 
                     return ResponseEntity.status(statusCode).header(HttpHeaders.CONTENT_TYPE, contentType)
                             .body(valeursJson);
-                } else {
-
                 }
                 LOGGER.info("====================== Fin /pays doGet()");
 

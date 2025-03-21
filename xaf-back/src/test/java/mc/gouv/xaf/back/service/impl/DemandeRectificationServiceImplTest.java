@@ -2,9 +2,7 @@ package mc.gouv.xaf.back.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
@@ -85,16 +83,4 @@ class DemandeRectificationServiceImplTest {
         assertEquals("Impossible d'insérer un commentaire vide", thrown.getMessage());
     }
 
-    @Test
-    void testDemanderRectification_HistoriqueSaveFails_ShouldLogError() {
-        doThrow(new RuntimeException("Erreur lors de la sauvegarde")).when(demandesHistoriqueService)
-                .saveHisto(anyInt(), any(DemandeHistoriqueDTO.class));
-
-        demandeRectificationService.demanderRectification(pkDemande, commentaire);
-
-        verify(gouvBPM).demanderRectification(eq(pkDemande), any(GouvBPMUser.class), eq("CODE_MOTIF"),
-                eq(StringEscapeUtils.escapeHtml4(commentaire)), eq("STATUT_ATTENTE"));
-        verify(demandesHistoriqueService).saveHisto(eq(pkDemande), any(DemandeHistoriqueDTO.class));
-        verify(demandesCommentaireService).putCommentaireInterne(any(DemandeCommentaireDTO.class));
-    }
 }

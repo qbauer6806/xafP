@@ -79,7 +79,7 @@ public class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
-    private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
+    protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
     private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
     private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
 
@@ -96,7 +96,7 @@ public class AfApiService {
     private MailService mailService;
 
     @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
+    protected DemandesHistoriqueService demandesHistoriqueService;
 
     @Autowired
     protected DemandesService demandesService;
@@ -254,7 +254,7 @@ public class AfApiService {
         return demandeDto;
     }
 
-    private void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
+    protected void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
         if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
             demandeDto.setContenuInitial(demande.getContenuInitial());
         } else if (demande.getBrouillonId() != null) {

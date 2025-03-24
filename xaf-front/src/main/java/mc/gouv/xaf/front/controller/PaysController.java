@@ -193,7 +193,7 @@ public class PaysController extends AbstractXafController {
                         }
                     });
                     //On surcharge une valeur (Non connu) dans la liste des nationalités
-                    NomenValeurDTO nationalite = this.getPaysNonConnu(PaysUtils.initNationaliteNonConnu(), locale);
+                    NomenValeurDTO nationalite = this.getPaysNonConnu(PaysUtils.initNationaliteNonConnue(), locale);
                     valeurs.add(nationalite);
 
                     nationalitesCache.put(locale, valeurs);

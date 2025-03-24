@@ -268,7 +268,7 @@ public class DemandesTransformer {
         }
     }
 
-    private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
+    public Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
         Set<MarqueurBO> marqueurs = config.getMarqueurs();
         // Mise en cache des marqueurs pour un accès rapide O(1)
         Map<String, MarqueurBO> marqueursMap = marqueurs.stream()

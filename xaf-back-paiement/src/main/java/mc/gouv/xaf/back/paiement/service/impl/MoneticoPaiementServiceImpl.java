@@ -21,6 +21,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
@@ -329,7 +330,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
         if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-            List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(
+            List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBO.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandeData(demandes, dateValidite, moneticoResponseDTO);
@@ -367,14 +368,13 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<DemandeDTO> demandes, LocalDateTime dateValidite,
+    void updateDemandeData(List<DemandeBO> demandes, LocalDateTime dateValidite,
             MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
-            for (DemandeDTO demande : demandes) {
-
+            for (DemandeBO demande : demandes) {
+                Integer usagerId =demande.getUsager().getId();
                 Integer pkDemande = demande.getPkDemandes();
-                Integer usagerId = demande.getUsagerId();
                 GouvBPMUser user = new GouvBPMUser();
                 user.setId(usagerId.toString());
 
@@ -392,15 +392,15 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
                 LOGGER.info("Ajout de l'historique de paiement...");
                 PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-                historique.setFkDemandes(demandesTransformer.dto2Bo(demande));
-                DemandeUsagerDTO usager = demande.getUsager();
+                historique.setFkDemandes(demande);
+                DemandesUsagersBO usager = demande.getUsager();
                 if (usager != null) {
                     historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
                             + " : Effectue une empreinte bancaire");
                 }
                 historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
                 historique.setDate(date);
-                historique.setUsagerId(demande.getUsagerId());
+                historique.setUsagerId(usagerId);
                 paiementHistoriqueRepository.save(historique);
 
                 LOGGER.info("Progression dans le BPM...");

@@ -247,4 +247,6 @@ public interface DemarchesDataProvider {
         return null;
     }
 
+    default String getPremierStatutCreationDemande(DemandeDTO demande) {return "";}
+
 }

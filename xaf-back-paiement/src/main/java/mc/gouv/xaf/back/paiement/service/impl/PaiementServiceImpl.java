@@ -1,45 +1,56 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.InformationFacturationRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
+import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
-import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
+import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
+import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
+import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
@@ -54,6 +65,8 @@ public class PaiementServiceImpl implements PaiementService {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
+    private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
+    public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
 
     @Autowired
     private TableauPaiementService tableauPaiementService;
@@ -86,10 +99,22 @@ public class PaiementServiceImpl implements PaiementService {
     private InformationFacturationRepository infoFacturationRepository;
 
     @Autowired
+    private PaiementHistoriqueRepository paiementHistoriqueRepository;
+
+    @Autowired
     private MontantService montantService;
 
     @Autowired
+    private CommandesDemandesService commandesDemandesService;
+
+    @Autowired
+    private DemandesStatutsService demandesStatutsService;
+
+    @Autowired
     private DemandesTransformer demandesTransformer;
+
+    @Autowired
+    private GouvBPM gouvBPM;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -174,6 +199,73 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setPaymentSupplier(PSPEnum.LYRA);
         moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
+    }
+
+    @Override
+    public void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO) {
+        LOGGER.info("Mise à jour du status de paiement suite à un callback reçu de MWPAYMT");
+        // On retrouve le moyen de paiement associé à l'orderId
+        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository
+                .findById(callbackDTO.getOrderId()).orElseThrow(
+                        () -> new DemarchesServiceException(
+                                "Aucun orderId " + callbackDTO.getOrderId() + " n'a été trouvé.", HttpStatus.NOT_FOUND));;
+
+        PaymentMethodInformationDTO paymentMethodInformation = callbackDTO.getPaymentMethodInformation();
+        moyenPaiementBo.setPaymentMethodType(paymentMethodInformation.getPaymentMethodType());
+        moyenPaiementBo.setPaymentMethodToken(paymentMethodInformation.getPaymentMethodToken());
+        moyenPaiementBo.setMoyenPaiementStatut(MoyenPaiementStatutEnum.fromLibelle(paymentMethodInformation.getPaymentMethodStatus().name()));
+        moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
+        if(moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
+            List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
+                    moyenPaiementBo.getCommande().getPkCommandes());
+            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
+            updateDemandes(demandes, callbackDTO);
+        }
+
+        moyenPaiementRepository.save(moyenPaiementBo);
+        // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté ==> encore d'actualité ?
+    }
+
+    @Async
+    void updateDemandes(List<DemandeBO> demandes, MwpaymtGenericCallbackDTO callbackDTO) {
+        Thread t = new Thread(() -> {
+            Timestamp date = Timestamp.valueOf(LocalDateTime.now());
+            for (DemandeBO demande : demandes) {
+                DemandesUsagersBO usager = demande.getUsager();
+                Integer pkDemande = demande.getPkDemandes();
+                Integer usagerId = usager.getId();
+                GouvBPMUser user = new GouvBPMUser();
+                user.setId(usagerId.toString());
+                LOGGER.info("Ajout de l'historique de paiement...");
+                PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
+                historique.setFkDemandes(demande);
+                if (usager != null) {
+                    historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
+                            + " : Enregistre sa carte bancaire");
+                }
+                historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
+                historique.setDate(date);
+                historique.setUsagerId(usagerId);
+                paiementHistoriqueRepository.save(historique);
+                LOGGER.info("Progression dans le BPM...");
+                Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
+                        usagerId.toString());
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
+                gouvBPM.setProcessBusinessVariables(pkDemande, variables);
+
+                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
+                try {
+                    gouvBPM.claimTask(task, user);
+                    gouvBPM.completeTask(task, pkDemande);
+                } catch (Exception e1) {
+                    LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
+                    throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        });
+        t.setName(UPDATE_PAIEMENT_DATA_THREAD + callbackDTO.getOrderId());
+        t.start();
     }
 
     private void createInfoFacturation(Integer usagerId, CommandeBO commande) {

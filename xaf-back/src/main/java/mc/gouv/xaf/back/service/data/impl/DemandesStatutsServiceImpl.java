@@ -153,18 +153,14 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statutName) {
-        List<DemandeDTO> saved = new ArrayList<>();
-        for (DemandeDTO demandeDTO : demandes) {
-            DemandeBO demandeBO = demandesTransformer.dto2Bo(demandeDTO);
+    public void updateMultipleStatuts(List<DemandeBO> demandes, String statutName) {
+        for (DemandeBO demandeBo : demandes) {
             AccessBO accessBO = new AccessBO();
-            accessBO.setPkAccess(demandeDTO.getFkAccess());
-            accessBO.setUsagerId(demandeDTO.getUsagerId());
-            demandeBO.setFkAccess(accessBO);
-            DemandeDTO demandeDTOSaved = updateStatut(demandeBO, statutName, null, null, null, null, null);
-            saved.add(demandeDTOSaved);
+            accessBO.setPkAccess(demandeBo.getFkAccess().getPkAccess());
+            accessBO.setUsagerId(demandeBo.getUsager().getId());
+            demandeBo.setFkAccess(accessBO);
+            updateStatut(demandeBo, statutName, null, null, null, null, null);
         }
-        return saved;
     }
 
     /**

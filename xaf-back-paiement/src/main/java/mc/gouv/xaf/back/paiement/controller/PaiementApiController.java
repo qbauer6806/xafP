@@ -13,6 +13,7 @@ import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
@@ -70,7 +71,7 @@ public class PaiementApiController {
      *         Représentation d'un retour de PSP
      * @return une chaine de caractère contenant le résultat de la vérification de la clé MAC
      */
-    @PostMapping
+    @PostMapping("/monetico")
     public String updatePaiement(@RequestBody MoneticoResponseDTO moneticoResponseDTO) {
         return moneticoPaiementService.updateStatus(moneticoResponseDTO);
     }
@@ -132,6 +133,11 @@ public class PaiementApiController {
     public void createMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
             @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "orderId") String orderId) {
         paiementService.createMoyenPaiement(demandeIds, usagerId, orderId);
+    }
+
+    @PostMapping
+    public void updatePaiement(@RequestBody MwpaymtGenericCallbackDTO callbackDTO) {
+        paiementService.updatePaiementStatus(callbackDTO);
     }
 
     /**

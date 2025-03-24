@@ -22,6 +22,7 @@ import mc.gouv.xaf.front.util.MwpaymntService;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementInputDTO;
@@ -60,9 +61,24 @@ public class PaiementController extends AbstractXafController {
     /**
      * Interface Retour
      */
-    @GetMapping(value = { "/paiement" })
-    public ResponseEntity doPost(HttpServletRequest request) {
+    @PostMapping(value = { "/paiement" })
+    public ResponseEntity processPaiement(@RequestBody(required = false) MwpaymtGenericCallbackDTO callbackDTO, HttpServletRequest request) {
         LOGGER.info("====================== /paiement doPost()");
+        // TODO : ici on assume que s'il y'a une clef MAC dans la requete on est dans le monde monetico
+        if (callbackDTO != null) {
+            return processPaiementMwpaymt(callbackDTO, request);
+        } else if (request.getParameter("MAC") == null) {
+            return processPaiementMonetico(request);
+        }
+        return ResponseEntity.internalServerError().build();
+    }
+
+    private ResponseEntity processPaiementMwpaymt(MwpaymtGenericCallbackDTO callbackDTO, HttpServletRequest request) {
+        getPaiementApiClient().updatePaiementStatus(callbackDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    private ResponseEntity processPaiementMonetico(HttpServletRequest request) {
         try {
             LOGGER.info("Vérification de la présence de la clé MAC...");
             if (request.getParameter("MAC") == null) {
@@ -148,17 +164,28 @@ public class PaiementController extends AbstractXafController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         // TODO Récupération des alias dans mon guichet
+
         List<PaymentMethodReferenceDTO> monGuichetAliases = new ArrayList<>();
         PaymentMethodReferenceDTO reference1 = new PaymentMethodReferenceDTO();
-        reference1.setPaymentMethodToken("348a52572cd14366b88e8733d4af894e");
-        reference1.setPaymentMethodName("Carte 1");
-        reference1.setPaymentMethodType("CB");
+        reference1.setPaymentMethodToken("5c0b802bc43d4ffe86c6492c2f08824e");
+        reference1.setPaymentMethodName("Carte DSP 1");
+        reference1.setPaymentMethodType("CARD");
         monGuichetAliases.add(reference1);
         PaymentMethodReferenceDTO reference2 = new PaymentMethodReferenceDTO();
-        reference2.setPaymentMethodToken("1163368f63284152b506ea47a81dd690");
-        reference2.setPaymentMethodName("Carte 2");
-        reference2.setPaymentMethodType("CB");
+        reference2.setPaymentMethodToken("c1a7c77151b74756b8fe29905f37330c");
+        reference2.setPaymentMethodName("Carte DSP 2");
+        reference2.setPaymentMethodType("CARD");
         monGuichetAliases.add(reference2);
+        PaymentMethodReferenceDTO reference3 = new PaymentMethodReferenceDTO();
+        reference3.setPaymentMethodToken("9bb1ab1c3e8f4944b87748dc26d751aa");
+        reference3.setPaymentMethodName("Carte DT 1");
+        reference3.setPaymentMethodType("CARD");
+        monGuichetAliases.add(reference3);
+        PaymentMethodReferenceDTO reference4 = new PaymentMethodReferenceDTO();
+        reference4.setPaymentMethodToken("b672520d400a45d4bec74903c42bca75");
+        reference4.setPaymentMethodName("Carte DT 2");
+        reference4.setPaymentMethodType("CARD");
+        monGuichetAliases.add(reference4);
 
         // Appel à lyra pour obtenir les infos
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
@@ -204,7 +231,6 @@ public class PaiementController extends AbstractXafController {
 
     @GetMapping(value = { "/info-facturation" })
     public ResponseEntity getInfoFacturation(HttpServletRequest request) {
-        //TODO
         LOGGER.info("====================== /info-facturation GET start...");
 
         // Appel à la gateway de paiement pour récupérer le formToken
@@ -236,9 +262,7 @@ public class PaiementController extends AbstractXafController {
     @GetMapping(value = { "/tableau-paiement" })
     public ResponseEntity getTableauPaiement(@RequestParam TableauPaiementTypeEnum type, @RequestParam String ids,
             HttpServletRequest request) {
-        // TODO
-        LOGGER.info("====================== /tableau-paiement POST start...");
-        LOGGER.info("type : {}, ids : {}", type, ids);
+        LOGGER.info("====================== /tableau-paiement GET start...");
 
         // Appel à la gateway de paiement pour récupérer le formToken
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);

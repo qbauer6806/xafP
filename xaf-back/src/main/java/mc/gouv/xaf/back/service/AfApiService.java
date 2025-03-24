@@ -78,21 +78,21 @@ public class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
-    private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
+    protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
     private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
     private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
 
     @Autowired
-    private GouvBPM gouvBPM;
+    protected GouvBPM gouvBPM;
 
     @Autowired
     private AfBackUtils afBackUtils;
 
     @Autowired
-    private AfHistoService histoService;
+    protected AfHistoService histoService;
 
     @Autowired
-    private UsagersCache usagersCache;
+    protected UsagersCache usagersCache;
 
     @Autowired
     private MailService mailService;
@@ -101,10 +101,10 @@ public class AfApiService {
     private DemandesHistoriqueService demandesHistoriqueService;
 
     @Autowired
-    private DemandesService demandesService;
+    protected DemandesService demandesService;
 
     @Autowired
-    private DemandesConfigService demandesConfigService;
+    protected DemandesConfigService demandesConfigService;
 
     @Autowired
     private DemandesComplementsService demandesComplementsService;
@@ -128,19 +128,19 @@ public class AfApiService {
     private PropertiesService propertiesService;
 
     @Autowired
-    private GUKafkaProducer guKafkaProducer;
+    protected GUKafkaProducer guKafkaProducer;
 
     @Autowired
-    private GUKafkaUtils guKafkaUtils;
+    protected GUKafkaUtils guKafkaUtils;
 
     @Autowired
-    private BrouillonsService brouillonsService;
+    protected BrouillonsService brouillonsService;
 
     @Autowired
     private FileService fileService;
 
     @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    protected DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
     private MessageSource messageSource;
@@ -149,7 +149,7 @@ public class AfApiService {
     private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
+    protected DemandesUsagersTransformer demandesUsagersTransformer;
 
     @Autowired
     private DemandesDataService demandesDataService;
@@ -255,7 +255,7 @@ public class AfApiService {
         return demandeDto;
     }
 
-    private void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
+    protected void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
         if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
             demandeDto.setContenuInitial(demande.getContenuInitial());
         } else if (demande.getBrouillonId() != null) {
@@ -267,7 +267,7 @@ public class AfApiService {
     }
 
 
-    private void saveHistorique(Integer demandeDto, DemandeHistoriqueDTO histo) {
+    protected void saveHistorique(Integer demandeDto, DemandeHistoriqueDTO histo) {
         LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
         try {
             demandesHistoriqueService.saveHistorique(demandeDto, histo);

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
@@ -31,6 +32,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,9 +92,8 @@ public class FileUploadController extends AbstractXafController {
             // Vérification du type du fichier
             LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);
             if (!fileControllerUtils.estExtensionDansWhitelist(safeFileName)) {
-                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
-                        fileControllerUtils.getExtensionsWhitelist());
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés, pas d'upload dans FILE");
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: le type/extension du fichier soumis n'est pas valide");
             }
 
@@ -100,8 +101,20 @@ public class FileUploadController extends AbstractXafController {
             // Vérification de la taille du fichier
             if (!fileControllerUtils.tailleFichierValide(part)) {
                 LOGGER.info("La taille du fichier dépasse la taille max définie dans les propriétés");
-                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
+            }
+
+            // Vérification du vrai type MIME via Tika
+            Tika tika = new Tika();
+            String mimeTypeFromExtension = tika.detect(safeFileName);
+            try (InputStream inputStream = part.getInputStream()) {
+                String detectedMimeType = tika.detect(inputStream);
+                if (!mimeTypeFromExtension.equals(detectedMimeType)) {
+                    LOGGER.info("Le type MIME réel n'est pas celui de l'extension du fichier");
+                    return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                            "Erreur: le type mime du fichier soumis n'est pas valide");
+                }
             }
 
             // Génération de l'UUID
@@ -136,7 +149,7 @@ public class FileUploadController extends AbstractXafController {
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
             if (!vscan(part, safeFileName, postRequest)) {
-                return ResponseEntity.badRequest().build();
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST, "Le fichier est corrompu");
             }
 
             // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.itg.nomen.impl;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import mc.gouv.xaf.shared.util.PaysUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,12 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
             pays.setLibelleEn(valeur.getLibelleCourt());
             pays.setLibelleLongEn(valeur.getLibelleLong());
         }
+        //On surcharge la liste des pays et nationalités par des valeurs (Non connu)
+        PaysDTO paysDTO = PaysUtils.initPaysNonConnu();
+        map.put(paysDTO.getCode(), paysDTO);
+
+        PaysDTO nationalite = PaysUtils.initNationaliteNonConnu();
+        map.put(nationalite.getCode(), nationalite);
 
         return map;
     }

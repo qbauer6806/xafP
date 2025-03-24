@@ -26,4 +26,8 @@ public class RechercheChampDTO {
         this.name = name;
     }
 
+    public RechercheChampDTO() {
+        // Constructeur par défaut requis pour la désérialisation
+    }
+
 }

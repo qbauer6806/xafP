@@ -977,24 +977,6 @@ public class AfBackUtils {
         return tsHistos;
     }
 
-    /**
-     * Permet de créer une ligne d'historique pour DEM à partir des données d'historique spécifiques au TS
-     *
-     * @param tsHistoContenu
-     * @param usagerId
-     * @param agentId
-     * @return
-     */
-    public DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
-            String agentId) {
-        DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
-        demHisto.setAgentId(agentId);
-        demHisto.setUsagerId(usagerId);
-        ObjectMapper mapper = new ObjectMapper();
-        demHisto.setContenu(mapper.valueToTree(tsHistoContenu));
-        return demHisto;
-    }
-
     public String getUtilisateurAffecte(DemandeDTO demande) {
         String utilisateurAffecte = StringUtils.EMPTY;
         if (demande.getAgent() != null) {
@@ -1133,6 +1115,7 @@ public class AfBackUtils {
         model.put("nomDirection", demarcheInfos.getNomDirection());
         model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
         model.put("nomFooter", demarcheInfos.getNomFooter());
+        model.put("emailService", demarcheInfos.getEmailService());
         model.put("adresseService", demarcheInfos.getAdresseService());
         model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
         model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
@@ -1152,7 +1135,6 @@ public class AfBackUtils {
         Map<String, Object> map = getGenericModelMail(demandeDTO);
         map.put("adresseService",
                 StringUtils.replace(getDemarcheInfos().getAdresseService(), "<br/>", System.lineSeparator()));
-        map.put("dateCourante", new SimpleDateFormat("dd MMMM yyyy", Locale.FRANCE).format(new Date()));
         return map;
     }
 

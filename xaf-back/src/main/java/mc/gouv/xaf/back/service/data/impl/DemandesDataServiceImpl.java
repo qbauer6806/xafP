@@ -4,21 +4,24 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import mc.gouv.xaf.shared.SharedMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des données d'une demande.
@@ -36,6 +39,12 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private TransactionErrorsHandler transactionErrorsHandler;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
@@ -137,52 +146,68 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     }
 
     private DemandeDataDTO saveOrUpdateDemandeDatas(DemandeBO demandeBo, String key, String value) {
-        // Est-ce que cette donnée de demande existe déjà ?
-        DemandesDataBO demandesDataBo = getDemandeDataBO(demandeBo.getPkDemandes(), key);
+        try {
+            // Est-ce que cette donnée de demande existe déjà ?
+            DemandesDataBO demandesDataBo = getDemandeDataBO(demandeBo.getPkDemandes(), key);
 
-        if (demandesDataBo == null) {
-            // Création
-            LOGGER.info("Création de la donnée de demande...");
-            demandesDataBo = new DemandesDataBO();
-            demandesDataBo.setFkDemandes(demandeBo);
-            demandesDataBo.setKey(key);
-            demandesDataBo.setValue(value);
-            if (demandeBo.getData() == null) {
-                demandeBo.setData(new HashSet<>());
-            }
+            if (demandesDataBo == null) {
+                // Création
+                LOGGER.info("Création de la donnée de demande...");
+                demandesDataBo = new DemandesDataBO();
+                demandesDataBo.setFkDemandes(demandeBo);
+                demandesDataBo.setKey(key);
+                demandesDataBo.setValue(value);
+                if (demandeBo.getData() == null) {
+                    demandeBo.setData(new HashSet<>());
+                }
 
-            demandeBo.getData().add(demandesDataBo);
-            demandesDataBo = demandesDataRepository.save(demandesDataBo);
-        } else {
-            // Mise à jour
-            LOGGER.info("Mise à jour de la donnée de demande...");
+                demandeBo.getData().add(demandesDataBo);
+                demandesDataBo = demandesDataRepository.save(demandesDataBo);
+            } else {
+                // Mise à jour
+                LOGGER.info("Mise à jour de la donnée de demande...");
 
-            if (demandeBo.getData() != null) {
-                for (DemandesDataBO data : demandeBo.getData()) {
-                    if (data.getKey().equals(key)) {
-                        data.setValue(value);
+                if (demandeBo.getData() != null) {
+                    for (DemandesDataBO data : demandeBo.getData()) {
+                        if (data.getKey().equals(key)) {
+                            data.setValue(value);
+                        }
                     }
                 }
+                demandesDataBo.setValue(value);
+                demandesDataBo = demandesDataRepository.save(demandesDataBo);
             }
-            demandesDataBo.setValue(value);
-            demandesDataBo = demandesDataRepository.save(demandesDataBo);
+
+            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+
+            return DemandesDataTransformer.bo2Dto(demandesDataBo);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de saveOrUpdateDemandeDatas");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesDataServiceImpl - méthode saveOrUpdateDemandeDatas()", demandeBo.getPkDemandes(), e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-
-        return DemandesDataTransformer.bo2Dto(demandesDataBo);
     }
 
     /**
      * {@inheritDoc}
      */
     public DemandeDataDTO updateDemandeData(DemandeDataDTO dataDTO) {
-        DemandesDataBO dataBO = DemandesDataTransformer.dto2Bo(dataDTO);
-        DemandeBO demande = new DemandeBO();
-        demande.setPkDemandes(dataDTO.getDemandeId());
-        dataBO.setFkDemandes(demande);
-        dataBO = demandesDataRepository.save(dataBO);
-        return DemandesDataTransformer.bo2Dto(dataBO);
+        try {
+            DemandesDataBO dataBO = DemandesDataTransformer.dto2Bo(dataDTO);
+            DemandeBO demande = new DemandeBO();
+            demande.setPkDemandes(dataDTO.getDemandeId());
+            dataBO.setFkDemandes(demande);
+            dataBO = demandesDataRepository.save(dataBO);
+            return DemandesDataTransformer.bo2Dto(dataBO);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de updateDemandeData");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesDataServiceImpl - méthode updateDemandeData()", dataDTO.getDemandeId(), e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -190,17 +215,25 @@ public class DemandesDataServiceImpl implements DemandesDataService {
      */
     @Override
     public void deleteDemandeData(Integer demandeId, String key) {
+        try {
+            // Jette une exception si la demande n'existe pas
+            demandesService.getCheckDemarcheDemandeBO(demandeId, true);
 
-        // Jette une exception si la demande n'existe pas
-        demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+            DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
 
-        DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
-
-        LOGGER.info("Suppression de la donnée de demande...");
-        if (demandesDataBo != null) {
-            demandesDataBo.getFkDemandes().getData().remove(demandesDataBo);
-            demandesDataRepository.delete(demandesDataBo);
+            LOGGER.info("Suppression de la donnée de demande...");
+            if (demandesDataBo != null) {
+                demandesDataBo.getFkDemandes().getData().remove(demandesDataBo);
+                demandesDataRepository.delete(demandesDataBo);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de deleteDemandeData");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesDataServiceImpl - méthode deleteDemandeData()", demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 
     public void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo) {

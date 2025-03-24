@@ -2,18 +2,16 @@ package mc.gouv.xaf.back.service.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -100,20 +98,10 @@ public interface DemandesService {
      *
      * @return La demande sauvegardée
      */
-    DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes) throws IOException;
-
-    /**
-     * Permet de sauvegarder ou mettre à jour une demande en base
-     *
-     * @param partialUpdate
-     *         true si il faut effectuer une mise à jour partielle
-     * @return La demande sauvegardée ou mise à jour
-     */
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
-            throws IOException, SAXException;
+    DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes);
 
     DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
-            JsonNode donneesExternes) throws IOException, SAXException;
+            JsonNode donneesExternes);
 
     /**
      * Permet de récupérer l'AccessID de l'Access lié à une demande
@@ -203,7 +191,7 @@ public interface DemandesService {
      */
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
-    byte[] getDemandeRecap(Integer pkDemande, Integer usagerId);
+    byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO);
 
     /**
      * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du
@@ -231,7 +219,7 @@ public interface DemandesService {
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 
-    void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate, String plainEndDate,
+    List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
             String statut);
 
 }

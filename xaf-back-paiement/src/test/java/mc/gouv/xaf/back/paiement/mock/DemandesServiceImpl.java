@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -10,11 +9,11 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
 
 @Component
 public class DemandesServiceImpl implements DemandesService {
@@ -82,20 +81,13 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes)
-            throws IOException {
-        return null;
-    }
-
-    @Override
-    public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
-            throws IOException, SAXException {
+    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatutName, JsonNode donneesExternes) {
         return null;
     }
 
     @Override
     public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
-            JsonNode donneesExternes) throws IOException, SAXException {
+            JsonNode donneesExternes) {
         return null;
     }
 
@@ -171,7 +163,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId) {
+    public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO) {
         return new byte[0];
     }
 
@@ -198,8 +190,8 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public void retrieveDemandesFiltered(List<AfDemandeExcelFlatDTO> demandeExcelFlatDTOS, String plainStartDate,
-            String plainEndDate, String statut) {
-
+    public List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
+            String statut) {
+        return List.of();
     }
 }

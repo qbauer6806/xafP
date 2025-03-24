@@ -1,13 +1,13 @@
 package mc.gouv.xaf.back;
 
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.histo.HistoValidationEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class DemarchesDataProviderImpl implements DemarchesDataProvider {
@@ -75,6 +75,11 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     @Override
     public StatutSimplifieEnum getStatutSimplifie(String statut) {
         return null;
+    }
+
+    @Override
+    public String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum) {
+        return "";
     }
 
     @Override

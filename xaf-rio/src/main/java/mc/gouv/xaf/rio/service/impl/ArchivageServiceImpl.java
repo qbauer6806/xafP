@@ -19,10 +19,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -82,7 +82,7 @@ public class ArchivageServiceImpl implements ArchivageService {
     @Autowired
     private AfBackUtils afBackUtils;
     @Autowired
-    private AfHistoService histoService;
+    private DemandesHistoriqueService demandesHistoriqueService;
     @Autowired
     private DemandesDataService demandesDataService;
 
@@ -210,9 +210,10 @@ public class ArchivageServiceImpl implements ArchivageService {
             // Sauvegarde du numéro de facture dans les données de la demande
             demandesDataService.saveOrUpdateDemandeData(demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE,
                     String.valueOf(fichiersEnErreurs.get()), false);
-            histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
+            demandesHistoriqueService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
         } else {
-            histoService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");
+            demandesHistoriqueService.actionSysteme(demandeId, "SUCCES",
+                    "Archivage automatique des fichiers réalisé avec succès");
         }
         ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
         statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);

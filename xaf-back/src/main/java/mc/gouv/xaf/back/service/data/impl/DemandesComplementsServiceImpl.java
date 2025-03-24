@@ -1,18 +1,31 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
+import mc.gouv.xaf.back.data.model.ErrorEventDTO;
+import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
+import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -25,21 +38,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Service permettant la manipulation des demandes d'informations complémentaires.
@@ -72,6 +74,12 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Autowired
     private DemandesTransformer demandesTransformer;
+
+    @Autowired
+    private TransactionErrorsHandler transactionErrorsHandler;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -194,63 +202,71 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
             DemandeComplementsReponseDTO demandeComplementsReponse) {
-
-        // L'UsagerID OU l'AgentID doivent être remplis
-        if ((demandeComplementsReponse.getUsagerId() == null) && StringUtils.isBlank(
-                demandeComplementsReponse.getAgentId())) {
-            throw new DemarchesServiceException("L'UsagerID ou l'AgentID doivent être remplis", HttpStatus.BAD_REQUEST);
-        }
-
-        DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
-
-        // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
-        if (demandeComplementsReponse.getUsagerId() != null && !demandeComplementsReponse.getUsagerId()
-                .equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
-            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
-        }
-
-        // Ne pas répondre deux fois à une demande
-        if (demandesComplementsBO.getStatut().equals(DemandeComplementsStatutEnum.REPONDUE.name())) {
-            throw new DemarchesServiceException(
-                    "Cette demande d'informations complémentaires a déjà fait l'objet d'une réponse",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        demandesComplementsBO.setReponse(demandeComplementsReponse.getTexte());
-        demandesComplementsBO.setDateReponse(new Date());
-        demandesComplementsBO.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
-        demandesComplementsBO.setReponseAgentId(demandeComplementsReponse.getAgentId());
-        demandesComplementsBO.setReponseUsagerId(demandeComplementsReponse.getUsagerId());
-
-        LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
-
-        // Prise en charge des pièces jointes
-        if (demandeComplementsReponse.getFichiers() != null) {
-            List<DemandeComplementsFileDTO> demandeComplementsFileDTOS = Arrays.asList(
-                    demandeComplementsReponse.getFichiers());
-            // set contenu
-            try {
-                this.demandeFileTransformer.setComplementsFileContenu(demandeComplementsFileDTOS);
-            } catch (IOException e) {
-                LOGGER.error("Impossible de lire le contenu du fichier {}", demandeComplementsFileDTOS, e);
+        try {
+            // L'UsagerID OU l'AgentID doivent être remplis
+            if ((demandeComplementsReponse.getUsagerId() == null) && StringUtils.isBlank(
+                    demandeComplementsReponse.getAgentId())) {
+                throw new DemarchesServiceException("L'UsagerID ou l'AgentID doivent être remplis",
+                        HttpStatus.BAD_REQUEST);
             }
 
-            List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer.dto2Bo(
-                    demandeComplementsFileDTOS);
-            for (DemandesComplementsFilesBO fichier : fichiers) {
-                fichier.setFkDemandesComplements(demandesComplementsBO);
+            DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(pkDemande, pkDemandeComplements);
+
+            // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
+            if (demandeComplementsReponse.getUsagerId() != null && !demandeComplementsReponse.getUsagerId()
+                    .equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
+                throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
             }
-            demandesComplementsFilesRepository.saveAll(fichiers);
-            demandesComplementsBO.setFiles(new HashSet<>(fichiers));
+
+            // Ne pas répondre deux fois à une demande
+            if (demandesComplementsBO.getStatut().equals(DemandeComplementsStatutEnum.REPONDUE.name())) {
+                throw new DemarchesServiceException(
+                        "Cette demande d'informations complémentaires a déjà fait l'objet d'une réponse",
+                        HttpStatus.BAD_REQUEST);
+            }
+
+            demandesComplementsBO.setReponse(demandeComplementsReponse.getTexte());
+            demandesComplementsBO.setDateReponse(new Date());
+            demandesComplementsBO.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
+            demandesComplementsBO.setReponseAgentId(demandeComplementsReponse.getAgentId());
+            demandesComplementsBO.setReponseUsagerId(demandeComplementsReponse.getUsagerId());
+
+            LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
+
+            // Prise en charge des pièces jointes
+            if (demandeComplementsReponse.getFichiers() != null) {
+                List<DemandeComplementsFileDTO> demandeComplementsFileDTOS = Arrays.asList(
+                        demandeComplementsReponse.getFichiers());
+                // set contenu
+                try {
+                    this.demandeFileTransformer.setComplementsFileContenu(demandeComplementsFileDTOS);
+                } catch (IOException e) {
+                    LOGGER.error("Impossible de lire le contenu du fichier {}", demandeComplementsFileDTOS, e);
+                }
+
+                List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer.dto2Bo(
+                        demandeComplementsFileDTOS);
+                for (DemandesComplementsFilesBO fichier : fichiers) {
+                    fichier.setFkDemandesComplements(demandesComplementsBO);
+                }
+                demandesComplementsFilesRepository.saveAll(fichiers);
+                demandesComplementsBO.setFiles(new HashSet<>(fichiers));
+            }
+
+            demandesComplementsBO = demandesComplementsRepository.save(demandesComplementsBO);
+
+            demandesComplementsBO.setFkDemandes(demandesComplementsBO.getFkDemandes());
+
+            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+            return DemandesComplementsTransformer.bo2Dto(demandesComplementsBO);
+
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la réponse IC");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesComplementsServiceImpl - méthode repondreDemandeComplements()", pkDemande, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        demandesComplementsBO = demandesComplementsRepository.save(demandesComplementsBO);
-
-        demandesComplementsBO.setFkDemandes(demandesComplementsBO.getFkDemandes());
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return DemandesComplementsTransformer.bo2Dto(demandesComplementsBO);
-
     }
 
     @Override

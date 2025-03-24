@@ -16,10 +16,10 @@ import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
@@ -66,7 +66,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     private PaiementHistoriqueService paiementHistoriqueService;
 
     @Autowired
-    private AfHistoService histoService;
+    private DemandesHistoriqueService demandesHistoriqueService;
 
     @Autowired
     private MailService mailService;
@@ -128,7 +128,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             }
             // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
             gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
-            histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
+            demandesHistoriqueService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
             // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(),
@@ -140,9 +140,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);
             // On récupère le flag pour l'historique
             if (BooleanUtils.isTrue((Boolean) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_IS_DEBIT_KO))) {
-                histoService.actionUsager(demandeId, demandeDto.getUsagerId(), "SUCCES", "Paie en ligne");
+                demandesHistoriqueService.actionUsager(demandeId, demandeDto.getUsagerId(), "SUCCES", "Paie en ligne");
             } else {
-                histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
+                demandesHistoriqueService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
             //LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
             ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);

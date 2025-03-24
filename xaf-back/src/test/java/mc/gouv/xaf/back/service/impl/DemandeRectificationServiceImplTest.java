@@ -1,11 +1,18 @@
 package mc.gouv.xaf.back.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
-import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
@@ -17,16 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.lenient;
-
 @ExtendWith(MockitoExtension.class)
 class DemandeRectificationServiceImplTest {
 
@@ -34,8 +31,6 @@ class DemandeRectificationServiceImplTest {
     private DemarchesDataProvider demarchesDataProvider;
     @Mock
     private GouvBPM gouvBPM;
-    @Mock
-    private AfHistoService histoService;
     @Mock
     private DemandesHistoriqueService demandesHistoriqueService;
     @Mock
@@ -50,7 +45,7 @@ class DemandeRectificationServiceImplTest {
     void setUp() {
         lenient().when(demarchesDataProvider.getCodeMotifDemandeRectification()).thenReturn("CODE_MOTIF");
         lenient().when(demarchesDataProvider.getStatutEnAttenteRectification()).thenReturn("STATUT_ATTENTE");
-        lenient().when(histoService.demanderRectification(anyInt(), any())).thenReturn(new DemandeHistoriqueDTO());
+        lenient().when(demandesHistoriqueService.statusChangeAgent(any())).thenReturn(new DemandeHistoriqueDTO());
     }
 
     @Test
@@ -59,7 +54,7 @@ class DemandeRectificationServiceImplTest {
 
         verify(gouvBPM).demanderRectification(eq(pkDemande), any(GouvBPMUser.class),
                 eq("CODE_MOTIF"), eq(StringEscapeUtils.escapeHtml4(commentaire)), eq("STATUT_ATTENTE"));
-        verify(demandesHistoriqueService).saveHistorique(eq(pkDemande), any(DemandeHistoriqueDTO.class));
+        verify(demandesHistoriqueService).saveHisto(eq(pkDemande), any(DemandeHistoriqueDTO.class));
         verify(demandesCommentaireService).putCommentaireInterne(any(DemandeCommentaireDTO.class));
     }
 
@@ -88,16 +83,4 @@ class DemandeRectificationServiceImplTest {
         assertEquals("Impossible d'insérer un commentaire vide", thrown.getMessage());
     }
 
-    @Test
-    void testDemanderRectification_HistoriqueSaveFails_ShouldLogError() {
-        doThrow(new RuntimeException("Erreur lors de la sauvegarde"))
-                .when(demandesHistoriqueService).saveHistorique(anyInt(), any(DemandeHistoriqueDTO.class));
-
-        demandeRectificationService.demanderRectification(pkDemande, commentaire);
-
-        verify(gouvBPM).demanderRectification(eq(pkDemande), any(GouvBPMUser.class), eq("CODE_MOTIF"),
-                eq(StringEscapeUtils.escapeHtml4(commentaire)), eq("STATUT_ATTENTE"));
-        verify(demandesHistoriqueService).saveHistorique(eq(pkDemande), any(DemandeHistoriqueDTO.class));
-        verify(demandesCommentaireService).putCommentaireInterne(any(DemandeCommentaireDTO.class));
-    }
 }

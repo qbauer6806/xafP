@@ -19,6 +19,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -122,11 +123,13 @@ public class AfApiController {
         return demandeDTO;
     }
 
-    @GetMapping(value = "/usagers/{usagerId}/demandes/recap/{demandeId}")
+    @PostMapping(value = "/usagers/{usagerId}/demandes/recap/{demandeId}")
     public @ResponseBody byte[] getDemandeRecapRequest(@PathVariable(value = "usagerId") Integer usagerId,
-            @PathVariable(value = "demandeId") Integer demandeId) {
-        LOGGER.info("AbstractAfApiController.getDemandeRecapRequest({}, {})", usagerId, demandeId);
-        return afApiService.getDemandeRecap(usagerId, demandeId);
+            @PathVariable(value = "demandeId") Integer demandeId,
+            @RequestBody(required = false) DonneesMConnectDTO donneesMConnectDTO) {
+        LOGGER.info("AbstractAfApiController.getDemandeRecapRequest({}, {}, {})", usagerId, demandeId,
+                donneesMConnectDTO);
+        return afApiService.getDemandeRecap(usagerId, demandeId, donneesMConnectDTO);
     }
 
     @GetMapping(value = "/demandes")

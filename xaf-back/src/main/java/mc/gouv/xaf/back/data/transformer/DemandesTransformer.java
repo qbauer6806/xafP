@@ -217,12 +217,12 @@ public class DemandesTransformer {
     }
 
     public void hideInfos(DemandeDTO demandeDTO) {
+        hideDernierStatut(demandeDTO);
         demandeDTO.setAgent(null);
         demandeDTO.setStatuts(null);
         demandeDTO.setMarqueurs(null);
         demandeDTO.setMarqueursTrad(null);
         demandeDTO.setContenuTrad(null);
-        hideDernierStatut(demandeDTO);
         demandesComplementsTransformer.hideInfos(demandeDTO.getComplements());
     }
 
@@ -238,13 +238,10 @@ public class DemandesTransformer {
             for (DemandeStatutDTO demandeStatutDTO : allStatus) {
                 // si on tombe sur un statut public, on utilise celui-là
                 if (privateStatus.get(demandeStatutDTO.getName()) == null) {
-                    statutDto.setName(demandeStatutDTO.getName());
-                    statutDto.setLibelle(demandeStatutDTO.getLibelle());
+                    statutDto = demandeStatutDTO;
                     break;
                 }
             }
-            // si c'est un statut privé on cache le motif
-            statutDto.setCodeMotif(null);
         }
         demandeDTO.setDernierStatut(statutDto);
     }

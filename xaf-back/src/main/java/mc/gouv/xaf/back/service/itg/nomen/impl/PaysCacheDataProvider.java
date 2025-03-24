@@ -72,7 +72,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
                 map.put(valeur.getCode().toUpperCase(), pays);
             }
         }
-        
+
         LOGGER.info("Appel de l'API NOMEN (NATIO,EN)...");
         NomenNomenclatureDTO nomenclatureNatioEn = afBackUtils.getNomenClient().getNomenclatureAvecLocale(NOMENCLATURE_NATIONALITES, LANGUE_EN);
         for (NomenValeurDTO valeur : nomenclatureNatioEn.getValeurs()) {
@@ -81,13 +81,10 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
                 pays.setNationaliteEn(valeur.getLibelleCourt());
             }
         }
-        
-        // On surcharge la liste des pays et nationalités par des valeurs "Non connu"
-        PaysDTO paysInconnu = PaysUtils.initPaysNonConnu();
-        map.put(paysInconnu.getCode(), paysInconnu);
 
-        PaysDTO nationaliteInconnue = PaysUtils.initNationaliteNonConnue();
-        map.put(nationaliteInconnue.getCode(), nationaliteInconnue);
+        // On surcharge la liste des pays et nationalités par des valeurs "Non connu"
+        PaysDTO paysDTO = PaysUtils.initValeurNonConnue();
+        map.put(paysDTO.getCode(), paysDTO);
 
         return map;
     }

@@ -14,18 +14,10 @@ public class PaysUtils {
         //DO NOTHING
     }
 
-    public static PaysDTO initPaysNonConnu() {
-        return getPaysDTO("00", "000");
-    }
-
-    public static PaysDTO initNationaliteNonConnue() {
-        return getPaysDTO("ZZ", "XXX");
-    }
-
-    private static PaysDTO getPaysDTO(String code, String codeAlpha3) {
+    public static PaysDTO initValeurNonConnue() {
         PaysDTO paysDTO = new PaysDTO();
-        paysDTO.setCode(code);
-        paysDTO.setCodeAlpha3(codeAlpha3);
+        paysDTO.setCode("ZZ");
+        paysDTO.setCodeAlpha3("XXX");
         paysDTO.setLibelle(LIBELLE_NON_CONNU_FR);
         paysDTO.setLibelleEn(LIBELLE_NON_CONNU_EN);
         paysDTO.setLibelleLong(LIBELLE_NON_CONNU_FR);
@@ -33,7 +25,7 @@ public class PaysUtils {
         paysDTO.setOrdre(9999);
         paysDTO.setNationalite(LIBELLE_NON_CONNU_FR);
         paysDTO.setNationaliteEn(LIBELLE_NON_CONNU_EN);
-        paysDTO.setNationaliteCode(code);
+        paysDTO.setNationaliteCode("ZZ");
 
         return paysDTO;
     }

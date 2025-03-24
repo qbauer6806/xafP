@@ -127,20 +127,19 @@ public class PaysController extends AbstractXafController {
                 String contentType = serviceResponse.getEntity().getContentType();
 
                 if (statusCode == HttpStatus.OK.value()) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    NomenNomenclatureDTO nomenNomenclatureDTO = objectMapper.readValue(
+                    NomenNomenclatureDTO nomenNomenclatureDTO = OBJECT_MAPPER.readValue(
                             new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8),
                             NomenNomenclatureDTO.class);
 
                     List<NomenValeurDTO> valeurs = nomenNomenclatureDTO.getValeurs();
                     //On surcharge une valeur (Non connu) dans la liste des pays
-                    NomenValeurDTO pays = this.getPaysNonConnu(PaysUtils.initPaysNonConnu(), locale);
-                    valeurs.add(pays);
+                    NomenValeurDTO nomenValeurDTO = this.getValeurNonConnue(PaysUtils.initValeurNonConnue(), locale);
+                    valeurs.add(nomenValeurDTO);
 
                     paysCache.put(locale, valeurs);
                     listePaysLastUpdate = new Date();
 
-                    String valeursJson = objectMapper.writeValueAsString(valeurs);
+                    String valeursJson = OBJECT_MAPPER.writeValueAsString(valeurs);
 
                     return ResponseEntity.status(statusCode).header(HttpHeaders.CONTENT_TYPE, contentType)
                             .body(valeursJson);
@@ -155,7 +154,7 @@ public class PaysController extends AbstractXafController {
         }
     }
 
-    private NomenValeurDTO getPaysNonConnu(PaysDTO paysDTO, String langue) {
+    private NomenValeurDTO getValeurNonConnue(PaysDTO paysDTO, String langue) {
         NomenValeurDTO pays = new NomenValeurDTO();
         pays.setCode(paysDTO.getCode());
         pays.setLibelleCourt("EN".equalsIgnoreCase(langue) ? paysDTO.getLibelleEn() : paysDTO.getLibelle());
@@ -180,8 +179,7 @@ public class PaysController extends AbstractXafController {
                 String contentType = serviceResponse.getEntity().getContentType();
 
                 if (statusCode == HttpStatus.OK.value()) {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    NomenNomenclatureDTO nomenNomenclatureDTO = objectMapper.readValue(
+                    NomenNomenclatureDTO nomenNomenclatureDTO = OBJECT_MAPPER.readValue(
                             new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8),
                             NomenNomenclatureDTO.class);
 
@@ -193,13 +191,13 @@ public class PaysController extends AbstractXafController {
                         }
                     });
                     //On surcharge une valeur (Non connu) dans la liste des nationalités
-                    NomenValeurDTO nationalite = this.getPaysNonConnu(PaysUtils.initNationaliteNonConnue(), locale);
-                    valeurs.add(nationalite);
+                    NomenValeurDTO nomenValeurDTO = this.getValeurNonConnue(PaysUtils.initValeurNonConnue(), locale);
+                    valeurs.add(nomenValeurDTO);
 
                     nationalitesCache.put(locale, valeurs);
                     listeNationalitesLastUpdate = new Date();
 
-                    String valeursJson = objectMapper.writeValueAsString(valeurs);
+                    String valeursJson = OBJECT_MAPPER.writeValueAsString(valeurs);
 
                     return ResponseEntity.status(statusCode).header(HttpHeaders.CONTENT_TYPE, contentType)
                             .body(valeursJson);

@@ -66,7 +66,9 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         NomenNomenclatureDTO nomenclatureNatioFr = afBackUtils.getNomenClient().getNomenclatureAvecLocale(NOMENCLATURE_NATIONALITES, LANGUE_FR);
         for (NomenValeurDTO valeur : nomenclatureNatioFr.getValeurs()) {
             PaysDTO pays = map.get(valeur.getCode().toUpperCase());
-            if (pays == null && valeur.getCode().equalsIgnoreCase(CODE_ALPHA2_APATRIDE)) {
+            if (pays != null) {
+                pays.setNationalite(valeur.getLibelleCourt());
+            } else if (valeur.getCode().equalsIgnoreCase(CODE_ALPHA2_APATRIDE)) {
                 pays = getNationaliteFromNomenValeur(valeur);
                 pays.setCodeAlpha3(CODE_ALPHA3_APATRIDE);
                 map.put(valeur.getCode().toUpperCase(), pays);

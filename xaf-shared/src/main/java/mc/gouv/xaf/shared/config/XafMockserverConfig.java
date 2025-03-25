@@ -15,7 +15,7 @@ public class XafMockserverConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XafMockserverConfig.class);
 
-    @Value("${mc.gouv.mockserver.port}")
+    @Value("${mc.gouv.${application.module}.mockserver.port}")
     private Integer mockserverPort;
 
     @Bean

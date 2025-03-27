@@ -59,6 +59,7 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
+import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -74,7 +75,6 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -546,24 +546,6 @@ public class DemandesServiceImpl implements DemandesService {
             return demandesRepository.findByDateCreationLessThanEqual(pageable, endDate);
         }
         return demandesRepository.findAll(pageable);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Page<DemandeBO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
-            String statut) {
-        if (startDate != null && endDate != null) {
-            return demandesRepository.findByDateCreationBetweenAndDernierStatut_Name(pageable, startDate, endDate,
-                    statut);
-        } else if (startDate != null) {
-            return demandesRepository.findByDateCreationGreaterThanEqualAndDernierStatut_Name(pageable, startDate,
-                    statut);
-        } else if (endDate != null) {
-            return demandesRepository.findByDateCreationLessThanEqualAndDernierStatut_Name(pageable, endDate, statut);
-        }
-        return demandesRepository.findAllByDernierStatut_Name(pageable, statut);
     }
 
     /**
@@ -1153,8 +1135,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
-            String statut) {
+    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate) {
         Date startDate = null;
         Date endDate = null;
 
@@ -1182,30 +1163,7 @@ public class DemandesServiceImpl implements DemandesService {
             endDate = cal.getTime();
         }
 
-        int pageNumber = 0;
-        int pageSize = 100;  // Taille de chaque batch
-
-        List<AfDemandeExcelFlatDTO> demandesFlat = new ArrayList<>();
-
-        Page<DemandeBO> page;
-
-        do {
-            Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
-            if (statut == null) {
-                page = getAllDemandesFilteredByDate(pageable, startDate, endDate);
-            } else {
-                page = getAllDemandesFilteredByDateAndStatut(pageable, startDate, endDate, statut);
-            }
-
-            page.getContent().stream().map(demande -> excelExportModelProvider.getDemandeFlat(
-                    demandesTransformer.bo2Dto(demande, new String[] { "data" }))).forEach(demandesFlat::add);
-
-            pageNumber++;
-
-        } while (page.hasNext());
-        return demandesFlat;
-
+        return new AfDemandeExcelFlatIterable(this, excelExportModelProvider, demandesTransformer, startDate, endDate);
     }
 
 }

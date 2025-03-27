@@ -14,6 +14,4 @@ public class ExcelRechercheDTO {
 
     private String creationEndDate;
 
-    private String statut;
-
 }

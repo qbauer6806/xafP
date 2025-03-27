@@ -113,20 +113,6 @@ public class MarqueursServiceImpl implements MarqueursService {
         marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
     }
 
-    @Override
-    public void resetMarqueurs() {
-        marqueursRepository.deleteAll();
-        List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
-        for (DemandeConfigBO config : configs) {
-            List<MarqueurDTO> marqueurDTOS = new ArrayList<>();
-
-            setMarqueursFromModelPaths(
-                    demandesConfigService.getModelPaths(config.getContenu().get("modelPaths").get("marqueurs")),
-                    marqueurDTOS, config.getBuildId(), config.getContenu());
-            marqueursRepository.saveAll(marqueursTransformer.dtos2Bos(marqueurDTOS));
-        }
-    }
-
     private void setMarqueursFromModelPaths(List<String> modelPaths, List<MarqueurDTO> marqueurDTOS, String buildId,
             JsonNode config) {
         for (String modelPath : modelPaths) {

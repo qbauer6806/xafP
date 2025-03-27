@@ -129,10 +129,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     String res = purgeBrouillonsService.purgerBrouillons();
                     msg = "Purge des brouillons terminée.<br>" + res;
                     break;
-                case RESET_MARQUEURS:
-                    marqueursService.resetMarqueurs();
-                    msg = "Reset effectué";
-                    break;
                 default:
                     break;
             }

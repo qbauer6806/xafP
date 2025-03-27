@@ -18,8 +18,6 @@ public interface MarqueursService {
 
     void copyOrGenerateMarqueurs(String lastBuildId, String buildId, List<String> modelPaths, JsonNode sections);
 
-    void resetMarqueurs();
-
     String exportConfig() throws IOException;
 
     void importConfig(byte[] file) throws IOException;

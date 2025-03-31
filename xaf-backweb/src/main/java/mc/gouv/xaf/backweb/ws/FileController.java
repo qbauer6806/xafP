@@ -32,7 +32,6 @@ import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -360,7 +359,7 @@ public class FileController {
         Map<String, String> fileNames = new HashMap<>();
         for (MultipartFile file : files) {
             if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-                String safeFileName = FileNameUtils.getSafeFileName(AfBackUtils.logSafe(file.getOriginalFilename()));
+                String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
                 LOGGER.info(LOG_PART, safeFileName);
                 String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
                         response);
@@ -386,7 +385,7 @@ public class FileController {
         List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
         for (MultipartFile file : files) {
             if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-                String safeFileName = FileNameUtils.getSafeFileName(AfBackUtils.logSafe(file.getOriginalFilename()));
+                String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
                 LOGGER.info(LOG_PART, safeFileName);
                 String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
                         response);
@@ -412,7 +411,7 @@ public class FileController {
 
         for (MultipartFile file : files) {
             if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-                String safeFileName = FileNameUtils.getSafeFileName(AfBackUtils.logSafe(file.getOriginalFilename()));
+                String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
                 LOGGER.info(LOG_PART, safeFileName);
                 String filename = fileService.saveFilePublication(codePublication,
                         gouvPropertiesResolver.getContainerId(), file);

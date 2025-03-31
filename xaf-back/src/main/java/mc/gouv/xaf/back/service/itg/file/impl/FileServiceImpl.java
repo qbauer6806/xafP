@@ -38,6 +38,7 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +82,7 @@ public class FileServiceImpl implements FileService {
     private static final String FILECLIENT_SAVE_FILE_LOG_MESSAGE = "FileClient.saveFile({}, {}, {})";
     private static final String SLASH_DELIMITER = "/";
     private static final String ERREUR_FILESERVICE_LOG_MESSAGE = "Erreur dans FileServiceImpl.saveFile()";
+    private static final String MESSAGE_FICHIER_REFERENCE = "Le fichier {} n'a pas été supprimé car il est référencé autre part";
 
     private RestTemplate restTemplate;
 
@@ -164,9 +166,9 @@ public class FileServiceImpl implements FileService {
 
         boolean vscanActivation = prepareSave(file);
 
-        String filename =
-                SLASH_DELIMITER + demande.getFkAccess() + SLASH_DELIMITER + UUID.randomUUID() + SLASH_DELIMITER
-                        + URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
+        String fileNameToSave = FileNameUtils.getSafeFileName(file.getOriginalFilename());
+        String filename = SLASH_DELIMITER + demande.getFkAccess() + SLASH_DELIMITER + UUID.randomUUID() + SLASH_DELIMITER
+                + URLEncoder.encode(fileNameToSave, StandardCharsets.UTF_8);
 
         LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
 
@@ -208,8 +210,9 @@ public class FileServiceImpl implements FileService {
 
         boolean vscanActivation = prepareSave(file);
 
-        String filename = "/publications/" + UUID.randomUUID() + SLASH_DELIMITER + URLEncoder.encode(
-                file.getOriginalFilename(), StandardCharsets.UTF_8);
+        String fileNameToSave = FileNameUtils.getSafeFileName(file.getOriginalFilename());
+        String filename = "/publications/" + UUID.randomUUID() + SLASH_DELIMITER + URLEncoder.encode(fileNameToSave,
+                StandardCharsets.UTF_8);
 
         LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
 
@@ -234,7 +237,7 @@ public class FileServiceImpl implements FileService {
 
     private boolean prepareSave(MultipartFile file) throws IOException {
         // Vérification de l'extension du fichier
-        if (file.getOriginalFilename() != null && !estExtensionDansWhitelist(file.getOriginalFilename())) {
+        if (!this.estExtensionDansWhitelist(file.getOriginalFilename())) {
             LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
                     getExtensionsWhitelist());
             throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide",
@@ -287,7 +290,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private boolean estExtensionDansWhitelist(String filename) {
-        if (filename == null) {
+        if (StringUtils.isBlank(filename)) {
             return false;
         }
         String[] filenameSplit = filename.split("\\.");
@@ -516,7 +519,7 @@ public class FileServiceImpl implements FileService {
         if (existingFiles <= 1 && existingFilesBrouillons == 0) {
             return true;
         }
-        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
+        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
         return false;
     }
 
@@ -527,7 +530,7 @@ public class FileServiceImpl implements FileService {
         if (existingFiles == 0 && existingFilesBrouillons <= 1) {
             return true;
         }
-        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
+        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
         return false;
     }
 
@@ -541,7 +544,7 @@ public class FileServiceImpl implements FileService {
                 && existingFilesBrouillons <= 1) {
             return true;
         }
-        LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé autre part", fileUrl);
+        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
         return false;
     }
 

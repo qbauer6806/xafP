@@ -15,6 +15,7 @@ import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
@@ -86,7 +87,7 @@ public class DocHolderToFileController extends AbstractXafController {
             if (docholderResponse.getCode() == 200) {
                 LOGGER.info("Téléversement du fichier {} dans FILE", filename);
                 // encodage du nom de fichier
-                String safeFileName = fileControllerUtils.getSafeFileName(filename);
+                String safeFileName = FileNameUtils.getSafeFileName(filename);
                 return fileControllerUtils.uploadToFILE(usagerInfosDTO, safeFileName, "AUTRES",
                         docholderResponse.getEntity().getContent());
 

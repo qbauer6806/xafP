@@ -48,7 +48,7 @@
       </td>
       <td class="action-col">
         <div class="bouton-action">
-          <a class="nopadding" th:href="@{/ws/file/get}+${file.url}">
+          <a class="nopadding" th:href="@{/ws/file/get}+${#uris.escapePath(file.url)}">
             <button class="btn btn-action ripple-effect greyTooltip"
                     data-original-title="Télécharger"
                     data-placement="bottom"
@@ -58,7 +58,7 @@
           </a>
         </div>
         <div class="bouton-action">
-          <a class="nopadding" id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
+          <a class="nopadding" id="popup" th:value="@{/ws/file/get/apercu}+${#uris.escapePath(file.url)}">
             <button class="btn btn-action ripple-effect greyTooltip" data-placement="bottom"
                     data-toggle="tooltip"
                     onclick="setCurrentPopup(this)" th:data-original-title="Prévisualiser"

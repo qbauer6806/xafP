@@ -88,7 +88,7 @@ public class FileUploadController extends AbstractXafController {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: nom du fichier manquant");
             }
-            String safeFileName = FileNameUtils.getSafeFileName(filename);
+            String safeFileName = FileNameUtils.getSafeFileName(XafFrontserverUtils.logSafe(filename));
             // Vérification de la conformité du fichier
             // Vérification du type du fichier
             LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);

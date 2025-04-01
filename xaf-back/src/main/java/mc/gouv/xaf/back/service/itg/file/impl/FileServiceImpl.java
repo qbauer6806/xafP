@@ -164,9 +164,9 @@ public class FileServiceImpl implements FileService {
         String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
         LOGGER.info("FileService.saveFile({}, {})", demande.getPkDemandes(), safeFileName);
 
-        boolean vscanActivation = prepareSave(file);
-
         String fileNameToSave = FileNameUtils.getSafeFileName(file.getOriginalFilename());
+        boolean vscanActivation = this.prepareSave(file, fileNameToSave);
+
         String filename = SLASH_DELIMITER + demande.getFkAccess() + SLASH_DELIMITER + UUID.randomUUID() + SLASH_DELIMITER
                 + URLEncoder.encode(fileNameToSave, StandardCharsets.UTF_8);
 
@@ -208,9 +208,9 @@ public class FileServiceImpl implements FileService {
         String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
         LOGGER.info("FileService.saveFilePublication({}, {})", codePublication, safeFileName);
 
-        boolean vscanActivation = prepareSave(file);
-
         String fileNameToSave = FileNameUtils.getSafeFileName(file.getOriginalFilename());
+        boolean vscanActivation = this.prepareSave(file, fileNameToSave);
+
         String filename = "/publications/" + UUID.randomUUID() + SLASH_DELIMITER + URLEncoder.encode(fileNameToSave,
                 StandardCharsets.UTF_8);
 
@@ -235,9 +235,9 @@ public class FileServiceImpl implements FileService {
 
     }
 
-    private boolean prepareSave(MultipartFile file) throws IOException {
+    private boolean prepareSave(MultipartFile file, String fileNameToSave) throws IOException {
         // Vérification de l'extension du fichier
-        if (!this.estExtensionDansWhitelist(file.getOriginalFilename())) {
+        if (!this.estExtensionDansWhitelist(fileNameToSave)) {
             LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE",
                     getExtensionsWhitelist());
             throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide",
@@ -264,7 +264,7 @@ public class FileServiceImpl implements FileService {
 
         // Vérification du vrai type MIME via Tika
         Tika tika = new Tika();
-        String mimeTypeFromExtension = tika.detect(file.getOriginalFilename());
+        String mimeTypeFromExtension = tika.detect(fileNameToSave);
         try (InputStream inputStream = file.getInputStream()) {
             String detectedMimeType = tika.detect(inputStream);
             if (!mimeTypeFromExtension.equals(detectedMimeType)) {

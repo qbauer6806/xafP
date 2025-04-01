@@ -39,6 +39,11 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
+    public DemandeDataDTO[] getDemandeDatasProjection(Integer demandeId) {
+        return new DemandeDataDTO[0];
+    }
+
+    @Override
     public List<DemandeDataDTO> getDemandeDatasByKeyAndValue(String key, String value) {
         return null;
     }

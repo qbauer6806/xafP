@@ -16,6 +16,7 @@ import mc.gouv.xaf.apiclient.paiement.monetico.MoneticoApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -209,4 +210,10 @@ public class XafFrontserverUtils {
         return mapper.readValue(inputStream, JsonNode.class);
     }
 
+    /**
+     * Echappe les caractères posant problèmes dans les logs selon la règle Sonar javasecurity:S5145
+     */
+    public static String logSafe(String str) {
+        return str != null ? str.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+    }
 }

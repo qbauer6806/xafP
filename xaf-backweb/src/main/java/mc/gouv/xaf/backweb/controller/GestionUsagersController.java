@@ -462,12 +462,15 @@ public class GestionUsagersController extends AbstractController {
         ArrayList<PaysDTO> listePaysP2 = new ArrayList<>();
         ArrayList<PaysDTO> listePaysP3 = new ArrayList<>();
         for (PaysDTO p : paysCache.getAll().values()) {
-            if (p.getOrdre() == 1) {
-                listePaysP1.add(p);
-            } else if (p.getOrdre() == 2 || p.getOrdre() == 3) {
-                listePaysP2.add(p);
-            } else {
-                listePaysP3.add(p);
+            // Vérifier si le libellé est renseigné : si non, alors il s'agit d'une nationalité sans pays, donc pas d'un pays (exemple: XX, apatride)
+            if (StringUtils.isNotBlank(p.getLibelle())) {
+                if (p.getOrdre() == 1) {
+                    listePaysP1.add(p);
+                } else if (p.getOrdre() == 2 || p.getOrdre() == 3) {
+                    listePaysP2.add(p);
+                } else {
+                    listePaysP3.add(p);
+                }
             }
         }
         PaysComparator paysComparator = new PaysComparator();

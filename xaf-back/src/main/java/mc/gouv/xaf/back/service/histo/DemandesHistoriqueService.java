@@ -118,6 +118,10 @@ public class DemandesHistoriqueService {
         return statusChange(targetState, usagerId, null);
     }
 
+    public DemandeHistoriqueDTO statusChangeSysteme(String targetState) {
+        return statusChangeAgent(targetState, null);
+    }
+
     public DemandeHistoriqueDTO statusChangeAgent(String targetState) {
         return statusChangeAgent(targetState, AfBackUtils.getAuthenticatedAgentId());
     }
@@ -188,6 +192,13 @@ public class DemandesHistoriqueService {
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName, SUPERVISEUR, action,
                 statutDemande);
         return histoTs2Dem(contenu, null, agentId);
+    }
+
+    public DemandeHistoriqueDTO passageAuto(String targetState) {
+        String statutLibelle = demarchesDataProvider.getStatusLibelle(targetState);
+        String action = "Passage automatique de la demande à l'état \"" + statutLibelle + "\"";
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(null, null, action, targetState);
+        return histoTs2Dem(contenu, null, null);
     }
 
     public DemandeHistoriqueDTO historiqueDuplicationNouvelleDemande(DemandeDTO oldDemande) {

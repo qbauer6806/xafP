@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
@@ -31,9 +30,6 @@ public class DemandeExportController extends AbstractController {
 
     @Autowired
     private ExcelExportService excelExportService;
-
-    @Autowired
-    private AfExcelExportModelProvider excelExportModelProvider;
 
     @Autowired
     private DemarchesService demarchesService;
@@ -76,12 +72,12 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("======================= Fin /ws/export/excel");
     }
 
-    private Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
+    protected Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
         LOGGER.info("DemandeExportController.getModel()");
 
         Map<String, Object> model = new HashMap<>();
 
-        model.put("demandes", demandesService.retrieveDemandesFiltered(excelRecherche.getCreationStartDate(),
+        model.put("demandes", demandesService.retrieveDemandesLazy(excelRecherche.getCreationStartDate(),
                 excelRecherche.getCreationEndDate(), excelRecherche.getStatut()));
 
         LOGGER.info("Fin DemandeExportController.getModel()");

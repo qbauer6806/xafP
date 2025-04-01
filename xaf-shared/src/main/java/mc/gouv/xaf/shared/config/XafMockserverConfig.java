@@ -15,22 +15,15 @@ public class XafMockserverConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XafMockserverConfig.class);
 
-    @Value("${server.port}")
-    private Integer serverPort;
-
-    @Value("${mc.gouv.${application.name}.mockserverInitializerAbsolutePath}")
-    private String mockserverInitializerAbsolutePath;
+    @Value("${mc.gouv.${application.module}.mockserver.port}")
+    private Integer mockserverPort;
 
     @Bean
-    public CommandLineRunner startEmploiMockServer() {
+    public CommandLineRunner startXafMockServer() {
         return args -> {
-            org.mockserver.configuration.Configuration configuration = new org.mockserver.configuration.Configuration();
-            configuration.persistExpectations(true);
-            configuration.watchInitializationJson(true);
-            configuration.persistedExpectationsPath(mockserverInitializerAbsolutePath);
-            configuration.initializationJsonPath(mockserverInitializerAbsolutePath);
-            ClientAndServer.startClientAndServer(configuration, serverPort + 5);
-            LOGGER.info("XafMockServer started on port {}", serverPort + 5);
+            ClientAndServer.startClientAndServer(mockserverPort);
+            LOGGER.info("XafMockServer started on port {}", mockserverPort);
         };
+
     }
 }

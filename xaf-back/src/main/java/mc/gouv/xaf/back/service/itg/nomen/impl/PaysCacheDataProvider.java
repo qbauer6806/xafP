@@ -1,9 +1,7 @@
 package mc.gouv.xaf.back.service.itg.nomen.impl;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import mc.gouv.xaf.shared.util.PaysUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +9,15 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurDTO;
-import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurLienDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurParametreDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.PaysDTO;
+import mc.gouv.xaf.shared.util.PaysUtils;
 
 /**
  * DataProvider du cache des pays et nationalités
- * Il appelle l'API NOMEN pour récupérer les données
+ * Il appelle l'API NOMEN pour récupérer les données et les mettre en cache
  *
  * @author qdeme
  */
@@ -29,6 +27,18 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheDataProvider.class);
 
     private static final String CODE_ALPHA3_PARAMETRE = "CODE_ALPHA3";
+    
+    private static final String CODE_ALPHA2_APATRIDE = "XX";
+    
+    private static final String CODE_ALPHA3_APATRIDE = "XXA";
+    
+    private static final String NOMENCLATURE_PAYS = "PAY-1";
+    
+    private static final String NOMENCLATURE_NATIONALITES = "NATIO";
+    
+    private static final String LANGUE_FR = "FR";
+    
+    private static final String LANGUE_EN = "EN";
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -36,29 +46,47 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
     @Override
     public ConcurrentHashMap<String, PaysDTO> getAll() {
 
-        LOGGER.info("Appel (FR) de l'API NOMEN (nomenclature PAY-1), pour récupérer tous les pays et nationalités...");
-
+        LOGGER.info("Appel de l'API NOMEN (PAY-1,FR)...");
         ConcurrentHashMap<String, PaysDTO> map = new ConcurrentHashMap<>();
-        NomenNomenclatureDTO nomenclature = afBackUtils.getNomenClient().getNomenclature("PAY-1");
+        NomenNomenclatureDTO nomenclature = afBackUtils.getNomenClient().getNomenclatureAvecLocale(NOMENCLATURE_PAYS, LANGUE_FR);
         for (NomenValeurDTO valeur : nomenclature.getValeurs()) {
             PaysDTO pays = getPaysFromNomenValeur(valeur);
             map.put(pays.getCode(), pays);
         }
 
-        LOGGER.info("Appel (EN) de l'API NOMEN (nomenclature PAY-1), pour récupérer tous les pays et nationalités...");
-
-        NomenNomenclatureDTO nomenclatureEn = afBackUtils.getNomenClient().getNomenclatureAvecLocale("PAY-1", "EN");
+        LOGGER.info("Appel de l'API NOMEN (PAY-1,EN)...");
+        NomenNomenclatureDTO nomenclatureEn = afBackUtils.getNomenClient().getNomenclatureAvecLocale(NOMENCLATURE_PAYS, LANGUE_EN);
         for (NomenValeurDTO valeur : nomenclatureEn.getValeurs()) {
             PaysDTO pays = map.get(valeur.getCode());
             pays.setLibelleEn(valeur.getLibelleCourt());
             pays.setLibelleLongEn(valeur.getLibelleLong());
         }
-        //On surcharge la liste des pays et nationalités par des valeurs (Non connu)
-        PaysDTO paysDTO = PaysUtils.initPaysNonConnu();
-        map.put(paysDTO.getCode(), paysDTO);
+        
+        LOGGER.info("Appel de l'API NOMEN (NATIO,FR)...");
+        NomenNomenclatureDTO nomenclatureNatioFr = afBackUtils.getNomenClient().getNomenclatureAvecLocale(NOMENCLATURE_NATIONALITES, LANGUE_FR);
+        for (NomenValeurDTO valeur : nomenclatureNatioFr.getValeurs()) {
+            PaysDTO pays = map.get(valeur.getCode().toUpperCase());
+            if (pays != null) {
+                pays.setNationalite(valeur.getLibelleCourt());
+            } else if (valeur.getCode().equalsIgnoreCase(CODE_ALPHA2_APATRIDE)) {
+                pays = getNationaliteFromNomenValeur(valeur);
+                pays.setCodeAlpha3(CODE_ALPHA3_APATRIDE);
+                map.put(valeur.getCode().toUpperCase(), pays);
+            }
+        }
 
-        PaysDTO nationalite = PaysUtils.initNationaliteNonConnu();
-        map.put(nationalite.getCode(), nationalite);
+        LOGGER.info("Appel de l'API NOMEN (NATIO,EN)...");
+        NomenNomenclatureDTO nomenclatureNatioEn = afBackUtils.getNomenClient().getNomenclatureAvecLocale(NOMENCLATURE_NATIONALITES, LANGUE_EN);
+        for (NomenValeurDTO valeur : nomenclatureNatioEn.getValeurs()) {
+            PaysDTO pays = map.get(valeur.getCode().toUpperCase());
+            if (pays != null) {
+                pays.setNationaliteEn(valeur.getLibelleCourt());
+            }
+        }
+
+        // On surcharge la liste des pays et nationalités par des valeurs "Non connu"
+        PaysDTO paysDTO = PaysUtils.initValeurNonConnue();
+        map.put(paysDTO.getCode(), paysDTO);
 
         return map;
     }
@@ -66,50 +94,39 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
     @Override
     public PaysDTO get(String key) {
 
-        LOGGER.info("Appel (FR) de l'API NOMEN (nomenclature PAY-1), pour récupérer le pays de code {}", key);
-
-        NomenNomenclatureDTO nomenclature = afBackUtils.getNomenClient().getNomenclatureValeur("PAY-1", key);
+        LOGGER.info("Appel de l'API NOMEN (PAY-1,FR), pour récupérer le pays de code {}", key);
+        NomenNomenclatureDTO nomenclature = afBackUtils.getNomenClient().getNomenclatureValeurAvecLocale(NOMENCLATURE_PAYS, key, LANGUE_FR);
         NomenValeurDTO valeur = nomenclature.getValeurs().get(0);
         PaysDTO pays = getPaysFromNomenValeur(valeur);
 
-        LOGGER.info("Appel (EN) de l'API NOMEN (nomenclature PAY-1), pour récupérer le pays de code {}", key);
-
-        NomenNomenclatureDTO nomenclatureEn = afBackUtils.getNomenClient().getNomenclatureValeurAvecLocale("PAY-1", key,
-                "EN");
+        LOGGER.info("Appel de l'API NOMEN (PAY-1,EN), pour récupérer le pays de code {}", key);
+        NomenNomenclatureDTO nomenclatureEn = afBackUtils.getNomenClient().getNomenclatureValeurAvecLocale(NOMENCLATURE_PAYS, key,
+                LANGUE_EN);
         NomenValeurDTO valeurEn = nomenclatureEn.getValeurs().get(0);
         pays.setLibelleEn(valeurEn.getLibelleCourt());
         pays.setLibelleLongEn(valeurEn.getLibelleLong());
+        
+        LOGGER.info("Appel de l'API NOMEN (NATIO,FR), pour récupérer le pays de code {}", key);
+        NomenNomenclatureDTO nomenclatureNatioFr = afBackUtils.getNomenClient().getNomenclatureValeurAvecLocale(NOMENCLATURE_NATIONALITES, key,
+                LANGUE_FR);
+        NomenValeurDTO valeurNatioFr = nomenclatureNatioFr.getValeurs().get(0);
+        pays.setNationalite(valeurNatioFr.getLibelleCourt());
+
+        
+        LOGGER.info("Appel de l'API NOMEN (NATIO,EN), pour récupérer le pays de code {}", key);
+        NomenNomenclatureDTO nomenclatureNatioEn = afBackUtils.getNomenClient().getNomenclatureValeurAvecLocale(NOMENCLATURE_NATIONALITES, key,
+                LANGUE_EN);
+        NomenValeurDTO valeurNatioEn = nomenclatureNatioEn.getValeurs().get(0);
+        pays.setNationaliteEn(valeurNatioEn.getLibelleCourt());
 
         return pays;
     }
 
-    private String getNationaliteFromValeur(NomenValeurDTO valeur) {
-        List<NomenValeurValeurLienDTO> liens = valeur.getValeurLiens();
-        for (NomenValeurValeurLienDTO lien : liens) {
-            if ("NATIO".equals(lien.getLienNomenclatureCode())) {
-                return lien.getLienValeurLibelle();
-            }
-        }
-        return null;
-    }
-
-    private String getNationaliteCodeFromValeur(NomenValeurDTO valeur) {
-        List<NomenValeurValeurLienDTO> liens = valeur.getValeurLiens();
-        for (NomenValeurValeurLienDTO lien : liens) {
-            if ("NATIO".equals(lien.getLienNomenclatureCode())) {
-                return lien.getLienValeurCode().toUpperCase();
-            }
-        }
-        return null;
-    }
-
     private PaysDTO getPaysFromNomenValeur(NomenValeurDTO valeur) {
         PaysDTO pays = new PaysDTO();
-        pays.setCode(valeur.getCode());
+        pays.setCode(valeur.getCode().toUpperCase());
         pays.setLibelle(valeur.getLibelleCourt());
         pays.setLibelleLong(valeur.getLibelleLong());
-        pays.setNationalite(getNationaliteFromValeur(valeur));
-        pays.setNationaliteCode(getNationaliteCodeFromValeur(valeur));
         pays.setOrdre(valeur.getOrdre());
 
         for (NomenValeurValeurParametreDTO param : valeur.getValeurParametres()) {
@@ -117,6 +134,18 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
                 pays.setCodeAlpha3(param.getParametreValeur());
             }
         }
+
+        return pays;
+    }
+    
+    private PaysDTO getNationaliteFromNomenValeur(NomenValeurDTO valeur) {
+        PaysDTO pays = new PaysDTO();
+        pays.setCode(valeur.getCode().toUpperCase());
+        pays.setLibelle("");
+        pays.setLibelleLong("");
+        pays.setNationalite(valeur.getLibelleCourt());
+        pays.setNationaliteCode(valeur.getCode().toUpperCase());
+        pays.setOrdre(valeur.getOrdre());
 
         return pays;
     }

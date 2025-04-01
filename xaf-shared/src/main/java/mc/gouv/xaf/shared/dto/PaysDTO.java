@@ -27,6 +27,8 @@ public class PaysDTO {
     private Integer ordre;
 
     private String nationalite;
+    
+    private String nationaliteEn;
 
     private String nationaliteCode;
 

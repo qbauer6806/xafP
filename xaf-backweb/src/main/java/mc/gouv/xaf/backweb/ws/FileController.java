@@ -32,6 +32,7 @@ import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -358,14 +359,15 @@ public class FileController {
         DemandeDTO demande = demandesService.getDemande(demandeId);
         Map<String, String> fileNames = new HashMap<>();
         for (MultipartFile file : files) {
-            if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-                String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            if (StringUtils.isNotBlank(originalFilename)) {
+                String safeFileName = AfBackUtils.logSafe(originalFilename);
                 LOGGER.info(LOG_PART, safeFileName);
-                String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
+                String saveFile = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
                         response);
 
                 // #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
-                fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, UTF_8));
+                fileNames.put(FileNameUtils.getSafeFileName(originalFilename), URLDecoder.decode(saveFile, UTF_8));
             }
         }
         return fileNames;
@@ -384,8 +386,9 @@ public class FileController {
         DemandeDTO demande = demandesService.getDemande(demandeId);
         List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
         for (MultipartFile file : files) {
-            if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-                String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            if (StringUtils.isNotBlank(originalFilename)) {
+                String safeFileName = AfBackUtils.logSafe(originalFilename);
                 LOGGER.info(LOG_PART, safeFileName);
                 String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
                         response);
@@ -393,7 +396,7 @@ public class FileController {
                 DemandeComplementsFileDTO demandeComplementsFileDTO = new DemandeComplementsFileDTO();
                 // #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
                 demandeComplementsFileDTO.setUrl(URLDecoder.decode(filename, UTF_8));
-                demandeComplementsFileDTO.setName(file.getOriginalFilename());
+                demandeComplementsFileDTO.setName(FileNameUtils.getSafeFileName(originalFilename));
                 demandeComplementsFileDTO.setMeta(FileUtils.generateMetaData(file));
 
                 savedFiles.add(demandeComplementsFileDTO);

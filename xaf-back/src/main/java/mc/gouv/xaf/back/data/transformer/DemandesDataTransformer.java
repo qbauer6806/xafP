@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import mc.gouv.xaf.back.data.projection.DemandeDataExportProjection;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
@@ -22,6 +23,17 @@ public class DemandesDataTransformer {
         }
         DemandeDataDTO dto = new DemandeDataDTO();
         dto.setDemandeId(bo.getFkDemandes().getPkDemandes());
+        dto.setKey(bo.getKey());
+        dto.setValue(bo.getValue());
+        dto.setPkDemandesData(bo.getPkDemandesData());
+        return dto;
+    }
+
+    public static DemandeDataDTO exportProjection2Dto(DemandeDataExportProjection bo) {
+        if (bo == null) {
+            return null;
+        }
+        DemandeDataDTO dto = new DemandeDataDTO();
         dto.setKey(bo.getKey());
         dto.setValue(bo.getValue());
         dto.setPkDemandesData(bo.getPkDemandesData());
@@ -56,6 +68,10 @@ public class DemandesDataTransformer {
             dtos.add(bo2Dto(bo));
         }
         return dtos;
+    }
+
+    public static DemandeDataDTO[] exportProjections2Dto(List<DemandeDataExportProjection> bos) {
+        return bos.stream().map(DemandesDataTransformer::exportProjection2Dto).toArray(DemandeDataDTO[]::new);
     }
 
     public static List<DemandesDataBO> dto2Bo(List<DemandeDataDTO> dtos) {

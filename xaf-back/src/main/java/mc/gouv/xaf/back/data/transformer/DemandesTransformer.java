@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -213,6 +214,38 @@ public class DemandesTransformer {
         dto.setMeta(bo.getMeta());
 
         dto = bo2DtoProcessJsonFields(bo, dto);
+        return dto;
+    }
+
+    public DemandeDTO exportProjection2Dto(DemandeExportProjection bo) {
+        DemandeDTO dto = new DemandeDTO();
+        dto.setDateCreation(bo.getDateCreation());
+        dto.setDateDerModif(bo.getDateDerModif());
+        dto.setLangue(bo.getLangue());
+        dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
+        dto.setObservations(bo.getObservations());
+        dto.setPkDemandes(bo.getPkDemandes());
+        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
+        dto.setUsager(demandesUsagersTransformer.bo2Dto(bo.getUsager()));
+        dto.setIdentifiant(bo.getIdentifiant());
+        // Mapper le contenu de la demande
+        dto.setContenu(bo.getContenu());
+        dto.setContenuTrad(bo.getContenuTrad());
+
+        // Mapper le contenu de la config
+        if (bo.getConfig() != null) {
+            // mapper les marqueurs
+            dto.setMarqueurs(buildMarqueurs(bo.getConfig(), bo.getContenu()));
+            // mapper les marqueurs
+            dto.setMarqueursTrad(buildMarqueurs(bo.getConfig(), bo.getContenuTrad()));
+        }
+
+        // Mapper le "dernier statut"
+        if (bo.getDernierStatut() != null) {
+            DemandesStatutsBO statut = bo.getDernierStatut();
+            DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
+            dto.setDernierStatut(statutDto);
+        }
         return dto;
     }
 

@@ -19,6 +19,7 @@ import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -87,7 +88,7 @@ public class FileUploadController extends AbstractXafController {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                         "Erreur: nom du fichier manquant");
             }
-            String safeFileName = fileControllerUtils.getSafeFileName(filename);
+            String safeFileName = FileNameUtils.getSafeFileName(XafFrontserverUtils.logSafe(filename));
             // Vérification de la conformité du fichier
             // Vérification du type du fichier
             LOGGER.info("Vérification du type pour le fichier {} ...", safeFileName);

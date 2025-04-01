@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
+import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
@@ -145,17 +145,10 @@ public interface DemandesService {
     DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId);
 
     /**
-     * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée
+     * Retourne les demandes qui ont été créées entre la date de départ et d'arrivée
      */
-    Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate);
-
-    /**
-     * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
-     *
-     * @param statut
-     *         libellé du statut
-     */
-    Page<DemandeBO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate, String statut);
+    Page<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+            String statut);
 
     /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
@@ -219,7 +212,6 @@ public interface DemandesService {
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 
-    List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
-            String statut);
+    AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut);
 
 }

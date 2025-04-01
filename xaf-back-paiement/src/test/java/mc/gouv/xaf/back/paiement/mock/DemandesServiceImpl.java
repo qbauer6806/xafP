@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
+import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
@@ -132,12 +132,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate) {
-        return null;
-    }
-
-    @Override
-    public Page<DemandeBO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+    public Page<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
             String statut) {
         return null;
     }
@@ -190,8 +185,8 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<AfDemandeExcelFlatDTO> retrieveDemandesFiltered(String plainStartDate, String plainEndDate,
-            String statut) {
-        return List.of();
+    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut) {
+        return null;
     }
+
 }

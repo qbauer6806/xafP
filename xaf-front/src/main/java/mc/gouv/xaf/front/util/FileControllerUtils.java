@@ -56,8 +56,6 @@ public class FileControllerUtils {
     private static final String SLASH = "/";
     private static final String BEARER = "Bearer ";
 
-    private static final String FILE_NAME_REGEX = "[^a-zA-Z0-9.\\-_]";
-
     private static final Map<Integer, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
     private static int compteurCleanSessions;
 
@@ -78,12 +76,6 @@ public class FileControllerUtils {
 
         String fileExtension = filenameSplit[filenameSplit.length - 1].toLowerCase();
         return getExtensionsWhitelist().contains(fileExtension);
-    }
-
-    public String getSafeFileName(String filename) {
-        // Après suppression des diacritiques (accents, cédilles, etc.) dans le nom du fichier, les caractères spéciaux,
-        // à l'exception des points, tirets et underscores, sont remplacés par des underscores.
-        return StringUtils.stripAccents(filename).replaceAll(FILE_NAME_REGEX, "_");
     }
 
     public List<String> getExtensionsWhitelist() {

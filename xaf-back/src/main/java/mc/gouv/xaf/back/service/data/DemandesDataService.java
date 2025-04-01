@@ -21,7 +21,7 @@ public interface DemandesDataService {
     DemandeDataDTO getDemandeData(Integer demandeId, String key);
 
     /**
-     * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, en vérifiant l'existance de
+     * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, en vérifiant l'existence de
      * la demande via le paramètre checkActive
      *
      * @return La donnée de demande demandée
@@ -34,6 +34,8 @@ public interface DemandesDataService {
      * @return Les données de demande demandées
      */
     List<DemandeDataDTO> getDemandeDatas(Integer demandeId);
+
+    DemandeDataDTO[] getDemandeDatasProjection(Integer demandeId);
 
     /**
      * Permet de récupérer les data des demandes associées au couple key / value

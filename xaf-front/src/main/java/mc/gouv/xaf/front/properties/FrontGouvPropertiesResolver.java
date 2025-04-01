@@ -191,7 +191,6 @@ public class FrontGouvPropertiesResolver {
     private String monguichetCguUrlFr;
     @Value("${mc.gouv.appfactory.monguichet.cgu.url.en}")
     private String monguichetCguUrlEn;
-
     @Value("${mc.gouv.appfactory.external.lyra.javascript.url}")
     private String lyraJavascriptUrl;
     @Value("${mc.gouv.appfactory.external.lyra.additional.css.url}")
@@ -200,6 +199,8 @@ public class FrontGouvPropertiesResolver {
     private String lyraJavascriptAdditionalUrl;
     @Value("${mc.gouv.appfactory.rescart.external.lyra.public.key}")
     private String lyraPublicKey;
+    @Value("${mc.gouv.rescart.frontserver.mwpaymnt.paiement.redirect.uri}")
+    private String mwpaymntRedirectUri;
 
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,

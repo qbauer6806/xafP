@@ -11,7 +11,7 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InfoPaiementOutputDTO {
     private String status;
-    private String orderId;
+    private String reference;
     private AnswerDTO answer;
 
 }

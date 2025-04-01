@@ -1,6 +1,5 @@
 package mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +11,7 @@ public class RegisterOutputDTO {
         this.formToken = formToken;
     }
     private String formToken;
+    private String reference;
+    private String redirectUri;
 
 }

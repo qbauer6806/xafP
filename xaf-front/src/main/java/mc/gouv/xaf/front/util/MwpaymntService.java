@@ -36,7 +36,7 @@ public class MwpaymntService {
         LOGGER.info("Création du RegisterInputDTO utilisé pour appeler le middleware de paiement");
         RegisterInputDTO registerInputDTO = new RegisterInputDTO();
         registerInputDTO.setAction(ActionEnum.REGISTER.name());
-        registerInputDTO.setCompany(CompanyEnum.DSP.name());
+        registerInputDTO.setRedirectUri(gouvPropertiesResolver.getMwpaymntRedirectUri());
 
         // Payment method information
         PaymentMethodInformationDTO information = new PaymentMethodInformationDTO();
@@ -52,9 +52,6 @@ public class MwpaymntService {
         transactionInformation.setMetadatavalue("RESCART");
         transactionInformation.setOrderId(generateOrderId(gouvPropertiesResolver.getDemarcheId()));
         registerInputDTO.setTransactionInformation(transactionInformation);
-
-        // Transaction ID
-        registerInputDTO.setTransactionId("TestTransactionId");
 
         // User information
         UserInformationDTO userInformation = new UserInformationDTO();
@@ -114,9 +111,9 @@ public class MwpaymntService {
 
     }
 
-    public InfoPaiementOutputDTO mwpaymtRegisterResponseToInfoPaiementOutputDTO(String orderId, RegisterOutputDTO mwpaymtResponse) {
+    public InfoPaiementOutputDTO mwpaymtRegisterResponseToInfoPaiementOutputDTO(RegisterOutputDTO mwpaymtResponse) {
         InfoPaiementOutputDTO paiementOutputDTO = new InfoPaiementOutputDTO();
-        paiementOutputDTO.setOrderId(orderId);
+        paiementOutputDTO.setReference(mwpaymtResponse.getReference());
         //TODO pas de valeur fixe
         paiementOutputDTO.setStatus("SUCCESS");
         paiementOutputDTO.setAnswer(new AnswerDTO(mwpaymtResponse.getFormToken()));

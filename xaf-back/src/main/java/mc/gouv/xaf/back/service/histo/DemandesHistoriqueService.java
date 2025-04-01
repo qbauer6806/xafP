@@ -244,7 +244,7 @@ public class DemandesHistoriqueService {
         saveHisto(demandeId, histo);
     }
 
-    private DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
+    protected DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
             String agentId) {
         DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
         demHisto.setAgentId(agentId);

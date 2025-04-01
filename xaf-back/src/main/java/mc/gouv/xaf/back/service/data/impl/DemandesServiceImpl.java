@@ -42,6 +42,7 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
+import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -58,8 +59,8 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
-import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
+import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -537,15 +538,40 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate) {
-        if (startDate != null && endDate != null) {
-            return demandesRepository.findByDateCreationBetween(pageable, startDate, endDate);
-        } else if (startDate != null) {
-            return demandesRepository.findByDateCreationGreaterThanEqual(pageable, startDate);
-        } else if (endDate != null) {
-            return demandesRepository.findByDateCreationLessThanEqual(pageable, endDate);
+    public Page<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+            String statut) {
+        Page<DemandeExportProjection> demandesPage;
+        if (statut == null) {
+            if (startDate != null && endDate != null) {
+                demandesPage = demandesRepository.findByDateCreationBetween(pageable, startDate, endDate);
+            } else if (startDate != null) {
+                demandesPage = demandesRepository.findByDateCreationGreaterThanEqual(pageable, startDate);
+            } else if (endDate != null) {
+                demandesPage = demandesRepository.findByDateCreationLessThanEqual(pageable, endDate);
+            } else {
+                demandesPage = demandesRepository.findAllBy(pageable);
+            }
+        } else {
+            if (startDate != null && endDate != null) {
+                demandesPage = demandesRepository.findByDateCreationBetweenAndDernierStatut_Name(pageable, startDate,
+                        endDate, statut);
+            } else if (startDate != null) {
+                demandesPage = demandesRepository.findByDateCreationGreaterThanEqualAndDernierStatut_Name(pageable,
+                        startDate, statut);
+            } else if (endDate != null) {
+                demandesPage = demandesRepository.findByDateCreationLessThanEqualAndDernierStatut_Name(pageable,
+                        endDate, statut);
+            } else {
+                demandesPage = demandesRepository.findAllByDernierStatut_Name(pageable, statut);
+            }
         }
-        return demandesRepository.findAll(pageable);
+
+        return demandesPage.map(demande -> {
+            DemandeDTO dto = demandesTransformer.exportProjection2Dto(demande);
+            // pour des questions de performances et éviter l'effet n+1 sur le onetomany, on doit récupérer les data dans un second temps
+            dto.setData(demandesDataService.getDemandeDatasProjection(demande.getPkDemandes()));
+            return dto;
+        });
     }
 
     /**
@@ -1135,7 +1161,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate) {
+    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut) {
         Date startDate = null;
         Date endDate = null;
 
@@ -1163,7 +1189,7 @@ public class DemandesServiceImpl implements DemandesService {
             endDate = cal.getTime();
         }
 
-        return new AfDemandeExcelFlatIterable(this, excelExportModelProvider, demandesTransformer, startDate, endDate);
+        return new AfDemandeExcelFlatIterable(this, excelExportModelProvider, startDate, endDate, statut);
     }
 
 }

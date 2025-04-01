@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.data.dao;
 
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.projection.DemandeDataExportProjection;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import org.springframework.data.repository.CrudRepository;
 
@@ -18,6 +19,5 @@ public interface DemandesDataRepository extends CrudRepository<DemandesDataBO, I
 
     List<DemandesDataBO> findByKeyAndValueAndFkDemandesIn(String key, String value, List<DemandeBO> fkDemandes);
 
-    List<DemandesDataBO> findByFkDemandesPkDemandesAndKeyStartsWith(Integer fkDemandes, String key);
-
+    List<DemandeDataExportProjection> findByFkDemandes_PkDemandes(Integer pkDemandes);
 }

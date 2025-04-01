@@ -147,7 +147,8 @@ public interface DemandesService {
     /**
      * Retourne les demandes qui ont été créées entre la date de départ et d'arrivée
      */
-    Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate);
+    Page<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+            String statut);
 
     /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
@@ -211,6 +212,6 @@ public interface DemandesService {
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 
-    AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate);
+    AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut);
 
 }

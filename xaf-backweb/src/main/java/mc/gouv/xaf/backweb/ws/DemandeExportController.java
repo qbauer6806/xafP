@@ -1,7 +1,6 @@
 package mc.gouv.xaf.backweb.ws;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -41,7 +40,6 @@ public class DemandeExportController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
     @GetMapping(value = "/excel")
-    @Transactional
     public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate,
             @RequestParam(required = false) String creationEndDate) {
 
@@ -74,14 +72,13 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("======================= Fin /ws/export/excel");
     }
 
-    @Transactional
     protected Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
         LOGGER.info("DemandeExportController.getModel()");
 
         Map<String, Object> model = new HashMap<>();
 
         model.put("demandes", demandesService.retrieveDemandesLazy(excelRecherche.getCreationStartDate(),
-                excelRecherche.getCreationEndDate()));
+                excelRecherche.getCreationEndDate(), excelRecherche.getStatut()));
 
         LOGGER.info("Fin DemandeExportController.getModel()");
 

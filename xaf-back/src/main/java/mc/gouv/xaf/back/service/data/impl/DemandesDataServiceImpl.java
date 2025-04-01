@@ -8,6 +8,7 @@ import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
+import mc.gouv.xaf.back.data.projection.DemandeDataExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
@@ -85,6 +86,13 @@ public class DemandesDataServiceImpl implements DemandesDataService {
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
         return DemandesDataTransformer.bo2Dto(demandesDatasBo);
+    }
+
+    @Override
+    public DemandeDataDTO[] getDemandeDatasProjection(Integer demandeId) {
+        List<DemandeDataExportProjection> demandesDatasBo = demandesDataRepository.findByFkDemandes_PkDemandes(
+                demandeId);
+        return DemandesDataTransformer.exportProjections2Dto(demandesDatasBo);
     }
 
     /**

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.data.dao;
 import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
@@ -33,11 +34,13 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     Page<DemandeBO> findAll(Pageable pageRequest);
 
+    Page<DemandeExportProjection> findAllBy(Pageable pageRequest);
+
     List<DemandeBO> findAllByIdentifiantIn(List<String> identifiants);
 
     List<DemandeBO> findAllByDernierStatut_Name(String dernierStatut);
 
-    Page<DemandeBO> findAllByDernierStatut_Name(Pageable pageable, String dernierStatut);
+    Page<DemandeExportProjection> findAllByDernierStatut_Name(Pageable pageable, String dernierStatut);
     List<DemandeBO> findAllByDernierStatut_NameIn(List<String> statuts);
 
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
@@ -45,28 +48,30 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Permet de récupérer les demandes créées entre deux dates
      */
-    Page<DemandeBO> findByDateCreationBetween(Pageable pageRequest, Date startDate, Date endDate);
+    Page<DemandeExportProjection> findByDateCreationBetween(Pageable pageRequest, Date startDate, Date endDate);
 
     /**
      * Permet de récupérer les demandes créées à partir d'une date donnée
      */
-    Page<DemandeBO> findByDateCreationGreaterThanEqual(Pageable pageRequest, Date startDate);
+    Page<DemandeExportProjection> findByDateCreationGreaterThanEqual(Pageable pageRequest, Date startDate);
 
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
      */
-    Page<DemandeBO> findByDateCreationLessThanEqual(Pageable pageRequest, Date endDate);
+    Page<DemandeExportProjection> findByDateCreationLessThanEqual(Pageable pageRequest, Date endDate);
 
     /**
      * Permet de récupérer les demandes créées entre deux dates
      */
-    Page<DemandeBO> findByDateCreationBetweenAndDernierStatut_Name(Pageable pageRequest, Date startDate, Date endDate,
+    Page<DemandeExportProjection> findByDateCreationBetweenAndDernierStatut_Name(Pageable pageRequest, Date startDate,
+            Date endDate,
             String dernierStatut);
 
     /**
      * Permet de récupérer les demandes créées à partir d'une date donnée
      */
-    Page<DemandeBO> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Pageable pageRequest, Date startDate,
+    Page<DemandeExportProjection> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Pageable pageRequest,
+            Date startDate,
             String dernierStatut);
 
     @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
@@ -91,7 +96,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
      */
-    Page<DemandeBO> findByDateCreationLessThanEqualAndDernierStatut_Name(Pageable pageable, Date endDate,
+    Page<DemandeExportProjection> findByDateCreationLessThanEqualAndDernierStatut_Name(Pageable pageable, Date endDate,
             String dernierStatut);
 
     /**

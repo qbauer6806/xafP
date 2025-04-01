@@ -132,7 +132,8 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public Page<DemandeBO> getAllDemandesFilteredByDate(Pageable pageable, Date startDate, Date endDate) {
+    public Page<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+            String statut) {
         return null;
     }
 
@@ -184,7 +185,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate) {
+    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut) {
         return null;
     }
 

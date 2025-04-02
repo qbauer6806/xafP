@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,17 +12,14 @@ import org.springframework.data.domain.Pageable;
 public class AfDemandeExcelFlatIterable implements Iterable<AfDemandeExcelFlatDTO> {
 
     private final DemandesService demandesService;
-    private final AfExcelExportModelProvider excelExportModelProvider;
     private final Date startDate;
     private final Date endDate;
     private final String statut;
     private final int pageSize = 200;
     private int currentPage = 0;
 
-    public AfDemandeExcelFlatIterable(DemandesService demandesService,
-            AfExcelExportModelProvider excelExportModelProvider, Date startDate, Date endDate, String statut) {
+    public AfDemandeExcelFlatIterable(DemandesService demandesService, Date startDate, Date endDate, String statut) {
         this.demandesService = demandesService;
-        this.excelExportModelProvider = excelExportModelProvider;
         this.startDate = startDate;
         this.endDate = endDate;
         this.statut = statut;
@@ -33,7 +29,7 @@ public class AfDemandeExcelFlatIterable implements Iterable<AfDemandeExcelFlatDT
     public Iterator<AfDemandeExcelFlatDTO> iterator() {
         return new Iterator<>() {
 
-            private Iterator<DemandeDTO> currentIterator;
+            private Iterator<AfDemandeExcelFlatDTO> currentIterator;
 
             @Override
             public boolean hasNext() {
@@ -48,12 +44,13 @@ public class AfDemandeExcelFlatIterable implements Iterable<AfDemandeExcelFlatDT
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                return excelExportModelProvider.getDemandeFlat(currentIterator.next());
+                return currentIterator.next();
             }
 
             private void loadNextPage() {
                 Pageable pageRequest = PageRequest.of(currentPage++, pageSize);
-                Page<DemandeDTO> page = demandesService.getAllDemandesFilteredByDateAndStatut(pageRequest, startDate,
+                Page<AfDemandeExcelFlatDTO> page = demandesService.getAllDemandesFilteredByDateAndStatut(pageRequest,
+                        startDate,
                         endDate, statut);
                 currentIterator = page.iterator();
             }

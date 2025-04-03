@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class FileController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
+    private static final String ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT = "Erreur: nom ou ID du fichier manquant";
 
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
@@ -63,20 +65,10 @@ public class FileController extends AbstractXafController {
                         SharedMessages.UTILISATEUR_NON_AUTORISE);
             }
 
-            // TODO pourquoi publications??????
-            // Récupération du nom du fichier à récupérer (Format: /accessId/uuid/filename)
-            //            String pathInfo = request.getPathInfo();
-            //            Integer accessId = null;
-            //            if (pathInfo != null && pathInfo.length() > 1) {
-            //                String[] pathElems = pathInfo.split("/");
-            //                accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
-            //                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], "UTF-8");
-            //            }
-
             String[] parts = fileId.split("/");
             if (parts.length != 3) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
-                        "Erreur: nom ou ID du fichier manquant");
+                        ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT);
             }
             String accessId = parts[0];
             String uuid = parts[1];
@@ -84,7 +76,7 @@ public class FileController extends AbstractXafController {
 
             if (StringUtils.isBlank(filename)) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
-                        "Erreur: nom ou ID du fichier manquant");
+                        ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT);
             }
 
             if (accessId != null && (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId()
@@ -98,13 +90,14 @@ public class FileController extends AbstractXafController {
 
             LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
+            String fileNameDecode = URLDecoder.decode(filename, StandardCharsets.UTF_8);
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String fullFilename = accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
+            String fullFilename = accessId + SLASH + uuid + SLASH + URLEncoder.encode(fileNameDecode, StandardCharsets.UTF_8);
             String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + fullFilename;
 
             // Constitution de l'URL d'appel
-            URL url = new URL(propertiesResolver.getFileUrl() + virtualPath);
+            URL url = new URI(propertiesResolver.getFileUrl() + virtualPath).toURL();
 
             // Constitution de la requête
             HttpClient client = HttpClientBuilder.create().build();
@@ -153,14 +146,14 @@ public class FileController extends AbstractXafController {
         String[] parts = fileId.split("/");
         if (parts.length != 3) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
-                    "Erreur: nom ou ID du fichier manquant");
+                    ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT);
         }
         String accessId = parts[0];
         String uuid = parts[1];
         String filename = parts[2];
         if (StringUtils.isBlank(filename)) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
-                    "Erreur: nom ou ID du fichier manquant");
+                    ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT);
         }
         if (accessId != null && (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId()
                 .equals(Integer.parseInt(accessId)))) {

@@ -76,6 +76,7 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -538,7 +539,8 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public Page<DemandeDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
+    public Page<AfDemandeExcelFlatDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate,
+            Date endDate,
             String statut) {
         Page<DemandeExportProjection> demandesPage;
         if (statut == null) {
@@ -570,7 +572,7 @@ public class DemandesServiceImpl implements DemandesService {
             DemandeDTO dto = demandesTransformer.exportProjection2Dto(demande);
             // pour des questions de performances et éviter l'effet n+1 sur le onetomany, on doit récupérer les data dans un second temps
             dto.setData(demandesDataService.getDemandeDatasProjection(demande.getPkDemandes()));
-            return dto;
+            return excelExportModelProvider.getDemandeFlat(dto);
         });
     }
 
@@ -1189,7 +1191,7 @@ public class DemandesServiceImpl implements DemandesService {
             endDate = cal.getTime();
         }
 
-        return new AfDemandeExcelFlatIterable(this, excelExportModelProvider, startDate, endDate, statut);
+        return new AfDemandeExcelFlatIterable(this, startDate, endDate, statut);
     }
 
 }

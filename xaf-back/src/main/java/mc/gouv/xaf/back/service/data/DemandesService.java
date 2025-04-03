@@ -119,6 +119,8 @@ public interface DemandesService {
      */
     DemandeDTO cloneDemande(Integer pkDemande);
 
+    DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent);
+
     DemandeDTO getDemande(Integer pkDemande, Integer usagerId);
 
     /**

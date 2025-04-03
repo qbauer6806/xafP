@@ -989,6 +989,11 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
+        return cloneDemande(pkDemande, false);
+    }
+
+    @Override
+    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent) {
         try {
             DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
@@ -1002,7 +1007,7 @@ public class DemandesServiceImpl implements DemandesService {
             newDemandeBo.setConfig(demandeBo.getConfig());
             newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
             // #4840 Enlever l'affectation
-            newDemandeBo.setAgent(null);
+            newDemandeBo.setAgent(conserverAgent ? demandeBo.getAgent() : null);
             newDemandeBo.setUsager(demandeBo.getUsager());
             newDemandeBo = demandesRepository.save(newDemandeBo);
 

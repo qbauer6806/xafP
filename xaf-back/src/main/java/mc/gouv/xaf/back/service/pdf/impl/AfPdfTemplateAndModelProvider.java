@@ -1,5 +1,9 @@
 package mc.gouv.xaf.back.service.pdf.impl;
 
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.pdf.BaseFont;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -11,6 +15,7 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +33,45 @@ public class AfPdfTemplateAndModelProvider {
 
     @Autowired
     private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+
+
+    private String getFontPath(int style) {
+        String path = null;
+        switch (style) {
+            case Font.NORMAL:
+                path = "/static/fonts/TIMES.TTF";
+                break;
+            case Font.BOLD:
+                path = "/static/fonts/TIMESBD.TTF";
+                break;
+            case Font.BOLDITALIC:
+                path = "/static/fonts/TIMESBI.TTF";
+                break;
+            case Font.ITALIC:
+                path = "/static/fonts/TIMESI.TTF";
+                break;
+            default:
+                break;
+        }
+        return path;
+    }
+
+    public PdfOptions getPdfOptions() {
+        PdfOptions pdfOptions = PdfOptions.create();
+        pdfOptions.fontProvider((familyName, encoding, size, style, color) -> {
+            String path = getFontPath(style);
+            if (StringUtils.equalsIgnoreCase(familyName, "Times New Roman") && StringUtils.isNotBlank(path)) {
+                try {
+                    BaseFont baseFont = BaseFont.createFont(path, encoding, BaseFont.EMBEDDED);
+                    return new Font(baseFont, size, style, color);
+                } catch (Exception e) {
+                    throw new DemarcheException(e);
+                }
+            }
+            return FontFactory.getFont(familyName, encoding, size, style, color);
+        });
+        return pdfOptions;
+    }
 
     private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             String texteAEnvoyer) {

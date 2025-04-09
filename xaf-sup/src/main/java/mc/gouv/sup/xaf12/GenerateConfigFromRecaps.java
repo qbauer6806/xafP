@@ -298,8 +298,12 @@ public class GenerateConfigFromRecaps {
             } else if (valueNode.isTextual()) {
                 // Si le champ est une chaîne de caractères, on nettoie les apostrophes
                 String value = valueNode.asText();
-                String cleanedValue = value.replaceAll("(^')|('$)", "");
-                node.put(field.getKey(), cleanedValue);
+                // Supprimer les apostrophes de début et fin
+                value = value.replaceAll("(^')|('$)", "");
+
+                // Remplacer les apostrophes doubles internes par une seule
+                value = value.replaceAll("''", "'");
+                node.put(field.getKey(), value);
             }
         }
     }

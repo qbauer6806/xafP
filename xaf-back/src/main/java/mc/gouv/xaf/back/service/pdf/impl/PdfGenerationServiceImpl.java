@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.pdf.impl;
 
-import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.converter.ConverterTypeTo;
 import fr.opensagres.xdocreport.converter.Options;
 import fr.opensagres.xdocreport.core.XDocReportException;
@@ -181,12 +180,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
             }
 
             Options options = Options.getTo(ConverterTypeTo.PDF);
-
-            LOGGER.info("Récupération des PdfOptions...");
-            PdfOptions pdfOptions = afPdfTemplateAndModelProvider.getPdfOptions();
-            if (pdfOptions != null) {
-                options.subOptions(pdfOptions);
-            }
 
             LOGGER.info("Génération du fichier PDF avec les template et modèle fournis...");
             report.convert(context, options, bos);

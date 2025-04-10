@@ -27,6 +27,7 @@ import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementOutputDTO;
+import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementOutputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -64,18 +66,7 @@ public class PaiementController extends AbstractXafController {
     @PostMapping(value = { "/paiement" })
     public ResponseEntity processPaiement(@RequestBody(required = false) MwpaymtGenericCallbackDTO callbackDTO, HttpServletRequest request) {
         LOGGER.info("====================== /paiement doPost()");
-        // TODO : ici on assume que s'il y'a une clef MAC dans la requete on est dans le monde monetico
-        if (callbackDTO != null) {
-            return processPaiementMwpaymt(callbackDTO, request);
-        } else if (request.getParameter("MAC") == null) {
-            return processPaiementMonetico(request);
-        }
-        return ResponseEntity.internalServerError().build();
-    }
-
-    private ResponseEntity processPaiementMwpaymt(MwpaymtGenericCallbackDTO callbackDTO, HttpServletRequest request) {
-        getPaiementApiClient().updatePaiementStatus(callbackDTO);
-        return ResponseEntity.ok().build();
+        return processPaiementMonetico(request);
     }
 
     private ResponseEntity processPaiementMonetico(HttpServletRequest request) {
@@ -126,7 +117,7 @@ public class PaiementController extends AbstractXafController {
     }
 
     @PostMapping(value = { "/info-paiement" })
-    public ResponseEntity infoPaiement(@RequestBody(required = true) InfoPaiementInputDTO infoPaiementInput,
+    public ResponseEntity infoPaiement(@RequestBody InfoPaiementInputDTO infoPaiementInput,
             HttpServletRequest request) {
         LOGGER.info("====================== /info-paiement POST start...");
 
@@ -214,17 +205,15 @@ public class PaiementController extends AbstractXafController {
         }
     }
 
-    @PostMapping(value = { "/moyen-paiement" })
-    public ResponseEntity saveMoyenPaiement(HttpServletRequest request) {
-        //TODO
+    @PutMapping(value = { "/moyen-paiement" })
+    public ResponseEntity saveMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInput, HttpServletRequest request) {
         LOGGER.info("====================== /moyen-paiement POST start...");
-
-        // Appel à la gateway de paiement pour récupérer le formToken
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        getPaiementApiClient().updateMoyenPaiement(moyenPaiementInput);
         LOGGER.info("====================== /moyen-paiement POST end...");
         return ResponseEntity.ok().build();
     }

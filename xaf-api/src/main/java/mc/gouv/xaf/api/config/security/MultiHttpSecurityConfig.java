@@ -5,6 +5,7 @@ import mc.gouv.xaf.api.config.filter.jwt.JwtAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,8 +34,9 @@ public class MultiHttpSecurityConfig {
         http.securityMatcher("/api/**");
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll().anyRequest()
-                .authenticated();
+                .requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/paiement").permitAll()
+                .anyRequest().authenticated();
 
         http.addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
         return http.build();

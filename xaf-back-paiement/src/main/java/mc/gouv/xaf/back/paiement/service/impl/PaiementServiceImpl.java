@@ -27,9 +27,12 @@ import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -41,6 +44,7 @@ import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
+import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -114,6 +118,12 @@ public class PaiementServiceImpl implements PaiementService {
     private DemandesTransformer demandesTransformer;
 
     @Autowired
+    private GichuniApiClient gichuniApiClient;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
     private GouvBPM gouvBPM;
 
     @Override
@@ -176,6 +186,11 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
+    public void updateInfoFacturation() {
+
+    }
+
+    @Override
     public void createMoyenPaiement(String ids, Integer usagerId, String orderId) {
         logStartMethod(LOGGER);
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
@@ -202,20 +217,34 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
+    public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO) {
+        // On retrouve le moyen de paiement associé à l'orderId
+        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.getReferenceById(moyenPaiementInputDTO.getOrderId());
+        moyenPaiementBo.setPaymentMethodRecord(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name());
+        // On est dans le cas ou l'usager à coché la case "Sauvegarde du moyen de
+        // paiement pour plus tard", POST /moyen-paiement"
+        moyenPaiementBo.setPaymentMethodName(moyenPaiementInputDTO.getCardName());
+        moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
+        moyenPaiementRepository.save(moyenPaiementBo);
+
+    }
+
+    @Override
     public void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO) {
         LOGGER.info("Mise à jour du status de paiement suite à un callback reçu de MWPAYMT");
         // On retrouve le moyen de paiement associé à l'orderId
-        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository
-                .findById(callbackDTO.getOrderId()).orElseThrow(
-                        () -> new DemarchesServiceException(
-                                "Aucun orderId " + callbackDTO.getOrderId() + " n'a été trouvé.", HttpStatus.NOT_FOUND));;
+        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.findById(callbackDTO.getOrderId()).orElseThrow(
+                () -> new DemarchesServiceException("Aucun orderId " + callbackDTO.getOrderId() + " n'a été trouvé.",
+                        HttpStatus.NOT_FOUND));
+        ;
 
         PaymentMethodInformationDTO paymentMethodInformation = callbackDTO.getPaymentMethodInformation();
         moyenPaiementBo.setPaymentMethodType(paymentMethodInformation.getPaymentMethodType());
         moyenPaiementBo.setPaymentMethodToken(paymentMethodInformation.getPaymentMethodToken());
-        moyenPaiementBo.setMoyenPaiementStatut(MoyenPaiementStatutEnum.fromLibelle(paymentMethodInformation.getPaymentMethodStatus().name()));
+        moyenPaiementBo.setMoyenPaiementStatut(
+                MoyenPaiementStatutEnum.fromLibelle(paymentMethodInformation.getPaymentMethodStatus().name()));
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
-        if(moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
+        if (moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
@@ -223,7 +252,10 @@ public class PaiementServiceImpl implements PaiementService {
         }
 
         moyenPaiementRepository.save(moyenPaiementBo);
-        // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté ==> encore d'actualité ?
+        // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
+        /*gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
+                paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
+                gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());*/
     }
 
     @Async

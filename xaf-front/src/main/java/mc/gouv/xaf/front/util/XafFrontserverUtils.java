@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.apiclient.paiement.monetico.MoneticoApiClient;
+import mc.gouv.xaf.apiclient.paiement.monguichet.GichuniPaiementApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -198,6 +199,10 @@ public class XafFrontserverUtils {
 
     public MwpaymtApiClient getMwpaymtApiClient(String bearerToken) {
         return new MwpaymtApiClient(propertiesResolver.getMwpaymntUrl(), bearerToken);
+    }
+
+    public GichuniPaiementApiClient getGichuniPaiementApiClient(String bearerToken) {
+        return new GichuniPaiementApiClient(propertiesResolver.getGichuniUrl(), bearerToken);
     }
 
     public PaiementApiClient getPaiementApiClient() {

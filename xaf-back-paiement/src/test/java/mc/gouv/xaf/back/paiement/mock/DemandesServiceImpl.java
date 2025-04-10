@@ -103,6 +103,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent) {
+        return null;
+    }
+
+    @Override
     public DemandeDTO getDemande(Integer pkDemande, Integer usagerId) {
         return null;
     }

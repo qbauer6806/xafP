@@ -12,6 +12,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
+import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 
 public class PaiementApiClient extends AfApiClient {
@@ -57,10 +58,10 @@ public class PaiementApiClient extends AfApiClient {
         ExceptionManager.checkExceptionResponse(res);
     }
 
-    public void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDto) {
-        Response res = getTarget().path("paiement").request(MediaType.APPLICATION_JSON)
+    public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO) {
+        Response res = getTarget().path("paiement/moyenpaiement").request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
-                .post(Entity.json(callbackDto));
+                .put(Entity.json(moyenPaiementInputDTO));
         ExceptionManager.checkExceptionResponse(res);
     }
 }

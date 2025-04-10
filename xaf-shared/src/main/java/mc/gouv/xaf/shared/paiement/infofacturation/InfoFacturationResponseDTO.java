@@ -11,6 +11,7 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class InfoFacturationResponseDTO {
 
+    private Integer id;
     private VousDTO vous;
     private String email;
     private AdresseDTO adresse;

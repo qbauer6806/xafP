@@ -12,9 +12,11 @@ import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
+import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
+import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +46,9 @@ public class PaiementApiController {
 
     @Autowired
     private PaiementService paiementService;
+
+    @Autowired
+    private GichuniApiClient gichuniApiClient;
 
     /**
      * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
@@ -129,10 +135,20 @@ public class PaiementApiController {
         return paiementService.getInfoFacturation(usagerId);
     }
 
+    @PostMapping(value = "/infofacturation")
+    public void updateInfoFacturation() {
+        paiementService.updateInfoFacturation();
+    }
+
     @PostMapping(value = "/moyenpaiement")
     public void createMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
             @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "orderId") String orderId) {
         paiementService.createMoyenPaiement(demandeIds, usagerId, orderId);
+    }
+
+    @PutMapping(value = "/moyenpaiement")
+    public void createMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInputDTO) {
+        paiementService.updateMoyenPaiement(moyenPaiementInputDTO);
     }
 
     @PostMapping

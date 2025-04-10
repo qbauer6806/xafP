@@ -5,6 +5,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 public enum MoyenPaiementStatutEnum {
     INVALIDE("INVALID"),
     VALIDE("VALID"),
+    ENREGISTRE_A_LA_CREATION("ENREGISTRE_A_LA_CREATION"),
     EN_ATTENTE_DE_VALIDATION("EN_ATTENTE_DE_VALIDATION");
 
     public String mwpaymtValue;

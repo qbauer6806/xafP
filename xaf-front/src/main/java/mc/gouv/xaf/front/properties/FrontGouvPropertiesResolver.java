@@ -199,7 +199,7 @@ public class FrontGouvPropertiesResolver {
     private String lyraJavascriptAdditionalUrl;
     @Value("${mc.gouv.appfactory.rescart.external.lyra.public.key}")
     private String lyraPublicKey;
-    @Value("${mc.gouv.rescart.frontserver.mwpaymnt.paiement.redirect.uri}")
+    @Value("${mc.gouv.rescart.frontserver.api.url}/paiement")
     private String mwpaymntRedirectUri;
 
     @PostConstruct

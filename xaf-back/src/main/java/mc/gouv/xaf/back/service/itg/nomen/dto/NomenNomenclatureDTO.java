@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.service.itg.nomen.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -18,7 +20,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NomenNomenclatureDTO {
+public class NomenNomenclatureDTO implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 2755866850453774444L;
 
     private String code;
 
@@ -28,10 +35,12 @@ public class NomenNomenclatureDTO {
 
     private String etat;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dateFin;
 
     private String version;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date versionDate;
 
     private String source;
@@ -51,7 +60,7 @@ public class NomenNomenclatureDTO {
     private List<NomenNomenclatureParametreDTO> nomenclatureParametres;
 
     private List<NomenValeurDTO> valeurs;
-
+    
     @Override
     public String toString() {
         return "NomenNomenclatureDTO [code=" + code + ", type=" + type + ", categorie=" + categorie + ", etat=" + etat

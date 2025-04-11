@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.itg.nomen.dto;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -15,7 +17,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NomenNomenclatureParametreDTO {
+public class NomenNomenclatureParametreDTO implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6999605900893785604L;
 
     private String parametreNom;
 

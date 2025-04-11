@@ -1,14 +1,16 @@
 package mc.gouv.xaf.apiclient;
 
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
 import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.client.ApiClient;
@@ -25,6 +27,7 @@ import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
@@ -376,6 +379,17 @@ public class AfApiClient extends ApiClient {
         }
 
         return res.readEntity(new GenericType<>() {
+
+        });
+    }
+    
+    public List<PaysDTO> getPays() {
+        Response res = getTarget().path("/pays").request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<List<PaysDTO>>() {
 
         });
     }

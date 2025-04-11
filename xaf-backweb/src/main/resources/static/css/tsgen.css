@@ -564,12 +564,26 @@ dd span {
 
 #preview-container > .modal-dialog,
 #preview-container-file-pdf > .modal-dialog,
-#annulerDemandeConfirm > .modal-dialog,
 #transferer-box > .modal-dialog,
 #supprimer-box > .modal-dialog,
 #preview-container-second > .modal-dialog,
 #print-box > .modal-dialog {
   width: auto;
+}
+
+.modal-header {
+  position: relative;
+  padding: 15px;
+}
+
+.modal-header > button.close {
+  background: none;
+  opacity: .3;
+  padding-right: 0;
+}
+
+.modal-header > button.close:hover {
+  opacity: .7;
 }
 
 #canvas-container {

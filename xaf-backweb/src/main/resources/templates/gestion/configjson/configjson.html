@@ -108,14 +108,13 @@
     <div id="saveConfigJsonConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Êtes-vous sûr de vouloir mettre à jour ces libellés ?</h4>
+          </div>
           <div class="modal-body">
             <div class="container-fluid">
-              <div class="row">
-                <div class="col-xs-12" id="savePropertiesConfirmationMsg"
-                     style="padding: 20px">Êtes-vous sûr de vouloir mettre à
-                  jour ces libellés ?
-                </div>
-              </div>
               <div class="col-xs-12">
                 <span class="label statusbox en-cours-traitement"><b>ATTENTION</b></span>
               </div>
@@ -138,12 +137,14 @@
     <div id="addLibellePanel" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Ajouter un libellé</h4>
+          </div>
           <div class="modal-body">
             <form>
               <div class="container-fluid">
-                <div class="row">
-                  <h1>Ajouter un libellé</h1>
-                </div>
                 <div class="row">
                   <div class="form-group" id="addLibelleMsgDiv">
                     <p id="libelleErrorMessage" class="bg-danger"

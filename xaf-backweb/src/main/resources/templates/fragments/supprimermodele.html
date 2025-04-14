@@ -6,22 +6,24 @@
   <div id="supprimer-box" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Suppression</h4>
+        </div>
         <div class="modal-body">
           <div id="supprimer-content">
             <div class="container-fluid">
               <div class="row">
-                <div class="col-xs-12">
-                  <span style="color: rgb(94, 97, 100); font-size: 16pt">Suppression</span>
-                  <br/> <br/>
+                <div>
                   <span class="suppressionOk" style="color: rgb(94, 97, 100);">Vous êtes sur le point de supprimer un modèle de documents&nbsp;:</span>
-                  <br/>
                   <span id="dlgFilename" style="font-weight: bold;"></span>
                   <br/>
                   <span style="color: rgb(94, 97, 100);">Voulez-vous le supprimer&nbsp;?</span>
                 </div>
               </div>
               <div class="row">
-                <div class="col-xs-12 text-center  suppressionOk margin-top">
+                <div class="text-right suppressionOk margin-top">
                   <form action="#" id="form-supprimer" method="post"
                         th:action="@{/gestion/modeles/supprimer}">
                     <div>

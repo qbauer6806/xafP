@@ -565,7 +565,6 @@ dd span {
 #preview-container > .modal-dialog,
 #preview-container-file-pdf > .modal-dialog,
 #transferer-box > .modal-dialog,
-#supprimer-box > .modal-dialog,
 #preview-container-second > .modal-dialog,
 #print-box > .modal-dialog {
   width: auto;
@@ -579,7 +578,7 @@ dd span {
 .modal-header > button.close {
   background: none;
   opacity: .3;
-  padding-right: 0;
+  padding: 0 0 0 12px;
 }
 
 .modal-header > button.close:hover {

@@ -109,8 +109,13 @@
 
   <!-- EDITION MODAL -->
   <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="width:450px;">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="saveTitle"></h4>
+        </div>
         <div class="modal-body">
           <form id="editionPeriodesForm" method="POST"
                 th:action="@{/gestion/periodesouverture/edit}">
@@ -119,11 +124,8 @@
             <!-- input cachée pour insérer le nombre d'éléments par page -->
             <input id="pageLengthNumber" name="pageLengthNumber" type="hidden"/>
             <div class="row no-margin-row">
-              <div class="col-xs-12 text-center">
-                <h2 id="saveTitle">SAVE_TITLE</h2>
-              </div>
-              <div class="col-xs-12 text-center form-group" id="formWarning"></div>
-              <div class="col-xs-12 col-md-6 form-group">
+              <div class="form-group" id="formWarning"></div>
+              <div class="form-group">
                 <label for="periodeStartDatePicker">Date de début</label>
                 <div class="input-group date" id="periodeStartDatePicker">
                   <input class="form-control" id="periodeStartDate" name="periodeStartDate"
@@ -131,7 +133,7 @@
                   <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                 </div>
               </div>
-              <div class="col-xs-12 col-md-6 form-group">
+              <div class="form-group">
                 <label for="periodeEndDatePicker">Date de fin</label>
                 <div class="input-group date" id="periodeEndDatePicker">
                   <input class="form-control" id="periodeEndDate" name="periodeEndDate"
@@ -139,8 +141,8 @@
                   <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                 </div>
               </div>
-              <div class="col-xs-12 text-center form-group error" id="formError"></div>
-              <div class="col-xs-12 text-center">
+              <div class="form-group error" id="formError"></div>
+              <div class="text-right">
                 <button class="btn btn-action-second ripple-effect annulerBouton"
                         id="annulerEditBouton"
                         name="annuler" type="button"
@@ -165,8 +167,13 @@
 
   <!-- SUPRESSION MODAL -->
   <div id="supressionModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="width:400px;">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Supprimer une période d'ouverture</h4>
+        </div>
         <div class="modal-body">
           <form id="suppressionForm" method="POST"
                 th:action="@{/gestion/periodesouverture/supprimer}">
@@ -174,14 +181,11 @@
             <input id="pkPropertiesSuppr" name="pkPeriodesOuverture" type="hidden"/>
             <!-- input cachée pour insérer le nombre d'éléments par page -->
             <input id="pageLengthNumberSuppr" name="pageLengthNumber" type="hidden"/>
-            <div class="row no-margin-row text-center">
-              <div class="col-xs-12">
-                <h2>Supprimer une période d'ouverture</h2>
-              </div>
-              <div class="col-xs-12">
+            <div class="row no-margin-row">
+              <div>
                 <span id="suppressionMessage">SUPPRESSION_MESSAGE</span>
               </div>
-              <div class="col-xs-12 margin-top">
+              <div class="margin-top text-right">
                 <button class="btn btn-action-second ripple-effect annulerBouton"
                         id="annulerSupprBouton"
                         name="annuler" type="button"
@@ -202,23 +206,25 @@
 
   <!-- SUPPRIMER TOUS MODAL -->
   <div id="supressionTousModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="width:400px;">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Supprimer toutes les périodes d'ouverture</h4>
+        </div>
         <div class="modal-body">
           <form id="suppressionTousForm" method="POST"
                 th:action="@{/gestion/periodesouverture/supprimertous}">
-            <div class="row no-margin-row text-center">
-              <div class="col-xs-12">
-                <h2>Supprimer toutes les périodes d'ouverture</h2>
-              </div>
-              <div class="col-xs-12 form-group">
+            <div class="row no-margin-row">
+              <div class="form-group">
                     <span>
-                        Attention, vous êtes sur le point de supprimer toutes les périodes d’ouverture. Si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
-                        <br/>
+                        Attention, vous êtes sur le point de supprimer toutes les périodes d’ouverture.<br/>Si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
+                        <br/><br/>
                         Êtes-vous sûr(e) de vouloir continuer ?
                     </span>
               </div>
-              <div class="col-xs-12 margin-top">
+              <div class="margin-top text-right">
                 <button class="btn btn-action-second ripple-effect annulerBouton"
                         id="annulerSupprTousBouton"
                         name="annuler" type="button"
@@ -430,7 +436,7 @@
 
       var message = "Êtes-vous sûr(e) de vouloir supprimer cette période d’ouverture ?";
       if (periodesSize === 1) {
-        message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
+        message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/><br/>Êtes-vous sûr(e) de vouloir continuer ?";
       } else if (moment().isBetween(dateDebut, dateFin)) {
         message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer des nouvelles demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
       }

@@ -100,6 +100,11 @@
   <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                  aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Modifier l'établissement affecté à un agent</h4>
+        </div>
         <div class="modal-body">
           <form method="POST" id="editionPropertiesForm" th:action="@{/denjs/gestion/agents/edit}"
                 th:object="${denjsGestionAgentsFormBean}">
@@ -107,9 +112,6 @@
             <input type="hidden" id="agentMatricule" name="agentMatricule"
                    th:field="*{agentMatricule}"/>
             <div class="row no-margin-row">
-              <div class="col-xs-12 text-center">
-                <h2 id="saveTitle">Modifier l'établissement affecté à un agent</h2>
-              </div>
               <div class="col-xs-12">
                 <span style="font-style: italic">Pour supprimer l'affectation d'un agent à un établissement, veuillez sélectionner l'option "Sélectionner un établissement" puis Valider.</span>
               </div>

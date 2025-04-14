@@ -275,6 +275,11 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public String getMwpaymtUrl() {
+        return "";
+    }
+
+    @Override
     public String getNomenUrl() {
         return null;
     }

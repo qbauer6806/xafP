@@ -9,8 +9,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.CompanyEnum;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.PaymentMethodStatusEnum;
-import mc.gouv.xaf.front.dto.PaymentMethodReferenceDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.paiement.infopaiement.AnswerDTO;
@@ -36,7 +35,7 @@ public class MwpaymntService {
         LOGGER.info("Création du RegisterInputDTO utilisé pour appeler le middleware de paiement");
         RegisterInputDTO registerInputDTO = new RegisterInputDTO();
         registerInputDTO.setAction(ActionEnum.REGISTER.name());
-        registerInputDTO.setRedirectUri(gouvPropertiesResolver.getMwpaymntRedirectUri());
+        registerInputDTO.setRedirectUri(gouvPropertiesResolver.getMwpaymtRedirectUri());
 
         // Payment method information
         PaymentMethodInformationDTO information = new PaymentMethodInformationDTO();

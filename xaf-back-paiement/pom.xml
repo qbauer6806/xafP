@@ -44,7 +44,6 @@
       <groupId>mc.gouv.xaf</groupId>
       <artifactId>xaf-apiclient-paiement</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
 

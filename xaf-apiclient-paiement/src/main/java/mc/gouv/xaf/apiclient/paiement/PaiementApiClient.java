@@ -15,6 +15,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 
@@ -53,6 +54,8 @@ public class PaiementApiClient extends AfApiClient {
         });
     }
 
+
+
     public InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken) {
         Response res = getTarget().path("paiement/moyenpaiement/info").queryParam("usagerToken", usagerToken)
                 .request(MediaType.APPLICATION_JSON)
@@ -77,6 +80,17 @@ public class PaiementApiClient extends AfApiClient {
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.json(moyenPaiementInputDTO));
         ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public List<PaymentMethodReferenceDTO> getReferences() {
+        Response res = getTarget().path("paiement/references")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .get();
+        ExceptionManager.checkExceptionResponse(res);
+        return res.readEntity(new GenericType<>() {
+
+        });
     }
 
     public RegisterOutputDTO postInfoPaiement(RegisterInputDTO registerInputDTO, String usagerToken) {

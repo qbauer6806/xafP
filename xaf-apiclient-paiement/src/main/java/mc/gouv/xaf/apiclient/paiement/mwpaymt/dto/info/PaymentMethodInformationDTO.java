@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.PaymentMethodStatusEnum;
+import mc.gouv.xaf.shared.paiement.enums.PaymentMethodStatusEnum;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter

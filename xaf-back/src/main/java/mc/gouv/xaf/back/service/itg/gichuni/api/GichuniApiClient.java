@@ -7,7 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -63,7 +67,18 @@ public class GichuniApiClient {
         outputDTO.setTokenSupplier(demarcheId);
         outputDTO.setPaymentMethodtype(paymentMethodType);
         ReferencePostOutputDTO gichuniReponse = restTemplate.postForObject(
-                gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/reference",outputDTO, ReferencePostOutputDTO.class);
+                gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/references", outputDTO, ReferencePostOutputDTO.class);
         System.out.println(gichuniReponse);
+    }
+
+    public List<PaymentMethodReferenceDTO> getReferences() {
+        ResponseEntity<List<PaymentMethodReferenceDTO>> response = restTemplate.exchange(
+                gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/references",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {}
+        );
+        List<PaymentMethodReferenceDTO> result = response.getBody();
+        return result;
     }
 }

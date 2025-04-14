@@ -6,6 +6,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import java.util.List;
@@ -18,6 +19,7 @@ public interface PaiementService {
     void createMoyenPaiement(String demandeIds, Integer usagerId, String orderId);
     void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO);
     InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken);
+    List<PaymentMethodReferenceDTO> getReferences();
     void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO);
     RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken);
 }

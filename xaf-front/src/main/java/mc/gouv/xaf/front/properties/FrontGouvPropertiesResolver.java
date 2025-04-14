@@ -197,7 +197,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.appfactory.rescart.external.lyra.public.key}")
     private String lyraPublicKey;
     @Value("${mc.gouv.rescart.frontserver.api.url}/paiement")
-    private String mwpaymntRedirectUri;
+    private String mwpaymtRedirectUri;
 
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,

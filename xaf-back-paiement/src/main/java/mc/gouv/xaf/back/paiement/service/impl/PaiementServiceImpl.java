@@ -49,6 +49,7 @@ import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.glassfish.jersey.internal.PropertiesResolver;
@@ -241,6 +242,11 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
+    public List<PaymentMethodReferenceDTO> getReferences() {
+        return gichuniApiClient.getReferences();
+    }
+
+    @Override
     public void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO) {
         LOGGER.info("Mise à jour du status de paiement suite à un callback reçu de MWPAYMT");
         // On retrouve le moyen de paiement associé à l'orderId
@@ -263,9 +269,9 @@ public class PaiementServiceImpl implements PaiementService {
 
         moyenPaiementRepository.save(moyenPaiementBo);
         // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
-        /*gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
+        gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
                 paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());*/
+                gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());
     }
 
     @Override

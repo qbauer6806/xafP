@@ -116,4 +116,6 @@ public interface GouvPropertiesResolver {
     String getExtensionsWhitelist();
     
     boolean getSmsEnabled();
+
+    String getMwpaymtUrl();
 }

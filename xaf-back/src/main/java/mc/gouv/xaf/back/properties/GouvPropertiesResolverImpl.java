@@ -128,6 +128,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.sms.enabled:false}")
     private boolean smsEnabled;
 
+    @Value("${mc.gouv.${application.name}.apiserver.mwpaymnt.url}")
+    private String mwpaymtUrl;
+
     @Autowired
     private KafkaProperties kafkaProperties;
 
@@ -488,4 +491,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public boolean getSmsEnabled() {
         return smsEnabled;
     }
+
+    @Override
+    public String getMwpaymtUrl() { return mwpaymtUrl; }
 }

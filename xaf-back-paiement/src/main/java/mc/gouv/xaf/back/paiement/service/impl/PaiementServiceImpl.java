@@ -1,6 +1,11 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -46,6 +51,7 @@ import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
+import org.glassfish.jersey.internal.PropertiesResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -226,7 +232,12 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiementBo.setPaymentMethodName(moyenPaiementInputDTO.getCardName());
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
         moyenPaiementRepository.save(moyenPaiementBo);
+    }
 
+    @Override
+    public InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken) {
+        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
+        return mwpaymtApiClient.getInfo(input);
     }
 
     @Override
@@ -236,7 +247,6 @@ public class PaiementServiceImpl implements PaiementService {
         MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.findById(callbackDTO.getOrderId()).orElseThrow(
                 () -> new DemarchesServiceException("Aucun orderId " + callbackDTO.getOrderId() + " n'a été trouvé.",
                         HttpStatus.NOT_FOUND));
-        ;
 
         PaymentMethodInformationDTO paymentMethodInformation = callbackDTO.getPaymentMethodInformation();
         moyenPaiementBo.setPaymentMethodType(paymentMethodInformation.getPaymentMethodType());
@@ -256,6 +266,13 @@ public class PaiementServiceImpl implements PaiementService {
         /*gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
                 paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
                 gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());*/
+    }
+
+    @Override
+    public RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken) {
+        logStartMethod(LOGGER);
+        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
+        return mwpaymtApiClient.getToken(input);
     }
 
     @Async

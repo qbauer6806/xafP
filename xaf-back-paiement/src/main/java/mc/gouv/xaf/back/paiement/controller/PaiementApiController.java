@@ -3,10 +3,13 @@ package mc.gouv.xaf.back.paiement.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
@@ -146,6 +149,11 @@ public class PaiementApiController {
         paiementService.createMoyenPaiement(demandeIds, usagerId, orderId);
     }
 
+    @PostMapping(value = "/moyenpaiement/info")
+    public InfoOutputDTO getMoyenPaiement(@RequestBody InfoCancelInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
+       return paiementService.getMoyenPaiement(input, usagerToken);
+    }
+
     @PutMapping(value = "/moyenpaiement")
     public void createMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInputDTO) {
         paiementService.updateMoyenPaiement(moyenPaiementInputDTO);
@@ -154,6 +162,11 @@ public class PaiementApiController {
     @PostMapping
     public void updatePaiement(@RequestBody MwpaymtGenericCallbackDTO callbackDTO) {
         paiementService.updatePaiementStatus(callbackDTO);
+    }
+
+    @PostMapping(value = "/infopaiement")
+    public RegisterOutputDTO postInfoPaiement(@RequestBody RegisterInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
+        return paiementService.postInfoPaiement(input, usagerToken);
     }
 
     /**

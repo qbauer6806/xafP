@@ -40,6 +40,12 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
     </dependency>
+    <dependency>
+      <groupId>mc.gouv.xaf</groupId>
+      <artifactId>xaf-apiclient-paiement</artifactId>
+      <version>12.0.0-paiement-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
 </project>

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
@@ -134,10 +135,6 @@ public class PaiementController extends AbstractXafController {
             LOGGER.info("====================== Fin /info-paiement doPost() monetico\n");
             return processMoneticoCall(usagerInfosDTO, infoPaiementInput);
         } else if (infoPaiementInput.getProviderName().equalsIgnoreCase(PSPEnum.LYRA.name())) {
-            // TODO Stockage en db des infos de paiement en fonction du body d'entrée
-
-
-            // Puis call au middleware de paiement
             return processMwpaymntCall(usagerInfosDTO, infoPaiementInput);
         }
         return ResponseEntity.ok().build();
@@ -181,8 +178,10 @@ public class PaiementController extends AbstractXafController {
         // Appel à lyra pour obtenir les infos
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
         for (PaymentMethodReferenceDTO monGuichetAlias : monGuichetAliases) {
-            InfoOutputDTO info = getMwpaymtApiClient(usagerInfosDTO.getTokenInfo().getAccessToken()).getInfo(
-                    mwpaymntService.getInfoInput(monGuichetAlias));
+            // Appel au PSP via l'API serveur pour récupérer les infos de paiement données par monguichet
+            InfoOutputDTO info = getPaiementApiClient().getMoyenPaiement(
+                    mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());
+
             if (info.getPaymentMethodInformation().getPaymentMethodStatus().equals(PaymentMethodStatusEnum.ACTIVE)) {
                 moyenPaiementOutputDTOs.add(
                         mwpaymntService.mwpaymentResponseToMoyenPaiement(info, monGuichetAlias.getPaymentMethodName()));
@@ -222,7 +221,6 @@ public class PaiementController extends AbstractXafController {
     public ResponseEntity getInfoFacturation(HttpServletRequest request) {
         LOGGER.info("====================== /info-facturation GET start...");
 
-        // Appel à la gateway de paiement pour récupérer le formToken
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -238,7 +236,6 @@ public class PaiementController extends AbstractXafController {
         // TODO
         LOGGER.info("====================== /info-facturation POST start...");
 
-        // Appel à la gateway de paiement pour récupérer le formToken
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -253,7 +250,6 @@ public class PaiementController extends AbstractXafController {
             HttpServletRequest request) {
         LOGGER.info("====================== /tableau-paiement GET start...");
 
-        // Appel à la gateway de paiement pour récupérer le formToken
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -270,10 +266,14 @@ public class PaiementController extends AbstractXafController {
 
     private ResponseEntity processMwpaymntCall(UsagerInfosDTO usagerInfosDTO, InfoPaiementInputDTO infoPaiementInput) {
         RegisterInputDTO registerInput = mwpaymntService.getRegisterInput(usagerInfosDTO);
-        RegisterOutputDTO token = getMwpaymtApiClient(usagerInfosDTO.getTokenInfo().getAccessToken()).getToken(
-                registerInput);
+        PaiementApiClient paiementApiClient = getPaiementApiClient();
+
+        // Appel au PSP via l'API server pour générer le form token
+        RegisterOutputDTO token = paiementApiClient.postInfoPaiement(registerInput, usagerInfosDTO.getTokenInfo().getAccessToken());
         String orderId = registerInput.getTransactionInformation().getOrderId();
-        getPaiementApiClient().createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO.getId(), orderId);
+
+        // Création du moyen de paiement en base de donnée
+        paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO.getId(), orderId);
         InfoPaiementOutputDTO infoPaiementOutputDTO = mwpaymntService.mwpaymtRegisterResponseToInfoPaiementOutputDTO(token);
 
         LOGGER.info("====================== /info-paiement POST end...");

@@ -197,10 +197,6 @@ public class XafFrontserverUtils {
                 propertiesResolver.getFrontserverJwt());
     }
 
-    public MwpaymtApiClient getMwpaymtApiClient(String bearerToken) {
-        return new MwpaymtApiClient(propertiesResolver.getMwpaymntUrl(), bearerToken);
-    }
-
     public GichuniPaiementApiClient getGichuniPaiementApiClient(String bearerToken) {
         return new GichuniPaiementApiClient(propertiesResolver.getGichuniUrl(), bearerToken);
     }

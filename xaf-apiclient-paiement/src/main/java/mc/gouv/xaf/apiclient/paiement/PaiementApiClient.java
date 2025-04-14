@@ -8,7 +8,10 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.exception.ExceptionManager;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
@@ -50,6 +53,17 @@ public class PaiementApiClient extends AfApiClient {
         });
     }
 
+    public InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken) {
+        Response res = getTarget().path("paiement/moyenpaiement/info").queryParam("usagerToken", usagerToken)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.json(input));
+        ExceptionManager.checkExceptionResponse(res);
+        return res.readEntity(new GenericType<>() {
+
+        });
+    }
+
     public void createMoyenPaiement(List<String> demandeIds, Integer usagerId, String orderId) {
         Response res = getTarget().path("paiement/moyenpaiement").queryParam("demandeIds", demandeIds)
                 .queryParam("usagerId", usagerId).queryParam("orderId", orderId).request(MediaType.APPLICATION_JSON)
@@ -63,5 +77,14 @@ public class PaiementApiClient extends AfApiClient {
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.json(moyenPaiementInputDTO));
         ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public RegisterOutputDTO postInfoPaiement(RegisterInputDTO registerInputDTO, String usagerToken) {
+        Response res = getTarget().path("paiement/infopaiement").queryParam("usagerToken", usagerToken).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.json(registerInputDTO));
+        ExceptionManager.checkExceptionResponse(res);
+        return res.readEntity(new GenericType<>() {
+        });
     }
 }

@@ -79,9 +79,6 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.api.url}")
     private String apiUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.mwpaymnt.url}")
-    private String mwpaymntUrl;
-
     @Value("${mc.gouv.${application.name}.frontserver.jwt}")
     private String frontserverJwt;
 

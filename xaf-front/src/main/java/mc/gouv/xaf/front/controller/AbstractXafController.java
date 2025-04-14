@@ -27,10 +27,6 @@ public class AbstractXafController {
         return xafFrontserverUtils.getMoneticoApiClient();
     }
 
-    protected MwpaymtApiClient getMwpaymtApiClient(String bearerToken) {
-        return xafFrontserverUtils.getMwpaymtApiClient(bearerToken);
-    }
-
     protected PaiementApiClient getPaiementApiClient() {
         return xafFrontserverUtils.getPaiementApiClient();
     }

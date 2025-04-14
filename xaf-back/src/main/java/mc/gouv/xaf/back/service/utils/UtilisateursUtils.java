@@ -43,8 +43,7 @@ public class UtilisateursUtils {
         if (StringUtils.isNotBlank(matricule)) {
             User user = utilisateursCache.get(matricule);
             if (user != null) {
-                String value = AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
-                return StringEscapeUtils.escapeHtml4(value);
+                return AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
             }
         }
         return null;

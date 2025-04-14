@@ -137,23 +137,18 @@
         <div id="removeCategoryConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Suppression d'une catégorie</h4>
+              </div>
               <div class="modal-body">
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-xs-12" id="removeCatConfirmationMsg"
-                         style="padding: 20px">Êtes-vous sûr de vouloir supprimer
-                      cette catégorie ?
-                    </div>
-                  </div>
-
-                  <div class="row">
-                    <div class=" text-right">
-                      <a class="annuler-preview btn btn-action ripple-effect"
-                         id="cancelDeleteCategoryButton">Annuler</a> <a
-                        class="valider-preview btn btn-action ripple-effect"
-                        id="deleteCategoryButton">Valider</a>
-                    </div>
-                  </div>
+                <span>Êtes-vous sûr de vouloir supprimer cette catégorie ?</span>
+                <div class=" text-right">
+                  <a class="annuler-preview btn btn-action-second ripple-effect"
+                     id="cancelDeleteCategoryButton">Annuler</a> <a
+                    class="valider-preview btn btn-action ripple-effect"
+                    id="deleteCategoryButton">Valider</a>
                 </div>
               </div>
             </div><!-- /.modal-content -->
@@ -162,23 +157,18 @@
         <div id="saveCategoriesConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Mise à jour des catégories</h4>
+              </div>
               <div class="modal-body">
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-xs-12" id="saveCategoriesConfirmationMsg"
-                         style="padding: 20px">Êtes-vous sûr de vouloir mettre à
-                      jour les catégories ?
-                    </div>
-                  </div>
-
-                  <div class="row ">
-                    <div class=" text-right">
-                      <a class="annuler-preview btn btn-action ripple-effect"
-                         id="cancelSaveCategoriesButton">Annuler</a> <a
-                        class="valider-preview btn btn-action ripple-effect"
-                        id="saveCategoriesButton">Valider</a>
-                    </div>
-                  </div>
+                <span>Êtes-vous sûr de vouloir mettre à jour les catégories ?</span>
+                <div class="text-right">
+                  <a class="annuler-preview btn btn-action-second ripple-effect"
+                     id="cancelSaveCategoriesButton">Annuler</a> <a
+                    class="valider-preview btn btn-action ripple-effect"
+                    id="saveCategoriesButton">Valider</a>
                 </div>
               </div>
             </div><!-- /.modal-content -->
@@ -187,23 +177,18 @@
         <div id="savePropertiesConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Mise à jour des facets</h4>
+              </div>
               <div class="modal-body">
-                <div class="container-fluid">
-                  <div class="row">
-                    <div class="col-xs-12" id="savePropertiesConfirmationMsg"
-                         style="padding: 20px">Êtes-vous sûr de vouloir mettre à
-                      jour les facets ?
-                    </div>
-                  </div>
-
-                  <div class="row ">
-                    <div class=" text-right">
-                      <a class="annuler-preview btn btn-action ripple-effect"
-                         id="cancelSavePropertiesButton">Annuler</a> <a
-                        class="valider-preview btn btn-action ripple-effect"
-                        id="savePropertiesConfirmButton">Valider</a>
-                    </div>
-                  </div>
+                <span>Êtes-vous sûr de vouloir mettre à jour les facets ?</span>
+                <div class="text-right">
+                  <a class="annuler-preview btn btn-action-second ripple-effect"
+                     id="cancelSavePropertiesButton">Annuler</a> <a
+                    class="valider-preview btn btn-action ripple-effect"
+                    id="savePropertiesConfirmButton">Valider</a>
                 </div>
               </div>
             </div><!-- /.modal-content -->
@@ -213,31 +198,31 @@
         <div id="addCategoryPanel" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document" style="width:400px">
             <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Ajouter une catégorie</h4>
+              </div>
               <div class="modal-body">
                 <form>
-                  <div class="container-fluid">
-                    <div class="row">
-                      <h1>Ajouter une catégorie</h1>
-                    </div>
-                    <div class="row">
-                      <div class="form-group" id="addCategoryMsgDiv">
-                        <p id="catErrorMessage" class="bg-danger"
-                           style="padding: 15px; visibility: hidden; display: none;"></p>
-                      </div>
-                      <div class="form-group">
-                        <label for=libelleCatInput>Catégorie</label> <input
-                          class="form-control" id="libelleCatInput">
-                      </div>
-                    </div>
-                    <div class="row ">
-                      <div class="text-right">
-                        <input class="annuler-preview btn btn-action ripple-effect"
-                               id="cancelAddCategoryConfirmButton" value="Annuler"/> <input
-                          class="valider-preview btn btn-action ripple-effect"
-                          id="addCategoryConfirmButton" value="Valider"/>
-                      </div>
-                    </div>
-
+                  <div class="form-group" id="addCategoryMsgDiv">
+                    <p id="catErrorMessage" class="bg-danger"
+                       style="padding: 15px; visibility: hidden; display: none;"></p>
+                  </div>
+                  <div class="form-group">
+                    <label for=libelleCatInput>Catégorie</label> <input
+                      class="form-control" id="libelleCatInput">
+                  </div>
+                  <div class="text-right">
+                    <button class="btn btn-action-second ripple-effect annulerBouton"
+                            name="annuler" type="button"
+                            id="cancelAddCategoryConfirmButton" value="Annuler">
+                      Annuler
+                    </button>
+                    <button class="btn btn-action ripple-effect" id="addCategoryConfirmButton"
+                            value="Valider" type="button">
+                      Valider
+                    </button>
                   </div>
                 </form>
               </div>

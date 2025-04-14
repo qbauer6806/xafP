@@ -107,29 +107,31 @@
   <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document" style="width:450px">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Modification d'une propriété</h4>
+        </div>
         <div class="modal-body">
           <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}">
             <!-- input cachée pour insérer la pk de la properties à modifier -->
             <input type="hidden" id="pkProperties" name="pkProperties"/>
             <div class="row no-margin-row">
-              <div class="col-xs-12 text-center">
-                <h2>Modification d'une propriété</h2>
-              </div>
-              <div class="col-xs-12">
+              <div>
                 <strong>Type :</strong>&nbsp;<span id="propertiesType"></span>
               </div>
-              <div class="col-xs-12 mt-15">
+              <div class="mt-15">
                 <strong>Clé :</strong>&nbsp;<span id="propertiesKey"></span>
               </div>
-              <div class="col-xs-12 mt-15">
+              <div class="mt-15">
                 <strong>Descriptif :</strong>&nbsp;<span id="propertiesDescriptif"></span>
               </div>
-              <div class="col-xs-12 mt-15 form-group">
+              <div class="mt-15 form-group">
                 <label for="propertiesValue">Valeur</label>
                 <textarea id="propertiesValue" name="value" class="form-control"
                           style="overflow: auto; max-height: 500px"></textarea>
               </div>
-              <div class="col-xs-12 text-center">
+              <div class="text-right">
                 <button id="annulerEditBouton"
                         class="btn btn-action-second ripple-effect annulerBouton"
                         type="button" name="annuler" value="annuler">

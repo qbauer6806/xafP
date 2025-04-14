@@ -51,6 +51,12 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
+/**
+ * Services proposés par le module API 2 Tiers des TS (donc appelé par le système tiers, via le proxy 2 tiers)
+ * 
+ * @author qdeme
+ * 
+ */
 public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService2Tiers.class);

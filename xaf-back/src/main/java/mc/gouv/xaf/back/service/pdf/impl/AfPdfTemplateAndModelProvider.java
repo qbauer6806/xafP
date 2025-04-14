@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.service.pdf.impl;
 
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.pdf.BaseFont;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -11,6 +14,7 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +32,21 @@ public class AfPdfTemplateAndModelProvider {
 
     @Autowired
     private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+
+    public PdfOptions getPdfOptions() {
+        PdfOptions pdfOptions = PdfOptions.create();
+        pdfOptions.fontProvider((familyName, encoding, size, style, color) -> {
+            if (StringUtils.equalsIgnoreCase(familyName, "Times New Roman")) {
+                try {
+                    return FontFactory.getFont(BaseFont.TIMES_ROMAN, BaseFont.WINANSI, size, style, color);
+                } catch (Exception e) {
+                    throw new DemarcheException(e);
+                }
+            }
+            return FontFactory.getFont(familyName, encoding, size, style, color);
+        });
+        return pdfOptions;
+    }
 
     private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             String texteAEnvoyer) {

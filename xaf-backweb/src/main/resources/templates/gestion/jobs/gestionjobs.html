@@ -100,18 +100,22 @@
         <div id="executeJobConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Éxecution du job</h4>
+              </div>
               <div class="modal-body">
                 <div class="container-fluid">
                   <div class="row">
-                    <div class="col-xs-12" id="executeJobConfirmationMsg"
-                         style="padding: 20px">Êtes vous sûr de vouloir exécuter
+                    <div id="executeJobConfirmationMsg">Êtes vous sûr de vouloir exécuter
                       le job ?
                     </div>
                   </div>
 
-                  <div class="row ">
-                    <div class=" text-right">
-                      <a class="annuler-preview btn btn-action ripple-effect"
+                  <div class="row">
+                    <div class="text-right">
+                      <a class="annuler-preview btn btn-action-second ripple-effect"
                          id="cancelExecuteJobButton">Annuler</a> <a
                         class="valider-preview btn btn-action ripple-effect"
                         id="executeJobConfirmationButton">Valider</a>

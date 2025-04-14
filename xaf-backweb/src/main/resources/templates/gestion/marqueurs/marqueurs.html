@@ -142,11 +142,13 @@
   <div id="optionsModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="titreOptions"></h4>
+        </div>
         <div class="modal-body">
           <div class="row no-margin-row">
-            <div class="col-xs-12 text-center">
-              <h2 id="titreOptions"></h2>
-            </div>
             <table class="table" id="optionsTable">
               <thead>
               <tr>
@@ -168,15 +170,17 @@
   <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="saveTitle"></h4>
+        </div>
         <div class="modal-body">
           <form id="editionPeriodesForm" method="POST" th:action="@{/gestion/marqueurs/edit}">
             <!-- input cachée pour insérer la pk de la properties à modifier -->
             <input id="pkMarqueur" name="pkMarqueur" type="hidden"/>
             <input name="buildId" type="hidden" th:value="${buildId}"/>
             <div class="row no-margin-row">
-              <div class="col-xs-12 text-center">
-                <h2 id="saveTitle">SAVE_TITLE</h2>
-              </div>
               <div class="col-xs-12 text-center form-group" id="formWarning"></div>
               <div class="col-xs-12 col-md-6 form-group">
                 <label for="description">Description</label>
@@ -197,8 +201,8 @@
                           th:text="${chemin}"></option>
                 </select>
               </div>
-              <div class="col-xs-12 text-center form-group error" id="formError"></div>
-              <div class="col-xs-12 text-center">
+              <div class="col-xs-12 form-group error" id="formError"></div>
+              <div class="col-xs-12 text-right">
                 <button class="btn btn-action-second ripple-effect annulerBouton"
                         id="annulerEditBouton"
                         name="annuler" type="button"
@@ -223,20 +227,22 @@
 
   <!-- SUPRESSION MODAL -->
   <div id="supressionModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="width:350px">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Supprimer un marqueur</h4>
+        </div>
         <div class="modal-body">
           <form id="suppressionForm" method="POST" th:action="@{/gestion/marqueurs/supprimer}">
             <input id="pkMarqueurSuppr" name="pkMarqueur" type="hidden"/>
             <input name="buildId" type="hidden" th:value="${buildId}"/>
-            <div class="row no-margin-row text-center">
-              <div class="col-xs-12">
-                <h2>Supprimer un marqueur</h2>
-              </div>
-              <div class="col-xs-12">
+            <div class="row no-margin-row">
+              <div>
                 <span id="suppressionMessage">Êtes-vous sûr(e) de vouloir continuer ?</span>
               </div>
-              <div class="col-xs-12 margin-top">
+              <div class="margin-top text-right">
                 <button class="btn btn-action-second ripple-effect annulerBouton"
                         id="annulerSupprBouton"
                         name="annuler" type="button"

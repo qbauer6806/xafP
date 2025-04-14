@@ -1,33 +1,8 @@
 package mc.gouv.xaf.back.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
-import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.AfApiService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.BrouillonDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.Page;
-import mc.gouv.xaf.shared.dto.PageParamDTO;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.xapi.error.dto.ErrorsDTO;
-import mc.gouv.xapi.error.exception.WebException;
+
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +21,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.AfApiService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.Page;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PaysDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
+import mc.gouv.xapi.error.exception.WebException;
 
 /**
  * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
@@ -337,6 +341,12 @@ public class AfApiController {
     public JsonNode creerConfigRequest(@RequestBody JsonNode config) {
         LOGGER.info("AbstractAfApiController.creerConfigRequest");
         return afApiService.creerConfig(config);
+    }
+    
+    @GetMapping(value = "/pays")
+    public List<PaysDTO> getPays() {
+        LOGGER.info("AbstractAfApiController.getPays()");
+        return afApiService.getPays();
     }
 
 }

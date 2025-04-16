@@ -33,7 +33,7 @@ var configurationDataTableFacets = {
 
     // Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
     "traditional": true,
-    "url": APP.getContextPath() + "/ws/demandes/recherchechamps",
+    "url": APP.getContextPath() + "/ws/admin/recherchechamps",
     "dataSrc": function (json) {
 
       json['recordsTotal'] = json['length'];

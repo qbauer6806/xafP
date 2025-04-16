@@ -585,6 +585,16 @@ dd span {
   opacity: .7;
 }
 
+.modal-footer {
+  text-align: right;
+  padding: 15px;
+}
+
+#preview-container-second .modal-body {
+  overflow-y: auto;
+  max-height: 75vh;
+}
+
 #canvas-container {
   max-height: 80vh;
   overflow-y: auto;

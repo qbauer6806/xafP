@@ -12,7 +12,6 @@ import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +47,13 @@ public class DemandeRectificationServiceImpl implements DemandeRectificationServ
         if (StringUtils.isBlank(statutEnAttenteRectification)) {
             throw new DemarcheException("Le statut de la demande de rectification n'est pas définit");
         }
-        String commentaireShave = StringEscapeUtils.escapeHtml4(commentaire);
-        if (StringUtils.isBlank(commentaireShave)) {
+        if (StringUtils.isBlank(commentaire)) {
             throw new DemarcheException("Impossible d'insérer un commentaire vide");
         }
         GouvBPMUser agent = new GouvBPMUser();
         agent.setId(AfBackUtils.getAuthenticatedAgentId());
 
-        gouvBPM.demanderRectification(pkDemande, agent, codeMotifDemandeRectification, commentaireShave,
+        gouvBPM.demanderRectification(pkDemande, agent, codeMotifDemandeRectification, commentaire,
                 statutEnAttenteRectification);
 
         // Ajout d'une ligne à l'historique

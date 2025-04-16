@@ -44,6 +44,12 @@ public class RechercheAdminController extends AbstractController {
         return "Mise à jour effectuée avec succès";
     }
 
+    @GetMapping(value = "/recherchechamps")
+    public List<RechercheChampDTO> getRechercheChamps() {
+        LOGGER.info("Appel du webservice /ws/admin/recherchechamps");
+        return rechercheAdminService.getRechercheChamps();
+    }
+
     @GetMapping(value = "/categories")
     public List<RechercheCategoryDTO> getSearchCategories() {
         LOGGER.info("Appel du webservice /ws/admin/categories");

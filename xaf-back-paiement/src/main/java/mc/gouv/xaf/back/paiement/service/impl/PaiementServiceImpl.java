@@ -277,6 +277,7 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken) {
         logStartMethod(LOGGER);
+        LOGGER.debug("URL du mwpamt : {}", gouvPropertiesResolver.getMwpaymtUrl());
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
         return mwpaymtApiClient.getToken(input);
     }

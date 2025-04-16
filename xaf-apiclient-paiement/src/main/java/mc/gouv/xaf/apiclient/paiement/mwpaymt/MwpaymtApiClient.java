@@ -33,6 +33,7 @@ public class MwpaymtApiClient extends AfApiClient {
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(input, MediaType.APPLICATION_JSON));
 
+
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(RegisterOutputDTO.class);

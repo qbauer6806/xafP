@@ -11,9 +11,11 @@ import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
 import mc.gouv.xapi.error.exception.client.UnsupportedMediaTypeWebException;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExceptionManager {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionManager.class);
     private ExceptionManager() {
     }
 
@@ -21,7 +23,7 @@ public class ExceptionManager {
 
         // Si la réponse signale une erreur
         if (response.getStatus() < 200 || response.getStatus() > 299) {
-
+            LOGGER.debug("Réponse reçue {}", response.readEntity(String.class));
             switch (response.getStatus()) {
                 case HttpURLConnection.HTTP_BAD_REQUEST:
                     throw response.readEntity(BadRequestWebException.class);

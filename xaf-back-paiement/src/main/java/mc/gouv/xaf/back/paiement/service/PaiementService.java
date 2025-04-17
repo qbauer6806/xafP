@@ -19,7 +19,7 @@ public interface PaiementService {
     void createMoyenPaiement(String demandeIds, Integer usagerId, String orderId);
     void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO);
     InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken);
-    List<PaymentMethodReferenceDTO> getReferences();
+    List<PaymentMethodReferenceDTO> getReferences(String usagerToken);
     void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO);
     RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken);
 }

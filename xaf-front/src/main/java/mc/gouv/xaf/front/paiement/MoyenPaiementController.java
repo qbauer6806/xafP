@@ -48,7 +48,7 @@ public class MoyenPaiementController extends AbstractXafController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         // TODO Récupération des alias dans mon guichet
-
+        //List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(usagerInfosDTO.getTokenInfo().getAccessToken());
 
         List<PaymentMethodReferenceDTO> monGuichetAliases = new ArrayList<>();
         PaymentMethodReferenceDTO reference1 = new PaymentMethodReferenceDTO();

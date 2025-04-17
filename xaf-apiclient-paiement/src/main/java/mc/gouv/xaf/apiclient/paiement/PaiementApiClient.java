@@ -82,8 +82,8 @@ public class PaiementApiClient extends AfApiClient {
         ExceptionManager.checkExceptionResponse(res);
     }
 
-    public List<PaymentMethodReferenceDTO> getReferences() {
-        Response res = getTarget().path("paiement/references")
+    public List<PaymentMethodReferenceDTO> getReferences(String usagerToken) {
+        Response res = getTarget().path("paiement/references").queryParam("usagerToken", usagerToken)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .get();

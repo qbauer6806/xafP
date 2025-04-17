@@ -242,8 +242,8 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public List<PaymentMethodReferenceDTO> getReferences() {
-        return gichuniApiClient.getReferences();
+    public List<PaymentMethodReferenceDTO> getReferences(String usagerToken) {
+        return gichuniApiClient.getReferences(usagerToken);
     }
 
     @Override
@@ -269,9 +269,9 @@ public class PaiementServiceImpl implements PaiementService {
 
         moyenPaiementRepository.save(moyenPaiementBo);
         // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
-        gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
+        /*gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
                 paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());
+                gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());*/
     }
 
     @Override

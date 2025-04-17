@@ -141,8 +141,8 @@ public class PaiementApiController {
     }
 
     @GetMapping(value = "/references")
-    public List<PaymentMethodReferenceDTO> getReferences() {
-        return paiementService.getReferences();
+    public List<PaymentMethodReferenceDTO> getReferences(@RequestParam(value = "usagerToken") String usagerToken) {
+        return paiementService.getReferences(usagerToken);
     }
 
     @PostMapping(value = "/moyenpaiement")

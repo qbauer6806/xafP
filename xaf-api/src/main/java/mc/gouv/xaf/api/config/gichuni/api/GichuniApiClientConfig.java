@@ -78,4 +78,5 @@ public class GichuniApiClientConfig {
         });
         return restTemplate;
     }
+
 }

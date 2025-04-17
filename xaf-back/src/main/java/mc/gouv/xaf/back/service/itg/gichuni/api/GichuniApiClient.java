@@ -71,8 +71,9 @@ public class GichuniApiClient {
         System.out.println(gichuniReponse);
     }
 
-    public List<PaymentMethodReferenceDTO> getReferences() {
-        ResponseEntity<List<PaymentMethodReferenceDTO>> response = restTemplate.exchange(
+    public List<PaymentMethodReferenceDTO> getReferences(String usagerToken) {
+        RestTemplate restTemplateWithToken = restTemplateWithToken(usagerToken);
+        ResponseEntity<List<PaymentMethodReferenceDTO>> response = restTemplateWithToken.exchange(
                 gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/references",
                 HttpMethod.GET,
                 null,
@@ -80,5 +81,14 @@ public class GichuniApiClient {
         );
         List<PaymentMethodReferenceDTO> result = response.getBody();
         return result;
+    }
+
+    private RestTemplate restTemplateWithToken(String token) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add((request, body, execution) -> {
+            request.getHeaders().setBearerAuth(token);
+            return execution.execute(request, body);
+        });
+        return restTemplate;
     }
 }

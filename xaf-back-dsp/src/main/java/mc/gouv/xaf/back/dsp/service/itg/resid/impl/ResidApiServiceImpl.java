@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
@@ -23,6 +24,7 @@ import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidInformationDebitDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
@@ -79,6 +81,8 @@ public class ResidApiServiceImpl implements ResidApiService {
     public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
     public static final String RESID_USAGERS_PATH = "/usagers";
     public static final String RESID_NPDHL_PATH = "/npdhl";
+    public static final String RESID_ETAT_CAISSE_PATH = "/caisseOuverte";
+    public static final String RESID_RETOUR_DEBIT_PATH = "/retourDebit";
 
     public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO";
 
@@ -375,48 +379,6 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity.getBody();
     }
 
-    @Override
-    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
-
-        // Construction du rest template
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
-
-        // Headers et URL
-        HttpHeaders headers = getResidRequestHeaders(jwt);
-        String requestUrl = url + RESID_ETATS_DEMANDES_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
-        try {
-            builder.queryParam("updatedAfter", URLEncoder.encode(updatedAfter, StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            LOGGER.error("Problème dans l'encodage de la date à envoyer à RESID");
-        }
-
-        // Construction de la requête
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-        URI uri = builder.build(true).encode().toUri();
-
-        // Logs DEBUG
-        LOGGER.debug("-- Appel RESID Get all demandes updated after");
-        LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
-        LOGGER.debug(HEADERS_LOG, headers);
-
-        // Appel et réponse API
-        ResponseEntity<ResidEtatsDemandesUpdatedAfterDTO> responseEntity = rest.exchange(uri, HttpMethod.GET,
-                requestEntity, ResidEtatsDemandesUpdatedAfterDTO.class);
-        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
-
-        LOGGER.info("Fin appel à l'API RESID pour la récupération des demandes updatées");
-
-        return responseEntity.getBody();
-    }
-
-    @Override
-    public void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
-        PropertiesDTO lastSynchroProperty = propertiesService.getProperty(LAST_SUCCESSFUL_SYNCHRO_KEY);
-        lastSynchroProperty.setValue(lastSuccessfulSynchroTime);
-        propertiesService.saveOrUpdateProperties(lastSynchroProperty);
-    }
 
     @Override
     public List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt)
@@ -491,6 +453,79 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         LOGGER.info("Fin appel RESID getUsagerDln1f");
         return null;
+    }
+
+    @Override
+    public ResidCaisseOuverteDTO getCaisseOuverte(String url, String jwt) {
+        LOGGER.info("Appel à l'API RESID v2 /caisseOuverte pour connaitre le statut de la caisse");
+
+        // Construction du rest template
+        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        // Headers et URL
+        HttpHeaders headers = getResidRequestHeaders(jwt);
+        String requestUrl = url + RESID_ETAT_CAISSE_PATH;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
+
+        // Construction de la requête
+        URI uri = builder.build().encode().toUri();
+
+        // Logs DEBUG
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        LOGGER.debug("-- Appel RESID Get état de la caisse");
+        LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
+        LOGGER.debug(HEADERS_LOG, headers);
+
+        // Appel et réponse
+        ResponseEntity<ResidCaisseOuverteDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
+                new ParameterizedTypeReference<>() {
+
+                });
+
+        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
+
+        LOGGER.info("Fin de l'appel vers RESID pour la récupération du statut de la caisse");
+
+        return responseEntity.getBody();
+    }
+
+    @Override
+    public ResidHttpResponseDTO submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws JsonProcessingException {
+        LOGGER.info("Préparation de la requete à destination de RESID pour mise à jour débit");
+
+        // Construction du rest template
+        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        // Headers et URL
+        HttpHeaders headers = getResidRequestHeaders(jwt);
+        String requestUrl = url + RESID_RETOUR_DEBIT_PATH;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
+
+        // Construction de la requête
+        ObjectMapper mapper = new ObjectMapper();
+        HttpEntity<String> requestEntity = new HttpEntity<>(mapper.writeValueAsString(informationDebit), headers);
+        URI uri = builder.build().encode().toUri();
+
+        // Logs DEBUG
+        LOGGER.debug("-- Appel à RESID pour mise à jour débit");
+        LOGGER.debug(URL_LOG, HttpMethod.POST, uri);
+        LOGGER.debug(HEADERS_LOG, headers);
+        String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit);
+        LOGGER.debug("Body: {}", body);
+
+        // Appel et réponse
+        ResponseEntity<ResidHttpResponseDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
+                new ParameterizedTypeReference<>() {
+
+                });
+
+        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
+
+        LOGGER.info("Fin de l'appel vers RESID pour mise à jour du débit");
+
+        return responseEntity.getBody();
     }
 
     private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message) {

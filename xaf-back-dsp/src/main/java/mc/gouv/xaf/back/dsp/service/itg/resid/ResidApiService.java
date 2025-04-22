@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
@@ -13,6 +14,7 @@ import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidInformationDebitDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
@@ -43,13 +45,13 @@ public interface ResidApiService {
     List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt)
             throws JsonProcessingException, ResidHttpResponseException;
 
-    ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt)
-            throws ResidHttpResponseException;
-
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
 
     ResidUsagerNpdhlDTO getUsagerDln1f(ResidInitialDemandeParamDTO paramDTO, String url, String jwt, Integer usagerId)
             throws ParseException;
 
-    void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime);
+    ResidCaisseOuverteDTO getCaisseOuverte(String url, String jwt);
+
+    ResidHttpResponseDTO submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws JsonProcessingException;
+
 }

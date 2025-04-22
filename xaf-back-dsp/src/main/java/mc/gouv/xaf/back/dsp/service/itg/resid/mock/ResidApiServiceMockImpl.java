@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidInformationDebitDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -211,6 +213,19 @@ public class ResidApiServiceMockImpl implements ResidApiService {
     }
 
     @Override
+    public ResidCaisseOuverteDTO getCaisseOuverte(String url, String jwt) {
+        ResidCaisseOuverteDTO caisseOuverteDTO = new ResidCaisseOuverteDTO();
+        caisseOuverteDTO.setOpen(true);
+        return caisseOuverteDTO;
+    }
+
+    @Override
+    public ResidHttpResponseDTO submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt)
+            throws JsonProcessingException {
+        return null;
+    }
+
+    @Override
     public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte,
             Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
         return null;
@@ -254,20 +269,10 @@ public class ResidApiServiceMockImpl implements ResidApiService {
         return new ArrayList<>();
     }
 
-    @Override
-    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt)
-            throws ResidHttpResponseException {
-        return null;
-    }
 
     @Override
     public List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt) {
         return new ArrayList<>();
-    }
-
-    @Override
-    public void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
-        // Nothing to do
     }
 
 }

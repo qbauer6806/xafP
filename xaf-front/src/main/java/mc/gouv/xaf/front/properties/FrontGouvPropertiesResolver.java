@@ -32,9 +32,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${application.name}")
     private String demarcheId;
 
-    // GLOBAL    
-    @Value("${mc.gouv.nomen.api.url}")
-    private String nomenUrl;
+    // GLOBAL
 
     @Value("${mc.gouv.file.api.url}")
     private String fileUrl;
@@ -90,12 +88,6 @@ public class FrontGouvPropertiesResolver {
 
     @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
     private String vscanJwt;
-
-    @Value("${mc.gouv.${application.name}.frontserver.nomen.jwt}")
-    private String nomenJwt;
-
-    @Value("${mc.gouv.payscache.duration}")
-    private String paysCacheDuration;
 
     @Value("${mc.gouv.frontserver.max.upload.intervalle}")
     private String maxUploadParIntervalle;

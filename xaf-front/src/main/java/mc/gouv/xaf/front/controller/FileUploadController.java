@@ -34,6 +34,12 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.tika.Tika;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.mime.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,10 +113,18 @@ public class FileUploadController extends AbstractXafController {
             }
 
             // Vérification du vrai type MIME via Tika
-            Tika tika = new Tika();
-            String mimeTypeFromExtension = tika.detect(safeFileName);
-            try (InputStream inputStream = part.getInputStream()) {
-                String detectedMimeType = tika.detect(inputStream);
+            String mimeTypeFromExtension = new Tika().detect(safeFileName);
+
+            try (InputStream inputStream = part.getInputStream();
+                    TikaInputStream tikaInputStream = TikaInputStream.get(inputStream)) {
+
+                Metadata metadata = new Metadata();
+                metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, safeFileName);
+
+                DefaultDetector detector = new DefaultDetector(new TikaConfig().getMimeRepository());
+                MediaType mediaType = detector.detect(tikaInputStream, metadata);
+                String detectedMimeType = mediaType.toString();
+
                 if (!mimeTypeFromExtension.equals(detectedMimeType)) {
                     LOGGER.info("Le type MIME réel n'est pas celui de l'extension du fichier");
                     return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,

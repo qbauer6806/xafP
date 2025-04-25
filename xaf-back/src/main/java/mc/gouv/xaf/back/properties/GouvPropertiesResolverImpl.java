@@ -100,7 +100,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private String smsJwt;
 
     @Getter
-    @Value("${mc.gouv.${application.name}.shared.backapi.nomen.jwt}")
+    @Value("${mc.gouv.shared.backapi.nomen.jwt}")
     private String nomenJwt;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")

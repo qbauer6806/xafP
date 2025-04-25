@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
+import mc.gouv.xaf.back.data.projection.DemandeDesinscriptionProjection;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
@@ -44,6 +45,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByDernierStatut_NameIn(List<String> statuts);
 
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
+
+    List<DemandeDesinscriptionProjection> findByUsagerId(Integer usagerId);
 
     /**
      * Permet de récupérer les demandes créées entre deux dates

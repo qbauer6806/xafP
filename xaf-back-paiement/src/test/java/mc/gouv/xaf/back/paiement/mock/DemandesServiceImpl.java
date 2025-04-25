@@ -35,6 +35,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId) {
+        return List.of();
+    }
+
+    @Override
     public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
         return null;
     }

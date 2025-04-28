@@ -1,6 +1,6 @@
 package mc.gouv.xaf.apiclient.paiement.mwpaymt.enums;
 
-public enum ActionEnum {
-    REGISTER,
-    SILENT;
+public enum ActionDebitEnum {
+    SUCCESS,
+    FAILURE;
 }

@@ -8,15 +8,13 @@ import lombok.ToString;
 @Setter
 @ToString
 public class UserInformationDTO {
-
+    private String reference;
     private String category;
     private String title;
     private String firstName;
     private String lastName;
     private String legalName;
     private String address1;
-    private String address2;
-    private String address3;
     private String zipCode;
     private String city;
     private String country;

@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.paiement.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
@@ -23,27 +25,30 @@ import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
+import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
+import mc.gouv.xaf.back.paiement.tranformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
@@ -52,7 +57,6 @@ import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
-import org.glassfish.jersey.internal.PropertiesResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -68,6 +72,7 @@ import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import org.springframework.transaction.annotation.Transactional;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
@@ -78,6 +83,8 @@ public class PaiementServiceImpl implements PaiementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
     public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
+    private static final String TARIF_CR_DEMAT_KEY = "XAF_TARIF_CR_DEMAT";
+    private static final String XAF_STATUT_CAISSE_DSP_KEY = "XAF_STATUT_CAISSE_DSP";
 
     @Autowired
     private TableauPaiementService tableauPaiementService;
@@ -132,6 +139,12 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private GouvBPM gouvBPM;
+
+    @Autowired
+    private PropertiesService propertiesService;
+
+    @Autowired
+    private MwpaymtTransformer mwpaymtTransformer;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -280,6 +293,44 @@ public class PaiementServiceImpl implements PaiementService {
         LOGGER.info("URL du mwpamt : {}", gouvPropertiesResolver.getMwpaymtUrl());
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
         return mwpaymtApiClient.getToken(input);
+    }
+
+    @Override
+    public void majTarif(Integer tarif) {
+        PropertiesDTO property = propertiesService.getProperty(TARIF_CR_DEMAT_KEY);
+        if (property != null) {
+            propertiesService.updatePropertyValue(property.getPkProperties(), String.valueOf(tarif));
+        }
+    }
+
+    @Override
+    public void majStatutCaisse(String statut) {
+        // Changer la valeur de la propriétés de la caisse a la valeur fournie en paramètre
+        PropertiesDTO property = propertiesService.getProperty(XAF_STATUT_CAISSE_DSP_KEY);
+        if (property != null) {
+            propertiesService.updatePropertyValue(property.getPkProperties(), String.valueOf(statut));
+        }
+
+        if (statut.equals("OPEN")) {
+            // TODO regarder si on a des débits en attente et si c'est le cas les déclencher
+        }
+    }
+
+    @Override
+    public DebitDTO debit(String idTs, String orderIdResid, String residToken) {
+        logStartMethod(LOGGER);
+        // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
+        DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
+        MoyenPaiementBO moyenPaiementBO = moyenPaiementRepository.findByDemande_PkDemandes(
+                demandeBo.getPkDemandes());
+        InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
+                moyenPaiementBO.getCommande().getPkCommandes());
+        DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiementBO,
+                infoFacturation);
+        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), residToken);
+        DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);
+        logEndMethod(LOGGER);
+        return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }
 
     @Async

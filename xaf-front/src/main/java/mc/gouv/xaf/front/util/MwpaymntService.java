@@ -54,8 +54,8 @@ public class MwpaymntService {
 
         // User information
         UserInformationDTO userInformation = new UserInformationDTO();
+        //userInformation.setReference(usagerInfosDTO.getId());
         userInformation.setAddress1(usagerInfosDTO.getAdresse1());
-        userInformation.setAddress2(usagerInfosDTO.getAdresse2());
         userInformation.setCategory("PRIVATE");
         userInformation.setCity(usagerInfosDTO.getVille());
         userInformation.setCountry(usagerInfosDTO.getPaysCode());

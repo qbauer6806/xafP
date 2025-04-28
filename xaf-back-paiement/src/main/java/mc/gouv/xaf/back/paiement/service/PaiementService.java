@@ -4,6 +4,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
+import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
@@ -22,4 +23,7 @@ public interface PaiementService {
     List<PaymentMethodReferenceDTO> getReferences(String usagerToken);
     void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO);
     RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken);
+    void majTarif(Integer tarif);
+    void majStatutCaisse(String status);
+    DebitDTO debit(String idTs, String orderIdResid, String authorization);
 }

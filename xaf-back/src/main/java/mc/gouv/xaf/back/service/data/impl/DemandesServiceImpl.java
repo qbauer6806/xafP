@@ -44,6 +44,7 @@ import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -478,6 +479,22 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public List<DemandeDTO> getDemandes(Integer usagerId) {
         return getDemandesUsager(usagerId);
+    }
+
+    @Override
+    public List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId) {
+        LOGGER.info(RECUPERATION_DEMANDES);
+        AccessBO accessBo = accessService.getAccessBO(usagerId, true);
+        if (accessBo == null) {
+            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
+        }
+        return demandesRepository.findByUsagerId(usagerId).stream().map(demande -> {
+            DemandeDTO demandeDTO = new DemandeDTO();
+            demandeDTO.setPkDemandes(demande.getPkDemandes());
+            demandeDTO.setIdentifiant(demande.getIdentifiant());
+            demandeDTO.setDernierStatut(DemandesStatutsTransformer.bo2Dto(demande.getDernierStatut()));
+            return demandeDTO;
+        }).toList();
     }
 
     private List<DemandeDTO> getDemandesUsager(Integer usagerId) {

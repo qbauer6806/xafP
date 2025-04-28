@@ -36,6 +36,8 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandes(Integer usagerId);
 
+    List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId);
+
     /**
      * Méthode permettant de récupérer les demandes
      *

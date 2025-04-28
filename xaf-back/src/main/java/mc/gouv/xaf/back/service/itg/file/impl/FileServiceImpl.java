@@ -52,6 +52,12 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.tika.Tika;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,15 +269,25 @@ public class FileServiceImpl implements FileService {
         }
 
         // Vérification du vrai type MIME via Tika
-        Tika tika = new Tika();
-        String mimeTypeFromExtension = tika.detect(fileNameToSave);
-        try (InputStream inputStream = file.getInputStream()) {
-            String detectedMimeType = tika.detect(inputStream);
+        String mimeTypeFromExtension = new Tika().detect(fileNameToSave);
+
+        try (InputStream inputStream = file.getInputStream();
+                TikaInputStream tikaInputStream = TikaInputStream.get(inputStream)) {
+
+            Metadata metadata = new Metadata();
+            metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, fileNameToSave);
+
+            DefaultDetector detector = new DefaultDetector(new TikaConfig().getMimeRepository());
+            org.apache.tika.mime.MediaType mediaType = detector.detect(tikaInputStream, metadata);
+            String detectedMimeType = mediaType.toString();
+
             if (!mimeTypeFromExtension.equals(detectedMimeType)) {
                 LOGGER.info("Le type MIME réel n'est pas celui de l'extension du fichier");
                 throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide",
                         FileUploadErrorEnum.EXTENSION_ERROR);
             }
+        } catch (TikaException e) {
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         // Appel à VSCAN pour vérifier la virulance du fichier

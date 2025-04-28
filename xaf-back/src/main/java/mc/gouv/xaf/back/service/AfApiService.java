@@ -504,7 +504,7 @@ public class AfApiService {
 
         // Récupération de la liste des demandes effectuées par l'usager
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager...");
-        List<DemandeDTO> demandes = demandesService.getDemandes(usagerId);
+        List<DemandeDTO> demandes = demandesService.getDemandesUsagerDesinscription(usagerId);
 
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();

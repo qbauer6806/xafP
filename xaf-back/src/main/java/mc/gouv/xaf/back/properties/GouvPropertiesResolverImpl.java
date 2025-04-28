@@ -60,6 +60,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.sms.api.url:OPTIONAL}")
     private String smsUrl;
 
+    @Getter
     @Value("${mc.gouv.nomen.api.url}")
     private String nomenUrl;
 
@@ -98,7 +99,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.sms.jwt:OPTIONAL}")
     private String smsJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.nomen.jwt}")
+    @Getter
+    @Value("${mc.gouv.shared.backapi.nomen.jwt}")
     private String nomenJwt;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
@@ -258,10 +260,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return smsUrl;
     }
 
-    public String getNomenUrl() {
-        return nomenUrl;
-    }
-
     @Override
     public String getFileJwt() {
         return fileJwt;
@@ -275,10 +273,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getSmsJwt() {
         return smsJwt;
-    }
-
-    public String getNomenJwt() {
-        return nomenJwt;
     }
 
     @Override

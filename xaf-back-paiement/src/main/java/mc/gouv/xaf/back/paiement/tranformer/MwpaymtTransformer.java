@@ -8,6 +8,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionEnum;
 import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class MwpaymtTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MwpaymtTransformer.class);
 
-    public DebitInputDTO infoDebitToMwpaymtDebitDTO(String idTs, String orderIdResid, MoyenPaiementBO moyenPaiement, InformationFacturationBO infoFacturation) {
+    public DebitInputDTO infoDebitToMwpaymtDebitDTO(String idTs, String orderIdResid, MoyenPaiementDTO moyenPaiement, InformationFacturationBO infoFacturation) {
         DebitInputDTO mwpaymtDebitDTO = new DebitInputDTO();
 
         // User information (ie les info de facturation)

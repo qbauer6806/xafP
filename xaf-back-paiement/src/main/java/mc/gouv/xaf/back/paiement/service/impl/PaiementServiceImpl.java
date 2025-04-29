@@ -31,11 +31,13 @@ import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
+import mc.gouv.xaf.back.paiement.service.data.MoyenPaiementService;
 import mc.gouv.xaf.back.paiement.tranformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
@@ -106,6 +108,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
+
+    @Autowired
+    private MoyenPaiementService moyenPaiementService;
 
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
@@ -304,14 +309,11 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void majStatutCaisse(String statut) {
+    public void majStatutCaisse() {
         // Changer la valeur de la propriétés de la caisse a la valeur fournie en paramètre
         PropertiesDTO property = propertiesService.getProperty(XAF_STATUT_CAISSE_DSP_KEY);
         if (property != null) {
-            propertiesService.updatePropertyValue(property.getPkProperties(), String.valueOf(statut));
-        }
-
-        if (statut.equals("OPEN")) {
+            propertiesService.updatePropertyValue(property.getPkProperties(), "OPEN");
             // TODO regarder si on a des débits en attente et si c'est le cas les déclencher
         }
     }
@@ -321,15 +323,19 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
-        MoyenPaiementBO moyenPaiementBO = moyenPaiementRepository.findByDemande_PkDemandes(
+        MoyenPaiementDTO moyenPaiementDTO = moyenPaiementService.findByFkDemandes(
                 demandeBo.getPkDemandes());
         InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
-                moyenPaiementBO.getCommande().getPkCommandes());
-        DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiementBO,
+                moyenPaiementDTO.getCommande().getPkCommandes());
+        DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiementDTO,
                 infoFacturation);
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), residToken);
         DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);
         logEndMethod(LOGGER);
+
+        // TODO Mettre à jour les opérations (commandes_operations)
+        // l'historique de paiement
+
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }
 

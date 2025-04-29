@@ -9,8 +9,6 @@ import lombok.ToString;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MwpaymtGenericCallbackDTO {
-    private String reference;
-    private String transactionId;
     private PaymentMethodInformationDTO paymentMethodInformation;
     private String orderId;
 }

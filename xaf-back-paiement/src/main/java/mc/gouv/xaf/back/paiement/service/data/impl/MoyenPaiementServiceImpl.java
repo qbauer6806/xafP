@@ -19,4 +19,10 @@ public class MoyenPaiementServiceImpl implements MoyenPaiementService {
         MoyenPaiementBO bo = moyenPaiementRepository.findByCommande_PkCommandes(pkCommande);
         return MoyenPaiementTransformer.bo2Dto(bo);
     }
+
+    @Override
+    public MoyenPaiementDTO findByFkDemandes(Integer fkDemandes) {
+        MoyenPaiementBO bo = moyenPaiementRepository.findByDemande_PkDemandes(fkDemandes);
+        return MoyenPaiementTransformer.bo2Dto(bo);
+    }
 }

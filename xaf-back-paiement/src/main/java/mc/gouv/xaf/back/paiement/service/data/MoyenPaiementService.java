@@ -6,4 +6,6 @@ public interface MoyenPaiementService {
 
     MoyenPaiementDTO findByPkCommande(Integer pkCommande);
 
+    MoyenPaiementDTO findByFkDemandes(Integer fkDemandes);
+
 }

@@ -61,10 +61,10 @@ public class ResidApiController {
                     content = @Content(mediaType = "application/json"))
     })
     @PutMapping(value = "/statutCaisse")
-    public void majStatutCaisse(@RequestBody ResidStatutCaisseDTO input) {
+    public void majStatutCaisse() {
         logStartMethod(LOGGER);
-        paiementService.majStatutCaisse(input.getAction().name());
-        LOGGER.info("Fin de la mise à jour du statut de la caisse. La caisse est maintenant {}", input.getAction().name());
+        paiementService.majStatutCaisse();
+        LOGGER.info("Fin de la mise à jour du statut de la caisse. La caisse est maintenant ouverte");
         logEndMethod(LOGGER);
     }
 
@@ -84,9 +84,11 @@ public class ResidApiController {
         logStartMethod(LOGGER);
         String authorization = request.getHeader("Authorization");
         String jwt = "";
+
         if (authorization != null && authorization.startsWith("Bearer ")) {
             jwt = authorization.substring(7); // Enlève "Bearer "
         }
+
         DebitDTO debit = paiementService.debit(input.getIdTs(), input.getOrderIdResid(), jwt);
         logEndMethod(LOGGER);
         return debit;

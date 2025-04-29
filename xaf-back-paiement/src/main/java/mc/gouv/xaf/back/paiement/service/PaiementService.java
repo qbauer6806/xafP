@@ -24,6 +24,6 @@ public interface PaiementService {
     void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO);
     RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken);
     void majTarif(Integer tarif);
-    void majStatutCaisse(String status);
+    void majStatutCaisse();
     DebitDTO debit(String idTs, String orderIdResid, String authorization);
 }

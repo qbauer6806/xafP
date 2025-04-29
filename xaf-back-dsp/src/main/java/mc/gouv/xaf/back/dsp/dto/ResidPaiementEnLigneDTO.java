@@ -11,7 +11,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidPaiementEnLigneDTO {
 
-    private ResidInformationPaiementDTO residInformationPaiementDTO;
-    private ResidInformationFacturationDTO residInformationFacturationDTO;
+    private ResidInformationPaiementDTO informationPaiement;
+    private ResidInformationFacturationDTO informationFacturation;
 
 }

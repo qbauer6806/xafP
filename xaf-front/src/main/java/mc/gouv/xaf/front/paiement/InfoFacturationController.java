@@ -5,6 +5,7 @@ import mc.gouv.xaf.front.controller.AbstractXafController;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,8 @@ public class InfoFacturationController  extends AbstractXafController {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        InfoFacturationResponseDTO infoFacturation = getPaiementApiClient().getInfoFacturation(usagerInfosDTO.getId());
+        GichuniUsagerDTO gichuniUsager = usagerInfosDTO;
+        InfoFacturationResponseDTO infoFacturation = getPaiementApiClient().getInfoFacturation(gichuniUsager);
         LOGGER.info("====================== /info-facturation GET end...");
         return ResponseEntity.ok(infoFacturation);
     }

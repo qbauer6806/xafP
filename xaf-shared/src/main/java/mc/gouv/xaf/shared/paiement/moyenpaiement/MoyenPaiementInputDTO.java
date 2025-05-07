@@ -10,6 +10,10 @@ import lombok.ToString;
 @ToString
 public class MoyenPaiementInputDTO {
     @JsonProperty(required = true)
-    private String orderId;
+    private String reference;
+    @JsonProperty(required = true)
     private String cardName;
+    @JsonProperty(required = true)
+    private boolean isNew;
+    private String paymentMethodToken;
 }

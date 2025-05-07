@@ -13,6 +13,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
@@ -44,10 +45,10 @@ public class PaiementApiClient extends AfApiClient {
         });
     }
 
-    public InfoFacturationResponseDTO getInfoFacturation(Integer usagerId) {
-        Response res = getTarget().path("paiement/infofacturation").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+    public InfoFacturationResponseDTO getInfoFacturation(GichuniUsagerDTO gichuniUsager) {
+        Response res = getTarget().path("paiement/getinfofacturation").request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.json(gichuniUsager));
         ExceptionManager.checkExceptionResponse(res);
         return res.readEntity(new GenericType<InfoFacturationResponseDTO>() {
 
@@ -67,11 +68,12 @@ public class PaiementApiClient extends AfApiClient {
         });
     }
 
-    public void createMoyenPaiement(List<String> demandeIds, Integer usagerId, String orderId) {
+    public void createMoyenPaiement(List<String> demandeIds, GichuniUsagerDTO usager, String orderId, String usagerToken) {
         Response res = getTarget().path("paiement/moyenpaiement").queryParam("demandeIds", demandeIds)
-                .queryParam("usagerId", usagerId).queryParam("orderId", orderId).request(MediaType.APPLICATION_JSON)
+                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken)
+                .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
-                .post(Entity.json(null));
+                .post(Entity.json(usager));
         ExceptionManager.checkExceptionResponse(res);
     }
 

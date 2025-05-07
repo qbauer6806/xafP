@@ -61,11 +61,12 @@ public class InfoPaiementController extends AbstractXafController {
         PaiementApiClient paiementApiClient = getPaiementApiClient();
 
         // Appel au PSP via l'API server pour générer le form token
-        RegisterOutputDTO token = paiementApiClient.postInfoPaiement(registerInput, usagerInfosDTO.getTokenInfo().getAccessToken());
+        String accessToken = usagerInfosDTO.getTokenInfo().getAccessToken();
+        RegisterOutputDTO token = paiementApiClient.postInfoPaiement(registerInput, accessToken);
         String orderId = registerInput.getTransactionInformation().getOrderId();
 
         // Création du moyen de paiement en base de donnée
-        paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO.getId(), orderId);
+        paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO, orderId, accessToken);
         InfoPaiementOutputDTO infoPaiementOutputDTO = mwpaymntService.mwpaymtRegisterResponseToInfoPaiementOutputDTO(token);
 
         LOGGER.info("====================== /info-paiement POST end...");

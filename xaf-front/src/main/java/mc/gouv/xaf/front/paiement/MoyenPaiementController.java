@@ -47,10 +47,9 @@ public class MoyenPaiementController extends AbstractXafController {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        // TODO Récupération des alias dans mon guichet
-        //List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(usagerInfosDTO.getTokenInfo().getAccessToken());
+        List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(usagerInfosDTO.getTokenInfo().getAccessToken());
 
-        List<PaymentMethodReferenceDTO> monGuichetAliases = new ArrayList<>();
+        /*List<PaymentMethodReferenceDTO> monGuichetAliases = new ArrayList<>();
         PaymentMethodReferenceDTO reference1 = new PaymentMethodReferenceDTO();
         reference1.setPaymentMethodToken("5c0b802bc43d4ffe86c6492c2f08824e");
         reference1.setPaymentMethodName("Carte DSP 1");
@@ -70,11 +69,11 @@ public class MoyenPaiementController extends AbstractXafController {
         reference4.setPaymentMethodToken("b672520d400a45d4bec74903c42bca75");
         reference4.setPaymentMethodName("Carte DT 2");
         reference4.setPaymentMethodType("CARD");
-        monGuichetAliases.add(reference4);
+        monGuichetAliases.add(reference4);*/
 
         // Appel à lyra pour obtenir les infos
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
-        for (PaymentMethodReferenceDTO monGuichetAlias : monGuichetAliases) {
+        for (PaymentMethodReferenceDTO monGuichetAlias : references) {
             // Appel au PSP via l'API serveur pour récupérer les infos de paiement données par monguichet
             InfoOutputDTO info = getPaiementApiClient().getMoyenPaiement(
                     mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());
@@ -91,7 +90,7 @@ public class MoyenPaiementController extends AbstractXafController {
 
     @PutMapping(value = { "/moyen-paiement" })
     public ResponseEntity saveMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInput, HttpServletRequest request) {
-        LOGGER.info("====================== /moyen-paiement POST start...");
+        LOGGER.info("====================== /moyen-paiement PUT start...");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);

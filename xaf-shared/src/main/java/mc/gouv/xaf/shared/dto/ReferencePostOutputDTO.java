@@ -10,7 +10,7 @@ import lombok.ToString;
 public class ReferencePostOutputDTO {
     private String profileId;
     private String paymentMethodToken;
-    private String paymentMethodtype;
+    private String paymentMethodType;
     private String paymentSupplier;
     private String tokenSupplier;
     private String paymentMethodName;

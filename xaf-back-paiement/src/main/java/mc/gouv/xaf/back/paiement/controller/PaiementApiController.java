@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
@@ -24,7 +25,6 @@ import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -131,9 +131,9 @@ public class PaiementApiController {
         return paiementService.getTableauPaiement(objectIds, objectType, usagerId);
     }
 
-    @GetMapping(value = "/infofacturation")
-    public InfoFacturationResponseDTO getInfoFacturation(@RequestParam(value = "usagerId") Integer usagerId) {
-        return paiementService.getInfoFacturation(usagerId);
+    @PostMapping(value = "/getinfofacturation")
+    public InfoFacturationResponseDTO getInfoFacturation(@RequestBody GichuniUsagerDTO usagerDTO) {
+        return paiementService.getInfoFacturation(usagerDTO);
     }
 
     @PostMapping(value = "/infofacturation")
@@ -148,8 +148,8 @@ public class PaiementApiController {
 
     @PostMapping(value = "/moyenpaiement")
     public void createMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
-            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "orderId") String orderId) {
-        paiementService.createMoyenPaiement(demandeIds, usagerId, orderId);
+            @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId) {
+        paiementService.createMoyenPaiement(demandeIds, usager, orderId);
     }
 
     @PostMapping(value = "/moyenpaiement/info")

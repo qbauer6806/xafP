@@ -57,18 +57,19 @@ public class GichuniApiClient {
         return Arrays.asList(usagers);
     }
 
-
-    public void saveReference(String test, @NotNull String paymentMethodType, @NotNull String paymentMethodToken, String paymentSupplier, String demarcheId, String paymentMethodName) {
+    public ReferencePostOutputDTO saveReference(@NotNull String paymentMethodType, @NotNull String paymentMethodToken,
+            String paymentSupplier, String demarcheId, String paymentMethodName, String usagerSub) {
         ReferencePostOutputDTO outputDTO = new ReferencePostOutputDTO();
         outputDTO.setPaymentSupplier(paymentSupplier);
         outputDTO.setPaymentMethodToken(paymentMethodToken);
         outputDTO.setPaymentMethodName(paymentMethodName);
-        outputDTO.setProfileId(test);
         outputDTO.setTokenSupplier(demarcheId);
-        outputDTO.setPaymentMethodtype(paymentMethodType);
-        ReferencePostOutputDTO gichuniReponse = restTemplate.postForObject(
-                gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/references", outputDTO, ReferencePostOutputDTO.class);
-        System.out.println(gichuniReponse);
+        outputDTO.setPaymentMethodType(paymentMethodType);
+        outputDTO.setProfileId(usagerSub);
+        // RestTemplate restTemplateWithToken = restTemplateWithToken(usagerToken);
+        return restTemplate.postForObject(
+                gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/reference", outputDTO,
+                ReferencePostOutputDTO.class);
     }
 
     public List<PaymentMethodReferenceDTO> getReferences(String usagerToken) {

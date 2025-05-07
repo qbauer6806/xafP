@@ -29,6 +29,7 @@ import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
@@ -47,10 +48,12 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
@@ -96,9 +99,6 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private DemandesService demandesService;
-
-    @Autowired
-    private UsagersCache usagersCache;
 
     @Autowired
     private CommandeRepository commandeRepository;
@@ -180,8 +180,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public InfoFacturationResponseDTO getInfoFacturation(Integer usagerId) {
-        GichuniUsagerDTO usager = usagersCache.get(usagerId);
+    public InfoFacturationResponseDTO getInfoFacturation(GichuniUsagerDTO usager) {
         InfoFacturationResponseDTO result = new InfoFacturationResponseDTO();
         VousDTO vous = new VousDTO();
         // TODO determiné où on ira chercher ces infos par la suite
@@ -192,14 +191,17 @@ public class PaiementServiceImpl implements PaiementService {
         result.setVous(vous);
         result.setEmail(usager.getEmail());
 
-        // Adresse
+        // Adresse dans adresseFacturation
         AdresseDTO adresse = new AdresseDTO();
-        adresse.setLigne1(usager.getAdresse1());
-        adresse.setLigne2(usager.getAdresse2() != null ? usager.getAdresse2() : "");
-        adresse.setLigne3(usager.getComplementAdresse() != null ? usager.getComplementAdresse() : "");
-        adresse.setPays(usager.getPaysCode());
-        adresse.setCodePostal(usager.getCodePostal());
-        adresse.setVille(usager.getVille());
+        AdresseFacturationDTO adresseFacturation = usager.getAdresseFacturation();
+        if(adresseFacturation != null) {
+            adresse.setLigne1(adresseFacturation.getAdresse());
+            adresse.setLigne2(adresseFacturation.getComplAdresse1() != null ? adresseFacturation.getComplAdresse1() : "");
+            adresse.setLigne3(adresseFacturation.getComplAdresse2() != null ? adresseFacturation.getComplAdresse2() : "");
+            adresse.setPays(adresseFacturation.getPaysCode());
+            adresse.setCodePostal(adresseFacturation.getCodePostal());
+            adresse.setVille(usager.getVille());
+        }
         result.setAdresse(adresse);
 
         // Raison sociale
@@ -216,7 +218,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void createMoyenPaiement(String ids, Integer usagerId, String orderId) {
+    public void createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId) {
         logStartMethod(LOGGER);
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         String replace = ids.replace("[", "").replace("]", "");
@@ -226,11 +228,11 @@ public class PaiementServiceImpl implements PaiementService {
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
         moyenPaiement.setPkMoyensPaiements(orderId);
         // Je crée la commande que j'associerai à mon moyen de paiement
-        BigDecimal totalCommande = calculTotalCommande(demandeIds, usagerId, demandes, totauxDemandes,
+        BigDecimal totalCommande = calculTotalCommande(demandeIds, usager.getId(), demandes, totauxDemandes,
                 articlesDemandes);
         CommandeBO commande = createCommande(totalCommande, moyenPaiement, demandeIds, demandes, totauxDemandes,
                 articlesDemandes);
-        createInfoFacturation(usagerId, commande);
+        createInfoFacturation(usager, commande);
         LocalDateTime now = LocalDateTime.now();
         moyenPaiement.setCommande(commande);
         moyenPaiement.setDateCreation(now);
@@ -244,11 +246,20 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO) {
         // On retrouve le moyen de paiement associé à l'orderId
-        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.getReferenceById(moyenPaiementInputDTO.getOrderId());
-        moyenPaiementBo.setPaymentMethodRecord(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name());
-        // On est dans le cas ou l'usager à coché la case "Sauvegarde du moyen de
-        // paiement pour plus tard", POST /moyen-paiement"
+        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.getReferenceById(moyenPaiementInputDTO.getReference());
         moyenPaiementBo.setPaymentMethodName(moyenPaiementInputDTO.getCardName());
+        if (moyenPaiementInputDTO.isNew()) {
+            // On est dans le cas ou l'usager à coché la case "Sauvegarde du moyen de
+            // paiement pour plus tard", PUT /moyen-paiement"
+            moyenPaiementBo.setPaymentMethodRecord(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name());
+        }
+        // On est dans le cas ou l'usager a sélectionné un moyen de paiement existant sinon c'est le callback SPG qui nous fournira l'info
+        if(moyenPaiementInputDTO.getPaymentMethodToken() != null && !moyenPaiementInputDTO.getPaymentMethodToken().isEmpty()) {
+            /*InfoOutputDTO info = getPaiementApiClient().getMoyenPaiement(
+                    mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());*/
+            moyenPaiementBo.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
+            moyenPaiementBo.setPaymentMethodType("CARD");
+        }
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
         moyenPaiementRepository.save(moyenPaiementBo);
     }
@@ -283,13 +294,16 @@ public class PaiementServiceImpl implements PaiementService {
                     moyenPaiementBo.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandes(demandes, callbackDTO);
+            if(moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
+                // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
+                ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
+                        paymentMethodInformation.getPaymentMethodType(),
+                        paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
+                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getReference());
+                System.out.println(referencePostOutputDTO.toString());
+            }
         }
-
         moyenPaiementRepository.save(moyenPaiementBo);
-        // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
-        /*gichuniApiClient.saveReference("test", paymentMethodInformation.getPaymentMethodType(),
-                paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName());*/
     }
 
     @Override
@@ -381,9 +395,9 @@ public class PaiementServiceImpl implements PaiementService {
         t.start();
     }
 
-    private void createInfoFacturation(Integer usagerId, CommandeBO commande) {
+    private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande) {
         // Stockage de l'info de facturation en base de donnée
-        InfoFacturationResponseDTO result = getInfoFacturation(usagerId);
+        InfoFacturationResponseDTO result = getInfoFacturation(usager);
         infoFacturationRepository
                 .save(InfoFacturationTransformer.infoFacturationResponseDTOToInfoFacturationBO(result, commande));
     }

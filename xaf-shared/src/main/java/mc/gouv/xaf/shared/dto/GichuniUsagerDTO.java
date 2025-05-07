@@ -18,6 +18,7 @@ import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 public class GichuniUsagerDTO {
 
     private Integer id;
+    private String sub;
     private String login;
     private Short etat;
     private String email;
@@ -33,6 +34,7 @@ public class GichuniUsagerDTO {
     private String nomPays;
     private String paysId;
     private String paysCode;
+    private AdresseFacturationDTO adresseFacturation;
     private UsagerTypeEnum type;
 
     protected JsonNode donneesExternes;

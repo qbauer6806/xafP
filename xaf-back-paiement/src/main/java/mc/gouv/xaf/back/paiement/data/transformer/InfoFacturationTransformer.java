@@ -21,8 +21,8 @@ public class InfoFacturationTransformer {
         bo.setRaisonSociale(dto.getRaisonSociale());
         AdresseDTO adresse = dto.getAdresse();
         bo.setAdresseLigne1(adresse.getLigne1());
-        //    	bo.setAdresseLigne2(adresse.getLigne2());
-        //    	bo.setAdresseLigne3(adresse.getLigne3());
+        bo.setAdresseLigne2(adresse.getLigne2());
+        bo.setAdresseLigne3(adresse.getLigne3());
         bo.setCodePostal(adresse.getCodePostal());
         bo.setVille(adresse.getVille());
         bo.setPays(adresse.getPays());
@@ -41,8 +41,8 @@ public class InfoFacturationTransformer {
         bo.setRaisonSociale(dto.getRaisonSociale());
         AdresseDTO adresse = dto.getAdresse();
         bo.setAdresseLigne1(adresse.getLigne1());
-        //    	bo.setAdresseLigne2(adresse.getLigne2());
-        //    	bo.setAdresseLigne3(adresse.getLigne3());
+        bo.setAdresseLigne2(adresse.getLigne2());
+        bo.setAdresseLigne3(adresse.getLigne3());
         bo.setCodePostal(adresse.getCodePostal());
         bo.setVille(adresse.getVille());
         bo.setPays(adresse.getPays());

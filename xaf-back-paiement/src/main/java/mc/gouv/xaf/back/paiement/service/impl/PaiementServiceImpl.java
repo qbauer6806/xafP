@@ -294,7 +294,7 @@ public class PaiementServiceImpl implements PaiementService {
                     moyenPaiementBo.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandes(demandes, callbackDTO);
-            if(moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
+            if(moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
                 // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
@@ -337,7 +337,7 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
-        MoyenPaiementDTO moyenPaiementDTO = moyenPaiementService.findByFkDemandes(
+        MoyenPaiementDTO moyenPaiementDTO = moyenPaiementService.findByFkDemandesAndLatestCommande(
                 demandeBo.getPkDemandes());
         InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
                 moyenPaiementDTO.getCommande().getPkCommandes());

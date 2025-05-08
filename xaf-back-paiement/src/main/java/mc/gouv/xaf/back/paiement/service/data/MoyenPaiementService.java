@@ -4,8 +4,6 @@ import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 
 public interface MoyenPaiementService {
 
-    MoyenPaiementDTO findByPkCommande(Integer pkCommande);
-
-    MoyenPaiementDTO findByFkDemandes(Integer fkDemandes);
+    MoyenPaiementDTO findByFkDemandesAndLatestCommande(Integer fkDemandes);
 
 }

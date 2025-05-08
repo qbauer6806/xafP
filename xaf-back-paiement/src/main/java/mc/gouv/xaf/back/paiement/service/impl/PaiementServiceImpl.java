@@ -345,8 +345,22 @@ public class PaiementServiceImpl implements PaiementService {
         logEndMethod(LOGGER);
 
         // TODO Mettre à jour les opérations (commandes_operations)
-        // l'historique de paiement
-
+        // l'historique de
+        DemandesUsagersBO usager = demandeBo.getUsager();
+        Integer usagerId = usager.getId();
+        GouvBPMUser user = new GouvBPMUser();
+        user.setId(usagerId.toString());
+        LOGGER.info("Ajout de l'historique de paiement...");
+        PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
+        historique.setFkDemandes(demandeBo);
+        if (usager != null) {
+            historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
+                    + " : Paie en ligne");
+        }
+        historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
+        historique.setDate(Timestamp.valueOf(LocalDateTime.now()));
+        historique.setUsagerId(usagerId);
+        paiementHistoriqueRepository.save(historique);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }
 

@@ -38,7 +38,6 @@ import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
-import mc.gouv.xaf.back.paiement.service.data.MoyenPaiementService;
 import mc.gouv.xaf.back.paiement.tranformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
@@ -109,8 +108,6 @@ public class PaiementServiceImpl implements PaiementService {
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
 
-    @Autowired
-    private MoyenPaiementService moyenPaiementService;
 
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
@@ -337,11 +334,11 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
-        MoyenPaiementDTO moyenPaiementDTO = moyenPaiementService.findByFkDemandesAndLatestCommande(
+        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByDemande_PkDemandesAndLastCreationDate(
                 demandeBo.getPkDemandes());
         InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
-                moyenPaiementDTO.getCommande().getPkCommandes());
-        DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiementDTO,
+                moyenPaiement.getCommande().getPkCommandes());
+        DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiement,
                 infoFacturation);
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), residToken);
         DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);

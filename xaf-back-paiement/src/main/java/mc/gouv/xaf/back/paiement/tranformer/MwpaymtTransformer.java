@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class MwpaymtTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MwpaymtTransformer.class);
 
-    public DebitInputDTO infoDebitToMwpaymtDebitDTO(String idTs, String orderIdResid, MoyenPaiementDTO moyenPaiement, InformationFacturationBO infoFacturation) {
+    public DebitInputDTO infoDebitToMwpaymtDebitDTO(String idTs, String orderIdResid, MoyenPaiementBO moyenPaiement, InformationFacturationBO infoFacturation) {
         DebitInputDTO mwpaymtDebitDTO = new DebitInputDTO();
 
         // User information (ie les info de facturation)

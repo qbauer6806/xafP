@@ -16,4 +16,14 @@ public interface MoyenPaiementRepository extends JpaRepository<MoyenPaiementBO, 
             "JOIN CommandeDemandeBO cd ON cd.commande.pkCommandes = c.pkCommandes " +
             "WHERE cd.demande.pkDemandes = :demandeId")
     MoyenPaiementBO findByDemande_PkDemandes(Integer demandeId);
+
+    @Query("SELECT mp FROM MoyenPaiementBO mp " +
+            "JOIN mp.commande c " +
+            "JOIN CommandeDemandeBO cd ON cd.commande.pkCommandes = c.pkCommandes " +
+            "WHERE cd.demande.pkDemandes = :demandeId " +
+            "AND c.dateCreation = (" +
+            "SELECT MAX(c2.dateCreation) FROM CommandeBO c2 " +
+            "JOIN CommandeDemandeBO cd2 ON cd2.commande.pkCommandes = c2.pkCommandes " +
+            "WHERE cd2.demande.pkDemandes = :demandeId)")
+    MoyenPaiementBO findByDemande_PkDemandesAndLastCreationDate(Integer demandeId);
 }

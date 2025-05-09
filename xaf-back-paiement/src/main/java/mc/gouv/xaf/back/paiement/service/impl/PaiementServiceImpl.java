@@ -293,6 +293,7 @@ public class PaiementServiceImpl implements PaiementService {
             updateDemandes(demandes, callbackDTO);
             if(moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
                 // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
+                LOGGER.info("Sauvegarde du moyen de paiement dans mon guichet suite à un callback reçu de MWPAYMT");
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
                         paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),

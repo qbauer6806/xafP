@@ -25,6 +25,7 @@ import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -164,7 +165,7 @@ public class PaiementApiController {
 
     @PostMapping
     public void updatePaiement(@RequestBody MwpaymtGenericCallbackDTO callbackDTO) {
-        paiementService.updatePaiementStatus(callbackDTO);
+        paiementService.updatePaiementStatusAsync(callbackDTO);
     }
 
     @PostMapping(value = "/infopaiement")

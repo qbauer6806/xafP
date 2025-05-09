@@ -23,6 +23,7 @@ public interface PaiementService {
     InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken);
     List<PaymentMethodReferenceDTO> getReferences(String usagerToken);
     void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO);
+    void updatePaiementStatusAsync(MwpaymtGenericCallbackDTO callbackDTO);
     RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken);
     void majTarif(Integer tarif);
     void majStatutCaisse();

@@ -272,10 +272,23 @@ public class PaiementServiceImpl implements PaiementService {
         return gichuniApiClient.getReferences(usagerToken);
     }
 
+    @Async
+    @Override
+    public void updatePaiementStatusAsync(MwpaymtGenericCallbackDTO callbackDTO) {
+        try {
+            LOGGER.info("Attente 5 sec lors du callback");
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        updatePaiementStatus(callbackDTO);
+    }
+
     @Override
     public void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO) {
         LOGGER.info("Mise à jour du status de paiement suite à un callback reçu de MWPAYMT");
         // On retrouve le moyen de paiement associé à l'orderId
+
         MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.findById(callbackDTO.getOrderId()).orElseThrow(
                 () -> new DemarchesServiceException("Aucun orderId " + callbackDTO.getOrderId() + " n'a été trouvé.",
                         HttpStatus.NOT_FOUND));

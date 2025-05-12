@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.paiement.service;
 
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
@@ -20,7 +20,7 @@ public interface PaiementService {
     void updateInfoFacturation();
     void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId);
     void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO);
-    InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken);
+    PaymentMethodInformationDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken);
     List<PaymentMethodReferenceDTO> getReferences(String usagerToken);
     void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO);
     void updatePaiementStatusAsync(MwpaymtGenericCallbackDTO callbackDTO);

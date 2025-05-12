@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.paiement;
 
 import jakarta.servlet.http.HttpServletRequest;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.front.controller.AbstractXafController;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.MwpaymntService;
@@ -53,12 +53,12 @@ public class MoyenPaiementController extends AbstractXafController {
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
         for (PaymentMethodReferenceDTO monGuichetAlias : references) {
             // Appel au PSP via l'API serveur pour récupérer les infos de paiement données par monguichet
-            InfoOutputDTO info = getPaiementApiClient().getMoyenPaiement(
+            PaymentMethodInformationDTO pmi = getPaiementApiClient().getMoyenPaiement(
                     mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());
 
-            if (info.getPaymentMethodInformation().getPaymentMethodStatus().equals(PaymentMethodStatusEnum.ACTIVE)) {
+            if (pmi.getPaymentMethodStatus().equals(PaymentMethodStatusEnum.ACTIVE)) {
                 moyenPaiementOutputDTOs.add(
-                        mwpaymntService.mwpaymentResponseToMoyenPaiement(info, monGuichetAlias.getPaymentMethodName()));
+                        mwpaymntService.mwpaymentResponseToMoyenPaiement(pmi, monGuichetAlias.getPaymentMethodName()));
             }
         }
         moyenPaiementOutputDTOs.sort(new MoyenPaiementComparator());

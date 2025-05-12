@@ -11,7 +11,7 @@ public class RegisterOutputDTO {
         this.formToken = formToken;
     }
     private String formToken;
-    private String reference;
+    private String orderId;
     private String callbackUri;
 
 }

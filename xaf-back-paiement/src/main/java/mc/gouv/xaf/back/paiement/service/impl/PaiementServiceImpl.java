@@ -5,7 +5,6 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.back.bpm.GouvBPM;
@@ -29,10 +28,8 @@ import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
-import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
@@ -45,7 +42,6 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -256,13 +252,18 @@ public class PaiementServiceImpl implements PaiementService {
                     mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());*/
             moyenPaiementBo.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             moyenPaiementBo.setPaymentMethodType("CARD");
+            // Changer la demande de status
+            List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
+                    moyenPaiementBo.getCommande().getPkCommandes());
+            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
+            updateDemandes(demandes, moyenPaiementInputDTO.getReference());
         }
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
         moyenPaiementRepository.save(moyenPaiementBo);
     }
 
     @Override
-    public InfoOutputDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken) {
+    public mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken) {
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
         return mwpaymtApiClient.getInfo(input);
     }
@@ -303,7 +304,7 @@ public class PaiementServiceImpl implements PaiementService {
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
-            updateDemandes(demandes, callbackDTO);
+            updateDemandes(demandes, moyenPaiementBo.getPkMoyensPaiements());
             if(moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
                 // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
                 LOGGER.info("Sauvegarde du moyen de paiement dans mon guichet suite à un callback reçu de MWPAYMT");
@@ -311,7 +312,6 @@ public class PaiementServiceImpl implements PaiementService {
                         paymentMethodInformation.getPaymentMethodType(),
                         paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
                         gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getReference());
-                System.out.println(referencePostOutputDTO.toString());
             }
         }
         moyenPaiementRepository.save(moyenPaiementBo);
@@ -379,7 +379,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Async
-    void updateDemandes(List<DemandeBO> demandes, MwpaymtGenericCallbackDTO callbackDTO) {
+    void updateDemandes(List<DemandeBO> demandes, String orderId) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
             for (DemandeBO demande : demandes) {
@@ -416,7 +416,7 @@ public class PaiementServiceImpl implements PaiementService {
                 }
             }
         });
-        t.setName(UPDATE_PAIEMENT_DATA_THREAD + callbackDTO.getOrderId());
+        t.setName(UPDATE_PAIEMENT_DATA_THREAD + orderId);
         t.start();
     }
 

@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -25,7 +25,6 @@ import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -154,7 +153,7 @@ public class PaiementApiController {
     }
 
     @PostMapping(value = "/moyenpaiement/info")
-    public InfoOutputDTO getMoyenPaiement(@RequestBody InfoCancelInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
+    public PaymentMethodInformationDTO getMoyenPaiement(@RequestBody InfoCancelInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
        return paiementService.getMoyenPaiement(input, usagerToken);
     }
 

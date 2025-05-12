@@ -3,11 +3,9 @@ package mc.gouv.xaf.front.util;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.PaymentInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.CompanyEnum;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -67,16 +65,15 @@ public class MwpaymntService {
         return result;
     }
 
-    public MoyenPaiementOutputDTO mwpaymentResponseToMoyenPaiement(InfoOutputDTO infoOutput, String moyenPaiementName) {
+    public MoyenPaiementOutputDTO mwpaymentResponseToMoyenPaiement(PaymentMethodInformationDTO pmi, String moyenPaiementName) {
         MoyenPaiementOutputDTO currentMoyenPaiement = new MoyenPaiementOutputDTO();
-        mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO paymentMethodInformation = infoOutput.getPaymentMethodInformation();
-        currentMoyenPaiement.setNumero(paymentMethodInformation.getPan());
-        currentMoyenPaiement.setType(paymentMethodInformation.getEffectiveBrand());
-        currentMoyenPaiement.setExpiration(calculateExpiration(paymentMethodInformation.getExpiryMonth(),
-                paymentMethodInformation.getExpiryYear()));
+        currentMoyenPaiement.setNumero(pmi.getPan());
+        currentMoyenPaiement.setType(pmi.getEffectiveBrand());
+        currentMoyenPaiement.setExpiration(calculateExpiration(pmi.getExpiryMonth(),
+                pmi.getExpiryYear()));
         currentMoyenPaiement.setNom(moyenPaiementName);
         // TODO allé chercher ce nom dans mon guichet
-        currentMoyenPaiement.setId(paymentMethodInformation.getPaymentMethodToken());
+        currentMoyenPaiement.setId(pmi.getPaymentMethodToken());
         return currentMoyenPaiement;
     }
 
@@ -96,7 +93,7 @@ public class MwpaymntService {
 
     public InfoPaiementOutputDTO mwpaymtRegisterResponseToInfoPaiementOutputDTO(RegisterOutputDTO mwpaymtResponse) {
         InfoPaiementOutputDTO paiementOutputDTO = new InfoPaiementOutputDTO();
-        paiementOutputDTO.setReference(mwpaymtResponse.getReference());
+        paiementOutputDTO.setReference(mwpaymtResponse.getOrderId());
         //TODO pas de valeur fixe
         paiementOutputDTO.setStatus("SUCCESS");
         paiementOutputDTO.setAnswer(new AnswerDTO(mwpaymtResponse.getFormToken()));

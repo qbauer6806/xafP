@@ -11,7 +11,6 @@ import lombok.ToString;
 public class TransactionInformationDTO {
 
     private String orderId;
-    private String currency;
     private String metadatakey;
     private String metadatavalue;
     private float amount;

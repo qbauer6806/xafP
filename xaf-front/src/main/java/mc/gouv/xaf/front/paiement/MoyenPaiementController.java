@@ -49,28 +49,6 @@ public class MoyenPaiementController extends AbstractXafController {
         }
         List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(usagerInfosDTO.getTokenInfo().getAccessToken());
 
-        /*List<PaymentMethodReferenceDTO> monGuichetAliases = new ArrayList<>();
-        PaymentMethodReferenceDTO reference1 = new PaymentMethodReferenceDTO();
-        reference1.setPaymentMethodToken("5c0b802bc43d4ffe86c6492c2f08824e");
-        reference1.setPaymentMethodName("Carte DSP 1");
-        reference1.setPaymentMethodType("CARD");
-        monGuichetAliases.add(reference1);
-        PaymentMethodReferenceDTO reference2 = new PaymentMethodReferenceDTO();
-        reference2.setPaymentMethodToken("c1a7c77151b74756b8fe29905f37330c");
-        reference2.setPaymentMethodName("Carte DSP 2");
-        reference2.setPaymentMethodType("CARD");
-        monGuichetAliases.add(reference2);
-        PaymentMethodReferenceDTO reference3 = new PaymentMethodReferenceDTO();
-        reference3.setPaymentMethodToken("9bb1ab1c3e8f4944b87748dc26d751aa");
-        reference3.setPaymentMethodName("Carte DT 1");
-        reference3.setPaymentMethodType("CARD");
-        monGuichetAliases.add(reference3);
-        PaymentMethodReferenceDTO reference4 = new PaymentMethodReferenceDTO();
-        reference4.setPaymentMethodToken("b672520d400a45d4bec74903c42bca75");
-        reference4.setPaymentMethodName("Carte DT 2");
-        reference4.setPaymentMethodType("CARD");
-        monGuichetAliases.add(reference4);*/
-
         // Appel à lyra pour obtenir les infos
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
         for (PaymentMethodReferenceDTO monGuichetAlias : references) {

@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class PaymentMethodInformationDTO {
+public class PaymentInformationDTO {
     private String paymentMethodType;
     @JsonProperty(value = "3ds", required = true)
     private String threeDs;

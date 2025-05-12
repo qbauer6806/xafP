@@ -11,9 +11,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
 @ToString
 public class RegisterInputDTO {
 
-    private String redirectUri;
-    private String action;
+    private String callbackUri;
     private UserInformationDTO userInformation;
-    private PaymentMethodInformationDTO paymentMethodInformation;
     private TransactionInformationDTO transactionInformation;
 }

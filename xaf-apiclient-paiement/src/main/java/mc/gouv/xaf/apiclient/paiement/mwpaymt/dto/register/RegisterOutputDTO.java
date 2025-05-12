@@ -12,6 +12,6 @@ public class RegisterOutputDTO {
     }
     private String formToken;
     private String reference;
-    private String redirectUri;
+    private String callbackUri;
 
 }

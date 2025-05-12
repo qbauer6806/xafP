@@ -9,12 +9,6 @@ import lombok.Setter;
 public class InfoCancelInputDTO {
 
     @NotNull
-    private String company;
-
-    @NotNull
-    private String transactionId;
-
-    @NotNull
-    private PaymentMethodInformationDTO paymentMethodInformation;
+    private String paymentMethodToken;
 
 }

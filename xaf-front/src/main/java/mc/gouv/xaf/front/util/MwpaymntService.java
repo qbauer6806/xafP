@@ -4,10 +4,9 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationD
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoOutputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.PaymentMethodInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.PaymentInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
-import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.CompanyEnum;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
@@ -34,18 +33,10 @@ public class MwpaymntService {
     public RegisterInputDTO getRegisterInput(UsagerInfosDTO usagerInfosDTO) {
         LOGGER.info("Création du RegisterInputDTO utilisé pour appeler le middleware de paiement");
         RegisterInputDTO registerInputDTO = new RegisterInputDTO();
-        registerInputDTO.setAction(ActionEnum.REGISTER.name());
-        registerInputDTO.setRedirectUri(gouvPropertiesResolver.getMwpaymtRedirectUri());
-
-        // Payment method information
-        PaymentMethodInformationDTO information = new PaymentMethodInformationDTO();
-        information.setPaymentMethodType("card");
-        information.setThreeDs("challenge_mandate");
-        registerInputDTO.setPaymentMethodInformation(information);
+        registerInputDTO.setCallbackUri(gouvPropertiesResolver.getMwpaymtCallbackUri());
 
         // Transaction Information
         TransactionInformationDTO transactionInformation = new TransactionInformationDTO();
-        transactionInformation.setCurrency("EUR");
         transactionInformation.setMetadatakey("Téléservice");
         // TODO réfléchir à l'avoir en paramètre pour identifier l'appelant
         transactionInformation.setMetadatavalue("RESCART");
@@ -54,7 +45,7 @@ public class MwpaymntService {
 
         // User information
         UserInformationDTO userInformation = new UserInformationDTO();
-        userInformation.setReference(usagerInfosDTO.getSub());
+        userInformation.setSub(usagerInfosDTO.getSub());
         userInformation.setAddress1(usagerInfosDTO.getAdresse1());
         userInformation.setCategory("PRIVATE");
         userInformation.setCity(usagerInfosDTO.getVille());
@@ -72,14 +63,7 @@ public class MwpaymntService {
 
     public InfoCancelInputDTO getInfoInput(PaymentMethodReferenceDTO reference) {
         InfoCancelInputDTO result = new InfoCancelInputDTO();
-        // TODO a changer pour la company réelle
-        result.setCompany(CompanyEnum.DSP.name());
-        // TODO à réfléchir
-        result.setTransactionId("tetTransactionID");
-        mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO paymentMethodInformationDTO = new mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO();
-        paymentMethodInformationDTO.setPaymentMethodToken(reference.getPaymentMethodToken());
-        paymentMethodInformationDTO.setPaymentMethodType(reference.getPaymentMethodType());
-        result.setPaymentMethodInformation(paymentMethodInformationDTO);
+        result.setPaymentMethodToken(reference.getPaymentMethodToken());
         return result;
     }
 

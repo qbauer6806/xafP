@@ -22,8 +22,9 @@ public class MwpaymtTransformer {
         DebitInputDTO mwpaymtDebitDTO = new DebitInputDTO();
 
         // User information (ie les info de facturation)
+        // TODO faire un UserInformationTransformer
         UserInformationDTO userInformation = new UserInformationDTO();
-        //userInformation.setReference(usagerInfosDTO.getId());
+        //userInformation.setSub(null);
         userInformation.setAddress1(infoFacturation.getAdresseLigne1());
         userInformation.setCategory(infoFacturation.getRaisonSociale() != null ? "COMPANY" : "PRIVATE");
         userInformation.setCity(infoFacturation.getVille());
@@ -38,14 +39,12 @@ public class MwpaymtTransformer {
         mwpaymtDebitDTO.setUserInformation(userInformation);
 
         mwpaymtDebitDTO.setPaymentMethodToken(moyenPaiement.getPaymentMethodToken());
-        mwpaymtDebitDTO.setAction(ActionEnum.SILENT);
 
         // Transaction information
         TransactionInformationDTO transactionInformation = new TransactionInformationDTO();
         transactionInformation.setMetadatakey("Numéro de demande RESID");
         transactionInformation.setMetadatavalue(orderIdResid);
         transactionInformation.setOrderId(idTs);
-        transactionInformation.setCurrency("EUR");
         transactionInformation.setAmount((float) moyenPaiement.getCommande().getMontantRestant());
         mwpaymtDebitDTO.setTransactionInformation(transactionInformation);
 

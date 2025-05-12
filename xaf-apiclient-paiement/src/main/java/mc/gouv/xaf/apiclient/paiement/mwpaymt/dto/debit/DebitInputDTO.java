@@ -22,7 +22,6 @@ public class DebitInputDTO {
     @NotNull
     private String paymentMethodToken;
 
-    @NotNull
     private ActionEnum action;
 
     @NotNull

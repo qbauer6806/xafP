@@ -8,7 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class UserInformationDTO {
-    private String reference;
+    private String sub;
     private String category;
     private String title;
     private String firstName;

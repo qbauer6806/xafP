@@ -32,6 +32,7 @@ import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
+import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
@@ -143,6 +144,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private MwpaymtTransformer mwpaymtTransformer;
+
+    @Autowired
+    private PaiementHistoriqueService paiementHistoriqueService;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -311,7 +315,7 @@ public class PaiementServiceImpl implements PaiementService {
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
                         paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getReference());
+                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getSub());
             }
         }
         moyenPaiementRepository.save(moyenPaiementBo);
@@ -368,8 +372,7 @@ public class PaiementServiceImpl implements PaiementService {
         PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
         historique.setFkDemandes(demandeBo);
         if (usager != null) {
-            historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
-                    + " : Paie en ligne");
+            historique.setContenu("Système - Débit réalisé");
         }
         historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
         historique.setDate(Timestamp.valueOf(LocalDateTime.now()));

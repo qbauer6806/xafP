@@ -3,7 +3,6 @@ package mc.gouv.xaf.shared.paiement;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Setter
 @Getter
@@ -11,5 +10,5 @@ import lombok.ToString;
 public class MwpaymtGenericCallbackDTO {
     private PaymentMethodInformationDTO paymentMethodInformation;
     private String orderId;
-    private String reference;
+    private String sub;
 }

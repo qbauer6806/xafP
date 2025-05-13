@@ -44,7 +44,6 @@ import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -488,13 +487,8 @@ public class DemandesServiceImpl implements DemandesService {
         if (accessBo == null) {
             throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
         }
-        return demandesRepository.findByUsagerId(usagerId).stream().map(demande -> {
-            DemandeDTO demandeDTO = new DemandeDTO();
-            demandeDTO.setPkDemandes(demande.getPkDemandes());
-            demandeDTO.setIdentifiant(demande.getIdentifiant());
-            demandeDTO.setDernierStatut(DemandesStatutsTransformer.bo2Dto(demande.getDernierStatut()));
-            return demandeDTO;
-        }).toList();
+        return demandesRepository.findByUsagerId(usagerId).stream()
+                .map(demande -> demandesTransformer.lightProjection2Dto(demande)).toList();
     }
 
     private List<DemandeDTO> getDemandesUsager(Integer usagerId) {
@@ -608,9 +602,8 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts) {
-        List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_NameIn(statuts);
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(demandes);
+        return demandesRepository.findAllByDernierStatut_NameIn(statuts).stream()
+                .map(demande -> demandesTransformer.lightProjection2Dto(demande)).toList();
     }
 
     /**

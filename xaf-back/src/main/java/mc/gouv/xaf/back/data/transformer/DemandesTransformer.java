@@ -13,9 +13,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
-import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
+import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
+import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
@@ -247,6 +248,14 @@ public class DemandesTransformer {
             dto.setDernierStatut(statutDto);
         }
         return dto;
+    }
+
+    public DemandeDTO lightProjection2Dto(DemandeLightProjection projection) {
+        DemandeDTO demandeDTO = new DemandeDTO();
+        demandeDTO.setPkDemandes(projection.getPkDemandes());
+        demandeDTO.setIdentifiant(projection.getIdentifiant());
+        demandeDTO.setDernierStatut(DemandesStatutsTransformer.bo2Dto(projection.getDernierStatut()));
+        return demandeDTO;
     }
 
     public void hideInfos(DemandeDTO demandeDTO) {

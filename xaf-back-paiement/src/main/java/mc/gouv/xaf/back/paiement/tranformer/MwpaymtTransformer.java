@@ -10,6 +10,8 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
+import mc.gouv.xaf.back.service.utils.CiviliteUtilisateurs;
+import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,10 @@ public class MwpaymtTransformer {
         userInformation.setFirstName(infoFacturation.getPrenom());
         userInformation.setLastName(infoFacturation.getNom());
         userInformation.setLegalName(infoFacturation.getNom());
-        //userInformation.setTitle(infoFacturation.getCivilite());
+        userInformation.setTitle(
+                TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle() != null
+                        ? TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle()
+                        : "");
         userInformation.setZipCode(infoFacturation.getCodePostal());
         userInformation.setLanguage("FR");
         mwpaymtDebitDTO.setUserInformation(userInformation);

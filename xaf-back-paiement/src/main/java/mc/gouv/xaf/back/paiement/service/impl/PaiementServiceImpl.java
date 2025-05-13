@@ -32,7 +32,6 @@ import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
-import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
@@ -42,6 +41,7 @@ import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
@@ -146,7 +146,7 @@ public class PaiementServiceImpl implements PaiementService {
     private MwpaymtTransformer mwpaymtTransformer;
 
     @Autowired
-    private PaiementHistoriqueService paiementHistoriqueService;
+    private DemandesHistoriqueService demandesHistoriqueService;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -315,7 +315,7 @@ public class PaiementServiceImpl implements PaiementService {
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
                         paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getSub());
+                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getReference());
             }
         }
         moyenPaiementRepository.save(moyenPaiementBo);
@@ -398,7 +398,7 @@ public class PaiementServiceImpl implements PaiementService {
                     historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
                             + " : Enregistre sa carte bancaire");
                 }
-                historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
+                historique.setStatut(PaiementStatutEnum.CARTE_VALIDE.name());
                 historique.setDate(date);
                 historique.setUsagerId(usagerId);
                 paiementHistoriqueRepository.save(historique);

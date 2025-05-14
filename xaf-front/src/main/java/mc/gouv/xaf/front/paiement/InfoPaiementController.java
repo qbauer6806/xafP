@@ -74,7 +74,7 @@ public class InfoPaiementController extends AbstractXafController {
     }
 
     private ResponseEntity processMoneticoCall(UsagerInfosDTO usagerInfosDTO, InfoPaiementInputDTO infoPaiementInput) {
-        List<String> demandeIds = infoPaiementInput.getDemandesId();
+        String demandeIds = infoPaiementInput.getDemandesId();
         String langue = infoPaiementInput.getLangue();
         boolean iframe = infoPaiementInput.isIframe();
         // Récupération de l'ID de l'usager

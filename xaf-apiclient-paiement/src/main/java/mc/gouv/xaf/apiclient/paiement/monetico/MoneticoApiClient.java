@@ -37,7 +37,7 @@ public class MoneticoApiClient extends AfApiClient {
      *         Indicateur pour savoir si on a besoin de créer un formulaire dans une iframe
      * @return un objet PaiementDTO pour construire le formulaire de paiement
      */
-    public MoneticoDTO getPaiement(List<String> demandesId, String langue, Integer usagerId, boolean iframe) {
+    public MoneticoDTO getPaiement(String demandesId, String langue, Integer usagerId, boolean iframe) {
         Response res = getTarget().path("/paiement").queryParam(RequestConstant.DEMANDES_ID_PARAM, demandesId)
                 .queryParam(RequestConstant.LANGUE_PARAM, langue).queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam(PaiementMoneticoConstant.IFRAME_PARAM, iframe).request(MediaType.APPLICATION_JSON)

@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @ToString
 public class InfoPaiementInputDTO {
-    private List<String> demandesId;
+    private String demandesId;
     private boolean iframe;
     private String langue;
     private String providerName;

@@ -16,4 +16,5 @@ public class MoyenPaiementInputDTO {
     @JsonProperty(required = true)
     private boolean isNew;
     private String paymentMethodToken;
+    private String type;
 }

@@ -32,7 +32,7 @@
 
         <label for="dateEmpreinte">Date de débit : </label>
         <br>
-        <input class="form-control" type="text" id="dateEmpreinte" th:value="${datePaiement}"
+        <input class="form-control" type="text" id="dateEmpreinte" th:value="${datePaiement != null ? #dates.format(datePaiement, formatDate) : ''}"
                disabled="true"/>
       </div>
       <div class="col-xs-6">

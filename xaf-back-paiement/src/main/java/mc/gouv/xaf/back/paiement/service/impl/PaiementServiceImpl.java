@@ -66,6 +66,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,6 +183,7 @@ public class PaiementServiceImpl implements PaiementService {
         VousDTO vous = new VousDTO();
         // TODO determiné où on ira chercher ces infos par la suite
         // Identité
+        usager.getSub();
         vous.setNom(usager.getNom());
         vous.setPrenom(usager.getPrenom());
         vous.setTitre(usager.getTitre());
@@ -219,7 +221,7 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         String replace = ids.replace("[", "").replace("]", "");
-        List<String> demandeIds = new ArrayList<>(Arrays.asList(replace.split(",")));
+        List<Integer> demandeIds = Stream.of(replace.split(",")).map(String::trim).map(Integer::parseInt).toList();
         Map<Integer, DemandeBO> demandes = new HashMap<>();
         Map<Integer, BigDecimal> totauxDemandes = new HashMap<>();
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
@@ -247,15 +249,14 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiementBo.setPaymentMethodName(moyenPaiementInputDTO.getCardName());
         if (moyenPaiementInputDTO.isNew()) {
             // On est dans le cas ou l'usager à coché la case "Sauvegarde du moyen de
-            // paiement pour plus tard", PUT /moyen-paiement"
+            // paiement pour plus tard"
             moyenPaiementBo.setPaymentMethodRecord(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name());
         }
         // On est dans le cas ou l'usager a sélectionné un moyen de paiement existant sinon c'est le callback SPG qui nous fournira l'info
         if(moyenPaiementInputDTO.getPaymentMethodToken() != null && !moyenPaiementInputDTO.getPaymentMethodToken().isEmpty()) {
-            /*InfoOutputDTO info = getPaiementApiClient().getMoyenPaiement(
-                    mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());*/
             moyenPaiementBo.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             moyenPaiementBo.setPaymentMethodType("CARD");
+            moyenPaiementBo.setEffectiveBrand(moyenPaiementInputDTO.getType());
             // Changer la demande de status
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
@@ -304,6 +305,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiementBo.setMoyenPaiementStatut(
                 MoyenPaiementStatutEnum.fromLibelle(paymentMethodInformation.getPaymentMethodStatus().name()));
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
+        moyenPaiementBo.setEffectiveBrand(paymentMethodInformation.getEffectiveBrand());
         if (moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
@@ -430,15 +432,14 @@ public class PaiementServiceImpl implements PaiementService {
                 .save(InfoFacturationTransformer.infoFacturationResponseDTOToInfoFacturationBO(result, commande));
     }
 
-    private BigDecimal calculTotalCommande(List<String> demandeIds, Integer usagerId, Map<Integer, DemandeBO> demandes,
+    private BigDecimal calculTotalCommande(List<Integer> demandeIds, Integer usagerId, Map<Integer, DemandeBO> demandes,
             Map<Integer, BigDecimal> totauxDemandes, Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes) {
         BigDecimal totalCommande = BigDecimal.ZERO;
-        for (String demandeId : demandeIds) {
-            Integer pkDemande = Integer.valueOf(demandeId);
+        for (Integer pkDemande : demandeIds) {
             DemandeBO demandeBO = demandesRepository.findByPkDemandesAndUsagerId(pkDemande, usagerId);
             if (demandeBO == null) {
                 throw new DemarchesServiceException(
-                        "La demande " + demandeId + " est introuvable pour l'usager id " + usagerId,
+                        "La demande " + pkDemande + " est introuvable pour l'usager id " + usagerId,
                         HttpStatus.NOT_FOUND);
             }
             demandes.put(pkDemande, demandeBO);
@@ -463,7 +464,7 @@ public class PaiementServiceImpl implements PaiementService {
         return totalCommande;
     }
 
-    private CommandeBO createCommande(BigDecimal totalCommande, MoyenPaiementBO moyenPaiement, List<String> demandeIds,
+    private CommandeBO createCommande(BigDecimal totalCommande, MoyenPaiementBO moyenPaiement, List<Integer> demandeIds,
             Map<Integer, DemandeBO> demandes, Map<Integer, BigDecimal> totauxDemandes,
             Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes) {
         CommandeBO commande = new CommandeBO();
@@ -480,21 +481,21 @@ public class PaiementServiceImpl implements PaiementService {
         return commande;
     }
 
-    private List<CommandeDemandeBO> createCommandesDemandes(CommandeBO commande, List<String> demandeIds,
+    private List<CommandeDemandeBO> createCommandesDemandes(CommandeBO commande, List<Integer> demandeIds,
             Map<Integer, DemandeBO> demandes, Map<Integer, BigDecimal> totauxDemandes,
             Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes) {
         List<CommandeDemandeBO> commandesDemandes = new ArrayList<>();
-        for (String demandeId : demandeIds) {
+        for (Integer pkDemande : demandeIds) {
             CommandeDemandeBO commandeDemande = new CommandeDemandeBO();
             commandeDemande.setCommande(commande);
-            commandeDemande.setDemande(demandes.get(Integer.valueOf(demandeId)));
-            commandeDemande.setMontant(totauxDemandes.get(Integer.valueOf(demandeId)).doubleValue());
+            commandeDemande.setDemande(demandes.get(pkDemande));
+            commandeDemande.setMontant(totauxDemandes.get(pkDemande).doubleValue());
             commandeDemande.setCommandesDemandesArticles(new ArrayList<>());
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
 
             var articles = new ArrayList<CommandeDemandeArticleBO>();
-            for (CommandeDemandeArticleBO articleBO : articlesDemandes.get(Integer.valueOf(demandeId))) {
+            for (CommandeDemandeArticleBO articleBO : articlesDemandes.get(pkDemande)) {
                 articleBO.setCommandeDemande(commandeDemande);
                 articleBO = commandeDemandeArticleRepository.save(articleBO);
                 LOGGER.info("Created [ commandeDemandeArticle {}] ", articleBO);

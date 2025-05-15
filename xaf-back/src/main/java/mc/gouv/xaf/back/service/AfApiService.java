@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -9,20 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import jakarta.transaction.Transactional;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -59,7 +48,6 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
@@ -78,6 +66,14 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
 /**
  * Services proposés par le module API des TS
@@ -90,7 +86,7 @@ public class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
-    private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
+    private static final String DEMANDE_DEJA_RELANCEE_KEY = "DEMANDE_DEJA_RELANCEE";
 
     @Autowired
     private GouvBPM gouvBPM;
@@ -321,6 +317,8 @@ public class AfApiService {
                     statut.getName());
             demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
 
+            demandesDataService.deleteDemandeData(demandeId, DEMANDE_DEJA_RELANCEE_KEY);
+
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la mise à jour d'une demande", e);
@@ -348,9 +346,6 @@ public class AfApiService {
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
             DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
-
-        LOGGER.info("Appel à demandesService pour récupération de la demande concernée...");
-        DemandeDTO demande = demandesService.getDemande(demandeId);
 
         LOGGER.info("Appel à demandesComplementsService pour répondre à la demande d'informations complémentaires...");
         DemandeComplementsDTO demandeComplementsDto = demandesComplementsService.repondreDemandeComplements(demandeId,
@@ -397,16 +392,12 @@ public class AfApiService {
         Object assigneeIdObject = variables.get(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
         String assigneeId = assigneeIdObject != null ? (String) assigneeIdObject : null;
         // on est obligé de rafraichir la demande afin de récupérer le nouveau statut qui a tout juste changé grâce au bpmn
-        demande = demandesService.getDemande(demandeId);
+        DemandeDTO demande = demandesService.getDemande(demandeId);
         DemandeHistoriqueDTO histo = demandesHistoriqueService.reponseDemandeCompl(demande.getDernierStatut().getName(),
                 usagerId, agentId, assigneeId);
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
-        DemandeDataDTO demandeData = demandesDataService.getDemandeData(demande.getPkDemandes(),
-                DEMANDE_IC_DEJA_RELANCEE_KEY);
-        if (null != demandeData) {
-            demandesDataService.deleteDemandeData(demandeId, DEMANDE_IC_DEJA_RELANCEE_KEY);
-        }
+        demandesDataService.deleteDemandeData(demandeId, DEMANDE_DEJA_RELANCEE_KEY);
 
         return demandeComplementsDto;
     }
@@ -618,9 +609,10 @@ public class AfApiService {
     private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue,
                                   Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourUsager());
+        emailInfo.setBodyTemplateCode(
+                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourUsager() + "_CORPS");
         emailInfo.setSubjectTemplateCode(
-                demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager());
+                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourUsager() + "_OBJET");
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         String prenom = StringUtils.EMPTY;
@@ -650,9 +642,10 @@ public class AfApiService {
     private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager,
                                   Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourAgents());
+        emailInfo.setBodyTemplateCode(
+                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourAgents() + "_CORPS");
         emailInfo.setSubjectTemplateCode(
-                demarchesDataProvider.getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents());
+                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourAgents() + "_OBJET");
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 

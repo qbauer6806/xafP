@@ -33,6 +33,8 @@ import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.tools.ToolManager;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,14 +222,6 @@ public class MailServiceImpl implements MailService {
      * {@inheritDoc}
      */
     @Override
-    public String formatCommentaire(String commentaire) {
-        return AfBackUtils.formatCommentaire(commentaire);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,
             Integer pkDemande, String identifiantDemande, int incident, Map<String, Object> modelAdd,
             Map<String, InputStream> attachments) {
@@ -277,6 +271,22 @@ public class MailServiceImpl implements MailService {
             }
         }
         return list;
+    }
+
+    @Override
+    public String getEmailBodyTemplate(Expression bodyTemplateCode, Expression emailTemplateCode,
+            DelegateExecution execution) {
+        return bodyTemplateCode != null
+                ? (String) bodyTemplateCode.getValue(execution)
+                : emailTemplateCode.getValue(execution) + "_CORPS";
+    }
+
+    @Override
+    public String getEmailSubjectTemplate(Expression subjectTemplateCode, Expression emailTemplateCode,
+            DelegateExecution execution) {
+        return subjectTemplateCode != null
+                ? (String) subjectTemplateCode.getValue(execution)
+                : emailTemplateCode.getValue(execution) + "_OBJET";
     }
 
 }

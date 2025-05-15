@@ -78,27 +78,17 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum) {
+    public String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut) {
         return "";
     }
 
     @Override
-    public String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents() {
+    public String getMailTemplateCodeDesinscriptionUsagerPourAgents() {
         return "";
     }
 
     @Override
-    public String getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents() {
-        return "";
-    }
-
-    @Override
-    public String getMailBodyTemplateCodeDesinscriptionUsagerPourUsager() {
-        return "";
-    }
-
-    @Override
-    public String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager() {
+    public String getMailTemplateCodeDesinscriptionUsagerPourUsager() {
         return "";
     }
 

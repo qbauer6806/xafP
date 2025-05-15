@@ -75,7 +75,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
         LOGGER.info("Génération du PDF avec Open HTML to PDF...");
         String fileName = tempFile.getName();
-        String url = fileService.sendToFile(tempFile, demande, fileName);
+        String url = fileService.sendToFile(tempFile, demande, fileName, true);
         String metas = META_RECAP + ";" + FileUtils.generateMetaData(tempFile);
 
         // Supprimer le fichier temporaire car il n'est plus utile

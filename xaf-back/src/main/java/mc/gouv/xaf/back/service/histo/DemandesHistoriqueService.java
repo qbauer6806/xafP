@@ -104,14 +104,14 @@ public class DemandesHistoriqueService {
     public DemandeHistoriqueDTO statusChangeDecisionValidation(String targetState,
             HistoValidationEnum histoValidationEnum, String newStatut) {
         return statusChange(targetState, null, AfBackUtils.getAuthenticatedAgentId(), histoValidationEnum, null,
-                newStatut);
+                newStatut, null);
     }
 
     public DemandeHistoriqueDTO statusChangeDecisionValidation(String targetState,
             HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum histoValidationNiveauEnum,
             String newStatut) {
         return statusChange(targetState, null, AfBackUtils.getAuthenticatedAgentId(), histoValidationEnum,
-                histoValidationNiveauEnum, newStatut);
+                histoValidationNiveauEnum, newStatut, null);
     }
 
     public DemandeHistoriqueDTO statusChangeUsager(String targetState, Integer usagerId) {
@@ -130,15 +130,20 @@ public class DemandesHistoriqueService {
         return statusChange(targetState, null, agentId);
     }
 
+    public DemandeHistoriqueDTO statusChangeAgent(String targetState, String agentId, String dernierStatut) {
+        return statusChange(targetState, null, agentId, null, null, null, dernierStatut);
+    }
+
     public DemandeHistoriqueDTO statusChange(String targetState, Integer usagerId, String agentId) {
-        return statusChange(targetState, usagerId, agentId, null, null, null);
+        return statusChange(targetState, usagerId, agentId, null, null, null, null);
     }
 
     private DemandeHistoriqueDTO statusChange(String targetState, Integer usagerId, String agentId,
-            HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum niveauEnum, String newStatut) {
+            HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum niveauEnum, String newStatut,
+            String dernierStatut) {
         String role, name;
         String agentName = getAgentName(agentId);
-        String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum);
+        String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum, dernierStatut);
         String statut = targetState;
         if (histoValidationEnum != null) {
             role = (niveauEnum != null) ? VALIDEUR + " " + niveauEnum : VALIDEUR;

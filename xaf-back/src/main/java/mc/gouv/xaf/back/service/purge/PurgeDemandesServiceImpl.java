@@ -266,7 +266,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
         emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
-        Map<String, Object> model = afBackUtils.getGenericModelMail();
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelMail();
         model.put("demandes", demandesAPurger);
         model.put("delai", delai);
 

@@ -45,8 +45,8 @@ public class FileTestServiceImpl implements FileService {
     }
 
     @Override
-    public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
-        return null;
+    public String sendToFile(File tempFile, DemandeDTO demande, String fileName, boolean isPdf) throws IOException {
+        return "";
     }
 
     @Override

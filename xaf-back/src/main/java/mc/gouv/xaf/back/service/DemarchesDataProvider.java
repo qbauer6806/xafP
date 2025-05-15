@@ -135,7 +135,7 @@ public interface DemarchesDataProvider {
     /**
      * Permets de définir la correspondance de l'action de l'historique pour chaque statut
      */
-    String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum);
+    String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut);
 
     /**
      * Permets de définir la liste des statuts des demandes à ne pas annuler lors de la désinscription d'un usager
@@ -146,24 +146,14 @@ public interface DemarchesDataProvider {
     }
 
     /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT_CORPS.name();
+     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT.name();
      */
-    String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents();
+    String getMailTemplateCodeDesinscriptionUsagerPourAgents();
 
     /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT_OBJET.name();
+     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name();
      */
-    String getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents();
-
-    /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER_CORPS.name();
-     */
-    String getMailBodyTemplateCodeDesinscriptionUsagerPourUsager();
-
-    /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER_OBJET.name();
-     */
-    String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager();
+    String getMailTemplateCodeDesinscriptionUsagerPourUsager();
 
     /**
      * Retourne le libellé du statut brouillon non transmis

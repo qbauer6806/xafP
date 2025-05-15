@@ -50,13 +50,18 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
     @Getter
     private Expression emailSubjectTemplateCode;
 
+    @Setter
+    @Getter
+    private Expression emailTemplateCode;
+
     @Override
     public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENTS ...");
 
-        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String bodyTemplateCode = mailService.getEmailBodyTemplate(emailBodyTemplateCode, emailTemplateCode, execution);
+        String subjectTemplateCode = mailService.getEmailSubjectTemplate(emailSubjectTemplateCode, emailTemplateCode,
+                execution);
 
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);

@@ -55,6 +55,12 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     @Getter
     private Expression emailSubjectTemplateCode;
 
+    @Setter
+    @Getter
+    private Expression emailTemplateCode;
+
+    @Setter
+    @Getter
     private Expression copieCacheeAuService;
 
     @Override
@@ -75,8 +81,9 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
             }
         }
 
-        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String bodyTemplateCode = mailService.getEmailBodyTemplate(emailBodyTemplateCode, emailTemplateCode, execution);
+        String subjectTemplateCode = mailService.getEmailSubjectTemplate(emailSubjectTemplateCode, emailTemplateCode,
+                execution);
         String copieCacheeAuServiceStr = null;
         if (copieCacheeAuService != null) {
             copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
@@ -114,7 +121,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution.getVariable(
                 GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        commentaire = mailService.formatCommentaire(commentaire);
+        commentaire = AfBackUtils.formatCommentaire(commentaire);
         Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), codeMotif, commentaire);
 

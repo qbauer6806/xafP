@@ -5,12 +5,10 @@ import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Map;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
@@ -20,15 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AfPdfTemplateAndModelProvider {
+public class AfPdfTemplateAndModelProvider extends AfTemplateModelProvider {
 
     private final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-
-    @Autowired
-    private MotifsCache motifsCache;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @Autowired
     private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
@@ -50,26 +42,16 @@ public class AfPdfTemplateAndModelProvider {
 
     private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             String texteAEnvoyer) {
-        Map<String, Object> model = new HashMap<>();
+        Map<String, Object> model = getGenericModelDemandePdf(demande, codeMotif, commentaire);
         model.put("demande", demande);
         DemandeAgentDTO agent = demande.getAgent();
         model.put("nomAgent", agent != null ? agent.getNom() : "");
-        String motif = "";
-        if (StringUtils.isNotBlank(codeMotif) && motifsCache.getMotif(codeMotif, "fr") != null) {
-            motif = motifsCache.getMotif(codeMotif, "fr").getLibelle();
-        }
-        model.put("motif", motif);
-        model.put("commentaire", commentaire);
         model.put("texteAEnvoyer", texteAEnvoyer);
-        model.put("marqueurs", demande.getMarqueursTrad());
-
         // Si demande courrier
         if (demande.getCourrierDateReception() != null) {
             model.put("dateReception", DATE_FORMAT.format(demande.getCourrierDateReception()));
         }
         model.put("refCourrier", demande.getCourrierRefInterne());
-
-        model.putAll(afBackUtils.getGenericModelPdf(demande));
         return model;
     }
 
@@ -93,7 +75,7 @@ public class AfPdfTemplateAndModelProvider {
 
         PdfTemplateAndModelDTO dto = new PdfTemplateAndModelDTO();
         dto.setModel(model);
-        pdfTemplateAndModelProvider.setTemplateAndModel(dto, demande, statutSuivant, pdfType);
+        pdfTemplateAndModelProvider.setTemplateAndModel(dto, demande, statutSuivant, pdfType, codeMotif);
 
         return dto;
     }

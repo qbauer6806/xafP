@@ -8,6 +8,8 @@ import java.util.Set;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,11 +45,6 @@ public class MailServiceTestImpl implements MailService {
     }
 
     @Override
-    public String formatCommentaire(String commentaire) {
-        return null;
-    }
-
-    @Override
     public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists,
             Integer pkDemande, String identifiantDemande, int incident, Map<String, Object> modelAdd,
             Map<String, InputStream> attachments) {
@@ -57,6 +54,18 @@ public class MailServiceTestImpl implements MailService {
     @Override
     public Set<String> getMailingLists(String... mailingListProps) {
         return null;
+    }
+
+    @Override
+    public String getEmailBodyTemplate(Expression bodyTemplateCode, Expression emailTemplateCode,
+            DelegateExecution execution) {
+        return "";
+    }
+
+    @Override
+    public String getEmailSubjectTemplate(Expression subjectTemplateCode, Expression emailTemplateCode,
+            DelegateExecution execution) {
+        return "";
     }
 
 }

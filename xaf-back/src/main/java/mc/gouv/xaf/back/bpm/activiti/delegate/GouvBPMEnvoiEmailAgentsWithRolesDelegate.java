@@ -53,8 +53,16 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     @Getter
     private Expression emailSubjectTemplateCode;
 
+    @Setter
+    @Getter
+    private Expression emailTemplateCode;
+
+    @Setter
+    @Getter
     private Expression roles;
 
+    @Setter
+    @Getter
     private Expression copieAuService;
 
     @Override
@@ -62,8 +70,9 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
 
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT WITH ROLES ...");
 
-        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String bodyTemplateCode = mailService.getEmailBodyTemplate(emailBodyTemplateCode, emailTemplateCode, execution);
+        String subjectTemplateCode = mailService.getEmailSubjectTemplate(emailSubjectTemplateCode, emailTemplateCode,
+                execution);
         String copieAuServiceStr = null;
         if (copieAuService != null) {
             copieAuServiceStr = (String) copieAuService.getValue(execution);

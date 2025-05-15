@@ -1,9 +1,15 @@
 package mc.gouv.xaf.back.pdf;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.parser.PdfTextExtractor;
+import fr.opensagres.xdocreport.core.XDocReportException;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import mc.gouv.xaf.back.service.pdf.impl.PdfGenerationServiceImpl;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,15 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.parser.PdfTextExtractor;
-
-import fr.opensagres.xdocreport.core.XDocReportException;
-import mc.gouv.xaf.back.service.pdf.impl.PdfGenerationServiceImpl;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Les tests unitaires pour le PdfGenerationService
@@ -61,7 +58,7 @@ class PdfGenerationTest {
         byte[] bytes = null;
         StringBuilder content = new StringBuilder();
 
-        bytes = pdfGenerationService.generatePdfToStream(GenericDemandeDtoMockGenerator.getGenericMockDemandeDTO());
+        //        bytes = pdfGenerationService.generatePdfToStream(GenericDemandeDtoMockGenerator.getGenericMockDemandeDTO());
 
         PdfReader reader = new PdfReader(bytes);
         PdfTextExtractor extractor = new PdfTextExtractor(reader);

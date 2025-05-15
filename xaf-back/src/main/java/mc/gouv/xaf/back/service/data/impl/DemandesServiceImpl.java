@@ -71,6 +71,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.pdf.impl.AfPdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -199,6 +200,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private AfExcelExportModelProvider excelExportModelProvider;
+
+    @Autowired
+    private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -714,7 +718,7 @@ public class DemandesServiceImpl implements DemandesService {
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
             IContext context = report.createContext();
-            for (Entry<String, Object> entry : afBackUtils.getGenericModelPdf(demande).entrySet()) {
+            for (Entry<String, Object> entry : afPdfTemplateAndModelProvider.getGenericModelPdf(demande).entrySet()) {
                 context.put(entry.getKey(), entry.getValue());
             }
             context.put("demande", demande);

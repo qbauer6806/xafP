@@ -197,11 +197,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
+    public String sendToFile(File tempFile, DemandeDTO demande, String fileName, boolean isPdf) throws IOException {
         LOGGER.info("Stockage du PDF généré dans FILE...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         FileInputStream fis = new FileInputStream(tempFile);
-        String url = saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis,
+        String contentType = isPdf
+                ? "application/pdf"
+                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        String url = saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), contentType, fis,
                 output);
         output.close();
         fis.close();

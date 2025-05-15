@@ -38,7 +38,7 @@ public interface FileService {
     String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response)
             throws IOException;
 
-    String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException;
+    String sendToFile(File tempFile, DemandeDTO demande, String fileName, boolean isPdf) throws IOException;
 
     String saveFilePublication(String codePublication, String container, MultipartFile file) throws IOException;
 

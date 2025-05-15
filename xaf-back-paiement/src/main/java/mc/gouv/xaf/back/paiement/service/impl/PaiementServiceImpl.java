@@ -317,7 +317,7 @@ public class PaiementServiceImpl implements PaiementService {
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
                         paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getReference());
+                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getSub());
             }
         }
         moyenPaiementRepository.save(moyenPaiementBo);

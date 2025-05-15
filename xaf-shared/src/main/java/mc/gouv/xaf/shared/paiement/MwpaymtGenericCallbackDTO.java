@@ -10,5 +10,5 @@ import lombok.Setter;
 public class MwpaymtGenericCallbackDTO {
     private PaymentMethodInformationDTO paymentMethodInformation;
     private String orderId;
-    private String reference;
+    private String sub;
 }

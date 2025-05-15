@@ -1,8 +1,6 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.io.IOException;
-import lombok.Getter;
-import lombok.Setter;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -35,16 +33,10 @@ public class GouvBPMDocDelegate implements JavaDelegate {
     @Autowired
     private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
 
-    @Getter
-    @Setter
     private Expression meta;
 
-    @Getter
-    @Setter
     private Expression template;
 
-    @Getter
-    @Setter
     private Expression filename;
 
     @Override
@@ -81,6 +73,11 @@ public class GouvBPMDocDelegate implements JavaDelegate {
             pdfGenerationService.generateAndStoreDoc(demandeDto, PdfTypeEnum.FICHIER, metaStr, pdfTemplateAndModelDTO);
         } catch (IOException e) {
             throw new DemarcheException("Erreur la génération du doc", e);
+        } finally {
+            // On est obligés de réinitialiser les champs car si ils ne sont pas spécifiés sur une prochaine execution les valeurs vont rester
+            meta = null;
+            template = null;
+            filename = null;
         }
 
         LOGGER.info("==== xaf-back DOC SERVICE <fin>");

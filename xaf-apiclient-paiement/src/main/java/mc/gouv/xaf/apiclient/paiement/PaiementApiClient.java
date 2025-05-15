@@ -67,9 +67,9 @@ public class PaiementApiClient extends AfApiClient {
         });
     }
 
-    public void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId, String usagerToken) {
+    public void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId, String usagerToken, String raisonSociale) {
         Response res = getTarget().path("paiement/moyenpaiement").queryParam("demandeIds", demandeIds)
-                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken)
+                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken).queryParam("raisonSociale", raisonSociale)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(usager));

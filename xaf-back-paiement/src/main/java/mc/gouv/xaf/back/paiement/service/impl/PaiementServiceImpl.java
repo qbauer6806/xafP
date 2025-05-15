@@ -212,12 +212,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void updateInfoFacturation() {
-
-    }
-
-    @Override
-    public void createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId) {
+    public void createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId, String raisonSociale) {
         logStartMethod(LOGGER);
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         String replace = ids.replace("[", "").replace("]", "");
@@ -231,7 +226,7 @@ public class PaiementServiceImpl implements PaiementService {
                 articlesDemandes);
         CommandeBO commande = createCommande(totalCommande, moyenPaiement, demandeIds, demandes, totauxDemandes,
                 articlesDemandes);
-        createInfoFacturation(usager, commande);
+        createInfoFacturation(usager, commande, raisonSociale);
         LocalDateTime now = LocalDateTime.now();
         moyenPaiement.setCommande(commande);
         moyenPaiement.setDateCreation(now);
@@ -312,7 +307,6 @@ public class PaiementServiceImpl implements PaiementService {
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandes(demandes, moyenPaiementBo.getPkMoyensPaiements());
             if(moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
-                // TODO Enfin shooter mon guichet sur leur API pour stocker cet alias (+ d'autres infos ??) de leur coté
                 LOGGER.info("Sauvegarde du moyen de paiement dans mon guichet suite à un callback reçu de MWPAYMT");
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
@@ -345,7 +339,6 @@ public class PaiementServiceImpl implements PaiementService {
         PropertiesDTO property = propertiesService.getProperty(XAF_STATUT_CAISSE_DSP_KEY);
         if (property != null) {
             propertiesService.updatePropertyValue(property.getPkProperties(), "OPEN");
-            // TODO regarder si on a des débits en attente et si c'est le cas les déclencher
         }
     }
 
@@ -425,9 +418,12 @@ public class PaiementServiceImpl implements PaiementService {
         t.start();
     }
 
-    private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande) {
+    private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande, String raisonSociale) {
         // Stockage de l'info de facturation en base de donnée
         InfoFacturationResponseDTO result = getInfoFacturation(usager);
+        if(null != raisonSociale) {
+            result.setRaisonSociale(raisonSociale);
+        }
         infoFacturationRepository
                 .save(InfoFacturationTransformer.infoFacturationResponseDTOToInfoFacturationBO(result, commande));
     }

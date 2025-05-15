@@ -15,4 +15,5 @@ public class InfoPaiementInputDTO {
     private boolean iframe;
     private String langue;
     private String providerName;
+    private String raisonSociale;
 }

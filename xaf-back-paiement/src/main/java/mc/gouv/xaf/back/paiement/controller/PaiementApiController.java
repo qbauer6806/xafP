@@ -136,11 +136,6 @@ public class PaiementApiController {
         return paiementService.getInfoFacturation(usagerDTO);
     }
 
-    @PostMapping(value = "/infofacturation")
-    public void updateInfoFacturation() {
-        paiementService.updateInfoFacturation();
-    }
-
     @GetMapping(value = "/references")
     public List<PaymentMethodReferenceDTO> getReferences(@RequestParam(value = "usagerToken") String usagerToken) {
         return paiementService.getReferences(usagerToken);
@@ -148,8 +143,8 @@ public class PaiementApiController {
 
     @PostMapping(value = "/moyenpaiement")
     public void createMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
-            @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId) {
-        paiementService.createMoyenPaiement(demandeIds, usager, orderId);
+            @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId, @RequestParam(value = "raisonSociale") String raisonSociale) {
+        paiementService.createMoyenPaiement(demandeIds, usager, orderId, raisonSociale);
     }
 
     @PostMapping(value = "/moyenpaiement/info")

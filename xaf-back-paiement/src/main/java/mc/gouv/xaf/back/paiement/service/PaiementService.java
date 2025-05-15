@@ -17,8 +17,7 @@ public interface PaiementService {
 
     List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId);
     InfoFacturationResponseDTO getInfoFacturation(GichuniUsagerDTO usager);
-    void updateInfoFacturation();
-    void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId);
+    void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId, String raisonSociale);
     void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO);
     PaymentMethodInformationDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken);
     List<PaymentMethodReferenceDTO> getReferences(String usagerToken);

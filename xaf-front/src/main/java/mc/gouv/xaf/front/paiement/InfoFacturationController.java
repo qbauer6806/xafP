@@ -37,18 +37,4 @@ public class InfoFacturationController  extends AbstractXafController {
         LOGGER.info("====================== /info-facturation GET end...");
         return ResponseEntity.ok(infoFacturation);
     }
-
-    @PostMapping(value = { "/info-facturation" })
-    public ResponseEntity saveInfoFacturation(HttpServletRequest request) {
-        // TODO
-        LOGGER.info("====================== /info-facturation POST start...");
-
-        UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null) {
-            LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        LOGGER.info("====================== /info-facturation POST end...");
-        return ResponseEntity.ok().build();
-    }
 }

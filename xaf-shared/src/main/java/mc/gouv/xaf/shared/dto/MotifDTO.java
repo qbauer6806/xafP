@@ -30,6 +30,8 @@ public class MotifDTO {
     @NotNull
     private String statut;
 
+    private String statutCourant;
+
     @NotNull
     private String langue;
 
@@ -54,6 +56,7 @@ public class MotifDTO {
         this.code = source.getCode();
         this.libelle = source.getLibelle();
         this.statut = source.getStatut();
+        this.statutCourant = source.getStatutCourant();
         this.langue = source.getLangue();
         this.updated = source.isUpdated();
         this.dateArchive = source.getDateArchive();

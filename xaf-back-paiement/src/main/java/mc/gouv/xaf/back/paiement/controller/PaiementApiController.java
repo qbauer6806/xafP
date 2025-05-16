@@ -143,7 +143,7 @@ public class PaiementApiController {
 
     @PostMapping(value = "/moyenpaiement")
     public void createMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
-            @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId, @RequestParam(value = "raisonSociale") String raisonSociale) {
+            @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId, @RequestParam(value = "raisonSociale", required = false) String raisonSociale) {
         paiementService.createMoyenPaiement(demandeIds, usager, orderId, raisonSociale);
     }
 

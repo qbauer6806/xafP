@@ -48,6 +48,11 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     }
 
     @Override
+    public void clonerDesFichiersInternes(DemandeBO demandeBO, DemandeBO newDemandeBO) {
+
+    }
+
+    @Override
     public void updateFichiers(DemandeBO demandeBo, DemandeFileDTO[] fichiers) {
 
     }

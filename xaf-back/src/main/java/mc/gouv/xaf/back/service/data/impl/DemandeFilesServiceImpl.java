@@ -190,11 +190,30 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                 .toList();
     }
 
+    private List<DemandesFilesBO> getFichiersInternes(DemandeBO demandeBo) {
+        return demandeBo.getFiles().stream().filter(fichier -> FileUtils.isFileCreatedByBack(fichier.getMeta()))
+                .toList();
+    }
+
     @Override
     public void clonerDesPiecesJointes(DemandeBO demandeBo, DemandeBO newDemandeBo) {
         if (demandeBo.getFiles() != null) {
             LOGGER.info("Suppression des pièces jointes...");
             List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(getFichiersUsager(demandeBo));
+            List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
+            for (DemandesFilesBO fileBo : filesBo) {
+                fileBo.setPkDemandesFiles(null);
+                fileBo.setFkDemandes(newDemandeBo);
+                demandesFilesRepository.save(fileBo);
+            }
+            newDemandeBo.setFiles(new HashSet<>(filesBo));
+        }
+    }
+
+    @Override
+    public void clonerDesFichiersInternes(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+        if (demandeBo.getFiles() != null) {
+            List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(getFichiersInternes(demandeBo));
             List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
             for (DemandesFilesBO fileBo : filesBo) {
                 fileBo.setPkDemandesFiles(null);

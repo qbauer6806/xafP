@@ -1,6 +1,7 @@
 package mc.gouv.xaf.apiclient.paiement;
 
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -68,9 +69,13 @@ public class PaiementApiClient extends AfApiClient {
     }
 
     public void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId, String usagerToken, String raisonSociale) {
-        Response res = getTarget().path("paiement/moyenpaiement").queryParam("demandeIds", demandeIds)
-                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken).queryParam("raisonSociale", raisonSociale)
-                .request(MediaType.APPLICATION_JSON)
+        WebTarget target = getTarget().path("paiement/moyenpaiement").queryParam("demandeIds", demandeIds)
+                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken);
+        // Ajouter seulement si non null / non vide
+        if (raisonSociale != null && !raisonSociale.isBlank()) {
+            target = target.queryParam("raisonSociale", raisonSociale);
+        }
+        Response res = target.request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(usager));
         ExceptionManager.checkExceptionResponse(res);

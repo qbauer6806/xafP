@@ -1006,11 +1006,11 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
-        return cloneDemande(pkDemande, false);
+        return cloneDemande(pkDemande, false, false);
     }
 
     @Override
-    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent) {
+    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent, boolean copierFichierInternes) {
         try {
             DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
@@ -1033,6 +1033,11 @@ public class DemandesServiceImpl implements DemandesService {
 
             // Demandes d'informations complémentaires des demandes
             demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
+
+            // Fichiers internes
+            if(copierFichierInternes) {
+                demandesFilesService.clonerDesFichiersInternes(demandeBo, newDemandeBo);
+            }
 
             // Statuts des demandes
             demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);

@@ -108,7 +108,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent) {
+    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent, boolean copierFichiersInternes) {
         return null;
     }
 

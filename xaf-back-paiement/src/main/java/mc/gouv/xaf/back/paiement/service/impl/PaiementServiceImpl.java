@@ -181,9 +181,7 @@ public class PaiementServiceImpl implements PaiementService {
     public InfoFacturationResponseDTO getInfoFacturation(GichuniUsagerDTO usager) {
         InfoFacturationResponseDTO result = new InfoFacturationResponseDTO();
         VousDTO vous = new VousDTO();
-        // TODO determiné où on ira chercher ces infos par la suite
         // Identité
-        usager.getSub();
         vous.setNom(usager.getNom());
         vous.setPrenom(usager.getPrenom());
         vous.setTitre(usager.getTitre());
@@ -199,7 +197,7 @@ public class PaiementServiceImpl implements PaiementService {
             adresse.setLigne3(adresseFacturation.getComplAdresse2() != null ? adresseFacturation.getComplAdresse2() : "");
             adresse.setPays(adresseFacturation.getPaysCode());
             adresse.setCodePostal(adresseFacturation.getCodePostal());
-            adresse.setVille(usager.getVille());
+            adresse.setVille(adresseFacturation.getVille());
         }
         result.setAdresse(adresse);
 

@@ -65,6 +65,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class ResidApiServiceImpl implements ResidApiService {
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(ResidApiServiceImpl.class);
     private static final String URL_LOG = "URL: {} {}";
     private static final String HEADERS_LOG = "Headers: {}";
@@ -97,9 +98,11 @@ public class ResidApiServiceImpl implements ResidApiService {
     @Autowired
     private RestitutionStatistiquesService restitutionStatsService;
 
+    private RestTemplate restTemplate;
+
     @Override
     public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte,
-            Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
+                                                         Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
         LOGGER.info("Appel à l'API RESID pour la création d'une carte");
 
@@ -244,19 +247,15 @@ public class ResidApiServiceImpl implements ResidApiService {
         HttpHeaders headers = getResidMultipartRequestHeaders(jwt);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
 
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler())
-                .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
-                .build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        RestTemplate rest = this.getRestTemplate();
 
         String requestUrl = residUrl + entryPoint;
         URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
 
-        ObjectMapper mapper = new ObjectMapper();
         LOGGER.debug("-- Appel RESID submit nouvelle carte");
         LOGGER.debug(URL_LOG, HttpMethod.POST, uri.toURL());
         LOGGER.debug(HEADERS_LOG, headers);
-        String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(residObject);
+        String body = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(residObject);
         LOGGER.debug("Body: {}", body);
 
         ResponseEntity<Y> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, type);
@@ -265,6 +264,16 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.info("Fin appel RESID");
 
         return responseEntity;
+    }
+
+    private RestTemplate getRestTemplate() {
+        if (restTemplate == null) {
+            restTemplate = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler())
+                    .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
+                    .build();
+            restTemplate.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        }
+        return restTemplate;
     }
 
     private <T> MultiValueMap<String, Object> createMultiparts(T residObject, Map<Integer, DemandeFileDTO> files)
@@ -342,8 +351,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.info("Récupération des statuts RESID de {}", idsDemandes);
 
         // Construction du rest template
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        RestTemplate rest = this.getRestTemplate();
 
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
@@ -351,15 +359,14 @@ public class ResidApiServiceImpl implements ResidApiService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
 
         // Construction de la requête
-        ObjectMapper mapper = new ObjectMapper();
-        HttpEntity<String> requestEntity = new HttpEntity<>(mapper.writeValueAsString(idsDemandes), headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(MAPPER.writeValueAsString(idsDemandes), headers);
         URI uri = builder.build().encode().toUri();
 
         // Logs DEBUG
         LOGGER.debug("-- Appel RESID Get état d'une demande");
         LOGGER.debug(URL_LOG, HttpMethod.POST, uri);
         LOGGER.debug(HEADERS_LOG, headers);
-        String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(idsDemandes);
+        String body = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(idsDemandes);
         LOGGER.debug("Body: {}", body);
 
         // Appel et réponse
@@ -379,8 +386,7 @@ public class ResidApiServiceImpl implements ResidApiService {
     public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
 
         // Construction du rest template
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        RestTemplate rest = this.getRestTemplate();
 
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
@@ -456,8 +462,7 @@ public class ResidApiServiceImpl implements ResidApiService {
     public ResidUsagerNpdhlDTO getUsagerDln1f(ResidInitialDemandeParamDTO paramDTO, String url, String jwt,
             Integer usagerId) throws ParseException {
         LOGGER.info("Appel à l'API RESID v2 /usagers/npdhl pour demander l'usager correspondant");
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        RestTemplate rest = this.getRestTemplate();
         HttpHeaders headers = getResidRequestHeaders(jwt);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)

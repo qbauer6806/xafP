@@ -1026,9 +1026,6 @@ public class DemandesServiceImpl implements DemandesService {
             // Demandes d'informations complémentaires des demandes
             demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
 
-            // Statuts des demandes
-            demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
-
             // Data des demandes
             demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
 

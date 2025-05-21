@@ -34,7 +34,7 @@ public class MwpaymtTransformer {
         userInformation.setEmail(infoFacturation.getEmail());
         userInformation.setFirstName(infoFacturation.getPrenom());
         userInformation.setLastName(infoFacturation.getNom());
-        userInformation.setLegalName(infoFacturation.getNom());
+        userInformation.setLegalName(infoFacturation.getRaisonSociale());
         userInformation.setTitle(
                 TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle() != null
                         ? TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle()

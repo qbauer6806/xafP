@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.mock;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import java.time.LocalDateTime;
 
 @Component
 public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
@@ -277,6 +278,11 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     @Override
     public String getMwpaymtUrl() {
         return "";
+    }
+
+    @Override
+    public LocalDateTime getApplicationStartDate() {
+        return null;
     }
 
     @Override

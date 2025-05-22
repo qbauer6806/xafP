@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.data.projection;
 
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 
-public interface DemandeDesinscriptionProjection {
+public interface DemandeLightProjection {
 
     Integer getPkDemandes();
 

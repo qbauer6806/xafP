@@ -41,9 +41,13 @@ public class UtilisateursUtils {
     public String getUserNameFromID(String matricule) {
         LOGGER.debug("getUserNameFromID() : Appel à Logon afin de récupérer l'utilisateur {}...", matricule);
         if (StringUtils.isNotBlank(matricule)) {
-            User user = utilisateursCache.get(matricule);
-            if (user != null) {
-                return AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
+            try {
+                User user = utilisateursCache.get(matricule);
+                if (user != null) {
+                    return AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
+                }
+            } catch (Exception exception) {
+                LOGGER.error("Erreur de recuperation du nom de l'usager par son matricule {}", matricule, exception);
             }
         }
         return null;

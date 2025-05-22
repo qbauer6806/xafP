@@ -979,12 +979,19 @@ public class AfBackUtils {
 
     public String getUtilisateurAffecte(DemandeDTO demande) {
         String utilisateurAffecte = StringUtils.EMPTY;
-        if (demande.getAgent() != null) {
-            User u = utilisateursCache.get(demande.getAgent().getId());
-            if (u != null) {
-                utilisateurAffecte = u.getNom();
+        String agentId = demande.getAgent() != null ? demande.getAgent().getId() : null;
+        if (StringUtils.isNotBlank(agentId)) {
+            try {
+                User u = utilisateursCache.get(agentId);
+                if (u != null) {
+                    utilisateurAffecte = u.getNom();
+                }
+            } catch (Exception exception) {
+                LOGGER.error("Erreur de recuperation de l'utilisateur affecté à la demande {} à partir de son matricule {}",
+                        demande.getPkDemandes(), agentId, exception);
             }
         }
+
         return utilisateurAffecte;
     }
 

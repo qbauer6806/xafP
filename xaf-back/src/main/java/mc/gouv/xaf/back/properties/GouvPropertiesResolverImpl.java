@@ -498,9 +498,4 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return mwpaymtUrl;
     }
 
-    @Override
-    public LocalDateTime getApplicationStartDate() {
-        return this.applicationStartTime;
-    }
-
 }

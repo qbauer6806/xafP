@@ -281,11 +281,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public LocalDateTime getApplicationStartDate() {
-        return null;
-    }
-
-    @Override
     public String getNomenUrl() {
         return null;
     }

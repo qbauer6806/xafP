@@ -120,5 +120,4 @@ public interface GouvPropertiesResolver {
 
     String getMwpaymtUrl();
 
-    LocalDateTime getApplicationStartDate();
 }

@@ -47,6 +47,8 @@ public class InformationFacturationBO {
     @Column(name = "ADRESSE_LIGNE3", nullable = true)
     private String adresseLigne3;
 
+    private String langue;
+
     private String codePostal;
 
     private String ville;
@@ -68,6 +70,7 @@ public class InformationFacturationBO {
                 ", adresseLigne1='" + adresseLigne1 + '\'' +
                 ", adresseLigne2='" + adresseLigne2 + '\'' +
                 ", adresseLigne3='" + adresseLigne3 + '\'' +
+                ", langue='" + langue + '\'' +
                 ", codePostal='" + codePostal + '\'' +
                 ", ville='" + ville + '\'' +
                 ", pays='" + pays + '\'' +

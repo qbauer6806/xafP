@@ -66,7 +66,7 @@ public class InfoPaiementController extends AbstractXafController {
         String orderId = registerInput.getTransactionInformation().getOrderId();
 
         // Création du moyen de paiement en base de donnée
-        paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO, orderId, accessToken, infoPaiementInput.getRaisonSociale());
+        paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO, orderId, accessToken, infoPaiementInput.getRaisonSociale(), infoPaiementInput.getLangue());
         InfoPaiementOutputDTO infoPaiementOutputDTO = mwpaymntService.mwpaymtRegisterResponseToInfoPaiementOutputDTO(token);
 
         LOGGER.info("====================== /info-paiement POST end...");

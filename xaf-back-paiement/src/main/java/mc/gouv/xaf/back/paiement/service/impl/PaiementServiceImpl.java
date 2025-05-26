@@ -217,7 +217,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId, String raisonSociale) {
+    public void createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId, String raisonSociale, String langue) {
         logStartMethod(LOGGER);
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         String replace = ids.replace("[", "").replace("]", "");
@@ -231,7 +231,7 @@ public class PaiementServiceImpl implements PaiementService {
                 articlesDemandes);
         CommandeBO commande = createCommande(totalCommande, moyenPaiement, demandeIds, demandes, totauxDemandes,
                 articlesDemandes);
-        createInfoFacturation(usager, commande, raisonSociale);
+        createInfoFacturation(usager, commande, raisonSociale, langue);
         LocalDateTime now = LocalDateTime.now();
         moyenPaiement.setCommande(commande);
         moyenPaiement.setDateCreation(now);
@@ -436,9 +436,10 @@ public class PaiementServiceImpl implements PaiementService {
         t.start();
     }
 
-    private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande, String raisonSociale) {
+    private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande, String raisonSociale, String langue) {
         // Stockage de l'info de facturation en base de donnée
         InfoFacturationResponseDTO result = getInfoFacturation(usager);
+        result.setLangue(langue);
         if(null != raisonSociale) {
             result.setRaisonSociale(raisonSociale);
         }

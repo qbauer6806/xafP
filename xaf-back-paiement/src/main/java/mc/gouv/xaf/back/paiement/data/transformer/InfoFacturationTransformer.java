@@ -24,6 +24,7 @@ public class InfoFacturationTransformer {
         bo.setAdresseLigne2(adresse.getLigne2());
         bo.setAdresseLigne3(adresse.getLigne3());
         bo.setCodePostal(adresse.getCodePostal());
+        bo.setLangue(dto.getLangue());
         bo.setVille(adresse.getVille());
         bo.setPays(adresse.getPays());
         bo.setEmail(dto.getEmail());

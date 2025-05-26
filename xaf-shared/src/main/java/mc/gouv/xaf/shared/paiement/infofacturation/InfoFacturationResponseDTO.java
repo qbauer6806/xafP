@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+
 @Getter
 @Setter
 @ToString
@@ -14,6 +15,7 @@ public class InfoFacturationResponseDTO {
     private Integer id;
     private VousDTO vous;
     private String email;
+    private String langue;
     private AdresseDTO adresse;
     private String raisonSociale;
     private boolean saveRaisonSociale;

@@ -68,9 +68,9 @@ public class PaiementApiClient extends AfApiClient {
         });
     }
 
-    public void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId, String usagerToken, String raisonSociale) {
+    public void createMoyenPaiement(String demandeIds, GichuniUsagerDTO usager, String orderId, String usagerToken, String raisonSociale, String langue) {
         WebTarget target = getTarget().path("paiement/moyenpaiement").queryParam("demandeIds", demandeIds)
-                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken);
+                .queryParam("orderId", orderId).queryParam("usagerToken", usagerToken).queryParam("langue", langue);
         // Ajouter seulement si non null / non vide
         if (raisonSociale != null && !raisonSociale.isBlank()) {
             target = target.queryParam("raisonSociale", raisonSociale);

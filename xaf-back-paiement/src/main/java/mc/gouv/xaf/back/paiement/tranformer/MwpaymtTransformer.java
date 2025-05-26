@@ -40,7 +40,7 @@ public class MwpaymtTransformer {
                         ? TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle()
                         : "");
         userInformation.setZipCode(infoFacturation.getCodePostal());
-        userInformation.setLanguage(infoFacturation.getLangue());
+        userInformation.setLanguage(infoFacturation.getLangue() != null ? infoFacturation.getLangue() : "FR");
         mwpaymtDebitDTO.setUserInformation(userInformation);
 
         mwpaymtDebitDTO.setPaymentMethodToken(moyenPaiement.getPaymentMethodToken());

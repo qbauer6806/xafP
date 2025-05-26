@@ -171,7 +171,7 @@ public class DemandesHistoriqueService {
 
     public DemandeHistoriqueDTO reponseDemandeCompl(String targetState, Integer usagerId, String agentId,
             String affecteId) {
-        String agentAffecteId = StringUtils.isNotBlank(agentId) ? agentId : affecteId;
+        String agentAffecteId = StringUtils.isNotBlank(affecteId) ? affecteId : agentId;
         String agentName = getAgentName(agentAffecteId);
         String action =
                 "Transmission d'infos complémentaires vers <span class='histo-usager'>" + agentName + CLOSING_SPAN;

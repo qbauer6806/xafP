@@ -7,6 +7,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionDebitEnum;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -17,6 +18,7 @@ import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.InformationFacturationRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
@@ -24,10 +26,13 @@ import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
@@ -106,6 +111,8 @@ public class PaiementServiceImpl implements PaiementService {
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
 
+    @Autowired
+    private CommandeOperationRepository commandeOperationRepository;
 
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
@@ -355,8 +362,8 @@ public class PaiementServiceImpl implements PaiementService {
         DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);
         logEndMethod(LOGGER);
 
-        // TODO Mettre à jour les opérations (commandes_operations)
-        // l'historique de
+        CommandeOperationBO operation = getCommandeOperationBO(moyenPaiement, debit);
+        commandeOperationRepository.save(operation);
         DemandesUsagersBO usager = demandeBo.getUsager();
         Integer usagerId = usager.getId();
         GouvBPMUser user = new GouvBPMUser();
@@ -372,6 +379,19 @@ public class PaiementServiceImpl implements PaiementService {
         historique.setUsagerId(usagerId);
         paiementHistoriqueRepository.save(historique);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
+    }
+
+    private static CommandeOperationBO getCommandeOperationBO(MoyenPaiementBO moyenPaiement, DebitOutputDTO debit) {
+        CommandeOperationBO operation = new CommandeOperationBO();
+        operation.setCommande(moyenPaiement.getCommande());
+        operation.setDateCreation(debit.getTransactionAction().getDateCreationDebit());
+        operation.setDateRealisation(debit.getTransactionAction().getDateDebit());
+        operation.setOperationType(OperationTypeEnum.DEBIT);
+        operation.setOperationStatut(debit.getTransactionAction().getActionDebit() == ActionDebitEnum.SUCCESS
+                ? OperationStatutEnum.SUCCES
+                : OperationStatutEnum.ECHEC);
+        operation.setMontant(moyenPaiement.getCommande().getMontantRestant());
+        return operation;
     }
 
     @Async

@@ -37,7 +37,7 @@ public class CommandeOperationBO {
 
     private LocalDateTime dateCreation;
 
-    private String transactionReference;
+    private LocalDateTime dateRealisation;
 
     private String errorCode;
 

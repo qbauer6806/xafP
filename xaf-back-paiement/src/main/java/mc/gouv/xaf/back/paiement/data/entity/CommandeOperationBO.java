@@ -52,10 +52,10 @@ public class CommandeOperationBO {
                 ", operationType=" + operationType +
                 ", operationStatut=" + operationStatut +
                 ", dateCreation=" + dateCreation +
+                ", dateRealisation=" + dateRealisation +
                 ", errorCode=" + errorCode +
                 ", errorMessage=" + errorMessage +
                 ", montant=" + montant +
-                ", transactionReference='" + transactionReference + '\'' +
                 '}';
     }
 

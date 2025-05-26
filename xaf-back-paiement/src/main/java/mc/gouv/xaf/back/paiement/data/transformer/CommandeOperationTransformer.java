@@ -20,7 +20,7 @@ public class CommandeOperationTransformer {
         dto.setFkCommandes(bo.getCommande().getPkCommandes());
         dto.setDateCreation(bo.getDateCreation());
         dto.setMontant(bo.getMontant());
-        dto.setTransactionReference(bo.getTransactionReference());
+        dto.setDateRealisation(bo.getDateRealisation());
         dto.setErrorCode(bo.getErrorCode());
         dto.setErrorMessage(bo.getErrorMessage());
         dto.setOperationType(OperationTypeTransformer.bo2String(bo.getOperationType()));
@@ -33,7 +33,7 @@ public class CommandeOperationTransformer {
         bo.setPkOperations(dto.getPkOperations());
         bo.setDateCreation(dto.getDateCreation());
         bo.setMontant(dto.getMontant());
-        bo.setTransactionReference(dto.getTransactionReference());
+        bo.setDateRealisation(dto.getDateRealisation());
         bo.setErrorCode(dto.getErrorCode());
         bo.setErrorMessage(dto.getErrorMessage());
         bo.setOperationType(OperationTypeTransformer.string2Bo(dto.getOperationType()));

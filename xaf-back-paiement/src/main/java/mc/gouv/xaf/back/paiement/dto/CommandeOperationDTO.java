@@ -23,6 +23,8 @@ public class CommandeOperationDTO {
 
     private LocalDateTime dateCreation;
 
+    private LocalDateTime dateRealisation;
+
     private Double montant;
 
     private String errorCode;

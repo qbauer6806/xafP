@@ -89,12 +89,6 @@
       <groupId>mc.gouv.vscan</groupId>
       <artifactId>vscan-shared</artifactId>
       <version>${vscan.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-fileupload</artifactId>
-          <groupId>commons-fileupload</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

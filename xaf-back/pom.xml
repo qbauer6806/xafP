@@ -13,7 +13,6 @@
   <artifactId>xaf-back</artifactId>
 
   <properties>
-    <flowable.version>7.1.0</flowable.version>
     <openhtml.version>1.1.28</openhtml.version>
     <xdocreport.version>2.1.0</xdocreport.version>
     <jxls.version>3.0.0</jxls.version>

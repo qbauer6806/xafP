@@ -4,6 +4,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationD
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionDebitEnum;
 import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
@@ -56,7 +57,7 @@ public class MwpaymtTransformer {
 
     public DebitDTO debitOutputDTOToDebitDTO(DebitOutputDTO output) {
         DebitDTO debitDTO = new DebitDTO();
-        debitDTO.setStatut(output.getTransactionAction().getActionDebit().name().equals("SUCCESS") ? StatutDebitEnum.PAID : StatutDebitEnum.UNPAID);
+        debitDTO.setStatut(output.getTransactionAction().getActionDebit().equals(ActionDebitEnum.SUCCESS) ? StatutDebitEnum.PAID : StatutDebitEnum.UNPAID);
         debitDTO.setExpectedCaptureDate(output.getTransactionAction().getDateDebit());
         return debitDTO;
     }

@@ -353,39 +353,53 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
+        Integer pkDemandes = demandeBo.getPkDemandes();
         Optional<CommandeDemandeBO> latestCommandeForDemande = commandeDemandeRepository.findLatestCommandeForDemande(
-                demandeBo.getPkDemandes());
+                pkDemandes);
         CommandeDemandeBO commandeDemande = latestCommandeForDemande.orElseThrow(() ->
-                new EntityNotFoundException("Aucune commande trouvée pour la demande " + demandeBo.getPkDemandes()));
-        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByDemande_PkDemandesAndLastCreationDate(
-                demandeBo.getPkDemandes());
+                new EntityNotFoundException("Aucune commande trouvée pour la demande " + pkDemandes));
+        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByDemande_PkDemandesAndLastCreationDate(pkDemandes);
         InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
                 moyenPaiement.getCommande().getPkCommandes());
         DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiement,
                 infoFacturation, commandeDemande.getMontant());
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), residToken);
         DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);
-        logEndMethod(LOGGER);
-
-        // maj table commandes
-        updateCommande(moyenPaiement.getCommande(), commandeDemande.getMontant());
-        CommandeOperationBO operation = getCommandeOperationBO(moyenPaiement, debit);
+        ActionDebitEnum actionDebit = debit.getTransactionAction().getActionDebit();
+        CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
         commandeOperationRepository.save(operation);
         DemandesUsagersBO usager = demandeBo.getUsager();
         Integer usagerId = usager.getId();
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
-        LOGGER.info("Ajout de l'historique de paiement...");
+        majHistoriqueDebit(pkDemandes, demandeBo, usagerId, actionDebit, moyenPaiement, commandeDemande);
+        logEndMethod(LOGGER);
+        return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
+    }
+
+    private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, Integer usagerId, ActionDebitEnum actionDebit,
+            MoyenPaiementBO moyenPaiement, CommandeDemandeBO commandeDemande) {
+        LOGGER.info("Mise à jour de l'historique de la demande {}"+ pkDemandes);
         PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
         historique.setFkDemandes(demandeBo);
-        if (usager != null) {
-            historique.setContenu("Système - Débit réalisé");
-        }
-        historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
         historique.setDate(Timestamp.valueOf(LocalDateTime.now()));
         historique.setUsagerId(usagerId);
+        String state = "";
+        String action = "";
+        if(actionDebit.equals(ActionDebitEnum.SUCCESS)) {
+            updateCommande(moyenPaiement.getCommande(), commandeDemande.getMontant());
+            historique.setContenu("Système - Débit réalisé");
+            historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
+            state = "SUCCES";
+            action = "Débit réalisé avec succès";
+        } else {
+            historique.setContenu("Système - Débit en échec");
+            state = "ECHEC";
+            action = "Débit en échec. Demande de paiement envoyée";
+            historique.setStatut(PaiementStatutEnum.DEBIT_ECHEC.name());
+        }
         paiementHistoriqueRepository.save(historique);
-        return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
+        demandesHistoriqueService.actionSysteme(pkDemandes, state, action);
     }
 
     private void updateCommande(CommandeBO commande, double montantCapture) {
@@ -395,16 +409,17 @@ public class PaiementServiceImpl implements PaiementService {
         commandeRepository.save(commande);
     }
 
-    private static CommandeOperationBO getCommandeOperationBO(MoyenPaiementBO moyenPaiement, DebitOutputDTO debit) {
+    private static CommandeOperationBO getCommandeOperationBO(DebitOutputDTO debit,
+            CommandeDemandeBO commandeDemande) {
         CommandeOperationBO operation = new CommandeOperationBO();
-        operation.setCommande(moyenPaiement.getCommande());
+        operation.setCommande(commandeDemande.getCommande());
         operation.setDateCreation(debit.getTransactionAction().getDateCreationDebit());
         operation.setDateRealisation(debit.getTransactionAction().getDateDebit());
         operation.setOperationType(OperationTypeEnum.DEBIT);
         operation.setOperationStatut(debit.getTransactionAction().getActionDebit() == ActionDebitEnum.SUCCESS
                 ? OperationStatutEnum.SUCCES
                 : OperationStatutEnum.ECHEC);
-        operation.setMontant(moyenPaiement.getCommande().getMontantRestant());
+        operation.setMontant(commandeDemande.getMontant());
         return operation;
     }
 

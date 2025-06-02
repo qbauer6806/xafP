@@ -390,11 +390,11 @@ public class PaiementServiceImpl implements PaiementService {
             updateCommande(moyenPaiement.getCommande(), commandeDemande.getMontant());
             historique.setContenu("Système - Débit réalisé");
             historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
-            state = "SUCCES";
+            state = "DEBIT_REALISE";
             action = "Débit réalisé avec succès";
         } else {
             historique.setContenu("Système - Débit en échec");
-            state = "ECHEC";
+            state = "DEBIT_ECHEC";
             action = "Débit en échec. Demande de paiement envoyée";
             historique.setStatut(PaiementStatutEnum.DEBIT_ECHEC.name());
         }

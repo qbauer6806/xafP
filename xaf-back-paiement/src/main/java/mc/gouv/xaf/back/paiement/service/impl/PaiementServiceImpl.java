@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.persistence.EntityNotFoundException;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
@@ -352,16 +353,22 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
+        Optional<CommandeDemandeBO> latestCommandeForDemande = commandeDemandeRepository.findLatestCommandeForDemande(
+                demandeBo.getPkDemandes());
+        CommandeDemandeBO commandeDemande = latestCommandeForDemande.orElseThrow(() ->
+                new EntityNotFoundException("Aucune commande trouvée pour la demande " + demandeBo.getPkDemandes()));
         MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByDemande_PkDemandesAndLastCreationDate(
                 demandeBo.getPkDemandes());
         InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
                 moyenPaiement.getCommande().getPkCommandes());
         DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiement,
-                infoFacturation);
+                infoFacturation, commandeDemande.getMontant());
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), residToken);
         DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);
         logEndMethod(LOGGER);
 
+        // maj table commandes
+        updateCommande(moyenPaiement.getCommande(), commandeDemande.getMontant());
         CommandeOperationBO operation = getCommandeOperationBO(moyenPaiement, debit);
         commandeOperationRepository.save(operation);
         DemandesUsagersBO usager = demandeBo.getUsager();
@@ -379,6 +386,13 @@ public class PaiementServiceImpl implements PaiementService {
         historique.setUsagerId(usagerId);
         paiementHistoriqueRepository.save(historique);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
+    }
+
+    private void updateCommande(CommandeBO commande, double montantCapture) {
+        double montantRestant = commande.getMontantInitial() - commande.getMontantDejaCapture() - montantCapture;
+        commande.setMontantRestant(montantRestant);
+        commande.setMontantDejaCapture(commande.getMontantDejaCapture() + montantCapture);
+        commandeRepository.save(commande);
     }
 
     private static CommandeOperationBO getCommandeOperationBO(MoyenPaiementBO moyenPaiement, DebitOutputDTO debit) {

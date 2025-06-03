@@ -29,4 +29,6 @@ public interface DemandeFilesCategorizer {
 
     List<DemandeFileDTO> fichiersAdministration(DemandeFileDTO[] demandeFiles);
 
+    List<DemandeFileDTO> fichiersFront(DemandeFileDTO[] demandeFiles);
+
 }

@@ -32,7 +32,7 @@ public class DemarchesBO {
     private String nom;
 
     @Column(name = "NOM_EN", length = 256)
-    @Size(min = 0, max = 256)
+    @Size(max = 256)
     private String nomEn;
 
     @Column(name = "EMAIL_SERVICE", length = 256, nullable = false)

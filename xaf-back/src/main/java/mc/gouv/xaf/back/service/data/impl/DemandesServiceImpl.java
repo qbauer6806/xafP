@@ -762,7 +762,7 @@ public class DemandesServiceImpl implements DemandesService {
             PDFMergerUtility mergerUtility = new PDFMergerUtility();
 
             // Ajouter les PDFs des URLs
-            for (DemandeFileDTO file : demandeFilesCategorizer.fichiersAdministration(demande.getFichiers())) {
+            for (DemandeFileDTO file : demandeFilesCategorizer.fichiersFront(demande.getFichiers())) {
                 try (InputStream inputStream = fileService.getFile(
                         gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/"
                                 + file.getUrl()); PDDocument urlPdf = Loader.loadPDF(inputStream.readAllBytes())) {

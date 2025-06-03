@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.histo;
 
 import java.util.Date;
 import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -102,14 +103,14 @@ public class DemandesHistoriqueService {
     }
 
     public DemandeHistoriqueDTO statusChangeDecisionValidation(String targetState,
-            HistoValidationEnum histoValidationEnum, String newStatut) {
+                                                               HistoValidationEnum histoValidationEnum, String newStatut) {
         return statusChange(targetState, null, AfBackUtils.getAuthenticatedAgentId(), histoValidationEnum, null,
                 newStatut, null);
     }
 
     public DemandeHistoriqueDTO statusChangeDecisionValidation(String targetState,
-            HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum histoValidationNiveauEnum,
-            String newStatut) {
+                                                               HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum histoValidationNiveauEnum,
+                                                               String newStatut) {
         return statusChange(targetState, null, AfBackUtils.getAuthenticatedAgentId(), histoValidationEnum,
                 histoValidationNiveauEnum, newStatut, null);
     }
@@ -139,8 +140,8 @@ public class DemandesHistoriqueService {
     }
 
     private DemandeHistoriqueDTO statusChange(String targetState, Integer usagerId, String agentId,
-            HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum niveauEnum, String newStatut,
-            String dernierStatut) {
+                                              HistoValidationEnum histoValidationEnum, HistoValidationNiveauEnum niveauEnum, String newStatut,
+                                              String dernierStatut) {
         String role, name;
         String agentName = getAgentName(agentId);
         String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum, dernierStatut);
@@ -175,7 +176,7 @@ public class DemandesHistoriqueService {
     }
 
     public DemandeHistoriqueDTO reponseDemandeCompl(String targetState, Integer usagerId, String agentId,
-            String affecteId) {
+                                                    String affecteId) {
         String agentAffecteId = StringUtils.isNotBlank(agentId) ? agentId : affecteId;
         String agentName = getAgentName(agentAffecteId);
         String action =
@@ -218,7 +219,7 @@ public class DemandesHistoriqueService {
     }
 
     public DemandeHistoriqueDTO historiqueDuplicationAncienneDemande(DemandeDTO nouvelleDemande,
-            String oldDemandeStatutName) {
+                                                                     String oldDemandeStatutName) {
         String agentId = AfBackUtils.getAuthenticatedAgentId();
         String agentName = getAgentName(agentId);
         String action = "Duplication de la demande (Demande dupliquée <a href='" + gouvPropertiesResolver.getBackUrl()
@@ -261,7 +262,7 @@ public class DemandesHistoriqueService {
     }
 
     private DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
-            String agentId) {
+                                             String agentId) {
         DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
         demHisto.setAgentId(agentId);
         demHisto.setUsagerId(usagerId);
@@ -270,4 +271,19 @@ public class DemandesHistoriqueService {
         return demHisto;
     }
 
+    /**
+     * La méthode permet d'ajouter une ligne historique suite à une action d'un agent sur une demande
+     *
+     * @param demandeId   l'identifiant de la demande
+     * @param targetState le statut cible
+     * @param role        le rôle de l'agent qui fait l'action
+     * @param action      l'action faite par l'agent
+     * @param agentId     l'identifiant de l'agent
+     */
+    public void ajouterHistorique(Integer demandeId, String targetState, String role, String action, String agentId) {
+        String agentName = getAgentName(agentId);
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName, role, action, targetState);
+        DemandeHistoriqueDTO histo = histoTs2Dem(contenu, null, agentId);
+        saveHisto(demandeId, histo);
+    }
 }

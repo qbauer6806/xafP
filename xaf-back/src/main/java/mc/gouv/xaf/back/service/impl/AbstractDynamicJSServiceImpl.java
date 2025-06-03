@@ -23,7 +23,7 @@ public class AbstractDynamicJSServiceImpl implements DynamicJSService {
     @Autowired
     private AfBackUtils afBackUtils;
 
-    String js = null;
+    protected String js = null;
 
     @Override
     public String getResponse() {
@@ -36,7 +36,7 @@ public class AbstractDynamicJSServiceImpl implements DynamicJSService {
         return js;
     }
 
-    private boolean ifElse(StringBuilder builder, boolean first) {
+    protected boolean ifElse(StringBuilder builder, boolean first) {
         if (first) {
             builder.append("\nif ");
         } else {

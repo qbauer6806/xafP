@@ -10,8 +10,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.UUID;
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.front.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -19,6 +17,8 @@ import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanRequestDTO;
 import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -222,7 +222,7 @@ public class FileUploadController extends AbstractXafController {
 
             ScanRequestDTO scanRequest = new ScanRequestDTO();
             scanRequest.setCodeAppli(propertiesResolver.getDemarcheId());
-            scanRequest.setFilename(filename);
+            scanRequest.setFileName(filename);
             scanRequest.setEnduserAppModule(propertiesResolver.getDemarcheId().toLowerCase() + "-frontserver");
 
             ObjectMapper mapper = new ObjectMapper();

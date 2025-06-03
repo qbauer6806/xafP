@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import mc.gouv.file.shared.dto.FileBatchDTO;
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
@@ -38,6 +36,8 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanRequestDTO;
 import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -350,7 +350,7 @@ public class FileServiceImpl implements FileService {
                 new InputStreamBody(file.getInputStream(), ContentType.create(file.getContentType()), file.getName()));
         ScanRequestDTO scanRequest = new ScanRequestDTO();
         scanRequest.setCodeAppli(gouvPropertiesResolver.getDemarcheId());
-        scanRequest.setFilename(file.getName());
+        scanRequest.setFileName(file.getName());
         scanRequest.setEnduserAppModule(file.getName().toLowerCase() + "-frontserver");
 
         String scanRequestStr = mapper.writeValueAsString(scanRequest);

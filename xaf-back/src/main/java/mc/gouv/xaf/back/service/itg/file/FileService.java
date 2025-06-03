@@ -1,18 +1,15 @@
 package mc.gouv.xaf.back.service.itg.file;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service d'appel à FILE pour les démarches

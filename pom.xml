@@ -20,7 +20,7 @@
     <java.version>21</java.version>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <tika.version>3.1.0</tika.version>
+    <tika.version>3.2.0</tika.version>
     <xcb-wlib.version>1.2.0</xcb-wlib.version>
     <poi-ooxml.version>5.4.1</poi-ooxml.version>
     <commons-io.version>2.19.0</commons-io.version>
@@ -28,7 +28,6 @@
     <xapi.version>1.0.4</xapi.version>
     <jacoco.version>0.8.13</jacoco.version>
     <jbig2-imageio.version>3.0.4</jbig2-imageio.version>
-    <vscan.version>1.0.0</vscan.version>
     <pdfbox.version>3.0.5</pdfbox.version>
     <flowable.version>7.1.0</flowable.version>
   </properties>

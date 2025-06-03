@@ -1,13 +1,15 @@
 package mc.gouv.xaf.back.service.utils;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -86,21 +88,22 @@ public class RelancesUtils {
     }
 
     public String getExpirationTime(DemandeDTO demande, String key) {
-        PropertiesDTO prop = propertiesService.getProperty(key);
-        int nbJoursAvantExpiration = 0;
-        if (prop != null) {
-            nbJoursAvantExpiration = Integer.parseInt(prop.getValue());
+        String propValue = Optional.ofNullable(propertiesService.getProperty(key)).map(PropertiesDTO::getValue)
+                .orElse("0");
+
+        int nbJoursAvantExpiration;
+        try {
+            nbJoursAvantExpiration = Integer.parseInt(propValue);
+        } catch (NumberFormatException e) {
+            nbJoursAvantExpiration = 0;
         }
-        Date dateStatutEnAttenteIC = demande.getDernierStatut().getDate();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateStatutEnAttenteIC);
-        cal.add(Calendar.DATE, nbJoursAvantExpiration);
-        Date dateExpiration = cal.getTime();
-        Date currentDate = new Date();
-        Long dateExpirationTime = dateExpiration.getTime();
-        Long currentDateTime = currentDate.getTime();
-        long diff = dateExpirationTime - currentDateTime;
-        long days = TimeUnit.MILLISECONDS.toDays(diff);
+
+        LocalDate dateStatut = demande.getDernierStatut().getDate().toInstant().atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate dateExpiration = dateStatut.plusDays(nbJoursAvantExpiration);
+        long days = ChronoUnit.DAYS.between(LocalDate.now(), dateExpiration);
+
         return String.valueOf(days);
     }
 

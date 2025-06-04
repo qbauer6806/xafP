@@ -10,7 +10,10 @@ import mc.gouv.xaf.back.dsp.dto.ResidDebitInputDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutCaisseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidTarifDTO;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
+import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 
@@ -30,6 +40,15 @@ public class ResidApiController {
 
     @Autowired
     private PaiementService paiementService;
+
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private FactureService factureService;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     // APIs destinées à RESID
     @Operation(
@@ -82,15 +101,26 @@ public class ResidApiController {
     @PostMapping(value = "/debit")
     public DebitDTO debit(@RequestBody ResidDebitInputDTO input, HttpServletRequest request) {
         logStartMethod(LOGGER);
-        String authorization = request.getHeader("Authorization");
-        String jwt = "";
-
-        if (authorization != null && authorization.startsWith("Bearer ")) {
-            jwt = authorization.substring(7); // Enlève "Bearer "
-        }
-
+        String jwt = getJwt(request);
         DebitDTO debit = paiementService.debit(input.getIdTs(), input.getOrderIdResid(), jwt);
         logEndMethod(LOGGER);
         return debit;
+    }
+
+    @PostMapping(value = "/recuPaiement", consumes = "multipart/form-data")
+    public String recuPaiement(@RequestPart("file") MultipartFile file, HttpServletRequest request, @RequestParam("idTs") String idTs) {
+        logStartMethod(LOGGER);
+        factureService.saveRecuPaiement(idTs, file);
+        logEndMethod(LOGGER);
+        return "Fichier PDF reçu avec succès.";
+    }
+
+    private static String getJwt(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+        String jwt = "";
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            jwt = authorization.substring(7); // Enlève "Bearer "
+        }
+        return jwt;
     }
 }

@@ -18,6 +18,9 @@ public class TypedocDTO {
 
     private boolean enabled;
 
+    public TypedocDTO() {
+    }
+
     public TypedocDTO(String key, String value, boolean enabled) {
         this.key = key;
         this.value = value;

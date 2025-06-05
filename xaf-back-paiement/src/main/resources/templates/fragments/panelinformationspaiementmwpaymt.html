@@ -12,37 +12,29 @@
       </div>
     </div>
 
-    <div class="row mt-15">
-      <div class="col-xs-6">
-        <label th:if="${statutPaiementCode} != 'DEBIT_REALISE'" for="montant">Montant de la demande
-          : </label>
-        <label th:if="${statutPaiementCode} == 'DEBIT_REALISE'" for="montant">Montant débité
-          : </label>
+    <div class="row" style="margin-top: 15px;">
+      <!-- Montant -->
+      <div style="margin-top: 1rem; width: 50%; margin-left: 15px;">
+        <label th:if="${statutPaiementCode} != 'DEBIT_REALISE'" for="montant">Montant de la demande :</label>
+        <label th:if="${statutPaiementCode} == 'DEBIT_REALISE'" for="montant">Montant débité :</label>
         <br>
-        <input class="form-control" type="text" id="montant" th:value="${montantPaiement}"
-               disabled="true"/>
+        <input class="form-control" type="text" id="montant" th:value="${montantPaiement}" disabled="true" style="width: 100%;" />
       </div>
-      <div class="col-xs-6">
-        <label for="numFacture">Numéro de reçu de paiement : </label>
-        <br>
-        <input class="form-control" type="text" id="numFacture" th:value="${numeroFacture}"
-               disabled="true"/>
-      </div>
-      <div class="col-xs-6">
 
-        <label for="dateEmpreinte">Date de débit : </label>
+      <!-- Date de débit -->
+      <div style="margin-top: 1rem; width: 50%; margin-left: 15px;">
+        <label for="dateEmpreinte">Date de débit :</label>
         <br>
-        <input class="form-control" type="text" id="dateEmpreinte" th:value="${datePaiement}"
-               disabled="true"/>
+        <input class="form-control" type="text" id="dateEmpreinte" th:value="${datePaiement}" disabled="true" style="width: 100%;" />
       </div>
-      <div class="col-xs-6">
-        <label for="moyenPaiement">Moyen de paiement : </label>
+
+      <!-- Moyen de paiement -->
+      <div style="margin-top: 1rem; width: 50%; margin-left: 15px;">
+        <label for="moyenPaiement">Moyen de paiement :</label>
         <br>
-        <input class="form-control" type="text" id="moyenPaiement" th:value="${moyenPaiement}"
-               disabled="true"/>
+        <input class="form-control" type="text" id="moyenPaiement" th:value="${moyenPaiement}" disabled="true" style="width: 100%;" />
       </div>
     </div>
-
     <hr>
 
     <h4 class="h4">HISTORIQUE DE PAIEMENT</h4>

@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidInformationDebitDTO {
 
-    private String idTs;
+    private String idTS;
     private LocalDateTime dateDebit;
+    private boolean success;
 }

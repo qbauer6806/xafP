@@ -88,7 +88,7 @@ public class MoyenPaiementController extends AbstractXafController {
             YearMonth dateA = YearMonth.parse(a.getExpiration(), formatter);
             YearMonth dateB = YearMonth.parse(b.getExpiration(), formatter);
             // crée si les nom sont identiques
-            return !nomA.equals(nomB) ? nomA.compareTo(nomB) : dateA.compareTo(dateB);
+            return !nomA.equals(nomB) ? nomA.compareTo(nomB) : dateB.compareTo(dateA);
         }
     }
 }

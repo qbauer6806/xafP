@@ -85,17 +85,6 @@
       <artifactId>java-uuid-generator</artifactId>
       <version>5.1.0</version>
     </dependency>
-    <dependency>
-      <groupId>mc.gouv.vscan</groupId>
-      <artifactId>vscan-shared</artifactId>
-      <version>${vscan.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-fileupload</artifactId>
-          <groupId>commons-fileupload</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
     <dependency>
       <groupId>mc.gouv.xaf</groupId>

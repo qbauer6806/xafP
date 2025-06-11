@@ -76,7 +76,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
@@ -199,9 +198,6 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private PaysCache paysCache;
-
-    @Value("${mc.gouv.gichuni.front.url}")
-    private String gichuniFrontUrl;
 
     private AfApiClient afApiClient2Tiers = null;
 
@@ -1108,6 +1104,7 @@ public class AfBackUtils {
         return commentaire.replaceAll("\\r?\\n", "<br/>");
     }
 
+<<<<<<< HEAD
     public Map<String, Object> getGenericModelMail(DemandeDTO demandeDTO) {
         Map<String, Object> map = getGenericModelMail();
         map.put("identifiant", demandeDTO.getIdentifiant());
@@ -1145,4 +1142,6 @@ public class AfBackUtils {
         return map;
     }
 
+=======
+>>>>>>> v12.1.0
 }

@@ -197,15 +197,26 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 ? Arrays.asList(demande.getDonneesCertifiees())
                 : new ArrayList<>();
 
+        JsonNode contenuSource = null;
+        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            // récupérer le contenu de la demandeInitial et traduire
+            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
+            demandesService.setContenuTrad(contenuSource, demande.getConfig());
+        } else if (demande.getPkDemandeSource() != null) {
+            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
+            contenuSource = d != null ? d.getContenuTrad() : null;
+        }
+
         JSONArray sections = (JSONArray) jsonParser.parse(sectionsNode.toString());
         for (Object o : sections) {
             JSONObject section = (JSONObject) o;
             String sectionType = (String) section.get("type");
 
             if (!StringUtils.equals(sectionType, "sousSections")) {
-                generateSectionHTML(html, section, sectionType, demande, isPdfRecap, donneesCertifiees);
+                generateSectionHTML(html, section, sectionType, demande, isPdfRecap, donneesCertifiees, contenuSource);
             } else {
-                generateSectionAndSousSection(html, section, sectionType, demande, isPdfRecap, donneesCertifiees);
+                generateSectionAndSousSection(html, section, sectionType, demande, isPdfRecap, donneesCertifiees,
+                        contenuSource);
             }
         }
 
@@ -269,10 +280,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private void generateSectionHTML(StringBuilder html, JSONObject section, String sectionType, DemandeDTO demande,
-            boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees)
+            boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees, JsonNode contenuSource)
             throws IllegalArgumentException, SecurityException {
 
-        String firstLevel = getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees);
+        String firstLevel = getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees,
+                contenuSource);
         if (StringUtils.isNotBlank(firstLevel)) {
             html.append("<div class=\"sectiondemande\"><h3>").append(section.get("titre")).append("</h3><dl>");
             html.append(firstLevel);
@@ -288,13 +300,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private void generateSectionAndSousSection(StringBuilder html, JSONObject section, String sectionType,
-            DemandeDTO demande, boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees)
+            DemandeDTO demande, boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees, JsonNode contenuSource)
             throws IllegalArgumentException, SecurityException {
 
         JSONArray sousSections = (JSONArray) section.get("sousSections");
         if (sousSections.toArray().length > 0) {
             StringBuilder sousSectionBuilder = new StringBuilder();
-            sousSectionBuilder.append(getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees));
+            sousSectionBuilder.append(
+                    getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees, contenuSource));
             for (Object sousSection : sousSections.toArray()) {
                 String sousSectionType = (String) ((JSONObject) sousSection).get("type");
                 String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
@@ -305,7 +318,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                         ? "<span style='display:grid'>" + introHtml + SPAN_CLOSE
                         : "");
                 String firstLevel = getFirstLevelHTML(demande, sousSectionType, (JSONObject) sousSection, isPdfRecap,
-                        donneesCertifiees);
+                        donneesCertifiees, contenuSource);
                 if (StringUtils.isNotBlank(firstLevel)) {
                     sousSectionBuilder.append(firstLevel);
                 }
@@ -320,17 +333,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private String getFirstLevelHTML(DemandeDTO demande, String sectionType, JSONObject section, boolean isPdfRecap,
-            List<SourceFiableDTO> donneesCertifiees) throws IllegalArgumentException, SecurityException {
-        JsonNode contenuSource = null;
-
-        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            // récupérer le contenu de la demandeInitial et traduire
-            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
-            demandesService.setContenuTrad(contenuSource, demande.getConfig());
-        } else if (demande.getPkDemandeSource() != null) {
-            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
-            contenuSource = d != null ? d.getContenuTrad() : null;
-        }
+            List<SourceFiableDTO> donneesCertifiees, JsonNode contenuSource)
+            throws IllegalArgumentException, SecurityException {
 
         // On créé un nouveau SB de façon à ne pas générer la section si aucune donnée n'est renseignée.
         StringBuilder html = new StringBuilder();

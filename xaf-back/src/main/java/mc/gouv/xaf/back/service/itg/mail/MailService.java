@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
 
 /**
  * Composant permettant l'envoi d'emails "templatés"
@@ -40,11 +42,6 @@ public interface MailService {
             Map<String, Object> model) throws IOException;
 
     /**
-     * Permet de formater le commentaire afin d'y ajouter les sauts de lignes
-     */
-    String formatCommentaire(String commentaire);
-
-    /**
      * Envois un mail typé support
      *
      * @param subjectTemplateCode
@@ -76,5 +73,10 @@ public interface MailService {
      * @return Liste concaténée de mails à partir de propriétés
      */
     Set<String> getMailingLists(String... mailingListProps);
+
+    String getEmailBodyTemplate(Expression bodyTemplateCode, Expression emailTemplateCode, DelegateExecution execution);
+
+    String getEmailSubjectTemplate(Expression subjectTemplateCode, Expression emailTemplateCode,
+            DelegateExecution execution);
 
 }

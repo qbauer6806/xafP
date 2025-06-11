@@ -13,8 +13,7 @@
   <artifactId>xaf-back</artifactId>
 
   <properties>
-    <flowable.version>7.1.0</flowable.version>
-    <openhtml.version>1.1.23</openhtml.version>
+    <openhtml.version>1.1.28</openhtml.version>
     <xdocreport.version>2.1.0</xdocreport.version>
     <jxls.version>3.0.0</jxls.version>
   </properties>
@@ -29,23 +28,6 @@
     <dependency>
       <groupId>org.flowable</groupId>
       <artifactId>flowable-spring-boot-starter</artifactId>
-      <version>${flowable.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.flowable</groupId>
-      <artifactId>flowable5-spring</artifactId>
-      <version>${flowable.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.flowable</groupId>
-      <artifactId>flowable5-compatibility</artifactId>
-      <version>${flowable.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.flowable</groupId>
-      <artifactId>flowable5-spring-compatibility</artifactId>
       <version>${flowable.version}</version>
     </dependency>
 
@@ -66,19 +48,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-
-    <dependency>
-      <groupId>mc.gouv.vscan</groupId>
-      <artifactId>vscan-shared</artifactId>
-      <version>${vscan.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-fileupload</artifactId>
-          <groupId>commons-fileupload</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
+    
     <dependency>
       <groupId>com.fasterxml.uuid</groupId>
       <artifactId>java-uuid-generator</artifactId>
@@ -301,7 +271,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
-      <version>4.4</version>
+      <version>4.5.0</version>
     </dependency>
 
     <dependency>
@@ -338,12 +308,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>${commons-fileupload.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>mc.gouv.xaf</groupId>
       <artifactId>xaf-apiclient</artifactId>
       <version>${project.version}</version>
@@ -352,13 +316,13 @@
     <dependency>
       <groupId>io.hypersistence</groupId>
       <artifactId>hypersistence-utils-hibernate-63</artifactId>
-      <version>3.9.0</version>
+      <version>3.9.10</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
-      <version>4.2.0</version>
+      <version>4.3.0</version>
     </dependency>
 
     <dependency>

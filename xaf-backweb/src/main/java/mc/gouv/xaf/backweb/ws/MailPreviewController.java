@@ -3,7 +3,6 @@ package mc.gouv.xaf.backweb.ws;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -48,9 +47,9 @@ public class MailPreviewController extends AbstractController {
 
     private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
             throws IOException {
-        Entry<String, String> templateCodes = afMailTemplateModelProvider.getMailTemplateCodesForAction(action);
-        String bodyTemplateCode = templateCodes.getKey();
-        String subjectTemplateCode = templateCodes.getValue();
+        String templateCode = afMailTemplateModelProvider.getMailTemplateCodeForAction(action);
+        String bodyTemplateCode = templateCode + "_CORPS";
+        String subjectTemplateCode = templateCode + "_OBJET";
 
         Map<String, Object> bpmVariables = gouvBPM.getProcessBusinessVariables(pkDemande);
 

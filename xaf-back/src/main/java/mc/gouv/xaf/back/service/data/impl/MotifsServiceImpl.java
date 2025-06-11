@@ -101,6 +101,7 @@ public class MotifsServiceImpl implements MotifsService {
         motifBo.setLangue(motif.getLangue());
         motifBo.setLibelle(motif.getLibelle());
         motifBo.setStatut(motif.getStatut());
+        motifBo.setStatutCourant(motif.getStatutCourant());
         motifBo.setCommentairePrerempli(motif.getCommentairePrerempli());
         motifBo.setCode(motif.getCode());
         // Seul l'appel DELETE permet l'inscription d'une DATE_ARCHIVE

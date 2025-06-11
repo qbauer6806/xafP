@@ -20,6 +20,7 @@ public class MotifTransformer {
         dto.setLibelle(bo.getLibelle());
         dto.setCode(bo.getCode());
         dto.setStatut(bo.getStatut());
+        dto.setStatutCourant(bo.getStatutCourant());
         dto.setPkMotifs(bo.getPkMotifs());
         dto.setDateArchive(bo.getDateArchive());
         dto.setCommentairePrerempli(bo.getCommentairePrerempli());
@@ -33,6 +34,7 @@ public class MotifTransformer {
         bo.setLibelle(dto.getLibelle());
         bo.setCode(dto.getCode());
         bo.setStatut(dto.getStatut());
+        bo.setStatutCourant(dto.getStatutCourant());
         bo.setPkMotifs(dto.getPkMotifs());
         bo.setDateArchive(dto.getDateArchive());
         bo.setCommentairePrerempli(dto.getCommentairePrerempli());

@@ -22,6 +22,7 @@ public class RelanceStatutDemandeConf implements Serializable {
     private String cleDelaiAvantPremiereRelance;
     private String cleDelaiEntreDeuxRelances;
     private String clefMailPrefix;
+    private int nbMaxRelances;
 
     public RelanceStatutDemandeConf(String statutARelancer, String cleDelaiAvantPremiereRelance,
             String cleDelaiEntreDeuxRelances, String clefMailPrefix) {

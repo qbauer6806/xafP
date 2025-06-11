@@ -1,17 +1,17 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.io.IOException;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Classe service appelée par le process Activiti pour générer le fichier interne de la récapitulation d'une demande au
@@ -30,15 +30,23 @@ public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
     @Autowired
     private PdfRecapGenerationService pdfRecapGenerationService;
 
+    private Expression overwrite;
+
     @Override
     public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back DEMANDE RECAP SERVICE ...");
 
+        String overwriteStr = null;
+        if (overwrite != null) {
+            overwriteStr = ((String) overwrite.getValue(execution));
+        }
+
         DemandeDTO demandeDto = demandesService.getDemande(Integer.parseInt(execution.getProcessInstanceBusinessKey()));
 
         try {
-            pdfRecapGenerationService.generateAndStorePdf(demandeDto);
+            pdfRecapGenerationService.generateAndStorePdf(demandeDto,
+                    overwriteStr == null || Boolean.parseBoolean(overwriteStr));
         } catch (IOException e) {
             throw new DemarcheException("Erreur la génération du pdf", e);
         }

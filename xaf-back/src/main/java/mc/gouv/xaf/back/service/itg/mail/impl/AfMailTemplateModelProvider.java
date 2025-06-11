@@ -2,17 +2,13 @@ package mc.gouv.xaf.back.service.itg.mail.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.AfTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.service.AfTemplateModelProvider;
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 @Component
 public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
@@ -22,21 +18,18 @@ public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
     public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande,
             Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
         LOGGER.info("Construction du modèle pour le template (demandeId= {} ...", demande.getPkDemandes());
 
-        Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, bpmVariables);
+        Map<String, Object> model = getGenericModelDemandeMailSms(demande, codeMotif, commentaire, bpmVariables);
         mailTemplateModelProvider.setModel(model, bodyTemplateCode, bpmVariables, demande);
 
         return model;
     }
 
-    public Entry<String, String> getMailTemplateCodesForAction(String action) {
-        return mailTemplateModelProvider.getMailTemplateCodesForAction(action);
+    public String getMailTemplateCodeForAction(String action) {
+        return mailTemplateModelProvider.getMailTemplateCodeForAction(action);
     }
 
     /**
@@ -49,7 +42,7 @@ public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
     public Map<String, Object> getModelDesinscriptionUsager(Integer usagerId, List<DemandeDTO> demandes) {
         LOGGER.info("Construction du modèle pour le template de désinscription d'un usager...");
 
-        Map<String, Object> model = afBackUtils.getGenericModelMail();
+        Map<String, Object> model = getGenericModelMail();
         mailTemplateModelProvider.setModelDesinscriptionUsager(usagerId, model, demandes);
 
         return model;

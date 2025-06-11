@@ -353,13 +353,15 @@
     $('.multiple-file-input').change(function () {
       var data = this.getAttribute('data');
       var button = $("input[data='" + data + "'][type='submit']");
-      button.prop('disabled', !button.attr('disabled'));
+      var hasFiles = this.files && this.files.length > 0;
+      button.prop('disabled', !hasFiles);
     });
 
     $('.new-file-input').change(function () {
       var data = this.getAttribute('data');
       var button = $("input[data='" + data + "'][type='submit']");
-      button.prop('disabled', !button.attr('disabled'));
+      var hasFiles = this.files && this.files.length > 0;
+      button.prop('disabled', !hasFiles);
     });
 
     $(".supprimer-annuler").click(function (e) {

@@ -66,16 +66,25 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
     @Override
     public void generateAndStorePdf(DemandeDTO demande) throws IOException {
-        generateAndStorePdf(demande, generatePdf(demande));
+        generateAndStorePdf(demande, true);
+    }
+
+    @Override
+    public void generateAndStorePdf(DemandeDTO demande, boolean overwrite) throws IOException {
+        generateAndStorePdf(demande, generatePdf(demande), overwrite);
     }
 
     @Override
     public void generateAndStorePdf(DemandeDTO demande, File tempFile) throws IOException {
+        generateAndStorePdf(demande, tempFile, true);
+    }
+
+    private void generateAndStorePdf(DemandeDTO demande, File tempFile, boolean overwrite) throws IOException {
         LOGGER.info("RecapGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 
         LOGGER.info("Génération du PDF avec Open HTML to PDF...");
         String fileName = tempFile.getName();
-        String url = fileService.sendToFile(tempFile, demande, fileName);
+        String url = fileService.sendToFile(tempFile, demande, fileName, true);
         String metas = META_RECAP + ";" + FileUtils.generateMetaData(tempFile);
 
         // Supprimer le fichier temporaire car il n'est plus utile
@@ -86,18 +95,19 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             LOGGER.warn("La suppression du fichier temporaire a échoué", e);
         }
 
-        LOGGER.info("Vérification de l'existance d'un fichier récap...");
-        List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndTypedoc(demande.getPkDemandes(),
-                META_RECAP);
+        if (overwrite) {
+            LOGGER.info("Vérification de l'existance d'un fichier récap...");
+            List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndTypedoc(demande.getPkDemandes(),
+                    META_RECAP);
 
-        DemandeFileDTO file = new DemandeFileDTO();
-        if (!files.isEmpty()) {
-            file = files.getFirst();
-            LOGGER.info("Suppression de l'ancien fichier dans FILES...");
-            String urlASuppr = URLEncoder.encode(file.getUrl(), StandardCharsets.UTF_8);
-            fileService.deleteFile("ROOT", urlASuppr);
+            if (!files.isEmpty()) {
+                DemandeFileDTO file = files.getFirst();
+                LOGGER.info("Suppression de l'ancien fichier dans FILES...");
+                String urlASuppr = URLEncoder.encode(file.getUrl(), StandardCharsets.UTF_8);
+                fileService.deleteFile("ROOT", urlASuppr);
+            }
         }
-
+        DemandeFileDTO file = new DemandeFileDTO();
         LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
         file.setName(fileName);
         file.setUrl('/' + url);

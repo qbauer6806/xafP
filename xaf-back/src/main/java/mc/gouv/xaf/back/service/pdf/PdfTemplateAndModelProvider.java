@@ -12,6 +12,6 @@ import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 public interface PdfTemplateAndModelProvider {
 
     void setTemplateAndModel(PdfTemplateAndModelDTO pdfTemplateAndModelDTO, DemandeDTO demande, String statutSuivant,
-            PdfTypeEnum pdfTypeEnum);
+            PdfTypeEnum pdfTypeEnum, String codeMotif);
 
 }

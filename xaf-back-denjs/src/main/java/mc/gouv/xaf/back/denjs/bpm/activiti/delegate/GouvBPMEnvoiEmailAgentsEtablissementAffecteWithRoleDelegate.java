@@ -69,6 +69,12 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
     @Getter
     private Expression emailSubjectTemplateCode;
 
+    @Setter
+    @Getter
+    private Expression emailTemplateCode;
+
+    @Setter
+    @Getter
     private Expression roles;
 
     @Override
@@ -76,8 +82,9 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
 
         LOGGER.info("==== xaf-denjs ENVOI EMAIL AGENT DE L'ETABLISSEMENT AFFECTÉ ...");
 
-        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String bodyTemplateCode = mailService.getEmailBodyTemplate(emailBodyTemplateCode, emailTemplateCode, execution);
+        String subjectTemplateCode = mailService.getEmailSubjectTemplate(emailSubjectTemplateCode, emailTemplateCode,
+                execution);
 
         LOGGER.info("bodyTemplateCode : {}", bodyTemplateCode);
         LOGGER.info("subjectTemplateCode : {}", subjectTemplateCode);

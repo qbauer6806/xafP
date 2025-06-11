@@ -34,7 +34,7 @@ function handleDemandeRectification(statut, motif) {
     }
     var form = {
       statutChoisi: statut,
-      pkDemande: pkDemande,
+      pkDemande: window.location.pathname.split("/")[3],
       motifChoisiCode: motif,
       commentaire: commentaire
     };

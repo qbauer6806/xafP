@@ -68,17 +68,23 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     @Override
     public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws IOException {
-        generateAndStorePdf(demande, pdfType, meta, generatePdf(demande, pdfType));
+        generateAndStorePdf(demande, pdfType, meta, true);
     }
 
     @Override
-    public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta, File tempFile)
-            throws IOException {
+    public void generateAndStoreDoc(DemandeDTO demande, PdfTypeEnum pdfType, String meta,
+            PdfTemplateAndModelDTO pdfTemplateAndModelDTO) throws IOException {
+        generateAndStorePdf(demande, pdfType, meta, false, pdfTemplateAndModelDTO);
+    }
+
+    private void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta, boolean convertPdf,
+            PdfTemplateAndModelDTO pdfTemplateAndModelDTO) throws IOException {
 
         LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
+        File tempFile = generateToFile(pdfTemplateAndModelDTO, convertPdf);
 
         String fileName = tempFile.getName();
-        String url = fileService.sendToFile(tempFile, demande, fileName);
+        String url = fileService.sendToFile(tempFile, demande, fileName, convertPdf);
 
         // Ajout des données concernant le fichier généré aux métas
         meta += ";" + FileUtils.generateMetaData(tempFile);
@@ -100,6 +106,13 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
     }
 
+    private void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta, boolean convertPdf)
+            throws IOException {
+        PdfTemplateAndModelDTO pdfTemplateAndModelDTO = afPdfTemplateAndModelProvider.getTemplateAndModel(demande,
+                pdfType);
+        generateAndStorePdf(demande, pdfType, meta, convertPdf, pdfTemplateAndModelDTO);
+    }
+
     private void saveCourrier(String fileName, String url, DemandeDTO demande, String meta) {
         LOGGER.info("Ajout de la référence à ce courrier dans DEM...");
         DemandeCourrierDTO courrier = new DemandeCourrierDTO();
@@ -109,8 +122,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         demandesCourriersService.saveCourrier(demande.getPkDemandes(), courrier);
     }
 
-    @Override
-    public void saveFichier(String fileName, String url, DemandeDTO demande, String meta) {
+    private void saveFichier(String fileName, String url, DemandeDTO demande, String meta) {
         LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
         DemandeFileDTO file = new DemandeFileDTO();
         file.setName(fileName);
@@ -120,12 +132,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         demandesFileService.saveFile(file, demande.getPkDemandes());
     }
 
-    private File generatePdf(DemandeDTO demande, PdfTypeEnum pdfType) {
-        LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
-        PdfTemplateAndModelDTO dto = afPdfTemplateAndModelProvider.getTemplateAndModel(demande, pdfType);
-        return generateToFile(demande, dto);
-    }
-
     @Override
     public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
             String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType) {
@@ -133,25 +139,19 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
         PdfTemplateAndModelDTO dto = afPdfTemplateAndModelProvider.getTemplateAndModelForPreview(demande, statutSuivant,
                 codeMotif, langue, commentaire, texteAEnvoyer, pdfType);
-        return generateToFile(demande, dto);
+        return generateToFile(dto, true);
     }
 
-    public byte[] generatePdfToStream(DemandeDTO demande) throws IOException, XDocReportException {
-        LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
-        PdfTemplateAndModelDTO dto = afPdfTemplateAndModelProvider.getTemplateAndModel(demande, PdfTypeEnum.COURRIER);
-        return generateToStream(dto);
-    }
-
-    @Override
-    public File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
+    private File generateToFile(PdfTemplateAndModelDTO dto, boolean convertPdf) {
 
         String tempDir = System.getProperty("java.io.tmpdir");
-        String fileName = dto.getFilename() + AfBackUtils.generateFileDateSuffix() + ".pdf";
+        String extension = convertPdf ? ".pdf" : ".docx";
+        String fileName = dto.getFilename() + AfBackUtils.generateFileDateSuffix() + extension;
         File temp = new File(tempDir, fileName);
 
         try {
             try (OutputStream out = new FileOutputStream(temp)) {
-                byte[] bytes = generateToStream(dto);
+                byte[] bytes = generateToStream(dto, convertPdf);
                 out.write(bytes);
             }
         } catch (IOException | XDocReportException e) {
@@ -161,15 +161,12 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         return temp;
     }
 
-    private byte[] generateToStream(PdfTemplateAndModelDTO dto) throws IOException, XDocReportException {
-
-        byte[] bytes;
-
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+    private byte[] generateToStream(PdfTemplateAndModelDTO dto, boolean convertPdf)
+            throws IOException, XDocReportException {
+        try (InputStream in = afBackUtils.getFileClient()
+                .getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", dto.getTemplateFilename());
+                ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LOGGER.info("Chargement du template {} via appel à FILE...", dto.getTemplateFilename());
-            // #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
-            InputStream in = afBackUtils.getFileClient()
-                    .getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", dto.getTemplateFilename());
             IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
@@ -179,22 +176,24 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
             for (Entry<String, Object> entry : dto.getModel().entrySet()) {
                 context.put(entry.getKey(), entry.getValue());
             }
+            if (convertPdf) {
+                Options options = Options.getTo(ConverterTypeTo.PDF);
 
-            Options options = Options.getTo(ConverterTypeTo.PDF);
+                LOGGER.info("Récupération des PdfOptions...");
+                PdfOptions pdfOptions = afPdfTemplateAndModelProvider.getPdfOptions();
+                if (pdfOptions != null) {
+                    options.subOptions(pdfOptions);
+                }
 
-            LOGGER.info("Récupération des PdfOptions...");
-            PdfOptions pdfOptions = afPdfTemplateAndModelProvider.getPdfOptions();
-            if (pdfOptions != null) {
-                options.subOptions(pdfOptions);
+                LOGGER.info("Génération du fichier PDF avec les template et modèle fournis...");
+                report.convert(context, options, bos);
+            } else {
+                LOGGER.info("Remplissage du template DOCX...");
+                report.process(context, bos);
             }
 
-            LOGGER.info("Génération du fichier PDF avec les template et modèle fournis...");
-            report.convert(context, options, bos);
-            bytes = bos.toByteArray();
-            in.close();
+            return bos.toByteArray();
         }
-
-        return bytes;
     }
 
 }

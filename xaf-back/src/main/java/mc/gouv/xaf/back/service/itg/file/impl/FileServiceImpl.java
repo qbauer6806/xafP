@@ -112,30 +112,30 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
-        LOGGER.info("FileService.getFile({}, {})", filename, containerId);
+        LOGGER.info("Début FileService.getFile({}, {})", filename, containerId);
         String accountId = gouvPropertiesResolver.getDemarcheId();
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
-        LOGGER.info("FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+        LOGGER.info("Fin FileClient.getFile({}, {}, {})", accountId, containerId, filename);
         afBackUtils.getFileClient().getFile(accountId, containerId, filename, response);
     }
 
     @Override
     public InputStream getFile(String filename, String containerId) throws IOException {
-        LOGGER.info("FileService.getFile({}, {})", filename, containerId);
+        LOGGER.info("Début FileService.getFile({}, {})", filename, containerId);
         String accountId = gouvPropertiesResolver.getDemarcheId();
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
         InputStream is = afBackUtils.getFileClient().getFile(accountId, containerId, filename);
-        LOGGER.info("FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+        LOGGER.info("Fin FileClient.getFile({}, {}, {})", accountId, containerId, filename);
         return is;
     }
 
     @Override
     public InputStream getFile(String url) throws IOException {
-        LOGGER.info("FileService.getFile({})", url);
+        LOGGER.info("Début FileService.getFile({})", url);
         InputStream is = afBackUtils.getFileClient().getFile(url);
-        LOGGER.info("FileClient.getFile({})", url);
+        LOGGER.info("Fin FileClient.getFile({})", url);
         return is;
     }
 

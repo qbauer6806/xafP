@@ -85,15 +85,8 @@ import org.xml.sax.SAXException;
 public class AfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
-<<<<<<< HEAD
-    private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
     protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
-    private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
-    private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
-=======
-    private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
     private static final String DEMANDE_DEJA_RELANCEE_KEY = "DEMANDE_DEJA_RELANCEE";
->>>>>>> v12.1.0
 
     @Autowired
     protected GouvBPM gouvBPM;

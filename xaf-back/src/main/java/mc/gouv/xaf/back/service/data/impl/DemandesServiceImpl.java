@@ -1031,7 +1031,6 @@ public class DemandesServiceImpl implements DemandesService {
             // Demandes d'informations complémentaires des demandes
             demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
 
-<<<<<<< HEAD
             // Fichiers internes
             if(copierFichierInternes) {
                 demandesFilesService.clonerDesFichiersInternes(demandeBo, newDemandeBo);
@@ -1040,8 +1039,6 @@ public class DemandesServiceImpl implements DemandesService {
             // Statuts des demandes
             demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
 
-=======
->>>>>>> v12.1.0
             // Data des demandes
             demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
 

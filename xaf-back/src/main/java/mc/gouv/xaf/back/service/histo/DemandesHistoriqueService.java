@@ -176,15 +176,9 @@ public class DemandesHistoriqueService {
     }
 
     public DemandeHistoriqueDTO reponseDemandeCompl(String targetState, Integer usagerId, String agentId,
-<<<<<<< HEAD
             String affecteId) {
         String agentAffecteId = StringUtils.isNotBlank(affecteId) ? affecteId : agentId;
         String agentAffecteName = getAgentName(agentAffecteId);
-=======
-                                                    String affecteId) {
-        String agentAffecteId = StringUtils.isNotBlank(agentId) ? agentId : affecteId;
-        String agentName = getAgentName(agentAffecteId);
->>>>>>> v12.1.0
         String action =
                 "Transmission d'infos complémentaires vers <span class='histo-usager'>" + agentAffecteName + CLOSING_SPAN;
         DemandeHistoriqueContenuDTO contenu;
@@ -267,13 +261,8 @@ public class DemandesHistoriqueService {
         saveHisto(demandeId, histo);
     }
 
-<<<<<<< HEAD
     protected DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
             String agentId) {
-=======
-    private DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
-                                             String agentId) {
->>>>>>> v12.1.0
         DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
         demHisto.setAgentId(agentId);
         demHisto.setUsagerId(usagerId);

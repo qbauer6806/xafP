@@ -118,13 +118,6 @@ public interface DemarchesDataProvider {
      */
     String getPremierStatutCreationDemande();
 
-    /**
-     * @return TSCODEDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name()
-     */
-    default String getStatutEnAttenteRectification() {
-        return null;
-    }
-
     boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck);
 
     /**
@@ -214,13 +207,6 @@ public interface DemarchesDataProvider {
      */
     default int getTaileTexteEnteteTableauxRecapPdf() {
         return 12;
-    }
-
-    /**
-     * @return TSCODECodeMotifEnum.DEMANDE_RECTIFICATION.name()
-     */
-    default String getCodeMotifDemandeRectification(){
-        return null;
     }
 
     /**

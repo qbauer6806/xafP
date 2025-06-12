@@ -297,13 +297,7 @@ public class AfApiService {
 
             LOGGER.debug("DTO après sauvegarde en base : {}", demandeDto);
 
-            // Utiliser le BPM afin d'exécuter les tâches qui suivent la rectification
-            if (demandeEnBase.getDernierStatut().getName()
-                    .equals(demarchesDataProvider.getStatutEnAttenteRectification())) {
-                gouvBPM.reponseRectification(demandeId, usagerId);
-            } else {
-                gouvBPM.rectificationSpontanee(demandeId);
-            }
+            gouvBPM.reponseRectification(demandeId, usagerId);
 
             // Ajout d'une ligne à l'historique
             LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);

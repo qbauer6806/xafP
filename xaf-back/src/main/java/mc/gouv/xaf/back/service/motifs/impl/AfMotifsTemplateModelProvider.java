@@ -10,12 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class AfMotifsTemplateModelProvider extends AfTemplateModelProvider {
 
-    @Autowired
+    @Autowired(required = false)
     private MotifsTemplateModelProvider motifsTemplateModelProvider;
 
     public Map<String, Object> getModel(DemandeDTO demandeDTO) {
         Map<String, Object> model = getGenericModelMail(demandeDTO);
-        motifsTemplateModelProvider.setModel(model, demandeDTO);
+        if (motifsTemplateModelProvider != null) {
+            motifsTemplateModelProvider.setModel(model, demandeDTO);
+        }
         return model;
     }
 

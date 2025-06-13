@@ -33,7 +33,7 @@ public class SmsTemplatesServiceImpl implements SmsTemplatesService {
     private SmsTemplatesRepository smsTemplatesRepository;
 
     private SmsTemplateBO getSmsTemplateBO(Integer templateId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, templateId);
         SmsTemplateBO SmsTemplateBO = smsTemplatesRepository.findByPkSmsTemplates(templateId);
         if (SmsTemplateBO == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);

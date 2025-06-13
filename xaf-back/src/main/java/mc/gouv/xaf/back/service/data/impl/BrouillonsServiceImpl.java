@@ -136,7 +136,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Override
     public BrouillonBO getBrouillonBo(Integer pkBrouillons) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, pkBrouillons);
         BrouillonBO brouillonBo = brouillonsRepository.findByPkBrouillons(pkBrouillons);
         if (brouillonBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
@@ -150,7 +150,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     @Override
     public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
 
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, brouillon.getPkBrouillons());
 
         Optional<BrouillonBO> brouillonBoOp = brouillonsRepository.findById(brouillon.getPkBrouillons());
 
@@ -231,7 +231,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public void deleteBrouillons(Integer usagerId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, usagerId);
         List<BrouillonBO> brouillons = brouillonsRepository.findByFkAccess_UsagerId(usagerId);
         brouillonsRepository.deleteAll(brouillons);
     }

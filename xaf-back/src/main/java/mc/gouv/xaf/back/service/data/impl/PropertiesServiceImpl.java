@@ -68,7 +68,7 @@ public class PropertiesServiceImpl implements PropertiesService {
      */
     @Override
     public List<PropertiesDTO> getPropertiesByType(PropertiesTypeEnum type) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, type.name());
         List<PropertiesBO> bos = propertiesRepository.findByType(type.name());
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PropertiesTransformer.bo2Dto(bos);

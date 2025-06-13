@@ -534,7 +534,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, isPdfRecap, true,
                             donneesCertifiees);
                     String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true, donneesCertifiees);
-                    this.completeTd(html, valueSource, value);
+                    this.completeTd(html, valueSource, value, isPdfRecap);
                 }
                 html.append(CLOSING_TR);
             }
@@ -548,10 +548,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 for (Object column : columns.toArray()) {
                     String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true,
                             new ArrayList<>());
-                    html.append("<td onclick=\"switchTS()\"class='nouvelledonnee-contenu'>")
+                    html.append("<td onclick=\"switchTS()\" class='nouvelledonnee-contenu'>")
                             .append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
-                    html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
-                            .append(CLOSING_TD);
+                    if (!isPdfRecap) {
+                        html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
+                                .append(CLOSING_TD);
+                    }
                 }
                 html.append(CLOSING_TR);
             }
@@ -559,7 +561,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         html.append("</tbody></table></dd>");
     }
 
-    private void completeTd(StringBuilder html, String valueSource, String value) {
+    private void completeTd(StringBuilder html, String valueSource, String value, boolean isPdfRecap) {
         if (!value.equalsIgnoreCase(valueSource)) {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
@@ -567,9 +569,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             String newValue = StringUtils.isNoneBlank(value) ? value : "";
             html.append("<td  onclick=\"switchTS()\" class='nouvelledonnee-contenu'>").append(newValue)
                     .append(CLOSING_TD);
-            String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
-            html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource)
-                    .append(CLOSING_TD);
+            if (!isPdfRecap) {
+                String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
+                html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource)
+                        .append(CLOSING_TD);
+            }
         } else {
             html.append("<td>").append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
         }

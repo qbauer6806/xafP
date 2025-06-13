@@ -79,7 +79,8 @@ public class MwpaymntService {
 
     private String calculateExpiration(String expiryMonth, String expiryYear) {
         StringBuilder result = new StringBuilder();
-        result.append(expiryMonth).append("/").append(expiryYear);
+        int mois = Integer.parseInt(expiryMonth);
+        result.append(String.format("%02d", mois)).append("/").append(expiryYear);
         return result.toString();
     }
 

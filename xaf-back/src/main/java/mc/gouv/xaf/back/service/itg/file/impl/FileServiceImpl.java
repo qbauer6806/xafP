@@ -508,6 +508,7 @@ public class FileServiceImpl implements FileService {
         }
         LOGGER.info("Fin suppression du fichier : {}", fileName);
 
+
     }
 
     @Override

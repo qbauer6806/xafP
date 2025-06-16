@@ -64,7 +64,7 @@ public interface DemandesFilesService {
      */
     void suppressionDesFichiers(DemandeDTO demandeDTO);
 
-    void deleteFileByFileNameAndId(String fileName, Integer fileId);
+    void deleteFileByFileUrlAndId(String fileName, Integer fileId);
 
 
 }

@@ -63,7 +63,7 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     }
 
     @Override
-    public void deleteFileByFileNameAndId(String fileName, Integer fileId) {
+    public void deleteFileByFileUrlAndId(String fileName, Integer fileId) {
 
     }
 

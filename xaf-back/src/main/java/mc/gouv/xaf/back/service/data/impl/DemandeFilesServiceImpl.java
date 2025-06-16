@@ -9,8 +9,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import jakarta.persistence.EntityNotFoundException;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -258,7 +260,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public void deleteFileByFileUrlAndId(String fileUrl, Integer fileId) {
-        demandesFilesRepository.deleteById(fileId);
+        DemandesFilesBO entity = demandesFilesRepository.findById(fileId)
+                .orElseThrow(() -> new EntityNotFoundException("Fichier "+ fileId + " non trouvée en base de données"));
+        demandesFilesRepository.delete(entity);
         fileService.deleteFile("ROOT", fileUrl);
     }
 

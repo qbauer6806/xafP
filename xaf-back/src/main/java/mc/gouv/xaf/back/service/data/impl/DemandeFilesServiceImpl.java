@@ -256,5 +256,11 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
+    @Override
+    public void deleteFileByFileNameAndId(String fileName, Integer fileId) {
+        demandesFilesRepository.deleteById(fileId);
+        fileService.deleteFile("ROOT", fileName);
+    }
+
 
 }

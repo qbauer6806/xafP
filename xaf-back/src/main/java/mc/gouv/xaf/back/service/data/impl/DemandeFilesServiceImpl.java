@@ -262,9 +262,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     public void deleteFileByFileUrlAndId(String fileUrl, Integer fileId) {
         DemandesFilesBO entity = demandesFilesRepository.findById(fileId)
                 .orElseThrow(() -> new EntityNotFoundException("Fichier "+ fileId + " non trouvée en base de données"));
+        entity.setFkDemandes(null);
+        demandesFilesRepository.save(entity);
         demandesFilesRepository.delete(entity);
         fileService.deleteFile("ROOT", fileUrl);
     }
-
-
 }

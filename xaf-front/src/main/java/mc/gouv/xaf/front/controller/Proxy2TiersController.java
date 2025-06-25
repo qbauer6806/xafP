@@ -9,12 +9,10 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,6 +28,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 
 /**
@@ -64,7 +64,25 @@ public class Proxy2TiersController extends AbstractXafController {
 
         LOGGER.info("requestUrl={}", requestUrl);
 
+        /*
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(60000, TimeUnit.MILLISECONDS)
+                .setResponseTimeout(60000, TimeUnit.MILLISECONDS)
+                .build();
+
+        // Créer un HttpClient avec configuration et gestion des connexions
+        HttpClient httpClient = HttpClients.custom()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+
+        // Créer la RequestFactory avec HttpClient personnalisé
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        */
+
+        // Créer un RestTemplate avec la RequestFactory
         RestTemplate restTemplate = new RestTemplate();
+        //restTemplate.setRequestFactory(new org.springframework.http.client.HttpComponentsClientHttpRequestFactory());
+        //restTemplate.setInterceptors(List.of(new LoggingInterceptor()));
 
         String apiUrl = propertiesResolver.getApiUrl().replace("/api/v1", "") + extractApiUrl(requestUrl, "/api2tiers",
                 queryString);
@@ -94,8 +112,18 @@ public class Proxy2TiersController extends AbstractXafController {
             } else {
                 // Vérifier s'il y a un fichier joint
                 if (data != null && !data.isEmpty()) {
+                    
+                    LOGGER.info("Fichier reçu : " + data.getOriginalFilename());
+                    
                     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-                    body.add("data", data.getResource());
+                    // Utilisation d'InputStreamResource pour envoyer le fichier
+                    ByteArrayResource fileAsResource = new ByteArrayResource(data.getBytes()) {
+                        @Override
+                        public String getFilename() {
+                            return data.getOriginalFilename();
+                        }
+                    };
+                    body.add("data", fileAsResource);
 
                     // Ajouter les autres paramètres de la requête, s'il y en a
                     Enumeration<String> parameterNames = request.getParameterNames();
@@ -103,6 +131,8 @@ public class Proxy2TiersController extends AbstractXafController {
                         String paramName = parameterNames.nextElement();
                         body.add(paramName, request.getParameter(paramName));
                     }
+                    
+                    headers.remove(HttpHeaders.CONTENT_LENGTH);
 
                     headers.setContentType(MediaType.MULTIPART_FORM_DATA);
                     HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,14 +16,23 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import mc.gouv.file.shared.dto.FileResponseDTO;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -45,6 +55,7 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
@@ -75,6 +86,7 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
@@ -85,8 +97,9 @@ import mc.gouv.xapi.error.exception.client.NotFoundWebException;
  * @author qdeme
  * 
  */
+@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' != 'true'")
 @Component
-public class AfApiService {
+public class AfApiService implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
@@ -784,6 +797,112 @@ public class AfApiService {
     
     public List<PaysDTO> getPays() {
         return new ArrayList<>(paysCache.getValues());
+    }
+    
+    // Suite aux remaniements de XAF12 qui ont cassé la fonctionnalité "2 tiers", ajout de ces method stubs afin de permettre
+    // l'injection dynamique de service en fonction du profil 2 tiers (interface AfApi)
+    // Avant, l'architecture de classes de classes abstraites et d'interfaces était parfaite (cf. https://redmine.monaco-gouvernement.mc/projects/xaf/wiki/Solution_2_tiers_%C3%A0_partir_de_XAF_12)
+    // mais maintenant je suis contraint de m'adapter comme je peux, dans la médiocrité, à cette situation...
+
+    @Override
+    public MotifDTO createMotif(@Valid MotifDTO motif) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MotifDTO updateMotif(@Valid MotifDTO motif) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void deleteMotif(Integer pkMotif) {
+        // Auto-generated method stub
+        
+    }
+
+    @Override
+    public PeriodeOuvertureDTO createPeriodeOuverture(@Valid PeriodeOuvertureDTO periodeOuverture) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public PeriodeOuvertureDTO updatePeriodeOuverture(@Valid PeriodeOuvertureDTO periodeOuverture) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
+        // Auto-generated method stub
+        
+    }
+
+    @Override
+    public GichuniUsagerDTO getUsager(Integer usagerId) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public FileResponseDTO saveFile(String container, MultipartFile data, HttpServletRequest request,
+            HttpServletResponse response) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request,
+            HttpServletResponse response) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity deleteFile(String container, HttpServletRequest request) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
+            Date dateCreation, @Valid RecapDemandesDTO recapDemandes) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
+            StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, @Valid RecapDemandesDTO recapDemandes) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
+            Date dateSuppression, @Valid RecapDemandesDTO recapDemandes) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity notifyDesinscriptionUsagerTS(Integer usagerId) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity synchronizeDemandesRecaps(@Valid List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
+        // Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseEntity notifyCreationAccesTS(Integer usagerId) {
+        // Auto-generated method stub
+        return null;
     }
 
 }

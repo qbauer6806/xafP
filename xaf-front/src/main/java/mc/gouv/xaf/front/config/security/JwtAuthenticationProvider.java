@@ -97,13 +97,28 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 throw new BadCredentialsException("Element roles manquant dans le JWT");
             }
 
-            String aud = (String) jws.getBody().get(JWT_PAYLOAD_AUD);
-            if (StringUtils.isBlank(aud)) {
-                LOGGER.error("aud manquant dans le token JWT");
-                throw new BadCredentialsException("Element aud manquant dans le JWT");
+            Object audClaim = jws.getBody().get(JWT_PAYLOAD_AUD);
+            String aud = null;
+
+            if (audClaim instanceof String) {
+                aud = (String) audClaim;
+            } else if (audClaim instanceof Collection) {
+                Collection<?> audCollection = (Collection<?>) audClaim;
+                if (!audCollection.isEmpty()) {
+                    Object first = audCollection.iterator().next();
+                    if (first instanceof String) {
+                        aud = (String) first;
+                    }
+                }
             }
+
+            if (StringUtils.isBlank(aud)) {
+                LOGGER.error("aud manquant ou mal formé dans le token JWT");
+                throw new BadCredentialsException("Element aud manquant ou invalide dans le JWT");
+            }
+
             if (!StringUtils.equalsIgnoreCase(applicationName, aud)) {
-                LOGGER.error("Element aud invalide");
+                LOGGER.error("Element aud invalide : attendu [{}], reçu [{}]", applicationName, aud);
                 throw new BadCredentialsException("Element aud invalide");
             }
 

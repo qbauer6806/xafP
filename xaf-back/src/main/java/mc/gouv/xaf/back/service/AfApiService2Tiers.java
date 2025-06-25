@@ -4,34 +4,40 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import mc.gouv.file.shared.dto.FileResponseDTO;
-import mc.gouv.xaf.back.controller.AfApiController2Tiers;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.impl.MotifsServiceImpl;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
+import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
@@ -42,10 +48,12 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
@@ -57,7 +65,9 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
  * @author qdeme
  * 
  */
-public abstract class AfApiService2Tiers implements AfApiController2Tiers {
+@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
+@Component
+public class AfApiService2Tiers implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService2Tiers.class);
 
@@ -81,6 +91,12 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
 
     @Autowired
     private GUKafkaProducer guKafkaProducer;
+    
+    @Autowired
+    private DemandesConfigService demandesConfigService;
+    
+    @Autowired
+    private PaysCache paysCache;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -147,7 +163,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return afBackUtils.getAfApiClient2Tiers().getUsagerCourrier(usagerCourrierId);
     }
 
-    @Override
     public List<MotifDTO> getMotifs() {
         LOGGER.info("AfApiService2Tiers.getMotifs()");
         return motifsService.getMotifs();
@@ -158,7 +173,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
     }
 
-    @Override
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         LOGGER.info("AfApiService2Tiers.getPeriodesOuverture()");
         return periodesOuvertureService.getPeriodesOuverture();
@@ -213,45 +227,48 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
         afBackUtils.getAfApiClient2Tiers().deleteBrouillon(pkBrouillons, usagerId);
     }
+    
+    public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
+        LOGGER.info("AfApiService2Tiers.getDemandeRecap({}, {}, {})", usagerId, demandeId, donneesMConnectDTO);
+        return afBackUtils.getAfApiClient2Tiers().getDemandeRecap(demandeId, usagerId, donneesMConnectDTO);
+    }
+    
+    @Transactional
+    public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.updateDemande({}, {})", demandeId, usagerId);
+        return afBackUtils.getAfApiClient2Tiers().updateDemande(demandeId, demande, usagerId);
+    }
 
     // ================================= 2EME PARTIE DE L'API =================================
 
-    @Override
     public MotifDTO createMotif(MotifDTO motif) {
         return motifsService.saveMotif(motif);
     }
 
-    @Override
     public MotifDTO updateMotif(MotifDTO motif) {
         return motifsService.updateMotif(motif);
     }
 
-    @Override
     public void deleteMotif(Integer pkMotif) {
         motifsService.deleteMotif(pkMotif);
     }
 
-    @Override
     public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
         return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
     }
 
-    @Override
     public PeriodeOuvertureDTO updatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
         return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
     }
 
-    @Override
     public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
         periodesOuvertureService.deletePeriodeOuverture(pkPeriodeOuverture);
     }
 
-    @Override
     public GichuniUsagerDTO getUsager(Integer usagerId) {
         return usagersCache.get(usagerId);
     }
 
-    @Override
     public FileResponseDTO saveFile(String container, MultipartFile data, HttpServletRequest request,
             HttpServletResponse response) {
         // Seule manière avec Spring de pouvoir inclure des "/" dans le dernier
@@ -286,7 +303,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return fileResponseDTO;
     }
 
-    @Override
     public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request,
             HttpServletResponse response) {
         String file = request.getServletPath();
@@ -310,7 +326,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return null;
     }
 
-    @Override
     public ResponseEntity deleteFile(@PathVariable("container") String container, HttpServletRequest request) {
         String file = request.getServletPath();
         file = file.replace(FILE_PATH, "");
@@ -333,7 +348,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
-    @Override
     public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             Date dateCreation, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifyCreationDemande({},{},{},{},{})", usagerId, demandeId, identifiantDemande,
@@ -345,7 +359,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
-    @Override
     public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifyChangementStatutDemande({},{},{},{},{},{})", usagerId, demandeId,
@@ -357,7 +370,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
-    @Override
     public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             Date dateSuppression, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifySuppressionDemande({},{},{},{},{})", usagerId, demandeId,
@@ -369,7 +381,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
-    @Override
     public ResponseEntity notifyDesinscriptionUsagerTS(Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.notifyDesinscriptionUsagerTS({})", usagerId);
 
@@ -378,7 +389,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
-    @Override
     public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
         LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
 
@@ -387,7 +397,6 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
-    @Override
     public ResponseEntity notifyCreationAccesTS(Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.notifyCreationAccesTS({})", usagerId);
 
@@ -408,6 +417,25 @@ public abstract class AfApiService2Tiers implements AfApiController2Tiers {
             }
         }
         return headerMap;
+    }
+    
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params)
+            throws Exception {
+        return null;
+    }
+    
+    // TODO A SUPPRIMER car devenu inutile dans XAF12 (ne sera plus appelé)
+    public void deleteFile(String string) {
+        // TODO Auto-generated method stub
+    }
+    
+    @Transactional
+    public JsonNode creerConfig(JsonNode config) {
+        return demandesConfigService.saveConfig(config);
+    }
+    
+    public List<PaysDTO> getPays() {
+        return new ArrayList<>(paysCache.getValues());
     }
 
 }

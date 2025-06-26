@@ -15,6 +15,5 @@ public class DebitDTO {
 
     @JsonInclude()
     private StatutDebitEnum statut;
-    @JsonInclude()
     private LocalDateTime expectedCaptureDate;
 }

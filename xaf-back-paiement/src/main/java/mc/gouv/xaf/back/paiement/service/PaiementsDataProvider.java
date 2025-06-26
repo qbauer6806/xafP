@@ -3,11 +3,13 @@ package mc.gouv.xaf.back.paiement.service;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +23,9 @@ public interface PaiementsDataProvider {
     /**
      * @return InformationFacturationDTO, un Objet contenant tous les paramètres pour créer une facture dans CIR
      */
-    InformationFacturationDTO getInfosFacturation(DemandeDTO demandeDTO);
+    default InformationFacturationDTO getInfosFacturation(DemandeDTO demandeDTO) {
+        return null;
+    }
 
     /**
      * Récupère le montant à capturer en fonction du nombre de tâches validées. Par défaut, c'est le montant de la
@@ -38,7 +42,15 @@ public interface PaiementsDataProvider {
     /**
      * Création des données à envoyer à CIR pour les lignes de la facture
      */
-    List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation,
-            CommandeDTO commandeDTO);
+    default List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation,
+            CommandeDTO commandeDTO) {
+        return new ArrayList<>();
+    }
+
+    default boolean isCaisseOuverte() {
+        return true;
+    }
+
+    default void regularisationPaiement(DebitDTO debit, String identifiant) {}
 
 }

@@ -6,9 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
+import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDebitInputDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutCaisseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidTarifDTO;
+import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
+import mc.gouv.xaf.back.dsp.service.itg.resid.ResidPropertiesResolver;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
@@ -49,6 +52,12 @@ public class ResidApiController {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private ResidApiService residApiService;
+    
+    @Autowired 
+    private ResidPropertiesResolver residPropertiesResolver;
 
     // APIs destinées à RESID
     @Operation(
@@ -80,9 +89,10 @@ public class ResidApiController {
                     content = @Content(mediaType = "application/json"))
     })
     @PutMapping(value = "/statutCaisse")
-    public void majStatutCaisse() {
+    public void majStatutCaisse(HttpServletRequest request) {
         logStartMethod(LOGGER);
-        paiementService.majStatutCaisse();
+        String jwt = getJwt(request);
+        paiementService.majStatutCaisse(jwt);
         LOGGER.info("Fin de la mise à jour du statut de la caisse. La caisse est maintenant ouverte");
         logEndMethod(LOGGER);
     }

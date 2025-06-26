@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.TransactionActionDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
@@ -37,8 +38,10 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
+import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
+import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.tranformer.MwpaymtTransformer;
@@ -64,10 +67,12 @@ import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
+import mc.gouv.xapi.error.exception.WebException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -92,7 +97,6 @@ public class PaiementServiceImpl implements PaiementService {
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
     public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
     private static final String TARIF_CR_DEMAT_KEY = "XAF_TARIF_CR_DEMAT";
-    private static final String XAF_STATUT_CAISSE_DSP_KEY = "XAF_STATUT_CAISSE_DSP";
 
     @Autowired
     private TableauPaiementService tableauPaiementService;
@@ -156,6 +160,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private DemandesHistoriqueService demandesHistoriqueService;
+
+    @Autowired
+    private PaiementsDataProvider paiementsDataProvider;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -340,16 +347,25 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void majStatutCaisse() {
-        // Changer la valeur de la propriétés de la caisse a la valeur fournie en paramètre
-        PropertiesDTO property = propertiesService.getProperty(XAF_STATUT_CAISSE_DSP_KEY);
-        if (property != null) {
-            propertiesService.updatePropertyValue(property.getPkProperties(), "OPEN");
+    public void majStatutCaisse(String authorization) {
+        LOGGER.info("Ouverture de la caisse, début du rattrapage pour d'éventuels paiements en cours");
+        logStartMethod(LOGGER);
+        List<CommandeOperationBO> latestCommandeOperationForStatus = commandeOperationRepository.findLatestCommandesOperationsForStatus(
+                ActionDebitEnum.PENDING.name());
+        for (CommandeOperationBO commandeOperation : latestCommandeOperationForStatus) {
+            String identifiant = demandesService.getDemande(commandeOperation.getDemande().getPkDemandes())
+                    .getIdentifiant();
+            DebitDTO debit = debit(identifiant, null,
+                    authorization);
+            if(debit.getStatut().equals(StatutDebitEnum.PAID)) {
+                paiementsDataProvider.regularisationPaiement(debit, identifiant);
+            }
         }
+        logEndMethod(LOGGER);
     }
 
     @Override
-    public DebitDTO debit(String idTs, String orderIdResid, String residToken) {
+    public DebitDTO debit(String idTs, String orderIdResid, String keycloakToken) {
         logStartMethod(LOGGER);
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
@@ -363,23 +379,40 @@ public class PaiementServiceImpl implements PaiementService {
                 moyenPaiement.getCommande().getPkCommandes());
         DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiement,
                 infoFacturation, commandeDemande.getMontant());
-        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), residToken);
-        DebitOutputDTO debit = mwpaymtApiClient.debit(debitInputDTO);
-        ActionDebitEnum actionDebit = debit.getTransactionAction().getActionDebit();
-        CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
-        commandeOperationRepository.save(operation);
+        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), keycloakToken);
         DemandesUsagersBO usager = demandeBo.getUsager();
         Integer usagerId = usager.getId();
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
-        majHistoriqueDebit(pkDemandes, demandeBo, usagerId, actionDebit, moyenPaiement, commandeDemande);
+        DebitOutputDTO debit;
+        try {
+            if (paiementsDataProvider.isCaisseOuverte()) {
+                LOGGER.info("La caisse est ouverte : tentative de débit sur le middleware de paiement");
+                debit = mwpaymtApiClient.debit(debitInputDTO);
+            } else {
+                LOGGER.info("La caisse est fermée, pas de débit tenté pour la demande {}", idTs);
+                debit = createDebitPending();
+            }
+        } catch (Exception ex) {
+            LOGGER.info("Error lors de la demande de débit tenté pour la demande {}: {}", idTs , ex.getMessage());
+            debit = createDebitEnEchec();
+            CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
+            commandeOperationRepository.save(operation);
+            majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
+            return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
+        }
+        CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
+        commandeOperationRepository.save(operation);
+        majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
         logEndMethod(LOGGER);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }
 
+
+
     private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, Integer usagerId, ActionDebitEnum actionDebit,
             MoyenPaiementBO moyenPaiement, CommandeDemandeBO commandeDemande) {
-        LOGGER.info("Mise à jour de l'historique de la demande {}"+ pkDemandes);
+        LOGGER.info("Mise à jour de l'historique de la demande {}", pkDemandes);
         PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
         historique.setFkDemandes(demandeBo);
         historique.setDate(Timestamp.valueOf(LocalDateTime.now()));
@@ -413,14 +446,33 @@ public class PaiementServiceImpl implements PaiementService {
             CommandeDemandeBO commandeDemande) {
         CommandeOperationBO operation = new CommandeOperationBO();
         operation.setCommande(commandeDemande.getCommande());
+        operation.setDemande(commandeDemande.getDemande());
         operation.setDateCreation(debit.getTransactionAction().getDateCreationDebit());
         operation.setDateRealisation(debit.getTransactionAction().getDateDebit());
         operation.setOperationType(OperationTypeEnum.DEBIT);
-        operation.setOperationStatut(debit.getTransactionAction().getActionDebit() == ActionDebitEnum.SUCCESS
-                ? OperationStatutEnum.SUCCES
-                : OperationStatutEnum.ECHEC);
+        operation.setOperationStatut(debit.getTransactionAction().getActionDebit() != ActionDebitEnum.SUCCESS
+                ? OperationStatutEnum.ECHEC
+                : OperationStatutEnum.SUCCES);
         operation.setMontant(commandeDemande.getMontant());
         return operation;
+    }
+
+    private static DebitOutputDTO createDebitEnEchec() {
+        DebitOutputDTO result = new DebitOutputDTO();
+        TransactionActionDTO action = new TransactionActionDTO();
+        action.setActionDebit(ActionDebitEnum.FAILURE);
+        action.setDateDebit(null);
+        result.setTransactionAction(action);
+        return result;
+    }
+
+    private static DebitOutputDTO createDebitPending() {
+        DebitOutputDTO result = new DebitOutputDTO();
+        TransactionActionDTO action = new TransactionActionDTO();
+        action.setActionDebit(ActionDebitEnum.PENDING);
+        action.setDateDebit(null);
+        result.setTransactionAction(action);
+        return result;
     }
 
     @Async

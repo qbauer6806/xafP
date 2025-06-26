@@ -47,7 +47,7 @@ public class MwpaymtTransformer {
         // Transaction information
         TransactionInformationDTO transactionInformation = new TransactionInformationDTO();
         transactionInformation.setMetadatakey("Numéro de demande RESID");
-        transactionInformation.setMetadatavalue(orderIdResid);
+        transactionInformation.setMetadatavalue(orderIdResid != null ? orderIdResid : "");
         transactionInformation.setOrderId(idTs);
         transactionInformation.setAmount((float) montant);
         mwpaymtDebitDTO.setTransactionInformation(transactionInformation);
@@ -58,7 +58,7 @@ public class MwpaymtTransformer {
     public DebitDTO debitOutputDTOToDebitDTO(DebitOutputDTO output) {
         DebitDTO debitDTO = new DebitDTO();
         debitDTO.setStatut(output.getTransactionAction().getActionDebit().equals(ActionDebitEnum.SUCCESS) ? StatutDebitEnum.PAID : StatutDebitEnum.UNPAID);
-        debitDTO.setExpectedCaptureDate(output.getTransactionAction().getDateDebit());
+        debitDTO.setExpectedCaptureDate(output.getTransactionAction().getDateDebit() != null ? output.getTransactionAction().getDateDebit() : null);
         return debitDTO;
     }
 

@@ -350,8 +350,7 @@ public class PaiementServiceImpl implements PaiementService {
     public void majStatutCaisse(String authorization) {
         LOGGER.info("Ouverture de la caisse, début du rattrapage pour d'éventuels paiements en cours");
         logStartMethod(LOGGER);
-        List<CommandeOperationBO> latestCommandeOperationForStatus = commandeOperationRepository.findLatestCommandesOperationsForStatus(
-                OperationStatutEnum.EN_ATTENTE.name());
+        List<CommandeOperationBO> latestCommandeOperationForStatus = commandeOperationRepository.findLatestCommandesOperationsForStatus(OperationStatutEnum.EN_ATTENTE);
         for (CommandeOperationBO commandeOperation : latestCommandeOperationForStatus) {
             String identifiant = demandesService.getDemande(commandeOperation.getDemande().getPkDemandes())
                     .getIdentifiant();

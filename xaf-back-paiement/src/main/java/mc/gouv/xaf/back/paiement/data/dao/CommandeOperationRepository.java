@@ -44,6 +44,6 @@ public interface CommandeOperationRepository extends JpaRepository<CommandeOpera
         WHERE co2.operationStatut = :status
     )
 """)
-    List<CommandeOperationBO> findLatestCommandesOperationsForStatus(@Param("status") String status);
+    List<CommandeOperationBO> findLatestCommandesOperationsForStatus(@Param("status") OperationStatutEnum status);
 
 }

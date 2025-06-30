@@ -351,7 +351,7 @@ public class PaiementServiceImpl implements PaiementService {
         LOGGER.info("Ouverture de la caisse, début du rattrapage pour d'éventuels paiements en cours");
         logStartMethod(LOGGER);
         List<CommandeOperationBO> latestCommandeOperationForStatus = commandeOperationRepository.findLatestCommandesOperationsForStatus(
-                ActionDebitEnum.PENDING.name());
+                OperationStatutEnum.EN_ATTENTE.name());
         for (CommandeOperationBO commandeOperation : latestCommandeOperationForStatus) {
             String identifiant = demandesService.getDemande(commandeOperation.getDemande().getPkDemandes())
                     .getIdentifiant();
@@ -450,9 +450,14 @@ public class PaiementServiceImpl implements PaiementService {
         operation.setDateCreation(debit.getTransactionAction().getDateCreationDebit());
         operation.setDateRealisation(debit.getTransactionAction().getDateDebit());
         operation.setOperationType(OperationTypeEnum.DEBIT);
-        operation.setOperationStatut(debit.getTransactionAction().getActionDebit() != ActionDebitEnum.SUCCESS
-                ? OperationStatutEnum.ECHEC
-                : OperationStatutEnum.SUCCES);
+        switch (debit.getTransactionAction().getActionDebit()) {
+            case SUCCESS:
+                operation.setOperationStatut(OperationStatutEnum.SUCCES);
+            case PENDING:
+                operation.setOperationStatut(OperationStatutEnum.EN_ATTENTE);
+            case FAILURE:
+                operation.setOperationStatut(OperationStatutEnum.ECHEC);
+        }
         operation.setMontant(commandeDemande.getMontant());
         return operation;
     }

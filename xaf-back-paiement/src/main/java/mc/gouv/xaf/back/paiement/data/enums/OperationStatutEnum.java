@@ -6,5 +6,6 @@ public enum OperationStatutEnum {
     ERREUR,
     SUCCES,
     ECHEC,
+    EN_ATTENTE,
     INCIDENT
 }

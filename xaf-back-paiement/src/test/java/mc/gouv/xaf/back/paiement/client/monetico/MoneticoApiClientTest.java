@@ -10,7 +10,7 @@ import java.util.Collections;
 
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -33,7 +33,7 @@ class MoneticoApiClientTest {
         CommandeOperationDTO operation = new CommandeOperationDTO();
         operation.setMontant(90.0);
         commandeDTO.setMoyenPaiement(moyenPaiementDTO);
-        commandeDTO.setOperations(Collections.singletonList(operation));
+        // TODO commandeDTO.setOperations(Collections.singletonList(operation));
         boolean b = moneticoApiClient.capture(commandeDTO, operation, null);
         assertFalse(b); // Pour satisfaire Sonar...
     }

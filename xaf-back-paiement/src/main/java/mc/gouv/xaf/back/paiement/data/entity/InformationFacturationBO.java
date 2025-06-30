@@ -22,7 +22,7 @@ public class InformationFacturationBO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK_INFORMATIONS_FACTURATION", nullable = false)
-    private String pkInformationsFacturation;
+    private Integer pkInformationsFacturation;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_COMMANDES")

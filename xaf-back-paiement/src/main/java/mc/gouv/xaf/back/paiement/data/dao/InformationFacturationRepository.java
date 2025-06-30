@@ -2,11 +2,13 @@ package mc.gouv.xaf.back.paiement.data.dao;
 
 import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import java.util.Collection;
 
-public interface InformationFacturationRepository extends JpaRepository<InformationFacturationBO, String> {
+public interface InformationFacturationRepository extends JpaRepository<InformationFacturationBO, Integer> {
 
     InformationFacturationBO findByCommande_PkCommandes(Integer commandId);
+
+    void deleteByCommande_PkCommandesIn(Collection<Integer> commandeIds);
 
     /*
      * A partir du moyen de paiement faire une jointure entre pmnt_moyens_paiements, pmnt_commandes, pmnt_commandes_demandes, dem_demandes et dem_access pour récupérer l'usager id

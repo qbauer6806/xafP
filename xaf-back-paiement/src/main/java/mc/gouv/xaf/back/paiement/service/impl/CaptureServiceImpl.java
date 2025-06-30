@@ -10,7 +10,7 @@ import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
@@ -98,7 +98,7 @@ public class CaptureServiceImpl implements CaptureService {
         }
 
         // Enregistrement de l'opéation même en cas d'échec ou d'incident
-        CommandeOperationBO commandeOperationBO = CommandeOperationTransformer.dto2Bo(operation);
+        CommandeOperationBO commandeOperationBO = CommandeOperationTransformer.dto2BoMonetico(operation);
         CommandeBO commandeBO = CommandeTransformer.dto2Bo(commandeDTO);
         if (commandeBO.getOperations() != null) {
             commandeBO.getOperations().add(commandeOperationBO);

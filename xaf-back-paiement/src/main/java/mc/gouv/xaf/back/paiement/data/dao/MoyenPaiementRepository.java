@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import org.springframework.data.jpa.repository.Query;
+import java.util.Collection;
 
 // On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre des '_'
 @SuppressWarnings("java:S100")
@@ -26,4 +27,6 @@ public interface MoyenPaiementRepository extends JpaRepository<MoyenPaiementBO, 
             "JOIN CommandeDemandeBO cd2 ON cd2.commande.pkCommandes = c2.pkCommandes " +
             "WHERE cd2.demande.pkDemandes = :demandeId)")
     MoyenPaiementBO findByDemande_PkDemandesAndLastCreationDate(Integer demandeId);
+
+    void deleteByCommande_PkCommandesIn(Collection<Integer> commandeIds);
 }

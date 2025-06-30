@@ -248,4 +248,6 @@ public interface DemarchesDataProvider {
         return demande.getDernierStatut().getLibelle();
     }
 
+    default boolean purgerDonneesMonetiques() { return false; }
+
 }

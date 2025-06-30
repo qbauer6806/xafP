@@ -29,7 +29,7 @@ public class CommandeOperationBO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PK_OPERATIONS", nullable = false)
-    private String pkOperations;
+    private Integer pkOperations;
 
     @Enumerated(EnumType.STRING)
     private OperationTypeEnum operationType;

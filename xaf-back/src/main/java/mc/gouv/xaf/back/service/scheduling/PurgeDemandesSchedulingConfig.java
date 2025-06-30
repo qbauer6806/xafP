@@ -2,6 +2,9 @@ package mc.gouv.xaf.back.service.scheduling;
 
 import jakarta.annotation.PostConstruct;
 
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
+import mc.gouv.xaf.shared.util.PurgeJobSelector;
+import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -27,6 +30,9 @@ public class PurgeDemandesSchedulingConfig {
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 
+    @Autowired
+    private PurgeJobSelector jobSelector;
+
     @PostConstruct
     private void init() throws SchedulerException {
         // Init des jobs pour la purge des demandes
@@ -35,14 +41,23 @@ public class PurgeDemandesSchedulingConfig {
 
     private void initPurgeJobs() throws SchedulerException {
         PropertiesDTO prop = propertiesService.getProperty(PURGE_DEMANDES_SCHEDULING_CRON_EXPRESSION);
-        JobDetail jobDetail = schedulerService.buildJobDetail(PurgeDemandesSchedulingJob.class,
-                "PurgeDemandesSchedulingJob");
 
-        // Ajout de la liste des statuts dans le JobDataMap
+        // Sélection de la classe du Job en fonction du contexte
+        boolean purgePaiement = demarchesDataProvider.purgerDonneesMonetiques();
+        Class<? extends Job> jobClass = jobSelector.getJobClass(purgePaiement);
+
+        // Construction du nom dynamiquement
+        String jobName = jobClass.getSimpleName();
+        String triggerName = purgePaiement ? PurgeDemandesService.PAIEMENTS_TRIGGER_NAME : "PurgeDemandesSchedulingTrigger";
+
+        // Construction du job et du trigger
+        JobDetail jobDetail = schedulerService.buildJobDetail(jobClass, jobName);
+        Trigger trigger = schedulerService.buildJobTrigger(jobDetail, triggerName, prop.getValue());
+
+        // Ajout des données
         jobDetail.getJobDataMap().put("statuts", demarchesDataProvider.getStatutsAPurger());
 
-        Trigger trigger = schedulerService.buildJobTrigger(jobDetail, "PurgeDemandesSchedulingTrigger",
-                prop.getValue());
+        // Planification
         schedulerService.startOrUpdateScheduledJob(jobDetail, trigger);
     }
 }

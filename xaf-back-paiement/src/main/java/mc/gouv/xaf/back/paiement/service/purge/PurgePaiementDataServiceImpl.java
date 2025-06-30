@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.paiement.service.purge;
 
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.InformationFacturationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
@@ -35,6 +37,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
     @Autowired
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
+    @Autowired
+    private InformationFacturationRepository informationFacturationRepository;
+
+    @Autowired
+    private MoyenPaiementRepository moyenPaiementRepository;
+
     @Override
     @Transactional
     public void purgeData(List<String> statuts, int jours) {
@@ -44,8 +52,9 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(
-                statuts, dateDebutPurge);
+        //List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(
+                //statuts, dateDebutPurge);
+        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findCommandesByDernierStatutBeforeDate(statuts, dateDebutPurge);
 
         // On vire la liaison avec les demandes, et on récupère les ids des commandes et des demandes associées
         Set<Integer> pkCommmandes = new HashSet<>();
@@ -62,6 +71,14 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
         // On supprime les historiques de paiements liés aux demandes
         LOGGER.info("Suppression de l'historique de paiement...");
         paiementHistoriqueRepository.deleteByFkDemandes_PkDemandesIn(pkDemandes);
+
+        // Suppression informations de facturations
+        LOGGER.info("Suppression des informations de facturation...");
+        informationFacturationRepository.deleteByCommande_PkCommandesIn(pkCommmandes);
+
+        // Suppressions moyen de paiement
+        LOGGER.info("Suppression du moyen de paiement...");
+        moyenPaiementRepository.deleteByCommande_PkCommandesIn(pkCommmandes);
 
         // On supprime les commandes dont il n'existe plus de liaisons avec des demandes
         LOGGER.info("Suppression des commandes...");

@@ -25,6 +25,16 @@ public interface CommandeDemandeRepository extends JpaRepository<CommandeDemande
     List<CommandeDemandeBO> findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(
             List<String> statuts, Date date);
 
+    @Query("SELECT cd FROM CommandeDemandeBO cd " +
+            "JOIN cd.demande d " +
+            "JOIN d.dernierStatut ds " +
+            "WHERE ds.name IN :statuts " +
+            "AND ds.date < :limitDate")
+    List<CommandeDemandeBO> findCommandesByDernierStatutBeforeDate(
+            @Param("statuts") List<String> statuts,
+            @Param("limitDate") Date limitDate
+    );
+
 
     @Query("""
     SELECT cd FROM CommandeDemandeBO cd

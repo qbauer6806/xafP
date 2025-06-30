@@ -39,7 +39,7 @@ import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.BillingDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
@@ -363,7 +363,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     @Override
     public List<CommandeOperationDTO> getAllOperations() {
         List<CommandeOperationBO> commandeOperationBos = commandeOperationRepository.findAll();
-        return CommandeOperationTransformer.bos2Dtos(commandeOperationBos);
+        return CommandeOperationTransformer.bos2DtosMonetico(commandeOperationBos);
     }
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data

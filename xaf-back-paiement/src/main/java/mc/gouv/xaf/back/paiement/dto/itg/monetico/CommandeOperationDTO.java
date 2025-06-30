@@ -1,11 +1,11 @@
-package mc.gouv.xaf.back.paiement.dto;
+package mc.gouv.xaf.back.paiement.dto.itg.monetico;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -13,7 +13,7 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommandeOperationDTO {
 
-    private Integer pkOperations;
+    private String pkOperations;
 
     private Integer fkCommandes;
 

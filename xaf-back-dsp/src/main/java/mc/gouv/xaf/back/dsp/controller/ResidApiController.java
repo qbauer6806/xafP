@@ -88,12 +88,12 @@ public class ResidApiController {
             @ApiResponse(responseCode = "500", description = "Erreur durant l'appel",
                     content = @Content(mediaType = "application/json"))
     })
-    @PutMapping(value = "/statutCaisse")
-    public void majStatutCaisse(HttpServletRequest request) {
+    @PutMapping(value = "/rattrapageDebits")
+    public void rattrapageDebits(HttpServletRequest request) {
         logStartMethod(LOGGER);
         String jwt = getJwt(request);
         paiementService.majStatutCaisse(jwt);
-        LOGGER.info("Fin de la mise à jour du statut de la caisse. La caisse est maintenant ouverte");
+        LOGGER.info("Fin du rattrapage des débits en attente");
         logEndMethod(LOGGER);
     }
 

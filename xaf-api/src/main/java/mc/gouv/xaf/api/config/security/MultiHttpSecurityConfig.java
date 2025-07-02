@@ -49,9 +49,9 @@ public class MultiHttpSecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
-        http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/statutCaisse", "/api/v1/paiement/recuPaiement")
+        http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits", "/api/v1/paiement/recuPaiement")
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/statutCaisse", "/api/v1/paiement/recuPaiement").authenticated();
+                    auth.requestMatchers("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits", "/api/v1/paiement/recuPaiement").authenticated();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(
                         jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(jwtAuthenticationConverter())

@@ -15,8 +15,8 @@
     <div class="row" style="margin-top: 15px;">
       <!-- Montant -->
       <div style="margin-top: 1rem; width: 50%; margin-left: 15px;">
-        <label th:if="${statutPaiementCode} != 'DEBIT_REALISE'" for="montant">Montant de la demande :</label>
-        <label th:if="${statutPaiementCode} == 'DEBIT_REALISE'" for="montant">Montant débité :</label>
+        <label th:if="${statutPaiementCode.name()} != 'DEBIT_REALISE'" for="montant">Montant de la demande :</label>
+        <label th:if="${statutPaiementCode.name()} == 'DEBIT_REALISE'" for="montant">Montant débité :</label>
         <br>
         <input class="form-control" type="text" id="montant" th:value="${montantPaiement}" disabled="true" style="width: 100%;" />
       </div>

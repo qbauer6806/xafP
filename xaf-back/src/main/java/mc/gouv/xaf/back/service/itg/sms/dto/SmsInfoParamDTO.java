@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.service.itg.sms;
+package mc.gouv.xaf.back.service.itg.sms.dto;
 
 /**
  * DTO représentant un paramètre d'un SMS

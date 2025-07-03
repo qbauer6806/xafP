@@ -27,4 +27,5 @@ public interface PaiementService {
     void majTarif(Integer tarif);
     void majStatutCaisse(String authorization);
     DebitDTO debit(String idTs, String orderIdResid, String authorization);
+    boolean isDebitDeclenche(Integer pkDemande);
 }

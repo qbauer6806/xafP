@@ -32,6 +32,9 @@ public interface CommandeOperationRepository extends JpaRepository<CommandeOpera
     @Query("select cob from CommandeOperationBO cob where cob.operationStatut = :statut")
     List<CommandeOperationBO> findAllCommandeOperation(@Param("statut") OperationStatutEnum statut);
 
+    @Query("select cob from CommandeOperationBO cob where cob.demande.pkDemandes = :fkDemandes")
+    List<CommandeOperationBO> findAllByFkDemandes(@Param("fkDemandes") Integer fkDemandes);
+
     @Query("""
     SELECT co FROM CommandeOperationBO co
     JOIN co.commande c

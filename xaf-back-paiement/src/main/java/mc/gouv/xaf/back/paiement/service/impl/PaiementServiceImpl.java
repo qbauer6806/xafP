@@ -56,6 +56,7 @@ import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
@@ -265,6 +266,7 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             moyenPaiementBo.setPaymentMethodType("CARD");
             moyenPaiementBo.setEffectiveBrand(moyenPaiementInputDTO.getType());
+            // TODO mettre une condition sur l'état de la demande (EN_ATTENTE_PAIEMENT vs PAIEMENT_A_REGULARISER)
             // Changer la demande de status
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
@@ -388,6 +390,9 @@ public class PaiementServiceImpl implements PaiementService {
             if (paiementsDataProvider.isCaisseOuverte()) {
                 LOGGER.info("La caisse est ouverte : tentative de débit sur le middleware de paiement");
                 debit = mwpaymtApiClient.debit(debitInputDTO);
+                demandesStatutsService.updateStatut(pkDemandes, "VALIDEE", null, null, null, null, null);
+                DemandeHistoriqueDTO histo = demandesHistoriqueService.passageAuto("VALIDEE");
+                demandesHistoriqueService.saveHisto(pkDemandes, histo);
             } else {
                 LOGGER.info("La caisse est fermée, pas de débit tenté pour la demande {}", idTs);
                 debit = createDebitPending();
@@ -610,5 +615,10 @@ public class PaiementServiceImpl implements PaiementService {
         commandeRepository.save(commande);
         LOGGER.info("Updated [ commande {}] ", commande);
         return commandesDemandes;
+    }
+
+    public boolean isDebitDeclenche(Integer pkDemande) {
+        List<CommandeOperationBO> allByFkDemandes = commandeOperationRepository.findAllByFkDemandes(pkDemande);
+        return !allByFkDemandes.isEmpty();
     }
 }

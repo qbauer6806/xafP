@@ -386,13 +386,11 @@ public class PaiementServiceImpl implements PaiementService {
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
         DebitOutputDTO debit;
-        String statutName = "";
         try {
             if (paiementsDataProvider.isCaisseOuverte()) {
                 LOGGER.info("La caisse est ouverte : tentative de débit sur le middleware de paiement");
                 debit = mwpaymtApiClient.debit(debitInputDTO);
                 demandesStatutsService.updateStatut(pkDemandes, "VALIDEE", null, null, null, null, null);
-                statutName = "VALIDEE";
             } else {
                 LOGGER.info("La caisse est fermée, pas de débit tenté pour la demande {}", idTs);
                 debit = createDebitPending();
@@ -408,9 +406,6 @@ public class PaiementServiceImpl implements PaiementService {
         CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
         commandeOperationRepository.save(operation);
         majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
-        if(!statutName.isEmpty()) {
-            demandesHistoriqueService.saveHisto(pkDemandes, demandesHistoriqueService.passageAuto(statutName));
-        }
         logEndMethod(LOGGER);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }

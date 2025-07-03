@@ -390,7 +390,6 @@ public class PaiementServiceImpl implements PaiementService {
             if (paiementsDataProvider.isCaisseOuverte()) {
                 LOGGER.info("La caisse est ouverte : tentative de débit sur le middleware de paiement");
                 debit = mwpaymtApiClient.debit(debitInputDTO);
-                demandesStatutsService.updateStatut(pkDemandes, "VALIDEE", null, null, null, null, null);
             } else {
                 LOGGER.info("La caisse est fermée, pas de débit tenté pour la demande {}", idTs);
                 debit = createDebitPending();

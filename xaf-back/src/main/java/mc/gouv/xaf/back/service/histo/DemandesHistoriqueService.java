@@ -230,7 +230,7 @@ public class DemandesHistoriqueService {
         return histoTs2Dem(contenu, null, agentId);
     }
 
-    private String getAgentName(String agentId) {
+    protected String getAgentName(String agentId) {
         String agentName = null;
         if (agentId != null) {
             agentName = utilisateursUtils.getUserNameFromID(agentId);
@@ -261,8 +261,8 @@ public class DemandesHistoriqueService {
         saveHisto(demandeId, histo);
     }
 
-    private DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
-                                             String agentId) {
+    protected DemandeHistoriqueDTO histoTs2Dem(DemandeHistoriqueContenuDTO tsHistoContenu, Integer usagerId,
+                                               String agentId) {
         DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
         demHisto.setAgentId(agentId);
         demHisto.setUsagerId(usagerId);

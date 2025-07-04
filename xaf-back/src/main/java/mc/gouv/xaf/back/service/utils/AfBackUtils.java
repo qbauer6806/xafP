@@ -555,6 +555,13 @@ public class AfBackUtils {
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
+    /**
+     * Utilisé dans certains exports excel
+     */
+    public static String choixMultipleToString(final ArrayList<String> choixMultiple) {
+        return String.join(", ", choixMultiple);
+    }
+
     public static String changeDateStringFormat(final String dateString) {
         return changeDateStringFormat(DEFAULT_FRENCH_DATE_FORMAT, dateString);
     }

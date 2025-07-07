@@ -236,26 +236,28 @@ public class AfApiService implements AfApi {
             }
             throw new DemarcheException("Erreur lors de la création d'une demande", e);
         }
-
+        DemandeCanalEnum canal = demandeDto.getCanal();
         // Ajout d'une ligne à l'historique
         LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChange(
-                demarchesDataProvider.getPremierStatutCreationDemande(),
-                usagerId,
-                demande.getCreeParAgentId());
+        DemandeHistoriqueDTO histo;
+        if (!DemandeCanalEnum.GUICHET_VIRTUEL.equals(demandeDto.getCanal())) {
+            histo = demandesHistoriqueService.statusChangeAgent(demarchesDataProvider.getPremierStatutCreationDemande(),
+                    demande.getCreeParAgentId());
+        } else {
+            histo = demandesHistoriqueService.statusChange(demarchesDataProvider.getPremierStatutCreationDemande(),
+                    usagerId, demande.getCreeParAgentId());
+        }
         demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
 
         LOGGER.info("Création d'une instance de process dans le BPM pour cette demande {}", demandeDto.getPkDemandes());
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
 
-        String canal = demandeDto.getCanal().name();
-
         // Définition des process variables
         Map<String, Object> variables = new HashMap<>();
 
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), canal);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), canal.name());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name(),
                 StringUtils.lowerCase(demandeDto.getLangue()));
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());

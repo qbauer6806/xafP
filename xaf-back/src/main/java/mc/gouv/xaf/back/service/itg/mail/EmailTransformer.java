@@ -2,6 +2,9 @@ package mc.gouv.xaf.back.service.itg.mail;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoAddressDTO;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoParamDTO;
 import mc.gouv.xaf.shared.dto.mail.AddressBlockDTO;
 import mc.gouv.xaf.shared.dto.mail.ParamDTO;
 

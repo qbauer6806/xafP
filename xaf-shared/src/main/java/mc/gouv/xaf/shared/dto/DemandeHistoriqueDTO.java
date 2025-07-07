@@ -36,4 +36,6 @@ public class DemandeHistoriqueDTO {
     @NotNull
     private JsonNode contenu;
 
+    private String justificatifTraitement;
+
 }

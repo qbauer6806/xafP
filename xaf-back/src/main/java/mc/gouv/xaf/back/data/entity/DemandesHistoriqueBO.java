@@ -57,4 +57,8 @@ public class DemandesHistoriqueBO {
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode contenu;
 
+    @Column(name = "JUSTIFICATIF_TRAITEMENT", length = 8000)
+    private String justificatifTraitement;
+
+
 }

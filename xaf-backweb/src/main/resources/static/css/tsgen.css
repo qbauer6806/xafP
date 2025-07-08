@@ -601,3 +601,8 @@ dd span {
   border: solid;
   margin: 10px 1px 1px;
 }
+
+/* #71485 - Affichage des titres h2 trop gras */
+h2 {
+  font-weight: unset;
+}

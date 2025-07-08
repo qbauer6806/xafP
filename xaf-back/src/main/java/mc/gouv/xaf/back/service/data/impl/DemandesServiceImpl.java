@@ -98,6 +98,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -202,10 +203,8 @@ public class DemandesServiceImpl implements DemandesService {
     private AfExcelExportModelProvider excelExportModelProvider;
 
     @Autowired
+    @Lazy
     private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @Autowired
     private MotifsCache motifsCache;

@@ -44,6 +44,8 @@ import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
+import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
+import mc.gouv.xaf.back.paiement.service.kafka.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.tranformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
@@ -52,6 +54,7 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -69,12 +72,14 @@ import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.exception.WebException;
+import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -164,6 +169,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private PaiementsDataProvider paiementsDataProvider;
+
+    @Autowired
+    private GUKafkaPaiementProducer guKafkaPaiementProducer;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -405,6 +413,12 @@ public class PaiementServiceImpl implements PaiementService {
         CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
         commandeOperationRepository.save(operation);
         majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
+        // TODO partie kafka
+        guKafkaPaiementProducer.sendAffichagePaiementMessage(usagerId.toString(), PaymentTypeEnum.DEMANDE,
+                moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit(),
+                operation.getMontant(), debit.getTransactionAction().getActionDebit().name(), "object",
+                demandeBo.getIdentifiant(), commandeDemande.getCommande().getDateCreation(),
+                gouvPropertiesResolver.getFrontUrl() + "/demande_view.html?id=" + demandeBo.getPkDemandes());
         logEndMethod(LOGGER);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }

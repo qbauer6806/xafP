@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.service.purge;
 
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.InformationFacturationRepository;
@@ -7,6 +8,8 @@ import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
+import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
 
+    @Autowired
+    private DemandesRepository demandesRepository;
+
+    @Autowired
+    private GUKafkaPaiementProducer guKafkaPaiementProducer;
+
     @Override
     @Transactional
     public void purgeData(List<String> statuts, int jours) {
@@ -52,8 +61,6 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        //List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(
-                //statuts, dateDebutPurge);
         List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findCommandesByDernierStatutBeforeDate(statuts, dateDebutPurge);
 
         // On vire la liaison avec les demandes, et on récupère les ids des commandes et des demandes associées
@@ -97,5 +104,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
             }
         }
         commandeRepository.deleteAll(commmandesToDelete);
+        // Suppression de l'historique de paiement dans Kafka et donc mon guichet
+        for (Integer pkDemande : pkDemandes) {
+            demandesRepository.findById(pkDemande).ifPresent(demande -> {
+                guKafkaPaiementProducer.sendSuppressionPaiementMessage(demande.getIdentifiant(),
+                        String.valueOf(demande.getFkAccess().getUsagerId()));
+            });
+        }
     }
 }

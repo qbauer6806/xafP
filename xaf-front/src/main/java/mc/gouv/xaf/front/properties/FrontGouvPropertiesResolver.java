@@ -186,6 +186,8 @@ public class FrontGouvPropertiesResolver {
     private String lyraJavascriptCssUrl;
     @Value("${mc.gouv.appfactory.external.lyra.additional.javascript.url}")
     private String lyraJavascriptAdditionalUrl;
+    @Value("${mc.gouv.appfactory.external.lyra.javascript.sri.url}")
+    private String lyraJavascriptSriUrl;
     @Value("${mc.gouv.appfactory.rescart.external.lyra.public.key}")
     private String lyraPublicKey;
     @Value("${mc.gouv.rescart.frontserver.api.url}/paiement")
@@ -310,11 +312,10 @@ public class FrontGouvPropertiesResolver {
                 .add(new PropertiesDTO("mc.gouv.appfactory.compte.entreprise.url.en", getCompteEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.fr", getMonguichetCguUrlFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.monguichet.cgu.url.en", getMonguichetCguUrlEn()));
-
-        // TODO a voir si on bouge cette partie ailleurs
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.javascript.url", getLyraJavascriptUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.css.url", getLyraJavascriptCssUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.javascript.url", getLyraJavascriptAdditionalUrl()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.javascript.sri.url", getLyraJavascriptSriUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory." + demarcheId + ".external.lyra.public.key", getLyraPublicKey()));
         return propertiesDTOS;
     }

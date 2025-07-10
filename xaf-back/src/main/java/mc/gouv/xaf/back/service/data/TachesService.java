@@ -1,9 +1,8 @@
 package mc.gouv.xaf.back.service.data;
 
+import java.util.List;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.TacheDTO;
-
-import java.util.List;
 
 /**
  * @author mboutelier.ext
@@ -29,7 +28,7 @@ public interface TachesService {
     List<TacheDTO> getTachesByDemandeID(Integer demandeId);
 
     /**
-     * Ajoute ou mets à jour une Taches
+     * Ajoute ou met à jour une Taches
      *
      * @param toSave
      *         La tâche à sauvegarder

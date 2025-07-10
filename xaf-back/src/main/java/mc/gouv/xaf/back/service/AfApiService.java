@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -9,20 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import jakarta.transaction.Transactional;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -40,6 +29,7 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
+import mc.gouv.xaf.back.service.demande.ICreateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -78,12 +68,19 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
 /**
  * Services proposés par le module API des TS
- * 
+ *
  * @author qdeme
- * 
  */
 @Component
 public class AfApiService {
@@ -160,9 +157,12 @@ public class AfApiService {
 
     @Autowired
     private DemandesDataService demandesDataService;
-    
+
     @Autowired
     private PaysCache paysCache;
+
+    @Autowired
+    private List<ICreateDemandeFinalizer> createDemandeFinalizers;
 
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -182,8 +182,7 @@ public class AfApiService {
                 demarchesDataProvider.getStatutAnnulee());
 
         DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeUsager(
-                demarchesDataProvider.getStatutAnnulee(),
-                usagerId);
+                demarchesDataProvider.getStatutAnnulee(), usagerId);
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
     }
@@ -193,66 +192,9 @@ public class AfApiService {
 
         LOGGER.info("Appel à DEM...");
 
-        DemandeDTO demandeDto = new DemandeDTO();
-        demandeDto.setUsagerId(usagerId);
-        demandeDto.setPkDemandes(null);
-        demandeDto.setContenu(demande.getContenu());
-        demandeDto.setFichiers(demande.getFichiers());
-        demandeDto.setLangue(StringUtils.lowerCase(demande.getLangue()));
-        demandeDto.setCanal(demande.getCanal());
-        demandeDto.setObservations(demande.getObservations());
-        demandeDto.setCourrierDateReception(demande.getCourrierDateReception());
-        demandeDto.setCourrierRefInterne(demande.getCourrierRefInterne());
-        demandeDto.setCreeParAgentId(demande.getCreeParAgentId());
-        demandeDto.setRecapType(demande.getRecapType());
-        // Récupération des informations usager pour stockage
-        GichuniUsagerDTO usager = usagersCache.get(usagerId);
-        demandeDto.setUsager(demandesUsagersTransformer.user2Dto(usager));
-        demandeDto.setDonneesMConnect(demande.getDonneesMConnect());
-        demandeDto.setPkDemandeSource(demande.getDemandeSourceId());
-        demandeDto.setMeta(demande.getMeta());
-        traiterContenuInitial(demande, usagerId, demandeDto);
-
-        try {
-            demandeDto = demandesService.saveOrUpdateDemande(demandeDto, false,
-                    demarchesDataProvider.getPremierStatutCreationDemande(), demande.getDonneesExternes());
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création d'une demande {}", demandeDto);
-            if (demandeDto.getPkDemandes() != null) {
-                LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
-                        demandeDto.getIdentifiant());
-                demandesService.deleteDemande(demandeDto.getPkDemandes());
-            }
-            throw new DemarcheException("Erreur lors de la création d'une demande", e);
-        }
-        DemandeCanalEnum canal = demandeDto.getCanal();
-        // Ajout d'une ligne à l'historique
-        LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
-
-        DemandeHistoriqueDTO histo;
-        if (!DemandeCanalEnum.GUICHET_VIRTUEL.equals(demandeDto.getCanal())) {
-            histo = demandesHistoriqueService.statusChangeAgent(demarchesDataProvider.getPremierStatutCreationDemande(),
-                    demande.getCreeParAgentId());
-        } else {
-            histo = demandesHistoriqueService.statusChange(demarchesDataProvider.getPremierStatutCreationDemande(),
-                    usagerId, demande.getCreeParAgentId());
-        }
-        demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
-
-        LOGGER.info("Création d'une instance de process dans le BPM pour cette demande {}", demandeDto.getPkDemandes());
-        GouvBPMUser user = new GouvBPMUser();
-        user.setId(usagerId.toString());
-
-        // Définition des process variables
-        Map<String, Object> variables = new HashMap<>();
-
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), canal.name());
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name(),
-                StringUtils.lowerCase(demandeDto.getLangue()));
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
-
-        gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(), variables);
+        final DemandeDTO demandeDto = traiterAndSaveCreateDemande(demande, usagerId);
+        addHistoryLineForCreateDemande(demandeDto, demande, usagerId);
+        updateBPMProcess(demandeDto, usagerId);
 
         LOGGER.info("Envoi du message au Guichet Unique via Kafka (création demande)...");
         List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(usagerId);
@@ -265,6 +207,52 @@ public class AfApiService {
             LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
             brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId);
         }
+
+        createDemandeFinalizers.forEach(finalizer -> finalizer.finalizeDemandeCreation(demandeDto));
+
+        return demandeDto;
+    }
+
+    private DemandeDTO traiterAndSaveCreateDemande(DemandeInputDTO demande, Integer usagerId)
+            throws JsonProcessingException {
+
+        final DemandeDTO demandeDto = buildDemandeFromInput(demande, usagerId);
+        traiterContenuInitial(demande, usagerId, demandeDto);
+
+        try {
+            return demandesService.saveOrUpdateDemande(demandeDto, false,
+                    demarchesDataProvider.getPremierStatutCreationDemande(), demande.getDonneesExternes());
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la création d'une demande {}", demandeDto);
+            if (demandeDto.getPkDemandes() != null) {
+                LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
+                        demandeDto.getIdentifiant());
+                demandesService.deleteDemande(demandeDto.getPkDemandes());
+            }
+            throw new DemarcheException("Erreur lors de la création d'une demande", e);
+        }
+    }
+
+    private DemandeDTO buildDemandeFromInput(DemandeInputDTO demande, Integer usagerId) {
+        DemandeDTO demandeDto = new DemandeDTO();
+        demandeDto.setUsagerId(usagerId);
+        demandeDto.setPkDemandes(null);
+        demandeDto.setContenu(demande.getContenu());
+        demandeDto.setFichiers(demande.getFichiers());
+        demandeDto.setLangue(StringUtils.lowerCase(demande.getLangue()));
+        demandeDto.setCanal(demande.getCanal());
+        demandeDto.setObservations(demande.getObservations());
+        demandeDto.setCourrierDateReception(demande.getCourrierDateReception());
+        demandeDto.setCourrierRefInterne(demande.getCourrierRefInterne());
+        demandeDto.setCreeParAgentId(demande.getCreeParAgentId());
+        demandeDto.setRecapType(demande.getRecapType());
+
+        // Récupération des informations usager pour stockage
+        GichuniUsagerDTO usager = usagersCache.get(usagerId);
+        demandeDto.setUsager(demandesUsagersTransformer.user2Dto(usager));
+        demandeDto.setDonneesMConnect(demande.getDonneesMConnect());
+        demandeDto.setPkDemandeSource(demande.getDemandeSourceId());
+        demandeDto.setMeta(demande.getMeta());
         return demandeDto;
     }
 
@@ -277,6 +265,35 @@ public class AfApiService {
                 demandeDto.setContenuInitial(brouillon.getContenuInitial());
             }
         }
+    }
+
+    private void updateBPMProcess(DemandeDTO demandeDto, Integer usagerId) {
+        LOGGER.info("Création d'une instance de process dans le BPM pour cette demande {}", demandeDto.getPkDemandes());
+        GouvBPMUser user = new GouvBPMUser();
+        user.setId(usagerId.toString());
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), demandeDto.getCanal().name());
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name(),
+                StringUtils.lowerCase(demandeDto.getLangue()));
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
+
+        gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(), variables);
+    }
+
+    private void addHistoryLineForCreateDemande(DemandeDTO demandeDto, DemandeInputDTO demande, Integer usagerId) {
+        LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
+
+        DemandeHistoriqueDTO histo;
+        if (!DemandeCanalEnum.GUICHET_VIRTUEL.equals(demandeDto.getCanal())) {
+            histo = demandesHistoriqueService.statusChangeAgent(demarchesDataProvider.getPremierStatutCreationDemande(),
+                    demande.getCreeParAgentId());
+        } else {
+            histo = demandesHistoriqueService.statusChange(demarchesDataProvider.getPremierStatutCreationDemande(),
+                    usagerId, demande.getCreeParAgentId());
+        }
+        demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
     }
 
     @Transactional
@@ -331,10 +348,8 @@ public class AfApiService {
     }
 
     /**
-     * On souhaite récupérer une liste avec les périodes suivantes :
-     * - La dernière période terminée
-     * - Les périodes en cours
-     * - Les périodes futures
+     * On souhaite récupérer une liste avec les périodes suivantes : - La dernière période terminée - Les périodes en
+     * cours - Les périodes futures
      */
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         List<PeriodeOuvertureDTO> periodes = new ArrayList<>();
@@ -509,7 +524,8 @@ public class AfApiService {
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
         String statutAnnulee = demarchesDataProvider.getStatutAnnulee();
-        String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO, statutAnnulee);
+        String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO,
+                statutAnnulee);
         String demandesImpacteesPhrase = tab[0];
         String demandesImpacteesPk = tab[1];
 
@@ -523,8 +539,8 @@ public class AfApiService {
                 demarchesDataProvider.getCodeMotifAnnulationDesinscription(), demandesAPasserEnAnnuleeDTO);
 
         LOGGER.info(
-                "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes " +
-                        "qui passent à l'état Annulée suite à la désinscription...");
+                "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes "
+                        + "qui passent à l'état Annulée suite à la désinscription...");
         Map<String, Object> model = afMailTemplateModelProvider.getModelDesinscriptionUsager(usagerId, demandes);
         DemarcheDTO demarcheDTO = afBackUtils.getDemarcheInfos();
 
@@ -537,8 +553,7 @@ public class AfApiService {
         for (DemandeDTO demande : demandes) {
             LOGGER.info("Génération de l'historique pour la demande {}", demande.getPkDemandes());
             DemandeHistoriqueDTO histo = demandesHistoriqueService.desinscriptionUsager(
-                    demande.getDernierStatut().getName(),
-                    usagerId,
+                    demande.getDernierStatut().getName(), usagerId,
                     demandesAPasserEnAnnulee.contains(demande.getPkDemandes()));
             demandesHistoriqueService.saveHisto(demande.getPkDemandes(), histo);
         }
@@ -598,7 +613,8 @@ public class AfApiService {
         return new String[] { demandesAnnuleesPhrase, demandesImpacteesPk.toString() };
     }
 
-    private void miseAJourDesVariablesBPM(List<DemandeDTO> demandesAPasserEnAnnuleeDTO, Integer usagerId, String statutAnnuleeName) {
+    private void miseAJourDesVariablesBPM(List<DemandeDTO> demandesAPasserEnAnnuleeDTO, Integer usagerId,
+            String statutAnnuleeName) {
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
 
@@ -618,7 +634,7 @@ public class AfApiService {
     }
 
     private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue,
-                                  Map<String, Object> model, DemarcheDTO demarcheDTO) {
+            Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourUsager());
         emailInfo.setSubjectTemplateCode(
@@ -650,7 +666,7 @@ public class AfApiService {
     }
 
     private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager,
-                                  Map<String, Object> model, DemarcheDTO demarcheDTO) {
+            Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(demarchesDataProvider.getMailBodyTemplateCodeDesinscriptionUsagerPourAgents());
         emailInfo.setSubjectTemplateCode(
@@ -779,11 +795,10 @@ public class AfApiService {
         return demandesConfigService.saveConfig(config);
     }
 
-    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params)
-            throws Exception {
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws Exception {
         return null;
     }
-    
+
     public List<PaysDTO> getPays() {
         return new ArrayList<>(paysCache.getValues());
     }

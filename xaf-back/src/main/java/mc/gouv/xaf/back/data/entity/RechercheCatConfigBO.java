@@ -37,7 +37,6 @@ public class RechercheCatConfigBO {
     }
 
     public RechercheCatConfigBO(String libelle, boolean editable) {
-        super();
         this.libelle = libelle;
         this.editable = editable;
     }

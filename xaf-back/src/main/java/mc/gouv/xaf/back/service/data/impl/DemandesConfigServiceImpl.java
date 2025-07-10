@@ -6,21 +6,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.transformer.DemandesConfigTransformer;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.back.service.data.RechercheAdminService;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -38,8 +40,16 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     @Autowired
     private DemandesConfigTransformer demandesConfigTransformer;
 
+    @Autowired
+    private RechercheAdminService rechercheAdminService;
+
     @Value("${maven.version}")
     private String mavenVersion;
+
+    private static final Map<String, List<String>> TYPE_SUBPATHS = Map.of("adresse",
+            List.of("ligne1", "ligne2", "ligne3", "codePostal", "ville", "pays"), "adresseMc",
+            List.of("ligne1", "ligne2", "ligne3"), "iban", List.of("iban", "bic", "titulaire"), "telephone",
+            List.of("indicatif", "numero"));
 
     private static final String MODEL_PATH = "modelPaths";
 
@@ -75,12 +85,10 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             // on génère le noeud modelPaths
             JsonNode modelPaths = mapper.createObjectNode();
             ArrayNode marqueurs = mapper.createArrayNode();
-            ArrayNode rechercheAvancee = mapper.createArrayNode();
+            Map<String, String> rechercheAvancee = new HashMap<>();
             findPaths(configNode.get("recap"), marqueurs, rechercheAvancee);
             // le noeud marqueurs contient tous les chemins
             ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
-            // le noeud rechercheAvancee ne contient pas les chemins des tableaux
-            ((ObjectNode) modelPaths).put("rechercheAvancee", rechercheAvancee);
             ((ObjectNode) configNode).put("modelPaths", modelPaths);
             // on récupère la dernière config avant d'ajouter la nouvelle
             DemandeConfigBO lastConfig = getLastConfig();
@@ -94,6 +102,9 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             // on génère les marqueurs pour la nouvelle config
             marqueursService.copyOrGenerateMarqueurs(lastBuildId, buildId,
                     getModelPaths(configNode.get(MODEL_PATH).get("marqueurs")), configNode);
+
+            // on refresh les cat config et champ config (recherche avancée)
+            rechercheAdminService.refreshConfigs(configNode, rechercheAvancee);
         } else if (existingConfig.getVersion() != null && !existingConfig.getVersion().equals(mavenVersion)) {
             // si la config existe déjà, on met à jour la version avec la + récente si la version est différente
             existingConfig.setVersion(mavenVersion);
@@ -102,7 +113,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         return mapper.createObjectNode();
     }
 
-    private void findPaths(JsonNode recap, ArrayNode marqueurs, ArrayNode rechercheAvancee) {
+    private void findPaths(JsonNode recap, ArrayNode marqueurs, Map<String, String> rechercheAvancee) {
         List<JsonNode> champsNodes = recap.findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
@@ -110,7 +121,8 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
                 if (!type.equals("tableau")) {
                     String path = champ.get("path").asText();
                     addToPathByType(marqueurs, type, path);
-                    addToPathByType(rechercheAvancee, type, path);
+                    String label = champ.get("label").asText();
+                    addToPathByType(rechercheAvancee, type, path, label);
                 }
 
             }
@@ -128,38 +140,42 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         }
     }
 
-    private void addToPathByType(ArrayNode arrayNode, String type, String path) {
-        if (!path.isEmpty()) {
-            switch (type) {
-                case "adresse" -> {
-                    addToPath(arrayNode, path, "ligne1");
-                    addToPath(arrayNode, path, "ligne2");
-                    addToPath(arrayNode, path, "ligne3");
-                    addToPath(arrayNode, path, "codePostal");
-                    addToPath(arrayNode, path, "ville");
-                    addToPath(arrayNode, path, "pays");
-                }
-                case "adresseMc" -> {
-                    addToPath(arrayNode, path, "ligne1");
-                    addToPath(arrayNode, path, "ligne2");
-                    addToPath(arrayNode, path, "ligne3");
-                }
-                case "iban" -> {
-                    addToPath(arrayNode, path, "iban");
-                    addToPath(arrayNode, path, "bic");
-                    addToPath(arrayNode, path, "titulaire");
-                }
-                case "telephone" -> {
-                    addToPath(arrayNode, path, "indicatif");
-                    addToPath(arrayNode, path, "numero");
-                }
-                default -> arrayNode.add(path);
+    private void addToPathByType(Map<String, String> rechercheAvancee, String type, String path, String label) {
+        if (path.isEmpty()) {
+            return;
+        }
+
+        List<String> subPaths = TYPE_SUBPATHS.get(type);
+        if (subPaths != null) {
+            for (String sub : subPaths) {
+                rechercheAvancee.put(getCompletePath(path, sub), label + " - " + capitalize(sub));
             }
+        } else {
+            rechercheAvancee.put(path, label);
         }
     }
 
-    private void addToPath(ArrayNode arrayNode, String path, String suffixe) {
-        arrayNode.add(path + "." + suffixe);
+    private void addToPathByType(ArrayNode arrayNode, String type, String path) {
+        if (path.isEmpty()) {
+            return;
+        }
+
+        List<String> subPaths = TYPE_SUBPATHS.get(type);
+        if (subPaths != null) {
+            for (String sub : subPaths) {
+                arrayNode.add(getCompletePath(path, sub));
+            }
+        } else {
+            arrayNode.add(path);
+        }
+    }
+
+    private String capitalize(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
+    }
+
+    private String getCompletePath(String path, String suffixe) {
+        return path + "." + suffixe;
     }
 
     private void extractTableauNodes(JsonNode node, List<JsonNode> tableauNodes) {
@@ -190,12 +206,6 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             // utile notamment pour savoir si un brouillon est obsolète
             brouillonsService.updateBrouillonsBuildId(lastConfig.getBuildId(), newConfig.getBuildId());
         }
-    }
-
-    @Override
-    public List<String> getModelPathsRechercheAvancee() {
-        DemandeConfigBO configBO = demandesConfigRepository.findOneByBuildId(getLastBuildId());
-        return getModelPaths(configBO.getContenu().get(MODEL_PATH).get("rechercheAvancee"));
     }
 
     @Override

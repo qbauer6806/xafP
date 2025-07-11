@@ -250,4 +250,8 @@ public interface DemarchesDataProvider {
 
     default boolean purgerDonneesMonetiques() { return false; }
 
+    default String statutPaiementARegulariser() {
+        return "PAIEMENT_A_REGULARISER";
+    }
+
 }

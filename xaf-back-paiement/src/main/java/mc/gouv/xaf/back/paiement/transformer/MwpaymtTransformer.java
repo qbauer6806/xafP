@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.tranformer;
+package mc.gouv.xaf.back.paiement.transformer;
 
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;

@@ -1,7 +1,20 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
@@ -17,6 +30,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
@@ -46,53 +60,38 @@ import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
 import mc.gouv.xaf.back.paiement.service.kafka.PaymentTypeEnum;
-import mc.gouv.xaf.back.paiement.tranformer.MwpaymtTransformer;
+import mc.gouv.xaf.back.paiement.transformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
+import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
 import mc.gouv.xaf.shared.paiement.infofacturation.AdresseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.VousDTO;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
-import mc.gouv.xapi.error.exception.WebException;
-import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.net.URISyntaxException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import org.springframework.transaction.annotation.Transactional;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -172,6 +171,7 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private GUKafkaPaiementProducer guKafkaPaiementProducer;
+    private DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -274,7 +274,6 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             moyenPaiementBo.setPaymentMethodType("CARD");
             moyenPaiementBo.setEffectiveBrand(moyenPaiementInputDTO.getType());
-            // TODO mettre une condition sur l'état de la demande (EN_ATTENTE_PAIEMENT vs PAIEMENT_A_REGULARISER)
             // Changer la demande de status
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
@@ -413,7 +412,6 @@ public class PaiementServiceImpl implements PaiementService {
         CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
         commandeOperationRepository.save(operation);
         majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
-        // TODO partie kafka
         guKafkaPaiementProducer.sendAffichagePaiementMessage(usagerId.toString(), PaymentTypeEnum.DEMANDE,
                 moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit(),
                 operation.getMontant(), debit.getTransactionAction().getActionDebit().name(), "object",
@@ -490,7 +488,7 @@ public class PaiementServiceImpl implements PaiementService {
         DebitOutputDTO result = new DebitOutputDTO();
         TransactionActionDTO action = new TransactionActionDTO();
         action.setActionDebit(ActionDebitEnum.PENDING);
-        action.setDateDebit(null);
+        action.setDateDebit(LocalDateTime.now());
         result.setTransactionAction(action);
         return result;
     }
@@ -516,25 +514,36 @@ public class PaiementServiceImpl implements PaiementService {
                 historique.setDate(date);
                 historique.setUsagerId(usagerId);
                 paiementHistoriqueRepository.save(historique);
-                LOGGER.info("Progression dans le BPM...");
-                Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
-                        usagerId.toString());
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
-                gouvBPM.setProcessBusinessVariables(pkDemande, variables);
-
-                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
-                try {
-                    gouvBPM.claimTask(task, user);
-                    gouvBPM.completeTask(task, pkDemande);
-                } catch (Exception e1) {
-                    LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
-                    throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                // Si la demande doit etre débité, on déclenche un débit
+                if(demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
+                    debit(demande.getIdentifiant(), "00000", "test");
+                } else {
+                    // Sinon on la fait avancer dans le cycle de vie classiquement
+                    avancementCycleDeVie(pkDemande, usagerId, user);
                 }
             }
         });
         t.setName(UPDATE_PAIEMENT_DATA_THREAD + orderId);
         t.start();
+    }
+
+
+    private void avancementCycleDeVie(Integer pkDemande, Integer usagerId, GouvBPMUser user) {
+        LOGGER.info("Progression dans le BPM...");
+        Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
+                usagerId.toString());
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
+        gouvBPM.setProcessBusinessVariables(pkDemande, variables);
+
+        GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
+        try {
+            gouvBPM.claimTask(task, user);
+            gouvBPM.completeTask(task, pkDemande);
+        } catch (Exception e1) {
+            LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
+            throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande, String raisonSociale, String langue) {

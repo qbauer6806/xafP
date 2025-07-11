@@ -340,7 +340,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             bo.setLibelle(label);
             bo.setEditable(true);
             bo.setEnabled(true);
-            String categorieLibelle = findSectionTitleByPath(sections, path);
+            String categorieLibelle = HTMLEscapeUtils.escape(findSectionTitleByPath(sections, path));
             // Récupère l'entité existante depuis la BDD
             Integer catId = categories.stream().filter(c -> c.getLabel().equals(categorieLibelle))
                     .map(RechercheCategoryDTO::getId).findFirst().orElse(null);

@@ -303,7 +303,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             for (JsonNode section : sections) {
                 String titre = section.path("titre").asText(null);
                 if (titre != null) {
-                    if (existingLabels.add(titre)) { // add() retourne false si déjà présent
+                    String titreEscape = HTMLEscapeUtils.escape(titre);
+                    if (existingLabels.add(titreEscape)) { // add() retourne false si déjà présent
                         rechercheCatConfigRepository.save(new RechercheCatConfigBO(titre, true));
                     }
                 }

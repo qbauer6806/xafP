@@ -59,6 +59,7 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.demande.ICloneDemandExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
@@ -88,6 +89,7 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -221,6 +223,9 @@ public class DemandesServiceImpl implements DemandesService {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private List<ICloneDemandExtender> cloneDemandExtenders;
+
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String stringDate = dateFormat.format(new Date());
@@ -259,7 +264,7 @@ public class DemandesServiceImpl implements DemandesService {
             if (demande.getCanal() == null) {
                 throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
             }
-            
+
             LOGGER.info("Récupération en base de l'accès correspondant...");
             AccessBO accessBo = accessService.getAccessBOActive(demande.getUsagerId());
 
@@ -424,10 +429,12 @@ public class DemandesServiceImpl implements DemandesService {
                             enumValue = enumKey;
                         }
                     } else if (mapping.asText().equals("nationalites")) {
-                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getNationalite() : enumKey;
                     } else if (mapping.asText().equals("pays")) {
-                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
@@ -439,7 +446,8 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
-                String enumValue = StringUtils.isBlank(enumKey) ? ""
+                String enumValue = StringUtils.isBlank(enumKey)
+                        ? ""
                         : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
@@ -551,8 +559,7 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public Page<AfDemandeExcelFlatDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate,
-            Date endDate,
-            String statut) {
+            Date endDate, String statut) {
         Page<DemandeExportProjection> demandesPage;
         if (statut == null) {
             if (startDate != null && endDate != null) {
@@ -630,9 +637,7 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive) {
-
         LOGGER.debug(RECUPERATION_DEMANDE);
-
         Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
 
         // Gérer les accès désactivés
@@ -1000,52 +1005,46 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
+            DemandeBO originalDemandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
             LOGGER.info("Duplication de la demande...");
-            DemandeDTO demandeDto = demandesTransformer.bo2Dto(demandeBo);
-            DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
-            newDemandeBo.setFkAccess(demandeBo.getFkAccess());
-            newDemandeBo.setPkDemandes(null);
-            newDemandeBo.setRecapType(demandeBo.getRecapType());
-            newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
-            newDemandeBo.setConfig(demandeBo.getConfig());
-            newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
-            // #4840 Enlever l'affectation
-            newDemandeBo.setAgent(null);
-            newDemandeBo.setUsager(demandeBo.getUsager());
-            newDemandeBo = demandesRepository.save(newDemandeBo);
+            DemandeDTO demandeDto = demandesTransformer.bo2Dto(originalDemandeBo);
+            DemandeBO clonedDemandeBo = fillAndSaveDemandeToClone(demandeDto, originalDemandeBo);
 
             // Pièces jointes des demandes
-            demandesFilesService.clonerDesPiecesJointes(demandeBo, newDemandeBo);
+            demandesFilesService.clonerDesPiecesJointes(originalDemandeBo, clonedDemandeBo);
 
             // Demandes d'informations complémentaires des demandes
-            demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
+            demandesComplementsService.clonerDemandeComplements(originalDemandeBo, clonedDemandeBo);
 
             // Statuts des demandes
-            demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
+            demandesStatutsService.clonerStatuts(originalDemandeBo, clonedDemandeBo);
 
             // Data des demandes
-            demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
+            demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
 
             // Génération d'un nouvel identifiant de demande
             String identifiant = generatePublicID();
-            newDemandeBo.setIdentifiant(identifiant);
+            clonedDemandeBo.setIdentifiant(identifiant);
 
-            newDemandeBo = demandesRepository.save(newDemandeBo);
+            clonedDemandeBo = demandesRepository.save(clonedDemandeBo);
+
+            final var finalClonedDemandeBo = clonedDemandeBo; // lambda requires final variable
+            CollectionUtils.emptyIfNull(cloneDemandExtenders)
+                    .forEach(finalizer -> finalizer.applyCloneTreatment(originalDemandeBo, finalClonedDemandeBo));
 
             LOGGER.info("Duplication terminée");
 
             // On passe tous les demandes complements à repondue pour la demande dupliquée
             // cf #66472 - [INCIDENT] [BO] erreur 500 sur demande d'info comp sur une demande annulée et dupliquée
-            for (DemandesComplementsBO compl : newDemandeBo.getDemandesComplements()) {
+            for (DemandesComplementsBO compl : clonedDemandeBo.getDemandesComplements()) {
                 compl.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
                 demandesComplementsRepository.save(compl);
                 LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
                         compl.getPkDemandesComplements(), pkDemande);
             }
 
-            return demandesTransformer.bo2Dto(newDemandeBo);
+            return demandesTransformer.bo2Dto(clonedDemandeBo);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de cloneDemande");
             ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
@@ -1053,6 +1052,20 @@ public class DemandesServiceImpl implements DemandesService {
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private DemandeBO fillAndSaveDemandeToClone(DemandeDTO demandeDto, DemandeBO originalDemandeBO) {
+        DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
+        newDemandeBo.setFkAccess(originalDemandeBO.getFkAccess());
+        newDemandeBo.setPkDemandes(null);
+        newDemandeBo.setRecapType(originalDemandeBO.getRecapType());
+        newDemandeBo.setDonneesCertifiees(originalDemandeBO.getDonneesCertifiees());
+        newDemandeBo.setConfig(originalDemandeBO.getConfig());
+        newDemandeBo.setTypeConnexionUsager(originalDemandeBO.getTypeConnexionUsager());
+        // #4840 Enlever l'affectation
+        newDemandeBo.setAgent(null);
+        newDemandeBo.setUsager(originalDemandeBO.getUsager());
+        return demandesRepository.save(newDemandeBo);
     }
 
     @Override
@@ -1159,8 +1172,9 @@ public class DemandesServiceImpl implements DemandesService {
             List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(
-                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
+        return demandesTransformer.bo2Dto(
+                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
+                        dernierStatutDateFin, dernierStatutList));
 
     }
 

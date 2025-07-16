@@ -68,6 +68,7 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
@@ -208,7 +209,8 @@ public class AfApiService {
             brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId);
         }
 
-        createDemandeFinalizers.forEach(finalizer -> finalizer.finalizeDemandeCreation(demandeDto));
+        CollectionUtils.emptyIfNull(createDemandeFinalizers)
+                .forEach(finalizer -> finalizer.finalizeDemandeCreation(demandeDto));
 
         return demandeDto;
     }

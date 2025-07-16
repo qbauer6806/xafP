@@ -15,8 +15,8 @@ public class PaymentMethodInformationDTO {
     @NotNull
     private String paymentMethodToken;
     private String pan;
-    private String expiryMonth;
-    private String expiryYear;
+    private Integer expiryMonth;
+    private Integer expiryYear;
     private String effectiveBrand;
     private PaymentMethodStatusEnum paymentMethodStatus;
     private String creationDate;

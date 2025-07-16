@@ -263,7 +263,8 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO, String usagerToken) {
         // On retrouve le moyen de paiement associé à l'orderId
-        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.getReferenceById(moyenPaiementInputDTO.getReference());
+        MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.getReferenceById(
+                moyenPaiementInputDTO.getReference());
         moyenPaiementBo.setPaymentMethodName(moyenPaiementInputDTO.getCardName());
         if (moyenPaiementInputDTO.isNew()) {
             // On est dans le cas ou l'usager à coché la case "Sauvegarde du moyen de
@@ -271,8 +272,10 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setPaymentMethodRecord(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name());
         }
         // On est dans le cas ou l'usager a sélectionné un moyen de paiement existant sinon c'est le callback SPG qui nous fournira l'info
-        if(moyenPaiementInputDTO.getPaymentMethodToken() != null && !moyenPaiementInputDTO.getPaymentMethodToken().isEmpty()) {
-            MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
+        if (moyenPaiementInputDTO.getPaymentMethodToken() != null && !moyenPaiementInputDTO.getPaymentMethodToken()
+                .isEmpty()) {
+            MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(),
+                    usagerToken);
             InfoCancelInputDTO input = new InfoCancelInputDTO();
             input.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO info = mwpaymtApiClient.getInfo(
@@ -281,7 +284,8 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setPaymentMethodType("CARD");
             moyenPaiementBo.setEffectiveBrand(moyenPaiementInputDTO.getType());
             moyenPaiementBo.setPaymentMethodAccount(info.getPan());
-            moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(info.getExpiryMonth(), info.getExpiryYear()));
+            moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(Integer.valueOf(info.getExpiryMonth()),
+                    Integer.valueOf(info.getExpiryYear())));
             // Changer la demande de status
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());

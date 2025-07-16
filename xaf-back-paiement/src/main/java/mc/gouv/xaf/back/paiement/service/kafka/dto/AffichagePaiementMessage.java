@@ -36,7 +36,7 @@ public class AffichagePaiementMessage extends GUKafkaMessage {
     private String requestNumber;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime requestDate;
-    private String paymentMethodExpiryDate;
+    private String expiryDate;
     private String paymentMethodAccount;
     private String effectiveBrand;
     private String link;
@@ -60,7 +60,7 @@ public class AffichagePaiementMessage extends GUKafkaMessage {
         this.requestNumber = requestNumber;
         this.requestDate = requestDate;
         this.effectiveBrand = effectiveBrand;
-        this.paymentMethodExpiryDate = paymentMethodExpiryDate;
+        this.expiryDate = paymentMethodExpiryDate;
         this.paymentMethodAccount = paymentMethodAccount;
         this.link = link;
     }

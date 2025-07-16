@@ -1,10 +1,8 @@
-package mc.gouv.xaf.back.paiement.service.kafka.dto;
+package mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
-import java.time.LocalDateTime;
 
 /**
  * Sens : TS -> GU (topic ts-to-gichuni-payment)

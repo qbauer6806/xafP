@@ -27,6 +27,12 @@ public class MoyenPaiementDTO {
 
     private String paymentMethodToken;
 
+    private String effectiveBrand;
+
+    private String expiryDate;
+
+    private String paymentMethodAccount;
+
     private LocalDateTime cancellationDate;
 
     private String paymentMethodRecord;

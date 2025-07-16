@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
     private DemandesRepository demandesRepository;
 
     @Autowired
-    private GUKafkaPaiementProducer guKafkaPaiementProducer;
+    private GUKafkaProducer guKafkaProducer;
 
     @Override
     @Transactional
@@ -104,10 +105,10 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
             }
         }
         commandeRepository.deleteAll(commmandesToDelete);
-        // Suppression de l'historique de paiement dans Kafka et donc mon guichet
+        // Suppression de l'historique de paiement dans Kafka et donc dans le GU
         for (Integer pkDemande : pkDemandes) {
             demandesRepository.findById(pkDemande).ifPresent(demande -> {
-                guKafkaPaiementProducer.sendSuppressionPaiementMessage(demande.getIdentifiant(),
+                guKafkaProducer.sendSuppressionPaiementMessage(demande.getIdentifiant(),
                         String.valueOf(demande.getFkAccess().getUsagerId()));
             });
         }

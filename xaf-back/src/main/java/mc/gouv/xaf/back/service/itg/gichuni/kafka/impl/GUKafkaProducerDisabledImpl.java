@@ -57,4 +57,9 @@ public class GUKafkaProducerDisabledImpl implements GUKafkaProducer {
         LOGGER.info("sendCreationAccesTSMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
     }
 
+    @Override
+    public void sendSuppressionPaiementMessage(String usagerId, String requestNumber) {
+        LOGGER.info("sendSuppressionPaiementMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
+    }
+
 }

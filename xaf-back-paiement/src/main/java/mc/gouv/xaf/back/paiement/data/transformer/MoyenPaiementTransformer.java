@@ -22,6 +22,9 @@ public class MoyenPaiementTransformer {
         dto.setMoyenPaiementStatut(MoyenPaiementStatutTransformer.bo2String(bo.getMoyenPaiementStatut()));
         dto.setPaymentMethodType(bo.getPaymentMethodType());
         dto.setPaymentMethodToken(bo.getPaymentMethodToken());
+        dto.setEffectiveBrand(bo.getEffectiveBrand());
+        dto.setExpiryDate(bo.getExpiryDate());
+        dto.setPaymentMethodAccount(bo.getPaymentMethodAccount());
         dto.setCancellationDate(bo.getCancellationDate());
         dto.setPaymentMethodRecord(bo.getPaymentMethodRecord());
         dto.setPaymentMethodName(bo.getPaymentMethodName());
@@ -38,6 +41,9 @@ public class MoyenPaiementTransformer {
         bo.setMoyenPaiementStatut(MoyenPaiementStatutTransformer.string2Bo(dto.getMoyenPaiementStatut()));
         bo.setPaymentMethodType(dto.getPaymentMethodType());
         bo.setPaymentMethodToken(dto.getPaymentMethodToken());
+        bo.setEffectiveBrand(dto.getEffectiveBrand());
+        bo.setExpiryDate(dto.getExpiryDate());
+        bo.setPaymentMethodAccount(dto.getPaymentMethodAccount());
         bo.setCancellationDate(dto.getCancellationDate());
         bo.setPaymentMethodRecord(dto.getPaymentMethodRecord());
         bo.setPaymentMethodName(dto.getPaymentMethodName());

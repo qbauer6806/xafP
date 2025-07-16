@@ -535,6 +535,10 @@ public class AfApiService {
         if (!fromGU) {
             LOGGER.info("Envoi du message au Guichet Unique via Kafka (désinscription usager TS)...");
             guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
+            if(demarchesDataProvider.purgerDonneesMonetiques()) {
+                LOGGER.info("Envoi du message au Guichet Unique via Kafka (suppression paiement TS)...");
+                guKafkaProducer.sendSuppressionPaiementMessage(String.valueOf(usagerId), null);
+            }
         } else {
             LOGGER.info("Pas de message à envoyer au Guichet Unique via Kafka car la désinscription émane du GU");
         }

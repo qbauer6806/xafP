@@ -45,6 +45,10 @@ public class MoyenPaiementBO {
 
     private String effectiveBrand;
 
+    private String paymentMethodAccount;
+
+    private String expiryDate;
+
     private LocalDateTime cancellationDate;
 
     private String paymentMethodRecord;

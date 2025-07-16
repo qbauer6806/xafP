@@ -81,8 +81,9 @@ public class PaiementApiClient extends AfApiClient {
         ExceptionManager.checkExceptionResponse(res);
     }
 
-    public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO) {
-        Response res = getTarget().path("paiement/moyenpaiement").request(MediaType.APPLICATION_JSON)
+    public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO, String usagerToken) {
+        Response res = getTarget().path("paiement/moyenpaiement").queryParam("usagerToken", usagerToken)
+                .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.json(moyenPaiementInputDTO));
         ExceptionManager.checkExceptionResponse(res);

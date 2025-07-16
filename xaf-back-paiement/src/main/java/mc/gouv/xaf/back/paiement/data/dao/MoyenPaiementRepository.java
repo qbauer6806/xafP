@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import org.springframework.data.jpa.repository.Query;
 import java.util.Collection;
+import java.util.Optional;
 
 // On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre des '_'
 @SuppressWarnings("java:S100")

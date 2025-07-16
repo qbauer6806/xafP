@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -25,14 +24,12 @@ import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -145,23 +142,23 @@ public class PaiementApiController {
     }
 
     @PostMapping(value = "/moyenpaiement")
-    public void createMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
+    public void updateMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
             @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId, @RequestParam(value = "raisonSociale", required = false) String raisonSociale, @RequestParam(value = "langue", required = false) String langue) {
         paiementService.createMoyenPaiement(demandeIds, usager, orderId, raisonSociale, langue);
     }
 
-    @PostMapping(value = "/moyenpaiement/info")
-    public PaymentMethodInformationDTO getMoyenPaiement(@RequestBody InfoCancelInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
-       return paiementService.getMoyenPaiement(input, usagerToken);
+    @PutMapping(value = "/moyenpaiement")
+    public void updateMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInputDTO, @RequestParam(value = "usagerToken") String usagerToken) {
+        paiementService.updateMoyenPaiement(moyenPaiementInputDTO, usagerToken);
     }
 
-    @PutMapping(value = "/moyenpaiement")
-    public void createMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInputDTO) {
-        paiementService.updateMoyenPaiement(moyenPaiementInputDTO);
+    @PostMapping(value = "/moyenpaiement/info")
+    public PaymentMethodInformationDTO getMoyenPaiement(@RequestBody InfoCancelInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
+        return paiementService.getMoyenPaiement(input, usagerToken);
     }
 
     @PostMapping
-    public void updatePaiement(@RequestBody MwpaymtGenericCallbackDTO callbackDTO) {
+    public void callbackPaiement(@RequestBody MwpaymtGenericCallbackDTO callbackDTO) {
         paiementService.updatePaiementStatusAsync(callbackDTO);
     }
 

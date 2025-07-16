@@ -61,6 +61,7 @@ import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
 import mc.gouv.xaf.back.paiement.service.kafka.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.transformer.MwpaymtTransformer;
+import mc.gouv.xaf.back.paiement.utils.PaiementUtils;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
@@ -260,7 +261,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO) {
+    public void updateMoyenPaiement(MoyenPaiementInputDTO moyenPaiementInputDTO, String usagerToken) {
         // On retrouve le moyen de paiement associé à l'orderId
         MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.getReferenceById(moyenPaiementInputDTO.getReference());
         moyenPaiementBo.setPaymentMethodName(moyenPaiementInputDTO.getCardName());
@@ -271,9 +272,16 @@ public class PaiementServiceImpl implements PaiementService {
         }
         // On est dans le cas ou l'usager a sélectionné un moyen de paiement existant sinon c'est le callback SPG qui nous fournira l'info
         if(moyenPaiementInputDTO.getPaymentMethodToken() != null && !moyenPaiementInputDTO.getPaymentMethodToken().isEmpty()) {
+            MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
+            InfoCancelInputDTO input = new InfoCancelInputDTO();
+            input.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
+            mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO info = mwpaymtApiClient.getInfo(
+                    input);
             moyenPaiementBo.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             moyenPaiementBo.setPaymentMethodType("CARD");
             moyenPaiementBo.setEffectiveBrand(moyenPaiementInputDTO.getType());
+            moyenPaiementBo.setPaymentMethodAccount(info.getPan());
+            moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(info.getExpiryMonth(), info.getExpiryYear()));
             // Changer la demande de status
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
@@ -323,17 +331,22 @@ public class PaiementServiceImpl implements PaiementService {
                 MoyenPaiementStatutEnum.fromLibelle(paymentMethodInformation.getPaymentMethodStatus().name()));
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
         moyenPaiementBo.setEffectiveBrand(paymentMethodInformation.getEffectiveBrand());
+        moyenPaiementBo.setPaymentMethodAccount(paymentMethodInformation.getPan());
+        moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(paymentMethodInformation.getExpiryMonth(),
+                paymentMethodInformation.getExpiryYear()));
         if (moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandes(demandes, moyenPaiementBo.getPkMoyensPaiements());
-            if(moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord().equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
+            if (moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord()
+                    .equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
                 LOGGER.info("Sauvegarde du moyen de paiement dans mon guichet suite à un callback reçu de MWPAYMT");
                 ReferencePostOutputDTO referencePostOutputDTO = gichuniApiClient.saveReference(
                         paymentMethodInformation.getPaymentMethodType(),
                         paymentMethodInformation.getPaymentMethodToken(), moyenPaiementBo.getPaymentSupplier().name(),
-                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(), callbackDTO.getSub());
+                        gouvPropertiesResolver.getDemarcheId(), moyenPaiementBo.getPaymentMethodName(),
+                        callbackDTO.getSub());
             }
         }
         moyenPaiementRepository.save(moyenPaiementBo);
@@ -380,8 +393,8 @@ public class PaiementServiceImpl implements PaiementService {
         Integer pkDemandes = demandeBo.getPkDemandes();
         Optional<CommandeDemandeBO> latestCommandeForDemande = commandeDemandeRepository.findLatestCommandeForDemande(
                 pkDemandes);
-        CommandeDemandeBO commandeDemande = latestCommandeForDemande.orElseThrow(() ->
-                new EntityNotFoundException("Aucune commande trouvée pour la demande " + pkDemandes));
+        CommandeDemandeBO commandeDemande = latestCommandeForDemande.orElseThrow(
+                () -> new EntityNotFoundException("Aucune commande trouvée pour la demande " + pkDemandes));
         MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByDemande_PkDemandesAndLastCreationDate(pkDemandes);
         InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
                 moyenPaiement.getCommande().getPkCommandes());
@@ -402,20 +415,24 @@ public class PaiementServiceImpl implements PaiementService {
                 debit = createDebitPending();
             }
         } catch (Exception ex) {
-            LOGGER.info("Error lors de la demande de débit tenté pour la demande {}: {}", idTs , ex.getMessage());
+            LOGGER.info("Error lors de la demande de débit tenté pour la demande {}: {}", idTs, ex.getMessage());
             debit = createDebitEnEchec();
             CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
             commandeOperationRepository.save(operation);
-            majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
+            majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(),
+                    moyenPaiement, commandeDemande);
             return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
         }
         CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
         commandeOperationRepository.save(operation);
-        majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(), moyenPaiement, commandeDemande);
+        majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(),
+                moyenPaiement, commandeDemande);
         guKafkaPaiementProducer.sendAffichagePaiementMessage(usagerId.toString(), PaymentTypeEnum.DEMANDE,
                 moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit(),
                 operation.getMontant(), debit.getTransactionAction().getActionDebit().name(), "object",
                 demandeBo.getIdentifiant(), commandeDemande.getCommande().getDateCreation(),
+                moyenPaiement.getExpiryDate(), moyenPaiement.getPaymentMethodAccount(),
+                moyenPaiement.getEffectiveBrand(),
                 gouvPropertiesResolver.getFrontUrl() + "/demande_view.html?id=" + demandeBo.getPkDemandes());
         logEndMethod(LOGGER);
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
@@ -507,19 +524,33 @@ public class PaiementServiceImpl implements PaiementService {
                 PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
                 historique.setFkDemandes(demande);
                 if (usager != null) {
-                    historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom()
-                            + " : Enregistre sa carte bancaire");
+                    historique.setContenu(
+                            "Usager " + usager.getPrenom() + " " + usager.getNom() + " : Enregistre sa carte bancaire");
                 }
                 historique.setStatut(PaiementStatutEnum.CARTE_VALIDE.name());
                 historique.setDate(date);
                 historique.setUsagerId(usagerId);
                 paiementHistoriqueRepository.save(historique);
                 // Si la demande doit etre débité, on déclenche un débit
-                /*if(demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
+                /*if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
                     debit(demande.getIdentifiant(), "00000", "test");
                 } else {
                     // Sinon on la fait avancer dans le cycle de vie classiquement
-                    avancementCycleDeVie(pkDemande, usagerId, user);
+                    LOGGER.info("Progression dans le BPM...");
+                    Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
+                    variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
+                            usagerId.toString());
+                    variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
+                    gouvBPM.setProcessBusinessVariables(pkDemande, variables);
+
+                    GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
+                    try {
+                        gouvBPM.claimTask(task, user);
+                        gouvBPM.completeTask(task, pkDemande);
+                    } catch (Exception e1) {
+                        LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
+                        throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
                 }*/
                 LOGGER.info("Progression dans le BPM...");
                 Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
@@ -540,11 +571,6 @@ public class PaiementServiceImpl implements PaiementService {
         });
         t.setName(UPDATE_PAIEMENT_DATA_THREAD + orderId);
         t.start();
-    }
-
-
-    private void avancementCycleDeVie(Integer pkDemande, Integer usagerId, GouvBPMUser user) {
-
     }
 
     private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande, String raisonSociale, String langue) {
@@ -569,13 +595,6 @@ public class PaiementServiceImpl implements PaiementService {
                         HttpStatus.NOT_FOUND);
             }
             demandes.put(pkDemande, demandeBO);
-            // TODO Changer le moyen de récupérer le statut d'un paiement
-            // TODO à voir
-            //            DemandeDataDTO data = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
-            //            if (data != null && StringUtils.equals(data.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
-            //                throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
-            //            }
-
             var articlesDemande = montantService.getArticles(demandesTransformer.bo2Dto(demandeBO, new String[] {}));
             BigDecimal montantdemande = BigDecimal.ZERO;
             for (CommandeDemandeArticleBO article : articlesDemande) {

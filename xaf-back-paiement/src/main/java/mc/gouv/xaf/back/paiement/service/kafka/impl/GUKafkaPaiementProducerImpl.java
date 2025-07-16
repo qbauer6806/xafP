@@ -6,7 +6,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
 import mc.gouv.xaf.back.paiement.service.kafka.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.service.kafka.dto.AffichagePaiementMessage;
-import mc.gouv.xaf.back.paiement.service.kafka.dto.SuppressionPaiementMessage;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
@@ -41,24 +40,15 @@ public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
     @Override
     public void sendAffichagePaiementMessage(String userLegacyId,
             PaymentTypeEnum paymentType, String paymentMethodToken, LocalDateTime paymentDate, double paymentAmount,
-            String paymentStatus, String requestObject, String requestNumber, LocalDateTime requestDate, String link) {
+            String paymentStatus, String requestObject, String requestNumber, LocalDateTime requestDate, String paymentMethodExpiryDate, String paymentMethodAccount, String effectiveBrand, String link) {
         LOGGER.info(
                 "sendAffichagePaiementMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
         AffichagePaiementMessage apm = new AffichagePaiementMessage(gouvPropertiesResolver.getDemarcheId(),
                 userLegacyId, paymentType, paymentMethodToken, paymentDate, paymentAmount, paymentStatus, requestObject,
-                requestNumber, requestDate, link);
+                requestNumber, requestDate, paymentMethodExpiryDate, paymentMethodAccount, effectiveBrand, link);
         sendToOutbox(apm, userLegacyId, GUKafkaUtils.TS_TO_GU_PAYMENT_TOPIC);
     }
 
-    @Override
-    public void sendSuppressionPaiementMessage(String userLegacyId, String requestNumber) {
-        LOGGER.info(
-                "sendSuppressionPaiementMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        SuppressionPaiementMessage spm = new SuppressionPaiementMessage(gouvPropertiesResolver.getDemarcheId(),
-                userLegacyId, requestNumber);
-        sendToOutbox(spm, userLegacyId, GUKafkaUtils.TS_TO_GU_PAYMENT_TOPIC);
-
-    }
 
     private void sendToOutbox(GUKafkaMessage message, String key, String topic) {
         KafkaOutboxDTO dto = new KafkaOutboxDTO();

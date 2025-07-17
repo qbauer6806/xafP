@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.TachesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -8,34 +10,28 @@ import mc.gouv.xaf.back.data.transformer.TachesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.TachesService;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.TacheDTO;
 import mc.gouv.xaf.shared.enums.StatutTachesEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author mboutelier.ext
  */
-@Component
-@Transactional(rollbackFor = Exception.class)
-public class TachesServiceImpl implements TachesService {
+@Transactional(rollbackFor = Exception.class, readOnly = true)
+public abstract class AbstractTachesServiceImpl implements TachesService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TachesServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTachesServiceImpl.class);
 
-    @Autowired
-    protected TachesRepository tachesRepository;
+    protected final TachesRepository tachesRepository;
+    protected final DemandesRepository demandesRepository;
 
-    @Autowired
-    protected DemandesRepository demandesRepository;
+    protected AbstractTachesServiceImpl(TachesRepository tachesRepository, DemandesRepository demandesRepository) {
+        this.tachesRepository = tachesRepository;
+        this.demandesRepository = demandesRepository;
+    }
 
     /**
      * {@inheritDoc}
@@ -66,6 +62,7 @@ public class TachesServiceImpl implements TachesService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public TacheDTO saveOrUpdate(TacheDTO toSave) {
         // Vérification préalable de l'existence de la demande
         Optional<DemandeBO> demandesBoOptional = demandesRepository.findById(toSave.getFkDemande());
@@ -94,14 +91,8 @@ public class TachesServiceImpl implements TachesService {
     /**
      * {@inheritDoc}
      */
-    public List<TacheDTO> creerListeDeTaches(DemandeDTO demande) {
-        return new ArrayList<>();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
+    @Transactional
     public void updateTachesPourRetourGuichet(Integer pkDemandes) {
         // Vérification préalable de l'existence de la demande
         Optional<DemandeBO> demandesBoOptional = demandesRepository.findById(pkDemandes);
@@ -129,6 +120,7 @@ public class TachesServiceImpl implements TachesService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void updateTachesLock(Integer pkDemandes) {
         LOGGER.info("Bloquage des tâches validées et refusées...");
         tachesRepository.updateTachesLock(pkDemandes);
@@ -138,6 +130,7 @@ public class TachesServiceImpl implements TachesService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void deleteTaches(Integer pkDemande) {
         LOGGER.info("Purge des tâches liées à la demande : {}...", pkDemande);
         tachesRepository.deleteByDemande_PkDemandes(pkDemande);

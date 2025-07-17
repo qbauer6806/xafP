@@ -195,7 +195,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     public List<RechercheCategoryDTO> getCategories() {
         return rechercheCatConfigRepository.findAll().stream()
                 .map(cat -> new RechercheCategoryDTO(cat.getId(), HTMLEscapeUtils.escape(cat.getLibelle()),
-                        cat.isEditable())).collect(Collectors.toList());
+                        cat.isEditable())).toList();
     }
 
     @Override

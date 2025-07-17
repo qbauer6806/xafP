@@ -560,14 +560,14 @@ public class AfBackUtils {
     /**
      * Utilisé dans certains exports excel
      */
-    public static String choixMultipleToString(final ArrayList<String> choixMultiple) {
+    public static String choixMultipleToString(final List<String> choixMultiple) {
         return String.join(", ", choixMultiple);
     }
 
     /**
      * Utilisé dans certains exports excel
      */
-    public static String tableauToString(final ArrayList<Map<String, String>> tableau, final String marqueur) {
+    public static String tableauToString(final List<Map<String, String>> tableau, final String marqueur) {
         return tableau.stream().map(map -> map.get(marqueur)) // extrait la valeur associée à la clé "marqueur"
                 .filter(Objects::nonNull)      // ignore les valeurs nulles
                 .collect(Collectors.joining(", "));

@@ -21,6 +21,7 @@ import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ public class RelancesUtils {
                 });
                 relances = listFromDb.stream().map(ZonedDateTime::parse).toList();
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                throw new DemarcheException(e);
             }
             if (nbMaxRelances > 0 && relances.size() >= nbMaxRelances) {
                 return false; // trop de relances déjà faites

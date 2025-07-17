@@ -1045,7 +1045,7 @@ public class DemandesServiceImpl implements DemandesService {
                         compl.getPkDemandesComplements(), pkDemande);
             }
             // On supprime DATES_RELANCES_KEY si la demande d'origine a été annulée pendant une relance
-            demandesDataService.deleteDemandeData(newDemandeBo.getPkDemandes(), RelancesUtils.DATES_RELANCES_KEY);
+            demandesDataService.deleteDemandeData(clonedDemandeBo.getPkDemandes(), RelancesUtils.DATES_RELANCES_KEY);
 
             return demandesTransformer.bo2Dto(clonedDemandeBo);
         } catch (Exception e) {

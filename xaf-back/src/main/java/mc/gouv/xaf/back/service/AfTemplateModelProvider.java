@@ -85,9 +85,15 @@ public class AfTemplateModelProvider {
             String defaultMailTitre = demande.getLangue().equals("fr")
                     ? SharedMessages.DEFAULT_TITRE_MAIL_FR
                     : SharedMessages.DEFAULT_TITRE_MAIL_EN;
+
             String titre = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
                     Locale.of(demande.getLangue())) : defaultMailTitre;
+
+            String titreFr = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
+                    Locale.FRENCH) : SharedMessages.DEFAULT_TITRE_MAIL_FR;
+
             model.put("titre", titre);
+            model.put("titreFr", titreFr);
 
             if (!StringUtils.isBlank(codeMotif) && !"null".equals(codeMotif)) {
                 MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");

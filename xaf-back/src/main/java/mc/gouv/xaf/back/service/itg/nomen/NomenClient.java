@@ -16,7 +16,7 @@ import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
  */
 public class NomenClient extends ApiClient {
 
-    public static final String SMS_PATH = "nomenclatures";
+    public static final String NOMEN_PATH = "nomenclatures";
 
     public static final String VALEUR_PATH = "/valeurs";
 
@@ -33,7 +33,8 @@ public class NomenClient extends ApiClient {
     }
 
     public NomenNomenclatureDTO getNomenclature(String identifiant) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH).request(MediaType.APPLICATION_JSON)
+        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH)
+                .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
@@ -42,7 +43,7 @@ public class NomenClient extends ApiClient {
     }
 
     public NomenNomenclatureDTO getNomenclatureAvecLocale(String identifiant, String locale) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurLangue", locale)
+        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurLangue", locale)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
@@ -52,7 +53,7 @@ public class NomenClient extends ApiClient {
     }
 
     public NomenNomenclatureDTO getNomenclatureValeur(String identifiant, String valeur) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurCode", valeur)
+        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurCode", valeur)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
@@ -62,7 +63,7 @@ public class NomenClient extends ApiClient {
     }
 
     public NomenNomenclatureDTO getNomenclatureValeurAvecLocale(String identifiant, String valeur, String locale) {
-        Response res = getTarget().path(SMS_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurCode", valeur)
+        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurCode", valeur)
                 .queryParam("valeurLangue", locale).request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 

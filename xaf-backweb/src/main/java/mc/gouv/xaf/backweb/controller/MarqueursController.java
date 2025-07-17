@@ -84,15 +84,17 @@ public class MarqueursController extends AbstractController {
             configDTOS.add(configDTO);
         }
 
-        String currentBuildId = buildId != null ? buildId : configs.getFirst().getBuildId();
+        if (!configs.isEmpty()) {
+            String currentBuildId = buildId != null ? buildId : configs.getFirst().getBuildId();
 
-        List<String> chemins = demandesConfigService.getModelPathsMarqueurs(currentBuildId);
-        List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(currentBuildId);
+            List<String> chemins = demandesConfigService.getModelPathsMarqueurs(currentBuildId);
+            List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(currentBuildId);
 
-        mav.addObject("marqueurs", marqueurs);
-        mav.addObject("chemins", chemins);
-        mav.addObject("configs", configDTOS);
-        mav.addObject("buildId", currentBuildId);
+            mav.addObject("marqueurs", marqueurs);
+            mav.addObject("chemins", chemins);
+            mav.addObject("configs", configDTOS);
+            mav.addObject("buildId", currentBuildId);
+        }
 
         LOGGER.info("======================= Fin /marqueurs");
 

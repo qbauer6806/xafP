@@ -93,7 +93,7 @@ public class AfApiController {
         LOGGER.info("AbstractAfApiController.updateDemande({}, {}, {})", demandeId, demande, usagerId);
         DemandeDTO demandeDTO = afApiService.updateDemande(demandeId, demande, usagerId);
         demandesTransformer.hideInfos(demandeDTO);
-        return null;
+        return demandeDTO;
     }
 
     @PutMapping(value = "/demandes/{demandeId}/lock")

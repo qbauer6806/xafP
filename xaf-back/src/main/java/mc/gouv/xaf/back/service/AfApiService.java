@@ -63,6 +63,7 @@ import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -101,7 +102,6 @@ public class AfApiService implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
-    private static final String DEMANDE_DEJA_RELANCEE_KEY = "DEMANDE_DEJA_RELANCEE";
 
     @Autowired
     private GouvBPM gouvBPM;
@@ -328,7 +328,7 @@ public class AfApiService implements AfApi {
                     statut.getName());
             demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
 
-            demandesDataService.deleteDemandeData(demandeId, DEMANDE_DEJA_RELANCEE_KEY);
+            demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
 
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
@@ -408,7 +408,7 @@ public class AfApiService implements AfApi {
                 usagerId, agentId, assigneeId);
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
-        demandesDataService.deleteDemandeData(demandeId, DEMANDE_DEJA_RELANCEE_KEY);
+        demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
 
         return demandeComplementsDto;
     }

@@ -207,7 +207,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public void updateFichiers(DemandeBO demandeBo, DemandeFileDTO[] fichiers) {
-        demandesFilesRepository.deleteAll(demandeBo.getFiles());
+        // on supprime uniquement les fichiers front (on ne veut pas supprimer justifs ou autre après une rectification)
+        demandesFilesRepository.deleteAll(getFichiersUsager(demandeBo));
         demandeBo.getFiles().clear();
         // Mise à jour des pièces jointes
         if (fichiers != null && fichiers.length > 0) {

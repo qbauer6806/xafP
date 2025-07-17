@@ -15,6 +15,8 @@ public interface PdfRecapGenerationService {
 
     void generateAndStorePdf(DemandeDTO demande) throws IOException;
 
+    void generateAndStorePdf(DemandeDTO demande, boolean overwrite) throws IOException;
+
     void generateAndStorePdf(DemandeDTO demande, File file) throws IOException;
 
     File generatePdf(DemandeDTO demande);

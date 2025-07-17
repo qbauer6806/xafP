@@ -28,8 +28,8 @@ import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -266,7 +266,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
         emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
-        Map<String, Object> model = afBackUtils.getGenericModelMail();
+        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelMail();
         model.put("demandes", demandesAPurger);
         model.put("delai", delai);
 

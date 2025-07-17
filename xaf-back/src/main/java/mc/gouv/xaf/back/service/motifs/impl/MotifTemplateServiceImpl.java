@@ -8,7 +8,6 @@ import java.util.Map;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.motifs.MotifsTemplateModelProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +32,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     private MotifsCache motifsCache;
 
     @Autowired
-    private MotifsTemplateModelProvider motifsTemplateModelProvider;
+    private AfMotifsTemplateModelProvider afMotifsTemplateModelProvider;
 
     private ToolManager manager = new ToolManager();
 
@@ -59,7 +58,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     }
 
     public List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) {
-        Map<String, Object> motifsModel = motifsTemplateModelProvider.getModel(demande);
+        Map<String, Object> motifsModel = afMotifsTemplateModelProvider.getModel(demande);
         List<MotifDTO> motifListPopulated = motifList;
 
         // If a model is provided, create a new list and provide the populated motifs

@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.itg.sms.SmsDTO;
-import mc.gouv.xaf.back.service.itg.sms.SmsInfoDTO;
-import mc.gouv.xaf.back.service.itg.sms.SmsParamDTO;
 import mc.gouv.xaf.back.service.itg.sms.SmsService;
 import mc.gouv.xaf.back.service.itg.sms.SmsTransformer;
+import mc.gouv.xaf.back.service.itg.sms.dto.SmsDTO;
+import mc.gouv.xaf.back.service.itg.sms.dto.SmsInfoDTO;
+import mc.gouv.xaf.back.service.itg.sms.dto.SmsParamDTO;
 import mc.gouv.xaf.back.service.templates.SmsTemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.SmsTemplateDTO;

@@ -72,10 +72,12 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.pdf.impl.AfPdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
+import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -99,6 +101,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -203,7 +206,8 @@ public class DemandesServiceImpl implements DemandesService {
     private AfExcelExportModelProvider excelExportModelProvider;
 
     @Autowired
-    private AfBackUtils afBackUtils;
+    @Lazy
+    private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
 
     @Autowired
     private MotifsCache motifsCache;
@@ -719,7 +723,7 @@ public class DemandesServiceImpl implements DemandesService {
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
             IContext context = report.createContext();
-            for (Entry<String, Object> entry : afBackUtils.getGenericModelPdf(demande).entrySet()) {
+            for (Entry<String, Object> entry : afPdfTemplateAndModelProvider.getGenericModelPdf(demande).entrySet()) {
                 context.put(entry.getKey(), entry.getValue());
             }
             context.put("demande", demande);
@@ -763,9 +767,9 @@ public class DemandesServiceImpl implements DemandesService {
             PDFMergerUtility mergerUtility = new PDFMergerUtility();
 
             // Ajouter les PDFs des URLs
-            for (DemandeFileDTO file : demandeFilesCategorizer.fichiersAdministration(demande.getFichiers())) {
+            for (DemandeFileDTO file : demandeFilesCategorizer.fichiersFront(demande.getFichiers())) {
                 try (InputStream inputStream = fileService.getFile(
-                        gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/"
+                        gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId()
                                 + file.getUrl()); PDDocument urlPdf = Loader.loadPDF(inputStream.readAllBytes())) {
                     mergerUtility.appendDocument(mainDocument, urlPdf);
                 }
@@ -1017,9 +1021,6 @@ public class DemandesServiceImpl implements DemandesService {
             // Demandes d'informations complémentaires des demandes
             demandesComplementsService.clonerDemandeComplements(originalDemandeBo, clonedDemandeBo);
 
-            // Statuts des demandes
-            demandesStatutsService.clonerStatuts(originalDemandeBo, clonedDemandeBo);
-
             // Data des demandes
             demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
 
@@ -1043,6 +1044,8 @@ public class DemandesServiceImpl implements DemandesService {
                 LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
                         compl.getPkDemandesComplements(), pkDemande);
             }
+            // On supprime DATES_RELANCES_KEY si la demande d'origine a été annulée pendant une relance
+            demandesDataService.deleteDemandeData(newDemandeBo.getPkDemandes(), RelancesUtils.DATES_RELANCES_KEY);
 
             return demandesTransformer.bo2Dto(clonedDemandeBo);
         } catch (Exception e) {

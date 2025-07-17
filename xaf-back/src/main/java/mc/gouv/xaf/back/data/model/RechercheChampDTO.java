@@ -22,10 +22,6 @@ public class RechercheChampDTO {
     private boolean enabled = true;
     private boolean editable;
 
-    public RechercheChampDTO(String name) {
-        this.name = name;
-    }
-
     public RechercheChampDTO() {
         // Constructeur par défaut requis pour la désérialisation
     }

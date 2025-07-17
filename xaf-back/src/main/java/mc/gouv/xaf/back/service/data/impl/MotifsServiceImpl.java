@@ -33,7 +33,7 @@ public class MotifsServiceImpl implements MotifsService {
     private MotifsRepository motifsRepository;
 
     private MotifBO getMotifBO(Integer pkMotif) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, pkMotif);
         MotifBO motifBo = motifsRepository.findByPkMotifs(pkMotif);
         if (motifBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
@@ -101,6 +101,7 @@ public class MotifsServiceImpl implements MotifsService {
         motifBo.setLangue(motif.getLangue());
         motifBo.setLibelle(motif.getLibelle());
         motifBo.setStatut(motif.getStatut());
+        motifBo.setStatutCourant(motif.getStatutCourant());
         motifBo.setCommentairePrerempli(motif.getCommentairePrerempli());
         motifBo.setCode(motif.getCode());
         // Seul l'appel DELETE permet l'inscription d'une DATE_ARCHIVE

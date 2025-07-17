@@ -113,7 +113,7 @@ public class AccessServiceImpl implements AccessService {
      */
     @Override
     public AccessDTO getAccessActive(Integer usagerId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, usagerId);
         AccessBO bo = getAccessBOActive(usagerId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return AccessTransformer.bo2Dto(bo);
@@ -125,7 +125,7 @@ public class AccessServiceImpl implements AccessService {
     @Override
     public AccessDTO getAccess(Integer pkAccess) {
 
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, pkAccess);
 
         Optional<AccessBO> boOp = getAccessBO(pkAccess);
 
@@ -185,7 +185,7 @@ public class AccessServiceImpl implements AccessService {
      */
     @Override
     public void deleteAccess(Integer usagerId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, usagerId);
         AccessDTO dto = getAccessActive(usagerId);
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         AccessBO bo = AccessTransformer.dto2Bo(dto);

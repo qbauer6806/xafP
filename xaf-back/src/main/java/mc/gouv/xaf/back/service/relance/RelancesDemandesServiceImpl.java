@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.service.relance;
 
 import java.util.List;
 import java.util.Map;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;

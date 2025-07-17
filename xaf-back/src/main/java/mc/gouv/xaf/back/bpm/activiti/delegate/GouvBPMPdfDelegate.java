@@ -37,6 +37,8 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
     @Setter
     private Expression pdfTypeCodeExpr;
 
+    @Getter
+    @Setter
     private Expression meta;
 
     @Override

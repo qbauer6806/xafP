@@ -50,7 +50,7 @@ public class RelancesDemandesSchedulingJob implements Job {
                 relanceDemandesService.sendRelancesMail(confRelances);
             } else {
                 LOGGER.info(
-                        "RAPPEL COURRIEL: La fonctionnalité de la rappel des courriels est désactivée, changez la propriété XAF_RAPPEL_ACTIVATION pour activer.");
+                        "RAPPEL COURRIEL: La fonctionnalité de le relance est désactivée, changez la propriété XAF_RAPPEL_ACTIVATION pour activer.");
             }
         } catch (Exception e) {
             LOGGER.error("Erreur lors du rappel des demandes", e);

@@ -25,7 +25,8 @@ var makePreviewCall = function (form, successCallback) {
   });
 };
 
-var makePdfPreviewCall = function (form, pdfType, successCallback) {
+var makePdfPreviewCall = function (form, pdfType, successCallback,
+    mailPreview) {
   var token = $("meta[name='_csrf']").attr("content");
   var header = $("meta[name='_csrf_header']").attr("content");
 
@@ -50,7 +51,7 @@ var makePdfPreviewCall = function (form, pdfType, successCallback) {
       xhr.setRequestHeader(header, token);
     },
     success: function (data) {
-      successCallback(data, form, pdfType)
+      successCallback(data, form, pdfType, mailPreview)
     }
   });
 };

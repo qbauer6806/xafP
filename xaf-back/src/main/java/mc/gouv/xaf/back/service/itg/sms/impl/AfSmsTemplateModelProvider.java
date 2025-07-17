@@ -26,7 +26,7 @@ public class AfSmsTemplateModelProvider extends AfTemplateModelProvider {
             Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
         LOGGER.info("Construction du modèle pour le template (demandeId= {} ...", demande.getPkDemandes());
 
-        Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, bpmVariables);
+        Map<String, Object> model = getGenericModelDemandeMailSms(demande, codeMotif, commentaire, bpmVariables);
         smsTemplateModelProvider.setModel(model, bodyTemplateCode, bpmVariables);
 
         return model;

@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import mc.gouv.file.shared.dto.FileBatchDTO;
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
@@ -38,6 +36,8 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanDTO;
+import mc.gouv.xaf.shared.dto.vscan.ScanRequestDTO;
 import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -112,30 +112,30 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
-        LOGGER.info("FileService.getFile({}, {})", filename, containerId);
+        LOGGER.info("Début FileService.getFile({}, {})", filename, containerId);
         String accountId = gouvPropertiesResolver.getDemarcheId();
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
-        LOGGER.info("FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+        LOGGER.info("Fin FileClient.getFile({}, {}, {})", accountId, containerId, filename);
         afBackUtils.getFileClient().getFile(accountId, containerId, filename, response);
     }
 
     @Override
     public InputStream getFile(String filename, String containerId) throws IOException {
-        LOGGER.info("FileService.getFile({}, {})", filename, containerId);
+        LOGGER.info("Début FileService.getFile({}, {})", filename, containerId);
         String accountId = gouvPropertiesResolver.getDemarcheId();
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
         InputStream is = afBackUtils.getFileClient().getFile(accountId, containerId, filename);
-        LOGGER.info("FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+        LOGGER.info("Fin FileClient.getFile({}, {}, {})", accountId, containerId, filename);
         return is;
     }
 
     @Override
     public InputStream getFile(String url) throws IOException {
-        LOGGER.info("FileService.getFile({})", url);
+        LOGGER.info("Début FileService.getFile({})", url);
         InputStream is = afBackUtils.getFileClient().getFile(url);
-        LOGGER.info("FileClient.getFile({})", url);
+        LOGGER.info("Fin FileClient.getFile({})", url);
         return is;
     }
 
@@ -197,11 +197,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
+    public String sendToFile(File tempFile, DemandeDTO demande, String fileName, boolean isPdf) throws IOException {
         LOGGER.info("Stockage du PDF généré dans FILE...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         FileInputStream fis = new FileInputStream(tempFile);
-        String url = saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis,
+        String contentType = isPdf
+                ? "application/pdf"
+                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        String url = saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), contentType, fis,
                 output);
         output.close();
         fis.close();
@@ -347,7 +350,7 @@ public class FileServiceImpl implements FileService {
                 new InputStreamBody(file.getInputStream(), ContentType.create(file.getContentType()), file.getName()));
         ScanRequestDTO scanRequest = new ScanRequestDTO();
         scanRequest.setCodeAppli(gouvPropertiesResolver.getDemarcheId());
-        scanRequest.setFilename(file.getName());
+        scanRequest.setFileName(file.getName());
         scanRequest.setEnduserAppModule(file.getName().toLowerCase() + "-frontserver");
 
         String scanRequestStr = mapper.writeValueAsString(scanRequest);

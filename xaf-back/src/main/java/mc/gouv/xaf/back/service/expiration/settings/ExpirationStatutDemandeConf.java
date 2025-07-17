@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.expiration.settings;
 
+import lombok.Getter;
+import lombok.Setter;
 import java.io.Serializable;
 
 /**
@@ -10,6 +12,8 @@ import java.io.Serializable;
  *
  * @author XDECOOL.EXT
  */
+@Setter
+@Getter
 public class ExpirationStatutDemandeConf implements Serializable {
 
     private static final long serialVersionUID = 6972884327194347877L;
@@ -20,30 +24,6 @@ public class ExpirationStatutDemandeConf implements Serializable {
     public ExpirationStatutDemandeConf(String statutAExpirer, String cleDelaiExpiration, String clefMailPrefix) {
         this.statutAExpirer = statutAExpirer;
         this.cleDelaiExpiration = cleDelaiExpiration;
-        this.clefMailPrefix = clefMailPrefix;
-    }
-
-    public String getStatutAExpirer() {
-        return statutAExpirer;
-    }
-
-    public void setStatutAExpirer(String statutAExpirer) {
-        this.statutAExpirer = statutAExpirer;
-    }
-
-    public String getCleDelaiExpiration() {
-        return cleDelaiExpiration;
-    }
-
-    public void setCleDelaiExpiration(String cleDelaiExpiration) {
-        this.cleDelaiExpiration = cleDelaiExpiration;
-    }
-
-    public String getClefMailPrefix() {
-        return clefMailPrefix;
-    }
-
-    public void setClefMailPrefix(String clefMailPrefix) {
         this.clefMailPrefix = clefMailPrefix;
     }
 

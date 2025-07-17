@@ -1,33 +1,41 @@
 package mc.gouv.xaf.back.service.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import java.util.Optional;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class RelancesUtils {
 
     public static final String NB_JOURS_AVANT_EXPIRATION_KEY = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
 
-    private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
+    public static final String DATES_RELANCES_KEY = "DATES_RELANCES";
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
     private DemandesDataService demandesDataService;
@@ -45,46 +53,62 @@ public class RelancesUtils {
 
     public void setRelanceDate(DemandeDTO demande) {
         try {
-            demandesDataService.saveOrUpdateDemandeData(demande.getPkDemandes(), DEMANDE_IC_DEJA_RELANCEE_KEY,
-                    ZonedDateTime.now().toString());
+            DemandeDataDTO data = Optional.ofNullable(demande.getData()).stream().flatMap(Arrays::stream)
+                    .filter(d -> StringUtils.equals(DATES_RELANCES_KEY, d.getKey())).findFirst().orElse(null);
+
+            List<String> dates;
+            if (data == null) {
+                dates = List.of(ZonedDateTime.now().toString());
+            } else {
+                dates = MAPPER.readValue(data.getValue(), new TypeReference<>() {
+
+                });
+                dates.add(ZonedDateTime.now().toString());
+            }
+            demandesDataService.saveOrUpdateDemandeData(demande.getPkDemandes(), DATES_RELANCES_KEY,
+                    MAPPER.writeValueAsString(dates));
         } catch (Exception e) {
             LOGGER.error("Erreur lors de demandesDataService.saveOrUpdateDemandeData()", e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * mc.gouv.rescart.service.ExpirationICService#isEligiblePourUnMailDeRelance(mc.
-     * gouv.xaf.shared.dto.DemandeDTO)
-     *
-     * Méthode définissant si la demande doit faire l'objet d'une relance avant
-     * expiration Si la demande a passé le délai paramétré et que cela fait 1
-     * semaine qu'elle a été relancée on renvoi un mail
-     *
-     */
-    public boolean isEligiblePourUnMailDeRelance(DemandeDTO demande, Integer intervalleEntreDeuxRelance) {
-        DemandeDataDTO demandeData = demandesDataService.getDemandeData(demande.getPkDemandes(),
-                DEMANDE_IC_DEJA_RELANCEE_KEY);
-        // Si on a deja relancé
-        if (demandeData != null) {
-            // Si on n'a pas spécifié d'intervalle entre 2 relances, on envoie rien
-            if (intervalleEntreDeuxRelance == null) {
-                return false;
+    public boolean isEligiblePourUnMailDeRelance(DemandeDTO demande, Integer nbJoursAvantPremiereRelance,
+            Integer nbJoursEntreDeuxRelances, Integer nbMaxRelances) {
+
+        ZonedDateTime dateDernierStatut = demande.getDernierStatut().getDate().toInstant()
+                .atZone(ZoneId.systemDefault());
+
+        // Historique des dates de relance déjà faites
+        DemandeDataDTO data = Optional.ofNullable(demande.getData()).stream().flatMap(Arrays::stream)
+                .filter(d -> StringUtils.equals(DATES_RELANCES_KEY, d.getKey())).findFirst().orElse(null);
+
+        ZonedDateTime maintenant = ZonedDateTime.now();
+
+        if (data == null || data.getValue() == null) {
+            // Aucune relance encore faite → on vérifie le délai depuis le statut initial
+            long joursDepuisStatut = ChronoUnit.DAYS.between(dateDernierStatut, maintenant);
+            return joursDepuisStatut >= nbJoursAvantPremiereRelance;
+        } else {
+            // Il y a déjà eu des relances
+            List<ZonedDateTime> relances;
+            try {
+                List<String> listFromDb = MAPPER.readValue(data.getValue(), new TypeReference<>() {
+
+                });
+                relances = listFromDb.stream().map(ZonedDateTime::parse).toList();
+            } catch (JsonProcessingException e) {
+                throw new DemarcheException(e);
             }
-            ZonedDateTime now = ZonedDateTime.now();
-            ZonedDateTime dateDerniereRelance = ZonedDateTime.parse(demandeData.getValue());
-            // On enlève l'interval entre 2 relances et on compare à la date de la dernière relance
-            ZonedDateTime xDaysBetweenLastRelance = now.plusDays(-intervalleEntreDeuxRelance);
-            boolean isEligibleMailRelance = dateDerniereRelance.toInstant()
-                    .isBefore(xDaysBetweenLastRelance.toInstant());
-            if (!isEligibleMailRelance) {
-                return false;
+            if (nbMaxRelances > 0 && relances.size() >= nbMaxRelances) {
+                return false; // trop de relances déjà faites
             }
+
+            // Date de la dernière relance
+            ZonedDateTime derniereRelance = relances.stream().max(Comparator.naturalOrder()).orElse(dateDernierStatut);
+
+            long joursDepuisDerniereRelance = ChronoUnit.DAYS.between(derniereRelance, maintenant);
+            return joursDepuisDerniereRelance >= nbJoursEntreDeuxRelances;
         }
-        // Si on a jamais relancé ou que la demande doit être relancée (ie l'interval entre 2 relances est dépassé) on relance
-        return true;
     }
 
     public EmailInfoDTO creationMailUsager(String bodyTemplateCode, String subjectTemplateCode, String langue) {
@@ -105,21 +129,22 @@ public class RelancesUtils {
     }
 
     public String getExpirationTime(DemandeDTO demande, String key) {
-        PropertiesDTO prop = propertiesService.getProperty(key);
-        int nbJoursAvantExpiration = 0;
-        if (prop != null) {
-            nbJoursAvantExpiration = Integer.parseInt(prop.getValue());
+        String propValue = Optional.ofNullable(propertiesService.getProperty(key)).map(PropertiesDTO::getValue)
+                .orElse("0");
+
+        int nbJoursAvantExpiration;
+        try {
+            nbJoursAvantExpiration = Integer.parseInt(propValue);
+        } catch (NumberFormatException e) {
+            nbJoursAvantExpiration = 0;
         }
-        Date dateStatutEnAttenteIC = demande.getDernierStatut().getDate();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateStatutEnAttenteIC);
-        cal.add(Calendar.DATE, nbJoursAvantExpiration);
-        Date dateExpiration = cal.getTime();
-        Date currentDate = new Date();
-        Long dateExpirationTime = dateExpiration.getTime();
-        Long currentDateTime = currentDate.getTime();
-        long diff = dateExpirationTime - currentDateTime;
-        long days = TimeUnit.MILLISECONDS.toDays(diff);
+
+        LocalDate dateStatut = demande.getDernierStatut().getDate().toInstant().atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate dateExpiration = dateStatut.plusDays(nbJoursAvantExpiration);
+        long days = ChronoUnit.DAYS.between(LocalDate.now(), dateExpiration);
+
         return String.valueOf(days);
     }
 
@@ -127,26 +152,21 @@ public class RelancesUtils {
         Map<DemandeDTO, String> result = new HashMap<>();
         for (RelanceStatutDemandeConf relanceDemandeSetting : relanceDemandeSettings) {
             String currentStatut = relanceDemandeSetting.getStatutARelancer();
-            int nbJoursAvantRelance = Integer.parseInt(
+            int nbJoursAvantPremiereRelance = Integer.parseInt(
                     propertiesService.getProperty(relanceDemandeSetting.getCleDelaiAvantPremiereRelance()).getValue());
-            String delaiEntreDeuxRelancesString = relanceDemandeSetting.getCleDelaiEntreDeuxRelances();
-            Integer delaiEntreDauxRelances = null;
-            if (delaiEntreDeuxRelancesString != null) {
-                delaiEntreDauxRelances = Integer.parseInt(
-                        propertiesService.getProperty(delaiEntreDeuxRelancesString).getValue());
+            String cleDelaiEntreDeuxRelances = relanceDemandeSetting.getCleDelaiEntreDeuxRelances();
+            Integer nbJoursEntreDeuxRelances = null;
+            if (cleDelaiEntreDeuxRelances != null) {
+                nbJoursEntreDeuxRelances = Integer.parseInt(
+                        propertiesService.getProperty(cleDelaiEntreDeuxRelances).getValue());
             }
             // On va chercher toutes les demandes dans le status à expirer
             List<DemandeDTO> demandeDTOList = demandesService.getAllDemandesFilteredByStatut(currentStatut);
             if (null != demandeDTOList && !demandeDTOList.isEmpty()) {
                 for (DemandeDTO demandeDTO : demandeDTOList) {
-                    // On récupère la date a laquelle la demande est passée dans son statut à relancer
-                    Date datePassageStatutARelancer = demandeDTO.getDernierStatut().getDate();
-                    ZonedDateTime xDaysAgoForRelance = ZonedDateTime.now().plusDays(-nbJoursAvantRelance);
-                    boolean olderThanXDaysForRelance = datePassageStatutARelancer.toInstant()
-                            .isBefore(xDaysAgoForRelance.toInstant());
-                    if (isEligiblePourUnMailDeRelance(demandeDTO, delaiEntreDauxRelances) && olderThanXDaysForRelance) {
-                        // On associe ces demandes au code mail à envoyer si elle est sont éligibles à
-                        // une relance
+                    if (isEligiblePourUnMailDeRelance(demandeDTO, nbJoursAvantPremiereRelance, nbJoursEntreDeuxRelances,
+                            relanceDemandeSetting.getNbMaxRelances())) {
+                        // On associe ces demandes au code mail à envoyer si elle est sont éligibles à une relance
                         result.put(demandeDTO, relanceDemandeSetting.getClefMailPrefix());
                     }
                 }

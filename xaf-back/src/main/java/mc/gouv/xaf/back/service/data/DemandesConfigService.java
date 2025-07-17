@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface DemandesConfigService {
 
-    List<String> getModelPathsRechercheAvancee();
-
     List<String> getModelPathsMarqueurs(String buildId);
 
     List<DemandeConfigBO> getConfigsBO();

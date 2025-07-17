@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
 
     private static final String JUSTIFICATIF_DEMANDE = "JUSTIFICATIF_DEMANDE";
+    private static final String JUSTIFICATIF_DEMANDE_FRONT = "FRONT_JUSTIFICATIF_DEMANDE";
     private static final String XAF_SECTIONS_FICHIERS_DEMANDE = "XAF_SECTIONS_FICHIERS_DEMANDE";
 
     @Autowired
@@ -128,6 +129,19 @@ public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
         if (demandeFiles != null) {
             for (DemandeFileDTO file : demandeFiles) {
                 if (!StringUtils.isBlank(file.getMeta()) && file.getMeta().contains(JUSTIFICATIF_DEMANDE)) {
+                    files.add(file);
+                }
+            }
+        }
+        return files;
+    }
+
+    @Override
+    public List<DemandeFileDTO> fichiersFront(DemandeFileDTO[] demandeFiles) {
+        List<DemandeFileDTO> files = new ArrayList<>();
+        if (demandeFiles != null) {
+            for (DemandeFileDTO file : demandeFiles) {
+                if (!StringUtils.isBlank(file.getMeta()) && file.getMeta().contains(JUSTIFICATIF_DEMANDE_FRONT)) {
                     files.add(file);
                 }
             }

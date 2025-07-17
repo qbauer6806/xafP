@@ -7,7 +7,7 @@ import jakarta.ws.rs.core.Response;
 import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.client.ApiClient;
 import mc.gouv.xaf.apiclient.exception.ExceptionManager;
-import mc.gouv.xaf.back.service.itg.sms.SmsDTO;
+import mc.gouv.xaf.back.service.itg.sms.dto.SmsDTO;
 
 /**
  * Classe cliente permettant d'appeler l'API SMS

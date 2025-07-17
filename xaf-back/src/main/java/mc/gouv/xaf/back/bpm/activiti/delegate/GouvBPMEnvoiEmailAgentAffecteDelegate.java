@@ -7,8 +7,8 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -55,6 +55,10 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
     @Getter
     private Expression emailSubjectTemplateCode;
 
+    @Setter
+    @Getter
+    private Expression emailTemplateCode;
+
     private Expression copieAuService;
 
     @Override
@@ -62,8 +66,9 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
 
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT AFFECTÉ ...");
 
-        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String bodyTemplateCode = mailService.getEmailBodyTemplate(emailBodyTemplateCode, emailTemplateCode, execution);
+        String subjectTemplateCode = mailService.getEmailSubjectTemplate(emailSubjectTemplateCode, emailTemplateCode,
+                execution);
         String copieAuServiceStr = null;
         if (copieAuService != null) {
             copieAuServiceStr = (String) copieAuService.getValue(execution);

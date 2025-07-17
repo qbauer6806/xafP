@@ -38,7 +38,7 @@ public abstract class AbstractTachesServiceImpl implements TachesService {
      */
     @Override
     public TacheDTO getTacheByID(Integer pkTaches) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, pkTaches);
         Optional<TacheBO> tacheBO = tachesRepository.findById(pkTaches);
         if (tacheBO.isEmpty()) {
             throw new DemarchesServiceException("La tâche spécifiée est introuvable", HttpStatus.NOT_FOUND);
@@ -52,7 +52,7 @@ public abstract class AbstractTachesServiceImpl implements TachesService {
      */
     @Override
     public List<TacheDTO> getTachesByDemandeID(Integer demandeId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, demandeId);
         List<TacheBO> tachesBOS = tachesRepository.findByPkDemandes(demandeId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TachesTransformer.bos2Dtos(tachesBOS);

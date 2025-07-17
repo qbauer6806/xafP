@@ -80,6 +80,8 @@ public class DemandeExportController extends AbstractController {
         model.put("demandes", demandesService.retrieveDemandesLazy(excelRecherche.getCreationStartDate(),
                 excelRecherche.getCreationEndDate(), excelRecherche.getStatut()));
 
+        model.put("Utils", AfBackUtils.class);
+
         LOGGER.info("Fin DemandeExportController.getModel()");
 
         return model;

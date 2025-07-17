@@ -1,19 +1,7 @@
 package mc.gouv.xaf.back.config;
 
-import java.text.SimpleDateFormat;
-
-import org.activiti.compatibility.spring.DefaultFlowable5SpringCompatibilityHandler;
-import org.flowable.spring.SpringProcessEngineConfiguration;
-import org.flowable.spring.boot.EngineConfigurationConfigurer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-
 import jakarta.annotation.PostConstruct;
+import java.text.SimpleDateFormat;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.nomen.impl.PaysCacheDataProvider;
@@ -21,6 +9,13 @@ import mc.gouv.xaf.back.service.itg.nomen.impl.PaysCacheImpl;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheDataProvider;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 /**
  * Classe de configuration
@@ -63,16 +58,6 @@ public class AfBackConfig {
         SimpleDateFormat iso8601DateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         builder.dateFormat(iso8601DateFormat);
         return builder;
-    }
-
-    @Bean
-    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableFlowable5CompatibilityConfigurer() {
-        return (SpringProcessEngineConfiguration processEngineConfiguration) -> {
-            processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
-            processEngineConfiguration
-                    .setFlowable5CompatibilityHandlerFactory(DefaultFlowable5SpringCompatibilityHandler::new);
-        };
-
     }
 
 }

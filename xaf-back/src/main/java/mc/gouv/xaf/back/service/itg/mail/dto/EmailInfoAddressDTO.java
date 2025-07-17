@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.service.itg.mail;
+package mc.gouv.xaf.back.service.itg.mail.dto;
 
 /**
  * Modélise une adresse à être utilisée pour le MailService d'AfBack

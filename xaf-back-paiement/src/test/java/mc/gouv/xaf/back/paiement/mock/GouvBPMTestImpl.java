@@ -115,14 +115,7 @@ public class GouvBPMTestImpl implements GouvBPM {
     }
 
     @Override
-    public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire,
-            String statutAnnulation) {
-
-    }
-
-    @Override
-    public void reponseRectification(Integer pkDemande, Integer usagerId)
-            throws TaskAlreadyClaimedException, IOException, SAXException {
+    public void reponseRectification(Integer pkDemande, Integer usagerId) {
 
     }
 

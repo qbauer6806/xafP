@@ -32,9 +32,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -76,7 +78,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
@@ -199,9 +200,6 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private PaysCache paysCache;
-
-    @Value("${mc.gouv.gichuni.front.url}")
-    private String gichuniFrontUrl;
 
     private AfApiClient afApiClient2Tiers = null;
 
@@ -557,6 +555,22 @@ public class AfBackUtils {
             return "";
         }
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
+    }
+
+    /**
+     * Utilisé dans certains exports excel
+     */
+    public static String choixMultipleToString(final List<String> choixMultiple) {
+        return String.join(", ", choixMultiple);
+    }
+
+    /**
+     * Utilisé dans certains exports excel
+     */
+    public static String tableauToString(final List<Map<String, String>> tableau, final String marqueur) {
+        return tableau.stream().map(map -> map.get(marqueur)) // extrait la valeur associée à la clé "marqueur"
+                .filter(Objects::nonNull)      // ignore les valeurs nulles
+                .collect(Collectors.joining(", "));
     }
 
     public static String changeDateStringFormat(final String dateString) {
@@ -1106,43 +1120,6 @@ public class AfBackUtils {
             return commentaire;
         }
         return commentaire.replaceAll("\\r?\\n", "<br/>");
-    }
-
-    public Map<String, Object> getGenericModelMail(DemandeDTO demandeDTO) {
-        Map<String, Object> map = getGenericModelMail();
-        map.put("identifiant", demandeDTO.getIdentifiant());
-        return map;
-    }
-
-    public Map<String, Object> getGenericModelMail() {
-        Map<String, Object> model = new HashMap<>();
-        DemarcheDTO demarcheInfos = getDemarcheInfos();
-        model.put("nomTs", demarcheInfos.getNom());
-        model.put("nomTsEn", demarcheInfos.getNomEn());
-        model.put("nomDirection", demarcheInfos.getNomDirection());
-        model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
-        model.put("nomFooter", demarcheInfos.getNomFooter());
-        model.put("emailService", demarcheInfos.getEmailService());
-        model.put("adresseService", demarcheInfos.getAdresseService());
-        model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
-        model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
-        model.put("telephoneService", demarcheInfos.getTelephoneService());
-        model.put("nomDirectionEn", demarcheInfos.getNomDirectionEn());
-        model.put("nomSousDirectionEn", demarcheInfos.getNomSousDirectionEn());
-        model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
-        model.put("urlBack", gouvPropertiesResolver.getBackUrl());
-        model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-        model.put("urlFicheDemarcheFr", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_FR").getValue());
-        model.put("urlFicheDemarcheEn", propertiesService.getProperty("XAF_FICHE_DEMARCHE_URL_EN").getValue());
-        model.put("gichuniFrontUrl", gichuniFrontUrl);
-        return model;
-    }
-
-    public Map<String, Object> getGenericModelPdf(DemandeDTO demandeDTO) {
-        Map<String, Object> map = getGenericModelMail(demandeDTO);
-        map.put("adresseService",
-                StringUtils.replace(getDemarcheInfos().getAdresseService(), "<br/>", System.lineSeparator()));
-        return map;
     }
 
 }

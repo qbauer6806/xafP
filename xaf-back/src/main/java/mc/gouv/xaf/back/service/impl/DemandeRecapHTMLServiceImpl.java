@@ -1,9 +1,5 @@
 package mc.gouv.xaf.back.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +8,25 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.HtmlUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -26,18 +41,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une demande.
@@ -197,15 +200,26 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 ? Arrays.asList(demande.getDonneesCertifiees())
                 : new ArrayList<>();
 
+        JsonNode contenuSource = null;
+        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            // récupérer le contenu de la demandeInitial et traduire
+            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
+            demandesService.setContenuTrad(contenuSource, demande.getConfig());
+        } else if (demande.getPkDemandeSource() != null) {
+            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
+            contenuSource = d != null ? d.getContenuTrad() : null;
+        }
+
         JSONArray sections = (JSONArray) jsonParser.parse(sectionsNode.toString());
         for (Object o : sections) {
             JSONObject section = (JSONObject) o;
             String sectionType = (String) section.get("type");
 
             if (!StringUtils.equals(sectionType, "sousSections")) {
-                generateSectionHTML(html, section, sectionType, demande, isPdfRecap, donneesCertifiees);
+                generateSectionHTML(html, section, sectionType, demande, isPdfRecap, donneesCertifiees, contenuSource);
             } else {
-                generateSectionAndSousSection(html, section, sectionType, demande, isPdfRecap, donneesCertifiees);
+                generateSectionAndSousSection(html, section, sectionType, demande, isPdfRecap, donneesCertifiees,
+                        contenuSource);
             }
         }
 
@@ -269,10 +283,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private void generateSectionHTML(StringBuilder html, JSONObject section, String sectionType, DemandeDTO demande,
-            boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees)
+            boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees, JsonNode contenuSource)
             throws IllegalArgumentException, SecurityException {
 
-        String firstLevel = getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees);
+        String firstLevel = getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees,
+                contenuSource);
         if (StringUtils.isNotBlank(firstLevel)) {
             html.append("<div class=\"sectiondemande\"><h3>").append(section.get("titre")).append("</h3><dl>");
             html.append(firstLevel);
@@ -288,13 +303,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private void generateSectionAndSousSection(StringBuilder html, JSONObject section, String sectionType,
-            DemandeDTO demande, boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees)
+            DemandeDTO demande, boolean isPdfRecap, List<SourceFiableDTO> donneesCertifiees, JsonNode contenuSource)
             throws IllegalArgumentException, SecurityException {
 
         JSONArray sousSections = (JSONArray) section.get("sousSections");
         if (sousSections.toArray().length > 0) {
             StringBuilder sousSectionBuilder = new StringBuilder();
-            sousSectionBuilder.append(getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees));
+            sousSectionBuilder.append(
+                    getFirstLevelHTML(demande, sectionType, section, isPdfRecap, donneesCertifiees, contenuSource));
             for (Object sousSection : sousSections.toArray()) {
                 String sousSectionType = (String) ((JSONObject) sousSection).get("type");
                 String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
@@ -305,7 +321,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                         ? "<span style='display:grid'>" + introHtml + SPAN_CLOSE
                         : "");
                 String firstLevel = getFirstLevelHTML(demande, sousSectionType, (JSONObject) sousSection, isPdfRecap,
-                        donneesCertifiees);
+                        donneesCertifiees, contenuSource);
                 if (StringUtils.isNotBlank(firstLevel)) {
                     sousSectionBuilder.append(firstLevel);
                 }
@@ -320,17 +336,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private String getFirstLevelHTML(DemandeDTO demande, String sectionType, JSONObject section, boolean isPdfRecap,
-            List<SourceFiableDTO> donneesCertifiees) throws IllegalArgumentException, SecurityException {
-        JsonNode contenuSource = null;
-
-        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            // récupérer le contenu de la demandeInitial et traduire
-            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
-            demandesService.setContenuTrad(contenuSource, demande.getConfig());
-        } else if (demande.getPkDemandeSource() != null) {
-            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
-            contenuSource = d != null ? d.getContenuTrad() : null;
-        }
+            List<SourceFiableDTO> donneesCertifiees, JsonNode contenuSource)
+            throws IllegalArgumentException, SecurityException {
 
         // On créé un nouveau SB de façon à ne pas générer la section si aucune donnée n'est renseignée.
         StringBuilder html = new StringBuilder();
@@ -530,7 +537,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, isPdfRecap, true,
                             donneesCertifiees);
                     String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true, donneesCertifiees);
-                    this.completeTd(html, valueSource, value);
+                    this.completeTd(html, valueSource, value, isPdfRecap);
                 }
                 html.append(CLOSING_TR);
             }
@@ -544,10 +551,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 for (Object column : columns.toArray()) {
                     String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true,
                             new ArrayList<>());
-                    html.append("<td onclick=\"switchTS()\"class='nouvelledonnee-contenu'>")
+                    html.append("<td onclick=\"switchTS()\" class='nouvelledonnee-contenu'>")
                             .append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
-                    html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
-                            .append(CLOSING_TD);
+                    if (!isPdfRecap) {
+                        html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
+                                .append(CLOSING_TD);
+                    }
                 }
                 html.append(CLOSING_TR);
             }
@@ -555,7 +564,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         html.append("</tbody></table></dd>");
     }
 
-    private void completeTd(StringBuilder html, String valueSource, String value) {
+    private void completeTd(StringBuilder html, String valueSource, String value, boolean isPdfRecap) {
         if (!value.equalsIgnoreCase(valueSource)) {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
@@ -563,9 +572,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             String newValue = StringUtils.isNoneBlank(value) ? value : "";
             html.append("<td  onclick=\"switchTS()\" class='nouvelledonnee-contenu'>").append(newValue)
                     .append(CLOSING_TD);
-            String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
-            html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource)
-                    .append(CLOSING_TD);
+            if (!isPdfRecap) {
+                String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
+                html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource)
+                        .append(CLOSING_TD);
+            }
         } else {
             html.append("<td>").append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
         }

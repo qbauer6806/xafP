@@ -45,6 +45,10 @@ public class MotifBO {
     @Size(min = 1, max = 64)
     private String statut;
 
+    @Column(name = "STATUT_COURANT", length = 64)
+    @Size(min = 1, max = 64)
+    private String statutCourant;
+
     @Column(name = "LANGUE", length = 2, nullable = false)
     @NotBlank
     @Size(min = 1, max = 2)

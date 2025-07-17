@@ -70,6 +70,7 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
+import mc.gouv.xaf.back.service.keycloak.KeycloakTokenService;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -172,7 +173,12 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private GUKafkaPaiementProducer guKafkaPaiementProducer;
+
+    @Autowired
     private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
+    private KeycloakTokenService keycloakTokenService;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -230,7 +236,6 @@ public class PaiementServiceImpl implements PaiementService {
         result.setRaisonSociale(usager.getRaisonSociale());
         result.setSaveRaisonSociale(true);
         result.setProfilType(usager.getType().getValue());
-
         return result;
     }
 
@@ -536,8 +541,8 @@ public class PaiementServiceImpl implements PaiementService {
                 historique.setUsagerId(usagerId);
                 paiementHistoriqueRepository.save(historique);
                 // Si la demande doit etre débité, on déclenche un débit
-                /*if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
-                    debit(demande.getIdentifiant(), "00000", "test");
+                if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
+                    debit(demande.getIdentifiant(), "00000", keycloakTokenService.getAccessToken());
                 } else {
                     // Sinon on la fait avancer dans le cycle de vie classiquement
                     LOGGER.info("Progression dans le BPM...");
@@ -555,8 +560,8 @@ public class PaiementServiceImpl implements PaiementService {
                         LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
                         throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
                     }
-                }*/
-                LOGGER.info("Progression dans le BPM...");
+                }
+                /*LOGGER.info("Progression dans le BPM...");
                 Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
                 variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
                         usagerId.toString());
@@ -570,7 +575,7 @@ public class PaiementServiceImpl implements PaiementService {
                 } catch (Exception e1) {
                     LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
                     throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+                }*/
             }
         });
         t.setName(UPDATE_PAIEMENT_DATA_THREAD + orderId);

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +49,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     @Override
     public List<RechercheChampDTO> getRechercheChamps() {
         // On récupère les catégories pour classer les propriétés
-        List<RechercheCategoryDTO> categories = getCategories();
-        Collections.sort(categories);
+        List<RechercheCategoryDTO> categories = getCategories().stream().sorted().toList();
 
         List<RechercheChampDTO> rechercheChampDTOS = new ArrayList<>();
 

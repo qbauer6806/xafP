@@ -91,7 +91,6 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -228,7 +227,7 @@ public class DemandesServiceImpl implements DemandesService {
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    private List<ICloneDemandExtender> cloneDemandExtenders;
+    private Optional<ICloneDemandExtender> cloneDemandExtenders;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -1031,8 +1030,8 @@ public class DemandesServiceImpl implements DemandesService {
             clonedDemandeBo = demandesRepository.save(clonedDemandeBo);
 
             final var finalClonedDemandeBo = clonedDemandeBo; // lambda requires final variable
-            CollectionUtils.emptyIfNull(cloneDemandExtenders)
-                    .forEach(finalizer -> finalizer.applyCloneTreatment(originalDemandeBo, finalClonedDemandeBo));
+            cloneDemandExtenders.ifPresent(
+                    finalizer -> finalizer.applyCloneTreatment(originalDemandeBo, finalClonedDemandeBo));
 
             LOGGER.info("Duplication terminée");
 

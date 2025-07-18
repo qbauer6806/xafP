@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import mc.gouv.file.shared.dto.FileResponseDTO;
 import mc.gouv.xaf.back.bpm.GouvBPM;
@@ -75,7 +76,6 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
@@ -174,7 +174,7 @@ public class AfApiService implements AfApi {
     private PaysCache paysCache;
 
     @Autowired
-    private List<ICreateDemandeFinalizer> createDemandeFinalizers;
+    private Optional<ICreateDemandeFinalizer> createDemandeFinalizers;
 
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -219,10 +219,7 @@ public class AfApiService implements AfApi {
             LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
             brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId);
         }
-
-        CollectionUtils.emptyIfNull(createDemandeFinalizers)
-                .forEach(finalizer -> finalizer.finalizeDemandeCreation(demandeDto));
-
+        createDemandeFinalizers.ifPresent(finalizer -> finalizer.finalizeDemandeCreation(demandeDto));
         return demandeDto;
     }
 

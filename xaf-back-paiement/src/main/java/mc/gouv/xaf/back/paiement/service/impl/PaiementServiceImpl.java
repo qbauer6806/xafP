@@ -472,7 +472,7 @@ public class PaiementServiceImpl implements PaiementService {
             historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
             state = "DEBIT_REALISE";
             action = "Débit réalisé avec succès";
-        } else {
+        } else if (actionDebit.equals(ActionDebitEnum.FAILURE)) {
             historique.setContenu("Système - Débit en échec");
             state = "DEBIT_ECHEC";
             action = "Débit en échec. Demande de paiement envoyée";
@@ -500,10 +500,13 @@ public class PaiementServiceImpl implements PaiementService {
         switch (debit.getTransactionAction().getActionDebit()) {
             case SUCCESS:
                 operation.setOperationStatut(OperationStatutEnum.SUCCES);
+                break;
             case PENDING:
                 operation.setOperationStatut(OperationStatutEnum.EN_ATTENTE);
+                break;
             case FAILURE:
                 operation.setOperationStatut(OperationStatutEnum.ECHEC);
+                break;
         }
         operation.setMontant(commandeDemande.getMontant());
         return operation;

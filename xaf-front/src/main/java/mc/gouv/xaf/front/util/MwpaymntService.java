@@ -1,11 +1,13 @@
 package mc.gouv.xaf.front.util;
 
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationCategoryEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
+import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -36,8 +38,7 @@ public class MwpaymntService {
         // Transaction Information
         TransactionInformationDTO transactionInformation = new TransactionInformationDTO();
         transactionInformation.setMetadatakey("Téléservice");
-        // TODO réfléchir à l'avoir en paramètre pour identifier l'appelant
-        transactionInformation.setMetadatavalue("RESCART");
+        transactionInformation.setMetadatavalue(gouvPropertiesResolver.getDemarcheId().toUpperCase());
         transactionInformation.setOrderId(generateOrderId(gouvPropertiesResolver.getDemarcheId()));
         registerInputDTO.setTransactionInformation(transactionInformation);
 
@@ -45,7 +46,8 @@ public class MwpaymntService {
         UserInformationDTO userInformation = new UserInformationDTO();
         userInformation.setSub(usagerInfosDTO.getSub());
         userInformation.setAddress1(usagerInfosDTO.getAdresse1());
-        userInformation.setCategory("PRIVATE");
+        userInformation.setCategory(usagerInfosDTO.getType().equals(UsagerTypeEnum.INDIVIDUAL) ? UserInformationCategoryEnum.PRIVATE.name()
+                : UserInformationCategoryEnum.COMPANY.name());
         userInformation.setCity(usagerInfosDTO.getVille());
         userInformation.setCountry(usagerInfosDTO.getPaysCode());
         userInformation.setEmail(usagerInfosDTO.getEmail());
@@ -72,7 +74,6 @@ public class MwpaymntService {
         currentMoyenPaiement.setExpiration(calculateExpiration(pmi.getExpiryMonth(),
                 pmi.getExpiryYear()));
         currentMoyenPaiement.setNom(moyenPaiementName);
-        // TODO allé chercher ce nom dans mon guichet
         currentMoyenPaiement.setId(pmi.getPaymentMethodToken());
         return currentMoyenPaiement;
     }
@@ -95,7 +96,6 @@ public class MwpaymntService {
     public InfoPaiementOutputDTO mwpaymtRegisterResponseToInfoPaiementOutputDTO(RegisterOutputDTO mwpaymtResponse) {
         InfoPaiementOutputDTO paiementOutputDTO = new InfoPaiementOutputDTO();
         paiementOutputDTO.setReference(mwpaymtResponse.getOrderId());
-        //TODO pas de valeur fixe
         paiementOutputDTO.setStatus("SUCCESS");
         paiementOutputDTO.setAnswer(new AnswerDTO(mwpaymtResponse.getFormToken()));
         return paiementOutputDTO;

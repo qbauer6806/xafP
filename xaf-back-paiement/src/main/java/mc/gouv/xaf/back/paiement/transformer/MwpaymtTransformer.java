@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.transformer;
 
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationCategoryEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
@@ -23,21 +24,18 @@ public class MwpaymtTransformer {
         DebitInputDTO mwpaymtDebitDTO = new DebitInputDTO();
 
         // User information (ie les info de facturation)
-        // TODO faire un UserInformationTransformer
         UserInformationDTO userInformation = new UserInformationDTO();
         //userInformation.setSub(null);
         userInformation.setAddress1(infoFacturation.getAdresseLigne1());
-        userInformation.setCategory(infoFacturation.getRaisonSociale() != null ? "COMPANY" : "PRIVATE");
+        userInformation.setCategory(infoFacturation.getRaisonSociale() != null
+                ? UserInformationCategoryEnum.COMPANY.name()
+                : UserInformationCategoryEnum.PRIVATE.name());
         userInformation.setCity(infoFacturation.getVille());
         userInformation.setCountry(infoFacturation.getPays());
         userInformation.setEmail(infoFacturation.getEmail());
         userInformation.setFirstName(infoFacturation.getPrenom());
         userInformation.setLastName(infoFacturation.getNom());
         userInformation.setLegalName(infoFacturation.getRaisonSociale());
-        userInformation.setTitle(
-                TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle() != null
-                        ? TitreUsagerEnum.valueOf("TITRE_" + infoFacturation.getCivilite().toString()).getLibelle()
-                        : "");
         userInformation.setZipCode(infoFacturation.getCodePostal());
         userInformation.setLanguage(infoFacturation.getLangue() != null ? infoFacturation.getLangue() : "FR");
         mwpaymtDebitDTO.setUserInformation(userInformation);

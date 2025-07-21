@@ -327,8 +327,8 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public void updatePaiementStatus(MwpaymtGenericCallbackDTO callbackDTO) {
         LOGGER.info("Mise à jour du status de paiement suite à un callback reçu de MWPAYMT");
-        // On retrouve le moyen de paiement associé à l'orderId
 
+        // On retrouve le moyen de paiement associé à l'orderId
         MoyenPaiementBO moyenPaiementBo = moyenPaiementRepository.findById(callbackDTO.getOrderId()).orElseThrow(
                 () -> new DemarchesServiceException("Aucun orderId " + callbackDTO.getOrderId() + " n'a été trouvé.",
                         HttpStatus.NOT_FOUND));
@@ -372,7 +372,6 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken) {
         logStartMethod(LOGGER);
-        LOGGER.info("URL du mwpamt : {}", gouvPropertiesResolver.getMwpaymtUrl());
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
         return mwpaymtApiClient.getToken(input);
     }

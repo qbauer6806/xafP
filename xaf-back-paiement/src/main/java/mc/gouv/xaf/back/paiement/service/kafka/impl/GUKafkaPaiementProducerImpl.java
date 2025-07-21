@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
-import mc.gouv.xaf.back.paiement.service.kafka.PaymentTypeEnum;
+import mc.gouv.xaf.back.paiement.service.kafka.dto.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.service.kafka.dto.AffichagePaiementMessage;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;

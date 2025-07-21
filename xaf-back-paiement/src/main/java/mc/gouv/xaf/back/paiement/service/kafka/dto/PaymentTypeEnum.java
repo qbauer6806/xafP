@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.service.kafka;
+package mc.gouv.xaf.back.paiement.service.kafka.dto;
 
 public enum PaymentTypeEnum {
 

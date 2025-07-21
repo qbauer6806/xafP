@@ -58,6 +58,17 @@ public class MwpaymtTransformer {
     public DebitDTO debitOutputDTOToDebitDTO(DebitOutputDTO output) {
         DebitDTO debitDTO = new DebitDTO();
         debitDTO.setStatut(output.getTransactionAction().getActionDebit().equals(ActionDebitEnum.SUCCESS) ? StatutDebitEnum.PAID : StatutDebitEnum.UNPAID);
+        switch (output.getTransactionAction().getActionDebit()) {
+            case SUCCESS:
+                debitDTO.setStatut(StatutDebitEnum.PAID);
+                break;
+            case FAILURE:
+                debitDTO.setStatut(StatutDebitEnum.UNPAID);
+                break;
+            case PENDING:
+                debitDTO.setStatut(StatutDebitEnum.PENDING);
+                break;
+        }
         debitDTO.setExpectedCaptureDate(output.getTransactionAction().getDateDebit() != null ? output.getTransactionAction().getDateDebit() : null);
         return debitDTO;
     }

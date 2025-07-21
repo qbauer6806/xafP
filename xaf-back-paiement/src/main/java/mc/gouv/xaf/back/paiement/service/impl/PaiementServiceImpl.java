@@ -59,7 +59,7 @@ import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
-import mc.gouv.xaf.back.paiement.service.kafka.PaymentTypeEnum;
+import mc.gouv.xaf.back.paiement.service.kafka.dto.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.transformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.paiement.utils.PaiementUtils;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -346,7 +346,15 @@ public class PaiementServiceImpl implements PaiementService {
         if (moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
             List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
                     moyenPaiementBo.getCommande().getPkCommandes());
-            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
+            List<DemandeBO> demandesAFaireAvancer = demandes.stream()
+                    .filter(d -> !d.getDernierStatut().getName()
+                            .equals(demarchesDataProvider.statutPaiementARegulariser()))
+                    .toList();
+
+            if (!demandesAFaireAvancer.isEmpty()) {
+                demandesStatutsService.updateMultipleStatuts(demandesAFaireAvancer, EN_COURS_PAIEMENT_STATUT_KEY);
+            }
+            //demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
             updateDemandes(demandes, moyenPaiementBo.getPkMoyensPaiements());
             if (moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord()
                     .equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
@@ -542,7 +550,13 @@ public class PaiementServiceImpl implements PaiementService {
                 paiementHistoriqueRepository.save(historique);
                 // Si la demande doit etre débité, on déclenche un débit
                 if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
-                    debit(demande.getIdentifiant(), "00000", keycloakTokenService.getAccessToken());
+                    DebitDTO debit = debit(demande.getIdentifiant(), "00000", keycloakTokenService.getAccessToken());
+
+                    // Si le debit est ok j'appelle le retourDebit de resid
+                    if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
+                        paiementsDataProvider.regularisationPaiement(debit, demande.getIdentifiant());
+                    }
+
                 } else {
                     // Sinon on la fait avancer dans le cycle de vie classiquement
                     LOGGER.info("Progression dans le BPM...");

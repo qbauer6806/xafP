@@ -20,10 +20,10 @@ public class JwtUtils {
                 null);
 
         //        // STAGE_FRONT_FILE_JWT
-        //        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret ", "STAGE", new String[] { "USER" }, "FILE", null, null);
+        //        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret", "STAGE", new String[] { "USER" }, "FILE", null, null);
         //
         //        // STAGE_FRONT_VSCAN_JWT
-        //        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret ", "STAGE", new String[] { "USER" }, "VSCAN", null, null);
+        //        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret", "STAGE", new String[] { "USER" }, "VSCAN", null, null);
 
         LOGGER.info(jwt);
     }

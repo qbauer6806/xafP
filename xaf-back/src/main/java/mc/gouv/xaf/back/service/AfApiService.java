@@ -217,7 +217,7 @@ public class AfApiService implements AfApi {
         // Suppression du brouillon éventuel
         if (demande.getBrouillonId() != null) {
             LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
-            brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId);
+            brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId, true);
         }
         createDemandeFinalizers.ifPresent(finalizer -> finalizer.finalizeDemandeCreation(demandeDto));
         return demandeDto;
@@ -776,7 +776,7 @@ public class AfApiService implements AfApi {
     }
 
     public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
-        brouillonsService.deleteBrouillon(pkBrouillons, usagerId);
+        brouillonsService.deleteBrouillon(pkBrouillons, usagerId, false);
     }
 
     public void deleteFile(String fileUrl) {

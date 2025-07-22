@@ -33,7 +33,7 @@ public interface BrouillonsService {
      * @param usagerId
      *         ID de l'usager faisant la suppression, à vérifier avec celui dans le brouillon
      */
-    void deleteBrouillon(Integer pkBrouillons, Integer usagerId);
+    void deleteBrouillon(Integer pkBrouillons, Integer usagerId, boolean surCreationDemande);
 
     Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
 

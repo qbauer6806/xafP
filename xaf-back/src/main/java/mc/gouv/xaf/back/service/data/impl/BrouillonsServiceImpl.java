@@ -6,8 +6,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -172,6 +174,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         // Mise à jour de la date de dernière modification
         brouillonBo.setDateDerModif(new Date());
 
+        // Chercher les fichiers qui ont été supprimés du brouillon pour pouvoir les supprimer de file
+        supprimerFichiersDansFile(brouillonBo.getFiles(), brouillon.getFichiers());
+
         // Supprimer les pièces jointes déjà existantes
         brouillonsFilesRepository.deleteAll(brouillonBo.getFiles());
         brouillonBo.getFiles().clear();
@@ -186,7 +191,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         if (brouillon.getFichiers() != null && brouillon.getFichiers().length > 0) {
-            // Ajouter la nouvelle image
             brouillonBo.setFiles(
                     new HashSet<>(BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillon.getFichiers()))));
             for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
@@ -201,11 +205,39 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 
+    private void supprimerFichiersDansFile(Set<BrouillonsFilesBO> oldFiles, BrouillonFileDTO[] newFiles) {
+        List<BrouillonsFilesBO> fichiersSupprimes = findRemovedFiles(oldFiles, newFiles);
+
+        for (BrouillonsFilesBO fichier : fichiersSupprimes) {
+            if (fileService.isFileFromBrouillonDeletable(fichier.getUrl())) {
+                String url = URLEncoder.encode(fichier.getUrl(), StandardCharsets.UTF_8);
+                fileService.deleteFile("ROOT", url);
+            }
+        }
+    }
+
+    private List<BrouillonsFilesBO> findRemovedFiles(Set<BrouillonsFilesBO> oldFiles, BrouillonFileDTO[] newFiles) {
+        if (oldFiles == null || oldFiles.isEmpty()) {
+            return List.of();
+        }
+        if (newFiles == null) {
+            newFiles = new BrouillonFileDTO[0];
+        }
+
+        // Construire un Set des URL des fichiers nouveaux
+        Set<String> newFileUrls = Arrays.stream(newFiles).map(BrouillonFileDTO::getUrl).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Retourner les fichiers dont l'URL n'est plus présente
+        return oldFiles.stream().filter(f -> f.getUrl() != null).filter(f -> !newFileUrls.contains(f.getUrl()))
+                .collect(Collectors.toList());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
+    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId, boolean surCreationDemande) {
         BrouillonBO brouillonBo = getBrouillonBo(pkBrouillons);
         AccessBO access = brouillonBo.getFkAccess();
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
@@ -213,16 +245,19 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-        // Suppression des fichiers liés au brouillon
-        Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
-        if (brouillonsFilesBOS != null) {
-            for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
-                if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
-                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                    fileService.deleteFile("ROOT", url);
+        if (!surCreationDemande) {
+            // Suppression des fichiers liés au brouillon
+            Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
+            if (brouillonsFilesBOS != null) {
+                for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
+                    if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
+                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                        fileService.deleteFile("ROOT", url);
+                    }
                 }
             }
         }
+
         brouillonsRepository.delete(brouillonBo);
     }
 

@@ -54,7 +54,6 @@ public class MwpaymntService {
         userInformation.setFirstName(usagerInfosDTO.getPrenom());
         userInformation.setLastName(usagerInfosDTO.getNom());
         userInformation.setLegalName(usagerInfosDTO.getRaisonSociale());
-        userInformation.setTitle(usagerInfosDTO.getTitreLabel());
         userInformation.setZipCode(usagerInfosDTO.getCodePostal());
         userInformation.setLanguage("FR");
         registerInputDTO.setUserInformation(userInformation);

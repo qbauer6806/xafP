@@ -191,7 +191,7 @@ public class DemandeTransformer {
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);
         // Vérifier si le nœud existe
-        JsonNode targetNode = contenu.at(p);
+        JsonNode targetNode = "/".equals(p) ? contenu : contenu.at(p);
         if (!targetNode.isMissingNode()) {
             ((ObjectNode) targetNode).put(field, nouvelleValeur);
         }

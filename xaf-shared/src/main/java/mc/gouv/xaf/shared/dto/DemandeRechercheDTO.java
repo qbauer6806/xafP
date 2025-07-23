@@ -33,7 +33,7 @@ public class DemandeRechercheDTO {
 
     private Date creationEndDate;
 
-    // Pour le moment on gère la recherhe pour une data
+    // Pour le moment on gère la recherche pour une data
     private DataRechercheDTO data;
 
     private String identifiant;

@@ -8,6 +8,7 @@ import java.util.Map;
 import mc.gouv.xaf.back.service.histo.HistoValidationEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
@@ -230,6 +231,10 @@ public interface DemarchesDataProvider {
 
     default String getLibelleDernierStatut(DemandeDTO demande) {
         return demande.getDernierStatut().getLibelle();
+    }
+
+    default DemandeRechercheDTO getDemandeRecherche() {
+        return null;
     }
 
 }

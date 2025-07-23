@@ -44,4 +44,9 @@ public class DataRechercheDTO {
         }
     }
 
+    public String generateParamUrl() {
+        return operand + SEPARATOR_AFTER_OPERAND + key + SEPARATOR + value;
+    }
+
+
 }

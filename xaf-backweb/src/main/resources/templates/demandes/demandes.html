@@ -317,6 +317,9 @@
 <script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 <script type="text/javascript" th:inline="javascript">
   /*<![CDATA[*/
+  var demandeRechercheData = /*[[${demandeRechercheData}]]*/;
+  var demandeRechercheCreationStartDate = /*[[${demandeRechercheCreationStartDate}]]*/;
+  var demandeRechercheCreationEndDate = /*[[${demandeRechercheCreationEndDate}]]*/;
 
   var buildFacetsSerachData = function (params) {
     if (params === undefined) {
@@ -361,6 +364,9 @@
     if ($("input[name='statut']:checked").length === 0) {
       params.aucunStatut = true;
     }
+    if (demandeRechercheData) {
+      params.data = demandeRechercheData;
+    }
 
     params.sort = columns[params.order[0].column].data
         + "," + params.order[0].dir;
@@ -393,6 +399,12 @@
           language: "fr",
           todayHighlight: true
         });
+        if(demandeRechercheCreationStartDate) {
+          $('#creationStartDate').datepicker('setDate', moment(demandeRechercheCreationStartDate).format("DD/MM/YYYY"));
+        }
+        if(demandeRechercheCreationEndDate) {
+          $('#creationEndDate').datepicker('setDate', moment(demandeRechercheCreationEndDate).format("DD/MM/YYYY"));
+        }
 
         $('.input-group-addon').click(function () {
           var $input = $(this).closest('div').find(':input');

@@ -38,9 +38,8 @@ public class MultiHttpSecurityConfig {
         http.securityMatcher("/api/**");
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/paiement").permitAll()
-                .anyRequest().authenticated();
+                .requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll().anyRequest()
+                .authenticated();
 
         http.addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
         return http.build();
@@ -49,13 +48,13 @@ public class MultiHttpSecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
-        http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits", "/api/v1/paiement/recuPaiement")
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits", "/api/v1/paiement/recuPaiement").authenticated();
-                })
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(
-                        jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(jwtAuthenticationConverter())
-                ));
+        http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits",
+                "/api/v1/paiement/recuPaiement").authorizeHttpRequests(auth -> {
+            auth.requestMatchers("/api/v1/paiement/tarif", "/api/v1/paiement/debit",
+                            "/api/v1/paiement/rattrapageDebits", "/api/v1/paiement/recuPaiement").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/paiement").authenticated();
+        }).oauth2ResourceServer(oauth2 -> oauth2.jwt(
+                jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return http.build();
     }

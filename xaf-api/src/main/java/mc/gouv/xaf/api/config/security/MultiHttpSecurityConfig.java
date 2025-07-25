@@ -49,7 +49,7 @@ public class MultiHttpSecurityConfig {
     @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits",
-                "/api/v1/paiement/recuPaiement").authorizeHttpRequests(auth -> {
+                "/api/v1/paiement/recuPaiement", "/api/v1/paiement").authorizeHttpRequests(auth -> {
             auth.requestMatchers("/api/v1/paiement/tarif", "/api/v1/paiement/debit",
                             "/api/v1/paiement/rattrapageDebits", "/api/v1/paiement/recuPaiement").authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/paiement").authenticated();

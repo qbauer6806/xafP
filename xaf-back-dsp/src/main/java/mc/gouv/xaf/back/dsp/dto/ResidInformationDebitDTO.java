@@ -13,5 +13,4 @@ public class ResidInformationDebitDTO {
 
     private String idTS;
     private LocalDateTime dateDebit;
-    private boolean success;
 }

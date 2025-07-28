@@ -1,8 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
+import mc.gouv.xaf.back.service.itg.file.service.dto.FileDTO;
 import java.util.Comparator;
-
-import mc.gouv.file.shared.dto.FileDTO;
 
 public class FileComparator implements Comparator<FileDTO> {
 

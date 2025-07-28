@@ -3,6 +3,7 @@ package mc.gouv.xaf.api.controller;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import mc.gouv.file.shared.dto.FileResponseDTO;
 import mc.gouv.xaf.back.service.AfApi;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;

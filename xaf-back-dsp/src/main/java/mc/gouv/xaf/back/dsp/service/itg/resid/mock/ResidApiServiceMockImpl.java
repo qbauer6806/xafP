@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.mock;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import mc.gouv.xaf.back.dsp.enums.v2.ResidRelationEnum;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @Primary
@@ -220,7 +222,7 @@ public class ResidApiServiceMockImpl implements ResidApiService {
     }
 
     @Override
-    public ResidHttpResponseDTO submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt)
+    public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt)
             throws JsonProcessingException {
         return null;
     }

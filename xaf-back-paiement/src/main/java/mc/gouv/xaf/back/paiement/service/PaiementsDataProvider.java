@@ -9,6 +9,8 @@ import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +53,6 @@ public interface PaiementsDataProvider {
         return true;
     }
 
-    default void regularisationPaiement(DebitDTO debit, String identifiant) {}
+    default MultipartFile regularisationPaiement(DebitDTO debit, String identifiant) {return null;}
 
 }

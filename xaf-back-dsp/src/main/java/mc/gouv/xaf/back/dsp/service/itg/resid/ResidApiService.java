@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.dsp.service.itg.resid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ResidApiService {
 
@@ -52,6 +54,6 @@ public interface ResidApiService {
 
     ResidCaisseOuverteDTO getCaisseOuverte(String url, String jwt);
 
-    ResidHttpResponseDTO submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws JsonProcessingException;
+    MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws IOException;
 
 }

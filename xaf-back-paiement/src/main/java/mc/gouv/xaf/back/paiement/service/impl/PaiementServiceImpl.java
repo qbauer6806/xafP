@@ -5,6 +5,8 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityNotFoundException;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -53,6 +55,7 @@ import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
+import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
@@ -69,6 +72,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.keycloak.KeycloakTokenService;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -94,6 +98,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -179,6 +184,8 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private KeycloakTokenService keycloakTokenService;
+    @Autowired
+    private FactureService factureService;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -390,12 +397,13 @@ public class PaiementServiceImpl implements PaiementService {
         logStartMethod(LOGGER);
         List<CommandeOperationBO> latestCommandeOperationForStatus = commandeOperationRepository.findLatestCommandesOperationsForStatus(OperationStatutEnum.EN_ATTENTE);
         for (CommandeOperationBO commandeOperation : latestCommandeOperationForStatus) {
-            String identifiant = demandesService.getDemande(commandeOperation.getDemande().getPkDemandes())
-                    .getIdentifiant();
+            DemandeDTO demande = demandesService.getDemande(commandeOperation.getDemande().getPkDemandes());
+            String identifiant = demande.getIdentifiant();
             DebitDTO debit = debit(identifiant, null,
                     authorization);
             if(debit.getStatut().equals(StatutDebitEnum.PAID)) {
-                paiementsDataProvider.regularisationPaiement(debit, identifiant);
+                MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
+                sauvegardeRecuPaiement(recuPaiement, identifiant);
             }
         }
         logEndMethod(LOGGER);
@@ -552,11 +560,13 @@ public class PaiementServiceImpl implements PaiementService {
                 paiementHistoriqueRepository.save(historique);
                 // Si la demande doit etre débité, on déclenche un débit
                 if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
-                    DebitDTO debit = debit(demande.getIdentifiant(), "00000", keycloakTokenService.getAccessToken());
+                    String identifiant = demande.getIdentifiant();
+                    DebitDTO debit = debit(identifiant, "00000", keycloakTokenService.getAccessToken());
 
                     // Si le debit est ok j'appelle le retourDebit de resid
                     if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
-                        paiementsDataProvider.regularisationPaiement(debit, demande.getIdentifiant());
+                        MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
+                        sauvegardeRecuPaiement(recuPaiement, identifiant);
                     }
 
                 } else {
@@ -596,6 +606,15 @@ public class PaiementServiceImpl implements PaiementService {
         });
         t.setName(UPDATE_PAIEMENT_DATA_THREAD + orderId);
         t.start();
+    }
+
+    private void sauvegardeRecuPaiement(MultipartFile recuPaiement, String identifiant) {
+        if (recuPaiement != null) {
+            LOGGER.info("Sauvegarde du reçu de paiement pour la demande {}", identifiant);
+            factureService.saveRecuPaiement(identifiant, recuPaiement);
+        } else {
+            LOGGER.info("Le reçu de paiement n'a pas pu être recupéré pour la demande {}", identifiant);
+        }
     }
 
     private void createInfoFacturation(GichuniUsagerDTO usager, CommandeBO commande, String raisonSociale, String langue) {

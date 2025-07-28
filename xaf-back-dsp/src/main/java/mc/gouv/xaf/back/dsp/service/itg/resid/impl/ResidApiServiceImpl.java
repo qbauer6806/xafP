@@ -5,6 +5,7 @@ import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidHo
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -57,11 +58,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
@@ -89,9 +92,6 @@ public class ResidApiServiceImpl implements ResidApiService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private PropertiesService propertiesService;
 
     @Autowired
     private FileService fileService;
@@ -497,41 +497,67 @@ public class ResidApiServiceImpl implements ResidApiService {
     }
 
     @Override
-    public ResidHttpResponseDTO submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws JsonProcessingException {
-        LOGGER.info("Préparation de la requete à destination de RESID pour mise à jour débit");
+    public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt)
+            throws IOException {
 
+        LOGGER.info("Préparation de la requête à destination de RESID pour récupération de PDF");
         // Construction du rest template
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
         rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
-        // Headers et URL
-        HttpHeaders headers = getResidRequestHeaders(jwt);
         String requestUrl = url + RESID_RETOUR_DEBIT_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
 
-        // Construction de la requête
+        // ObjectMapper pour sérialiser l'objet
         ObjectMapper mapper = new ObjectMapper();
-        HttpEntity<String> requestEntity = new HttpEntity<>(mapper.writeValueAsString(informationDebit), headers);
-        URI uri = builder.build().encode().toUri();
+        String jsonBody = mapper.writeValueAsString(informationDebit);
+
+        // Construction du champ multipart contenant le JSON
+        HttpHeaders partHeaders = new HttpHeaders();
+        partHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> jsonPart = new HttpEntity<>(jsonBody, partHeaders);
+
+        // Corps global de la requête multipart
+        MultiValueMap<String, Object> multipartBody = new LinkedMultiValueMap<>();
+        multipartBody.add("informationDebit", jsonPart);  //
+
+        // Headers de la requête principale
+        HttpHeaders headers = getResidRequestHeaders(jwt);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setAccept(List.of(MediaType.APPLICATION_PDF));  // PDF en réponse
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartBody, headers);
 
         // Logs DEBUG
-        LOGGER.debug("-- Appel à RESID pour mise à jour débit");
+        LOGGER.debug("-- Appel à RESID pour téléchargement de PDF");
         LOGGER.debug(URL_LOG, HttpMethod.POST, uri);
         LOGGER.debug(HEADERS_LOG, headers);
-        String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit);
-        LOGGER.debug("Body: {}", body);
+        LOGGER.debug("Body: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit));
 
-        // Appel et réponse
-        ResponseEntity<ResidHttpResponseDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
-                new ParameterizedTypeReference<>() {
+        // Appel HTTP
+        ResponseEntity<byte[]> responseEntity = rest.exchange(
+                uri,
+                HttpMethod.POST,
+                requestEntity,
+                byte[].class
+        );
 
-                });
+        LOGGER.info("Fin de l'appel vers RESID pour téléchargement de PDF");
 
-        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
-
-        LOGGER.info("Fin de l'appel vers RESID pour mise à jour du débit");
-
-        return responseEntity.getBody();
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            byte[] pdfContent = responseEntity.getBody();
+            String fileName = "recu_debit.pdf"; // ou autre nom
+            return new MockMultipartFile(
+                    fileName,
+                    fileName,
+                    MediaType.APPLICATION_PDF_VALUE,
+                    pdfContent
+            );
+        } else {
+            throw new IOException("Échec de la récupération du PDF depuis RESID. Statut: "
+                    + responseEntity.getStatusCode());
+        }
     }
 
     private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message) {

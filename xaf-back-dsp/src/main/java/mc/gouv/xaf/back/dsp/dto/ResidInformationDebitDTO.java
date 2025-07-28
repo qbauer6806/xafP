@@ -12,5 +12,5 @@ import java.time.LocalDateTime;
 public class ResidInformationDebitDTO {
 
     private String idTS;
-    private LocalDateTime dateDebit;
+    private String dateDebit;
 }

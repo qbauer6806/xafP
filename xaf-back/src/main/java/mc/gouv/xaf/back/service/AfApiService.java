@@ -34,7 +34,10 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
+import mc.gouv.xaf.back.service.demande.ICreateDemandExtender;
 import mc.gouv.xaf.back.service.demande.ICreateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.IUpdateDemandExtender;
+import mc.gouv.xaf.back.service.demande.IUpdateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
@@ -176,6 +179,15 @@ public class AfApiService implements AfApi {
     @Autowired
     private Optional<ICreateDemandeFinalizer> createDemandeFinalizers;
 
+    @Autowired
+    private Optional<IUpdateDemandeFinalizer> updateDemandeFinalizers;
+
+    @Autowired
+    private Optional<ICreateDemandExtender> createDemandeExtenders;
+
+    @Autowired
+    private Optional<IUpdateDemandExtender> updateDemandeExtenders;
+
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
 
@@ -226,7 +238,8 @@ public class AfApiService implements AfApi {
     private DemandeDTO traiterAndSaveCreateDemande(DemandeInputDTO demande, Integer usagerId)
             throws JsonProcessingException {
 
-        final DemandeDTO demandeDto = buildDemandeFromInput(demande, usagerId);
+        final DemandeDTO demandeDto = buildDemandeFromInputAfterCreate(demande, usagerId);
+        createDemandeExtenders.ifPresent(extender -> extender.applyCreateTreatment(demande, demandeDto));
         traiterContenuInitial(demande, usagerId, demandeDto);
 
         try {
@@ -243,7 +256,7 @@ public class AfApiService implements AfApi {
         }
     }
 
-    private DemandeDTO buildDemandeFromInput(DemandeInputDTO demande, Integer usagerId) {
+    private DemandeDTO buildDemandeFromInputAfterCreate(DemandeInputDTO demande, Integer usagerId) {
         DemandeDTO demandeDto = new DemandeDTO();
         demandeDto.setUsagerId(usagerId);
         demandeDto.setPkDemandes(null);
@@ -313,22 +326,18 @@ public class AfApiService implements AfApi {
         if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {
             throw new BadRequestWebException("La demande n'est pas éligible à une rectification.");
         }
-
-        DemandeDTO demandeDto;
+        DemandeDTO demandeDtoUpdated;
         try {
+            final DemandeDTO demandeDto = buildDemandeFromInputAfterUpdate(demande, usagerId, demandeId);
 
-            demandeDto = new DemandeDTO();
-            demandeDto.setUsagerId(usagerId);
-            demandeDto.setPkDemandes(demandeId);
-            demandeDto.setContenu(demande.getContenu());
-            demandeDto.setFichiers(demande.getFichiers());
+            updateDemandeExtenders.ifPresent(extender -> extender.applyUpdateTreatment(demande, demandeDto));
 
             LOGGER.debug("DTO reconstitué : {}", demandeDto);
 
             // Partial update sur contenu et fichiers uniquement
-            demandeDto = demandesService.updateDemande(demandeDto, true);
+            demandeDtoUpdated = demandesService.updateDemande(demandeDto, true);
 
-            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDto);
+            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDtoUpdated);
 
             gouvBPM.reponseRectification(demandeId, usagerId);
 
@@ -342,14 +351,24 @@ public class AfApiService implements AfApi {
 
             DemandeHistoriqueDTO histo = demandesHistoriqueService.updateDemande(usagerId, demande.getCreeParAgentId(),
                     statut.getName());
-            demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
+            demandesHistoriqueService.saveHisto(demandeDtoUpdated.getPkDemandes(), histo);
 
             demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
 
+            updateDemandeFinalizers.ifPresent(finalizer -> finalizer.finalizeDemandeUpdate(demandeDto));
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la mise à jour d'une demande", e);
         }
+        return demandeDtoUpdated;
+    }
+
+    private DemandeDTO buildDemandeFromInputAfterUpdate(DemandeInputDTO demande, Integer usagerId, Integer demandeId) {
+        DemandeDTO demandeDto = new DemandeDTO();
+        demandeDto.setUsagerId(usagerId);
+        demandeDto.setPkDemandes(demandeId);
+        demandeDto.setContenu(demande.getContenu());
+        demandeDto.setFichiers(demande.getFichiers());
         return demandeDto;
     }
 

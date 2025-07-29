@@ -1,10 +1,5 @@
 package mc.gouv.xaf.back.service;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-
-import org.json.simple.parser.ParseException;
-
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
@@ -30,7 +25,6 @@ public interface DemandeRecapHTMLService {
      * implémenté par le WISYWIG
      */
     String getHTMLDemandeContenuRecap(DemandeDTO demande, boolean isPdfRecap)
-            throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException;
+            throws IllegalArgumentException, SecurityException;
 
 }

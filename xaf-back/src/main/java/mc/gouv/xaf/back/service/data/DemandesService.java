@@ -10,6 +10,7 @@ import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,12 +149,6 @@ public interface DemandesService {
     DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId);
 
     /**
-     * Retourne les demandes qui ont été créées entre la date de départ et d'arrivée
-     */
-    Page<AfDemandeExcelFlatDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate, Date endDate,
-            String statut);
-
-    /**
      * Récupère les demandes qui ont pour dernier statut celui en paramètre
      *
      * @param statut
@@ -215,6 +210,9 @@ public interface DemandesService {
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 
-    AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut);
+    AfDemandeExcelFlatIterable retrieveDemandesExcel(ExcelRechercheDTO excelRechercheDTO);
+
+    Page<AfDemandeExcelFlatDTO> retrieveDemandesExcelPageable(Pageable pageable, ExcelRechercheDTO excelRechercheDTO,
+            long total);
 
 }

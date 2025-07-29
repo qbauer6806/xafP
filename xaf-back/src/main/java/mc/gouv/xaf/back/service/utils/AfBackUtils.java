@@ -560,6 +560,15 @@ public class AfBackUtils {
     /**
      * Utilisé dans certains exports excel
      */
+    public static String genererTelephone(DemandeDTO demande, String marqueurIdentifiant) {
+        String indicatif = demande.getMarqueur(marqueurIdentifiant + "Indicatif").replace("t", "+");
+        String numero = demande.getMarqueur(marqueurIdentifiant + "Numero");
+        return indicatif + numero;
+    }
+
+    /**
+     * Utilisé dans certains exports excel
+     */
     public static String choixMultipleToString(final List<String> choixMultiple) {
         return String.join(", ", choixMultiple);
     }

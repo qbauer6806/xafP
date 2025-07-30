@@ -1,9 +1,8 @@
 package mc.gouv.xaf.back.service.histo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
@@ -37,7 +36,6 @@ public class DemandesHistoriqueService {
 
     private static final String USAGER = "Usager";
     private static final String SYSTEME = "Système";
-    private static final String UTILISATEUR = "Utilisateur";
     private static final String VALIDEUR = "Valideur";
     private static final String SUPERVISEUR = "Superviseur";
     private static final String CLOSING_SPAN = "</span>";
@@ -97,7 +95,8 @@ public class DemandesHistoriqueService {
         String action = "Demande de validation en cours pour <span class='histo-action'>\"" + statutLibelle + "\""
                 + CLOSING_SPAN;
         ;
-        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName, UTILISATEUR, action,
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
+                demarchesDataProvider.getHistoRole(), action,
                 statutValidationName);
         return histoTs2Dem(contenu, null, agentId);
     }
@@ -153,7 +152,9 @@ public class DemandesHistoriqueService {
             statut = newStatut;
         } else {
             name = (usagerId != null) ? afBackUtils.getUsagerNameFromID(usagerId) : agentName;
-            role = (usagerId != null) ? USAGER : (StringUtils.isNotBlank(agentId) ? UTILISATEUR : null);
+            role = (usagerId != null)
+                    ? USAGER
+                    : (StringUtils.isNotBlank(agentId) ? demarchesDataProvider.getHistoRole() : null);
         }
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(name, role, action, statut);
         return histoTs2Dem(contenu, usagerId, agentId);
@@ -186,7 +187,8 @@ public class DemandesHistoriqueService {
             String name = afBackUtils.getUsagerNameFromID(usagerId);
             contenu = new DemandeHistoriqueContenuDTO(name, USAGER, action, targetState);
         } else {
-            contenu = new DemandeHistoriqueContenuDTO(agentName, UTILISATEUR, action, targetState);
+            contenu = new DemandeHistoriqueContenuDTO(agentName, demarchesDataProvider.getHistoRole(), action,
+                    targetState);
         }
         return histoTs2Dem(contenu, usagerId, agentAffecteId);
     }
@@ -213,7 +215,8 @@ public class DemandesHistoriqueService {
         String action =
                 "Demande dupliquée (Demande d'origine <a href='" + gouvPropertiesResolver.getBackUrl() + "/demandes/"
                         + oldDemande.getPkDemandes() + "'><span>" + oldDemande.getIdentifiant() + "</span></a>)";
-        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName, UTILISATEUR, action,
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
+                demarchesDataProvider.getHistoRole(), action,
                 demarchesDataProvider.getPremierStatutCreationDemande());
         return histoTs2Dem(contenu, null, agentId);
     }
@@ -225,7 +228,8 @@ public class DemandesHistoriqueService {
         String action = "Duplication de la demande (Demande dupliquée <a href='" + gouvPropertiesResolver.getBackUrl()
                 + "/demandes/" + nouvelleDemande.getPkDemandes() + "'><span>" + nouvelleDemande.getIdentifiant()
                 + "</span></a>)";
-        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName, UTILISATEUR, action,
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
+                demarchesDataProvider.getHistoRole(), action,
                 oldDemandeStatutName);
         return histoTs2Dem(contenu, null, agentId);
     }

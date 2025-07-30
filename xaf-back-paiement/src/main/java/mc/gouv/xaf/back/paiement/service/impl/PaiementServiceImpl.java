@@ -470,6 +470,7 @@ public class PaiementServiceImpl implements PaiementService {
         String state = "";
         String action = "";
         if(actionDebit.equals(ActionDebitEnum.SUCCESS)) {
+            LOGGER.info("Le paiement est en succès, mise à jour de la commande {} en DB", moyenPaiement.getCommande().getPkCommandes());
             updateCommande(moyenPaiement.getCommande(), commandeDemande.getMontant());
             historique.setContenu("Système - Débit réalisé");
             historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
@@ -487,8 +488,10 @@ public class PaiementServiceImpl implements PaiementService {
 
     private void updateCommande(CommandeBO commande, double montantCapture) {
         double montantRestant = commande.getMontantInitial() - commande.getMontantDejaCapture() - montantCapture;
+        LOGGER.info("Montant restant : {}", montantRestant);
         commande.setMontantRestant(montantRestant);
         commande.setMontantDejaCapture(commande.getMontantDejaCapture() + montantCapture);
+        LOGGER.info("Sauvegarde de la commande en base : {}", commande);
         commandeRepository.save(commande);
     }
 

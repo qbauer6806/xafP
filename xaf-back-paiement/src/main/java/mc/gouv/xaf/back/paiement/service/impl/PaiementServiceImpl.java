@@ -299,7 +299,7 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(Integer.valueOf(info.getExpiryMonth()),
                     Integer.valueOf(info.getExpiryYear())));
             // Changer la demande de status
-            encaissementEtMajStatut(moyenPaiementBo, moyenPaiementInputDTO.getReference());
+            encaissementEtMajStatut(moyenPaiementBo);
         }
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
         moyenPaiementRepository.save(moyenPaiementBo);
@@ -348,7 +348,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(paymentMethodInformation.getExpiryMonth(),
                 paymentMethodInformation.getExpiryYear()));
         if (moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
-            encaissementEtMajStatut(moyenPaiementBo, moyenPaiementBo.getPkMoyensPaiements());
+            encaissementEtMajStatut(moyenPaiementBo);
             if (moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord()
                     .equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
                 LOGGER.info("Sauvegarde du moyen de paiement dans mon guichet suite à un callback reçu de MWPAYMT");
@@ -362,14 +362,14 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiementRepository.save(moyenPaiementBo);
     }
 
-    private void encaissementEtMajStatut(MoyenPaiementBO moyenPaiementBo, String moyenPaiementStr) {
+    private void encaissementEtMajStatut(MoyenPaiementBO moyenPaiementBo) {
         List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBo.getCommande().getPkCommandes());
         List<DemandeBO> demandesAFaireAvancer = demandes.stream().filter(d -> !d.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser()))
                 .toList();
         if (!demandesAFaireAvancer.isEmpty()) {
             demandesStatutsService.updateMultipleStatuts(demandesAFaireAvancer, EN_COURS_PAIEMENT_STATUT_KEY);
         }
-        updateDemandes(demandes, moyenPaiementStr);
+        updateDemandes(demandes);
     }
 
     @Override
@@ -537,75 +537,55 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Async
-    void updateDemandes(List<DemandeBO> demandes, String orderId) {
-        Thread t = new Thread(() -> {
-            Timestamp date = Timestamp.valueOf(LocalDateTime.now());
-            for (DemandeBO demande : demandes) {
+    void updateDemandes(List<DemandeBO> demandes) {
+        Timestamp date = Timestamp.valueOf(LocalDateTime.now());
+        for (DemandeBO demande : demandes) {
+            try {
                 DemandesUsagersBO usager = demande.getUsager();
                 Integer pkDemande = demande.getPkDemandes();
                 Integer usagerId = usager.getId();
+
                 GouvBPMUser user = new GouvBPMUser();
                 user.setId(usagerId.toString());
+
                 LOGGER.info("Ajout de l'historique de paiement...");
                 PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
                 historique.setFkDemandes(demande);
                 if (usager != null) {
-                    historique.setContenu(
-                            "Usager " + usager.getPrenom() + " " + usager.getNom() + " : Enregistre sa carte bancaire");
+                    historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom() + " : Enregistre sa carte bancaire");
                 }
                 historique.setStatut(PaiementStatutEnum.CARTE_VALIDE.name());
                 historique.setDate(date);
                 historique.setUsagerId(usagerId);
+
                 paiementHistoriqueRepository.save(historique);
-                // Si la demande doit etre débité, on déclenche un débit
+
                 if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
                     String identifiant = demande.getIdentifiant();
                     DebitDTO debit = debit(identifiant, "00000", keycloakTokenService.getAccessToken());
 
-                    // Si le debit est ok j'appelle le retourDebit de resid
                     if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
                         MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
                         sauvegardeRecuPaiement(recuPaiement, identifiant);
                     }
 
                 } else {
-                    // Sinon on la fait avancer dans le cycle de vie classiquement
                     LOGGER.info("Progression dans le BPM...");
                     Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
-                    variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
-                            usagerId.toString());
+                    variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
                     variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
                     gouvBPM.setProcessBusinessVariables(pkDemande, variables);
 
                     GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
-                    try {
-                        gouvBPM.claimTask(task, user);
-                        gouvBPM.completeTask(task, pkDemande);
-                    } catch (Exception e1) {
-                        LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
-                        throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-                    }
-                }
-                /*LOGGER.info("Progression dans le BPM...");
-                Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
-                        usagerId.toString());
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
-                gouvBPM.setProcessBusinessVariables(pkDemande, variables);
-
-                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).getFirst();
-                try {
                     gouvBPM.claimTask(task, user);
                     gouvBPM.completeTask(task, pkDemande);
-                } catch (Exception e1) {
-                    LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
-                    throw new DemarchesServiceException(e1.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-                }*/
+                }
+            } catch (Exception ex) {
+                LOGGER.error("Erreur dans updateDemandes pour une demande : {}", ex.getMessage(), ex);
             }
-        });
-        t.setName(UPDATE_PAIEMENT_DATA_THREAD + orderId);
-        t.start();
+        }
     }
+
 
     private void sauvegardeRecuPaiement(MultipartFile recuPaiement, String identifiant) {
         if (recuPaiement != null) {

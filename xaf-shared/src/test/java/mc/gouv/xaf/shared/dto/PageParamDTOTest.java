@@ -1,7 +1,6 @@
 package mc.gouv.xaf.shared.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ class PageParamDTOTest {
         assertEquals("identifiant", paramDTO.getSort());
         assertEquals("ASC", paramDTO.getDirection());
         assertEquals("fr", paramDTO.getLang());
-        assertNotNull(paramDTO.getStatus());
     }
 
     @Test

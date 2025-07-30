@@ -131,6 +131,10 @@ public interface DemarchesDataProvider {
      */
     String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut);
 
+    default String getHistoRole() {
+        return "Utilisateur";
+    }
+
     /**
      * Permets de définir la liste des statuts des demandes à ne pas annuler lors de la désinscription d'un usager
      * Par défaut, c'est la liste des statuts dont le StatutSimplifieEnum = TERMINEE

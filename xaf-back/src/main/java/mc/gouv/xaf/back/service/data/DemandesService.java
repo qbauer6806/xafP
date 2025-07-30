@@ -52,7 +52,7 @@ public interface DemandesService {
      */
     Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields);
 
-    mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status,
+    mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, List<String> status,
             PageParamDTO paramDTO);
 
     /**

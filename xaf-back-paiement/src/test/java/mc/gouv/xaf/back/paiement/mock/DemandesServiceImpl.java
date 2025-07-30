@@ -46,7 +46,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status,
+    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, List<String> status,
             PageParamDTO paramDTO) {
         return null;
     }

@@ -743,11 +743,18 @@ public class AfApiService implements AfApi {
     }
 
     public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
-        String[] statusArray = paramDTO.getStatusArray();
-        if (statusArray.length == 0) {
-            statusArray = demarchesDataProvider.getStatusMap().keySet().toArray(String[]::new);
+        List<String> status = null;
+        List<String> statusList = paramDTO.getStatus();
+        List<String> statusSimplifieList = paramDTO.getStatusSimplifie();
+        // statusSimplifie prévaut si renseigné
+        if (statusSimplifieList != null) {
+            status = demarchesDataProvider.getStatusMap().keySet().stream()
+                    .filter(key -> statusSimplifieList.contains(demarchesDataProvider.getStatutSimplifie(key).name()))
+                    .toList();
+        } else if (statusList != null) {
+            status = statusList;
         }
-        return demandesService.getDemandesPageable(usagerID, statusArray, paramDTO);
+        return demandesService.getDemandesPageable(usagerID, status, paramDTO);
     }
 
     public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {

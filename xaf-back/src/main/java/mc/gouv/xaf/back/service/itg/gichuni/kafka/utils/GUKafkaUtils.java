@@ -94,7 +94,8 @@ public class GUKafkaUtils {
     public List<DemandeRecapDTO> getDemandeRecapsFromUsagerId(Integer usagerId) {
         LOGGER.info("Constitution de la liste de DemandeRecapDTO...");
         List<DemandeRecapDTO> demandeRecaps = new ArrayList<>();
-        List<DemandeRecapProjection> recapsProj = demandesRepository.findByUsagerIdForDemandeRecapDTO(usagerId);
+        List<DemandeRecapProjection> recapsProj = demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrue(
+                usagerId);
         for (DemandeRecapProjection r : recapsProj) {
             DemandeRecapDTO recap = new DemandeRecapDTO();
             recap.setDemandeId(r.getPkDemandes());

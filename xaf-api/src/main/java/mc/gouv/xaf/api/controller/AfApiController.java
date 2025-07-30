@@ -147,10 +147,11 @@ public class AfApiController {
     @GetMapping(value = "/demandespage")
     public @ResponseBody Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId,
             @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
-            @RequestParam String status, @RequestParam String lang) {
+            @RequestParam(required = false) List<String> status, @RequestParam String lang,
+            @RequestParam(required = false) List<String> statusSimplifie) {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> demandeDTOS = afApiService.getDemandesPageable(usagerId,
-                new PageParamDTO(page, size, sort, direction, status, lang));
+                new PageParamDTO(page, size, sort, direction, status, lang, statusSimplifie));
         demandesTransformer.hideInfosPageable(demandeDTOS.getContent());
         return demandeDTOS;
     }
@@ -313,7 +314,8 @@ public class AfApiController {
             @RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page, @RequestParam int size,
             @RequestParam String sort, @RequestParam String direction) {
         LOGGER.info("AbstractAfApiController.getBrouillonsPageable({})", usagerId);
-        return afApiService.getBrouillonsPageable(usagerId, new PageParamDTO(page, size, sort, direction, null, null));
+        return afApiService.getBrouillonsPageable(usagerId,
+                new PageParamDTO(page, size, sort, direction, null, null, null));
     }
 
     @ExceptionHandler({ WebException.class })

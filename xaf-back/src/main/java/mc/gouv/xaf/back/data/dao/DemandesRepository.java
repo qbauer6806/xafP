@@ -66,13 +66,12 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Récupération demandes de l'usager FRONT (paginée)
      */
-    @Query("select d from DemandeBO d inner join d.fkAccess fa inner join TraductionBO t on (d.dernierStatut.name = t.cle and t.langue = :langue) "
-            + "where fa.usagerId = :usagerId and fa.active = true and d.dernierStatut.name in :status")
-    Page<DemandeBO> findByUsagerIdAndStatuts(@Param("usagerId") Integer usagerId, @Param("status") String[] status,
-            @Param("langue") String langue, Pageable pageRequest);
+    Page<DemandeBO> findByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(Integer usagerId,
+            List<String> status, Pageable pageRequest);
 
-    @Query("select d.pkDemandes as pkDemandes, d.identifiant as identifiant, d.dateCreation as dateCreation, s.name as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.active = true and s.fkDemandes.pkDemandes = d.pkDemandes")
-    List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("usagerId") Integer usagerId);
+    Page<DemandeBO> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId, Pageable pageable);
+
+    List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
 
     boolean existsByAgent(DemandesAgentsBO agent);
 

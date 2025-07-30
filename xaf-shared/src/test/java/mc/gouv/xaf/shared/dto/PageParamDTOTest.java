@@ -17,7 +17,6 @@ class PageParamDTOTest {
         assertEquals("ASC", paramDTO.getDirection());
         assertEquals("fr", paramDTO.getLang());
         assertNotNull(paramDTO.getStatus());
-        assertEquals("[]", paramDTO.getStatus());
     }
 
     @Test

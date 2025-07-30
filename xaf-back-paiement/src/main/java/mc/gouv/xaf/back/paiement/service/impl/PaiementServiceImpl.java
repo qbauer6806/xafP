@@ -299,10 +299,7 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(Integer.valueOf(info.getExpiryMonth()),
                     Integer.valueOf(info.getExpiryYear())));
             // Changer la demande de status
-            List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
-                    moyenPaiementBo.getCommande().getPkCommandes());
-            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
-            updateDemandes(demandes, moyenPaiementInputDTO.getReference());
+            encaissementEtMajStatut(moyenPaiementBo, moyenPaiementInputDTO.getReference());
         }
         moyenPaiementBo.setDateDerniereModification(LocalDateTime.now());
         moyenPaiementRepository.save(moyenPaiementBo);
@@ -351,18 +348,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(paymentMethodInformation.getExpiryMonth(),
                 paymentMethodInformation.getExpiryYear()));
         if (moyenPaiementBo.getMoyenPaiementStatut().equals(MoyenPaiementStatutEnum.VALIDE)) {
-            List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(
-                    moyenPaiementBo.getCommande().getPkCommandes());
-            List<DemandeBO> demandesAFaireAvancer = demandes.stream()
-                    .filter(d -> !d.getDernierStatut().getName()
-                            .equals(demarchesDataProvider.statutPaiementARegulariser()))
-                    .toList();
-
-            if (!demandesAFaireAvancer.isEmpty()) {
-                demandesStatutsService.updateMultipleStatuts(demandesAFaireAvancer, EN_COURS_PAIEMENT_STATUT_KEY);
-            }
-            //demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
-            updateDemandes(demandes, moyenPaiementBo.getPkMoyensPaiements());
+            encaissementEtMajStatut(moyenPaiementBo, moyenPaiementBo.getPkMoyensPaiements());
             if (moyenPaiementBo.getPaymentMethodRecord() != null && moyenPaiementBo.getPaymentMethodRecord()
                     .equals(MoyenPaiementStatutEnum.ENREGISTRE_A_LA_CREATION.name())) {
                 LOGGER.info("Sauvegarde du moyen de paiement dans mon guichet suite à un callback reçu de MWPAYMT");
@@ -374,6 +360,16 @@ public class PaiementServiceImpl implements PaiementService {
             }
         }
         moyenPaiementRepository.save(moyenPaiementBo);
+    }
+
+    private void encaissementEtMajStatut(MoyenPaiementBO moyenPaiementBo, String moyenPaiementStr) {
+        List<DemandeBO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBo.getCommande().getPkCommandes());
+        List<DemandeBO> demandesAFaireAvancer = demandes.stream().filter(d -> !d.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser()))
+                .toList();
+        if (!demandesAFaireAvancer.isEmpty()) {
+            demandesStatutsService.updateMultipleStatuts(demandesAFaireAvancer, EN_COURS_PAIEMENT_STATUT_KEY);
+        }
+        updateDemandes(demandes, moyenPaiementStr);
     }
 
     @Override

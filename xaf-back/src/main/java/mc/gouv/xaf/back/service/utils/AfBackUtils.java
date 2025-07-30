@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -747,8 +746,13 @@ public class AfBackUtils {
     }
 
     public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, PropertiesListEntityDTO[].class);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(json, PropertiesListEntityDTO[].class);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de AfBackUtils.parserPropertiesListJson()", e);
+        }
+        return new PropertiesListEntityDTO[0];
     }
 
     public static String convertTelIndicateur(String indicateur) {

@@ -1,6 +1,6 @@
 package mc.gouv.xaf.shared.dto;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -71,8 +71,12 @@ public class PageParamDTO {
     }
 
     public String[] getStatusArray() {
-        Gson gson = new Gson();
-        return gson.fromJson(status, String[].class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(status, String[].class);
+        } catch (Exception e) {
+            return new String[0];
+        }
     }
 
 }

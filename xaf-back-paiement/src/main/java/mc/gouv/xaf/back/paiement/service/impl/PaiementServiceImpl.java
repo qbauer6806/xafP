@@ -476,14 +476,16 @@ public class PaiementServiceImpl implements PaiementService {
             historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
             state = "DEBIT_REALISE";
             action = "Débit réalisé avec succès";
+            paiementHistoriqueRepository.save(historique);
+            demandesHistoriqueService.actionSysteme(pkDemandes, state, action);
         } else if (actionDebit.equals(ActionDebitEnum.FAILURE)) {
             historique.setContenu("Système - Débit en échec");
             state = "DEBIT_ECHEC";
             action = "Débit en échec. Demande de paiement envoyée";
             historique.setStatut(PaiementStatutEnum.DEBIT_ECHEC.name());
+            paiementHistoriqueRepository.save(historique);
+            demandesHistoriqueService.actionSysteme(pkDemandes, state, action);
         }
-        paiementHistoriqueRepository.save(historique);
-        demandesHistoriqueService.actionSysteme(pkDemandes, state, action);
     }
 
     private void updateCommande(CommandeBO commande, double montantCapture) {
@@ -498,6 +500,7 @@ public class PaiementServiceImpl implements PaiementService {
     private static CommandeOperationBO getCommandeOperationBO(DebitOutputDTO debit,
             CommandeDemandeBO commandeDemande) {
         CommandeOperationBO operation = new CommandeOperationBO();
+        LocalDateTime now = LocalDateTime.now();
         operation.setCommande(commandeDemande.getCommande());
         operation.setDemande(commandeDemande.getDemande());
         operation.setDateCreation(debit.getTransactionAction().getDateCreationDebit());
@@ -509,9 +512,13 @@ public class PaiementServiceImpl implements PaiementService {
                 break;
             case PENDING:
                 operation.setOperationStatut(OperationStatutEnum.EN_ATTENTE);
+                operation.setDateCreation(now);
+                operation.setDateRealisation(now);
                 break;
             case FAILURE:
                 operation.setOperationStatut(OperationStatutEnum.ECHEC);
+                operation.setDateCreation(now);
+                operation.setDateRealisation(now);
                 break;
         }
         operation.setMontant(commandeDemande.getMontant());

@@ -254,4 +254,8 @@ public interface DemarchesDataProvider {
         return "PAIEMENT_A_REGULARISER";
     }
 
+    default String statutPaiementARegulariserEnCours() {
+        return "EN_COURS_PAIEMENT_A_REGULARISER";
+    }
+
 }

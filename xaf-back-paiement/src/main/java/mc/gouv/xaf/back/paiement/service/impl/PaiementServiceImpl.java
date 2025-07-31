@@ -560,15 +560,19 @@ public class PaiementServiceImpl implements PaiementService {
 
                 paiementHistoriqueRepository.save(historique);
 
-                if (demande.getDernierStatut().getName().equals(demarchesDataProvider.statutPaiementARegulariser())) {
+                if (demande.getDernierStatut().getName().contains(demarchesDataProvider.statutPaiementARegulariser())) {
                     String identifiant = demande.getIdentifiant();
                     DebitDTO debit = debit(identifiant, "00000", keycloakTokenService.getAccessToken());
 
                     if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
                         MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
                         sauvegardeRecuPaiement(recuPaiement, identifiant);
+                    } else if (debit.getStatut().equals(StatutDebitEnum.PENDING)) {
+                        // On est dans le cas où la caisse est fermée pour un paiement à régulariser
+                        demandesStatutsService.updateStatut(demande,
+                                demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
+                                null);
                     }
-
                 } else {
                     LOGGER.info("Progression dans le BPM...");
                     Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);

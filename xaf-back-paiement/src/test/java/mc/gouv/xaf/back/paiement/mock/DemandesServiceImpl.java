@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
@@ -25,7 +26,8 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds) {
+    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
         return null;
     }
 

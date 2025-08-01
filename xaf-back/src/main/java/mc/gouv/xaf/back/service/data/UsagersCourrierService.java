@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.data;
 
 import java.util.List;
-
+import java.util.Optional;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
@@ -62,5 +62,6 @@ public interface UsagersCourrierService {
     /**
      * Permet de récupérer la derniere demande connue selon les statuts definis
      */
-    DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds);
+    Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds);
 }

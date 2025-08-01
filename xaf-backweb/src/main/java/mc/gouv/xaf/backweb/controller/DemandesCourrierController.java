@@ -1,14 +1,20 @@
 package mc.gouv.xaf.backweb.controller;
 
+import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import jakarta.validation.Valid;
-
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
+import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
+import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
@@ -23,16 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UsagersUtils;
-import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
-import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Controller pour les demandes courrier
@@ -155,12 +151,11 @@ public class DemandesCourrierController extends AbstractController {
         mav.addObject("langues", afBackUtils.getLanguesDisponibles());
 
         // Récuperation de la dernière demande pour duplication
-        DemandeDTO derniereDemande = usagersCourrierService.getDerniereDemandePourDuplication(usagerId,
-                demarchesDataProvider.getStatutsPourDuplication(), demarchesDataProvider.getBuildIdsPourDuplication());
-        if (derniereDemande != null) {
-            mav.addObject("duplicationKeyId", derniereDemande.getPkDemandes());
-            mav.addObject("duplicationIdentifiant", derniereDemande.getIdentifiant());
-        }
+        usagersCourrierService.getDerniereDemandePourDuplication(usagerId,
+                        demarchesDataProvider.getStatutsPourDuplication(), demarchesDataProvider.getBuildIdsPourDuplication())
+                .ifPresent(derniereDemande -> {
+                    mav.addObject("duplicationKeyId", derniereDemande.getPkDemandes());
+                    mav.addObject("duplicationIdentifiant", derniereDemande.getIdentifiant());
+                });
     }
-
 }

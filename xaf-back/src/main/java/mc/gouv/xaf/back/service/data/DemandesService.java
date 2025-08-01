@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
@@ -26,7 +27,8 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants);
 
-    DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds);
+    Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds);
 
     List<DemandeDTO> getDemandesLight(Integer usagerId);
 

@@ -484,11 +484,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds) {
+    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
         checkAccess(usagerId);
-        DemandeBO derniereDemande = demandesRepository.findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
-                usagerId, statuts, buildIds);
-        return demandesTransformer.bo2Dto(derniereDemande);
+        return demandesRepository.findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
+                usagerId, statuts, buildIds).map(demandesTransformer::bo2Dto);
     }
 
     @Override

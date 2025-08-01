@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
@@ -27,17 +28,10 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants);
 
-    /**
-     * Permet de récupérer les demandes
-     */
-    List<DemandeDTO> getDemandes();
+    Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds);
 
-    /**
-     * Permet de récupérer les demandes correspondant UsagerID
-     */
-    List<DemandeDTO> getDemandes(Integer usagerId);
-
-    List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId);
+    List<DemandeDTO> getDemandesLight(Integer usagerId);
 
     /**
      * Méthode permettant de récupérer les demandes
@@ -106,11 +100,6 @@ public interface DemandesService {
 
     DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
             JsonNode donneesExternes);
-
-    /**
-     * Permet de récupérer l'AccessID de l'Access lié à une demande
-     */
-    Integer getAccessIdFromDemande(DemandeDTO demande);
 
     /**
      * <p>Permet de dupliquer une demande</p>
@@ -183,13 +172,6 @@ public interface DemandesService {
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
     byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO);
-
-    /**
-     * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du
-     * FRONT
-     */
-    List<DemandeDTO> getDemandesFilterFiles(Integer usagerId);
-
 
     List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
             List<String> canaux);

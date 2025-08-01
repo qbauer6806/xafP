@@ -482,48 +482,27 @@ public class DemandesServiceImpl implements DemandesService {
         return demandeDTO;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return getDemandesUsager(usagerId);
+    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
+        checkAccess(usagerId);
+        return demandesRepository.findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
+                usagerId, statuts, buildIds).map(demandesTransformer::bo2Dto);
     }
 
     @Override
-    public List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId) {
+    public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
-        AccessBO accessBo = accessService.getAccessBO(usagerId, true);
-        if (accessBo == null) {
-            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-        }
+        checkAccess(usagerId);
         return demandesRepository.findByUsagerId(usagerId).stream()
                 .map(demande -> demandesTransformer.lightProjection2Dto(demande)).toList();
     }
 
-    private List<DemandeDTO> getDemandesUsager(Integer usagerId) {
-        LOGGER.info(RECUPERATION_DEMANDES);
+    private void checkAccess(Integer usagerId) {
         AccessBO accessBo = accessService.getAccessBO(usagerId, true);
         if (accessBo == null) {
             throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
         }
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(new ArrayList<>(accessBo.getDemandes()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeDTO> getDemandesFilterFiles(Integer usagerId) {
-        List<DemandeDTO> demandes = getDemandes(usagerId);
-        for (DemandeDTO demande : demandes) {
-            DemandeFileDTO[] fichiers = demande.getFichiers();
-            if (fichiers != null) {
-                demande.setFichiers(DemarchesUtils.filterFiles(fichiers));
-            }
-        }
-        return demandes;
     }
 
     /**
@@ -533,25 +512,6 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants) {
         LOGGER.info(RECUPERATION_DEMANDES);
         List<DemandeBO> demandes = demandesRepository.findAllByIdentifiantIn(identifiants);
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(demandes);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeDTO> getDemandes() {
-
-        LOGGER.info(RECUPERATION_DEMANDES);
-
-        // Si usagerId null, alors rechercher tous les accès qui sont actifs
-        ArrayList<DemandeBO> demandes = new ArrayList<>();
-        List<AccessBO> accessBos = accessRepository.findByActive(true);
-        for (AccessBO access : accessBos) {
-            demandes.addAll(access.getDemandes());
-        }
-
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return demandesTransformer.bo2Dto(demandes);
     }
@@ -971,11 +931,6 @@ public class DemandesServiceImpl implements DemandesService {
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Override
-    public Integer getAccessIdFromDemande(DemandeDTO demande) {
-        return getCheckDemarcheDemandeBO(demande, true).getFkAccess().getPkAccess();
     }
 
     /**

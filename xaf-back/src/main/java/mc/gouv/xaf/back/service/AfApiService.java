@@ -517,10 +517,6 @@ public class AfApiService implements AfApi {
         return demandesService.getDemandeRecap(demandeId, usagerId, donneesMConnectDTO);
     }
 
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return demandesService.getDemandesFilterFiles(usagerId);
-    }
-
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
         return demandesComplementsService.getDemandesComplements(demandeId);
     }
@@ -537,7 +533,7 @@ public class AfApiService implements AfApi {
 
         // Récupération de la liste des demandes effectuées par l'usager
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager...");
-        List<DemandeDTO> demandes = demandesService.getDemandesUsagerDesinscription(usagerId);
+        List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerId);
 
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();

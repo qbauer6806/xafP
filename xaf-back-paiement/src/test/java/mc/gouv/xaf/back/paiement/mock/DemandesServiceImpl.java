@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
@@ -26,17 +27,13 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getDemandes() {
-        return List.of();
+    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
+        return null;
     }
 
     @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return List.of();
-    }
-
-    @Override
-    public List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId) {
+    public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         return List.of();
     }
 
@@ -99,11 +96,6 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public Integer getAccessIdFromDemande(DemandeDTO demande) {
-        return 0;
-    }
-
-    @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
         return null;
     }
@@ -161,11 +153,6 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO) {
         return new byte[0];
-    }
-
-    @Override
-    public List<DemandeDTO> getDemandesFilterFiles(Integer usagerId) {
-        return List.of();
     }
 
     @Override

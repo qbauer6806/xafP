@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.data.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
@@ -43,6 +44,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
 
     List<DemandeLightProjection> findByUsagerId(Integer usagerId);
+
+    Optional<DemandeBO> findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
+            Integer usagerId, List<String> statuts, List<String> buildIds);
 
     @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
             + "WHERE ds.date < :dernierStatutDateDebut " + "AND ds.name IN :dernierStatutList "

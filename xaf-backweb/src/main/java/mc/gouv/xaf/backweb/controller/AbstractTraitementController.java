@@ -296,8 +296,7 @@ public class AbstractTraitementController extends AbstractController {
         XafTraitementFormBean xafTraitementFormBean = new XafTraitementFormBean();
         xafTraitementFormBean.setObservations(demande.getObservations());
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);
-        mav.addObject("isDiscussionPanelDisplayed",
-                !demarchesDataProvider.getPremierStatutCreationDemande().equals(demande.getDernierStatut().getName()));
+        mav.addObject("isDiscussionPanelDisplayed", StringUtils.isNotBlank(demande.getAgentAffecteId()));
         return mav;
     }
 

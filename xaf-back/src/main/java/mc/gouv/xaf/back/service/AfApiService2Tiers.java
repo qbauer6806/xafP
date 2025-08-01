@@ -116,11 +116,6 @@ public class AfApiService2Tiers implements AfApi {
         return afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
     }
 
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        LOGGER.info("AfApiService2Tiers.getDemandes({})", usagerId);
-        return afBackUtils.getAfApiClient2Tiers().getDemandes(usagerId);
-    }
-
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
         return afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);

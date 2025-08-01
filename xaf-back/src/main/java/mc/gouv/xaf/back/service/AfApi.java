@@ -61,8 +61,6 @@ public interface AfApi {
 
     byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO);
 
-    List<DemandeDTO> getDemandes(Integer usagerId);
-
     Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO pageParamDTO);
 
     List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);

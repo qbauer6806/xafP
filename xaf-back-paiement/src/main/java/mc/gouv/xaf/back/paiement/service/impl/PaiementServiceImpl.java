@@ -449,7 +449,8 @@ public class PaiementServiceImpl implements PaiementService {
                 moyenPaiement, commandeDemande);
         guKafkaPaiementProducer.sendAffichagePaiementMessage(usagerId.toString(), PaymentTypeEnum.DEMANDE,
                 moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit(),
-                operation.getMontant(), debit.getTransactionAction().getActionDebit().name(), "object",
+                operation.getMontant(), debit.getTransactionAction().getActionDebit().name(),
+                demarchesDataProvider.getObjetPaiement(demandesTransformer.bo2Dto(demandeBo)),
                 demandeBo.getIdentifiant(), commandeDemande.getCommande().getDateCreation(),
                 moyenPaiement.getExpiryDate(), moyenPaiement.getPaymentMethodAccount(),
                 moyenPaiement.getEffectiveBrand(),

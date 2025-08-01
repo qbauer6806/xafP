@@ -136,14 +136,6 @@ public class AfApiController {
         return afApiService.getDemandeRecap(usagerId, demandeId, donneesMConnectDTO);
     }
 
-    @GetMapping(value = "/demandes")
-    public @ResponseBody List<DemandeDTO> getDemandesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getDemandes({})", usagerId);
-        List<DemandeDTO> demandeDTOS = afApiService.getDemandes(usagerId);
-        demandesTransformer.hideInfos(demandeDTOS);
-        return demandeDTOS;
-    }
-
     @GetMapping(value = "/demandespage")
     public @ResponseBody Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId,
             @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,

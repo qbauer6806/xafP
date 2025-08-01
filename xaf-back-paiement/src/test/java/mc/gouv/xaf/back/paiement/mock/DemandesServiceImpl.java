@@ -25,17 +25,12 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getDemandes() {
-        return List.of();
+    public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds) {
+        return null;
     }
 
     @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return List.of();
-    }
-
-    @Override
-    public List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId) {
+    public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         return List.of();
     }
 
@@ -95,11 +90,6 @@ public class DemandesServiceImpl implements DemandesService {
     public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatutName,
             JsonNode donneesExternes) {
         return null;
-    }
-
-    @Override
-    public Integer getAccessIdFromDemande(DemandeDTO demande) {
-        return 0;
     }
 
     @Override
@@ -166,11 +156,6 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO) {
         return new byte[0];
-    }
-
-    @Override
-    public List<DemandeDTO> getDemandesFilterFiles(Integer usagerId) {
-        return List.of();
     }
 
     @Override

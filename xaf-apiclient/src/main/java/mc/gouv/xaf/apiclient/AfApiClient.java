@@ -153,18 +153,6 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(byte[].class);
     }
 
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        Response res = getTarget().path(RequestConstant.DEMANDES_PATH)
-                .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(new GenericType<List<DemandeDTO>>() {
-
-        });
-    }
-
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
         Response res = getTarget().path("demandespage").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam("page", paramDTO.getPage()).queryParam("size", paramDTO.getSize())

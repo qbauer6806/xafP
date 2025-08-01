@@ -255,6 +255,9 @@ public class DemandesTransformer {
         demandeDTO.setPkDemandes(projection.getPkDemandes());
         demandeDTO.setIdentifiant(projection.getIdentifiant());
         demandeDTO.setDernierStatut(DemandesStatutsTransformer.bo2Dto(projection.getDernierStatut()));
+        demandeDTO.setCanal(DemandeCanalEnum.valueOf(projection.getCanal()));
+        demandeDTO.setLangue(projection.getLangue());
+        demandeDTO.setDateCreation(projection.getDateCreation());
         return demandeDTO;
     }
 

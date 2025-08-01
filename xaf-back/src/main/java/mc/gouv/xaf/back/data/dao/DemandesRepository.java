@@ -49,6 +49,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     List<DemandeLightProjection> findByUsagerId(Integer usagerId);
 
+    DemandeBO findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(Integer usagerId,
+            List<String> statuts, List<String> buildIds);
+
     /**
      * Permet de récupérer les demandes créées entre deux dates
      */

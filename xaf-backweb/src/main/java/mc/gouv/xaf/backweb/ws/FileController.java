@@ -4,6 +4,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +44,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.util.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -194,55 +195,87 @@ public class FileController {
     private void constructPdf(List<File> files, File destination) throws IOException {
         PDFMergerUtility pdfMerger = new PDFMergerUtility();
         pdfMerger.setDestinationFileName(destination.getAbsolutePath());
-        try (PDDocument doc = new PDDocument()) {
-            for (File file : files) {
-                if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
-                    copyFileInDestination(ImageIO.read(file), doc);
-                } else {
-                    pdfMerger.addSource(file);
-                }
+
+        File parentFile = destination.getParentFile();
+
+        for (File file : files) {
+            String absolutePath = file.getAbsolutePath().toLowerCase();
+            if (absolutePath.endsWith(".jpg") || absolutePath.endsWith(".jpeg") || absolutePath.endsWith(".tif")
+                    || absolutePath.endsWith(".png")) {
+                File tmpPdf = convertImageToPdf(file, parentFile);
+                pdfMerger.addSource(tmpPdf);
+            } else if (absolutePath.endsWith(".doc") || absolutePath.endsWith(".docx")) {
+                // todo convert pdf
+                //                File tmpPdf = convertDocToPdf(file, parentFile);
+                //                pdfMerger.addSource(tmpPdf);
+            } else if (absolutePath.endsWith(".pdf")) {
+                pdfMerger.addSource(file);
             }
-            File parentFile = destination.getParentFile();
-            doc.save(parentFile.getAbsolutePath() + "/JpegToPdfFile.pdf");
-            pdfMerger.addSource(new File(parentFile.getAbsolutePath() + "/JpegToPdfFile.pdf"));
-            pdfMerger.mergeDocuments(null);
         }
+
+        pdfMerger.mergeDocuments(null);
     }
 
-    private void copyFileInDestination(BufferedImage bufferedImage, PDDocument doc) {
-        int height = 830;
-        int width = 580;
-        PDPage page = new PDPage(PDRectangle.A4);
-        doc.addPage(page);
-        try {
-            PDImageXObject pdImageXObject = LosslessFactory.createFromImage(doc, bufferedImage);
-            try (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
-                    PDPageContentStream.AppendMode.APPEND, false, false)) {
-                float scale = 1;
-                int largeurImage = bufferedImage.getWidth();
-                int hauteurImage = bufferedImage.getHeight();
-                if (largeurImage > width) {
-                    scale = (float) width / largeurImage;
-                }
+    private BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        Image scaled = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+        BufferedImage resized = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = resized.createGraphics();
+        g2d.drawImage(scaled, 0, 0, null);
+        g2d.dispose();
+        return resized;
+    }
 
-                if (hauteurImage > height) {
-                    float tempscale = (float) height / hauteurImage;
-                    if (tempscale < scale) {
-                        scale = tempscale;
-                    }
-                }
-                contentStream.saveGraphicsState();
-                // ici on check si l'image a besoin d'etre tournée à 90 degrès
-                if (largeurImage > hauteurImage) {
-                    contentStream.transform(Matrix.getRotateInstance(Math.toRadians(90),
-                            page.getCropBox().getWidth() + page.getCropBox().getLowerLeftX(), 0));
-                }
-                contentStream.drawImage(pdImageXObject, 12, 12, largeurImage * scale, hauteurImage * scale);
-                contentStream.restoreGraphicsState();
-            }
-        } catch (IOException | NullPointerException e) {
-            LOGGER.error("Erreur FileController - copyFileInDestination", e);
+    private File convertImageToPdf(File imageFile, File outputDir) throws IOException {
+        BufferedImage image = ImageIO.read(imageFile);
+        if (image == null) {
+            throw new IOException("Image invalide ou non lisible : " + imageFile.getName());
         }
+
+        int originalWidth = image.getWidth();
+        int originalHeight = image.getHeight();
+
+        boolean isLandscape = originalWidth > originalHeight;
+
+        // Créer la page en portrait ou paysage selon l'image
+        PDRectangle pageSize = isLandscape
+                ? new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth())
+                : PDRectangle.A4;
+
+        // Marges (12 points de chaque côté)
+        final float margin = 12f;
+        final float maxWidth = pageSize.getWidth() - 2 * margin;
+        final float maxHeight = pageSize.getHeight() - 2 * margin;
+
+        // Calcul de l'échelle pour ne pas dépasser la page
+        float scale = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+
+        // Dimensions finales
+        int displayWidth = Math.round(originalWidth * scale);
+        int displayHeight = Math.round(originalHeight * scale);
+
+        // Redimensionnement de l'image pour optimiser la mémoire
+        BufferedImage resizedImage = resizeImage(image, displayWidth, displayHeight);
+
+        File outputPdf = new File(outputDir, imageFile.getName() + ".pdf");
+
+        try (PDDocument doc = new PDDocument()) {
+            PDPage page = new PDPage(pageSize);
+            doc.addPage(page);
+
+            PDImageXObject pdImage = LosslessFactory.createFromImage(doc, resizedImage);
+
+            try (PDPageContentStream contentStream = new PDPageContentStream(doc, page)) {
+                // Centrage de l'image
+                float x = (pageSize.getWidth() - displayWidth) / 2f;
+                float y = (pageSize.getHeight() - displayHeight) / 2f;
+
+                contentStream.drawImage(pdImage, x, y, displayWidth, displayHeight);
+            }
+
+            doc.save(outputPdf);
+        }
+
+        return outputPdf;
     }
 
     /**

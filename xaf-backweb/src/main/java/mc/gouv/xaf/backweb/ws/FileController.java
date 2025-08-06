@@ -204,16 +204,30 @@ public class FileController {
                     || absolutePath.endsWith(".png")) {
                 File tmpPdf = convertImageToPdf(file, parentFile);
                 pdfMerger.addSource(tmpPdf);
+            } else if (absolutePath.endsWith(".pdf")) {
+                pdfMerger.addSource(file);
             } else if (absolutePath.endsWith(".doc") || absolutePath.endsWith(".docx")) {
                 // todo convert pdf
                 //                File tmpPdf = convertDocToPdf(file, parentFile);
                 //                pdfMerger.addSource(tmpPdf);
-            } else if (absolutePath.endsWith(".pdf")) {
-                pdfMerger.addSource(file);
+                File blankPdf = createBlankPdf(parentFile);
+                pdfMerger.addSource(blankPdf);
             }
         }
 
         pdfMerger.mergeDocuments(null);
+    }
+
+    private File createBlankPdf(File outputDir) throws IOException {
+        File tempFile = File.createTempFile("blank_", ".pdf", outputDir);
+
+        try (PDDocument document = new PDDocument()) {
+            PDPage blankPage = new PDPage();
+            document.addPage(blankPage);
+            document.save(tempFile);
+        }
+
+        return tempFile;
     }
 
     private BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {

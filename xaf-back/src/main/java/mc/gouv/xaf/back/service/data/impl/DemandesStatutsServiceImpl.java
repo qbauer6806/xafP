@@ -172,10 +172,8 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     public void updateMultipleStatuts(List<DemandeBO> demandes, String statutName) {
         try {
             for (DemandeBO demandeBo : demandes) {
-                AccessBO accessBO = new AccessBO();
-                accessBO.setPkAccess(demandeBo.getFkAccess().getPkAccess());
+                AccessBO accessBO = demandeBo.getFkAccess();
                 accessBO.setUsagerId(demandeBo.getUsager().getId());
-                demandeBo.setFkAccess(accessBO);
                 updateStatut(demandeBo, statutName, null, null, null, null, null);
             }
         } catch (Exception e) {

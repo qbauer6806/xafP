@@ -6,6 +6,7 @@ import java.util.List;
 
 import jakarta.annotation.PostConstruct;
 
+import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,6 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
@@ -102,7 +102,7 @@ public class GUKafkaUtils {
             recap.setIdentifiant(r.getIdentifiant());
             recap.setDateCreation(r.getDateCreation());
             StatutSimplifieEnum statutSimplifie = demarchesDataProvider.getStatutSimplifie(
-                    r.getDernierStatut());
+                    r.getDernierStatut().getName());
             recap.setStatutSimplifie(statutSimplifie.name());
             demandeRecaps.add(recap);
         }

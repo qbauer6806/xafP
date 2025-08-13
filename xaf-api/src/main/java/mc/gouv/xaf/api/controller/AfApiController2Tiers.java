@@ -3,7 +3,6 @@ package mc.gouv.xaf.api.controller;
 import java.util.Date;
 import java.util.List;
 
-import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,11 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import mc.gouv.xaf.back.service.AfApi;
+import mc.gouv.xaf.back.service.AfApi2Tiers;
+import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
@@ -51,36 +49,7 @@ public class AfApiController2Tiers {
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiController2Tiers.class);
     
     @Autowired
-    private AfApi afApiService2Tiers;
-
-    @GetMapping(value = "/motifs")
-    public List<MotifDTO> getMotifsRequest() {
-        LOGGER.info("AfApiController2Tiers.getMotifsRequest()");
-        return afApiService2Tiers.getMotifs();
-    }
-
-    @PostMapping(value = "/motifs")
-    @ResponseStatus(HttpStatus.CREATED)
-    public MotifDTO createMotifRequest(@Valid @RequestBody MotifDTO motif) {
-        LOGGER.info("AfApiController2Tiers.createMotifRequest()");
-        motif.setPkMotifs(null);
-        return afApiService2Tiers.createMotif(motif);
-    }
-
-    @PutMapping(value = "/motifs/{motif}")
-    @ResponseStatus(HttpStatus.OK)
-    public MotifDTO updateMotifRequest(@PathVariable("motif") Integer pkMotif, @Valid @RequestBody MotifDTO motif) {
-        LOGGER.info("AfApiController2Tiers.updateMotifRequest({})", pkMotif);
-        motif.setPkMotifs(pkMotif);
-        return afApiService2Tiers.updateMotif(motif);
-    }
-
-    @DeleteMapping(value = "/motifs/{motif}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteMotifRequest(@PathVariable("motif") Integer pkMotif) {
-        LOGGER.info("AfApiController2Tiers.deleteMotifRequest({})", pkMotif);
-        afApiService2Tiers.deleteMotif(pkMotif);
-    }
+    private AfApi2Tiers afApiService2Tiers;
 
     @GetMapping(value = "/periodesouverture")
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
@@ -113,35 +82,26 @@ public class AfApiController2Tiers {
         afApiService2Tiers.deletePeriodeOuverture(pkPeriodeOuverture);
     }
 
-    @GetMapping(value = "/usagers/{usager}")
-    @ResponseStatus(HttpStatus.OK)
-    public GichuniUsagerDTO getUsagerRequest(@PathVariable("usager") Integer usagerId) {
-        LOGGER.info("AfApiController2Tiers.getUsagerRequest({})", usagerId);
-        return afApiService2Tiers.getUsager(usagerId);
-    }
-
-    @PostMapping(value = "/file/{container}/**")
+    @PostMapping(value = "/file/{usagerId}/**")
     @ResponseStatus(HttpStatus.CREATED) // 201
-    public @ResponseBody FileResponseDTO saveFileRequest(@PathVariable("container") String container,
-            @RequestParam(required = true) MultipartFile data, HttpServletRequest request,
-            HttpServletResponse response) {
-        LOGGER.info("AfApiController2Tiers.saveFileRequest()");
-        return afApiService2Tiers.saveFile(container, data, request, response);
+    public @ResponseBody FileResponseDTO saveFileRequest(@PathVariable(value = "usagerId") Integer usagerId, @RequestParam(required = true) MultipartFile data, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        LOGGER.info("AfApiController2Tiers.saveFileRequest(usagerId={})", usagerId);
+        return afApiService2Tiers.saveFile(usagerId, data, request, response);
     }
 
-    @GetMapping(value = "/file/{container}/**")
+    @GetMapping(value = "/file/**")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity<InputStreamResource> getFileRequest(@PathVariable("container") String container,
-            HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<InputStreamResource> getFileRequest(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("AfApiController2Tiers.getFileRequest()");
-        return afApiService2Tiers.getFile(container, request, response);
+        return afApiService2Tiers.getFile(request, response);
     }
 
-    @DeleteMapping(value = "/file/{container}/**")
+    @DeleteMapping(value = "/file/**")
     @ResponseStatus(HttpStatus.OK) // 200
-    public ResponseEntity deleteFileRequest(@PathVariable("container") String container, HttpServletRequest request) {
+    public ResponseEntity deleteFileRequest(HttpServletRequest request) {
         LOGGER.info("AfApiController2Tiers.deleteFileRequest()");
-        return afApiService2Tiers.deleteFile(container, request);
+        return afApiService2Tiers.deleteFile(request);
     }
 
     @PostMapping(value = "/notify/{usagerId}/creationDemande")
@@ -182,23 +142,11 @@ public class AfApiController2Tiers {
         return afApiService2Tiers.notifySuppressionDemande(usagerId, demandeId, identifiantDemande, dateSuppression, recapDemandes);
     }
 
-    @PostMapping(value = "/notify/{usagerId}/desinscriptionUsagerTS")
-    ResponseEntity notifyDesinscriptionUsagerTSRequest(@PathVariable(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AfApiController2Tiers.notifyDesinscriptionUsagerTSRequest({})", usagerId);
-        return afApiService2Tiers.notifyDesinscriptionUsagerTS(usagerId);
-    }
-
     @PostMapping(value = "/notify/synchronizeDemandesRecaps")
     ResponseEntity synchronizeDemandesRecapsRequest(
             @Valid @RequestBody List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
         LOGGER.info("AfApiController2Tiers.synchronizeDemandesRecapsRequest()");
         return afApiService2Tiers.synchronizeDemandesRecaps(usagerDemandesRecap);
-    }
-
-    @PostMapping(value = "/notify/{usagerId}/creationAccesTS")
-    ResponseEntity notifyCreationAccesTSRequest(@PathVariable(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AfApiController2Tiers.notifyCreationAccesTSRequest({})", usagerId);
-        return afApiService2Tiers.notifyCreationAccesTS(usagerId);
     }
 
 }

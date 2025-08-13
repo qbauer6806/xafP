@@ -6,6 +6,7 @@ import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfApiService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
@@ -95,6 +97,8 @@ public class AbstractTraitementController extends AbstractController {
     private BackGouvPropertiesResolver backGouvPropertiesResolver;
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
+    
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesFilesService demandesFilesService;
@@ -312,6 +316,22 @@ public class AbstractTraitementController extends AbstractController {
             }
         }
         return fileCount;
+    }
+    
+    protected Boolean isLockedByUsager(Integer pkDemande, DemandeDTO demande) {
+        if (demande == null)
+            demande = demandesService.getDemande(pkDemande);
+        LOGGER.info("Contenu = {}", demande.getContenu());
+        /* la demande est lockée jusqu'à une date supérieure à la date en cours */
+        Long now = Instant.now().toEpochMilli();
+
+        if (demande.getModificationTimestamp() != null && demande.getModificationTimestamp().compareTo(now) > 0) {
+            LOGGER.info(
+                    "======================= isLockedByUsager demande {} : timestamp actuel: {} timestamp demande: {} diff: {}",
+                    pkDemande, now, demande.getModificationTimestamp(), demande.getModificationTimestamp() - now);
+            return true;
+        }
+        return false;
     }
 
     protected ModelAndView typageDocuments(TypedocFormBean typedocFormBean, Integer pkDemande,

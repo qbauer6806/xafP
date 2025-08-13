@@ -205,7 +205,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
+    public void deleteBrouillon(Integer pkBrouillons, Integer usagerId, boolean surCreationDemande) {
         BrouillonBO brouillonBo = getBrouillonBo(pkBrouillons);
         AccessBO access = brouillonBo.getFkAccess();
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
@@ -213,13 +213,15 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-        // Suppression des fichiers liés au brouillon
-        Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
-        if (brouillonsFilesBOS != null) {
-            for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
-                if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
-                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                    fileService.deleteFile("ROOT", url);
+        if (!surCreationDemande) {
+            // Suppression des fichiers liés au brouillon
+            Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
+            if (brouillonsFilesBOS != null) {
+                for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
+                    if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
+                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                        fileService.deleteFile("ROOT", url);
+                    }
                 }
             }
         }

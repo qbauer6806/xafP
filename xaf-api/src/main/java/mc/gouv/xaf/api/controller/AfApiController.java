@@ -52,11 +52,9 @@ import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
 
 /**
- * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
- * REST de Spring
+ * Controller exposant l'API REST destinée à être appelée par le FO.
  *
  * @author qdeme
- * @author fgaujous
  */
 @RestController
 @RequestMapping(value = "/api/v1", produces = "application/json")
@@ -93,21 +91,21 @@ public class AfApiController {
         LOGGER.info("AbstractAfApiController.updateDemande({}, {}, {})", demandeId, demande, usagerId);
         DemandeDTO demandeDTO = afApiService.updateDemande(demandeId, demande, usagerId);
         demandesTransformer.hideInfos(demandeDTO);
-        return null;
+        return demandeDTO;
     }
 
     @PutMapping(value = "/demandes/{demandeId}/lock")
     public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) {
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return new DemandeDTO();
+        return afApiService.lockDemande(demandeId, usagerId, timestamp);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/unlock")
     public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) {
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return new DemandeDTO();
+        return afApiService.unlockDemande(demandeId, usagerId);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/complements/{icId}")

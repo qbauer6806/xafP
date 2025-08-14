@@ -1,26 +1,23 @@
 package mc.gouv.xaf.back.denjs.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
+import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
+import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
-import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
-import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 
 /**
  * Service permettant de gérer l'affectation des agents ou des demandes à des établissements, dans le cadre des
@@ -68,7 +65,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
         try {
             DenjsAffectationAgentDTO[] affsArray = mapper.readValue(affectations.getValue(),
                     DenjsAffectationAgentDTO[].class);
-            return Arrays.asList(affsArray);
+            return new ArrayList<>(Arrays.asList(affsArray));
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur pendant mapper.readValue() des affectations en base", e);
         }

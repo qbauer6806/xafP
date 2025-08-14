@@ -1,19 +1,18 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import lombok.Getter;
 import lombok.Setter;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe service appelée par le process Activiti pour changer le statut d'une demande.
@@ -21,20 +20,18 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
  * @author qdeme
  */
 @Component
+@Scope("prototype") // Indispensable pour éviter que les champs persistent entre exécutions du délegate
 public class GouvBPMStatusChangeDelegate implements JavaDelegate {
-
-    // voir pour l'autowiring dans les javaDelegate
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMStatusChangeDelegate.class);
 
     @Setter
-    @Getter
     private Expression targetState;
+    @Setter
+    private Expression codeMotif;
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;
-
-    private Expression codeMotif;
 
     @Override
     public void execute(DelegateExecution execution) {

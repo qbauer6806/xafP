@@ -88,7 +88,7 @@
 
                 <!-- Champs customs en fonction des types de taches -->
                 <div
-                    th:replace="${'fragments/' + TachesUtils.getFragment(tache.codeType)} :: ${TachesUtils.getFragment(tache.codeType)}"></div>
+                    th:replace="~{${'fragments/' + TachesUtils.getFragment(tache.codeType)} :: ${TachesUtils.getFragment(tache.codeType)}}"></div>
 
                 <!-- Champ pour l'ajout de motifs à une action choisie -->
                 <div class="row mt-15" style="display: none"

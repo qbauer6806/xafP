@@ -1,22 +1,9 @@
 package mc.gouv.xaf.back.service.itg.sms.impl;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.tools.ToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.sms.SmsService;
@@ -27,6 +14,15 @@ import mc.gouv.xaf.back.service.itg.sms.dto.SmsParamDTO;
 import mc.gouv.xaf.back.service.templates.SmsTemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.ToolManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 /**
  * Composant permettant l'envoi de SMS "templatés"
@@ -48,6 +44,9 @@ public class SmsServiceImpl implements SmsService {
     
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private VelocityEngine velocityEngine;
 
 	@Override
 	public SmsDTO getSms(String identifiant) {
@@ -73,23 +72,20 @@ public class SmsServiceImpl implements SmsService {
         sms.setText(senderAndBody[0]);
         sms.setSender(senderAndBody[1]);
         sms.setParams(params);
-        
-        if (sms.getSender() != null && "".equals(sms.getSender())) {
+
+        if (sms.getSender() != null && sms.getSender().isEmpty()) {
         	sms.setSender(null);
         }
 
         return sms;
     }
-    
-    private String[] getBodyAndSender(String bodyTemplateCode, String langue,
-            Map<String, Object> model) throws IOException {
+
+    private String[] getBodyAndSender(String bodyTemplateCode, String langue, Map<String, Object> model) {
 
         LOGGER.info("Récupération du template demandé pour le corps du SMS...");
         SmsTemplateDTO smsTemplateBody = smsTemplatesCache.getTemplate(bodyTemplateCode, langue);
 
         LOGGER.info("Appel à Velocity pour le templating du corps du SMS...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-        Velocity.init();
         Context context = getContext();
         if (model != null) {
             for (Map.Entry<String, Object> entry : model.entrySet()) {
@@ -97,7 +93,7 @@ public class SmsServiceImpl implements SmsService {
             }
         }
         StringWriter output = new StringWriter();
-        if (!Velocity.evaluate(context, output, smsTemplateBody.getCode(), smsTemplateBody.getContenu())) {
+        if (!velocityEngine.evaluate(context, output, smsTemplateBody.getCode(), smsTemplateBody.getContenu())) {
             throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -114,8 +110,8 @@ public class SmsServiceImpl implements SmsService {
         if (sms == null) {
             return null;
         }
-        
-        SmsDTO smsEnvoye = null;
+
+        SmsDTO smsEnvoye;
         
         if (gouvPropertiesResolver.getSmsEnabled()) {        
 	        LOGGER.info("Appel à SMS pour envoi du SMS...");

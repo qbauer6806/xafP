@@ -12,8 +12,8 @@ import mc.gouv.xaf.back.service.itg.sms.dto.SmsInfoDTO;
  */
 public interface SmsService {
 
-	public SmsDTO sendSms(SmsInfoDTO sms, Map<String, Object> model);
-	
-	public SmsDTO getSms(String identifiant);
+    SmsDTO sendSms(SmsInfoDTO sms, Map<String, Object> model);
+
+    SmsDTO getSms(String identifiant);
 	
 }

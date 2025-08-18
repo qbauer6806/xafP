@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class MoyenPaiementController extends AbstractXafController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(usagerInfosDTO.getTokenInfo().getAccessToken());
+        references.sort(new PaymentMethodReferenceComparator());
 
         // Appel à lyra pour obtenir les infos
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
@@ -61,7 +63,6 @@ public class MoyenPaiementController extends AbstractXafController {
                         mwpaymntService.mwpaymentResponseToMoyenPaiement(pmi, monGuichetAlias.getPaymentMethodName()));
             }
         }
-        moyenPaiementOutputDTOs.sort(new MoyenPaiementComparator());
         LOGGER.info("====================== /moyen-paiement GET end...");
         return ResponseEntity.ok(moyenPaiementOutputDTOs);
     }
@@ -79,16 +80,23 @@ public class MoyenPaiementController extends AbstractXafController {
         return ResponseEntity.ok().build();
     }
 
-    class MoyenPaiementComparator implements Comparator<MoyenPaiementOutputDTO> {
+    class PaymentMethodReferenceComparator implements Comparator<PaymentMethodReferenceDTO> {
         @Override
-        public int compare(MoyenPaiementOutputDTO a, MoyenPaiementOutputDTO b) {
-            String nomA = a.getNom();
-            String nomB = b.getNom();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-            YearMonth dateA = YearMonth.parse(a.getExpiration(), formatter);
-            YearMonth dateB = YearMonth.parse(b.getExpiration(), formatter);
-            // crée si les nom sont identiques
-            return !nomA.equals(nomB) ? nomA.compareTo(nomB) : dateB.compareTo(dateA);
+        public int compare(PaymentMethodReferenceDTO a, PaymentMethodReferenceDTO b) {
+            String nomA = a.getPaymentMethodName();
+            String nomB = b.getPaymentMethodName();
+            // Compare d'abord les noms
+            int comparaisonNom = nomA.compareTo(nomB);
+            if (comparaisonNom != 0) {
+                return comparaisonNom;
+            }
+
+            // Si les noms sont identiques, compare les dates de création
+            LocalDateTime dateA = a.getCreatedAt();
+            LocalDateTime dateB = b.getCreatedAt();
+
+            // Ici dateB.compareTo(dateA) → tri décroissant (plus récent d'abord)
+            return dateB.compareTo(dateA);
         }
     }
 }

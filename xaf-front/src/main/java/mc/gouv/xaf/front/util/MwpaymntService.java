@@ -60,12 +60,6 @@ public class MwpaymntService {
         return registerInputDTO;
     }
 
-    public InfoCancelInputDTO getInfoInput(PaymentMethodReferenceDTO reference) {
-        InfoCancelInputDTO result = new InfoCancelInputDTO();
-        result.setPaymentMethodToken(reference.getPaymentMethodToken());
-        return result;
-    }
-
     public MoyenPaiementOutputDTO mwpaymentResponseToMoyenPaiement(PaymentMethodInformationDTO pmi, String moyenPaiementName) {
         MoyenPaiementOutputDTO currentMoyenPaiement = new MoyenPaiementOutputDTO();
         currentMoyenPaiement.setNumero(pmi.getPan());
@@ -75,6 +69,12 @@ public class MwpaymntService {
         currentMoyenPaiement.setNom(moyenPaiementName);
         currentMoyenPaiement.setId(pmi.getPaymentMethodToken());
         return currentMoyenPaiement;
+    }
+
+    public InfoCancelInputDTO getInfoInput(PaymentMethodReferenceDTO reference) {
+        InfoCancelInputDTO result = new InfoCancelInputDTO();
+        result.setPaymentMethodToken(reference.getPaymentMethodToken());
+        return result;
     }
 
     private String calculateExpiration(String expiryMonth, String expiryYear) {

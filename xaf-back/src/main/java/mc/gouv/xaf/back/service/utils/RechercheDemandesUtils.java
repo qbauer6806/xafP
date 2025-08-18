@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -30,13 +31,14 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.service.utils.customorder.FallbackOrderDefinition;
+import mc.gouv.xaf.back.service.utils.customorder.IDemandeFallbackOrdersConfiguration;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
@@ -60,8 +62,14 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String FILES = "files";
     private static final String SEARCH_VECTOR = "searchVector";
 
-    @Autowired
-    private EntityManager em;
+    private final Optional<IDemandeFallbackOrdersConfiguration> demandeFallbackOrdersConfiguration;
+    private final EntityManager em;
+
+    public RechercheDemandesUtils(EntityManager em,
+            Optional<IDemandeFallbackOrdersConfiguration> demandeFallbackOrdersConfiguration) {
+        this.em = em;
+        this.demandeFallbackOrdersConfiguration = demandeFallbackOrdersConfiguration;
+    }
 
     public Long getDemandesCount(DemandeRechercheDTO demandeRecherche) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -99,40 +107,27 @@ public class RechercheDemandesUtils extends RechercheUtils {
         List<Expression<?>> groupBy = new ArrayList<>();
         groupBy.add(root.get("pkDemandes"));
         if (order != null) {
-            String property = order.getProperty();
+            String orderProperty = order.getProperty();
             // Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
             Expression e = null;
-            if (StringUtils.equalsIgnoreCase(order.getProperty(), USAGER_ID)) {
+            if (StringUtils.equalsIgnoreCase(orderProperty, USAGER_ID)) {
                 Join<DemandeBO, AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
-                e = f.get(property);
-            } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
+                e = f.get(orderProperty);
+            } else if (StringUtils.equalsIgnoreCase(orderProperty, "dernierStatut.libelle")) {
                 Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
                 e = f.get(LIBELLE);
                 groupBy.add(f.get(LIBELLE));
-            } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "agent.nomAffichage")) {
+            } else if (StringUtils.equalsIgnoreCase(orderProperty, "agent.nomAffichage")) {
                 Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
                 e = f.get("nomAffichage");
                 groupBy.add(f.get("nomAffichage"));
-            } else if (order.getProperty().startsWith(CONTENU)) {
-                String[] jsonKeys = order.getProperty().replace(CONTENU, "").split("\\.");
-                List<Expression<?>> expressions = new ArrayList<>();
-                expressions.add(root.<String> get("contenu"));
-                for (String jsonKey : jsonKeys) {
-                    expressions.add(cb.literal(jsonKey));
-                }
-                e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
-            } else if (order.getProperty().startsWith(CONTENU_TRAD)) {
-                String[] jsonKeys = order.getProperty().replace(CONTENU_TRAD, "").split("\\.");
-                List<Expression<?>> expressions = new ArrayList<>();
-                expressions.add(root.<String> get("contenuTrad"));
-                for (String jsonKey : jsonKeys) {
-                    expressions.add(cb.literal(jsonKey));
-                }
-                e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
+            } else if (orderProperty.startsWith(CONTENU) || orderProperty.startsWith(CONTENU_TRAD)) {
+                e = getJsonOrderExpression(root, cb, orderProperty);
             }
             if (e == null) {
-                e = root.get(property);
+                e = root.get(orderProperty);
             }
+
             if (order.getDirection() == Direction.ASC) {
                 cq.orderBy(cb.asc(e));
             } else {
@@ -144,6 +139,40 @@ public class RechercheDemandesUtils extends RechercheUtils {
         typedQuery.setFirstResult((pageable.getPageNumber()) * pageable.getPageSize());
         typedQuery.setMaxResults(pageable.getPageSize());
         return typedQuery.getResultList();
+    }
+
+    private Expression<?> getJsonOrderExpression(Root<DemandeBO> root, CriteriaBuilder cb, String jsonProperty) {
+        final var maybeCustomFallback = getFallbackOrder(jsonProperty);
+
+        if (maybeCustomFallback.isEmpty()) {
+            return buildJsonExpression(root, cb, jsonProperty);
+        }
+
+        final var customFallback = maybeCustomFallback.get();
+        List<Expression<String>> allExpressions = customFallback.getAllProperties().stream()
+                .map(prop -> buildJsonExpression(root, cb, prop))
+                .map(expr -> cb.function("nullif", String.class, expr, cb.literal("null"))).toList();
+
+        final var conditionalOrder = cb.coalesce();
+        allExpressions.forEach(customOrderExpression -> conditionalOrder.value(customOrderExpression));
+        return conditionalOrder;
+    }
+
+    private Optional<FallbackOrderDefinition> getFallbackOrder(String order) {
+        return demandeFallbackOrdersConfiguration.map(IDemandeFallbackOrdersConfiguration::getFallbackOrders).stream()
+                .flatMap(Collection::stream).filter(fallback -> StringUtils.equals(fallback.jsonDefaultOrder(), order))
+                .findFirst();
+    }
+
+    private Expression<?> buildJsonExpression(Root<DemandeBO> root, CriteriaBuilder cb, String orderProperty) {
+        final var allJsonFields = Arrays.stream(orderProperty.split("\\.")).toList();
+        List<Expression<?>> expressions = new ArrayList<>();
+
+        expressions.add(root.<String> get(allJsonFields.getFirst()));
+        for (String jsonKey : allJsonFields.subList(1, allJsonFields.size())) {
+            expressions.add(cb.literal(jsonKey));
+        }
+        return cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
     }
 
     private Root<DemandeBO> buildQuery(CriteriaQuery<?> cq, DemandeRechercheDTO demandeRecherche, CriteriaBuilder cb) {
@@ -274,7 +303,6 @@ public class RechercheDemandesUtils extends RechercheUtils {
         // Vérifie si la chaîne commence par '[' et se termine par ']'
         return string.startsWith("[") && string.endsWith("]");
     }
-
 
     private void setFacetPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates,
             CriteriaBuilder cb, String texte, boolean trad) {

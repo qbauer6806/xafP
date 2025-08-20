@@ -365,6 +365,11 @@
     params.sort = columns[params.order[0].column].data
         + "," + params.order[0].dir;
 
+    if (!params.fields || params.fields.length === 0) {
+      params.fields = 'data';
+    } else if (!params.fields.includes('data')) {
+      params.fields += ',data';
+    }
   }
 
   var self = this

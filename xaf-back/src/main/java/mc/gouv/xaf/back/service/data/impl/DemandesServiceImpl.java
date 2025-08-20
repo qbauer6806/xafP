@@ -45,6 +45,7 @@ import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
@@ -85,6 +86,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
@@ -225,6 +227,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
 
     @Autowired
     private Optional<ICloneDemandExtender> cloneDemandExtenders;
@@ -1053,21 +1058,26 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess) {
+    public DemandeDTO associerDemandeCourrier(Integer pkDemande, GichuniUsagerDTO gichuniUsagerDTO) {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
 
-        LOGGER.info("Récupération de l'accès cible en base...");
-        Optional<AccessBO> accessBoOp = accessRepository.findById(pkAccess);
+        Integer usagerId = gichuniUsagerDTO.getId();
 
-        if (accessBoOp.isEmpty()) {
-            throw new DemarchesServiceException("Accès cible introuvable", HttpStatus.NOT_FOUND);
-        }
+        LOGGER.info("Appel à DEM pour récupération de l'accès actuel de l'usager à cette démarche...");
+        AccessBO accessBo = accessService.getAccessBOActive(usagerId);
 
         LOGGER.info("Association de la demande...");
 
-        demandeBo.setFkAccess(accessBoOp.get());
+        demandeBo.setFkAccess(accessBo);
         demandeBo.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
+        // assigner le bon usagerId (celui du téléservice et pas celui du courrier)
+        DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(usagerId);
+        if (usagerBO == null) {
+            // si l'usager n'existe pas on le créé
+            usagerBO = demandesUsagersTransformer.user2Bo(gichuniUsagerDTO);
+        }
+        demandeBo.setUsager(usagerBO);
 
         demandeBo = demandesRepository.save(demandeBo);
 

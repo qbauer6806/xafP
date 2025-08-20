@@ -430,9 +430,6 @@ public class AfApiService implements AfApi {
     @Transactional
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
 
-        LOGGER.info("Appel à DEM pour récupération de l'accès actuel de l'usager à cette démarche...");
-        AccessDTO access = accessService.getAccessActive(usagerId);
-
         LOGGER.info("Appel à DEM pour récupération de la demande concernée...");
 
         List<DemandeCanalEnum> canaux = new ArrayList<>();
@@ -457,8 +454,8 @@ public class AfApiService implements AfApi {
 
                 LOGGER.info(
                         "La chaîne de caractères de vérification pour l'association d'une demande courrier correspond bien à la demande, effectuer l'association...");
-
-                demande = demandesService.associerDemandeCourrier(demande.getPkDemandes(), access.getPkAccess());
+                GichuniUsagerDTO usager = usagersCache.get(usagerId);
+                demande = demandesService.associerDemandeCourrier(demande.getPkDemandes(), usager);
 
                 LOGGER.info("Mise à jour de la variable MC_DEMANDE_CANAL dans le BPM...");
                 gouvBPM.setProcessBusinessVariable(demande.getPkDemandes(),

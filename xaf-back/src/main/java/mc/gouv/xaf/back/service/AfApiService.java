@@ -668,7 +668,8 @@ public class AfApiService implements AfApi {
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 
-        Set<User> destinataires = afBackUtils.getAgentsWithRoles(new String[] { "TRAITEMENT" });
+        Set<User> destinataires = afBackUtils.getAgentsWithRoles(
+                demarchesDataProvider.getRolesDesinscriptionUsagerPourAgents());
         if (destinataires != null && !destinataires.isEmpty()) {
             for (User dest : destinataires) {
                 if (dest.getMail() != null) {

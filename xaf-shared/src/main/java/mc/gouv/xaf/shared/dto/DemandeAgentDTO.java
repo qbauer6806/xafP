@@ -9,6 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DemandeAgentDTO {
 
+    private Integer pkAgent;
+
     private String id;
 
     private String nom;
@@ -22,9 +24,5 @@ public class DemandeAgentDTO {
     private String mail;
 
     private String nomAffichage;
-
-    public DemandeAgentDTO(String id) {
-        this.id = id;
-    }
 
 }

@@ -779,10 +779,6 @@ public class DemandesServiceImpl implements DemandesService {
             if (!partialUpdate || demande.getObservations() != null) {
                 demandeBo.setObservations(demande.getObservations());
             }
-            if (demande.getAgent() != null) {
-                User user = utilisateursCache.get(demande.getAgent().getId());
-                demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-            }
 
             // Mise à jour du canal
             if (!partialUpdate && demande.getCanal() != null) {
@@ -1107,23 +1103,19 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
-            if (agentAffecteId != null) {
-                if (demandeBo.getAgent() != null) {
-                    demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
-                } else {
-                    User user = utilisateursCache.get(agentAffecteId);
-                    demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-                }
+            DemandeBO demandeBO = getCheckDemarcheDemandeBO(pkDemandes, true);
+
+            if (agentAffecteId == null) {
+                demandeBO.setAgent(null);
             } else {
-                demandeBo.setAgent(null);
+                DemandesAgentsBO agentsBO = demandesAgentsRepository.findById(agentAffecteId).orElseGet(() -> {
+                    User user = utilisateursCache.get(agentAffecteId);
+                    return demandesAgentsRepository.save(demandesAgentsTransformer.user2Bo(user));
+                });
+                demandeBO.setAgent(agentsBO);
             }
 
-            demandesRepository.save(demandeBo);
-            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-
-            LOGGER.info("Fin changement affectation...");
-            return demandeDTO;
+            return demandesTransformer.bo2Dto(demandesRepository.save(demandeBO));
         } catch (Exception e) {
             LOGGER.error("Erreur lors de changerAffectationDemande");
             ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(

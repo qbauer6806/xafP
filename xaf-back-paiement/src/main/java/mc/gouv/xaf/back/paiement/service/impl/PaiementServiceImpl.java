@@ -74,7 +74,11 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.keycloak.KeycloakTokenService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -82,6 +86,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
 import mc.gouv.xaf.shared.paiement.PaymentMethodInformationDTO;
 import mc.gouv.xaf.shared.paiement.enums.PSPEnum;
@@ -109,6 +114,8 @@ public class PaiementServiceImpl implements PaiementService {
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
     public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
     private static final String TARIF_CR_DEMAT_KEY = "XAF_TARIF_CR_DEMAT";
+    private static final String MAIL_DEBIT_ECHEC_AGENT_CODE = "MAIL_DEBIT_ECHEC_AGENT";
+    private static final String MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE = "MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT";
 
     @Autowired
     private TableauPaiementService tableauPaiementService;
@@ -184,8 +191,18 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private KeycloakTokenService keycloakTokenService;
+
     @Autowired
     private FactureService factureService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
+
+    @Autowired
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -441,6 +458,7 @@ public class PaiementServiceImpl implements PaiementService {
             commandeOperationRepository.save(operation);
             majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(),
                     moyenPaiement, commandeDemande);
+            envoiMailAgent(demandesService.getDemande(pkDemandes), false);
             return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
         }
         CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
@@ -459,7 +477,36 @@ public class PaiementServiceImpl implements PaiementService {
         return mwpaymtTransformer.debitOutputDTOToDebitDTO(debit);
     }
 
+    private void envoiMailAgent(DemandeDTO demande, boolean debitEnSucces) {
+        LOGGER.info("==== xaf-back-paiement ENVOI EMAIL DEBIT EN ECHEC ...");
 
+        EmailInfoDTO emailInfo = getEmailInfoDTO(debitEnSucces);
+        Map<String, Object> model = afMailTemplateModelProvider.getModel(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), demande,
+                null, null, null);
+        try {
+            mailService.sendMail(emailInfo, model, MailAudienceEnum.AGENT);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email", e);
+        }
+    }
+
+    private EmailInfoDTO getEmailInfoDTO(boolean debitEnSucces) {
+        EmailInfoDTO emailInfo = new EmailInfoDTO();
+        if (debitEnSucces) {
+            emailInfo.setBodyTemplateCode(MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE + "_CORPS");
+            emailInfo.setSubjectTemplateCode(MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE + "_OBJET");
+        } else {
+            emailInfo.setBodyTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + "_CORPS");
+            emailInfo.setSubjectTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + "_OBJET");
+        }
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getNom());
+        emailInfo.setLangue("fr");
+        return emailInfo;
+    }
 
     private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, Integer usagerId, ActionDebitEnum actionDebit,
             MoyenPaiementBO moyenPaiement, CommandeDemandeBO commandeDemande) {
@@ -575,6 +622,7 @@ public class PaiementServiceImpl implements PaiementService {
                     if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
                         MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
                         sauvegardeRecuPaiement(recuPaiement, identifiant);
+                        envoiMailAgent(demandesTransformer.bo2Dto(demande), true);
                     } else if (debit.getStatut().equals(StatutDebitEnum.PENDING)) {
                         // On est dans le cas où la caisse est fermée pour un paiement à régulariser
                         demandesStatutsService.updateStatut(demande,

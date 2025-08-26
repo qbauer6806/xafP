@@ -258,6 +258,10 @@ public interface DemarchesDataProvider {
         return "EN_COURS_PAIEMENT_A_REGULARISER";
     }
 
+    default List<String> statutsDejaEncaisses() {
+        return new ArrayList<>();
+    }
+
     default String getObjetPaiement(DemandeDTO demande) {
         return "object";
     }

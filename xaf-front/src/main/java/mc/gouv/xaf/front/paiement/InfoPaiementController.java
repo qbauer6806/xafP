@@ -66,11 +66,16 @@ public class InfoPaiementController extends AbstractXafController {
         String orderId = registerInput.getTransactionInformation().getOrderId();
 
         // Création du moyen de paiement en base de donnée
-        paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO, orderId, accessToken, infoPaiementInput.getRaisonSociale(), infoPaiementInput.getLangue());
+        boolean moyenPaiementCree = paiementApiClient.createMoyenPaiement(infoPaiementInput.getDemandesId(), usagerInfosDTO,
+                orderId, accessToken, infoPaiementInput.getRaisonSociale(), infoPaiementInput.getLangue());
         InfoPaiementOutputDTO infoPaiementOutputDTO = mwpaymntService.mwpaymtRegisterResponseToInfoPaiementOutputDTO(token);
 
         LOGGER.info("====================== /info-paiement POST end...");
-        return ResponseEntity.ok(infoPaiementOutputDTO);
+
+        if (moyenPaiementCree) {
+            return ResponseEntity.ok(infoPaiementOutputDTO);
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     private ResponseEntity processMoneticoCall(UsagerInfosDTO usagerInfosDTO, InfoPaiementInputDTO infoPaiementInput) {

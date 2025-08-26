@@ -112,7 +112,6 @@ public class PaiementServiceImpl implements PaiementService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
-    public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
     private static final String TARIF_CR_DEMAT_KEY = "XAF_TARIF_CR_DEMAT";
     private static final String MAIL_DEBIT_ECHEC_AGENT_CODE = "MAIL_DEBIT_ECHEC_AGENT";
     private static final String MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE = "MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT";
@@ -264,7 +263,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId, String raisonSociale, String langue) {
+    public boolean createMoyenPaiement(String ids, GichuniUsagerDTO usager, String orderId, String raisonSociale, String langue) {
         logStartMethod(LOGGER);
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         String replace = ids.replace("[", "").replace("]", "");
@@ -273,6 +272,10 @@ public class PaiementServiceImpl implements PaiementService {
         Map<Integer, BigDecimal> totauxDemandes = new HashMap<>();
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
         moyenPaiement.setPkMoyensPaiements(orderId);
+        // Si les demandes fournies sont déjà encaissées on retourne false pour lever un 409 au front
+        if(sontDejaEncaissees(demandeIds)) {
+            return false;
+        }
         // Je crée la commande que j'associerai à mon moyen de paiement
         BigDecimal totalCommande = calculTotalCommande(demandeIds, usager.getId(), demandes, totauxDemandes,
                 articlesDemandes);
@@ -287,6 +290,19 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setPaymentSupplier(PSPEnum.LYRA);
         moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
+        return true;
+    }
+
+    private boolean sontDejaEncaissees(List<Integer> demandeIds) {
+        List<DemandeDTO> demandes = new ArrayList<>();
+        for (Integer pkDemande : demandeIds) {
+            DemandeDTO demande = demandesService.getDemande(pkDemande);
+            if (null != demande && demarchesDataProvider.statutsDejaEncaisses()
+                    .contains(demande.getDernierStatut().getName())) {
+                demandes.add(demande);
+            }
+        }
+        return demandeIds.size() == demandes.size();
     }
 
     @Override
@@ -337,8 +353,8 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public void updatePaiementStatusAsync(MwpaymtGenericCallbackDTO callbackDTO) {
         try {
-            LOGGER.info("Attente 5 sec lors du callback");
-            Thread.sleep(5000);
+            LOGGER.info("Attente 2 sec lors du callback");
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -478,7 +494,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     private void envoiMailAgent(DemandeDTO demande, boolean debitEnSucces) {
-        LOGGER.info("==== xaf-back-paiement ENVOI EMAIL DEBIT EN ECHEC ...");
+        LOGGER.info("==== xaf-back-paiement ENVOI EMAIL AGENT ...");
 
         EmailInfoDTO emailInfo = getEmailInfoDTO(debitEnSucces);
         Map<String, Object> model = afMailTemplateModelProvider.getModel(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), demande,

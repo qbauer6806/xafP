@@ -1,15 +1,15 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import com.fasterxml.jackson.databind.node.NullNode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
@@ -268,12 +268,9 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeDTO getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts, List<String> buildIds) {
-        List<DemandeDTO> listDemandes = demandesService.getDemandes(usagerId);
-        return listDemandes.stream()
-                .filter(dem -> statuts.contains(dem.getDernierStatut().getName()) && buildIds.contains(
-                        dem.getConfig().get("buildId").asText())).max(Comparator.comparing(DemandeDTO::getDateCreation))
-                .orElse(null);
+    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
+        return demandesService.getDerniereDemandePourDuplication(usagerId, statuts, buildIds);
 
     }
 }

@@ -11,9 +11,8 @@ import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
@@ -33,6 +32,9 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
 
     @Autowired
     private AfMotifsTemplateModelProvider afMotifsTemplateModelProvider;
+
+    @Autowired
+    private VelocityEngine velocityEngine;
 
     private ToolManager manager = new ToolManager();
 
@@ -72,9 +74,6 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
     private List<MotifDTO> getPopulatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) {
 
         List<MotifDTO> motifDTOList = new ArrayList<>();
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-        Velocity.init();
-
         Context context = getContext(model);
         for (MotifDTO motif : motifsList) {
 
@@ -83,7 +82,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
 
             // Population du motif
             StringWriter output = new StringWriter();
-            if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getLibelle())) {
+            if (!velocityEngine.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getLibelle())) {
                 throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             clonedMotif.setLibelle(output.toString());
@@ -91,7 +90,8 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
             // Population du commentaire préremplis
             if (motif.getCommentairePrerempli() != null) {
                 output = new StringWriter();
-                if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getCommentairePrerempli())) {
+                if (!velocityEngine.evaluate(context, output, clonedMotif.getCode(),
+                        clonedMotif.getCommentairePrerempli())) {
                     throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 clonedMotif.setCommentairePrerempli(output.toString());
@@ -99,7 +99,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
             // Population du texte à envoyer
             if (motif.getTexteAEnvoyer() != null) {
                 output = new StringWriter();
-                if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getTexteAEnvoyer())) {
+                if (!velocityEngine.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getTexteAEnvoyer())) {
                     throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 clonedMotif.setTexteAEnvoyer(output.toString());

@@ -16,9 +16,9 @@ import java.util.TreeSet;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -29,9 +29,8 @@ import mc.gouv.xaf.shared.dto.mail.ParamDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.tools.ToolManager;
 import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -62,6 +61,9 @@ public class MailServiceImpl implements MailService {
 
     @Autowired
     private PropertiesService propertiesService;
+
+    @Autowired
+    private VelocityEngine velocityEngine;
 
     private ToolManager manager = new ToolManager();
 
@@ -158,7 +160,6 @@ public class MailServiceImpl implements MailService {
 
     private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue,
             Map<String, Object> model) throws IOException {
-
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
 
@@ -166,8 +167,6 @@ public class MailServiceImpl implements MailService {
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-        Velocity.init();
         Context context = getContext();
         if (model != null) {
             for (Map.Entry<String, Object> entry : model.entrySet()) {
@@ -175,13 +174,13 @@ public class MailServiceImpl implements MailService {
             }
         }
         StringWriter output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
+        if (!velocityEngine.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
             throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailBodyToSend = output.toString();
         output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
+        if (!velocityEngine.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
             throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du subject n'a pas fonctionné.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -190,8 +189,6 @@ public class MailServiceImpl implements MailService {
         // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
         if (afBackUtils.isEmailHtmlEnabled()) {
             LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
-            Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-            Velocity.init();
             context = getContext();
             context.put("emailBodyToSend", mailBodyToSend);
             if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
@@ -202,7 +199,7 @@ public class MailServiceImpl implements MailService {
             InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
             String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             output = new StringWriter();
-            if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
+            if (!velocityEngine.evaluate(context, output, templateBody.getCode(), contenu)) {
                 throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.",
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }

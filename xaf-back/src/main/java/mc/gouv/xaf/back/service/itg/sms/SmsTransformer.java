@@ -3,6 +3,9 @@ package mc.gouv.xaf.back.service.itg.sms;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.back.service.itg.sms.dto.SmsInfoParamDTO;
+import mc.gouv.xaf.back.service.itg.sms.dto.SmsParamDTO;
+
 /**
  * 
  * Transformer pour les SMS

@@ -2,15 +2,17 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import mc.gouv.xaf.back.data.dao.RechercheCatConfigRepository;
 import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
 import mc.gouv.xaf.back.data.entity.RechercheCatConfigBO;
@@ -22,7 +24,6 @@ import mc.gouv.xaf.back.data.model.RechercheCategoryDTO;
 import mc.gouv.xaf.back.data.model.RechercheChampDTO;
 import mc.gouv.xaf.back.exception.CategoryAlreadyExist;
 import mc.gouv.xaf.back.exception.UsedCategoryException;
-import mc.gouv.xaf.back.service.data.RechercheChampService;
 import mc.gouv.xaf.back.service.data.RechercheAdminService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
@@ -45,37 +46,30 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     @Autowired
     private RechercheCatConfigRepository rechercheCatConfigRepository;
 
-    @Autowired
-    private RechercheChampService rechercheChampService;
-
     @Override
     public List<RechercheChampDTO> getRechercheChamps() {
-
-        List<RechercheChampDTO> properties = rechercheChampService.getRechercheChamps();
-
-        // Récupération des champs associés aux propriétés dans la BDD
-        Map<String, RechercheChampConfigBO> champsMap = getChampsMap();
-
         // On récupère les catégories pour classer les propriétés
-        List<RechercheCategoryDTO> categories = getCategories();
-        Collections.sort(categories);
+        List<RechercheCategoryDTO> categories = getCategories().stream().sorted().toList();
 
-        // On ajoute les valeurs issues de la BDD dans les propriétés
-        for (RechercheChampDTO property : properties) {
-            RechercheChampConfigBO champBo = champsMap.get(property.getName());
-            if (champBo != null) {
-                String escapedLabel = HTMLEscapeUtils.escape(champBo.getLibelle());
-                property.setLabel(escapedLabel);
-                property.setCategoryId((champBo.getCategorie() != null) ? champBo.getCategorie().getId() : null);
-                property.setEnabled(champBo.isEnabled());
-                property.setEditable(champBo.isEditable());
-            } else {
-                property.setEditable(true);
-            }
-            property.setAllCategories(categories);
+        List<RechercheChampDTO> rechercheChampDTOS = new ArrayList<>();
+
+        List<RechercheChampConfigBO> rechercheChampConfigBOS = rechercheChampConfigRepository.findAll();
+
+        for (RechercheChampConfigBO rechercheChampConfigBO : rechercheChampConfigBOS) {
+            RechercheChampDTO rechercheChampDTO = new RechercheChampDTO();
+            rechercheChampDTO.setCategoryId((rechercheChampConfigBO.getCategorie() != null)
+                    ? rechercheChampConfigBO.getCategorie().getId()
+                    : null);
+            rechercheChampDTO.setEnabled(rechercheChampConfigBO.isEnabled());
+            rechercheChampDTO.setEditable(rechercheChampConfigBO.isEditable());
+            rechercheChampDTO.setAllCategories(categories);
+            String escapedLabel = HTMLEscapeUtils.escape(rechercheChampConfigBO.getLibelle());
+            rechercheChampDTO.setLabel(escapedLabel);
+            rechercheChampDTO.setName(rechercheChampConfigBO.getCle());
+            rechercheChampDTOS.add(rechercheChampDTO);
         }
 
-        return properties;
+        return rechercheChampDTOS;
     }
 
     @Override
@@ -91,13 +85,12 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         LOGGER.info("Fin de la maj des propriétés");
     }
 
-    @Override
-    public void updateRechercheChamp(RechercheChampDTO rechercheChampDTO) {
+    private void updateRechercheChamp(RechercheChampDTO rechercheChampDTO) {
         String safeChamp = AfBackUtils.logSafe(rechercheChampDTO.getName());
         LOGGER.info("Début de la maj de la propriété {}", safeChamp);
         RechercheChampConfigBO champBo = rechercheChampConfigRepository.findByCle(rechercheChampDTO.getName());
 
-        // Vérification de l'existance de la propriété
+        // Vérification de l'existence de la propriété
         if (champBo == null) {
             LOGGER.info("La propriété n'existe pas, création de la propriété\nClé: {}", safeChamp);
             champBo = new RechercheChampConfigBO();
@@ -178,8 +171,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         return new ArrayList<>();
     }
 
-    @Override
-    public RechercheCategoryDTO updateCategory(RechercheCategoryDTO category) {
+    private RechercheCategoryDTO updateCategory(RechercheCategoryDTO category) {
 
         LOGGER.info("Début de la maj de la catégorie");
         if (category != null) {
@@ -199,25 +191,9 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
     @Override
     public List<RechercheCategoryDTO> getCategories() {
-        LOGGER.info("Début de la récupération des catégories");
-        Iterable<RechercheCatConfigBO> categoriesBo = rechercheCatConfigRepository.findAll();
-        List<RechercheCategoryDTO> categories = new ArrayList<>();
-        for (RechercheCatConfigBO cat : categoriesBo) {
-            String escapedLabel = HTMLEscapeUtils.escape(cat.getLibelle());
-            categories.add(new RechercheCategoryDTO(cat.getId(), escapedLabel, cat.isEditable()));
-        }
-        LOGGER.info("Fin de la récupération des catégories");
-        return categories;
-    }
-
-    @Override
-    public Map<String, RechercheChampConfigBO> getChampsMap() {
-        Iterable<RechercheChampConfigBO> champs = rechercheChampConfigRepository.findAll();
-        Map<String, RechercheChampConfigBO> champsMap = new HashMap<>();
-        for (RechercheChampConfigBO champ : champs) {
-            champsMap.put(champ.getCle(), champ);
-        }
-        return champsMap;
+        return rechercheCatConfigRepository.findAll().stream()
+                .map(cat -> new RechercheCategoryDTO(cat.getId(), HTMLEscapeUtils.escape(cat.getLibelle()),
+                        cat.isEditable())).toList();
     }
 
     @Override
@@ -302,4 +278,106 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
     }
 
+    @Override
+    public void refreshConfigs(JsonNode config, Map<String, String> rechercheAvancee) {
+        refreshCategories(config);
+        refreshChamps(config, rechercheAvancee);
+    }
+
+    private void refreshCategories(JsonNode config) {
+        // On récupère les catégories existantes
+        List<RechercheCategoryDTO> categories = rechercheCatConfigRepository.findAll().stream()
+                .map(cat -> new RechercheCategoryDTO(cat.getId(), HTMLEscapeUtils.escape(cat.getLibelle()),
+                        cat.isEditable())).toList();
+
+        // Ensemble des libellés déjà présents (échappés)
+        Set<String> existingLabels = categories.stream().map(RechercheCategoryDTO::getLabel)
+                .collect(Collectors.toSet());
+
+        // On récupère les titres des sections de la config
+        JsonNode sections = config.path("recap").path("sections");
+
+        if (sections.isArray()) {
+            for (JsonNode section : sections) {
+                String titre = section.path("titre").asText(null);
+                if (titre != null) {
+                    String titreEscape = HTMLEscapeUtils.escape(titre);
+                    if (existingLabels.add(titreEscape)) { // add() retourne false si déjà présent
+                        rechercheCatConfigRepository.save(new RechercheCatConfigBO(titre, true));
+                    }
+                }
+            }
+        }
+    }
+
+    private void refreshChamps(JsonNode config, Map<String, String> rechercheAvancee) {
+        // Supprimer les champs dont la clé commence par "contenu" et qui ne sont pas dans la Map
+        List<RechercheChampConfigBO> champsExistants = rechercheChampConfigRepository.findAll();
+        Set<String> keysRechercheAvancee = rechercheAvancee.keySet();
+
+        List<RechercheChampConfigBO> champsASupprimer = champsExistants.stream()
+                .filter(champ -> champ.getCle() != null && champ.getCle().startsWith("contenu")
+                        && !keysRechercheAvancee.contains(champ.getCle())).toList();
+
+        rechercheChampConfigRepository.deleteAll(champsASupprimer);
+
+        // On récupère les catégories existantes
+        List<RechercheCategoryDTO> categories = rechercheCatConfigRepository.findAll().stream()
+                .map(cat -> new RechercheCategoryDTO(cat.getId(), HTMLEscapeUtils.escape(cat.getLibelle()),
+                        cat.isEditable())).toList();
+        // On récupère les titres des sections de la config
+        JsonNode sections = config.path("recap").path("sections");
+        rechercheAvancee.forEach((path, label) -> {
+            // Vérifie si un champ avec cette clé existe déjà
+            boolean exists = rechercheChampConfigRepository.existsByCle(path);
+            if (exists) {
+                // Champ déjà présent, on ne fait rien
+                return;
+            }
+            RechercheChampConfigBO bo = new RechercheChampConfigBO();
+            bo.setCle(path);
+            bo.setLibelle(label);
+            bo.setEditable(true);
+            bo.setEnabled(true);
+            String categorieLibelle = HTMLEscapeUtils.escape(findSectionTitleByPath(sections, path));
+            // Récupère l'entité existante depuis la BDD
+            Integer catId = categories.stream().filter(c -> c.getLabel().equals(categorieLibelle))
+                    .map(RechercheCategoryDTO::getId).findFirst().orElse(null);
+
+            if (catId != null) {
+                RechercheCatConfigBO catConfigBO = rechercheCatConfigRepository.findById(catId)
+                        .orElseThrow(() -> new IllegalStateException("Catégorie non trouvée pour l'id: " + catId));
+                bo.setCategorie(catConfigBO);
+
+            }
+            rechercheChampConfigRepository.save(bo);
+        });
+
+    }
+
+    private String findSectionTitleByPath(JsonNode sections, String targetPath) {
+        String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic", "iban", "titulaire",
+                "indicatif", "numero" };
+
+        for (String suffix : suffixes) {
+            String suffixPattern = "." + suffix;
+            if (targetPath.endsWith(suffixPattern)) {
+                targetPath = targetPath.substring(0, targetPath.length() - suffixPattern.length());
+                break; // dès qu’on trouve un suffixe correspondant, on s’arrête
+            }
+        }
+        for (JsonNode section : sections) {
+            String titre = section.path("titre").asText(null);
+
+            // Vérifie si un champ contient le path
+            boolean match =
+                    section.path("champs").findValuesAsText("path").contains(targetPath) || section.path("columns")
+                            .findValuesAsText("path").contains(targetPath);
+
+            if (match) {
+                return titre;
+            }
+        }
+        return null;
+    }
 }

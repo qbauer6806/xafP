@@ -32,24 +32,37 @@
     </dependency>
 
     <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>mc.gouv.xaf</groupId>
       <artifactId>xaf-shared</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>mc.gouv.file</groupId>
-      <artifactId>file-apiclient</artifactId>
-      <version>2.0.1-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpmime</artifactId>
+    <version>4.5.14</version>
+  </dependency>
+
+  <dependency>
+    <groupId>com.googlecode.json-simple</groupId>
+    <artifactId>json-simple</artifactId>
+    <version>1.1.1</version>
+  </dependency>
+
+
+
+
+  <dependency>
       <groupId>com.fasterxml.uuid</groupId>
       <artifactId>java-uuid-generator</artifactId>
       <version>5.1.0</version>

@@ -81,21 +81,25 @@ public class DemandesUsagersTransformer {
         return dto;
     }
 
-    public void user2Bo(GichuniUsagerDTO user, DemandesUsagersBO bo) {
-        if (user != null) {
-            bo.setAdresse1(user.getAdresse1());
-            bo.setAdresse2(user.getAdresse2());
-            bo.setCodePostal(user.getCodePostal());
-            bo.setComplementAdresse(user.getComplementAdresse());
-            bo.setEmail(user.getEmail());
-            bo.setEtat(user.getEtat() != null ? user.getEtat().toString() : null);
-            bo.setNom(user.getNom());
-            bo.setNomPays(user.getNomPays());
-            bo.setPrenom(user.getPrenom());
-            bo.setRaisonSociale(user.getRaisonSociale());
-            bo.setTitre((user.getTitre() != null) ? AfBackUtils.getTitreStr(user.getTitre()) : null);
-            bo.setVille(user.getVille());
-            bo.setLogin(user.getLogin());
+    public DemandesUsagersBO user2Bo(GichuniUsagerDTO user) {
+        if (user == null) {
+            return null;
         }
+        DemandesUsagersBO bo = new DemandesUsagersBO();
+        bo.setAdresse1(user.getAdresse1());
+        bo.setAdresse2(user.getAdresse2());
+        bo.setCodePostal(user.getCodePostal());
+        bo.setComplementAdresse(user.getComplementAdresse());
+        bo.setEmail(user.getEmail());
+        bo.setEtat(user.getEtat() != null ? user.getEtat().toString() : null);
+        bo.setNom(user.getNom());
+        bo.setNomPays(user.getNomPays());
+        bo.setPrenom(user.getPrenom());
+        bo.setRaisonSociale(user.getRaisonSociale());
+        bo.setTitre((user.getTitre() != null) ? AfBackUtils.getTitreStr(user.getTitre()) : null);
+        bo.setVille(user.getVille());
+        bo.setLogin(user.getLogin());
+        bo.setId(user.getId());
+        return bo;
     }
 }

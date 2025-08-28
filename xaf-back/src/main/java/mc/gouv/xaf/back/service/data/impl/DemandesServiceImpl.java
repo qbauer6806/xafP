@@ -45,6 +45,7 @@ import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
@@ -59,6 +60,8 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.data.custom.IDeleteDemandeExtender;
+import mc.gouv.xaf.back.service.demande.ICloneDemandExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
@@ -76,6 +79,7 @@ import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
+import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -83,6 +87,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
@@ -98,6 +103,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -202,10 +208,8 @@ public class DemandesServiceImpl implements DemandesService {
     private AfExcelExportModelProvider excelExportModelProvider;
 
     @Autowired
+    @Lazy
     private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @Autowired
     private MotifsCache motifsCache;
@@ -224,6 +228,15 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
+    private Optional<ICloneDemandExtender> cloneDemandExtenders;
+
+    @Autowired
+    private Optional<IDeleteDemandeExtender> deleteDemandeExtender;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -263,7 +276,7 @@ public class DemandesServiceImpl implements DemandesService {
             if (demande.getCanal() == null) {
                 throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
             }
-            
+
             LOGGER.info("Récupération en base de l'accès correspondant...");
             AccessBO accessBo = accessService.getAccessBOActive(demande.getUsagerId());
 
@@ -428,10 +441,12 @@ public class DemandesServiceImpl implements DemandesService {
                             enumValue = enumKey;
                         }
                     } else if (mapping.asText().equals("nationalites")) {
-                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getNationalite() : enumKey;
                     } else if (mapping.asText().equals("pays")) {
-                        enumValue = StringUtils.isBlank(enumKey) ? ""
+                        enumValue = StringUtils.isBlank(enumKey)
+                                ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
@@ -443,7 +458,8 @@ public class DemandesServiceImpl implements DemandesService {
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
                 String enumKey = enumKeyNode.asText();
-                String enumValue = StringUtils.isBlank(enumKey) ? ""
+                String enumValue = StringUtils.isBlank(enumKey)
+                        ? ""
                         : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
@@ -476,48 +492,27 @@ public class DemandesServiceImpl implements DemandesService {
         return demandeDTO;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return getDemandesUsager(usagerId);
+    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
+        checkAccess(usagerId);
+        return demandesRepository.findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
+                usagerId, statuts, buildIds).map(demandesTransformer::bo2Dto);
     }
 
     @Override
-    public List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId) {
+    public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
-        AccessBO accessBo = accessService.getAccessBO(usagerId, true);
-        if (accessBo == null) {
-            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-        }
+        checkAccess(usagerId);
         return demandesRepository.findByUsagerId(usagerId).stream()
                 .map(demande -> demandesTransformer.lightProjection2Dto(demande)).toList();
     }
 
-    private List<DemandeDTO> getDemandesUsager(Integer usagerId) {
-        LOGGER.info(RECUPERATION_DEMANDES);
+    private void checkAccess(Integer usagerId) {
         AccessBO accessBo = accessService.getAccessBO(usagerId, true);
         if (accessBo == null) {
             throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
         }
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(new ArrayList<>(accessBo.getDemandes()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<DemandeDTO> getDemandesFilterFiles(Integer usagerId) {
-        List<DemandeDTO> demandes = getDemandes(usagerId);
-        for (DemandeDTO demande : demandes) {
-            DemandeFileDTO[] fichiers = demande.getFichiers();
-            if (fichiers != null) {
-                demande.setFichiers(DemarchesUtils.filterFiles(fichiers));
-            }
-        }
-        return demandes;
     }
 
     /**
@@ -535,28 +530,8 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> getDemandes() {
-
-        LOGGER.info(RECUPERATION_DEMANDES);
-
-        // Si usagerId null, alors rechercher tous les accès qui sont actifs
-        ArrayList<DemandeBO> demandes = new ArrayList<>();
-        List<AccessBO> accessBos = accessRepository.findByActive(true);
-        for (AccessBO access : accessBos) {
-            demandes.addAll(access.getDemandes());
-        }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return demandesTransformer.bo2Dto(demandes);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Page<AfDemandeExcelFlatDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate,
-            Date endDate,
-            String statut) {
+            Date endDate, String statut) {
         Page<DemandeExportProjection> demandesPage;
         if (statut == null) {
             if (startDate != null && endDate != null) {
@@ -634,9 +609,7 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive) {
-
         LOGGER.debug(RECUPERATION_DEMANDE);
-
         Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
 
         // Gérer les accès désactivés
@@ -806,10 +779,6 @@ public class DemandesServiceImpl implements DemandesService {
             if (!partialUpdate || demande.getObservations() != null) {
                 demandeBo.setObservations(demande.getObservations());
             }
-            if (demande.getAgent() != null) {
-                User user = utilisateursCache.get(demande.getAgent().getId());
-                demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-            }
 
             // Mise à jour du canal
             if (!partialUpdate && demande.getCanal() != null) {
@@ -961,6 +930,11 @@ public class DemandesServiceImpl implements DemandesService {
 
             DemandesAgentsBO agent = demandeBo.getAgent();
             DemandesUsagersBO usager = demandeBo.getUsager();
+
+            deleteDemandeExtender.ifPresent(
+                    iDeleteDemandeExtender -> iDeleteDemandeExtender.executeExtraDeleteBeforeDemandeDeletion(
+                            demandeBo));
+
             /*** Suppression de la demande. */
             LOGGER.info("Appel du répo pour la suppression...");
             demandesRepository.delete(demandeBo);
@@ -993,11 +967,6 @@ public class DemandesServiceImpl implements DemandesService {
         }
     }
 
-    @Override
-    public Integer getAccessIdFromDemande(DemandeDTO demande) {
-        return getCheckDemarcheDemandeBO(demande, true).getFkAccess().getPkAccess();
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -1009,57 +978,53 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent, boolean copierFichierInternes) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
+            DemandeBO originalDemandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
             LOGGER.info("Duplication de la demande...");
-            DemandeDTO demandeDto = demandesTransformer.bo2Dto(demandeBo);
-            DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
-            newDemandeBo.setFkAccess(demandeBo.getFkAccess());
-            newDemandeBo.setPkDemandes(null);
-            newDemandeBo.setRecapType(demandeBo.getRecapType());
-            newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
-            newDemandeBo.setConfig(demandeBo.getConfig());
-            newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
-            // #4840 Enlever l'affectation
-            newDemandeBo.setAgent(conserverAgent ? demandeBo.getAgent() : null);
-            newDemandeBo.setUsager(demandeBo.getUsager());
-            newDemandeBo = demandesRepository.save(newDemandeBo);
+            DemandeDTO demandeDto = demandesTransformer.bo2Dto(originalDemandeBo);
+            DemandeBO clonedDemandeBo = fillAndSaveDemandeToClone(demandeDto, originalDemandeBo);
 
             // Pièces jointes des demandes
-            demandesFilesService.clonerDesPiecesJointes(demandeBo, newDemandeBo);
+            demandesFilesService.clonerDesPiecesJointes(originalDemandeBo, clonedDemandeBo);
 
             // Demandes d'informations complémentaires des demandes
-            demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
+            demandesComplementsService.clonerDemandeComplements(originalDemandeBo, clonedDemandeBo);
 
             // Fichiers internes
             if(copierFichierInternes) {
-                demandesFilesService.clonerDesFichiersInternes(demandeBo, newDemandeBo);
+                demandesFilesService.clonerDesFichiersInternes(originalDemandeBo, clonedDemandeBo);
             }
 
             // Statuts des demandes
-            demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
+            demandesStatutsService.clonerStatuts(originalDemandeBo, clonedDemandeBo);
 
             // Data des demandes
-            demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
+            demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
 
             // Génération d'un nouvel identifiant de demande
             String identifiant = generatePublicID();
-            newDemandeBo.setIdentifiant(identifiant);
+            clonedDemandeBo.setIdentifiant(identifiant);
 
-            newDemandeBo = demandesRepository.save(newDemandeBo);
+            clonedDemandeBo = demandesRepository.save(clonedDemandeBo);
+
+            final var finalClonedDemandeBo = clonedDemandeBo; // lambda requires final variable
+            cloneDemandExtenders.ifPresent(
+                    finalizer -> finalizer.applyCloneTreatment(originalDemandeBo, finalClonedDemandeBo));
 
             LOGGER.info("Duplication terminée");
 
             // On passe tous les demandes complements à repondue pour la demande dupliquée
             // cf #66472 - [INCIDENT] [BO] erreur 500 sur demande d'info comp sur une demande annulée et dupliquée
-            for (DemandesComplementsBO compl : newDemandeBo.getDemandesComplements()) {
+            for (DemandesComplementsBO compl : clonedDemandeBo.getDemandesComplements()) {
                 compl.setStatut(DemandeComplementsStatutEnum.REPONDUE.name());
                 demandesComplementsRepository.save(compl);
                 LOGGER.info("Passage de l'info compl : {} à répondue car duplication de la demande {}",
                         compl.getPkDemandesComplements(), pkDemande);
             }
+            // On supprime DATES_RELANCES_KEY si la demande d'origine a été annulée pendant une relance
+            demandesDataService.deleteDemandeData(clonedDemandeBo.getPkDemandes(), RelancesUtils.DATES_RELANCES_KEY);
 
-            return demandesTransformer.bo2Dto(newDemandeBo);
+            return demandesTransformer.bo2Dto(clonedDemandeBo);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de cloneDemande");
             ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
@@ -1067,6 +1032,20 @@ public class DemandesServiceImpl implements DemandesService {
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private DemandeBO fillAndSaveDemandeToClone(DemandeDTO demandeDto, DemandeBO originalDemandeBO) {
+        DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
+        newDemandeBo.setFkAccess(originalDemandeBO.getFkAccess());
+        newDemandeBo.setPkDemandes(null);
+        newDemandeBo.setRecapType(originalDemandeBO.getRecapType());
+        newDemandeBo.setDonneesCertifiees(originalDemandeBO.getDonneesCertifiees());
+        newDemandeBo.setConfig(originalDemandeBO.getConfig());
+        newDemandeBo.setTypeConnexionUsager(originalDemandeBO.getTypeConnexionUsager());
+        // #4840 Enlever l'affectation
+        newDemandeBo.setAgent(null);
+        newDemandeBo.setUsager(originalDemandeBO.getUsager());
+        return demandesRepository.save(newDemandeBo);
     }
 
     @Override
@@ -1097,21 +1076,26 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess) {
+    public DemandeDTO associerDemandeCourrier(Integer pkDemande, GichuniUsagerDTO gichuniUsagerDTO) {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
 
-        LOGGER.info("Récupération de l'accès cible en base...");
-        Optional<AccessBO> accessBoOp = accessRepository.findById(pkAccess);
+        Integer usagerId = gichuniUsagerDTO.getId();
 
-        if (accessBoOp.isEmpty()) {
-            throw new DemarchesServiceException("Accès cible introuvable", HttpStatus.NOT_FOUND);
-        }
+        LOGGER.info("Appel à DEM pour récupération de l'accès actuel de l'usager à cette démarche...");
+        AccessBO accessBo = accessService.getAccessBOActive(usagerId);
 
         LOGGER.info("Association de la demande...");
 
-        demandeBo.setFkAccess(accessBoOp.get());
+        demandeBo.setFkAccess(accessBo);
         demandeBo.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
+        // assigner le bon usagerId (celui du téléservice et pas celui du courrier)
+        DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(usagerId);
+        if (usagerBO == null) {
+            // si l'usager n'existe pas on le créé
+            usagerBO = demandesUsagersTransformer.user2Bo(gichuniUsagerDTO);
+        }
+        demandeBo.setUsager(usagerBO);
 
         demandeBo = demandesRepository.save(demandeBo);
 
@@ -1132,23 +1116,19 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
-            if (agentAffecteId != null) {
-                if (demandeBo.getAgent() != null) {
-                    demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
-                } else {
-                    User user = utilisateursCache.get(agentAffecteId);
-                    demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-                }
+            DemandeBO demandeBO = getCheckDemarcheDemandeBO(pkDemandes, true);
+
+            if (agentAffecteId == null) {
+                demandeBO.setAgent(null);
             } else {
-                demandeBo.setAgent(null);
+                DemandesAgentsBO agentsBO = demandesAgentsRepository.findById(agentAffecteId).orElseGet(() -> {
+                    User user = utilisateursCache.get(agentAffecteId);
+                    return demandesAgentsRepository.save(demandesAgentsTransformer.user2Bo(user));
+                });
+                demandeBO.setAgent(agentsBO);
             }
 
-            demandesRepository.save(demandeBo);
-            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-
-            LOGGER.info("Fin changement affectation...");
-            return demandeDTO;
+            return demandesTransformer.bo2Dto(demandesRepository.save(demandeBO));
         } catch (Exception e) {
             LOGGER.error("Erreur lors de changerAffectationDemande");
             ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
@@ -1173,8 +1153,9 @@ public class DemandesServiceImpl implements DemandesService {
             List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(
-                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
+        return demandesTransformer.bo2Dto(
+                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
+                        dernierStatutDateFin, dernierStatutList));
 
     }
 

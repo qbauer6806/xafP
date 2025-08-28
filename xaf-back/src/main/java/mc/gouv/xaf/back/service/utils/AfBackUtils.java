@@ -32,10 +32,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import mc.gouv.file.apiclient.FileClient;
+import java.util.stream.Collectors;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
@@ -44,6 +45,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.file.service.FileClient;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
@@ -556,6 +558,22 @@ public class AfBackUtils {
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
+    /**
+     * Utilisé dans certains exports excel
+     */
+    public static String choixMultipleToString(final List<String> choixMultiple) {
+        return String.join(", ", choixMultiple);
+    }
+
+    /**
+     * Utilisé dans certains exports excel
+     */
+    public static String tableauToString(final List<Map<String, String>> tableau, final String marqueur) {
+        return tableau.stream().map(map -> map.get(marqueur)) // extrait la valeur associée à la clé "marqueur"
+                .filter(Objects::nonNull)      // ignore les valeurs nulles
+                .collect(Collectors.joining(", "));
+    }
+
     public static String changeDateStringFormat(final String dateString) {
         return changeDateStringFormat(DEFAULT_FRENCH_DATE_FORMAT, dateString);
     }
@@ -912,7 +930,7 @@ public class AfBackUtils {
         // "/donnee/demandeur"
         String p = "/" + String.join("/", donneeExterneKeyArray);
         // Vérifier si le nœud existe
-        JsonNode targetNode = contenu.at(p);
+        JsonNode targetNode = "/".equals(p) ? contenu : contenu.at(p);
         if (!targetNode.isMissingNode()) {
             ((ObjectNode) targetNode).put(field, nouvelleValeur);
         }

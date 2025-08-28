@@ -8,6 +8,7 @@ import java.util.Map;
 import mc.gouv.xaf.back.service.histo.HistoValidationEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
@@ -118,13 +119,6 @@ public interface DemarchesDataProvider {
      */
     String getPremierStatutCreationDemande();
 
-    /**
-     * @return TSCODEDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name()
-     */
-    default String getStatutEnAttenteRectification() {
-        return null;
-    }
-
     boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck);
 
     /**
@@ -136,6 +130,10 @@ public interface DemarchesDataProvider {
      * Permets de définir la correspondance de l'action de l'historique pour chaque statut
      */
     String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut);
+
+    default String getHistoRole() {
+        return "Utilisateur";
+    }
 
     /**
      * Permets de définir la liste des statuts des demandes à ne pas annuler lors de la désinscription d'un usager
@@ -154,6 +152,10 @@ public interface DemarchesDataProvider {
      * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name();
      */
     String getMailTemplateCodeDesinscriptionUsagerPourUsager();
+
+    default String[] getRolesDesinscriptionUsagerPourAgents() {
+        return new String[] { "TRAITEMENT" };
+    }
 
     /**
      * Retourne le libellé du statut brouillon non transmis
@@ -217,13 +219,6 @@ public interface DemarchesDataProvider {
     }
 
     /**
-     * @return TSCODECodeMotifEnum.DEMANDE_RECTIFICATION.name()
-     */
-    default String getCodeMotifDemandeRectification(){
-        return null;
-    }
-
-    /**
      * Permet d'indiquer si la démarche permet l'envoi de SMS et donc d'afficher le menu
      * de paramétrage des templates de SMS ou non
      * 
@@ -264,6 +259,10 @@ public interface DemarchesDataProvider {
 
     default String getObjetPaiement(DemandeDTO demande) {
         return "object";
+    }
+
+    default DemandeRechercheDTO getDemandeRecherche() {
+        return null;
     }
 
 }

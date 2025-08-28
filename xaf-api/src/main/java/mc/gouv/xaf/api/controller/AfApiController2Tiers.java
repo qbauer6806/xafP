@@ -1,20 +1,13 @@
-package mc.gouv.xaf.back.controller;
+package mc.gouv.xaf.api.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import java.util.Date;
 import java.util.List;
-import mc.gouv.file.shared.dto.FileResponseDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+
+import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -25,10 +18,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import mc.gouv.xaf.back.service.AfApi;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
  * Interface spécifiant les méthodes devant être implémentées dans l'API dite "2/3" Ce sont donc des méthodes visant à
@@ -36,51 +43,57 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author qdeme
  */
-public abstract class AbstractAfApiController2Tiers implements AfApiController2Tiers {
+@RestController
+@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
+@RequestMapping(value = "/api2tiers/v1", produces = "application/json")
+public class AfApiController2Tiers {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAfApiController2Tiers.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AfApiController2Tiers.class);
+    
+    @Autowired
+    private AfApi afApiService2Tiers;
 
     @GetMapping(value = "/motifs")
     public List<MotifDTO> getMotifsRequest() {
-        LOGGER.info("AbstractAfApiController.getMotifsRequest()");
-        return getMotifs();
+        LOGGER.info("AfApiController2Tiers.getMotifsRequest()");
+        return afApiService2Tiers.getMotifs();
     }
 
     @PostMapping(value = "/motifs")
     @ResponseStatus(HttpStatus.CREATED)
     public MotifDTO createMotifRequest(@Valid @RequestBody MotifDTO motif) {
-        LOGGER.info("AbstractAfApiController2Tiers.createMotifRequest()");
+        LOGGER.info("AfApiController2Tiers.createMotifRequest()");
         motif.setPkMotifs(null);
-        return createMotif(motif);
+        return afApiService2Tiers.createMotif(motif);
     }
 
     @PutMapping(value = "/motifs/{motif}")
     @ResponseStatus(HttpStatus.OK)
     public MotifDTO updateMotifRequest(@PathVariable("motif") Integer pkMotif, @Valid @RequestBody MotifDTO motif) {
-        LOGGER.info("AbstractAfApiController2Tiers.updateMotifRequest({})", pkMotif);
+        LOGGER.info("AfApiController2Tiers.updateMotifRequest({})", pkMotif);
         motif.setPkMotifs(pkMotif);
-        return updateMotif(motif);
+        return afApiService2Tiers.updateMotif(motif);
     }
 
     @DeleteMapping(value = "/motifs/{motif}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteMotifRequest(@PathVariable("motif") Integer pkMotif) {
-        LOGGER.info("AbstractAfApiController2Tiers.deleteMotifRequest({})", pkMotif);
-        deleteMotif(pkMotif);
+        LOGGER.info("AfApiController2Tiers.deleteMotifRequest({})", pkMotif);
+        afApiService2Tiers.deleteMotif(pkMotif);
     }
 
     @GetMapping(value = "/periodesouverture")
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
-        LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
-        return getPeriodesOuverture();
+        LOGGER.info("AfApiController2Tiers.getPeriodesOuverture()");
+        return afApiService2Tiers.getPeriodesOuverture();
     }
 
     @PostMapping(value = "/periodesouverture")
     @ResponseStatus(HttpStatus.CREATED)
     public PeriodeOuvertureDTO createPeriodeOuvertureRequest(@Valid @RequestBody PeriodeOuvertureDTO periodeOuverture) {
-        LOGGER.info("AbstractAfApiController2Tiers.createPeriodeOuvertureRequest()");
+        LOGGER.info("AfApiController2Tiers.createPeriodeOuvertureRequest()");
         periodeOuverture.setPkPeriodesOuverture(null);
-        return createPeriodeOuverture(periodeOuverture);
+        return afApiService2Tiers.createPeriodeOuverture(periodeOuverture);
     }
 
     @PutMapping(value = "/periodesouverture/{periodeouverture}")
@@ -88,23 +101,23 @@ public abstract class AbstractAfApiController2Tiers implements AfApiController2T
     public PeriodeOuvertureDTO updatePeriodeOuvertureRequest(
             @PathVariable("periodeouverture") Integer pkPeriodeOuverture,
             @Valid @RequestBody PeriodeOuvertureDTO periodeOuverture) {
-        LOGGER.info("AbstractAfApiController2Tiers.updatePeriodeOuvertureRequest({})", pkPeriodeOuverture);
+        LOGGER.info("AfApiController2Tiers.updatePeriodeOuvertureRequest({})", pkPeriodeOuverture);
         periodeOuverture.setPkPeriodesOuverture(pkPeriodeOuverture);
-        return updatePeriodeOuverture(periodeOuverture);
+        return afApiService2Tiers.updatePeriodeOuverture(periodeOuverture);
     }
 
     @DeleteMapping(value = "/periodesouverture/{periodeouverture}")
     @ResponseStatus(HttpStatus.OK)
     public void deletePeriodeOuvertureRequest(@PathVariable("periodeouverture") Integer pkPeriodeOuverture) {
-        LOGGER.info("AbstractAfApiController2Tiers.deletePeriodeOuvertureRequest({})", pkPeriodeOuverture);
-        deletePeriodeOuverture(pkPeriodeOuverture);
+        LOGGER.info("AfApiController2Tiers.deletePeriodeOuvertureRequest({})", pkPeriodeOuverture);
+        afApiService2Tiers.deletePeriodeOuverture(pkPeriodeOuverture);
     }
 
     @GetMapping(value = "/usagers/{usager}")
     @ResponseStatus(HttpStatus.OK)
     public GichuniUsagerDTO getUsagerRequest(@PathVariable("usager") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController2Tiers.getUsagerRequest({})", usagerId);
-        return getUsager(usagerId);
+        LOGGER.info("AfApiController2Tiers.getUsagerRequest({})", usagerId);
+        return afApiService2Tiers.getUsager(usagerId);
     }
 
     @PostMapping(value = "/file/{container}/**")
@@ -112,23 +125,23 @@ public abstract class AbstractAfApiController2Tiers implements AfApiController2T
     public @ResponseBody FileResponseDTO saveFileRequest(@PathVariable("container") String container,
             @RequestParam(required = true) MultipartFile data, HttpServletRequest request,
             HttpServletResponse response) {
-        LOGGER.info("AbstractAfApiController2Tiers.saveFileRequest()");
-        return saveFile(container, data, request, response);
+        LOGGER.info("AfApiController2Tiers.saveFileRequest()");
+        return afApiService2Tiers.saveFile(container, data, request, response);
     }
 
     @GetMapping(value = "/file/{container}/**")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity<InputStreamResource> getFileRequest(@PathVariable("container") String container,
             HttpServletRequest request, HttpServletResponse response) {
-        LOGGER.info("AbstractAfApiController2Tiers.getFileRequest()");
-        return getFile(container, request, response);
+        LOGGER.info("AfApiController2Tiers.getFileRequest()");
+        return afApiService2Tiers.getFile(container, request, response);
     }
 
     @DeleteMapping(value = "/file/{container}/**")
     @ResponseStatus(HttpStatus.OK) // 200
     public ResponseEntity deleteFileRequest(@PathVariable("container") String container, HttpServletRequest request) {
-        LOGGER.info("AbstractAfApiController2Tiers.deleteFileRequest()");
-        return deleteFile(container, request);
+        LOGGER.info("AfApiController2Tiers.deleteFileRequest()");
+        return afApiService2Tiers.deleteFile(container, request);
     }
 
     @PostMapping(value = "/notify/{usagerId}/creationDemande")
@@ -138,9 +151,9 @@ public abstract class AbstractAfApiController2Tiers implements AfApiController2T
             @RequestParam(value = "dateCreation") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date dateCreation,
             @Valid @RequestBody RecapDemandesDTO recapDemandes) {
         String safeIdentifiantDemande = AfBackUtils.logSafe(identifiantDemande);
-        LOGGER.info("AbstractAfApiController2Tiers.notifyCreationDemandeRequest({},{},{},{})", usagerId, demandeId,
+        LOGGER.info("AfApiController2Tiers.notifyCreationDemandeRequest({},{},{},{})", usagerId, demandeId,
                 safeIdentifiantDemande, dateCreation);
-        return notifyCreationDemande(usagerId, demandeId, identifiantDemande, dateCreation, recapDemandes);
+        return afApiService2Tiers.notifyCreationDemande(usagerId, demandeId, identifiantDemande, dateCreation, recapDemandes);
     }
 
     @PostMapping(value = "/notify/{usagerId}/changementStatutDemande")
@@ -151,9 +164,9 @@ public abstract class AbstractAfApiController2Tiers implements AfApiController2T
             @RequestParam(value = "dateStatutSimplifie") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date dateStatutSimplifie,
             @Valid @RequestBody RecapDemandesDTO recapDemandes) {
         String safeIdentifiantDemande = AfBackUtils.logSafe(identifiantDemande);
-        LOGGER.info("AbstractAfApiController2Tiers.notifyChangementStatutDemandeRequest({},{},{},{},{})", usagerId,
+        LOGGER.info("AfApiController2Tiers.notifyChangementStatutDemandeRequest({},{},{},{},{})", usagerId,
                 demandeId, safeIdentifiantDemande, statutSimplifie, dateStatutSimplifie);
-        return notifyChangementStatutDemande(usagerId, demandeId, identifiantDemande, statutSimplifie,
+        return afApiService2Tiers.notifyChangementStatutDemande(usagerId, demandeId, identifiantDemande, statutSimplifie,
                 dateStatutSimplifie, recapDemandes);
     }
 
@@ -164,28 +177,28 @@ public abstract class AbstractAfApiController2Tiers implements AfApiController2T
             @RequestParam(value = "dateSuppression") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date dateSuppression,
             @Valid @RequestBody RecapDemandesDTO recapDemandes) {
         String safeIdentifiantDemande = AfBackUtils.logSafe(identifiantDemande);
-        LOGGER.info("AbstractAfApiController2Tiers.notifyChangementStatutDemandeRequest({},{},{},{})", usagerId,
+        LOGGER.info("AfApiController2Tiers.notifyChangementStatutDemandeRequest({},{},{},{})", usagerId,
                 demandeId, safeIdentifiantDemande, dateSuppression);
-        return notifySuppressionDemande(usagerId, demandeId, identifiantDemande, dateSuppression, recapDemandes);
+        return afApiService2Tiers.notifySuppressionDemande(usagerId, demandeId, identifiantDemande, dateSuppression, recapDemandes);
     }
 
     @PostMapping(value = "/notify/{usagerId}/desinscriptionUsagerTS")
     ResponseEntity notifyDesinscriptionUsagerTSRequest(@PathVariable(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController2Tiers.notifyDesinscriptionUsagerTSRequest({})", usagerId);
-        return notifyDesinscriptionUsagerTS(usagerId);
+        LOGGER.info("AfApiController2Tiers.notifyDesinscriptionUsagerTSRequest({})", usagerId);
+        return afApiService2Tiers.notifyDesinscriptionUsagerTS(usagerId);
     }
 
     @PostMapping(value = "/notify/synchronizeDemandesRecaps")
     ResponseEntity synchronizeDemandesRecapsRequest(
             @Valid @RequestBody List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-        LOGGER.info("AbstractAfApiController2Tiers.synchronizeDemandesRecapsRequest()");
-        return synchronizeDemandesRecaps(usagerDemandesRecap);
+        LOGGER.info("AfApiController2Tiers.synchronizeDemandesRecapsRequest()");
+        return afApiService2Tiers.synchronizeDemandesRecaps(usagerDemandesRecap);
     }
 
     @PostMapping(value = "/notify/{usagerId}/creationAccesTS")
     ResponseEntity notifyCreationAccesTSRequest(@PathVariable(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController2Tiers.notifyCreationAccesTSRequest({})", usagerId);
-        return notifyCreationAccesTS(usagerId);
+        LOGGER.info("AfApiController2Tiers.notifyCreationAccesTSRequest({})", usagerId);
+        return afApiService2Tiers.notifyCreationAccesTS(usagerId);
     }
 
 }

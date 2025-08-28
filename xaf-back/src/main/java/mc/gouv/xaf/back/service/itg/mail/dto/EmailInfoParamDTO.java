@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.service.itg.mail;
+package mc.gouv.xaf.back.service.itg.mail.dto;
 
 /**
  * Modélise une métadonnée d'un email à être envoyé par le MailService d'AfBack

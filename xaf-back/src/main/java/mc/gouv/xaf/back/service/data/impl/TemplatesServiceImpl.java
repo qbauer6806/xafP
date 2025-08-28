@@ -33,7 +33,7 @@ public class TemplatesServiceImpl implements TemplatesService {
     private TemplatesRepository templatesRepository;
 
     private TemplateBO getTemplateBO(Integer templateId) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, templateId);
         TemplateBO templateBo = templatesRepository.findByPkTemplates(templateId);
         if (templateBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);

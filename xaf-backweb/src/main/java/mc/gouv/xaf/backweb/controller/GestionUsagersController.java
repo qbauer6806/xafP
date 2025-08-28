@@ -357,7 +357,7 @@ public class GestionUsagersController extends AbstractController {
         }
 
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager source...");
-        List<DemandeDTO> demandes = demandesService.getDemandes(usagerSourceId);
+        List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerSourceId);
 
         LOGGER.info("Appel à DEM afin de récupérer les infos de l'usager source...");
         UsagerCourrierDTO usagerSourceDTO = usagersCourrierService.getUsagerCourrier(usagerSourceId);
@@ -389,7 +389,7 @@ public class GestionUsagersController extends AbstractController {
         LOGGER.info("======================= Appel de la page /gestion/usagers/transferer (POST)");
 
         LOGGER.info("Appel à DEM pour récupérer les demandes affectées à l'usager courrier source...");
-        List<DemandeDTO> demandes = demandesService.getDemandes(usagerSourceId);
+        List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerSourceId);
 
         LOGGER.info(
                 "Appel à DEM pour transférer les demandes de l'usager courrier source {} vers l'usager courrier cible {} ({})... ",

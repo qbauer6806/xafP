@@ -7,6 +7,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AgentComparator;
 import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,17 @@ public class DemandesController extends AbstractController {
         mav.addObject("agentsInit", agentsAffichage);
         mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         mav.addObject("texte", texte);
+        DemandeRechercheDTO demandeRechercheDTO = demarchesDataProvider.getDemandeRecherche();
+        if (demandeRechercheDTO != null) {
+            mav.addObject("demandeRechercheData",
+                    demandeRechercheDTO.getData() != null ? demandeRechercheDTO.getData().generateParamUrl() : null);
+            mav.addObject("demandeRechercheCreationStartDate", demandeRechercheDTO.getCreationStartDate() != null
+                    ? demandeRechercheDTO.getCreationStartDate()
+                    : null);
+            mav.addObject("demandeRechercheCreationEndDate",
+                    demandeRechercheDTO.getCreationEndDate() != null ? demandeRechercheDTO.getCreationEndDate() : null);
+        }
+
         return mav;
     }
 

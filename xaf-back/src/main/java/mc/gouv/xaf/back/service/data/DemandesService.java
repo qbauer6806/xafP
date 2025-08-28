@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,17 +28,10 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants);
 
-    /**
-     * Permet de récupérer les demandes
-     */
-    List<DemandeDTO> getDemandes();
+    Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
+            List<String> buildIds);
 
-    /**
-     * Permet de récupérer les demandes correspondant UsagerID
-     */
-    List<DemandeDTO> getDemandes(Integer usagerId);
-
-    List<DemandeDTO> getDemandesUsagerDesinscription(Integer usagerId);
+    List<DemandeDTO> getDemandesLight(Integer usagerId);
 
     /**
      * Méthode permettant de récupérer les demandes
@@ -107,11 +102,6 @@ public interface DemandesService {
             JsonNode donneesExternes);
 
     /**
-     * Permet de récupérer l'AccessID de l'Access lié à une demande
-     */
-    Integer getAccessIdFromDemande(DemandeDTO demande);
-
-    /**
      * <p>Permet de dupliquer une demande</p>
      * <p>#4679: l'historique de la demande n'est pas dupliqué</p>
      *
@@ -136,7 +126,7 @@ public interface DemandesService {
 
     List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche);
 
-    DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess);
+    DemandeDTO associerDemandeCourrier(Integer pkDemande, GichuniUsagerDTO gichuniUsagerDTO);
 
     /**
      * Permet de savoir si la demande correspond à un accès désactivé (usager désinscrit)
@@ -190,13 +180,6 @@ public interface DemandesService {
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
     byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO);
-
-    /**
-     * Retourne les demandes en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du
-     * FRONT
-     */
-    List<DemandeDTO> getDemandesFilterFiles(Integer usagerId);
-
 
     List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
             List<String> canaux);

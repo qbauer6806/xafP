@@ -2,11 +2,12 @@ package mc.gouv.xaf.back.data.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
-import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
+import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     List<DemandeLightProjection> findByUsagerId(Integer usagerId);
 
+    Optional<DemandeBO> findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
+            Integer usagerId, List<String> statuts, List<String> buildIds);
+
     /**
      * Permet de récupérer les demandes créées entre deux dates
      */
@@ -70,15 +74,13 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      * Permet de récupérer les demandes créées entre deux dates
      */
     Page<DemandeExportProjection> findByDateCreationBetweenAndDernierStatut_Name(Pageable pageRequest, Date startDate,
-            Date endDate,
-            String dernierStatut);
+            Date endDate, String dernierStatut);
 
     /**
      * Permet de récupérer les demandes créées à partir d'une date donnée
      */
     Page<DemandeExportProjection> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Pageable pageRequest,
-            Date startDate,
-            String dernierStatut);
+            Date startDate, String dernierStatut);
 
     @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
             + "WHERE ds.date < :dernierStatutDateDebut " + "AND ds.name IN :dernierStatutList "

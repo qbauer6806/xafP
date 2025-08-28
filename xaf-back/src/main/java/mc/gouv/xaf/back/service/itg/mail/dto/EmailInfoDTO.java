@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.service.itg.mail;
+package mc.gouv.xaf.back.service.itg.mail.dto;
 
 import java.util.ArrayList;
 import java.util.List;

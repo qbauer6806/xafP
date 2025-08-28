@@ -1,9 +1,5 @@
 package mc.gouv.xaf.back.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +8,25 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.HtmlUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -26,18 +41,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une demande.
@@ -534,7 +537,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, isPdfRecap, true,
                             donneesCertifiees);
                     String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true, donneesCertifiees);
-                    this.completeTd(html, valueSource, value);
+                    this.completeTd(html, valueSource, value, isPdfRecap);
                 }
                 html.append(CLOSING_TR);
             }
@@ -548,10 +551,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 for (Object column : columns.toArray()) {
                     String value = getSecondLevelHTML(newValeur, (JSONObject) column, isPdfRecap, true,
                             new ArrayList<>());
-                    html.append("<td onclick=\"switchTS()\"class='nouvelledonnee-contenu'>")
+                    html.append("<td onclick=\"switchTS()\" class='nouvelledonnee-contenu'>")
                             .append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
-                    html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
-                            .append(CLOSING_TD);
+                    if (!isPdfRecap) {
+                        html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
+                                .append(CLOSING_TD);
+                    }
                 }
                 html.append(CLOSING_TR);
             }
@@ -559,7 +564,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         html.append("</tbody></table></dd>");
     }
 
-    private void completeTd(StringBuilder html, String valueSource, String value) {
+    private void completeTd(StringBuilder html, String valueSource, String value, boolean isPdfRecap) {
         if (!value.equalsIgnoreCase(valueSource)) {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
@@ -567,9 +572,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             String newValue = StringUtils.isNoneBlank(value) ? value : "";
             html.append("<td  onclick=\"switchTS()\" class='nouvelledonnee-contenu'>").append(newValue)
                     .append(CLOSING_TD);
-            String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
-            html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource)
-                    .append(CLOSING_TD);
+            if (!isPdfRecap) {
+                String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
+                html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource)
+                        .append(CLOSING_TD);
+            }
         } else {
             html.append("<td>").append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
         }

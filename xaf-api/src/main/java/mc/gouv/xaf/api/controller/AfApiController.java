@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.controller;
+package mc.gouv.xaf.api.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,7 +31,7 @@ import jakarta.validation.Valid;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.AfApiService;
+import mc.gouv.xaf.back.service.AfApi;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
@@ -65,7 +65,7 @@ public class AfApiController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiController.class);
 
     @Autowired
-    private AfApiService afApiService;
+    private AfApi afApiService;
 
     @Autowired
     private DemandesTransformer demandesTransformer;
@@ -134,14 +134,6 @@ public class AfApiController {
         LOGGER.info("AbstractAfApiController.getDemandeRecapRequest({}, {}, {})", usagerId, demandeId,
                 donneesMConnectDTO);
         return afApiService.getDemandeRecap(usagerId, demandeId, donneesMConnectDTO);
-    }
-
-    @GetMapping(value = "/demandes")
-    public @ResponseBody List<DemandeDTO> getDemandesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getDemandes({})", usagerId);
-        List<DemandeDTO> demandeDTOS = afApiService.getDemandes(usagerId);
-        demandesTransformer.hideInfos(demandeDTOS);
-        return demandeDTOS;
     }
 
     @GetMapping(value = "/demandespage")

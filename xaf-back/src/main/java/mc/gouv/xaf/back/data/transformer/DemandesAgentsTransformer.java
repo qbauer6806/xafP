@@ -14,12 +14,29 @@ public class DemandesAgentsTransformer {
     private DemandesAgentsTransformer() {
     }
 
+    public DemandesAgentsBO dto2Bo(DemandeAgentDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+        DemandesAgentsBO bo = new DemandesAgentsBO();
+        bo.setPkAgent(dto.getPkAgent());
+        bo.setId(dto.getId());
+        bo.setNom(dto.getNom());
+        bo.setNomUsage(dto.getNomUsage());
+        bo.setNomNaissance(dto.getNomNaissance());
+        bo.setPrenom(dto.getPrenom());
+        bo.setMail(dto.getMail());
+        bo.setNomAffichage(dto.getNomAffichage());
+        return bo;
+    }
+
     public DemandeAgentDTO bo2Dto(DemandesAgentsBO bo) {
         if (bo == null) {
             return null;
         }
         DemandeAgentDTO dto = new DemandeAgentDTO();
-        dto.setId(String.valueOf(bo.getId()));
+        dto.setPkAgent(bo.getPkAgent());
+        dto.setId(bo.getId());
         dto.setNom(bo.getNom());
         dto.setNomUsage(bo.getNomUsage());
         dto.setNomNaissance(bo.getNomNaissance());
@@ -52,7 +69,7 @@ public class DemandesAgentsTransformer {
             return null;
         }
         DemandesAgentsBO bo = new DemandesAgentsBO();
-        bo.setId(Integer.valueOf(user.getMatricule()));
+        bo.setId(user.getMatricule());
         bo.setNom(user.getNom());
         bo.setNomUsage(user.getNomUsage());
         bo.setNomNaissance(user.getNomNaissance());

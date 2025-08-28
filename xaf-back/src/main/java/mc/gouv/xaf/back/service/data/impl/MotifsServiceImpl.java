@@ -33,7 +33,7 @@ public class MotifsServiceImpl implements MotifsService {
     private MotifsRepository motifsRepository;
 
     private MotifBO getMotifBO(Integer pkMotif) {
-        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, pkMotif);
         MotifBO motifBo = motifsRepository.findByPkMotifs(pkMotif);
         if (motifBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);

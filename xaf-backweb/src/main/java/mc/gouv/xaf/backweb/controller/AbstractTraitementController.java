@@ -31,7 +31,6 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -285,13 +284,8 @@ public class AbstractTraitementController extends AbstractController {
         ModelAndView mav = new ModelAndView(path);
         XafTraitementFormBean xafTraitementFormBean = new XafTraitementFormBean();
         xafTraitementFormBean.setObservations(demande.getObservations());
-        MotifDTO motif = motifsCache.getMotif(demarchesDataProvider.getCodeMotifDemandeRectification(), "fr");
-        if (motif != null) {
-            xafTraitementFormBean.setTexteDemandeRectification(motif.getCommentairePrerempli());
-        }
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);
-        mav.addObject("isDiscussionPanelDisplayed",
-                !demarchesDataProvider.getPremierStatutCreationDemande().equals(demande.getDernierStatut().getName()));
+        mav.addObject("isDiscussionPanelDisplayed", StringUtils.isNotBlank(demande.getAgentAffecteId()));
         return mav;
     }
 

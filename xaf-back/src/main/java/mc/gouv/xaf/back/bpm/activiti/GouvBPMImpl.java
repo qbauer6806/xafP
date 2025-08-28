@@ -12,6 +12,7 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
@@ -40,8 +41,6 @@ public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
-
-    private static final String RECTIFICATION_DEMANDE_USERTASK_ID = "rectificationDemandeUsertask";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -299,37 +298,6 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire,
-            String statutDemandeRectification) {
-        LOGGER.info("Demande de rectification de la demande {} par l'agent '{}'", demandeId, agent);
-        List<Execution> executions = runtimeService.createExecutionQuery()
-                .processInstanceBusinessKey(demandeId.toString(), true)
-                .messageEventSubscriptionName("demandeRectificationMessage").list();
-
-        Map<String, Object> variables = new HashMap<>();
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), statutDemandeRectification);
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
-
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_RECTIFICATION_EN_COURS.name(), true);
-
-        // Normalement il y en a une seule
-
-        LOGGER.info("Nombre d'executions candidates à la demande de rectification pour la demande {} : {}", demandeId,
-                executions.size());
-
-        if (executions.isEmpty()) {
-            throw new GouvBPMException(
-                    "Aucune execution pour effectuer une demande de rectification de la demande : " + demandeId);
-        }
-
-        for (Execution ex : executions) {
-            runtimeService.messageEventReceived("demandeRectificationMessage", ex.getId(), variables);
-        }
-    }
-
-    @Override
     public void rectificationSpontanee(Integer demandeId) {
         LOGGER.info("Rectification spontanée de la demande {} par l'usager", demandeId);
         List<Execution> executions = runtimeService.createExecutionQuery()
@@ -355,31 +323,21 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void reponseRectification(Integer pkDemande, Integer usagerId) throws TaskAlreadyClaimedException {
+    public void reponseRectification(Integer pkDemande, Integer usagerId) {
         LOGGER.info("Réponse à la demande de rectification de la demande {} par l'usager", pkDemande);
-
-        List<GouvBPMTask> activeTasks = getActiveTasksForDemande(pkDemande);
-        GouvBPMTask activeTask = null;
-        for (GouvBPMTask task : activeTasks) {
-            if (RECTIFICATION_DEMANDE_USERTASK_ID.equals(task.getTaskDefinitionKey())) {
-                activeTask = task;
-            }
-        }
-        LOGGER.info("ActiveTask pour rectification de demande : {}", activeTask);
-
-        // Pour le delegate GouvBPMRestorePreviousStatusDelegate
-        setProcessBusinessVariable(pkDemande, GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(),
-                usagerId.toString());
 
         GouvBPMUser user = new GouvBPMUser();
         user.setId(usagerId.toString());
-        claimTask(activeTask, user);
-        Map<String, String> formData = new HashMap<>();
+
+        GouvBPMTask task = getActiveTasksForDemande(pkDemande).getFirst();
+
         try {
-            submitTaskFormData(activeTask, formData, pkDemande);
-        } catch (TikaException e) {
-            LOGGER.error("Erreur lors de reponseRectification()", e);
+            claimTask(task, user);
+        } catch (TaskAlreadyClaimedException e1) {
+            throw new DemarcheException("Erreur lors du claim de la tache", e1);
         }
+        completeTask(task, pkDemande);
+
     }
 
 }

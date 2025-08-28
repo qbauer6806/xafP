@@ -1,22 +1,30 @@
 package mc.gouv.xaf.back.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import jakarta.transaction.Transactional;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -34,14 +42,15 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
+import mc.gouv.xaf.back.service.demande.ICreateDemandExtender;
 import mc.gouv.xaf.back.service.demande.ICreateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.IUpdateDemandExtender;
+import mc.gouv.xaf.back.service.demande.IUpdateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -72,22 +81,9 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.context.MessageSource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.xml.sax.SAXException;
 
 /**
  * Services proposés par le module API des TS
@@ -176,6 +172,15 @@ public class AfApiService implements AfApi {
     @Autowired
     private Optional<ICreateDemandeFinalizer> createDemandeFinalizers;
 
+    @Autowired
+    private Optional<IUpdateDemandeFinalizer> updateDemandeFinalizers;
+
+    @Autowired
+    private Optional<ICreateDemandExtender> createDemandeExtenders;
+
+    @Autowired
+    private Optional<IUpdateDemandExtender> updateDemandeExtenders;
+
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
 
@@ -226,7 +231,8 @@ public class AfApiService implements AfApi {
     private DemandeDTO traiterAndSaveCreateDemande(DemandeInputDTO demande, Integer usagerId)
             throws JsonProcessingException {
 
-        final DemandeDTO demandeDto = buildDemandeFromInput(demande, usagerId);
+        final DemandeDTO demandeDto = buildDemandeFromInputAfterCreate(demande, usagerId);
+        createDemandeExtenders.ifPresent(extender -> extender.applyCreateTreatment(demande, demandeDto));
         traiterContenuInitial(demande, usagerId, demandeDto);
 
         try {
@@ -243,7 +249,7 @@ public class AfApiService implements AfApi {
         }
     }
 
-    private DemandeDTO buildDemandeFromInput(DemandeInputDTO demande, Integer usagerId) {
+    private DemandeDTO buildDemandeFromInputAfterCreate(DemandeInputDTO demande, Integer usagerId) {
         DemandeDTO demandeDto = new DemandeDTO();
         demandeDto.setUsagerId(usagerId);
         demandeDto.setPkDemandes(null);
@@ -313,22 +319,18 @@ public class AfApiService implements AfApi {
         if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {
             throw new BadRequestWebException("La demande n'est pas éligible à une rectification.");
         }
-
-        DemandeDTO demandeDto;
+        DemandeDTO demandeDtoUpdated;
         try {
+            final DemandeDTO demandeDto = buildDemandeFromInputAfterUpdate(demande, usagerId, demandeId);
 
-            demandeDto = new DemandeDTO();
-            demandeDto.setUsagerId(usagerId);
-            demandeDto.setPkDemandes(demandeId);
-            demandeDto.setContenu(demande.getContenu());
-            demandeDto.setFichiers(demande.getFichiers());
+            updateDemandeExtenders.ifPresent(extender -> extender.applyUpdateTreatment(demande, demandeDto));
 
             LOGGER.debug("DTO reconstitué : {}", demandeDto);
 
             // Partial update sur contenu et fichiers uniquement
-            demandeDto = demandesService.updateDemande(demandeDto, true);
+            demandeDtoUpdated = demandesService.updateDemande(demandeDto, true);
 
-            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDto);
+            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDtoUpdated);
 
             gouvBPM.reponseRectification(demandeId, usagerId);
 
@@ -342,14 +344,24 @@ public class AfApiService implements AfApi {
 
             DemandeHistoriqueDTO histo = demandesHistoriqueService.updateDemande(usagerId, demande.getCreeParAgentId(),
                     statut.getName());
-            demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
+            demandesHistoriqueService.saveHisto(demandeDtoUpdated.getPkDemandes(), histo);
 
             demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
 
+            updateDemandeFinalizers.ifPresent(finalizer -> finalizer.finalizeDemandeUpdate(demandeDto));
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la mise à jour d'une demande", e);
         }
+        return demandeDtoUpdated;
+    }
+
+    private DemandeDTO buildDemandeFromInputAfterUpdate(DemandeInputDTO demande, Integer usagerId, Integer demandeId) {
+        DemandeDTO demandeDto = new DemandeDTO();
+        demandeDto.setUsagerId(usagerId);
+        demandeDto.setPkDemandes(demandeId);
+        demandeDto.setContenu(demande.getContenu());
+        demandeDto.setFichiers(demande.getFichiers());
         return demandeDto;
     }
 
@@ -722,11 +734,18 @@ public class AfApiService implements AfApi {
     }
 
     public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
-        String[] statusArray = paramDTO.getStatusArray();
-        if (statusArray.length == 0) {
-            statusArray = demarchesDataProvider.getStatusMap().keySet().toArray(String[]::new);
+        List<String> status = null;
+        List<String> statusList = paramDTO.getStatus();
+        List<String> statusSimplifieList = paramDTO.getStatusSimplifie();
+        // statusSimplifie prévaut si renseigné
+        if (statusSimplifieList != null) {
+            status = demarchesDataProvider.getStatusMap().keySet().stream()
+                    .filter(key -> statusSimplifieList.contains(demarchesDataProvider.getStatutSimplifie(key).name()))
+                    .toList();
+        } else if (statusList != null) {
+            status = statusList;
         }
-        return demandesService.getDemandesPageable(usagerID, statusArray, paramDTO);
+        return demandesService.getDemandesPageable(usagerID, status, paramDTO);
     }
 
     public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
@@ -802,110 +821,36 @@ public class AfApiService implements AfApi {
         return new ArrayList<>(paysCache.getValues());
     }
 
-    // Suite aux remaniements de XAF12 qui ont cassé la fonctionnalité "2 tiers", ajout de ces method stubs afin de permettre
-    // l'injection dynamique de service en fonction du profil 2 tiers (interface AfApi)
-    // Avant, l'architecture de classes de classes abstraites et d'interfaces était parfaite (cf. https://redmine.monaco-gouvernement.mc/projects/xaf/wiki/Solution_2_tiers_%C3%A0_partir_de_XAF_12)
-    // mais maintenant je suis contraint de m'adapter comme je peux, dans la médiocrité, à cette situation...
-
     @Override
-    public MotifDTO createMotif(@Valid MotifDTO motif) {
-        // Auto-generated method stub
-        return null;
+    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
+
+        DemandeDTO demandeDto = new DemandeDTO();
+
+        demandeDto.setPkDemandes(demandeId);
+        demandeDto.setModificationTimestamp(timestamp);
+
+        try {
+            demandeDto = demandesService.saveOrUpdateDemande(demandeDto, true, null, null);
+        } catch (Exception e) {
+            LOGGER.error("Exception dans lockDemande {}", e.getMessage());
+        }
+        return demandeDto;
     }
 
     @Override
-    public MotifDTO updateMotif(@Valid MotifDTO motif) {
-        // Auto-generated method stub
-        return null;
-    }
+    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException {
 
-    @Override
-    public void deleteMotif(Integer pkMotif) {
-        // Auto-generated method stub
+        DemandeDTO demandeDto = new DemandeDTO();
 
-    }
+        demandeDto.setPkDemandes(demandeId);
+        demandeDto.setModificationTimestamp(null);
 
-    @Override
-    public PeriodeOuvertureDTO createPeriodeOuverture(@Valid PeriodeOuvertureDTO periodeOuverture) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public PeriodeOuvertureDTO updatePeriodeOuverture(@Valid PeriodeOuvertureDTO periodeOuverture) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
-        // Auto-generated method stub
-
-    }
-
-    @Override
-    public GichuniUsagerDTO getUsager(Integer usagerId) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public FileResponseDTO saveFile(String container, MultipartFile data, HttpServletRequest request,
-            HttpServletResponse response) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request,
-            HttpServletResponse response) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity deleteFile(String container, HttpServletRequest request) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
-            Date dateCreation, @Valid RecapDemandesDTO recapDemandes) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
-            StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, @Valid RecapDemandesDTO recapDemandes) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
-            Date dateSuppression, @Valid RecapDemandesDTO recapDemandes) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity notifyDesinscriptionUsagerTS(Integer usagerId) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity synchronizeDemandesRecaps(@Valid List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-        // Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ResponseEntity notifyCreationAccesTS(Integer usagerId) {
-        // Auto-generated method stub
-        return null;
+        try {
+            demandeDto = demandesService.saveOrUpdateDemande(demandeDto, true, null, null);
+        } catch (Exception e) {
+            LOGGER.error("Exception dans unlockDemande {}", e.getMessage());
+        }
+        return demandeDto;
     }
 
 }

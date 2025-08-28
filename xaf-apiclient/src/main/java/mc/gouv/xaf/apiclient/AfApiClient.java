@@ -155,14 +155,35 @@ public class AfApiClient extends ApiClient {
     }
 
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
-        Response res = getTarget().path("demandespage").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+        WebTarget target = getTarget().path("demandespage").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam("page", paramDTO.getPage()).queryParam("size", paramDTO.getSize())
                 .queryParam("sort", paramDTO.getSort()).queryParam("direction", paramDTO.getDirection())
-                .queryParam("status", paramDTO.getStatus()).queryParam("lang", paramDTO.getLang())
+                .queryParam("lang", paramDTO.getLang());
+
+        // Ajout des statuts (status)
+        if (paramDTO.getStatus() != null) {
+            for (String status : paramDTO.getStatus()) {
+                if (status != null && !status.isEmpty()) {
+                    target = target.queryParam("status", status);
+                }
+            }
+        }
+
+        // Ajout des statuts simplifiés (statusSimplifie)
+        if (paramDTO.getStatusSimplifie() != null) {
+            for (String statusSimplifie : paramDTO.getStatusSimplifie()) {
+                if (statusSimplifie != null && !statusSimplifie.isEmpty()) {
+                    target = target.queryParam("statusSimplifie", statusSimplifie);
+                }
+            }
+        }
+
+        Response res = target
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
         ExceptionManager.checkExceptionResponse(res);
-        return res.readEntity(new GenericType<Page<DemandeDTO>>() {
+
+        return res.readEntity(new GenericType<>() {
 
         });
     }
@@ -382,5 +403,6 @@ public class AfApiClient extends ApiClient {
 
         });
     }
+    
 
 }

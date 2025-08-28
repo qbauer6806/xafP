@@ -26,7 +26,7 @@ public interface DemarchesDataProvider {
      */
     String getStatusLibelle(String statusName);
 
-    String getDemandeur(DemandeDTO contenuDemandeDTO);
+    String getDemandeur(DemandeDTO demandeDTO);
     
     default String getUsagerTelephone(GichuniUsagerDTO usager) {
     	return null;

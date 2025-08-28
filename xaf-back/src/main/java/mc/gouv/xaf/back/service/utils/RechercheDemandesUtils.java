@@ -14,6 +14,9 @@ import jakarta.persistence.criteria.SetJoin;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,6 +27,7 @@ import java.util.Locale;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
@@ -31,14 +35,17 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.service.utils.customorder.FallbackOrderDefinition;
-import mc.gouv.xaf.back.service.utils.customorder.IDemandeFallbackOrdersConfiguration;
+import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
@@ -61,15 +68,10 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String CONTENU_TRAD = "contenuTrad.";
     private static final String FILES = "files";
     private static final String SEARCH_VECTOR = "searchVector";
+    private static final String USAGER = "usager";
 
-    private final Optional<IDemandeFallbackOrdersConfiguration> demandeFallbackOrdersConfiguration;
-    private final EntityManager em;
-
-    public RechercheDemandesUtils(EntityManager em,
-            Optional<IDemandeFallbackOrdersConfiguration> demandeFallbackOrdersConfiguration) {
-        this.em = em;
-        this.demandeFallbackOrdersConfiguration = demandeFallbackOrdersConfiguration;
-    }
+    @Autowired
+    private EntityManager em;
 
     public Long getDemandesCount(DemandeRechercheDTO demandeRecherche) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -107,27 +109,40 @@ public class RechercheDemandesUtils extends RechercheUtils {
         List<Expression<?>> groupBy = new ArrayList<>();
         groupBy.add(root.get("pkDemandes"));
         if (order != null) {
-            String orderProperty = order.getProperty();
+            String property = order.getProperty();
             // Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
             Expression e = null;
-            if (StringUtils.equalsIgnoreCase(orderProperty, USAGER_ID)) {
+            if (StringUtils.equalsIgnoreCase(order.getProperty(), USAGER_ID)) {
                 Join<DemandeBO, AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
-                e = f.get(orderProperty);
-            } else if (StringUtils.equalsIgnoreCase(orderProperty, "dernierStatut.libelle")) {
+                e = f.get(property);
+            } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
                 Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
                 e = f.get(LIBELLE);
                 groupBy.add(f.get(LIBELLE));
-            } else if (StringUtils.equalsIgnoreCase(orderProperty, "agent.nomAffichage")) {
+            } else if (StringUtils.equalsIgnoreCase(order.getProperty(), "agent.nomAffichage")) {
                 Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
                 e = f.get("nomAffichage");
                 groupBy.add(f.get("nomAffichage"));
-            } else if (orderProperty.startsWith(CONTENU) || orderProperty.startsWith(CONTENU_TRAD)) {
-                e = getJsonOrderExpression(root, cb, orderProperty);
+            } else if (order.getProperty().startsWith(CONTENU)) {
+                String[] jsonKeys = order.getProperty().replace(CONTENU, "").split("\\.");
+                List<Expression<?>> expressions = new ArrayList<>();
+                expressions.add(root.<String> get("contenu"));
+                for (String jsonKey : jsonKeys) {
+                    expressions.add(cb.literal(jsonKey));
+                }
+                e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
+            } else if (order.getProperty().startsWith(CONTENU_TRAD)) {
+                String[] jsonKeys = order.getProperty().replace(CONTENU_TRAD, "").split("\\.");
+                List<Expression<?>> expressions = new ArrayList<>();
+                expressions.add(root.<String> get("contenuTrad"));
+                for (String jsonKey : jsonKeys) {
+                    expressions.add(cb.literal(jsonKey));
+                }
+                e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
             }
             if (e == null) {
-                e = root.get(orderProperty);
+                e = root.get(property);
             }
-
             if (order.getDirection() == Direction.ASC) {
                 cq.orderBy(cb.asc(e));
             } else {
@@ -139,40 +154,6 @@ public class RechercheDemandesUtils extends RechercheUtils {
         typedQuery.setFirstResult((pageable.getPageNumber()) * pageable.getPageSize());
         typedQuery.setMaxResults(pageable.getPageSize());
         return typedQuery.getResultList();
-    }
-
-    private Expression<?> getJsonOrderExpression(Root<DemandeBO> root, CriteriaBuilder cb, String jsonProperty) {
-        final var maybeCustomFallback = getFallbackOrder(jsonProperty);
-
-        if (maybeCustomFallback.isEmpty()) {
-            return buildJsonExpression(root, cb, jsonProperty);
-        }
-
-        final var customFallback = maybeCustomFallback.get();
-        List<Expression<String>> allExpressions = customFallback.getAllProperties().stream()
-                .map(prop -> buildJsonExpression(root, cb, prop))
-                .map(expr -> cb.function("nullif", String.class, expr, cb.literal("null"))).toList();
-
-        final var conditionalOrder = cb.coalesce();
-        allExpressions.forEach(customOrderExpression -> conditionalOrder.value(customOrderExpression));
-        return conditionalOrder;
-    }
-
-    private Optional<FallbackOrderDefinition> getFallbackOrder(String order) {
-        return demandeFallbackOrdersConfiguration.map(IDemandeFallbackOrdersConfiguration::getFallbackOrders).stream()
-                .flatMap(Collection::stream).filter(fallback -> StringUtils.equals(fallback.jsonDefaultOrder(), order))
-                .findFirst();
-    }
-
-    private Expression<?> buildJsonExpression(Root<DemandeBO> root, CriteriaBuilder cb, String orderProperty) {
-        final var allJsonFields = Arrays.stream(orderProperty.split("\\.")).toList();
-        List<Expression<?>> expressions = new ArrayList<>();
-
-        expressions.add(root.<String> get(allJsonFields.getFirst()));
-        for (String jsonKey : allJsonFields.subList(1, allJsonFields.size())) {
-            expressions.add(cb.literal(jsonKey));
-        }
-        return cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
     }
 
     private Root<DemandeBO> buildQuery(CriteriaQuery<?> cq, DemandeRechercheDTO demandeRecherche, CriteriaBuilder cb) {
@@ -304,6 +285,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
         return string.startsWith("[") && string.endsWith("]");
     }
 
+
     private void setFacetPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates,
             CriteriaBuilder cb, String texte, boolean trad) {
         // cas contenu de la demande
@@ -406,6 +388,79 @@ public class RechercheDemandesUtils extends RechercheUtils {
             return null;
         }
         return cal;
+    }
+
+    public Page<DemandeExportDTO> getDemandesExcelPageable(ExcelRechercheDTO excelRechercheDTO, Pageable pageable,
+            long total) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<DemandeExportDTO> cq = cb.createQuery(DemandeExportDTO.class);
+        Root<DemandeBO> root = cq.from(DemandeBO.class);
+
+        Join<DemandeBO, DemandesAgentsBO> agentJoin = root.join(AGENT, JoinType.LEFT);
+        Join<DemandeBO, DemandesUsagersBO> usagerJoin = root.join(USAGER, JoinType.LEFT);
+        Join<DemandeBO, DemandeConfigBO> configJoin = root.join("config", JoinType.LEFT);
+        Join<DemandeBO, DemandesStatutsBO> statutJoin = root.join(DERNIER_STATUT, JoinType.LEFT);
+
+        // Projection
+        cq.select(cb.construct(DemandeExportDTO.class, root.get("pkDemandes"), root.get("dateCreation"),
+                root.get("dateDerModif"), root.get("contenu"), root.get("contenuTrad"), root.get("langue"),
+                root.get("canal"), root.get("observations"), agentJoin, usagerJoin, configJoin, statutJoin,
+                root.get("identifiant")));
+
+        List<Predicate> predicates = buildPredicatesExcel(root, cb, excelRechercheDTO);
+        cq.where(predicates.toArray(Predicate[]::new));
+        // Pagination
+        TypedQuery<DemandeExportDTO> query = em.createQuery(cq);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        return new PageImpl<>(query.getResultList(), pageable, total);
+    }
+
+    public long countDemandesExcel(ExcelRechercheDTO excelRechercheDTO) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<DemandeBO> countRoot = countQuery.from(DemandeBO.class);
+        countQuery.select(cb.countDistinct(countRoot));
+        List<Predicate> countPredicates = buildPredicatesExcel(countRoot, cb, excelRechercheDTO);
+        countQuery.where(countPredicates.toArray(Predicate[]::new));
+        return em.createQuery(countQuery).getSingleResult();
+    }
+
+    private List<Predicate> buildPredicatesExcel(Root<DemandeBO> root, CriteriaBuilder cb,
+            ExcelRechercheDTO excelRechercheDTO) {
+        List<Predicate> predicates = new ArrayList<>();
+        // Créer un prédicat pour start date
+        if (excelRechercheDTO.getCreationStartDate() != null) {
+            LocalDate startDate = excelRechercheDTO.getCreationStartDate().toInstant().atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            Date startOfDay = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            predicates.add(cb.greaterThanOrEqualTo(root.get(DATE_CREATION), startOfDay));
+        }
+
+        // Créer un prédicat pour end date
+        if (excelRechercheDTO.getCreationEndDate() != null) {
+            LocalDate endDate = excelRechercheDTO.getCreationEndDate().toInstant().atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            Date endOfDay = Date.from(endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant());
+            predicates.add(cb.lessThanOrEqualTo(root.get(DATE_CREATION), endOfDay));
+        }
+
+        // Créer un prédicat pour statut
+        if (excelRechercheDTO.getStatut() != null) {
+            predicates.add(
+                    cb.equal(root.join(DERNIER_STATUT, JoinType.LEFT).get("name"), excelRechercheDTO.getStatut()));
+        }
+
+        // Créer un prédicat pour data
+        if (excelRechercheDTO.getData() != null) {
+            SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
+            String value = excelRechercheDTO.getData().getValue();
+            // vérifier c'est une array
+            predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), value),
+                    cb.equal(demandesData.<String> get("key"), excelRechercheDTO.getData().getKey())));
+        }
+        return predicates;
     }
 
 }

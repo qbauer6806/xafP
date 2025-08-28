@@ -2,6 +2,7 @@ package mc.gouv.xaf.shared.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import java.util.Date;
 
 /**
  * DTO Interne permettant de regrouper les critères de recherche pour un export excel
@@ -10,10 +11,12 @@ import lombok.Setter;
 @Getter
 public class ExcelRechercheDTO {
 
-    private String creationStartDate;
+    private Date creationStartDate;
 
-    private String creationEndDate;
+    private Date creationEndDate;
 
     private String statut;
+
+    private DataRechercheDTO data;
 
 }

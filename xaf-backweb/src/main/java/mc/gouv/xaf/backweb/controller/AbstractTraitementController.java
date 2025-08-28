@@ -1,11 +1,15 @@
 package mc.gouv.xaf.backweb.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,11 +19,13 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfApiService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
+import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
+import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
@@ -32,6 +38,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
+import mc.gouv.xaf.shared.formbean.TypedocFormBean;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
@@ -64,6 +71,9 @@ public class AbstractTraitementController extends AbstractController {
     private static final String I18N_UPLOAD_FICHIER_ERREUR = "message.error.fileupload.error";
     private static final String I18N_UPLOAD_VSCAN_FICHIER_CORROMPU = "message.error.vscan.corrompu";
     private static final String I18N_UPLOAD_FICHIER_TAILLE_NON_ACCEPTEE = "message.error.fileupload.taille";
+    private static final String I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE = "message.error.traitement.typecode.null";
+
+    private static final String FICHIERS_TAB = "fichiers";
 
     @Autowired
     private DemandesService demandesService;
@@ -86,9 +96,14 @@ public class AbstractTraitementController extends AbstractController {
     @Autowired
     private BackGouvPropertiesResolver backGouvPropertiesResolver;
     @Autowired
-    private MotifsCache motifsCache;
-    @Autowired
     private DemarchesDataProvider demarchesDataProvider;
+    
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private DemandesFilesService demandesFilesService;
+    @Autowired
+    private DemandesComplementsFilesService demandesComplementsFilesService;
 
     // Pour les informations liées à la demande
     private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
@@ -301,6 +316,76 @@ public class AbstractTraitementController extends AbstractController {
             }
         }
         return fileCount;
+    }
+    
+    protected Boolean isLockedByUsager(Integer pkDemande, DemandeDTO demande) {
+        if (demande == null)
+            demande = demandesService.getDemande(pkDemande);
+        LOGGER.info("Contenu = {}", demande.getContenu());
+        /* la demande est lockée jusqu'à une date supérieure à la date en cours */
+        Long now = Instant.now().toEpochMilli();
+
+        if (demande.getModificationTimestamp() != null && demande.getModificationTimestamp().compareTo(now) > 0) {
+            LOGGER.info(
+                    "======================= isLockedByUsager demande {} : timestamp actuel: {} timestamp demande: {} diff: {}",
+                    pkDemande, now, demande.getModificationTimestamp(), demande.getModificationTimestamp() - now);
+            return true;
+        }
+        return false;
+    }
+
+    protected ModelAndView typageDocuments(TypedocFormBean typedocFormBean, Integer pkDemande,
+            final RedirectAttributes redirectAttributes) {
+        LOGGER.info("======================= Appel de la page /traitement/typageDocuments (DemandeID = {})", pkDemande);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            // Désérialisation des fichiers
+            Map<String, String> files = mapper.readValue(typedocFormBean.getFiles(),
+                    new TypeReference<HashMap<String, String>>() {
+
+                    });
+
+            // Une autre Map contenant les changements sur les checkboxes a été ajoutée
+            Map<String, Boolean> filesCheckbox = mapper.readValue(typedocFormBean.getFilesCheckbox(),
+                    new TypeReference<HashMap<String, Boolean>>() {
+
+                    });
+
+            // La méthode d'update prend en paramètre cette nouvelle Map
+            boolean updateFiles = demandesFilesService.updateTypedocs(files, filesCheckbox);
+
+            // Désérialisation des compléments
+            Map<String, String> complements = mapper.readValue(typedocFormBean.getComplements(),
+                    new TypeReference<HashMap<String, String>>() {
+
+                    });
+
+            // Même chose pour les checkboxes des compléments
+            Map<String, Boolean> complementsCheckbox = mapper.readValue(typedocFormBean.getComplementsCheckbox(),
+                    new TypeReference<HashMap<String, Boolean>>() {
+
+                    });
+
+            // Même chose pour l'update des compléments
+            boolean updateComplements = demandesComplementsFilesService.updateTypedocs(complements,
+                    complementsCheckbox);
+
+            LOGGER.info("======================= Fin /traitement/typageDocuments");
+
+            if (updateFiles && updateComplements) {
+                return returnSuccessMessage(pkDemande, I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE, FICHIERS_TAB,
+                        redirectAttributes);
+            }
+            return returnErrorMessage(pkDemande, I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE, FICHIERS_TAB,
+                    redirectAttributes);
+
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors du traitement de typageDocuments", e);
+            return returnErrorMessage(pkDemande, I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE, FICHIERS_TAB,
+                    redirectAttributes);
+        }
     }
 
 }

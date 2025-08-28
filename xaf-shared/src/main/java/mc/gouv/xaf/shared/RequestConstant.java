@@ -16,6 +16,7 @@ public class RequestConstant {
     public static final String SORT_PARAM = "sort";
     public static final String DIRECTION_PARAM = "direction";
     public static final String STATUS_PARAM = "status";
+    public static final String STATUS_SIMPLIFIE_PARAM = "statusSimplifie";
     public static final String LANG_PARAM = "lang";
 
     public static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";

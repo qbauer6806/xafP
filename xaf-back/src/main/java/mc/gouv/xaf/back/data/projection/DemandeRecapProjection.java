@@ -1,5 +1,6 @@
-package mc.gouv.xaf.shared.dto;
+package mc.gouv.xaf.back.data.projection;
 
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import java.util.Date;
 
 public interface DemandeRecapProjection {
@@ -10,6 +11,6 @@ public interface DemandeRecapProjection {
 
     Date getDateCreation();
 
-    String getDernierStatut();
+    DemandesStatutsBO getDernierStatut();
 
 }

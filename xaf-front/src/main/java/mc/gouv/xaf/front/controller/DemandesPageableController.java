@@ -1,6 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -33,8 +34,10 @@ public class DemandesPageableController extends AbstractXafController {
             @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
             @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
             @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
-            @RequestParam(name = RequestConstant.STATUS_PARAM) String status,
-            @RequestParam(name = RequestConstant.LANG_PARAM) String lang, HttpServletRequest request) {
+            @RequestParam(name = RequestConstant.STATUS_PARAM, required = false) List<String> status,
+            @RequestParam(name = RequestConstant.LANG_PARAM) String lang,
+            @RequestParam(name = RequestConstant.STATUS_SIMPLIFIE_PARAM, required = false) List<String> statusSimplifie,
+            HttpServletRequest request) {
 
         LOGGER.info("====================== /demandespage doGet()");
 
@@ -68,11 +71,14 @@ public class DemandesPageableController extends AbstractXafController {
         if (StringUtils.isNotBlank(direction)) {
             paramDTO.setDirection(direction);
         }
-        if (StringUtils.isNotBlank(status)) {
+        if (status != null) {
             paramDTO.setStatus(status);
         }
         if (StringUtils.isNotBlank(lang)) {
             paramDTO.setLang(lang);
+        }
+        if (statusSimplifie != null) {
+            paramDTO.setStatusSimplifie(statusSimplifie);
         }
 
         try {

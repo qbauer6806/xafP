@@ -1,16 +1,5 @@
 package mc.gouv.xaf.apiclient2tiers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
-
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
@@ -20,19 +9,29 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.apiclient2tiers.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient2tiers.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient2tiers.client.ApiClient;
-import mc.gouv.xaf.apiclient2tiers.dto.FileResponseDTO;
+import mc.gouv.xaf.apiclient2tiers.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.apiclient2tiers.dto.MotifDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.RecapDemandesDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.StatutSimplifieEnum;
 import mc.gouv.xaf.apiclient2tiers.dto.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.apiclient2tiers.exception.ExceptionManager;
 import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 /**
- * Classe cliente permettant au système tiers d'appeler l'API GenTS via le FO (solution 2/3 "GenTS Connect")
+ * Classe cliente permettant d'appeler les WS des démarches
  *
  * @author qdeme
  */
@@ -68,6 +67,44 @@ public class AfApiClient2Tiers extends ApiClient {
      */
     public AfApiClient2Tiers(String serviceUrl, String jwtToken) {
         super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken), true);
+    }
+
+    public List<MotifDTO> getMotifs() {
+        Response res = getTarget().path("/motifs").request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<List<MotifDTO>>() {
+
+        });
+    }
+
+    public MotifDTO createMotif(MotifDTO motif) {
+        Response res = getTarget().path("/motifs").request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.entity(motif, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(MotifDTO.class);
+    }
+
+    public MotifDTO updateMotif(Integer pkMotif, MotifDTO motif) {
+        Response res = getTarget().path("/motifs/" + pkMotif).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity(motif, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(MotifDTO.class);
+    }
+
+    public void deleteMotif(Integer pkMotif) {
+        Response res = getTarget().path("/motifs/" + pkMotif).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
+
+        ExceptionManager.checkExceptionResponse(res);
     }
 
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
@@ -109,15 +146,15 @@ public class AfApiClient2Tiers extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
     }
 
-    public String saveFile(InputStream inputStream, Integer usagerId, String filename, String contentType,
+    public String saveFile(String container, InputStream inputStream, String filename, String contentType,
             Map<String, String> customHeaders) {
 
-        // Constitution du chemin virtuel du fichier, sans le container, car il a été décidé qu'il ne serait plus fourni
-        // à l'API GenTS et que c'est cette dernière qui rajouterait "ROOT" par défaut lors de l'appel à FILE
-        String virtualPath = filename;
+        // Constitution du chemin virtuel du fichier
+        // /appfactory/demarcheId/accessId/UUID/nomDuFichier
+        String virtualPath = container + "/" + filename;
 
         // Constitution de la requête
-        Invocation.Builder builder = getTarget().path("/file/" + usagerId + "/" + virtualPath).request(MediaType.MULTIPART_FORM_DATA);
+        Invocation.Builder builder = getTarget().path("/file/" + virtualPath).request(MediaType.MULTIPART_FORM_DATA);
 
         // Ajout du contenu multipart
         MultiPart multiPart = new MultiPart();
@@ -142,8 +179,6 @@ public class AfApiClient2Tiers extends ApiClient {
 
         builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
-        String generatedFilename = null;
-        
         try (Response postResponse = builder.post(entity)) {
             // Gestion des erreurs
             int statusCode = postResponse.getStatus();
@@ -151,16 +186,15 @@ public class AfApiClient2Tiers extends ApiClient {
                 String errorMessage = postResponse.readEntity(String.class);
                 throw new DemarcheException(errorMessage);
             }
-            generatedFilename = postResponse.readEntity(FileResponseDTO.class).getMessage();
         }
 
-        return generatedFilename;
+        return filename;
     }
 
     public void getFile(String file, HttpServletResponse response) {
 
         // Préparation de la requête
-        Invocation.Builder builder = getTarget().path("/file/" + file).request();
+        Invocation.Builder builder = getTarget().path("/file/ROOT/" + file).request();
         builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
         // Appel du WS FILE
@@ -188,7 +222,7 @@ public class AfApiClient2Tiers extends ApiClient {
 
     public void deleteFile(String file) {
         // Préparation de la requête
-        Invocation.Builder builder = getTarget().path("/file/" + file).request();
+        Invocation.Builder builder = getTarget().path("/file/ROOT/" + file).request();
         builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
         // Appel du WS FILE
@@ -200,6 +234,15 @@ public class AfApiClient2Tiers extends ApiClient {
             }
         }
 
+    }
+
+    public GichuniUsagerDTO getUsager(Integer usagerId) {
+        Response res = getTarget().path("/usagers/" + usagerId).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(GichuniUsagerDTO.class);
     }
 
     public void notifyCreationDemande(Integer usagerId, Integer pkDemande, String identifiantDemande, Date dateCreation,
@@ -248,10 +291,27 @@ public class AfApiClient2Tiers extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
     }
 
+    public void notifyDesinscriptionUsagerTS(Integer usagerId) {
+        Response res = getTarget().path(NOTIFY + usagerId + "/desinscriptionUsagerTS")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.json(""));
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
     public void synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
         Response res = getTarget().path("/notify/synchronizeDemandesRecaps").request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(usagerDemandesRecap, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+
+    public void notifyCreationAccesTS(Integer usagerId) {
+        Response res = getTarget().path(NOTIFY + usagerId + "/creationAccesTS").request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.json(""));
 
         ExceptionManager.checkExceptionResponse(res);
     }

@@ -10,37 +10,29 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
+import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.impl.MotifsServiceImpl;
-import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
@@ -54,9 +46,9 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -65,7 +57,6 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 
 /**
  * Services proposés par le module API 2 Tiers des TS (donc appelé par le système tiers, via le proxy 2 tiers)
@@ -75,7 +66,7 @@ import mc.gouv.xaf.shared.exception.DemarcheException;
  */
 @ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
 @Component
-public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
+public class AfApiService2Tiers implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService2Tiers.class);
 
@@ -105,18 +96,9 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     
     @Autowired
     private PaysCache paysCache;
-    
-    @Autowired
-    private AccessService accessService;
 
     @Autowired
     private AfBackUtils afBackUtils;
-    
-    @Autowired
-    private BrouillonsService brouillonsService;
-    
-    @Autowired
-    private DemandesService demandesService;
 
     public void annulerDemande(Integer demandeId, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.annulerDemande({}, {})", demandeId, usagerId);
@@ -131,19 +113,12 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
         LOGGER.info("AfApiService2Tiers.getDemande({}, {})", usagerId, demandeId);
-        DemandeDTO demande = afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
-
-        return processDemandeFromSystemeTiers(demande);
+        return afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
     }
 
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
-        Page<DemandeDTO> page = afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
-        
-        for (DemandeDTO demande : page.getContent()) {
-            processDemandeFromSystemeTiers(demande);
-        }
-        return page;
+        return afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
     }
 
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
@@ -164,36 +139,17 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
         LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, langue);
-        
-        LOGGER.info("Suppression des brouillons...");
-        brouillonsService.deleteBrouillons(usagerId);
-
-        LOGGER.info("Suppression de l'accès...");
-        accessService.deleteAccess(usagerId);
-        
-        LOGGER.info("Envoi d'un message sur Kafka...");
-        guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
-        
-        LOGGER.info("Notification du système tiers...");
         afBackUtils.getAfApiClient2Tiers().desinscriptionUsager(usagerId, langue);
     }
 
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
         LOGGER.info("AfApiService2Tiers.createOrUpdateAccess({}, +dto)", usagerId);
-
-        AccessDTO accessDto = new AccessDTO();
-        accessDto.setUsagerId(usagerId);
-        accessDto.setContenu(dto.getContenu());
-        AccessDTO access = accessService.saveOrUpdateAccess(usagerId, accessDto);
-        
-        // Notifier MonGuichet de la création de l'accès
-        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
-        return access;
+        return afBackUtils.getAfApiClient2Tiers().createOrUpdateAccess(usagerId, dto);
     }
 
     public AccessDTO getAccess(Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getAccess({})", usagerId);
-        return accessService.getAccessActive(usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getAccess(usagerId);
     }
 
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
@@ -203,25 +159,12 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     public List<MotifDTO> getMotifs() {
         LOGGER.info("AfApiService2Tiers.getMotifs()");
-        // Décision prise de ne plus gérer les motifs nous même mais d'appeler le système tiers pour les récupérer
-        return afBackUtils.getAfApiClient2Tiers().getMotifs();
+        return motifsService.getMotifs();
     }
 
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
-        
-        // Injecter la fk vers la config actuelle, que le système tiers devra stocker
-        demande.setBuildId(demandesConfigService.getLastBuildId());
-        
-        DemandeDTO demandeCreee = afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
-        
-        // Suppression du brouillon éventuel
-        if (demande.getBrouillonId() != null) {
-            LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
-            brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId, true);
-        }
-        
-        return demandeCreee;
+        return afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
     }
 
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
@@ -256,55 +199,27 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.creerBrouillon({}, {})", brouillon, usagerId);
-        BrouillonDTO brouillonDto = null;
-        try {
-
-            brouillonDto = new BrouillonDTO();
-            brouillonDto.setUsagerId(usagerId);
-            brouillonDto.setPkBrouillons(null);
-            brouillonDto.setContenu(brouillon.getContenu());
-            brouillonDto.setFichiers(brouillon.getFichiers());
-            brouillonDto.setRecapType(brouillon.getRecapType());
-            brouillonDto.setMeta(brouillon.getMeta());
-            brouillonDto.setContenuInitial(brouillon.getContenuInitial());
-
-            brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillonDto, usagerId, false);
-
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création d'un brouillon {}", brouillonDto);
-            // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
-            throw new DemarcheException("Erreur lors de la création d'un brouillon", e);
-        }
-        return brouillonDto;
+        return afBackUtils.getAfApiClient2Tiers().creerBrouillon(brouillon, usagerId);
     }
 
     public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.updateBrouillon({}, {})", brouillon, usagerId);
-        BrouillonDTO brouillonDto;
-        try {
-
-            brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillon, usagerId, false);
-
-        } catch (Exception e) {
-            // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
-            throw new DemarcheException("Erreur lors de la mise à jour d'un brouillon", e);
-        }
-        return brouillonDto;
+        return afBackUtils.getAfApiClient2Tiers().updateBrouillon(brouillon, brouillon.getPkBrouillons(), usagerId);
     }
 
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getBrouillonsPageable({})", usagerId);
-        return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
+        return afBackUtils.getAfApiClient2Tiers().getBrouillonsPageable(usagerId, paramDTO);
     }
 
     public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getBrouillon({}, {})", pkBrouillons, usagerId);
-        return brouillonsService.getBrouillon(pkBrouillons, usagerId);
+        return afBackUtils.getAfApiClient2Tiers().getBrouillon(pkBrouillons, usagerId);
     }
 
     public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
-        brouillonsService.deleteBrouillon(pkBrouillons, usagerId, false);
+        afBackUtils.getAfApiClient2Tiers().deleteBrouillon(pkBrouillons, usagerId);
     }
     
     public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
@@ -317,18 +232,20 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         LOGGER.info("AfApiService2Tiers.updateDemande({}, {})", demandeId, usagerId);
         return afBackUtils.getAfApiClient2Tiers().updateDemande(demandeId, demande, usagerId);
     }
-    
-    @Override
-    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
-        return afBackUtils.getAfApiClient2Tiers().lockDemande(demandeId, usagerId, timestamp);
-    }
-
-    @Override
-    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException {
-        return afBackUtils.getAfApiClient2Tiers().unlockDemande(demandeId, usagerId);
-    }
 
     // ================================= 2EME PARTIE DE L'API =================================
+
+    public MotifDTO createMotif(MotifDTO motif) {
+        return motifsService.saveMotif(motif);
+    }
+
+    public MotifDTO updateMotif(MotifDTO motif) {
+        return motifsService.updateMotif(motif);
+    }
+
+    public void deleteMotif(Integer pkMotif) {
+        motifsService.deleteMotif(pkMotif);
+    }
 
     public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
         return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
@@ -342,8 +259,12 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         periodesOuvertureService.deletePeriodeOuverture(pkPeriodeOuverture);
     }
 
-    public FileResponseDTO saveFile(Integer usagerId, MultipartFile data, HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
+    public GichuniUsagerDTO getUsager(Integer usagerId) {
+        return usagersCache.get(usagerId);
+    }
+
+    public FileResponseDTO saveFile(String container, MultipartFile data, HttpServletRequest request,
+            HttpServletResponse response) {
         // Seule manière avec Spring de pouvoir inclure des "/" dans le dernier
         // paramètre d'une URL (et en mettant /** dans l'URL)
         // (+ utilisation de la classe WebMvcConfig afin d'éviter que les
@@ -358,14 +279,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
         String account = gouvPropertiesResolver.getDemarcheId();
 
-        LOGGER.info("====================== saveFile({},{}/{}/{})", usagerId, account, FileUtils.DEFAULT_CONTAINER, file);
-        
-        // Ajout de l'accès et de l'UUID en préfixe, avant soumission à FILE
-        AccessBO access = accessService.getAccessBO(usagerId, true);
-        if (access == null) {
-            throw new DemarchesServiceException("Impossible de récupérer l'accès associé à l'usagerId fourni (" + usagerId + ")", HttpStatus.NOT_FOUND);
-        }
-        file = access.getPkAccess() + "/" + UUID.randomUUID() + "/" + file;
+        LOGGER.info("====================== saveFile({}/{}/{})", account, container, file);
 
         Map<String, String> meta = extractMeta(request);
 
@@ -374,25 +288,20 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         FileResponseDTO fileResponseDTO = null;
         try {
             afBackUtils.getFileClient()
-                    .saveFile(account, FileUtils.DEFAULT_CONTAINER, data.getInputStream(), file, data.getContentType(), meta, os);
+                    .saveFile(account, container, data.getInputStream(), file, data.getContentType(), meta, os);
             fileResponseDTO = objectMapper.readValue(os.toByteArray(), FileResponseDTO.class);
-            
-            // Override du champ "message" du ResponseDTO afin d'y indiquer le filename effectif correspondant à la ressource stockée.
-            // Car, en mode 2/3, c'est l'API GenTS qui génère l'UUID (voir au dessus), et non le système tiers.
-            // Il faut donc trouver un moyen d'indiquer au système tiers l'URL du fichier stocké.
-            fileResponseDTO.setMessage(file);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'appel à FILE pour la sauvegarde du fichier", e);
         }
-        
+
         return fileResponseDTO;
     }
 
-    public ResponseEntity<InputStreamResource> getFile(HttpServletRequest request,
+    public ResponseEntity<InputStreamResource> getFile(String container, HttpServletRequest request,
             HttpServletResponse response) {
         String file = request.getServletPath();
         file = file.replace(FILE_PATH, "");
-        //file = file.split("/", 2)[1];
+        file = file.split("/", 2)[1];
         LOGGER.info(LOG_CHEMIN, file);
 
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
@@ -400,9 +309,9 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
         String account = gouvPropertiesResolver.getDemarcheId();
 
-        LOGGER.info("====================== getFile({}/{}/{})", account, FileUtils.DEFAULT_CONTAINER, file);
+        LOGGER.info("====================== getFile({}/{}/{})", account, container, file);
         try {
-            afBackUtils.getFileClient().getFile(account, FileUtils.DEFAULT_CONTAINER, file, response);
+            afBackUtils.getFileClient().getFile(account, container, file, response);
         } catch (IOException e) {
             LOGGER.error("Erreur lors de l'appel à FILE pour la récupération du fichier", e);
         }
@@ -411,10 +320,10 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return null;
     }
 
-    public ResponseEntity deleteFile(HttpServletRequest request) {
+    public ResponseEntity deleteFile(@PathVariable("container") String container, HttpServletRequest request) {
         String file = request.getServletPath();
         file = file.replace(FILE_PATH, "");
-        //file = file.split("/", 2)[1];
+        file = file.split("/", 2)[1];
         LOGGER.info(LOG_CHEMIN, file);
 
         // Normalisation du nom de fichier... Exemple de quelqu'un qui uploaderait un "é" avec 65CC81 au lieu de C3A9
@@ -422,10 +331,10 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
         String account = gouvPropertiesResolver.getDemarcheId();
 
-        LOGGER.info("====================== deleteFile({}/{}/{})", account, FileUtils.DEFAULT_CONTAINER, file);
+        LOGGER.info("====================== deleteFile({}/{}/{})", account, container, file);
 
         try {
-            afBackUtils.getFileClient().deleteFile(account, FileUtils.DEFAULT_CONTAINER, file);
+            afBackUtils.getFileClient().deleteFile(account, container, file);
         } catch (Exception e) {
             LOGGER.info("Erreur lors de l'appel à FILE pour la suppression du fichier", e);
         }
@@ -466,10 +375,26 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
+    public ResponseEntity notifyDesinscriptionUsagerTS(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.notifyDesinscriptionUsagerTS({})", usagerId);
+
+        guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
+
+        return ResponseEntity.ok().body(null);
+    }
+
     public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
         LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
 
         guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecap);
+
+        return ResponseEntity.ok().body(null);
+    }
+
+    public ResponseEntity notifyCreationAccesTS(Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.notifyCreationAccesTS({})", usagerId);
+
+        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
 
         return ResponseEntity.ok().body(null);
     }
@@ -505,31 +430,6 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     
     public List<PaysDTO> getPays() {
         return new ArrayList<>(paysCache.getValues());
-    }
-    
-    /**
-     * 
-     * Méthode servant à compléter le DemandeDTO remis par le système tiers avant restitution au FO
-     * Car il a quelques ajustements à faire dans le cadre de la solution 2/3, dans laquelle l'API se place en intermédiaire.
-     * 
-     * @param demande
-     * @return
-     */
-    private DemandeDTO processDemandeFromSystemeTiers(DemandeDTO demande) {
-        // Injection de la config avant retour au FO
-        demande.setConfig(demandesConfigService.getConfig(demande.getBuildId()).getContenu());
-        
-        // Injection d'une meta BACK_FRONT_* si pas de meta ou si présente mais pas BACK_FRONT_* ni FRONT_IDX_*
-        // Ceci afin de se prémunir d'une erreur lors de l'affichage de la demande dans le FO
-        // Cf. ticket https://redmine.monaco-gouvernement.mc/issues/71709
-        for (DemandeFileDTO file : demande.getFichiers()) {
-            
-            if (StringUtils.isBlank(file.getMeta()) || (!StringUtils.isBlank(file.getMeta()) && !file.getMeta().startsWith(FileUtils.META_BACK_FRONT) && !file.getMeta().startsWith(FileUtils.META_FRONT_IDX))) {
-                file.setMeta(FileUtils.META_BACK_FRONT_SYSTEME_TIERS);
-            }
-        }
-        
-        return demande;
     }
 
 }

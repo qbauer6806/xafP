@@ -1,12 +1,10 @@
 package mc.gouv.xaf.backweb.ws;
 
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
@@ -15,7 +13,6 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,9 +32,6 @@ public class DemandeExportController extends AbstractController {
     private ExcelExportService excelExportService;
 
     @Autowired
-    private AfExcelExportModelProvider afExcelExportModelProvider;
-
-    @Autowired
     private DemarchesService demarchesService;
 
     @Autowired
@@ -46,13 +40,14 @@ public class DemandeExportController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
     @GetMapping(value = "/excel")
-    public void exportExcel(HttpServletResponse response,
-            @RequestParam(required = false) @DateTimeFormat(pattern = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT) Date creationStartDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT) Date creationEndDate) {
+    public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate,
+            @RequestParam(required = false) String creationEndDate) {
 
         LOGGER.info("======================= Appel du controller /ws/export/excel");
-        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", creationStartDate,
-                creationEndDate);
+        String safeCreationStart = AfBackUtils.logSafe(creationStartDate);
+        String safeCreationEnd = AfBackUtils.logSafe(creationEndDate);
+        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", safeCreationStart,
+                safeCreationEnd);
 
         try {
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -63,7 +58,7 @@ public class DemandeExportController extends AbstractController {
             ExcelRechercheDTO excelRechercheDTO = new ExcelRechercheDTO();
             excelRechercheDTO.setCreationStartDate(creationStartDate);
             excelRechercheDTO.setCreationEndDate(creationEndDate);
-            afExcelExportModelProvider.setCustomExcelRechercheDTO(excelRechercheDTO);
+
             LOGGER.info("Constitution du modèle pour la génération Excel...");
             Map<String, Object> model = getModel(excelRechercheDTO);
 
@@ -77,12 +72,13 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("======================= Fin /ws/export/excel");
     }
 
-    private Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
+    protected Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
         LOGGER.info("DemandeExportController.getModel()");
 
         Map<String, Object> model = new HashMap<>();
 
-        model.put("demandes", demandesService.retrieveDemandesExcel(excelRecherche));
+        model.put("demandes", demandesService.retrieveDemandesLazy(excelRecherche.getCreationStartDate(),
+                excelRecherche.getCreationEndDate(), excelRecherche.getStatut()));
 
         model.put("Utils", AfBackUtils.class);
 

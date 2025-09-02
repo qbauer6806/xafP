@@ -47,9 +47,6 @@ public class AbstractDemandeDTO implements Serializable {
 
     @JsonIgnore
     protected boolean updated = false;
-    
-    // Pour solution 2/3, buildid à stocker par le système tiers et à communiquer à GenTS pour association avec la config
-    protected transient String buildId;
 
     public String getMarqueur(String marqueurId) {
         return getMap(marqueurs, marqueurId);

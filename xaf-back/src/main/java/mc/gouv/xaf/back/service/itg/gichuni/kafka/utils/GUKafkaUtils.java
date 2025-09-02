@@ -6,7 +6,6 @@ import java.util.List;
 
 import jakarta.annotation.PostConstruct;
 
-import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
@@ -95,15 +95,14 @@ public class GUKafkaUtils {
     public List<DemandeRecapDTO> getDemandeRecapsFromUsagerId(Integer usagerId) {
         LOGGER.info("Constitution de la liste de DemandeRecapDTO...");
         List<DemandeRecapDTO> demandeRecaps = new ArrayList<>();
-        List<DemandeRecapProjection> recapsProj = demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrue(
-                usagerId);
+        List<DemandeRecapProjection> recapsProj = demandesRepository.findByUsagerIdForDemandeRecapDTO(usagerId);
         for (DemandeRecapProjection r : recapsProj) {
             DemandeRecapDTO recap = new DemandeRecapDTO();
             recap.setDemandeId(r.getPkDemandes());
             recap.setIdentifiant(r.getIdentifiant());
             recap.setDateCreation(r.getDateCreation());
             StatutSimplifieEnum statutSimplifie = demarchesDataProvider.getStatutSimplifie(
-                    r.getDernierStatut().getName());
+                    r.getDernierStatut());
             recap.setStatutSimplifie(statutSimplifie.name());
             demandeRecaps.add(recap);
         }

@@ -15,7 +15,7 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
-import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
+import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -213,7 +213,7 @@ public class DemandesTransformer {
         return dto;
     }
 
-    public DemandeDTO exportProjection2Dto(DemandeExportDTO bo) {
+    public DemandeDTO exportProjection2Dto(DemandeExportProjection bo) {
         DemandeDTO dto = new DemandeDTO();
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());

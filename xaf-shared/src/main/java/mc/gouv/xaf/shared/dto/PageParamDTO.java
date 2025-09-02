@@ -1,6 +1,6 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.List;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,10 +40,7 @@ public class PageParamDTO {
      * tableau contenant les codes du statut sur lequel effectuer un filtre
      */
     @Setter
-    private List<String> status;
-
-    @Setter
-    private List<String> statusSimplifie;
+    private String status;
 
     /**
      * La langue courante de la page pour pouvoir effectuer correctement le tri sur les statut
@@ -56,24 +53,26 @@ public class PageParamDTO {
         this.size = DEFAULT_SIZE;
         this.sort = DEFAULT_SORT;
         this.direction = ASC;
-        this.status = null;
-        this.statusSimplifie = null;
+        this.status = "[]";
         this.lang = DEFAULT_LANG;
     }
 
-    public PageParamDTO(int page, int size, String sort, String direction, List<String> status, String lang,
-            List<String> statusSimplifie) {
+    public PageParamDTO(int page, int size, String sort, String direction, String status, String lang) {
         this.page = page;
         this.size = size;
         this.sort = sort;
         setDirection(direction);
         this.status = status;
-        this.statusSimplifie = statusSimplifie;
         this.lang = lang;
     }
 
     public void setDirection(String direction) {
         this.direction = DESC.equalsIgnoreCase(direction) ? DESC : ASC;
+    }
+
+    public String[] getStatusArray() {
+        Gson gson = new Gson();
+        return gson.fromJson(status, String[].class);
     }
 
 }

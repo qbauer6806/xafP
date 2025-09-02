@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -560,15 +561,6 @@ public class AfBackUtils {
     /**
      * Utilisé dans certains exports excel
      */
-    public static String genererTelephone(DemandeDTO demande, String marqueurIdentifiant) {
-        String indicatif = demande.getMarqueur(marqueurIdentifiant + "Indicatif").replace("t", "+");
-        String numero = demande.getMarqueur(marqueurIdentifiant + "Numero");
-        return indicatif + numero;
-    }
-
-    /**
-     * Utilisé dans certains exports excel
-     */
     public static String choixMultipleToString(final List<String> choixMultiple) {
         return String.join(", ", choixMultiple);
     }
@@ -747,13 +739,8 @@ public class AfBackUtils {
     }
 
     public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(json, PropertiesListEntityDTO[].class);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de AfBackUtils.parserPropertiesListJson()", e);
-        }
-        return new PropertiesListEntityDTO[0];
+        Gson gson = new Gson();
+        return gson.fromJson(json, PropertiesListEntityDTO[].class);
     }
 
     public static String convertTelIndicateur(String indicateur) {

@@ -12,7 +12,6 @@ import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
@@ -44,7 +43,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, List<String> status,
+    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status,
             PageParamDTO paramDTO) {
         return null;
     }
@@ -137,6 +136,12 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public Page<AfDemandeExcelFlatDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate,
+            Date endDate, String statut) {
+        return null;
+    }
+
+    @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
         return List.of();
     }
@@ -179,13 +184,7 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public AfDemandeExcelFlatIterable retrieveDemandesExcel(ExcelRechercheDTO excelRechercheDTO) {
-        return null;
-    }
-
-    @Override
-    public Page<AfDemandeExcelFlatDTO> retrieveDemandesExcelPageable(Pageable pageable,
-            ExcelRechercheDTO excelRechercheDTO, long total) {
+    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut) {
         return null;
     }
 

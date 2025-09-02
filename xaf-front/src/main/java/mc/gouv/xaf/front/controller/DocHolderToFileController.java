@@ -1,7 +1,9 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,20 +55,20 @@ public class DocHolderToFileController extends AbstractXafController {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode;
+        Gson gson = new Gson();
+        JsonObject jsonObject;
 
         LOGGER.info("Déserialization de la réponse");
         try (Reader reader = new InputStreamReader(req.getInputStream())) {
-            jsonNode = objectMapper.readTree(reader);
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la déserialisation.", e);
+            jsonObject = gson.fromJson(reader, JsonObject.class);
+        } catch (JsonParseException jpe) {
+            LOGGER.error("Erreur lors de la déserialisation.", jpe);
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
                     SharedMessages.REQUETE_MALFORMEE);
         }
 
-        JsonNode urlNode = jsonNode.get("url");
-        String fileUrl = (urlNode != null && !urlNode.isNull()) ? urlNode.asText() : null;
+        JsonElement urlElement = jsonObject.get("url");
+        String fileUrl = urlElement != null ? urlElement.getAsString() : null;
 
         if (StringUtils.isEmpty(fileUrl)) {
             LOGGER.error("Erreur lors de la récupération du paramètre 'url' => paramètre vide ou inconnu.");
@@ -88,6 +90,7 @@ public class DocHolderToFileController extends AbstractXafController {
                 String safeFileName = FileNameUtils.getSafeFileName(filename);
                 return fileControllerUtils.uploadToFILE(usagerInfosDTO, safeFileName, "AUTRES",
                         docholderResponse.getEntity().getContent());
+
             } else {
                 LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
                 return ResponseEntity.status(docholderResponse.getCode())

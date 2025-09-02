@@ -2,6 +2,8 @@ package mc.gouv.xaf.xaf12batch.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
@@ -15,8 +17,13 @@ import lombok.Setter;
 public class DemandesAgentsBO {
 
     @Id
-    @Column(name = "ID", nullable = false)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PK_AGENT", nullable = false)
+    private Integer pkAgent;
+
+    @Column(name = "ID", length = 128)
+    @Size(max = 128)
+    private String id;
 
     @Column(name = "NOM", length = 128)
     @Size(max = 128)

@@ -110,15 +110,14 @@ public class BatchConfig {
         return new JpaPagingItemReaderBuilder<DemandesAgentsBO>()
                 .name("agentsReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT d FROM DemandesAgentsBO d ORDER BY d.id ASC")
+                .queryString("SELECT d FROM DemandesAgentsBO d ORDER BY d.pkAgent ASC")
                 .pageSize(10)
                 .build();
     }
 
     @Bean
     public JpaPagingItemReader<DemandesUsagersBO> usagersReader(EntityManagerFactory entityManagerFactory) {
-        return new JpaPagingItemReaderBuilder<DemandesUsagersBO>()
-                .name("agentsReader")
+        return new JpaPagingItemReaderBuilder<DemandesUsagersBO>().name("usagersReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT d FROM DemandesUsagersBO d WHERE d.id < 1000000000 ORDER BY d.id ASC")
                 .pageSize(10)
@@ -192,7 +191,7 @@ public class BatchConfig {
     public ItemProcessor<DemandesAgentsBO, DemandesAgentsBO> agentsProcessor() {
         return agent -> {
             LOGGER.info("Traitement de l'agent ID {}", agent.getId());
-            User user = utilisateursCache.get(String.valueOf(agent.getId()));
+            User user = utilisateursCache.get(agent.getId());
             demandesAgentsTransformer.user2Bo(user, agent);
             return agent;
         };

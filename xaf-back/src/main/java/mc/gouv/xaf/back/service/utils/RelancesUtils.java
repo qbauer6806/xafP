@@ -90,6 +90,10 @@ public class RelancesUtils {
             return joursDepuisStatut >= nbJoursAvantPremiereRelance;
         } else {
             // Il y a déjà eu des relances
+            // Si l'intervalle n'est pas défini, pas de relance possible
+            if (nbJoursEntreDeuxRelances == null) {
+                return false;
+            }
             List<ZonedDateTime> relances;
             try {
                 List<String> listFromDb = MAPPER.readValue(data.getValue(), new TypeReference<>() {

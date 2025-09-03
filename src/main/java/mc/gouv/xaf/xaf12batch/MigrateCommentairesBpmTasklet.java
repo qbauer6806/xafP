@@ -54,7 +54,7 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                     // on migre les données
                     for (CommentaireInterneDTO commInterne : commInternes) {
                         DemandesCommentaireBO demandesCommentaireBO = new DemandesCommentaireBO();
-                        demandesCommentaireBO.setCommentaire(commInterne.getCommentaire());
+                        demandesCommentaireBO.setCommentaire(sanitize(commInterne.getCommentaire()));
                         demandesCommentaireBO.setAgentId(commInterne.getAgentId());
                         demandesCommentaireBO.setDate(commInterne.getDate());
                         demandesCommentaireBO.setFkDemandes(demandeBO);
@@ -69,6 +69,10 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
         }
         LOGGER.info("Fin de la migration des commentaires BPM");
         return RepeatStatus.FINISHED;
+    }
+
+    private String sanitize(String input) {
+        return input == null ? null : input.replace("\u0000", "");
     }
 
 }

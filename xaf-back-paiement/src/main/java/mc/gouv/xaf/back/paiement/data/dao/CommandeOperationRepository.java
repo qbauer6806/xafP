@@ -38,14 +38,12 @@ public interface CommandeOperationRepository extends JpaRepository<CommandeOpera
     @Query("""
     SELECT co FROM CommandeOperationBO co
     JOIN co.commande c
-    JOIN CommandeDemandeBO cd ON cd.commande.pkCommandes = c.pkCommandes
-    AND co.dateCreation = (
-        SELECT MAX(co2.dateCreation)
-        FROM CommandeOperationBO co2
-        JOIN co2.commande c2
-        JOIN CommandeDemandeBO cd2 ON cd2.commande.pkCommandes = c2.pkCommandes
-        WHERE co2.operationStatut = :status
-    )
+    WHERE co.operationStatut = :status
+      AND co.dateCreation = (
+          SELECT MAX(co2.dateCreation)
+          FROM CommandeOperationBO co2
+          WHERE co2.commande = c
+      )
 """)
     List<CommandeOperationBO> findLatestCommandesOperationsForStatus(@Param("status") OperationStatutEnum status);
 

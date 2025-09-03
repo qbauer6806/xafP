@@ -10,6 +10,10 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,10 +57,12 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.InfoFacturationTransformer;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
+import mc.gouv.xaf.back.paiement.dto.PaiementHistoriqueDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.MontantService;
+import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
@@ -201,6 +207,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private AfMailTemplateModelProvider afMailTemplateModelProvider;
+
+    @Autowired
+    private PaiementHistoriqueService paiementHistoriqueService;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {
@@ -523,6 +532,15 @@ public class PaiementServiceImpl implements PaiementService {
         return emailInfo;
     }
 
+    private void updateCommande(CommandeBO commande, double montantCapture) {
+        double montantRestant = commande.getMontantInitial() - commande.getMontantDejaCapture() - montantCapture;
+        LOGGER.info("Montant restant : {}", montantRestant);
+        commande.setMontantRestant(montantRestant);
+        commande.setMontantDejaCapture(commande.getMontantDejaCapture() + montantCapture);
+        LOGGER.info("Sauvegarde de la commande en base : {}", commande);
+        commandeRepository.save(commande);
+    }
+
     private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, Integer usagerId, ActionDebitEnum actionDebit,
             MoyenPaiementBO moyenPaiement, CommandeDemandeBO commandeDemande) {
         LOGGER.info("Mise à jour de l'historique de la demande {}", pkDemandes);
@@ -551,15 +569,6 @@ public class PaiementServiceImpl implements PaiementService {
         }
     }
 
-    private void updateCommande(CommandeBO commande, double montantCapture) {
-        double montantRestant = commande.getMontantInitial() - commande.getMontantDejaCapture() - montantCapture;
-        LOGGER.info("Montant restant : {}", montantRestant);
-        commande.setMontantRestant(montantRestant);
-        commande.setMontantDejaCapture(commande.getMontantDejaCapture() + montantCapture);
-        LOGGER.info("Sauvegarde de la commande en base : {}", commande);
-        commandeRepository.save(commande);
-    }
-
     private static CommandeOperationBO getCommandeOperationBO(DebitOutputDTO debit,
             CommandeDemandeBO commandeDemande) {
         CommandeOperationBO operation = new CommandeOperationBO();
@@ -575,13 +584,13 @@ public class PaiementServiceImpl implements PaiementService {
                 break;
             case PENDING:
                 operation.setOperationStatut(OperationStatutEnum.EN_ATTENTE);
-                operation.setDateCreation(now);
-                operation.setDateRealisation(now);
+                operation.setDateCreation(PaiementUtils.toUtc(now));
+                operation.setDateRealisation(PaiementUtils.toUtc(now));
                 break;
             case FAILURE:
                 operation.setOperationStatut(OperationStatutEnum.ECHEC);
-                operation.setDateCreation(now);
-                operation.setDateRealisation(now);
+                operation.setDateCreation(PaiementUtils.toUtc(now));
+                operation.setDateRealisation(PaiementUtils.toUtc(now));
                 break;
         }
         operation.setMontant(commandeDemande.getMontant());
@@ -619,16 +628,15 @@ public class PaiementServiceImpl implements PaiementService {
                 user.setId(usagerId.toString());
 
                 LOGGER.info("Ajout de l'historique de paiement...");
-                PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-                historique.setFkDemandes(demande);
+                PaiementHistoriqueDTO historique = new PaiementHistoriqueDTO();
+                historique.setFkDemandes(demande.getPkDemandes());
                 if (usager != null) {
                     historique.setContenu("Usager " + usager.getPrenom() + " " + usager.getNom() + " : Enregistre sa carte bancaire");
                 }
-                historique.setStatut(PaiementStatutEnum.CARTE_VALIDE.name());
-                historique.setDate(date);
+                historique.setStatut(PaiementStatutEnum.CARTE_VALIDE);
+                historique.setDate(LocalDateTime.now());
                 historique.setUsagerId(usagerId);
-
-                paiementHistoriqueRepository.save(historique);
+                paiementHistoriqueService.ajouterHistorique(historique);
 
                 if (demande.getDernierStatut().getName().contains(demarchesDataProvider.statutPaiementARegulariser())) {
                     String identifiant = demande.getIdentifiant();
@@ -759,4 +767,5 @@ public class PaiementServiceImpl implements PaiementService {
         List<CommandeOperationBO> allByFkDemandes = commandeOperationRepository.findAllByFkDemandes(pkDemande);
         return !allByFkDemandes.isEmpty();
     }
+
 }

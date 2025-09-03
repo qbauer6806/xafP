@@ -11,6 +11,7 @@ import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
@@ -124,7 +125,7 @@ public interface DemandesService {
 
     List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche);
 
-    DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess);
+    DemandeDTO associerDemandeCourrier(Integer pkDemande, GichuniUsagerDTO gichuniUsagerDTO);
 
     /**
      * Permet de savoir si la demande correspond à un accès désactivé (usager désinscrit)

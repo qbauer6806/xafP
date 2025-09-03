@@ -153,6 +153,10 @@ public interface DemarchesDataProvider {
      */
     String getMailTemplateCodeDesinscriptionUsagerPourUsager();
 
+    default String[] getRolesDesinscriptionUsagerPourAgents() {
+        return new String[] { "TRAITEMENT" };
+    }
+
     /**
      * Retourne le libellé du statut brouillon non transmis
      */

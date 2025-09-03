@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Classe de repo pour les CommandeDemandes.
@@ -48,5 +49,7 @@ public interface CommandeDemandeRepository extends JpaRepository<CommandeDemande
     )
 """)
     Optional<CommandeDemandeBO> findLatestCommandeForDemande(@Param("demandeId") Integer demandeId);
+
+    void deleteByDemande_PkDemandesIn(Set<Integer> pkDemandes);
 
 }

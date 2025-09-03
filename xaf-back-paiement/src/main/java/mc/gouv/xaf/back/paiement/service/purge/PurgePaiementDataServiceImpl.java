@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @EnableScheduling
@@ -56,60 +57,57 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
     @Override
     @Transactional
     public void purgeData(List<String> statuts, int jours) {
-        // On récupère les commandeDemandes dont les demandes vont être purgées
-        LOGGER.info("Récupération des commandes...");
+        LOGGER.info("Récupération des commandes et demandes à purger...");
 
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findCommandesByDernierStatutBeforeDate(statuts, dateDebutPurge);
+        // Récupérer les CommandeDemande à purger
+        List<CommandeDemandeBO> commandeDemandeBOS =
+                commandeDemandeRepository.findCommandesByDernierStatutBeforeDate(statuts, dateDebutPurge);
 
-        // On vire la liaison avec les demandes, et on récupère les ids des commandes et des demandes associées
-        Set<Integer> pkCommmandes = new HashSet<>();
-        Set<Integer> pkDemandes = new HashSet<>();
-        commandeDemandeBOS.forEach(c -> {
-            pkCommmandes.add(c.getCommande().getPkCommandes());
-            pkDemandes.add(c.getDemande().getPkDemandes());
-            c.setDemande(null);
-        });
+        Set<Integer> pkCommandes = commandeDemandeBOS.stream()
+                .map(cd -> cd.getCommande().getPkCommandes())
+                .collect(Collectors.toSet());
 
-        LOGGER.info("Suppression de la liaison Commande Demande...");
-        commandeDemandeRepository.saveAll(commandeDemandeBOS);
+        Set<Integer> pkDemandesPurge = commandeDemandeBOS.stream()
+                .map(cd -> cd.getDemande().getPkDemandes())
+                .collect(Collectors.toSet());
 
-        // On supprime les historiques de paiements liés aux demandes
+        // Supprimer les liaisons Commande <--> Demande des demandes purgées
+        LOGGER.info("Suppression des liaisons Commande Demande...");
+        commandeDemandeRepository.deleteByDemande_PkDemandesIn(pkDemandesPurge);
+
+        // Supprimer les entités liées aux demandes purgées
         LOGGER.info("Suppression de l'historique de paiement...");
-        paiementHistoriqueRepository.deleteByFkDemandes_PkDemandesIn(pkDemandes);
+        paiementHistoriqueRepository.deleteByFkDemandes_PkDemandesIn(pkDemandesPurge);
 
-        // Suppression informations de facturations
-        LOGGER.info("Suppression des informations de facturation...");
-        informationFacturationRepository.deleteByCommande_PkCommandesIn(pkCommmandes);
+        // Identifier les commandes encore utilisées
+        Set<Integer> commandesStillReferenced =
+                commandeRepository.findCommandesStillReferenced(pkCommandes, pkDemandesPurge);
 
-        // Suppressions moyen de paiement
-        LOGGER.info("Suppression du moyen de paiement...");
-        moyenPaiementRepository.deleteByCommande_PkCommandesIn(pkCommmandes);
+        // Supprimer uniquement les commandes totalement orphelines
+        Set<Integer> commandesToDelete = new HashSet<>(pkCommandes);
+        commandesToDelete.removeAll(commandesStillReferenced);
 
-        // On supprime les commandes dont il n'existe plus de liaisons avec des demandes
-        LOGGER.info("Suppression des commandes...");
-        List<CommandeBO> commandeBOS = commandeRepository.findAllById(pkCommmandes);
-        Set<CommandeBO> commmandesToDelete = new HashSet<>();
-        for (CommandeBO commandeBO : commandeBOS) {
-            Hibernate.initialize(commandeBO.getCommandesDemandes());
-            int i = 0;
-            for (; i < commandeBO.getCommandesDemandes().size(); i++) {
-                if (commandeBO.getCommandesDemandes().get(i).getDemande() != null) {
-                    break;
-                }
-            }
-            if (i == commandeBO.getCommandesDemandes().size()) {
-                commmandesToDelete.add(commandeBO);
-            }
+        if (!commandesToDelete.isEmpty()) {
+            LOGGER.info("Suppression des informations de facturation...");
+            informationFacturationRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
+
+            LOGGER.info("Suppression du moyen de paiement...");
+            moyenPaiementRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
+
+            LOGGER.info("Suppression des commandes orphelines...");
+            List<CommandeBO> commandes = commandeRepository.findAllById(commandesToDelete);
+            commandeRepository.deleteAll(commandes);
         }
-        commandeRepository.deleteAll(commmandesToDelete);
-        // Suppression de l'historique de paiement dans Kafka et donc dans le GU
-        for (Integer pkDemande : pkDemandes) {
+
+        for (Integer pkDemande : pkDemandesPurge) {
             demandesRepository.findById(pkDemande).ifPresent(demande -> {
-                guKafkaProducer.sendSuppressionPaiementMessage(demande.getIdentifiant(),
-                        String.valueOf(demande.getFkAccess().getUsagerId()));
+                guKafkaProducer.sendSuppressionPaiementMessage(
+                        demande.getIdentifiant(),
+                        String.valueOf(demande.getFkAccess().getUsagerId())
+                );
             });
         }
     }

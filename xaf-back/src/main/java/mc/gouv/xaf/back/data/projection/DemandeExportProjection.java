@@ -16,6 +16,10 @@ public interface DemandeExportProjection {
 
     Date getDateDerModif();
 
+    Date getCourrierDateReception();
+
+    String getCourrierRefInterne();
+
     JsonNode getContenu();
 
     JsonNode getContenuTrad();

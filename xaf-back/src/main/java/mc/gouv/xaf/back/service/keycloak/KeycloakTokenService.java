@@ -3,7 +3,12 @@ package mc.gouv.xaf.back.service.keycloak;
 import java.util.Map;
 import mc.gouv.xaf.shared.RequestConstant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
@@ -12,6 +17,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,18 +26,14 @@ public class KeycloakTokenService {
 
     private final OAuth2AuthorizedClientManager authorizedClientManager;
     private final ClientRegistration clientRegistration;
-    private final WebClient webClient;
-
-    private static final String TOKEN_URL =
-            "https://gichuni-front-dev.monaco-gouvernement.mc/auth/realms/gichuni/protocol/openid-connect/token";
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
-    public KeycloakTokenService(WebClient.Builder webClientBuilder,
-            OAuth2AuthorizedClientManager authorizedClientManager,
+    public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager,
             ClientRegistrationRepository clientRegistrationRepository) {
         this.authorizedClientManager = authorizedClientManager;
         this.clientRegistration = clientRegistrationRepository.findByRegistrationId("gichuni");
-        this.webClient = webClientBuilder.build();
     }
 
     public String getAccessToken() {
@@ -53,6 +55,9 @@ public class KeycloakTokenService {
      * Token Exchange : échange un token usager contre un token technique
      */
     public String exchangeUserToken(String userToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(RequestConstant.GRANT_TYPE_PARAM, "urn:ietf:params:oauth:grant-type:token-exchange");
         params.add(RequestConstant.CLIENT_ID_PARAM, clientRegistration.getClientId());
@@ -60,13 +65,19 @@ public class KeycloakTokenService {
         params.add(RequestConstant.SUBJECT_TOKEN_PARAM, userToken);
         params.add(RequestConstant.SUBJECT_TOKEN_TYPE_PARAM, "urn:ietf:params:oauth:token-type:access_token");
 
-        return webClient.post()
-                .uri(clientRegistration.getProviderDetails().getTokenUri())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData(params))
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(body -> (String) body.get("access_token"))
-                .block();
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                clientRegistration.getProviderDetails().getTokenUri(),
+                HttpMethod.POST,
+                request,
+                Map.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+            return (String) response.getBody().get("access_token");
+        } else {
+            throw new IllegalStateException("Impossible d'échanger le token usager : " + response.getStatusCode());
+        }
     }
 }

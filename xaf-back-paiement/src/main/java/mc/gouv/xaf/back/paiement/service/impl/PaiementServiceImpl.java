@@ -328,7 +328,7 @@ public class PaiementServiceImpl implements PaiementService {
         if (moyenPaiementInputDTO.getPaymentMethodToken() != null && !moyenPaiementInputDTO.getPaymentMethodToken()
                 .isEmpty()) {
             MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(),
-                    usagerToken);
+                    keycloakTokenService.exchangeUserToken(usagerToken));
             InfoCancelInputDTO input = new InfoCancelInputDTO();
             input.setPaymentMethodToken(moyenPaiementInputDTO.getPaymentMethodToken());
             mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO info = mwpaymtApiClient.getInfo(
@@ -348,13 +348,14 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Override
     public mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO getMoyenPaiement(InfoCancelInputDTO input, String usagerToken) {
-        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
+        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(),
+                keycloakTokenService.exchangeUserToken(usagerToken));
         return mwpaymtApiClient.getInfo(input);
     }
 
     @Override
     public List<PaymentMethodReferenceDTO> getReferences(String usagerToken) {
-        return gichuniApiClient.getReferences(usagerToken);
+        return gichuniApiClient.getReferences(keycloakTokenService.exchangeUserToken(usagerToken));
     }
 
     @Async
@@ -416,7 +417,8 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public RegisterOutputDTO postInfoPaiement(RegisterInputDTO input, String usagerToken) {
         logStartMethod(LOGGER);
-        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), usagerToken);
+        MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(),
+                keycloakTokenService.exchangeUserToken(usagerToken));
         return mwpaymtApiClient.getToken(input);
     }
 

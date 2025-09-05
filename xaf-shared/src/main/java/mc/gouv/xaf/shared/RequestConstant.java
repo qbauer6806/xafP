@@ -9,6 +9,9 @@ public class RequestConstant {
     public static final String USAGERID_PARAM = "usagerId";
     public static final String CLIENT_ID_PARAM = "client_id";
     public static final String CLIENT_SECRET_PARAM = "client_secret";
+    public static final String GRANT_TYPE_PARAM = "grant_type";
+    public static final String SUBJECT_TOKEN_TYPE_PARAM = "subject_token_type";
+    public static final String SUBJECT_TOKEN_PARAM = "subject_token";
     public static final String SCOPE_PARAM = "scope";
     public static final String REFRESH_TOKEN_PARAM = "refresh_token";
     public static final String PAGE_PARAM = "page";

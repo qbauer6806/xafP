@@ -430,8 +430,9 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
         // Projection
         cq.select(cb.construct(DemandeExportDTO.class, root.get("pkDemandes"), root.get("dateCreation"),
-                root.get("dateDerModif"), root.get("contenu"), root.get("contenuTrad"), root.get("langue"),
-                root.get("canal"), root.get("observations"), agentJoin, usagerJoin, configJoin, statutJoin,
+                root.get("dateDerModif"), root.get("courrierDateReception"), root.get("contenu"),
+                root.get("contenuTrad"), root.get("langue"), root.get("canal"), root.get("observations"),
+                root.get("courrierRefInterne"), agentJoin, usagerJoin, configJoin, statutJoin,
                 root.get("identifiant")));
 
         List<Predicate> predicates = buildPredicatesExcel(root, cb, excelRechercheDTO);

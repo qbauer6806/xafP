@@ -16,11 +16,13 @@ public class DemandeExportDTO {
     private Integer pkDemandes;
     private Date dateCreation;
     private Date dateDerModif;
+    private Date courrierDateReception;
     private JsonNode contenu;
     private JsonNode contenuTrad;
     private String langue;
     private String canal;
     private String observations;
+    private String courrierRefInterne;
     private DemandesAgentsBO agent;
     private DemandesUsagersBO usager;
     private DemandeConfigBO config;

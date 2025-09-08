@@ -76,7 +76,7 @@ public class MoyenPaiementController extends AbstractXafController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         getPaiementApiClient().updateMoyenPaiement(moyenPaiementInput, usagerInfosDTO.getTokenInfo().getAccessToken());
-        LOGGER.info("====================== /moyen-paiement POST end...");
+        LOGGER.info("====================== /moyen-paiement PUT end...");
         return ResponseEntity.ok().build();
     }
 

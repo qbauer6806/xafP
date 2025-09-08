@@ -1,10 +1,8 @@
 package mc.gouv.xaf.back.paiement.service.scheduling;
 
 import mc.gouv.xaf.back.paiement.service.purge.PurgePaiementDataService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.shared.annotations.TypeDePurge;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.quartz.DisallowConcurrentExecution;
@@ -17,12 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
-import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
-import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_VIRTUEL;
 
 /**
  * Job permettant d'appeler le service de purge des demandes.

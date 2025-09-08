@@ -48,7 +48,7 @@ public class PurgeDemandesSchedulingConfig {
 
         // Construction du nom dynamiquement
         String jobName = jobClass.getSimpleName();
-        String triggerName = purgePaiement ? PurgeDemandesService.PAIEMENTS_TRIGGER_NAME : "PurgeDemandesSchedulingTrigger";
+        String triggerName = purgePaiement ? PurgeDemandesService.PAIEMENTS_TRIGGER_NAME : PurgeDemandesService.DEMANDES_TRIGGER_NAME;
 
         // Construction du job et du trigger
         JobDetail jobDetail = schedulerService.buildJobDetail(jobClass, jobName);

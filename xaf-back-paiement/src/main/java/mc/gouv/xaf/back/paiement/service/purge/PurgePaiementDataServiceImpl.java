@@ -100,6 +100,10 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
         LOGGER.info("Suppression de l'historique de paiement...");
         paiementHistoriqueRepository.deleteByFkDemandes_PkDemandesIn(pkDemandesPurge);
 
+        // Supprimer les commandes opérations
+        LOGGER.info("Suppression des commandes opérations...");
+        commandeOperationRepository.deleteByDemande_PkDemandesIn(pkDemandesPurge);
+
         // Identifier les commandes encore utilisées
         Set<Integer> commandesStillReferenced =
                 commandeRepository.findCommandesStillReferenced(pkCommandes, pkDemandesPurge);
@@ -114,10 +118,6 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
 
             LOGGER.info("Suppression des moyens de paiement...");
             moyenPaiementRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
-
-            // Supprimer les commandes opérations
-            LOGGER.info("Suppression des commandes opérations...");
-            commandeOperationRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
 
             LOGGER.info("Suppression des commandes orphelines...");
             List<CommandeBO> commandes = commandeRepository.findAllById(commandesToDelete);

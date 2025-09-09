@@ -48,5 +48,5 @@ public interface CommandeOperationRepository extends JpaRepository<CommandeOpera
 """)
     List<CommandeOperationBO> findLatestCommandesOperationsForStatus(@Param("status") OperationStatutEnum status);
 
-    void deleteByCommande_PkCommandesIn(Set<Integer> ids);
+    void deleteByDemande_PkDemandesIn(Set<Integer> ids);
 }

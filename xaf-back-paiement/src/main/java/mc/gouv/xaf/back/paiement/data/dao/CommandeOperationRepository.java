@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.data.dao;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,4 +48,5 @@ public interface CommandeOperationRepository extends JpaRepository<CommandeOpera
 """)
     List<CommandeOperationBO> findLatestCommandesOperationsForStatus(@Param("status") OperationStatutEnum status);
 
+    void deleteByCommande_PkCommandesIn(Set<Integer> ids);
 }

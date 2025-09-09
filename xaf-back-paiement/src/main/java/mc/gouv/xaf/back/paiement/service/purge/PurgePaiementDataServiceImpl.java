@@ -1,12 +1,15 @@
 package mc.gouv.xaf.back.paiement.service.purge;
 
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.InformationFacturationRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -40,6 +43,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
     private CommandeRepository commandeRepository;
 
     @Autowired
+    private CommandeOperationRepository commandeOperationRepository;
+
+    @Autowired
+    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+
+    @Autowired
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
     @Autowired
@@ -70,9 +79,18 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
                 .map(cd -> cd.getCommande().getPkCommandes())
                 .collect(Collectors.toSet());
 
+        Set<Integer> idsArticles = commandeDemandeBOS.stream()
+                .flatMap(commandeDemande -> commandeDemande.getCommandesDemandesArticles().stream())
+                .map(CommandeDemandeArticleBO::getPkCommandesDemandesArticles)
+                .collect(Collectors.toSet());
+
         Set<Integer> pkDemandesPurge = commandeDemandeBOS.stream()
                 .map(cd -> cd.getDemande().getPkDemandes())
                 .collect(Collectors.toSet());
+
+        // Supprimer commande demande articles
+        LOGGER.info("Suppression des liaisons Commande Demande Articles...");
+        commandeDemandeArticleRepository.deleteByPkCommandesDemandesArticlesIn(idsArticles);
 
         // Supprimer les liaisons Commande <--> Demande des demandes purgées
         LOGGER.info("Suppression des liaisons Commande Demande...");
@@ -94,8 +112,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
             LOGGER.info("Suppression des informations de facturation...");
             informationFacturationRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
 
-            LOGGER.info("Suppression du moyen de paiement...");
+            LOGGER.info("Suppression des moyens de paiement...");
             moyenPaiementRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
+
+            // Supprimer les commandes opérations
+            LOGGER.info("Suppression des commandes opérations...");
+            commandeOperationRepository.deleteByCommande_PkCommandesIn(commandesToDelete);
 
             LOGGER.info("Suppression des commandes orphelines...");
             List<CommandeBO> commandes = commandeRepository.findAllById(commandesToDelete);

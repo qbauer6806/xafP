@@ -1,18 +1,11 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
-import mc.gouv.xaf.front.dto.CustomRequestRechercheDTO;
-import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.enums.HttpMethod;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.shared.SharedMessages;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.fluent.Request;
@@ -21,8 +14,8 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +24,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+import mc.gouv.xaf.front.dto.CustomRequestRechercheDTO;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.enums.HttpMethod;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+
 /**
  * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE. Cette servlet
  * permet d'appeler des fonctions API custom/spécifiques d'une démarche
@@ -38,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author qdeme
  */
 @RestController
-@RequestMapping("/customRequest")
+@RequestMapping("/customRequest/**")
 public class CustomRequestController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomRequestController.class);
@@ -67,17 +70,7 @@ public class CustomRequestController extends AbstractXafController {
         Integer usagerId = usagerInfosDTO.getId();
         LOGGER.info("UsagerID={}", usagerId);
 
-        String pathInfo = request.getPathInfo();
-        String restOfUrl = null;
-        if (pathInfo != null && pathInfo.length() > 1) {
-            restOfUrl = "/" + pathInfo.split("/")[1];
-        }
-
-        String serviceUrl = propertiesResolver.getApiUrl() + "/customRequest";
-
-        if (StringUtils.isNotBlank(restOfUrl)) {
-            serviceUrl += restOfUrl;
-        }
+        String serviceUrl = propertiesResolver.getApiUrl() + request.getServletPath();
 
         serviceUrl += "?";
 
@@ -118,10 +111,15 @@ public class CustomRequestController extends AbstractXafController {
             ClassicHttpResponse serviceResponse = (ClassicHttpResponse) serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getCode();
             String contentType = serviceResponse.getEntity().getContentType();
+            
+            if (serviceResponse.getEntity() == null || serviceResponse.getEntity().getContentLength() == 0) {
+                serviceResponse.close();
+                return ResponseEntity.status(statusCode).build();
+            }
 
             return ResponseEntity.status(statusCode)
                     .header(HttpHeaders.CONTENT_TYPE, contentType)
-                    .body(serviceResponse.getEntity().getContent());
+                    .body(new InputStreamResource(serviceResponse.getEntity().getContent()));
         } catch (Exception e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Erreur lors du traitement de la réponse");

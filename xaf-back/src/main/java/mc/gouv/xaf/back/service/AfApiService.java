@@ -18,12 +18,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
@@ -180,7 +183,11 @@ public class AfApiService implements AfApi {
 
     @Autowired
     private Optional<IUpdateDemandExtender> updateDemandeExtenders;
+    
+    @Autowired(required = false)
+    private CustomRequestService customRequestService;
 
+    @Override
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
 
@@ -204,6 +211,7 @@ public class AfApiService implements AfApi {
 
     }
 
+    @Override
     @Transactional
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException {
 
@@ -312,6 +320,7 @@ public class AfApiService implements AfApi {
         demandesHistoriqueService.saveHisto(demandeDto.getPkDemandes(), histo);
     }
 
+    @Override
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
 
@@ -369,6 +378,7 @@ public class AfApiService implements AfApi {
      * On souhaite récupérer une liste avec les périodes suivantes : - La dernière période terminée - Les périodes en
      * cours - Les périodes futures
      */
+    @Override
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         List<PeriodeOuvertureDTO> periodes = new ArrayList<>();
         PeriodeOuvertureDTO derniere = periodesOuvertureService.getDernierePeriodeOuvertureTerminee();
@@ -379,7 +389,44 @@ public class AfApiService implements AfApi {
         periodes.addAll(periodesOuvertureService.getPeriodesOuvertureFutures());
         return periodes;
     }
+    
+    @Override
+    public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.getCustom()");
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.getCustomRequest(request, usagerId);
+    }
 
+    @Override
+    public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.postCustom()");
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.postCustomRequest(request, usagerId);
+    }
+
+    @Override
+    public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.putCustom()");
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.putCustomRequest(request, usagerId);
+    }
+
+    @Override
+    public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
+        LOGGER.info("AfApiService2Tiers.deleteCustom()");
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.deleteCustomRequest(request, usagerId);
+    }
+
+    @Override
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
             DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
@@ -439,6 +486,7 @@ public class AfApiService implements AfApi {
         return demandeComplementsDto;
     }
 
+    @Override
     @Transactional
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
 
@@ -502,22 +550,27 @@ public class AfApiService implements AfApi {
         }
     }
 
+    @Override
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
         return demandesService.getDemandeFilterFiles(demandeId, usagerId);
     }
 
+    @Override
     public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
         return demandesService.getDemandeRecap(demandeId, usagerId, donneesMConnectDTO);
     }
 
+    @Override
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
         return demandesComplementsService.getDemandesComplements(demandeId);
     }
 
+    @Override
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
         return demandesComplementsService.getDemandeComplements(demandeId, icId);
     }
 
+    @Override
     @Transactional
     public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
 
@@ -707,6 +760,7 @@ public class AfApiService implements AfApi {
         }
     }
 
+    @Override
     @Transactional
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
         AccessDTO accessDto = new AccessDTO();
@@ -715,22 +769,27 @@ public class AfApiService implements AfApi {
         return accessService.saveOrUpdateAccess(usagerId, accessDto);
     }
 
+    @Override
     public AccessDTO getAccess(Integer usagerId) {
         return accessService.getAccessActive(usagerId);
     }
 
+    @Override
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
         return usagersCourrierService.getUsagerCourrier(usagerCourrierId);
     }
 
+    @Override
     public List<MotifDTO> getMotifs() {
         return motifsService.getMotifs();
     }
 
+    @Override
     public List<PropertiesDTO> getFrontProperties() {
         return propertiesService.getFrontProperties();
     }
 
+    @Override
     public Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO) {
         List<String> status = null;
         List<String> statusList = paramDTO.getStatus();
@@ -746,6 +805,7 @@ public class AfApiService implements AfApi {
         return demandesService.getDemandesPageable(usagerID, status, paramDTO);
     }
 
+    @Override
     public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         BrouillonDTO brouillonDto = null;
         try {
@@ -769,6 +829,7 @@ public class AfApiService implements AfApi {
         return brouillonDto;
     }
 
+    @Override
     public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         BrouillonDTO brouillonDto;
         try {
@@ -782,18 +843,22 @@ public class AfApiService implements AfApi {
         return brouillonDto;
     }
 
+    @Override
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
     }
 
+    @Override
     public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
         return brouillonsService.getBrouillon(pkBrouillons, usagerId);
     }
 
+    @Override
     public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
         brouillonsService.deleteBrouillon(pkBrouillons, usagerId, false);
     }
 
+    @Override
     public void deleteFile(String fileUrl) {
         // vérifier que le fichier n'est pas utilisé dans une demande (pour éviter que l'usager utilise l'endpoint de manière malveillante)
         if (fileService.isFileFromBrouillonDeletable(fileUrl)) {
@@ -806,15 +871,18 @@ public class AfApiService implements AfApi {
         }
     }
 
+    @Override
     @Transactional
     public JsonNode creerConfig(JsonNode config) {
         return demandesConfigService.saveConfig(config);
     }
 
+    @Override
     public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws Exception {
         return null;
     }
 
+    @Override
     public List<PaysDTO> getPays() {
         return new ArrayList<>(paysCache.getValues());
     }

@@ -235,7 +235,7 @@ public class AfApiController {
     public ResponseEntity getCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.getCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -243,7 +243,7 @@ public class AfApiController {
     public ResponseEntity postCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.postCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.postCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -251,7 +251,7 @@ public class AfApiController {
     public ResponseEntity putCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.putCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.putCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -259,7 +259,7 @@ public class AfApiController {
     public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.deleteCustomRequest(request, usagerId);
     }
 
     @PostMapping(value = "/brouillons")

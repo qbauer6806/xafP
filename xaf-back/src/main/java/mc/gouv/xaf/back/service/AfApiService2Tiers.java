@@ -117,18 +117,24 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     
     @Autowired
     private DemandesService demandesService;
+    
+    @Autowired(required = false)
+    private CustomRequestService customRequestService;
 
+    @Override
     public void annulerDemande(Integer demandeId, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.annulerDemande({}, {})", demandeId, usagerId);
         afBackUtils.getAfApiClient2Tiers().annulerDemande(demandeId, usagerId);
     }
 
+    @Override
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
             DemandeComplementsReponseDTO reponse) {
         LOGGER.info("AfApiService2Tiers.repondreDemandeComplements({}, {}, {})", demandeId, icId, reponse);
         return afBackUtils.getAfApiClient2Tiers().repondreDemandeComplements(demandeId, icId, reponse);
     }
 
+    @Override
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
         LOGGER.info("AfApiService2Tiers.getDemande({}, {})", usagerId, demandeId);
         DemandeDTO demande = afBackUtils.getAfApiClient2Tiers().getDemande(usagerId, demandeId);
@@ -136,6 +142,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return processDemandeFromSystemeTiers(demande);
     }
 
+    @Override
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> page = afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
@@ -146,22 +153,26 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return page;
     }
 
+    @Override
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId) {
         LOGGER.info("AfApiService2Tiers.getDemandeComplements({})", demandeId);
         return afBackUtils.getAfApiClient2Tiers().getDemandesComplements(demandeId);
     }
 
+    @Override
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
         LOGGER.info("AfApiService2Tiers.getDemandeComplements({}, {})", demandeId, icId);
         return afBackUtils.getAfApiClient2Tiers().getDemandeComplements(demandeId, icId);
     }
 
+    @Override
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.associerDemandeCourrier({}, {}, {})", identifiantDemande, stringToCheck,
                 usagerId);
         return afBackUtils.getAfApiClient2Tiers().associerDemandeCourrier(identifiantDemande, stringToCheck, usagerId);
     }
 
+    @Override
     public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
         LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, langue);
         
@@ -178,6 +189,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         afBackUtils.getAfApiClient2Tiers().desinscriptionUsager(usagerId, langue);
     }
 
+    @Override
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
         LOGGER.info("AfApiService2Tiers.createOrUpdateAccess({}, +dto)", usagerId);
 
@@ -191,22 +203,26 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return access;
     }
 
+    @Override
     public AccessDTO getAccess(Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getAccess({})", usagerId);
         return accessService.getAccessActive(usagerId);
     }
 
+    @Override
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
         LOGGER.info("AfApiService2Tiers.getUsagerCourrier({})", usagerCourrierId);
         return afBackUtils.getAfApiClient2Tiers().getUsagerCourrier(usagerCourrierId);
     }
 
+    @Override
     public List<MotifDTO> getMotifs() {
         LOGGER.info("AfApiService2Tiers.getMotifs()");
         // Décision prise de ne plus gérer les motifs nous même mais d'appeler le système tiers pour les récupérer
         return afBackUtils.getAfApiClient2Tiers().getMotifs();
     }
 
+    @Override
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
         
@@ -224,36 +240,55 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return demandeCreee;
     }
 
+    @Override
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         LOGGER.info("AfApiService2Tiers.getPeriodesOuverture()");
         return periodesOuvertureService.getPeriodesOuverture();
     }
 
+    @Override
     public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getCustom()");
-        return null;
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.getCustomRequest(request, usagerId);
     }
 
+    @Override
     public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.postCustom()");
-        return null;
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.postCustomRequest(request, usagerId);
     }
 
+    @Override
     public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.putCustom()");
-        return null;
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.putCustomRequest(request, usagerId);
     }
 
+    @Override
     public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.deleteCustom()");
-        return null;
+        if (customRequestService == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        }
+        return customRequestService.deleteCustomRequest(request, usagerId);
     }
 
+    @Override
     public List<PropertiesDTO> getFrontProperties() {
         LOGGER.info("AfApiService2Tiers.getFrontProperties()");
         return propertiesService.getProperties();
     }
 
+    @Override
     public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.creerBrouillon({}, {})", brouillon, usagerId);
         BrouillonDTO brouillonDto = null;
@@ -278,6 +313,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return brouillonDto;
     }
 
+    @Override
     public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.updateBrouillon({}, {})", brouillon, usagerId);
         BrouillonDTO brouillonDto;
@@ -292,26 +328,31 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return brouillonDto;
     }
 
+    @Override
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getBrouillonsPageable({})", usagerId);
         return brouillonsService.getBrouillonsPageable(usagerId, paramDTO);
     }
 
+    @Override
     public BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getBrouillon({}, {})", pkBrouillons, usagerId);
         return brouillonsService.getBrouillon(pkBrouillons, usagerId);
     }
 
+    @Override
     public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
         brouillonsService.deleteBrouillon(pkBrouillons, usagerId, false);
     }
     
+    @Override
     public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
         LOGGER.info("AfApiService2Tiers.getDemandeRecap({}, {}, {})", usagerId, demandeId, donneesMConnectDTO);
         return afBackUtils.getAfApiClient2Tiers().getDemandeRecap(demandeId, usagerId, donneesMConnectDTO);
     }
     
+    @Override
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.updateDemande({}, {})", demandeId, usagerId);
@@ -330,18 +371,22 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     // ================================= 2EME PARTIE DE L'API =================================
 
+    @Override
     public PeriodeOuvertureDTO createPeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
         return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
     }
 
+    @Override
     public PeriodeOuvertureDTO updatePeriodeOuverture(PeriodeOuvertureDTO periodeOuverture) {
         return periodesOuvertureService.saveOrUpdatePeriodeOuverture(periodeOuverture);
     }
 
+    @Override
     public void deletePeriodeOuverture(Integer pkPeriodeOuverture) {
         periodesOuvertureService.deletePeriodeOuverture(pkPeriodeOuverture);
     }
 
+    @Override
     public FileResponseDTO saveFile(Integer usagerId, MultipartFile data, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         // Seule manière avec Spring de pouvoir inclure des "/" dans le dernier
@@ -388,6 +433,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return fileResponseDTO;
     }
 
+    @Override
     public ResponseEntity<InputStreamResource> getFile(HttpServletRequest request,
             HttpServletResponse response) {
         String file = request.getServletPath();
@@ -411,6 +457,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return null;
     }
 
+    @Override
     public ResponseEntity deleteFile(HttpServletRequest request) {
         String file = request.getServletPath();
         file = file.replace(FILE_PATH, "");
@@ -433,6 +480,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
+    @Override
     public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             Date dateCreation, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifyCreationDemande({},{},{},{},{})", usagerId, demandeId, identifiantDemande,
@@ -444,6 +492,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
+    @Override
     public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifyChangementStatutDemande({},{},{},{},{},{})", usagerId, demandeId,
@@ -455,6 +504,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
+    @Override
     public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             Date dateSuppression, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifySuppressionDemande({},{},{},{},{})", usagerId, demandeId,
@@ -466,6 +516,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return ResponseEntity.ok().body(null);
     }
 
+    @Override
     public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
         LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
 
@@ -488,21 +539,25 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         return headerMap;
     }
     
+    @Override
     public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params)
             throws Exception {
         return null;
     }
     
     // TODO A SUPPRIMER car devenu inutile dans XAF12 (ne sera plus appelé)
+    @Override
     public void deleteFile(String string) {
         // TODO Auto-generated method stub
     }
     
+    @Override
     @Transactional
     public JsonNode creerConfig(JsonNode config) {
         return demandesConfigService.saveConfig(config);
     }
     
+    @Override
     public List<PaysDTO> getPays() {
         return new ArrayList<>(paysCache.getValues());
     }

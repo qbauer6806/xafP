@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.tika.exception.TikaException;
+import org.springframework.http.ResponseEntity;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
@@ -92,5 +94,13 @@ public interface AfApi {
     DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException;
 
     DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException;
+    
+    ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId);
+    
+    ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId);
+
+    ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId);
+
+    ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId);
 
 }

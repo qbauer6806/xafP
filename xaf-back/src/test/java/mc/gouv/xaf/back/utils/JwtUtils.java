@@ -16,7 +16,7 @@ public class JwtUtils {
 
     public static void main(String[] args) {
         // STAGE_FRONT_JWT
-        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret", "STAGE", new String[] { "USER" }, "FILE", null,
+        String jwt = createJWTToken("secretsecretsecretsecretsecretsecret", "ENRBAIL", new String[] { "USER" }, "ENRBAIL", null,
                 null);
 
         //        // STAGE_FRONT_FILE_JWT

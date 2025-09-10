@@ -118,6 +118,7 @@ public class PaiementServiceImpl implements PaiementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
     private static final String TARIF_CR_DEMAT_KEY = "XAF_TARIF_CR_DEMAT";
+    private static final String SLEEP_TIME_ECRITURE_DONNEES_MONETIQUES = "XAF_SLEEP_TIME_ECRITURE_DONNEES_MONETIQUES";
     private static final String MAIL_DEBIT_ECHEC_AGENT_CODE = "MAIL_DEBIT_ECHEC_AGENT";
     private static final String MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE = "MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT";
 
@@ -362,8 +363,14 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public void updatePaiementStatusAsync(MwpaymtGenericCallbackDTO callbackDTO) {
         try {
-            LOGGER.info("Attente 2 sec lors du callback");
-            Thread.sleep(2000);
+            PropertiesDTO property = propertiesService.getProperty(SLEEP_TIME_ECRITURE_DONNEES_MONETIQUES);
+            if(property != null && property.getValue() != null) {
+                LOGGER.info("Attente " + Integer.valueOf(property.getValue())+ "millisec lors du callback");
+                Thread.sleep(Integer.valueOf(property.getValue()));
+            } else {
+                LOGGER.info("Attente 2 sec lors du callback");
+                Thread.sleep(2000);
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

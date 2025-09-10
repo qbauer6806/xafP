@@ -43,6 +43,7 @@ import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
@@ -57,6 +58,7 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.data.custom.IDeleteDemandeExtender;
 import mc.gouv.xaf.back.service.demande.ICloneDemandExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
@@ -83,6 +85,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -226,7 +229,13 @@ public class DemandesServiceImpl implements DemandesService {
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    @Autowired
     private Optional<ICloneDemandExtender> cloneDemandExtenders;
+
+    @Autowired
+    private Optional<IDeleteDemandeExtender> deleteDemandeExtender;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -746,10 +755,6 @@ public class DemandesServiceImpl implements DemandesService {
             if (!partialUpdate || demande.getObservations() != null) {
                 demandeBo.setObservations(demande.getObservations());
             }
-            if (demande.getAgent() != null) {
-                User user = utilisateursCache.get(demande.getAgent().getId());
-                demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-            }
 
             // Mise à jour du canal
             if (!partialUpdate && demande.getCanal() != null) {
@@ -901,6 +906,11 @@ public class DemandesServiceImpl implements DemandesService {
 
             DemandesAgentsBO agent = demandeBo.getAgent();
             DemandesUsagersBO usager = demandeBo.getUsager();
+
+            deleteDemandeExtender.ifPresent(
+                    iDeleteDemandeExtender -> iDeleteDemandeExtender.executeExtraDeleteBeforeDemandeDeletion(
+                            demandeBo));
+
             /*** Suppression de la demande. */
             LOGGER.info("Appel du répo pour la suppression...");
             demandesRepository.delete(demandeBo);
@@ -1034,21 +1044,26 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public DemandeDTO associerDemandeCourrier(Integer pkDemande, Integer pkAccess) {
+    public DemandeDTO associerDemandeCourrier(Integer pkDemande, GichuniUsagerDTO gichuniUsagerDTO) {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
 
-        LOGGER.info("Récupération de l'accès cible en base...");
-        Optional<AccessBO> accessBoOp = accessRepository.findById(pkAccess);
+        Integer usagerId = gichuniUsagerDTO.getId();
 
-        if (accessBoOp.isEmpty()) {
-            throw new DemarchesServiceException("Accès cible introuvable", HttpStatus.NOT_FOUND);
-        }
+        LOGGER.info("Appel à DEM pour récupération de l'accès actuel de l'usager à cette démarche...");
+        AccessBO accessBo = accessService.getAccessBOActive(usagerId);
 
         LOGGER.info("Association de la demande...");
 
-        demandeBo.setFkAccess(accessBoOp.get());
+        demandeBo.setFkAccess(accessBo);
         demandeBo.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
+        // assigner le bon usagerId (celui du téléservice et pas celui du courrier)
+        DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(usagerId);
+        if (usagerBO == null) {
+            // si l'usager n'existe pas on le créé
+            usagerBO = demandesUsagersTransformer.user2Bo(gichuniUsagerDTO);
+        }
+        demandeBo.setUsager(usagerBO);
 
         demandeBo = demandesRepository.save(demandeBo);
 
@@ -1069,23 +1084,19 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
-            if (agentAffecteId != null) {
-                if (demandeBo.getAgent() != null) {
-                    demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
-                } else {
-                    User user = utilisateursCache.get(agentAffecteId);
-                    demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
-                }
+            DemandeBO demandeBO = getCheckDemarcheDemandeBO(pkDemandes, true);
+
+            if (agentAffecteId == null) {
+                demandeBO.setAgent(null);
             } else {
-                demandeBo.setAgent(null);
+                DemandesAgentsBO agentsBO = demandesAgentsRepository.findById(agentAffecteId).orElseGet(() -> {
+                    User user = utilisateursCache.get(agentAffecteId);
+                    return demandesAgentsRepository.save(demandesAgentsTransformer.user2Bo(user));
+                });
+                demandeBO.setAgent(agentsBO);
             }
 
-            demandesRepository.save(demandeBo);
-            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-
-            LOGGER.info("Fin changement affectation...");
-            return demandeDTO;
+            return demandesTransformer.bo2Dto(demandesRepository.save(demandeBO));
         } catch (Exception e) {
             LOGGER.error("Erreur lors de changerAffectationDemande");
             ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(

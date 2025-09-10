@@ -149,17 +149,13 @@
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
               aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Prévisualisation du template de mail</h4>
+          <h4 class="modal-title">Prévisualisation du template de mail - <span id="codeMailModal"></span></h4>
         </div>
         <div class="modal-body">
-          <p>
-            ***********************************************************************************************************************************</p>
           <p><span style="font-weight: bold; text-decoration: underline">Titre de l'email :</span>
             <span id="objetMailModal"></span></p>
 
           <p><span id="corpsMailModal"></span></p>
-          <p>
-            ***********************************************************************************************************************************</p>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -329,9 +325,9 @@
 
       var ligne = $(this).data("ligne");
       var contenuMail = table.row(ligne).data();
-
       $('#objetMailModal').html(contenuMail.objet);
       $('#corpsMailModal').html(contenuMail.corps);
+      $('#codeMailModal').html(contenuMail.code);
 
       $('#visualisationModal').modal();
 

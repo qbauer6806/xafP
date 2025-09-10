@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
@@ -63,6 +64,10 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     @Getter
     private Expression copieCacheeAuService;
 
+    @Setter
+    @Getter
+    private Expression copieCacheeProprieteMail;
+
     @Override
     public void execute(DelegateExecution execution) {
 
@@ -116,6 +121,18 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         if ("true".equals(copieCacheeAuServiceStr)) {
             LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
             emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
+        }
+
+        String copieCacheeProprieteMailStr = null;
+        if (copieCacheeProprieteMail != null) {
+            copieCacheeProprieteMailStr = (String) copieCacheeProprieteMail.getValue(execution);
+        }
+
+        if (StringUtils.isNotBlank(copieCacheeProprieteMailStr)) {
+            Set<String> emails = mailService.getMailingLists(copieCacheeProprieteMailStr.trim().split(";"));
+            for (String email : emails) {
+                emailInfo.addBcc(email, StringUtils.EMPTY);
+            }
         }
 
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());

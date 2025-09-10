@@ -18,8 +18,6 @@ import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -49,9 +47,6 @@ public class DemandesTransformer {
     private static final String FIELD_STATUS = "statuts";
     private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
-
-    @Autowired
-    private UtilisateursCache utilisateursCache;
 
     @Autowired
     private DemandesAgentsTransformer demandesAgentsTransformer;
@@ -222,6 +217,8 @@ public class DemandesTransformer {
         DemandeDTO dto = new DemandeDTO();
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
+        dto.setCourrierDateReception(bo.getCourrierDateReception());
+        dto.setCourrierRefInterne(bo.getCourrierRefInterne());
         dto.setLangue(bo.getLangue());
         dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
         dto.setObservations(bo.getObservations());
@@ -378,10 +375,7 @@ public class DemandesTransformer {
         bo.setCanal(dto.getCanal().name());
         bo.setObservations(dto.getObservations());
         bo.setPkDemandes(dto.getPkDemandes());
-        if (dto.getAgent() != null) {
-            User user = utilisateursCache.get(dto.getAgent().getId());
-            bo.setAgent(demandesAgentsTransformer.user2Bo(user));
-        }
+        bo.setAgent(demandesAgentsTransformer.dto2Bo(dto.getAgent()));
         bo.setIdentifiant(dto.getIdentifiant());
         bo.setCourrierDateReception(dto.getCourrierDateReception());
         bo.setCourrierRefInterne(dto.getCourrierRefInterne());

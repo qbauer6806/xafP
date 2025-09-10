@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.data.entity;
 
 import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
@@ -23,8 +25,13 @@ import jakarta.validation.constraints.Size;
 public class DemandesAgentsBO {
 
     @Id
-    @Column(name = "ID", nullable = false)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PK_AGENT", nullable = false)
+    private Integer pkAgent;
+
+    @Column(name = "ID", length = 128)
+    @Size(max = 128)
+    private String id;
 
     @Column(name = "NOM", length = 128)
     @Size(max = 128)

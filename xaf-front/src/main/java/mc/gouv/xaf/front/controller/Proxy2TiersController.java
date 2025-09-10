@@ -9,6 +9,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,15 +106,15 @@ public class Proxy2TiersController extends AbstractXafController {
 
         try {
             // Effectuer la requête sortante
-            ResponseEntity<byte[]> responseEntity = null;
+            ResponseEntity<byte[]> responseEntity;
             if (request.getMethod().equals("GET") || request.getMethod().equals("DELETE")) {
                 responseEntity = restTemplate.exchange(apiUrl, HttpMethod.valueOf(request.getMethod()),
                         new HttpEntity<>(headers), byte[].class);
             } else {
                 // Vérifier s'il y a un fichier joint
                 if (data != null && !data.isEmpty()) {
-                    
-                    LOGGER.info("Fichier reçu : " + data.getOriginalFilename());
+
+                    LOGGER.info("Fichier reçu : " + XafFrontserverUtils.logSafe(data.getOriginalFilename()));
                     
                     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
                     // Utilisation d'InputStreamResource pour envoyer le fichier

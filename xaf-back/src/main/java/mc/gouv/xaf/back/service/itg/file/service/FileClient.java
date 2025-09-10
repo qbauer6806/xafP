@@ -20,6 +20,7 @@ import lombok.Setter;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileBatchDTO;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileBatchResponseDTO;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileDTO;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -188,7 +189,7 @@ public class FileClient {
         // Constitution de la requête
         HttpClient client = HttpClientBuilder.create().build();
 
-        LOGGER.info("Envoyer " + part.getSubmittedFileName());
+        LOGGER.info("Envoyer " + AfBackUtils.logSafe(part.getSubmittedFileName()));
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addPart("data",

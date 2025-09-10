@@ -55,7 +55,6 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
@@ -366,7 +365,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<DemandeDTO> demandes, LocalDateTime dateValidite,
+    public void updateDemandeData(List<DemandeDTO> demandes, LocalDateTime dateValidite,
             MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());

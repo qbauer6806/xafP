@@ -563,7 +563,7 @@ public class FileServiceImpl implements FileService {
                 && existingFilesBrouillons <= 1) {
             return true;
         }
-        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
+        LOGGER.info(MESSAGE_FICHIER_REFERENCE, AfBackUtils.logSafe(fileUrl));
         return false;
     }
 

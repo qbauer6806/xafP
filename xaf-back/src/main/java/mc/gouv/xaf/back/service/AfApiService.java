@@ -865,7 +865,7 @@ public class AfApiService implements AfApi {
         } else {
             LOGGER.info(
                     "Le fichier n'a pas été supprimé de FILE car déjà utilisé ailleurs, ou tentative de suppression d'un fichier d'une demande {}",
-                    fileUrl);
+                    AfBackUtils.logSafe(fileUrl));
         }
     }
 

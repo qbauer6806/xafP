@@ -7,7 +7,6 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -295,7 +294,8 @@ public class AfApiController {
     @DeleteMapping(value = "/file/{accessId}/{uuid}/{filename}")
     public void deleteFileRequest(@PathVariable(required = false) String accessId,
             @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename) {
-        LOGGER.info("AbstractAfApiController.deleteFileRequest({},{},{})", accessId, uuid, filename);
+        LOGGER.info("AbstractAfApiController.deleteFileRequest({},{},{})", AfBackUtils.logSafe(accessId),
+                AfBackUtils.logSafe(uuid), AfBackUtils.logSafe(filename));
         afApiService.deleteFile("/" + accessId + "/" + uuid + "/" + filename);
     }
 

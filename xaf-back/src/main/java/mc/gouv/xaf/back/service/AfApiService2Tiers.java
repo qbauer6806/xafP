@@ -167,14 +167,14 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     @Override
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId) {
-        LOGGER.info("AfApiService2Tiers.associerDemandeCourrier({}, {}, {})", identifiantDemande, stringToCheck,
-                usagerId);
+        LOGGER.info("AfApiService2Tiers.associerDemandeCourrier({}, {}, {})", AfBackUtils.logSafe(identifiantDemande),
+                AfBackUtils.logSafe(stringToCheck), usagerId);
         return afBackUtils.getAfApiClient2Tiers().associerDemandeCourrier(identifiantDemande, stringToCheck, usagerId);
     }
 
     @Override
     public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
-        LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, langue);
+        LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, AfBackUtils.logSafe(langue));
         
         LOGGER.info("Suppression des brouillons...");
         brouillonsService.deleteBrouillons(usagerId);
@@ -483,7 +483,8 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     @Override
     public ResponseEntity notifyCreationDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             Date dateCreation, RecapDemandesDTO recapDemandes) {
-        LOGGER.info("AfApiService2Tiers.notifyCreationDemande({},{},{},{},{})", usagerId, demandeId, identifiantDemande,
+        LOGGER.info("AfApiService2Tiers.notifyCreationDemande({},{},{},{},{})", usagerId, demandeId,
+                AfBackUtils.logSafe(identifiantDemande),
                 dateCreation, recapDemandes);
 
         guKafkaProducer.sendCreationDemandeMessage(usagerId, demandeId, identifiantDemande, dateCreation,
@@ -496,7 +497,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     public ResponseEntity notifyChangementStatutDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifyChangementStatutDemande({},{},{},{},{},{})", usagerId, demandeId,
-                identifiantDemande, statutSimplifie, dateStatutSimplifie, recapDemandes);
+                AfBackUtils.logSafe(identifiantDemande), statutSimplifie, dateStatutSimplifie, recapDemandes);
 
         guKafkaProducer.sendChangementStatutDemandeMessage(usagerId, demandeId, identifiantDemande, statutSimplifie,
                 dateStatutSimplifie, recapDemandes);
@@ -508,7 +509,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     public ResponseEntity notifySuppressionDemande(Integer usagerId, Integer demandeId, String identifiantDemande,
             Date dateSuppression, RecapDemandesDTO recapDemandes) {
         LOGGER.info("AfApiService2Tiers.notifySuppressionDemande({},{},{},{},{})", usagerId, demandeId,
-                identifiantDemande, dateSuppression, recapDemandes);
+                AfBackUtils.logSafe(identifiantDemande), dateSuppression, recapDemandes);
 
         guKafkaProducer.sendSuppressionDemandeMessage(usagerId, demandeId, identifiantDemande, dateSuppression,
                 recapDemandes);

@@ -60,7 +60,7 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
-import mc.gouv.xaf.back.service.data.custom.IDeleteDemandeExtender;
+import mc.gouv.xaf.back.service.demande.DeleteDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CloneDemandExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
@@ -236,7 +236,7 @@ public class DemandesServiceImpl implements DemandesService {
     private Optional<CloneDemandExtender> cloneDemandExtenders;
 
     @Autowired
-    private Optional<IDeleteDemandeExtender> deleteDemandeExtender;
+    private Optional<DeleteDemandeExtender> deleteDemandeExtender;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -932,7 +932,7 @@ public class DemandesServiceImpl implements DemandesService {
             DemandesUsagersBO usager = demandeBo.getUsager();
 
             deleteDemandeExtender.ifPresent(
-                    iDeleteDemandeExtender -> iDeleteDemandeExtender.executeExtraDeleteBeforeDemandeDeletion(
+                    deleteDemandeExtender -> deleteDemandeExtender.executeExtraDeleteBeforeDemandeDeletion(
                             demandeBo));
 
             /*** Suppression de la demande. */

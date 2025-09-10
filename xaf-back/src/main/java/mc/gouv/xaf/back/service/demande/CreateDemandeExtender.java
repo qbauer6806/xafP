@@ -4,7 +4,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 
 @FunctionalInterface
-public interface ICreateDemandExtender {
+public interface CreateDemandeExtender {
 
     void applyCreateTreatment(final DemandeInputDTO demandeInputDTO, final DemandeDTO demandeDTO);
 }

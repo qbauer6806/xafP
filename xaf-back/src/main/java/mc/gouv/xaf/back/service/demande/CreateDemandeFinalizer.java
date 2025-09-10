@@ -8,7 +8,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  */
 
 @FunctionalInterface
-public interface ICreateDemandeFinalizer {
+public interface CreateDemandeFinalizer {
 
     void finalizeDemandeCreation(final DemandeDTO demandeDTO);
 }

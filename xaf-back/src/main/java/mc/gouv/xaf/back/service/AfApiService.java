@@ -45,10 +45,10 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
-import mc.gouv.xaf.back.service.demande.ICreateDemandExtender;
-import mc.gouv.xaf.back.service.demande.ICreateDemandeFinalizer;
-import mc.gouv.xaf.back.service.demande.IUpdateDemandExtender;
-import mc.gouv.xaf.back.service.demande.IUpdateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
+import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.UpdateDemandeExtender;
+import mc.gouv.xaf.back.service.demande.UpdateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -173,16 +173,16 @@ public class AfApiService implements AfApi {
     private PaysCache paysCache;
 
     @Autowired
-    private Optional<ICreateDemandeFinalizer> createDemandeFinalizers;
+    private Optional<CreateDemandeFinalizer> createDemandeFinalizers;
 
     @Autowired
-    private Optional<IUpdateDemandeFinalizer> updateDemandeFinalizers;
+    private Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
 
     @Autowired
-    private Optional<ICreateDemandExtender> createDemandeExtenders;
+    private Optional<CreateDemandeExtender> createDemandeExtenders;
 
     @Autowired
-    private Optional<IUpdateDemandExtender> updateDemandeExtenders;
+    private Optional<UpdateDemandeExtender> updateDemandeExtenders;
     
     @Autowired(required = false)
     private CustomRequestService customRequestService;

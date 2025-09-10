@@ -59,7 +59,7 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.data.custom.IDeleteDemandeExtender;
-import mc.gouv.xaf.back.service.demande.ICloneDemandExtender;
+import mc.gouv.xaf.back.service.demande.CloneDemandeExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
@@ -232,7 +232,7 @@ public class DemandesServiceImpl implements DemandesService {
     private DemandesUsagersTransformer demandesUsagersTransformer;
 
     @Autowired
-    private Optional<ICloneDemandExtender> cloneDemandExtenders;
+    private Optional<CloneDemandeExtender> cloneDemandExtenders;
 
     @Autowired
     private Optional<IDeleteDemandeExtender> deleteDemandeExtender;

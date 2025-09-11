@@ -450,6 +450,8 @@ public class PaiementServiceImpl implements PaiementService {
             if(debit.getStatut().equals(StatutDebitEnum.PAID)) {
                 MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
                 sauvegardeRecuPaiement(recuPaiement, identifiant);
+                // envoi mail agent
+                envoiMailAgent(demande, true);
             }
         }
         logEndMethod(LOGGER);
@@ -739,6 +741,18 @@ public class PaiementServiceImpl implements PaiementService {
                 createCommandesDemandes(commande, demandeIds, demandes, totauxDemandes, articlesDemandes));
 
         return commande;
+    }
+
+    /**
+     * Méthode utilisée lorsque RESID rattrape leurs débits pour envoyer le mail de notifications aux agents que la demande est payée
+     * Ils nous appellent pour stocker le reçu de paiement, on considère donc que le débit est OK, on envoie le mail aux agents
+    **/
+    @Override
+    public void envoiMailAgent(String idTs) {
+        DemandeDTO demande = demandesService.getDemande(String.valueOf(idTs));
+        if (null != demande) {
+            envoiMailAgent(demande, true);
+        }
     }
 
     private List<CommandeDemandeBO> createCommandesDemandes(CommandeBO commande, List<Integer> demandeIds,

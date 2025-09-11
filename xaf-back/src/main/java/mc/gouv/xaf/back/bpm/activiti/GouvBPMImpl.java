@@ -284,6 +284,10 @@ public class GouvBPMImpl implements GouvBPM {
         }
 
         // Normalement il y en a une seule
+        List<ProcessInstance> allInstances = runtimeService.createProcessInstanceQuery().list();
+        for (ProcessInstance pi : allInstances) {
+            System.out.println("Instance active: id=" + pi.getId() + ", businessKey=" + pi.getBusinessKey());
+        }
 
         LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,
                 executions.size());

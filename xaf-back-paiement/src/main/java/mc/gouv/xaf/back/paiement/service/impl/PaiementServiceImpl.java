@@ -555,27 +555,19 @@ public class PaiementServiceImpl implements PaiementService {
     private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, Integer usagerId, ActionDebitEnum actionDebit,
             MoyenPaiementBO moyenPaiement, CommandeDemandeBO commandeDemande) {
         LOGGER.info("Mise à jour de l'historique de la demande {}", pkDemandes);
-        PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-        historique.setFkDemandes(demandeBo);
-        historique.setDate(Timestamp.valueOf(LocalDateTime.now()));
-        historique.setUsagerId(usagerId);
         String state = "";
         String action = "";
         if(actionDebit.equals(ActionDebitEnum.SUCCESS)) {
             LOGGER.info("Le paiement est en succès, mise à jour de la commande {} en DB", moyenPaiement.getCommande().getPkCommandes());
             updateCommande(moyenPaiement.getCommande(), commandeDemande.getMontant());
-            historique.setContenu("Système - Débit réalisé");
-            historique.setStatut(PaiementStatutEnum.DEBIT_REALISE.name());
             state = "DEBIT_REALISE";
             action = "Débit réalisé avec succès";
-            paiementHistoriqueRepository.save(historique);
+            paiementHistoriqueService.ajouterHistoriqueDebitOK(demandesTransformer.bo2Dto(demandeBo));
             demandesHistoriqueService.actionSysteme(pkDemandes, state, action);
         } else if (actionDebit.equals(ActionDebitEnum.FAILURE)) {
-            historique.setContenu("Système - Débit en échec");
             state = "DEBIT_ECHEC";
             action = "Débit en échec. Demande de paiement envoyée";
-            historique.setStatut(PaiementStatutEnum.DEBIT_ECHEC.name());
-            paiementHistoriqueRepository.save(historique);
+            paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandesTransformer.bo2Dto(demandeBo));
             demandesHistoriqueService.actionSysteme(pkDemandes, state, action);
         }
     }

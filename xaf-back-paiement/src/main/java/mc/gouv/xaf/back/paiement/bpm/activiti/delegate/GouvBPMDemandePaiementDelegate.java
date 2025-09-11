@@ -130,7 +130,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             demandesHistoriqueService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
-            // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(),
                     PaiementStatutEnum.DEBIT_REALISE.name());
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(),

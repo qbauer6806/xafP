@@ -120,7 +120,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}",
                 dateDebutPurge);
 
-        /*** PURGE DES DEMANDES ***/
+        // PURGE DES DEMANDES
         Date debutSequentiel = new Date();
 
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(dateDebutPurge, statuts,
@@ -133,7 +133,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", demandeId, demandesSuppr);
         }
 
-        /*** MAIL AVANT PURGE ***/
+        // MAIL AVANT PURGE
         dateLocaleDebutPurge = LocalDate.now().minusDays(jours - Long.parseLong(delaiEnvoiEmailProp.getValue()));
         dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date dateFinPurge;
@@ -159,7 +159,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             LOGGER.info("Pas d'envois du mail au service car aucune demande purgée...");
         }
 
-        /*** PURGE DES FICHIERS ***/
+        // PURGE DES FICHIERS
         Triple<Integer, Integer, Integer> result = executerPurgeFichiers();
 
         Date finFichier = new Date();
@@ -244,7 +244,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             }
 
             emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
-            Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demandeDTO);
+            Map<String, Object> model = afMailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode,
+                    demandeDTO, null, null, null);
             model.put("delai", delai);
 
             try {

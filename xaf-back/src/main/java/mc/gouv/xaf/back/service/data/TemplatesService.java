@@ -1,7 +1,9 @@
 package mc.gouv.xaf.back.service.data;
 
+import mc.gouv.xaf.shared.dto.ExportTemplateDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -62,4 +64,8 @@ public interface TemplatesService {
      * @return Le template modifié
      */
     TemplateDTO updateTemplate(TemplateDTO template);
+
+    String exportConfig() throws IOException;
+
+    List<ExportTemplateDTO> importConfig(byte[] file) throws IOException;
 }

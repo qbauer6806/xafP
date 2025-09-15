@@ -1,8 +1,18 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.BadRequestException;
+import mc.gouv.xaf.shared.dto.ExportTemplateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,6 +165,57 @@ public class TemplatesServiceImpl implements TemplatesService {
         TemplateBO templateBo = getTemplateBO(templateId);
         LOGGER.info("Suppression du template...");
         templatesRepository.delete(templateBo);
+    }
+
+    @Override
+    public String exportConfig() throws IOException {
+
+        LOGGER.info("Début de l'export de la configuration des templates");
+
+        List<TemplateDTO> templatesList = TemplatesTransformer.bo2Dto(templatesRepository.findAll());
+
+        // Convertir en fichier d'export
+        List<ExportTemplateDTO> exportTemplateList = new ArrayList<>();
+        for( TemplateDTO template : templatesList ) {
+            ExportTemplateDTO exportTemplateDTO = new ExportTemplateDTO();
+            exportTemplateDTO.setCode(template.getCode());
+            exportTemplateDTO.setLangue(template.getLangue());
+            exportTemplateDTO.setContenu(template.getContenu());
+            exportTemplateList.add(exportTemplateDTO);
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportTemplateList);
+        LOGGER.debug("Fin de l'export de la configuration des templates, fichier exporté {}", exportedConfig);
+        return exportedConfig;
+    }
+
+    @Override
+    public List<ExportTemplateDTO> importConfig(byte[] file) throws IOException {
+
+        LOGGER.info("Début de l'import de la configuration");
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<ExportTemplateDTO> config;
+        try {
+            config = mapper.readValue(file, new TypeReference<>() {});
+        } catch (JsonParseException | JsonMappingException e) {
+            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        }
+
+        if (config != null) {
+            templatesRepository.deleteAll();
+            Iterable<TemplateBO> saved = templatesRepository.saveAll(TemplatesTransformer.exportDto2Bo(config));
+            List<TemplateBO> configBo = StreamSupport.stream(saved.spliterator(), false)
+                    .collect(Collectors.toList());
+
+            LOGGER.info("Fin de l'import de la configuration");
+
+            return TemplatesTransformer.bo2ExportDto(configBo);
+        }
+
+        LOGGER.info("La configuration n'a pas pu être importée");
+        return null;
     }
 
 }

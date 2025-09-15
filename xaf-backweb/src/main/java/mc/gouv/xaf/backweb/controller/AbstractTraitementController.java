@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
+import static mc.gouv.xaf.back.service.utils.AfBackUtils.hasRole;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.el.PropertyNotFoundException;
@@ -19,13 +21,13 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfApiService;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.UploadPieceJustificativeService;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
@@ -37,6 +39,8 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.UploadFileDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.shared.formbean.TypedocFormBean;
 import org.apache.commons.collections4.CollectionUtils;
@@ -45,11 +49,16 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -75,6 +84,11 @@ public class AbstractTraitementController extends AbstractController {
 
     private static final String FICHIERS_TAB = "fichiers";
 
+    @Value("${mc.gouv.file.extensions.whitelist}")
+    private String extensionsWhitelist;
+    @Value("${spring.servlet.multipart.max-file-size}")
+    private String maxFileSize;
+
     @Autowired
     private DemandesService demandesService;
 
@@ -95,15 +109,15 @@ public class AbstractTraitementController extends AbstractController {
 
     @Autowired
     private BackGouvPropertiesResolver backGouvPropertiesResolver;
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-    
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesFilesService demandesFilesService;
     @Autowired
     private DemandesComplementsFilesService demandesComplementsFilesService;
+    @Autowired
+    private PropertiesService propertiesService;
+    @Autowired
+    private UploadPieceJustificativeService uploadPieceJustificativeService;
 
     // Pour les informations liées à la demande
     private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
@@ -168,8 +182,8 @@ public class AbstractTraitementController extends AbstractController {
     @PostMapping("/repondreDIC")
     @Transactional
     public ModelAndView repondreDIC(@RequestParam MultipartFile[] uploadingFiles, HttpServletResponse response,
-                                    @RequestParam String commentaireReponse, @RequestParam Integer pkDemande, @RequestParam Integer icId,
-                                    @RequestParam String activeTaskDefinitionKey, final RedirectAttributes redirectAttributes)
+            @RequestParam String commentaireReponse, @RequestParam Integer pkDemande, @RequestParam Integer icId,
+            @RequestParam String activeTaskDefinitionKey, final RedirectAttributes redirectAttributes)
             throws IOException, TikaException, SAXException {
 
         String safeComm = commentaireReponse.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
@@ -201,7 +215,7 @@ public class AbstractTraitementController extends AbstractController {
                 String numberPart = maxFileSize.replaceAll("[^0-9]", "");
 
                 return returnErrorMessageWithArgs(pkDemande, I18N_UPLOAD_FICHIER_TAILLE_NON_ACCEPTEE,
-                        redirectAttributes, new Object[]{numberPart});
+                        redirectAttributes, new Object[] { numberPart });
             } else {
                 return returnErrorMessage(pkDemande, I18N_UPLOAD_FICHIER_EXTENSION_NON_ACCEPTEE, redirectAttributes);
             }
@@ -300,8 +314,33 @@ public class AbstractTraitementController extends AbstractController {
         XafTraitementFormBean xafTraitementFormBean = new XafTraitementFormBean();
         xafTraitementFormBean.setObservations(demande.getObservations());
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);
-        mav.addObject("isDiscussionPanelDisplayed", StringUtils.isNotBlank(demande.getAgentAffecteId()));
+        boolean isAgentAssigned = StringUtils.isNotBlank(demande.getAgentAffecteId());
+        mav.addObject("isDiscussionPanelDisplayed", isAgentAssigned);
+        // upload des pièces justificatives
+        mav.addObject("uploadPieceJustificativeActif", this.uploadPieceJustificativeActive(isAgentAssigned));
+        mav.addObject("uploadPieceJustificativeVisible", this.uploadPieceJustificativeVisible());
+        mav.addObject("extensionsWhitelist", this.getExtensionsWhitelist());
+        mav.addObject("maxTailleFichier", this.getMaxTailleFichier());
+
         return mav;
+    }
+
+    private boolean uploadPieceJustificativeActive(boolean isAgentAssigned) {
+        return hasRole("ROLE_TRAITEMENT") && isAgentAssigned;
+    }
+
+    private boolean uploadPieceJustificativeVisible() {
+        PropertiesDTO property = propertiesService.getProperty("XAF_UPLOAD_PIECE_JUSTIFICATIVE_BO");
+        return property != null && StringUtils.isNotBlank(property.getValue()) && Boolean.parseBoolean(
+                property.getValue());
+    }
+
+    private String getExtensionsWhitelist() {
+        return StringUtils.isNotBlank(extensionsWhitelist) ? extensionsWhitelist : "";
+    }
+
+    private String getMaxTailleFichier() {
+        return StringUtils.isNotBlank(maxFileSize) ? maxFileSize : "";
     }
 
     protected int getFileCount(List<FileCategoryDTO> categories) {
@@ -317,10 +356,11 @@ public class AbstractTraitementController extends AbstractController {
         }
         return fileCount;
     }
-    
+
     protected Boolean isLockedByUsager(Integer pkDemande, DemandeDTO demande) {
-        if (demande == null)
+        if (demande == null) {
             demande = demandesService.getDemande(pkDemande);
+        }
         LOGGER.info("Contenu = {}", demande.getContenu());
         /* la demande est lockée jusqu'à une date supérieure à la date en cours */
         Long now = Instant.now().toEpochMilli();
@@ -386,6 +426,70 @@ public class AbstractTraitementController extends AbstractController {
             return returnErrorMessage(pkDemande, I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE, FICHIERS_TAB,
                     redirectAttributes);
         }
+    }
+
+    /**
+     * Permets d'uploader des pièces justificatives depuis le BO
+     *
+     * @param pkDemande
+     *         l'identifiant de la demande
+     * @param files
+     *         les fichiers à ajouter
+     * @param metadonnees
+     *         mapping du nom de fichier, son type, visibilité de la pièce
+     * @param response
+     *         la réponse
+     * @return le message
+     */
+    @Secured({ "ROLE_TRAITEMENT" })
+    @PostMapping(value = "/upload/{pkDemande}")
+    @Transactional
+    public ResponseEntity<String> uploadPieceJustificative(@PathVariable Integer pkDemande,
+            @RequestPart("files") MultipartFile[] files, @RequestPart("metadonnees") List<UploadFileDTO> metadonnees,
+            HttpServletResponse response) {
+
+        LOGGER.info("Apple à la méthode uploadPieceJustificative pour la demande {}", pkDemande);
+        if (files == null || files.length == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun fichier sélectionné");
+        }
+        if (CollectionUtils.isEmpty(metadonnees)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun type de fichier sélectionné");
+        }
+        if (files.length != metadonnees.size()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Veuillez associer un type à chaque fichier sélectionné");
+        }
+
+        return uploadPieceJustificativeService.enregistrerPieceJustificative(pkDemande, files, metadonnees, response);
+    }
+
+    @Secured({ "ROLE_TRAITEMENT" })
+    @PostMapping(value = "/suppression/{pkDemandeFile}")
+    @Transactional
+    public ResponseEntity<String> supprimerPieceJustificative(@PathVariable Integer pkDemandeFile) {
+        LOGGER.info("Apple à la méthode supprimerPieceJustificative pour la pièce {}", pkDemandeFile);
+
+        return uploadPieceJustificativeService.supprimerPieceJustificative(pkDemandeFile);
+    }
+
+    /**
+     * Modifie la visibilité d'un fichier associé à une demande.
+     *
+     * @param pkDemandeFile
+     *         l'identifiant du fichier dont la visibilité doit être modifiée
+     * @param visibleUsager
+     *         la nouvelle visibilité du fichier (true pour visible, false pour invisible) par l'usager
+     * @return un objet ResponseEntity contenant un message indiquant le résultat de l'opération
+     */
+    @Secured({ "ROLE_TRAITEMENT" })
+    @PostMapping(value = "/updateVisibilite/{pkDemandeFile}")
+    @Transactional
+    public ResponseEntity<String> changerVisibiliteFichier(@PathVariable Integer pkDemandeFile,
+            @RequestParam Boolean visibleUsager) {
+        LOGGER.info("Apple à la méthode changerVisibiliteFichier pour la pièce {} et param {}", pkDemandeFile,
+                visibleUsager);
+
+        return uploadPieceJustificativeService.changerVisibiliteFichier(pkDemandeFile, visibleUsager);
     }
 
 }

@@ -606,3 +606,14 @@ dd span {
 h2 {
   font-weight: unset;
 }
+
+.date-col-small {
+  width: 5%;
+  padding-right: 0 !important;
+}
+
+.check-col-small {
+  width: 5%;
+  padding-right: 0 !important;
+  text-align: center;
+}

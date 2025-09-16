@@ -9,6 +9,8 @@
         content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
   <meta name="description" content=""/>
   <meta name="author" content=""/>
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title th:text="${titre}"></title>
 
   <!-- Import FONTS -->
@@ -32,9 +34,11 @@
 
   <!-- Main Quill library -->
   <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/T-vK/DynamicQuillTools@master/DynamicQuillTools.js"></script>
 
   <!-- Theme included stylesheets -->
   <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
 
   <style>
     /* Hack charte graphique pour avoir un toggle toujours bleu */
@@ -48,6 +52,11 @@
 
     form .form-group span {
       padding-top: 0;
+    }
+
+    .ql-toolbar .ql-picker .ql-picker-options {
+      max-height: 400px;
+      overflow-y: auto;
     }
   </style>
 
@@ -100,6 +109,12 @@
                     name="exportSql" type="button"
                     value="Export SQL" style="margin-left: 30px">
               Export SQL
+            </button>
+
+            <button class="btn btn-action ripple-effect exportSqlBouton" id="preview"
+                    name="preview" type="button"
+                    value="Prévisualisation" style="margin-left: 30px">
+              Prévisualisation
             </button>
           </div>
         </div>
@@ -178,6 +193,43 @@
         </div>
       </div>
 
+      <div id="visualisationModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width: 70%">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                  aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">Prévisualisation du template de mail<span id="codeMailModal"></span></h4>
+            </div>
+            <div class="modal-body">
+              <div style="margin-top: 20px">
+                <div th:class="form-group">
+                  <div class="row">
+                    <div class="col-xs-4">
+                      <label for="code">Tester ce mail avec la demande (identifiant technique)<span class="required"></span>: </label>
+                    </div>
+                    <div class="col-xs-6">
+                      <input type="text" id="pkDemandeTest" th:object="${templateFormBean}" th:field="*{pkDemandeTest}" th:value="*{pkDemandeTest}" class="form-control"/>
+                    </div>
+                    <div class="col-xs-2">
+                      <button class="btn btn-action ripple-effect exportSqlBouton" id="validerPkDemandePreview"
+                              name="validerPkDemandePreview" type="button"
+                              value="Valider">
+                        Valider
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div><h3 style="margin-bottom: 20px">Résultat prévisualisation:</h3></div>
+              <p><span id="corpsMailModal"></span></p>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
+
+
     </div>
   </div>
 
@@ -216,7 +268,9 @@
     /*<![CDATA[*/
 
     var templateFormBean = /*[[(${templateFormBean})]]*/;
-    var tsCode = /*[[(${tsCode})]]*/;
+    var tsCode = /*[[(${tsCode})]]*/
+    var variablesGlobales = /*[[(${variablesGlobales})]]*/;
+    var marqueurs = /*[[(${marqueurs})]]*/;
 
     if (!!$("#formTemplate").html()) {
       var toolbarOptions = [
@@ -247,6 +301,50 @@
       var editor = new Quill('#editor', options);
       const delta = editor.clipboard.convert(templateFormBean.corps);
       editor.setContents(delta, 'silent');
+
+      const variablesGlobalesItems = Object.entries(variablesGlobales).reduce((acc, [key, value]) => {
+        const label = value != null ? `${key} : <b>${value}</b>` : key;
+        acc[label] = '${' + key + '}';
+        return acc;
+      }, {});
+
+      const variablesGlobalesDropdown = new QuillToolbarDropDown({
+        label: "Variables globales",
+        rememberSelection: false
+      })
+
+      variablesGlobalesDropdown.setItems(variablesGlobalesItems)
+
+      variablesGlobalesDropdown.onSelect = function(label, value, quill) {
+        const { index, length } = quill.selection.savedRange
+        quill.deleteText(index, length)
+        quill.insertText(index, value)
+        quill.setSelection(index + value.length)
+      }
+
+      variablesGlobalesDropdown.attach(editor)
+
+      const marqueursItems = marqueurs.reduce((acc, m) => {
+        acc[m.identifiant] = '${marqueurs.' + m.identifiant + '}';
+        return acc;
+      }, {});
+
+      const marqueursDropDown = new QuillToolbarDropDown({
+        label: "Marqueurs",
+        rememberSelection: false
+      })
+
+      marqueursDropDown.setItems(marqueursItems)
+
+      marqueursDropDown.onSelect = function(label, value, quill) {
+        const { index, length } = quill.selection.savedRange
+        quill.deleteText(index, length)
+        quill.insertText(index, value)
+        quill.setSelection(index + value.length)
+      }
+
+      marqueursDropDown.attach(editor)
+
     }
 
     $("#switchLangue").prop('checked', templateFormBean.langue === 'fr');
@@ -262,6 +360,47 @@
       var sqlGenere = exportSQLTemplate(tsCode, templateFormBean.code, templateFormBean.objet, templateFormBean.corps, templateFormBean.langue);
       download("exportSQL-" + templateFormBean.code + ".sql", sqlGenere);
     });
+
+    $("#preview").click(function () {
+      const pkDemande = $('#pkDemandeTest').val();
+      makePreviewCall(pkDemande)
+      return true;
+    });
+
+    $("#validerPkDemandePreview").click(function () {
+      const pkDemande = $('#pkDemandeTest').val();
+      makePreviewCall(pkDemande)
+      return true;
+    });
+
+    var makePreviewCall = function (pkDemande) {
+      var token = $("meta[name='_csrf']").attr("content");
+      var header = $("meta[name='_csrf_header']").attr("content");
+
+      var body = {
+        templateCode: templateFormBean.code,
+        codeMotifChoisi: null,
+        pkDemande: pkDemande,
+        commentaire: "** Commentaire à envoyer **",
+        texteAEnvoyer: "** Texte à envoyer **"
+      };
+
+      $.ajax({
+        url: APP.getContextPath() + '/ws/mailpreview-by-code',
+        type: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify(body),
+        dataType: "html",
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader(header, token);
+          $('#visualisationModal').modal();
+          $('#corpsMailModal').html("Chargement en cours...");
+        },
+        success: function (data) {
+          $('#corpsMailModal').html(data);
+        }
+      });
+    };
 
     $("#switchLangue").click(function () {
       var langue = templateFormBean.langue === 'fr' ? 'en' : 'fr';

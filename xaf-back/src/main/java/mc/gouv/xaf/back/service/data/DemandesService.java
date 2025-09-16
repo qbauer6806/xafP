@@ -32,6 +32,8 @@ public interface DemandesService {
     Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
             List<String> buildIds);
 
+    Optional<DemandeDTO> getDerniereDemande();
+
     List<DemandeDTO> getDemandesLight(Integer usagerId);
 
     /**

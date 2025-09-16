@@ -82,12 +82,13 @@ public class AfTemplateModelProvider {
                 }
             }
             model.put("usager", usager.getPrenom() + " " + usager.getNom());
-            String defaultMailTitre = demande.getLangue().equals("fr")
+            String langue = demande.getLangue() != null ? demande.getLangue() : "fr";
+            String defaultMailTitre = langue.equals("fr")
                     ? SharedMessages.DEFAULT_TITRE_MAIL_FR
                     : SharedMessages.DEFAULT_TITRE_MAIL_EN;
 
             String titre = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
-                    Locale.of(demande.getLangue())) : defaultMailTitre;
+                    Locale.of(langue)) : defaultMailTitre;
 
             String titreFr = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
                     Locale.FRENCH) : SharedMessages.DEFAULT_TITRE_MAIL_FR;
@@ -100,7 +101,7 @@ public class AfTemplateModelProvider {
                 if (motif == null) {
                     throw new DemarcheException(
                             "Impossible de trouver le motif pour le code : " + codeMotif + " et la langue : "
-                                    + demande.getLangue());
+                                    + langue);
                 }
                 model.put("motif", motif.getLibelle());
             }

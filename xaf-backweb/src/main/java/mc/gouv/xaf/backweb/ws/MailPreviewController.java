@@ -28,7 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @GouvRestController
 @Secured("ROLE_LECTURE")
-@RequestMapping("/ws/mailpreview")
+@RequestMapping("/ws")
 public class MailPreviewController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailPreviewController.class);
@@ -47,7 +47,11 @@ public class MailPreviewController extends AbstractController {
 
     private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
             throws IOException {
-        String templateCode = afMailTemplateModelProvider.getMailTemplateCodeForAction(action);
+        return buildMailPreviewByCode(afMailTemplateModelProvider.getMailTemplateCodeForAction(action), codeMotifChoisi, pkDemande, commentaire);
+    }
+
+    private ModelAndView buildMailPreviewByCode(String templateCode, String codeMotifChoisi, Integer pkDemande, String commentaire)
+            throws IOException {
         String bodyTemplateCode = templateCode + "_CORPS";
         String subjectTemplateCode = templateCode + "_OBJET";
 
@@ -71,7 +75,7 @@ public class MailPreviewController extends AbstractController {
         return mav;
     }
 
-    @PostMapping(consumes = "application/json")
+    @PostMapping(value = "/mailpreview", consumes = "application/json")
     public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws IOException {
         String action = mailPreviewFormBean.getAction();
         String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
@@ -84,6 +88,23 @@ public class MailPreviewController extends AbstractController {
                 safeCodeMotifChoisi, pkDemande, safeCommentaire);
         ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
         LOGGER.info("======================= Fin /ws/mailpreview");
+        return mav;
+
+    }
+
+    @PostMapping(value = "/mailpreview-by-code", consumes = "application/json")
+    public ModelAndView mailPreviewByCode(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws IOException {
+        String templateCode = mailPreviewFormBean.getTemplateCode();
+        String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
+        Integer pkDemande = mailPreviewFormBean.getPkDemande();
+        String commentaire = mailPreviewFormBean.getCommentaire();
+        String safeTemplateCode = AfBackUtils.logSafe(templateCode);
+        String safeCodeMotifChoisi = AfBackUtils.logSafe(codeMotifChoisi);
+        String safeCommentaire = AfBackUtils.logSafe(commentaire);
+        LOGGER.info("======================= Appel de /ws/mailpreview-by-code ({}, {}, {}, {})", safeTemplateCode,
+                safeCodeMotifChoisi, pkDemande, safeCommentaire);
+        ModelAndView mav = buildMailPreviewByCode(safeTemplateCode, codeMotifChoisi, pkDemande, commentaire);
+        LOGGER.info("======================= Fin /ws/mailpreview-by-code");
         return mav;
 
     }

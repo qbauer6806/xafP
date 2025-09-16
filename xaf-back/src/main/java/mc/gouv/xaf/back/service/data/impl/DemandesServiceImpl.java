@@ -500,6 +500,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public Optional<DemandeDTO> getDerniereDemande() {
+        return demandesRepository.findFirstByOrderByDateCreationDesc().map(demandesTransformer::bo2Dto);
+    }
+
+    @Override
     public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
         checkAccess(usagerId);

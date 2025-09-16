@@ -80,4 +80,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     boolean existsByAgent(DemandesAgentsBO agent);
 
     boolean existsByUsager(DemandesUsagersBO usager);
+
+    Optional<DemandeBO> findFirstByOrderByDateCreationDesc();
+
+
 }

@@ -36,4 +36,6 @@ public class TemplateFormBean {
     @NotNull(message = "Une date de modification doit être renseignée")
     private String date;
 
+    private Integer pkDemandeTest;
+
 }

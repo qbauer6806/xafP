@@ -4,11 +4,21 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import feign.template.Template;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +65,23 @@ public class GestionTemplateController extends AbstractController {
     @Autowired
     private AfBackUtils afBackUtils;
 
+    @Autowired
+    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+
+    @Autowired
+    private MarqueursService marqueursService;
+
+    @Autowired
+    private DemandesConfigService demandesConfigService;
+
+    @Autowired
+    private DemandesService demandesService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
     private static final String TS_CODE_VAR = "tsCode";
     private static final String FR_ONLY_VAR = "frOnly";
+    private static final String VARIABLES_GLOBALES_VAR = "variablesGlobales";
+    private static final String MARQUEURS_VAR = "marqueurs";
 
     // Messages
     private static final String MESSAGE_SUCCESS_MODIFICATION = "Le template mail a été modifié avec succès";
@@ -82,6 +106,9 @@ public class GestionTemplateController extends AbstractController {
         ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
         mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject(FR_ONLY_VAR, isFrenchOnly());
+        mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales(templateFormBean));
+        mav.addObject(MARQUEURS_VAR, getMarqueursList());
+        templateFormBean.setPkDemandeTest(demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
         LOGGER.info("======================= Fin /gestion/template/update. Méthode formUpdateInit");
         return mav;
@@ -94,7 +121,9 @@ public class GestionTemplateController extends AbstractController {
         mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         gestionTemplateService.saveTemplateForm(templateFormBean);
         mav.addObject(FR_ONLY_VAR, isFrenchOnly());
-        // Récupération à nouveau du template pour vérifier que tout est ok
+        mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales(templateFormBean));
+        mav.addObject(MARQUEURS_VAR, getMarqueursList());
+        mav.addObject("pkDemandeTest", demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
         mav.addObject(SharedMessages.SUCCESS_MESSAGES, MESSAGE_SUCCESS_MODIFICATION);
         LOGGER.info("======================= Fin /gestion/template/update. Méthode traiterUpdate");
@@ -144,5 +173,20 @@ public class GestionTemplateController extends AbstractController {
         // S'il n'y a qu'une langue on ne récupère que les templates FR
         Map<String, String> langues = afBackUtils.getLanguesDisponibles();
         return langues.size() == 1 && langues.containsKey("fr");
+    }
+
+    private Map<String, Object> getVariablesGlobales(TemplateFormBean templateFormBean) {
+         return afMailTemplateModelProvider.getModel(null, templateFormBean.getCode(), new DemandeDTO(),
+                null, null, null);
+    }
+
+    private List<MarqueurDTO> getMarqueursList() {
+        List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
+        List<MarqueurDTO> marqueurs = new ArrayList<>();
+        String currentBuildId = configs.getFirst().getBuildId();
+        if(StringUtils.isNotBlank(currentBuildId)) {
+            marqueurs = marqueursService.getMarqueurs(currentBuildId);
+        }
+        return marqueurs;
     }
 }

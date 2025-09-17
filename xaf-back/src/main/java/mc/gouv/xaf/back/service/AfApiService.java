@@ -34,7 +34,7 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
-import mc.gouv.xaf.back.service.demande.ICreateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
@@ -174,7 +174,7 @@ public class AfApiService implements AfApi {
     private PaysCache paysCache;
 
     @Autowired
-    private Optional<ICreateDemandeFinalizer> createDemandeFinalizers;
+    private Optional<CreateDemandeFinalizer> createDemandeFinalizers;
 
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {

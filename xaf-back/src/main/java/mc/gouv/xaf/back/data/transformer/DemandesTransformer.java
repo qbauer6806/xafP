@@ -217,6 +217,8 @@ public class DemandesTransformer {
         DemandeDTO dto = new DemandeDTO();
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
+        dto.setCourrierDateReception(bo.getCourrierDateReception());
+        dto.setCourrierRefInterne(bo.getCourrierRefInterne());
         dto.setLangue(bo.getLangue());
         dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
         dto.setObservations(bo.getObservations());

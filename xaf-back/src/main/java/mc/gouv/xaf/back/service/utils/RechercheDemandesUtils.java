@@ -31,8 +31,8 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.service.utils.customorder.FallbackOrderDefinition;
-import mc.gouv.xaf.back.service.utils.customorder.IDemandeFallbackOrdersConfiguration;
+import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPath;
+import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPathConfiguration;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
@@ -62,13 +62,13 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String FILES = "files";
     private static final String SEARCH_VECTOR = "searchVector";
 
-    private final Optional<IDemandeFallbackOrdersConfiguration> demandeFallbackOrdersConfiguration;
+    private final Optional<RechercheSortPathConfiguration> rechercheSortPathConfiguration;
     private final EntityManager em;
 
     public RechercheDemandesUtils(EntityManager em,
-            Optional<IDemandeFallbackOrdersConfiguration> demandeFallbackOrdersConfiguration) {
+            Optional<RechercheSortPathConfiguration> rechercheSortPathConfiguration) {
         this.em = em;
-        this.demandeFallbackOrdersConfiguration = demandeFallbackOrdersConfiguration;
+        this.rechercheSortPathConfiguration = rechercheSortPathConfiguration;
     }
 
     public Long getDemandesCount(DemandeRechercheDTO demandeRecherche) {
@@ -142,25 +142,26 @@ public class RechercheDemandesUtils extends RechercheUtils {
     }
 
     private Expression<?> getJsonOrderExpression(Root<DemandeBO> root, CriteriaBuilder cb, String jsonProperty) {
-        final var maybeCustomFallback = getFallbackOrder(jsonProperty);
+        final var rechercheSortPathOpt = getRechercheSortPath(jsonProperty);
 
-        if (maybeCustomFallback.isEmpty()) {
+        if (rechercheSortPathOpt.isEmpty()) {
             return buildJsonExpression(root, cb, jsonProperty);
         }
 
-        final var customFallback = maybeCustomFallback.get();
-        List<Expression<String>> allExpressions = customFallback.getAllProperties().stream()
+        final var rechercheSortPath = rechercheSortPathOpt.get();
+        List<Expression<String>> allExpressions = rechercheSortPath.getAllPaths().stream()
                 .map(prop -> buildJsonExpression(root, cb, prop))
                 .map(expr -> cb.function("nullif", String.class, expr, cb.literal("null"))).toList();
 
         final var conditionalOrder = cb.coalesce();
-        allExpressions.forEach(customOrderExpression -> conditionalOrder.value(customOrderExpression));
+        allExpressions.forEach(conditionalOrder::value);
         return conditionalOrder;
     }
 
-    private Optional<FallbackOrderDefinition> getFallbackOrder(String order) {
-        return demandeFallbackOrdersConfiguration.map(IDemandeFallbackOrdersConfiguration::getFallbackOrders).stream()
-                .flatMap(Collection::stream).filter(fallback -> StringUtils.equals(fallback.jsonDefaultOrder(), order))
+    private Optional<RechercheSortPath> getRechercheSortPath(String order) {
+        return rechercheSortPathConfiguration.map(RechercheSortPathConfiguration::getRechercheSortPaths).stream()
+                .flatMap(Collection::stream)
+                .filter(rechercheSortPath -> StringUtils.equals(rechercheSortPath.defaultPath(), order))
                 .findFirst();
     }
 

@@ -131,13 +131,6 @@ var configurationDataTableFacets = {
           chekedLabel = 'Inactif';
         }
 
-        var disabled = '';
-        if (property.name.startsWith("complement.fichiers")
-            || property.name
-            .startsWith("fichierinterne.fichiers")) {
-          disabled = 'disabled';
-        }
-
         return '<div class="form-group">  <div class="checkbox-custom checkbox-default">  <input type="checkbox" '
             + checked
             + ' id="'
@@ -145,7 +138,6 @@ var configurationDataTableFacets = {
             + '" name="'
             + property.name
             + '" '
-            + disabled
             + '><label for="'
             + id
             + '" id="'

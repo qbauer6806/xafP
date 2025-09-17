@@ -26,7 +26,7 @@ public class TemplateFormBean {
     private String objet;
 
     @NotNull(message = "Le contenu du mail doit être précisé")
-    @Size(max = 1500, message = "Le contenu doit avoir une taille comprise entre 0 et 5000")
+    @Size(max = 5000, message = "Le contenu doit avoir une taille comprise entre 0 et 5000")
     private String corps;
 
     @NotNull(message = "La langue doit être précisée")

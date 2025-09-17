@@ -111,7 +111,7 @@
               Export SQL
             </button>
 
-            <button class="btn btn-action ripple-effect exportSqlBouton" id="preview"
+            <button class="btn btn-action ripple-effect" id="preview"
                     name="preview" type="button"
                     value="Prévisualisation" style="margin-left: 30px">
               Prévisualisation
@@ -123,7 +123,7 @@
 
           <form class="form-horizontal"
                 id="formTemplate"
-                th:action="@{/gestion/template/update}" method="POST"
+                th:action="@{/gestion/template/update}" method="PUT"
                 th:object="${templateFormBean}">
 
             <input type="hidden" name="code" th:field="*{code}" class="form-control"/>
@@ -212,7 +212,7 @@
                       <input type="text" id="pkDemandeTest" th:object="${templateFormBean}" th:field="*{pkDemandeTest}" th:value="*{pkDemandeTest}" class="form-control"/>
                     </div>
                     <div class="col-xs-2">
-                      <button class="btn btn-action ripple-effect exportSqlBouton" id="validerPkDemandePreview"
+                      <button class="btn btn-action ripple-effect" id="validerPkDemandePreview"
                               name="validerPkDemandePreview" type="button"
                               value="Valider">
                         Valider
@@ -386,7 +386,7 @@
       };
 
       $.ajax({
-        url: APP.getContextPath() + '/ws/mailpreview-by-code',
+        url: APP.getContextPath() + '/ws/mailpreview-by-text',
         type: 'post',
         contentType: 'application/json',
         data: JSON.stringify(body),

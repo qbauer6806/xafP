@@ -13,10 +13,12 @@ import lombok.Setter;
 @Getter
 public class PreviewFormBean {
 
-    // Action ou TemplateCode obligatoire
+    // Action ou SubjectText & TemplateText obligatoire
     private String action;
 
-    private String templateCode;
+    private String subjectText;
+
+    private String templateText;
 
     private String codeMotifChoisi;
 

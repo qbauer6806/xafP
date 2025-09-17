@@ -34,6 +34,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public Optional<DemandeDTO> getDerniereDemande() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         return List.of();
     }

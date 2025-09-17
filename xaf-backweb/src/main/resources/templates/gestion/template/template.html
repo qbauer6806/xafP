@@ -86,7 +86,7 @@
   <div id="page-content-wrapper">
     <div class="breadcrumbContent">
       <div class="breadcrumb">
-        <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MODÈLES DE COURRIELS</span>
+        <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MODÈLES DE TEMPLATES MAIL</span>
       </div>
       <div class="triangleTopright"></div>
     </div>
@@ -94,7 +94,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-xs-6">
-          <h1>administration des modèles de courriels</h1>
+          <h1>administration des modèles de templates mails</h1>
         </div>
         <div class="col-xs-6 text-right">
 
@@ -117,6 +117,10 @@
                   value="Export SQL" style="margin-left: 30px">
             Export SQL
           </button>
+
+          <a th:href="@{/gestion/template/create}" id="createTemplate"
+             style="float: right; margin-left: 10px"
+             class="btn btn-action ripple-effect pull-right"><span>Créer un template mail</span></a>
 
           <form th:action="@{/gestion/template/import-templates}" method="post"
                 enctype="multipart/form-data">

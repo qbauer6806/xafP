@@ -43,6 +43,9 @@ public interface MailService {
     String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
             Map<String, Object> model) throws IOException;
 
+    String[] getMailPreviewByText(String bodyTemplateText, String subjectTemplateText, String langue,
+            Map<String, Object> model) throws IOException;
+
     /**
      * Envois un mail typé support
      *

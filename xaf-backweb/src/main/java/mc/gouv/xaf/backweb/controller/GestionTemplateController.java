@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import feign.template.Template;
+import jakarta.validation.Valid;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -18,6 +19,7 @@ import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
+import mc.gouv.xaf.shared.formbean.TemplateCreateFormBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +29,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +46,8 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriUtils;
 
 /**
  * Controller pour la modification de templates d'e-mails
@@ -106,7 +112,7 @@ public class GestionTemplateController extends AbstractController {
         ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
         mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject(FR_ONLY_VAR, isFrenchOnly());
-        mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales(templateFormBean));
+        mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales());
         mav.addObject(MARQUEURS_VAR, getMarqueursList());
         templateFormBean.setPkDemandeTest(demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
@@ -114,20 +120,54 @@ public class GestionTemplateController extends AbstractController {
         return mav;
     }
 
-    @PostMapping(path = "/update")
-    public ModelAndView traiterUpdate(@ModelAttribute("templateFormBean") TemplateFormBean templateFormBean) {
+    @PutMapping(path = "/update")
+    public String traiterUpdate(@Valid @ModelAttribute("templateFormBean") TemplateFormBean templateFormBean,
+            BindingResult bindingResult,
+            RedirectAttributes ra) {
         LOGGER.info("Appel de la page /gestion/template/update. Méthode traiterUpdate");
-        ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
-        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
+
+        if (bindingResult.hasErrors()) {
+            return "gestion/template/templateupdate";
+        }
+
         gestionTemplateService.saveTemplateForm(templateFormBean);
+        ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, MESSAGE_SUCCESS_MODIFICATION);
+
+        return "redirect:/gestion/template/update?code="
+                + UriUtils.encode(templateFormBean.getCode(), StandardCharsets.UTF_8)
+                + "&langue=" + templateFormBean.getLangue();
+    }
+
+    @GetMapping(path = "/create")
+    public ModelAndView formCreateSave(@ModelAttribute("templateCreateFormBean") TemplateCreateFormBean templateCreateFormBean) {
+        LOGGER.info("Appel de la page /gestion/template/templatecreate. Méthode formCreateInit");
+        ModelAndView mav = new ModelAndView("gestion/template/templatecreate");
+        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject(FR_ONLY_VAR, isFrenchOnly());
-        mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales(templateFormBean));
+        mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales());
         mav.addObject(MARQUEURS_VAR, getMarqueursList());
-        mav.addObject("pkDemandeTest", demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
-        gestionTemplateService.retrieveTemplateForm(templateFormBean);
-        mav.addObject(SharedMessages.SUCCESS_MESSAGES, MESSAGE_SUCCESS_MODIFICATION);
-        LOGGER.info("======================= Fin /gestion/template/update. Méthode traiterUpdate");
+        templateCreateFormBean.setPkDemandeTest(demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
+        LOGGER.info("======================= Fin /gestion/template/templatecreate. Méthode formCreateInit");
         return mav;
+    }
+
+    @PostMapping(path = "/create")
+    public String formCreateInit(@Valid @ModelAttribute("templateCreateFormBean") TemplateCreateFormBean templateCreateFormBean,
+            BindingResult bindingResult,
+            RedirectAttributes ra) {
+        LOGGER.info("Appel de la page /gestion/template/templatecreate. Méthode formCreateInit");
+
+        if (bindingResult.hasErrors()) {
+            return "gestion/template/templatecreate";
+        }
+
+        gestionTemplateService.saveTemplateForm(templateCreateFormBean);
+
+        LOGGER.info("======================= Fin /gestion/template/templatecreate. Méthode formCreateInit");
+
+        return "redirect:/gestion/template/update?code="
+                + UriUtils.encode(templateCreateFormBean.getCode(), StandardCharsets.UTF_8)
+                + "&langue=fr";
     }
 
     @GetMapping(path = "/export-templates")
@@ -175,8 +215,8 @@ public class GestionTemplateController extends AbstractController {
         return langues.size() == 1 && langues.containsKey("fr");
     }
 
-    private Map<String, Object> getVariablesGlobales(TemplateFormBean templateFormBean) {
-         return afMailTemplateModelProvider.getModel(null, templateFormBean.getCode(), new DemandeDTO(),
+    private Map<String, Object> getVariablesGlobales() {
+         return afMailTemplateModelProvider.getModel(null, "", new DemandeDTO(),
                 null, null, null);
     }
 

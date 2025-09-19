@@ -194,15 +194,9 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
 
     @Transactional
     @Override
-    public void deleteTemplate(String templateCode) {
-        templatesService.deleteTemplateByCode(templateCode + OBJET, LANG_FR);
-        templatesService.deleteTemplateByCode(templateCode + CORPS, LANG_FR);
-
-        // Vérification si le template existe en BDD pour l'anglais
-        if (templatesService.getTemplateByCodeAndLangue(templateCode + OBJET, LANG_EN) != null) {
-            templatesService.deleteTemplateByCode(templateCode + OBJET, LANG_EN);
-            templatesService.deleteTemplateByCode(templateCode + CORPS, LANG_EN);
-        }
+    public void deleteTemplate(String templateCode, String langue) {
+        templatesService.deleteTemplateByCode(templateCode + OBJET, langue);
+        templatesService.deleteTemplateByCode(templateCode + CORPS, langue);
 
         templatesCache.refresh();
     }

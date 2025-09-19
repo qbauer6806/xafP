@@ -271,7 +271,7 @@
             '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '" ' +
             'onclick="window.location.href=\''+ APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue +'\'">' +
             '<i class="icon-action_modifier"></i></button>' +
-            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-ligne="' + meta.row + '" onclick="deleteTemplate(\'' + template.code + '\')">' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-ligne="' + meta.row + '" onclick="deleteTemplate(\'' + template.code + '\', \'' + template.langue + '\')">' +
             '<i class="icon-action_supprimer"></i></button>';
       }
     }];
@@ -299,12 +299,12 @@
     document.body.removeChild(element);
   }
 
-  function deleteTemplate(templateCode) {
+  function deleteTemplate(templateCode, templateLangue) {
     var token = $("meta[name='_csrf']").attr("content");
     var header = $("meta[name='_csrf_header']").attr("content");
 
     $.ajax({
-      url: APP.getContextPath() + '/gestion/template/' + templateCode,
+      url: APP.getContextPath() + '/gestion/template/' + templateLangue + '/' + templateCode,
       type: 'DELETE',
       beforeSend: function (xhr) { xhr.setRequestHeader(header, token); },
       success: function (data) {

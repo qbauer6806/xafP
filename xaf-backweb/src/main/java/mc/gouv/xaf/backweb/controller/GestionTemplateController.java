@@ -216,11 +216,11 @@ public class GestionTemplateController extends AbstractController {
         return mav;
     }
 
-    @DeleteMapping(path = "/{templateCode}")
-    public ResponseEntity<Void> deleteTemplate(@PathVariable String templateCode) {
+    @DeleteMapping(path = "/{langue}/{templateCode}")
+    public ResponseEntity<Void> deleteTemplate(@PathVariable String langue, @PathVariable String templateCode) {
         LOGGER.info("Appel /deleteTemplate");
 
-        gestionTemplateService.deleteTemplate(templateCode);
+        gestionTemplateService.deleteTemplate(templateCode, langue);
 
         LOGGER.info("======================= Fin /deleteTemplate. Le template {} a été supprimé avec succès",
                 templateCode);

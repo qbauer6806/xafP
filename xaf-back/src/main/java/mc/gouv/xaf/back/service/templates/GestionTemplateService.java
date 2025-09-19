@@ -18,6 +18,6 @@ public interface GestionTemplateService {
 
     List<ExportTemplateDTO> importConfig(byte[] file) throws IOException;
 
-    void deleteTemplate(String templateCode);
+    void deleteTemplate(String templateCode, String langue);
 
 }

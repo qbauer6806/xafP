@@ -52,6 +52,11 @@ public interface TemplatesService {
     void deleteTemplate(Integer templateId);
 
     /**
+     * Permet de supprimer un template à partir du TemplateCode
+     */
+    void deleteTemplateByCode(String templateCode, String langue);
+
+    /**
      * Permet de sauvegarder en base un template
      *
      * @return Le template sauvegardé
@@ -64,8 +69,4 @@ public interface TemplatesService {
      * @return Le template modifié
      */
     TemplateDTO updateTemplate(TemplateDTO template);
-
-    String exportConfig() throws IOException;
-
-    List<ExportTemplateDTO> importConfig(byte[] file) throws IOException;
 }

@@ -1,10 +1,24 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
+import mc.gouv.xaf.back.data.dao.TemplatesRepository;
+import mc.gouv.xaf.back.data.entity.TemplateBO;
+import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
+import mc.gouv.xaf.shared.dto.ExportTemplateDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateCreateFormBean;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
@@ -31,6 +45,9 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
 
     @Autowired
     private TemplatesService templatesService;
+
+    @Autowired
+    private TemplatesRepository templatesRepository;
 
     @Autowired
     private TemplatesCache templatesCache;
@@ -120,6 +137,73 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
         }
 
         // Refresh du cache après modification
+        templatesCache.refresh();
+    }
+
+
+    @Override
+    public String exportConfig() throws IOException {
+
+        LOGGER.info("Début de l'export de la configuration des templates");
+
+        List<TemplateDTO> templatesList = TemplatesTransformer.bo2Dto(templatesRepository.findAll());
+
+        // Convertir en fichier d'export
+        List<ExportTemplateDTO> exportTemplateList = new ArrayList<>();
+        for( TemplateDTO template : templatesList ) {
+            ExportTemplateDTO exportTemplateDTO = new ExportTemplateDTO();
+            exportTemplateDTO.setCode(template.getCode());
+            exportTemplateDTO.setLangue(template.getLangue());
+            exportTemplateDTO.setContenu(template.getContenu());
+            exportTemplateList.add(exportTemplateDTO);
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportTemplateList);
+        LOGGER.debug("Fin de l'export de la configuration des templates, fichier exporté {}", exportedConfig);
+        return exportedConfig;
+    }
+
+    @Override
+    public List<ExportTemplateDTO> importConfig(byte[] file) throws IOException {
+
+        LOGGER.info("Début de l'import de la configuration");
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<ExportTemplateDTO> config;
+        try {
+            config = mapper.readValue(file, new TypeReference<>() {});
+        } catch (JsonParseException | JsonMappingException e) {
+            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        }
+
+        if (config != null) {
+            templatesRepository.deleteAll();
+            Iterable<TemplateBO> saved = templatesRepository.saveAll(TemplatesTransformer.exportDto2Bo(config));
+            List<TemplateBO> configBo = StreamSupport.stream(saved.spliterator(), false)
+                    .collect(Collectors.toList());
+
+            LOGGER.info("Fin de l'import de la configuration");
+
+            return TemplatesTransformer.bo2ExportDto(configBo);
+        }
+
+        LOGGER.info("La configuration n'a pas pu être importée");
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public void deleteTemplate(String templateCode) {
+        templatesService.deleteTemplateByCode(templateCode + OBJET, LANG_FR);
+        templatesService.deleteTemplateByCode(templateCode + CORPS, LANG_FR);
+
+        // Vérification si le template existe en BDD pour l'anglais
+        if (templatesService.getTemplateByCodeAndLangue(templateCode + OBJET, LANG_EN) != null) {
+            templatesService.deleteTemplateByCode(templateCode + OBJET, LANG_EN);
+            templatesService.deleteTemplateByCode(templateCode + CORPS, LANG_EN);
+        }
+
         templatesCache.refresh();
     }
 }

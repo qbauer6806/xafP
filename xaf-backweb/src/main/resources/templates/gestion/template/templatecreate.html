@@ -141,7 +141,7 @@
                 <div class="row container-fluid mt-15">
                   <div th:class="form-group">
                     <div class="col-xs-2">
-                      <label for="objetFr">Objet du mail (Anglais)<span class="required"></span>: </label>
+                      <label for="objetFr">Objet du mail (Anglais): </label>
                     </div>
                     <div class="col-xs-10">
                       <input type="text" id="objetEn" name="objetEn" th:field="*{objetEn}"
@@ -153,7 +153,7 @@
                 <div class="row container-fluid mt-15">
                   <div th:class="form-group">
                     <div class="col-xs-2">
-                      <label for="editorFr">Corps du mail (Anglais)<span class="required"></span>: </label>
+                      <label for="editorFr">Corps du mail (Anglais): </label>
                     </div>
                     <div class="col-xs-10">
                       <div id="toolbarEn"></div>
@@ -293,6 +293,12 @@
       // Quill ajoute des <p> autour de chaque paragraphe. Nous utilisons des hard line break (<br/>) pour nos mail
       var editorContent = editor.root.innerHTML;
       editorContent = editorContent.replaceAll('<p><br></p>', '<br/>').replaceAll('<p>', '').replaceAll('</p>', '<br/>');
+
+      // Quill ajoute par défaut un paragraphe vide même quand il n'y a rien dans l'éditeur.
+      // Pour des motifs de validation, on supprime ce contenu si c'est le cas
+      if(editorContent === '<br/>') {
+        editorContent = '';
+      }
       return editorContent;
     }
 

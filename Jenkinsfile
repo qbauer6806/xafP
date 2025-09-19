@@ -56,6 +56,9 @@ pipeline {
                                     def redmine = matcher.group("redmine")
                                     mvnVersion = "0.0.0-${redmine}-SNAPSHOT"
                                 }
+                            } else {
+                                // Pour toutes les branches non prévues par les regex précédentes (solution temporaire ?)
+                                    mvnVersion = "${env.BRANCH_NAME}-SNAPSHOT"
                             }
                         }
                     env.MC_NEXUS_IQ_STAGE = nexusIqStage

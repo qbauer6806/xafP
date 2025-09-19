@@ -91,20 +91,6 @@
           </div>
 
           <div class="col-xs-6 text-right">
-							<span th:if="${!frOnly}">
-								<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
-								<div class="toggle" style="display:inline-block; transform: translateY(35%);">
-									<label class="switch">
-										<input class="switch-input" id="switchLangue" type="checkbox" checked=""
-                           name="langue" value="LANGUE"/>
-										<input type="hidden" checked=""/>
-										<span class="slider"></span>
-									</label>
-
-								</div>
-								<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
-							</span>
-
             <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
                     name="exportSql" type="button"
                     value="Export SQL" style="margin-left: 30px; margin-right: 8px">
@@ -112,7 +98,7 @@
             </button>
 
             <a class="btn btn-action ripple-effect supprimer" id="supprimer">
-              <i class="icon-action_supprimer"></i> Supprimer le template dans cette langue
+              <i class="icon-action_supprimer"></i> Supprimer le template
             </a>
           </div>
         </div>
@@ -204,7 +190,7 @@
                 <div th:class="form-group">
                   <div class="row">
                     <div class="col-xs-4">
-                      <label for="code">Tester ce mail avec la demande (identifiant technique)<span class="required"></span>: </label>
+                      <label for="pkDemandeTest">Tester ce mail avec la demande (identifiant technique)<span class="required"></span>: </label>
                     </div>
                     <div class="col-xs-6">
                       <input type="text" id="pkDemandeTest" th:object="${templateFormBean}" th:field="*{pkDemandeTest}" th:value="*{pkDemandeTest}" class="form-control"/>
@@ -303,8 +289,6 @@
       attachEditorTools(editor, $("#objet"));
     }
 
-    $("#switchLangue").prop('checked', templateFormBean.langue === 'fr');
-
     $('#formTemplate').submit(function () {
       $("#corps").val(getEditorContent(editor));
     });
@@ -388,11 +372,6 @@
         }
       });
     };
-
-    $("#switchLangue").click(function () {
-      var langue = templateFormBean.langue === 'fr' ? 'en' : 'fr';
-      window.location.href = APP.getContextPath() + '/gestion/template/update?code=' + templateFormBean.code + '&langue=' + langue;
-    });
 
     var successMessage = /*[[${successMessages}]]*/'';
     if (successMessage) {

@@ -98,20 +98,6 @@
         </div>
         <div class="col-xs-6 text-right">
 
-					<span th:if="${!frOnly}">
-						<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
-						<div class="toggle" style="display:inline-block; transform: translateY(35%);">
-							<label class="switch">
-								<input class="switch-input" id="switchLangue" type="checkbox" checked=""
-                       name="langue" value="LANGUE"/>
-								<input type="hidden" checked=""/>
-								<span class="slider"></span>
-							</label>
-
-						</div>
-						<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
-					</span>
-
           <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
                   name="exportSql" type="button"
                   value="Export SQL" style="margin-left: 30px">
@@ -166,17 +152,34 @@
 
   <!-- EDITION MODAL -->
   <div id="visualisationModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document" style="width: 70%">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
               aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Prévisualisation du template de mail - <span id="codeMailModal"></span></h4>
+          <h4 class="modal-title">Prévisualisation du template de mail<span id="codeMailModal"></span></h4>
         </div>
         <div class="modal-body">
-          <p><span style="font-weight: bold; text-decoration: underline">Titre de l'email :</span>
-            <span id="objetMailModal"></span></p>
-
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row">
+                <div class="col-xs-4">
+                  <label for="pkDemandeTest">Tester ce mail avec la demande (identifiant technique)<span class="required"></span>: </label>
+                </div>
+                <div class="col-xs-6">
+                  <input type="text" id="pkDemandeTest" th:object="${templateFormBean}" th:value="${pkDemandeTest}" class="form-control"/>
+                </div>
+                <div class="col-xs-2">
+                  <button class="btn btn-action ripple-effect" id="validerPkDemandePreview"
+                          name="validerPkDemandePreview" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div><h3 style="margin-bottom: 20px">Résultat prévisualisation:</h3></div>
           <p><span id="corpsMailModal"></span></p>
         </div>
       </div><!-- /.modal-content -->
@@ -191,7 +194,11 @@
 
 <script th:inline="javascript">
 
+  var currentSubjectText = '';
+  var currentContentText = '';
+
   var messagesSuccessList = /*[[${successMessages}]]*/'default';
+  var pkDemandeTest = /*[[${pkDemandeTest}]]*/;
 
   if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
     $.each(messagesSuccessList, function (key, msg) {
@@ -327,8 +334,43 @@
   }
 
   var makePreviewCall = function (pkDemande) {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
 
+    var body = {
+      subjectText: currentSubjectText,
+      templateText: currentContentText,
+      codeMotifChoisi: null,
+      pkDemande: pkDemande,
+      commentaire: "** Commentaire à envoyer **",
+      texteAEnvoyer: "** Texte à envoyer **"
+    };
+
+    $.ajax({
+      url: APP.getContextPath() + '/ws/mailpreview-by-text',
+      type: 'post',
+      contentType: 'application/json',
+      data: JSON.stringify(body),
+      dataType: "html",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader(header, token);
+        $('#visualisationModal').modal();
+        $('#corpsMailModal').html("Chargement en cours...");
+      },
+      success: function (data) {
+        $('#corpsMailModal').html(data);
+      },
+      error: function (xhr, status, error) {
+        const msg =JSON.parse(xhr.responseText)?.message || "Une erreur est survenue.";
+        $.notify({message: msg}, {type: 'danger'});
+      }
+    });
   };
+
+  $("#validerPkDemandePreview").click(function () {
+    makePreviewCall(pkDemandeTest);
+    return true;
+  });
 
   var exportSQLGlobal = function (templateList, tsCode) {
     var sqlFinal = "";
@@ -389,14 +431,11 @@
       searching: true,
       select: false,
       bInfo: false,
-      order: [ [0, "desc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
+      order: [ [3, "desc"], [0, "asc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
       columns: columnsProperties,
       data: templateListRegrouped,
       language: frenchTranslation
     });
-
-    // Filtrer par FR au départ
-    table.columns(3).search('fr', true, false).draw();
 
     table.on('click', 'button.boutonVisualiser', function (e) {
       e.preventDefault();
@@ -404,23 +443,15 @@
 
       var ligne = $(this).data("ligne");
       var contenuMail = table.row(ligne).data();
-      $('#objetMailModal').html(contenuMail.objet);
-      $('#corpsMailModal').html(contenuMail.corps);
-      $('#codeMailModal').html(contenuMail.code);
+
+      currentSubjectText = contenuMail.objet
+      currentContentText = contenuMail.corps
+
+      makePreviewCall(pkDemandeTest);
 
       $('#visualisationModal').modal();
 
       return true;
-    });
-
-
-    $("#switchLangue").click(function () {
-      // false == anglais --- true == francais
-      if (this.checked) {
-        table.columns(3).search('fr', true, false).draw();
-      } else {
-        table.columns(3).search('en', true, false).draw();
-      }
     });
 
     $("#exportSqlBouton").click(function () {

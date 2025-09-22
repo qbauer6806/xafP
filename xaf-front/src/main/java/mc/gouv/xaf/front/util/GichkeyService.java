@@ -205,15 +205,15 @@ public class GichkeyService {
         JsonNode invoiceAddressNode = node.get("invoice_address");
         if (invoiceAddressNode != null && !invoiceAddressNode.isEmpty()) {
             AdresseFacturationDTO invoiceAddress = new AdresseFacturationDTO();
-            String streetAddress = invoiceAddressNode.get("street_address").asText();
+            String streetAddress = invoiceAddressNode.get("street_address") != null ? invoiceAddressNode.get("street_address").asText() : "";
             // On supprime les compléments d'adresse de l'adresse de facturation
             String[] split = streetAddress.split("\\n");
             invoiceAddress.setAdresse(split[0]);
             invoiceAddress.setComplAdresse1(split.length > 1 ? split[1] : "");
             invoiceAddress.setComplAdresse2(split.length == 3 ? split[2] : "");
-            invoiceAddress.setCodePostal(invoiceAddressNode.get("postal_code").asText());
-            invoiceAddress.setPaysCode(invoiceAddressNode.get("country").asText());
-            invoiceAddress.setVille(invoiceAddressNode.get("locality").asText());
+            invoiceAddress.setCodePostal(invoiceAddressNode.get("postal_code") != null ? invoiceAddressNode.get("postal_code").asText() : "");
+            invoiceAddress.setPaysCode(invoiceAddressNode.get("country") != null ? invoiceAddressNode.get("country").asText() : "");
+            invoiceAddress.setVille(invoiceAddressNode.get("locality") != null ? invoiceAddressNode.get("country").asText() : "");
             uinfos.setAdresseFacturation(invoiceAddress);
         }
 

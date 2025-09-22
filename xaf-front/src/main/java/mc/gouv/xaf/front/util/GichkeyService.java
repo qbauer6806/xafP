@@ -211,9 +211,9 @@ public class GichkeyService {
             invoiceAddress.setAdresse(split[0]);
             invoiceAddress.setComplAdresse1(split.length > 1 ? split[1] : "");
             invoiceAddress.setComplAdresse2(split.length == 3 ? split[2] : "");
-            invoiceAddress.setCodePostal(invoiceAddressNode.get("postal_code") != null ? invoiceAddressNode.get("postal_code").asText() : "");
-            invoiceAddress.setPaysCode(invoiceAddressNode.get("country") != null ? invoiceAddressNode.get("country").asText() : "");
-            invoiceAddress.setVille(invoiceAddressNode.get("locality") != null ? invoiceAddressNode.get("country").asText() : "");
+            invoiceAddress.setCodePostal(invoiceAddressNode.path("postal_code").asText(""));
+            invoiceAddress.setPaysCode(invoiceAddressNode.path("country").asText(""));
+            invoiceAddress.setVille(invoiceAddressNode.path("locality").asText(""));
             uinfos.setAdresseFacturation(invoiceAddress);
         }
 

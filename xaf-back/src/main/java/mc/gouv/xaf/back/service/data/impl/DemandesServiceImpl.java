@@ -1001,6 +1001,10 @@ public class DemandesServiceImpl implements DemandesService {
             // Data des demandes
             demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
 
+            if (conserverAgent) {
+                changerAffectationDemande(clonedDemandeBo.getPkDemandes(), originalDemandeBo.getAgent().getId());
+            }
+
             // Génération d'un nouvel identifiant de demande
             String identifiant = generatePublicID();
             clonedDemandeBo.setIdentifiant(identifiant);

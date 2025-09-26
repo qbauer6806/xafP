@@ -48,19 +48,26 @@ public class MoyenPaiementController extends AbstractXafController {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(usagerInfosDTO.getTokenInfo().getAccessToken());
+        List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(
+                usagerInfosDTO.getTokenInfo().getAccessToken());
         references.sort(new PaymentMethodReferenceComparator());
 
         // Appel à lyra pour obtenir les infos
         List<MoyenPaiementOutputDTO> moyenPaiementOutputDTOs = new ArrayList<>();
         for (PaymentMethodReferenceDTO monGuichetAlias : references) {
-            // Appel au PSP via l'API serveur pour récupérer les infos de paiement données par monguichet
-            PaymentMethodInformationDTO pmi = getPaiementApiClient().getMoyenPaiement(
-                    mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());
+            try {
+                // Appel au PSP via l'API serveur pour récupérer les infos de paiement données par monguichet
+                PaymentMethodInformationDTO pmi = getPaiementApiClient().getMoyenPaiement(
+                        mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());
 
-            if (pmi.getPaymentMethodStatus().equals(PaymentMethodStatusEnum.ACTIVE)) {
-                moyenPaiementOutputDTOs.add(
-                        mwpaymntService.mwpaymentResponseToMoyenPaiement(pmi, monGuichetAlias.getPaymentMethodName()));
+                if (pmi.getPaymentMethodStatus().equals(PaymentMethodStatusEnum.ACTIVE)) {
+                    moyenPaiementOutputDTOs.add(mwpaymntService.mwpaymentResponseToMoyenPaiement(pmi,
+                            monGuichetAlias.getPaymentMethodName()));
+                }
+            } catch (Exception e) {
+                // Log l'erreur mais continue la boucle
+                LOGGER.warn("Impossible de récupérer le moyen de paiement pour {} : {}",
+                        monGuichetAlias.getPaymentMethodName(), e.getMessage());
             }
         }
         LOGGER.info("====================== /moyen-paiement GET end...");

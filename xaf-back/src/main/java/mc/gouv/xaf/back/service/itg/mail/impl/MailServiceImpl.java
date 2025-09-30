@@ -288,17 +288,19 @@ public class MailServiceImpl implements MailService {
     @Override
     public String getEmailBodyTemplate(Expression bodyTemplateCode, Expression emailTemplateCode,
             DelegateExecution execution) {
-        return bodyTemplateCode != null
-                ? (String) bodyTemplateCode.getValue(execution)
-                : emailTemplateCode.getValue(execution) + "_CORPS";
+        if (emailTemplateCode != null) {
+            return emailTemplateCode.getValue(execution) + "_CORPS";
+        }
+        return bodyTemplateCode != null ? (String) bodyTemplateCode.getValue(execution) : null;
     }
 
     @Override
     public String getEmailSubjectTemplate(Expression subjectTemplateCode, Expression emailTemplateCode,
             DelegateExecution execution) {
-        return subjectTemplateCode != null
-                ? (String) subjectTemplateCode.getValue(execution)
-                : emailTemplateCode.getValue(execution) + "_OBJET";
+        if (emailTemplateCode != null) {
+            return emailTemplateCode.getValue(execution) + "_OBJET";
+        }
+        return subjectTemplateCode != null ? (String) subjectTemplateCode.getValue(execution) : null;
     }
 
 }

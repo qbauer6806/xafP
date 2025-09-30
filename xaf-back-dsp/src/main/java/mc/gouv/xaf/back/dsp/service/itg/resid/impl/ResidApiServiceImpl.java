@@ -5,7 +5,6 @@ import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidHo
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -22,7 +21,6 @@ import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidInformationDebitDTO;
@@ -34,12 +32,10 @@ import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.RestitutionStatistiquesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.io.IOUtils;
@@ -555,8 +551,18 @@ public class ResidApiServiceImpl implements ResidApiService {
                     pdfContent
             );
         } else {
-            throw new IOException("Échec de la récupération du PDF depuis RESID. Statut: "
-                    + responseEntity.getStatusCode());
+            String responseContent;
+            if (responseEntity.getBody() != null) {
+                // Si le body n’est pas vide, on le convertit en String
+                responseContent = new String(responseEntity.getBody(), StandardCharsets.UTF_8);
+            } else {
+                responseContent = "<empty body>";
+            }
+
+            throw new IOException("Échec de la récupération du PDF depuis RESID.\n"
+                    + "Statut: " + responseEntity.getStatusCode() + "\n"
+                    + "Body reçu: " + responseContent + "\n"
+                    + "Payload envoyé: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit));
         }
     }
 

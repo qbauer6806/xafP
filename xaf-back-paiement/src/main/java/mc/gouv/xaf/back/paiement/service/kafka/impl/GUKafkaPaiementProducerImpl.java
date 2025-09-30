@@ -38,12 +38,12 @@ public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
     }
 
     @Override
-    public void sendAffichagePaiementMessage(String userLegacyId,
+    public void sendAffichagePaiementMessage(String userLegacyId, String procedureCode,
             PaymentTypeEnum paymentType, String paymentMethodToken, LocalDateTime paymentDate, double paymentAmount,
             String paymentStatus, String requestObject, String requestNumber, LocalDateTime requestDate, String paymentMethodExpiryDate, String paymentMethodAccount, String effectiveBrand, String link) {
         LOGGER.info(
                 "sendAffichagePaiementMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        AffichagePaiementMessage apm = new AffichagePaiementMessage(gouvPropertiesResolver.getDemarcheId(),
+        AffichagePaiementMessage apm = new AffichagePaiementMessage(gouvPropertiesResolver.getDemarcheId(), procedureCode,
                 userLegacyId, paymentType, paymentMethodToken, paymentDate, paymentAmount, paymentStatus, requestObject,
                 requestNumber, requestDate, paymentMethodExpiryDate, paymentMethodAccount, effectiveBrand, link);
         sendToOutbox(apm, userLegacyId, GUKafkaUtils.TS_TO_GU_PAYMENT_TOPIC);

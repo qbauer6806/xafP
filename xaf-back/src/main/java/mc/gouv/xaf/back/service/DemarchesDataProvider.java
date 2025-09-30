@@ -261,6 +261,10 @@ public interface DemarchesDataProvider {
         return "object";
     }
 
+    default String getProcedureCode() {
+        return "procedureCode";
+    }
+
     default DemandeRechercheDTO getDemandeRecherche() {
         return null;
     }

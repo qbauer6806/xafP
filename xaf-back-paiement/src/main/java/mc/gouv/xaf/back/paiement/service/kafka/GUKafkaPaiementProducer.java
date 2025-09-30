@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public interface GUKafkaPaiementProducer {
 
-    void sendAffichagePaiementMessage(String userLegacyId,
+    void sendAffichagePaiementMessage(String userLegacyId, String procedureCode,
                                       PaymentTypeEnum paymentType, String paymentMethodToken, LocalDateTime paymentDate, double paymentAmount,
                                       String paymentStatus, String requestObject, String requestNumber, LocalDateTime requestDate, String paymentMethodExpiryDate, String paymentMethodAccount, String effectiveBrand, String link);
 

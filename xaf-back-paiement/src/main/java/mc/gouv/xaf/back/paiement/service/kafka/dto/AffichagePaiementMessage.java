@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 public class AffichagePaiementMessage extends GUKafkaMessage {
 
     private String onlineServiceId;
+    private String procedureCode;
     private String userLegacyId;
 
     private PaymentTypeEnum paymentType;
@@ -44,11 +45,12 @@ public class AffichagePaiementMessage extends GUKafkaMessage {
         super("affichage-paiement");
     }
 
-    public AffichagePaiementMessage(String onlineServiceId, String userLegacyId, PaymentTypeEnum paymentType,
+    public AffichagePaiementMessage(String onlineServiceId, String procedureCode, String userLegacyId, PaymentTypeEnum paymentType,
             String paymentMethodToken, LocalDateTime paymentDate, double paymentAmount, String paymentStatus, String requestObject,
             String requestNumber, LocalDateTime requestDate, String paymentMethodExpiryDate, String paymentMethodAccount, String effectiveBrand, String link) {
         this();
         this.onlineServiceId = onlineServiceId;
+        this.procedureCode = procedureCode;
         this.userLegacyId = userLegacyId;
         this.paymentType = paymentType;
         this.paymentMethodToken = paymentMethodToken;

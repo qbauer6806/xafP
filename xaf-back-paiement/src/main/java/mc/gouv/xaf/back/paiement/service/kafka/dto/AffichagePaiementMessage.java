@@ -61,8 +61,19 @@ public class AffichagePaiementMessage extends GUKafkaMessage {
         this.requestNumber = requestNumber;
         this.requestDate = requestDate;
         this.effectiveBrand = effectiveBrand;
-        this.expiryDate = paymentMethodExpiryDate;
+        this.expiryDate = toShortYear(paymentMethodExpiryDate);
         this.paymentMethodAccount = paymentMethodAccount;
         this.link = link;
+    }
+
+    private String toShortYear(String expiryDate) {
+        if (expiryDate == null || !expiryDate.matches("^(0[1-9]|1[0-2])/\\d{4}$")) {
+            throw new IllegalArgumentException("Format attendu : MM/YYYY");
+        }
+        // Exemple : "11/2025"
+        String[] parts = expiryDate.split("/");
+        String month = parts[0];
+        String year = parts[1].substring(2); // garde les 2 derniers chiffres
+        return month + "/" + year; // "11/25"
     }
 }

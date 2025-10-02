@@ -445,23 +445,26 @@ public class PaiementServiceImpl implements PaiementService {
                     sauvegardeRecuPaiement(recuPaiement, identifiant);
                 }
             } catch (Exception e) {
-                LOGGER.error("Erreur lors du retour débit coté RESID");
-                Set<String> mailingLists = mailService.getMailingLists(
-                        MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
-                        MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RESID.name());
-                Map<String, Object> model = new HashMap<>();
-                String strException = ExceptionUtils.getStackTrace(e);
-                strException = strException.replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;");
-                if (strException.length() > 3000) {
-                    strException = strException.substring(0, 3000) + "...<br/>";
-                }
-                model.put("exception", strException);
-                mailService.sendMailSupport(MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_OBJET",
-                        MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_CORPS", mailingLists, null,
-                        identifiant, 0, model, null);
+                envoiMailIncident(e, identifiant);
             }
         }
         logEndMethod(LOGGER);
+    }
+
+    private void envoiMailIncident(Exception e, String identifiant) {
+        LOGGER.error("Erreur lors du retour débit coté RESID");
+        Set<String> mailingLists = mailService.getMailingLists(
+                MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+                MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RESID.name());
+        Map<String, Object> model = new HashMap<>();
+        String strException = ExceptionUtils.getStackTrace(e);
+        strException = strException.replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;");
+        if (strException.length() > 3000) {
+            strException = strException.substring(0, 3000) + "...<br/>";
+        }
+        model.put("exception", strException);
+        mailService.sendMailSupport(MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_OBJET",
+                MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_CORPS", mailingLists, null, identifiant, 0, model, null);
     }
 
     @Override
@@ -659,15 +662,20 @@ public class PaiementServiceImpl implements PaiementService {
                     String identifiant = demande.getIdentifiant();
                     DebitDTO debit = debit(identifiant, "00000", keycloakTokenService.getAccessToken());
 
-                    if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
-                        MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
-                        sauvegardeRecuPaiement(recuPaiement, identifiant);
-                        envoiMailAgent(demandesTransformer.bo2Dto(demande), true);
-                    } else if (debit.getStatut().equals(StatutDebitEnum.PENDING)) {
-                        // On est dans le cas où la caisse est fermée pour un paiement à régulariser
-                        demandesStatutsService.updateStatut(demande,
-                                demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
-                                null);
+                    try {
+                        if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
+                            MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit,
+                                    identifiant);
+                            sauvegardeRecuPaiement(recuPaiement, identifiant);
+                            envoiMailAgent(demandesTransformer.bo2Dto(demande), true);
+                        } else if (debit.getStatut().equals(StatutDebitEnum.PENDING)) {
+                            // On est dans le cas où la caisse est fermée pour un paiement à régulariser
+                            demandesStatutsService.updateStatut(demande,
+                                    demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
+                                    null);
+                        }
+                    } catch (Exception e) {
+                        envoiMailIncident(e, identifiant);
                     }
                 } else {
                     LOGGER.info("Progression dans le BPM pour la demande {}...", pkDemande);

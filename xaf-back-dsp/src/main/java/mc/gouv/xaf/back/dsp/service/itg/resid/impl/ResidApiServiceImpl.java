@@ -81,7 +81,7 @@ public class ResidApiServiceImpl implements ResidApiService {
     public static final String RESID_USAGERS_PATH = "/usagers";
     public static final String RESID_NPDHL_PATH = "/npdhl";
     public static final String RESID_ETAT_CAISSE_PATH = "/caisse/ouverture";
-    public static final String RESID_RETOUR_DEBIT_PATH = "/paiement/retourDebi";
+    public static final String RESID_RETOUR_DEBIT_PATH = "/paiement/retourDebit";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;

@@ -5,7 +5,6 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -73,8 +72,8 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
-import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.keycloak.KeycloakTokenService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -84,7 +83,6 @@ import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
@@ -117,7 +115,7 @@ public class PaiementServiceImpl implements PaiementService {
     private static final String SLEEP_TIME_ECRITURE_DONNEES_MONETIQUES = "XAF_SLEEP_TIME_ECRITURE_DONNEES_MONETIQUES";
     private static final String MAIL_DEBIT_ECHEC_AGENT_CODE = "MAIL_DEBIT_ECHEC_AGENT";
     private static final String MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE = "MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT";
-    private static final String MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE = "MAIL_RATTRAPAGE_DEBIT_TECHNIQUE_ECHEC";
+    private static final String MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE = "MAIL_RATTRAPAGE_DEBIT_ECHEC_TECHNIQUE";
 
     @Autowired
     private TableauPaiementService tableauPaiementService;
@@ -438,30 +436,29 @@ public class PaiementServiceImpl implements PaiementService {
         for (CommandeOperationBO commandeOperation : latestCommandeOperationForStatus) {
             DemandeDTO demande = demandesService.getDemande(commandeOperation.getDemande().getPkDemandes());
             String identifiant = demande.getIdentifiant();
-            DebitDTO debit = debit(identifiant, null,
-                    authorization);
-            if(debit.getStatut().equals(StatutDebitEnum.PAID)) {
-                try {
-                    MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
-                    sauvegardeRecuPaiement(recuPaiement, identifiant);
+            DebitDTO debit = debit(identifiant, null, authorization);
+            try {
+                if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
                     // envoi mail agent
                     envoiMailAgent(demande, true);
-                } catch (IOException ex) {
-                    LOGGER.error("Erreur lors du retour débit coté RESID");
-                    Set<String> mailingLists = mailService.getMailingLists(
-                            MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
-                            MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RESID.name());
-                    Map<String, Object> model = new HashMap<>();
-                    String strException = ExceptionUtils.getStackTrace(ex);
-                    strException = strException.replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;");
-                    if (strException.length() > 3000) {
-                        strException = strException.substring(0, 3000) + "...<br/>";
-                    }
-                    model.put("exception", strException);
-                    mailService.sendMailSupport(MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_OBJET",
-                            MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_CORPS", mailingLists, demande.getPkDemandes(),
-                            demande.getIdentifiant(), 0, model, null);
+                    MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit, identifiant);
+                    sauvegardeRecuPaiement(recuPaiement, identifiant);
                 }
+            } catch (Exception e) {
+                LOGGER.error("Erreur lors du retour débit coté RESID");
+                Set<String> mailingLists = mailService.getMailingLists(
+                        MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+                        MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RESID.name());
+                Map<String, Object> model = new HashMap<>();
+                String strException = ExceptionUtils.getStackTrace(e);
+                strException = strException.replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;");
+                if (strException.length() > 3000) {
+                    strException = strException.substring(0, 3000) + "...<br/>";
+                }
+                model.put("exception", strException);
+                mailService.sendMailSupport(MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_OBJET",
+                        MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_CORPS", mailingLists, null,
+                        identifiant, 0, model, null);
             }
         }
         logEndMethod(LOGGER);

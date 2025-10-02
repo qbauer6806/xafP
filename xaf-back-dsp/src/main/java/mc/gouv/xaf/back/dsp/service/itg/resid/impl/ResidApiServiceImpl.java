@@ -78,13 +78,10 @@ public class ResidApiServiceImpl implements ResidApiService {
     public static final String RESID_CHANGEMENT_SITUATION_PATH = "/demandes/changementSituation";
     public static final String RESID_CERTIFICAT_RESIDENCE_PATH = "/demandes/certificatResidence";
     public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
-    public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
     public static final String RESID_USAGERS_PATH = "/usagers";
     public static final String RESID_NPDHL_PATH = "/npdhl";
     public static final String RESID_ETAT_CAISSE_PATH = "/caisse/ouverture";
     public static final String RESID_RETOUR_DEBIT_PATH = "/paiement/retourDebi";
-
-    public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -493,8 +490,7 @@ public class ResidApiServiceImpl implements ResidApiService {
     }
 
     @Override
-    public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt)
-            throws IOException {
+    public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws IOException {
 
         LOGGER.info("Préparation de la requête à destination de RESID pour récupération de PDF");
         // Construction du rest template
@@ -551,18 +547,8 @@ public class ResidApiServiceImpl implements ResidApiService {
                     pdfContent
             );
         } else {
-            String responseContent;
-            if (responseEntity.getBody() != null) {
-                // Si le body n’est pas vide, on le convertit en String
-                responseContent = new String(responseEntity.getBody(), StandardCharsets.UTF_8);
-            } else {
-                responseContent = "<empty body>";
-            }
-
-            throw new IOException("Échec de la récupération du PDF depuis RESID.\n"
-                    + "Statut: " + responseEntity.getStatusCode() + "\n"
-                    + "Body reçu: " + responseContent + "\n"
-                    + "Payload envoyé: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit));
+            throw new IOException(
+                    "Échec de la récupération du PDF depuis RESID. Statut: " + responseEntity.getStatusCode());
         }
     }
 

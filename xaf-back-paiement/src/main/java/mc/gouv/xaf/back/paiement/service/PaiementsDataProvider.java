@@ -54,6 +54,6 @@ public interface PaiementsDataProvider {
         return true;
     }
 
-    default MultipartFile regularisationPaiement(DebitDTO debit, String identifiant) throws IOException {return null;}
+    default MultipartFile regularisationPaiement(DebitDTO debit, String identifiant) {return null;}
 
 }

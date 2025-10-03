@@ -521,9 +521,11 @@ public class PaiementServiceImpl implements PaiementService {
         DemandeDTO demande = demandesTransformer.bo2Dto(demandeBo);
         guKafkaPaiementProducer.sendAffichagePaiementMessage(usagerId.toString(),
                 demarchesDataProvider.getProcedureCode(), PaymentTypeEnum.DEMANDE,
-                moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit(),
-                operation.getMontant(), debit.getTransactionAction().getActionDebit().name(),
-                demarchesDataProvider.getObjetPaiement(demande), demandeBo.getIdentifiant(),
+                moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit() != null
+                        ? debit.getTransactionAction().getDateDebit()
+                        : LocalDateTime.now(), operation.getMontant(),
+                debit.getTransactionAction().getActionDebit().name(), demarchesDataProvider.getObjetPaiement(demande),
+                demandeBo.getIdentifiant(),
                 demande.getDateCreation().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
                 moyenPaiement.getExpiryDate(), moyenPaiement.getPaymentMethodAccount(),
                 moyenPaiement.getEffectiveBrand(),

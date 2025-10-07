@@ -282,8 +282,6 @@
       attachEditorTools(editorEn, $("#objetEn"));
     }
 
-    $("#switchLangue").prop('checked', templateCreateFormBean.langue === 'fr');
-
     $('#formTemplate').submit(function () {
       $("#corpsFr").val(getEditorContent(editorFr));
       $("#corpsEn").val(getEditorContent(editorEn));
@@ -345,11 +343,6 @@
         }
       });
     };
-
-    $("#switchLangue").click(function () {
-      var langue = templateCreateFormBean.langue === 'fr' ? 'en' : 'fr';
-      window.location.href = APP.getContextPath() + '/gestion/template/update?code=' + templateCreateFormBean.code + '&langue=' + langue;
-    });
 
     var successMessage = /*[[${successMessages}]]*/'';
     if (successMessage) {

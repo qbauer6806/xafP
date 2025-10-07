@@ -62,15 +62,6 @@
       -webkit-box-shadow: none;
       box-shadow: none;
     }
-
-    /* Hack charte graphique pour avoir un toggle toujours bleu */
-    input:checked + .slider, input + input[type="hidden"] + .slider {
-      outline: 3px solid #0F607C;
-    }
-
-    input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
-      background-color: #0F607C;
-    }
   </style>
 
 </head>
@@ -94,7 +85,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-xs-6">
-          <h1>administration des modèles de templates mails</h1>
+          <h1>administration des templates mails</h1>
         </div>
         <div class="col-xs-6 text-right">
 
@@ -187,6 +178,42 @@
   </div><!-- /.modal -->
   <!-- FIN EDITION MODAL -->
 
+  <!-- SUPPRESSION MODAL -->
+  <div id="suppressionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Voulez-vous réellement supprimer le template ? </h4>
+        </div>
+        <div class="modal-body">
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row" style="text-align: center">
+                <div class="col-md-12">
+                  <button class="btn btn-action-second ripple-effect"
+                          id="annulerSuppression"
+                          name="annulerSuppression" type="button"
+                          value="Annuler" style="margin-right: 20px"
+                          data-dismiss="modal" aria-label="Annuler">
+                    Annuler
+                  </button>
+                  <button class="btn btn-action ripple-effect" id="validerSuppression"
+                          name="validerSuppression" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN SUPPRESSION MODAL -->
+
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
@@ -196,6 +223,9 @@
 
   var currentSubjectText = '';
   var currentContentText = '';
+
+  var currentDeletionCode = '';
+  var currentDeletionLang = '';
 
   var messagesSuccessList = /*[[${successMessages}]]*/'default';
   var pkDemandeTest = /*[[${pkDemandeTest}]]*/;
@@ -278,7 +308,7 @@
             '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '" ' +
             'onclick="window.location.href=\''+ APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue +'\'">' +
             '<i class="icon-action_modifier"></i></button>' +
-            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-ligne="' + meta.row + '" onclick="deleteTemplate(\'' + template.code + '\', \'' + template.langue + '\')">' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-ligne="' + meta.row + '" onclick="openSuppressionModal(\'' + template.code + '\', \'' + template.langue + '\')">' +
             '<i class="icon-action_supprimer"></i></button>';
       }
     }];
@@ -306,21 +336,34 @@
     document.body.removeChild(element);
   }
 
-  function deleteTemplate(templateCode, templateLangue) {
+  function openSuppressionModal(templateCode, templateLangue) {
+    currentDeletionCode = templateCode;
+    currentDeletionLang = templateLangue;
+    $('#validerSuppression').click(function () {
+      deleteTemplate();
+      return true;
+    })
+    $('#suppressionModal').modal();
+  }
+
+  function deleteTemplate() {
     var token = $("meta[name='_csrf']").attr("content");
     var header = $("meta[name='_csrf_header']").attr("content");
 
     $.ajax({
-      url: APP.getContextPath() + '/gestion/template/' + templateLangue + '/' + templateCode,
+      url: APP.getContextPath() + '/gestion/template/' + currentDeletionLang + '/' + currentDeletionCode,
       type: 'DELETE',
       beforeSend: function (xhr) { xhr.setRequestHeader(header, token); },
       success: function (data) {
+
+        $('#suppressionModal').modal('hide');
+
         const msg = (data && data.message) || 'Template supprimé avec succès';
         $.notify({ message: msg }, { type: 'success' });
 
         var table = $('#datatable-templates').DataTable();
         table.rows(function (idx, row) {
-          return row.code === templateCode;
+          return row.code === currentDeletionCode;
         }).remove().draw();
 
         $("#templatesCounter").text(table.data().length);

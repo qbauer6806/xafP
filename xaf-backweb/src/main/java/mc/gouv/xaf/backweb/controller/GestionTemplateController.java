@@ -168,14 +168,18 @@ public class GestionTemplateController extends AbstractController {
             return new ModelAndView("redirect:/gestion/template/create");
         }
 
-        gestionTemplateService.saveTemplateForm(templateCreateFormBean);
+        try {
+            gestionTemplateService.saveTemplateForm(templateCreateFormBean);
+        } catch (Exception e) {
+            ra.addFlashAttribute(SharedMessages.ERROR_MESSAGES, Collections.singletonList(e.getMessage()));
+            return new ModelAndView("redirect:/gestion/template/create");
+        }
 
         ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, Collections.singletonList("Le template mail a été créé avec succès"));
 
         LOGGER.info("======================= Fin /gestion/template/templatecreate. Méthode formCreateInit");
 
-        return new ModelAndView("redirect:/gestion/template/update?code=" + UriUtils.encode(templateCreateFormBean.getCode(),
-                StandardCharsets.UTF_8) + "&langue=fr");
+        return new ModelAndView("redirect:/gestion/template");
     }
 
     @GetMapping(path = "/export-templates")

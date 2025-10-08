@@ -49,7 +49,6 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,11 +82,6 @@ public class AbstractTraitementController extends AbstractController {
     private static final String I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE = "message.error.traitement.typecode.null";
 
     private static final String FICHIERS_TAB = "fichiers";
-
-    @Value("${mc.gouv.file.extensions.whitelist}")
-    private String extensionsWhitelist;
-    @Value("${spring.servlet.multipart.max-file-size}")
-    private String maxFileSize;
 
     @Autowired
     private DemandesService demandesService;
@@ -320,7 +314,7 @@ public class AbstractTraitementController extends AbstractController {
         mav.addObject("uploadPieceJustificativeActif", this.uploadPieceJustificativeActive(isAgentAssigned));
         mav.addObject("uploadPieceJustificativeVisible", this.uploadPieceJustificativeVisible());
         mav.addObject("extensionsWhitelist", this.getExtensionsWhitelist());
-        mav.addObject("maxTailleFichier", this.getMaxTailleFichier());
+        mav.addObject("maxFileSize", this.getMaxTailleFichier());
 
         return mav;
     }
@@ -336,10 +330,12 @@ public class AbstractTraitementController extends AbstractController {
     }
 
     private String getExtensionsWhitelist() {
+        String extensionsWhitelist = backGouvPropertiesResolver.getExtensionsWhitelist();
         return StringUtils.isNotBlank(extensionsWhitelist) ? extensionsWhitelist : "";
     }
 
     private String getMaxTailleFichier() {
+        String maxFileSize = backGouvPropertiesResolver.getMaxFileSize();
         return StringUtils.isNotBlank(maxFileSize) ? maxFileSize : "";
     }
 

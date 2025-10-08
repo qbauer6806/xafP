@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -24,20 +25,22 @@ public class MultiHttpSecurityConfig {
     private String secretValue;
 
     @Bean
-    public JwtAuthenticationProvider configureGlobal() {
+    public JwtAuthenticationProvider jwtAuthenticationProvider() {
         return new JwtAuthenticationProvider(applicationName, secretValue);
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/**");
-
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll().anyRequest()
-                .authenticated();
-
-        http.addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
-        return http.build();
+    public JwtAuthFilter jwtAuthFilter() {
+        return new JwtAuthFilter(jwtAuthenticationProvider());
     }
 
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        return http.securityMatcher("/api/**")
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        authz -> authz.requestMatchers("/", "/swagger.json", "/swagger/**", "/h2-console/**")
+                                .permitAll().anyRequest().authenticated()).csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).build();
+    }
 }

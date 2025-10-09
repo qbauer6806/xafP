@@ -451,7 +451,7 @@ public class PaiementServiceImpl implements PaiementService {
         logEndMethod(LOGGER);
     }
 
-    private void envoiMailIncident(Exception e, String identifiant) {
+    void envoiMailIncident(Exception e, String identifiant) {
         LOGGER.error("Erreur lors du retour débit coté RESID");
         Set<String> mailingLists = mailService.getMailingLists(
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
@@ -532,7 +532,7 @@ public class PaiementServiceImpl implements PaiementService {
                 gouvPropertiesResolver.getFrontUrl() + "/demande_view.html?id=" + demandeBo.getPkDemandes());
     }
 
-    private void envoiMailAgent(DemandeDTO demande, boolean debitEnSucces) {
+    void envoiMailAgent(DemandeDTO demande, boolean debitEnSucces) {
         LOGGER.info("==== xaf-back-paiement ENVOI EMAIL AGENT ...");
 
         EmailInfoDTO emailInfo = getEmailInfoDTO(debitEnSucces);
@@ -697,7 +697,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
 
-    private void sauvegardeRecuPaiement(MultipartFile recuPaiement, String identifiant) {
+    void sauvegardeRecuPaiement(MultipartFile recuPaiement, String identifiant) {
         if (recuPaiement != null) {
             LOGGER.info("Sauvegarde du reçu de paiement pour la demande {}", identifiant);
             factureService.saveRecuPaiement(identifiant, recuPaiement);

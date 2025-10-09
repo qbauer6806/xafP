@@ -663,19 +663,17 @@ public class PaiementServiceImpl implements PaiementService {
                 if (demande.getDernierStatut().getName().contains(demarchesDataProvider.statutPaiementARegulariser())) {
                     String identifiant = demande.getIdentifiant();
                     DebitDTO debit = debit(identifiant, "00000", keycloakTokenService.getAccessToken());
-
+                    demandesStatutsService.updateStatut(demande,
+                            demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
+                            null);
                     try {
                         if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
                             MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit,
                                     identifiant);
                             sauvegardeRecuPaiement(recuPaiement, identifiant);
                             envoiMailAgent(demandesTransformer.bo2Dto(demande), true);
-                        } else if (debit.getStatut().equals(StatutDebitEnum.PENDING)) {
-                            // On est dans le cas où la caisse est fermée pour un paiement à régulariser
-                            demandesStatutsService.updateStatut(demande,
-                                    demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
-                                    null);
                         }
+
                     } catch (Exception e) {
                         envoiMailIncident(e, identifiant);
                     }

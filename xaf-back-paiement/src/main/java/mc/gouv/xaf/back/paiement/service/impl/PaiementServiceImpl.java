@@ -663,9 +663,11 @@ public class PaiementServiceImpl implements PaiementService {
                 if (demande.getDernierStatut().getName().contains(demarchesDataProvider.statutPaiementARegulariser())) {
                     String identifiant = demande.getIdentifiant();
                     DebitDTO debit = debit(identifiant, "00000", keycloakTokenService.getAccessToken());
-                    demandesStatutsService.updateStatut(demande,
-                            demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
-                            null);
+                    if (!debit.getStatut().equals(StatutDebitEnum.UNPAID)) {
+                        demandesStatutsService.updateStatut(demande,
+                                demarchesDataProvider.statutPaiementARegulariserEnCours(), null, null, null, null,
+                                null);
+                    }
                     try {
                         if (debit.getStatut().equals(StatutDebitEnum.PAID)) {
                             MultipartFile recuPaiement = paiementsDataProvider.regularisationPaiement(debit,

@@ -85,7 +85,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-xs-6">
-          <h1>administration des templates mails</h1>
+          <h1>Administration des templates mails</h1>
         </div>
         <div class="col-xs-6 text-right">
 
@@ -170,7 +170,7 @@
               </div>
             </div>
           </div>
-          <div><h3 style="margin-bottom: 20px">Résultat prévisualisation:</h3></div>
+          <div><h3 style="margin-bottom: 20px">Résultat prévisualisation :</h3></div>
           <p><span id="corpsMailModal"></span></p>
         </div>
       </div><!-- /.modal-content -->
@@ -295,6 +295,9 @@
       data: "date",
       keyword: false,
       render: function (data, type, template) {
+        if (!template.date) {
+          return "N/A";
+        }
         return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(template.date)
             .format("DD/MM/YYYY HH:mm:ss") + '</span>';
       }

@@ -122,7 +122,7 @@ public class GestionTemplateController extends AbstractController {
         return mav;
     }
 
-    @PutMapping(path = "/update")
+    @PostMapping(path = "/update")
     public String traiterUpdate(@Valid @ModelAttribute("templateFormBean") TemplateFormBean templateFormBean,
             BindingResult bindingResult, RedirectAttributes ra) {
         LOGGER.info("Appel de la page /gestion/template/update. Méthode traiterUpdate");

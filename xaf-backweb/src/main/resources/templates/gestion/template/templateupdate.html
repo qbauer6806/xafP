@@ -107,7 +107,7 @@
 
           <form class="form-horizontal"
                 id="formTemplate"
-                th:action="@{/gestion/template/update}" method="PUT"
+                th:action="@{/gestion/template/update}" method="POST"
                 th:object="${templateFormBean}">
 
             <input type="hidden" name="code" th:field="*{code}" class="form-control"/>

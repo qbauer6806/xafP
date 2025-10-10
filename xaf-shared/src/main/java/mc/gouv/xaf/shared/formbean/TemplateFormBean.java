@@ -33,7 +33,6 @@ public class TemplateFormBean {
     @Size(min = 2, max = 2, message = "Le format de la langue n'est pas correct")
     private String langue;
 
-    @NotNull(message = "Une date de modification doit être renseignée")
     private String date;
 
     private Integer pkDemandeTest;

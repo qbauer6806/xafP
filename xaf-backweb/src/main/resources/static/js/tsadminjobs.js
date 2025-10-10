@@ -81,10 +81,12 @@ var configurationDataTableJobs = {
       params.size = params.length;
       params.page = params.start / params.length;
 
-      params.sort = "dateCreation,desc";
+      params.sort = jobsColumns[params.order[0].column].data + ","
+          + params.order[0].dir;
     }
   },
   "columns": jobsColumns,
+  "order": [[1, "desc"]],
 
   autoWidth: false,
   filter: false,

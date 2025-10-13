@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
@@ -238,5 +239,16 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<DemandeFileDTO> getFileByDemandeFileId(Integer pkDemandesFiles) {
+        if (pkDemandesFiles == null) {
+            return Optional.empty();
+        }
+        Optional<DemandesFilesBO> demandesFilesBO = demandesFilesRepository.findById(pkDemandesFiles);
+        return demandesFilesBO.map(DemandesFilesTransformer::bo2Dto);
+    }
 
 }

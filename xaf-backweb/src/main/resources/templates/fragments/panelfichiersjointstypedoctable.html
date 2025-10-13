@@ -58,7 +58,7 @@
       </td>
       <td class="action-col">
         <div class="bouton-action">
-          <a class="nopadding" th:href="@{/ws/file/get}+${file.url}">
+          <a class="nopadding" th:href="@{/ws/file/get{url}(url=${file.url}, pkDemandesFiles=${file.pkDemandesFiles})}">
             <button class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
                     data-placement="bottom"
                     data-toggle="tooltip" title="" type="button">

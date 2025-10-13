@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -205,8 +206,29 @@ public class MarqueursServiceImpl implements MarqueursService {
         JsonNode isDynamic = champ.get("isDynamic");
         if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && (
                 isDynamic == null || !isDynamic.asBoolean())) {
-            marqueurDTO.setOptions(
-                    mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
+            // Récupère le mapping pour ce champ
+            JsonNode mappingNode = mappings.get(champ.get("mapping").asText());
+            if (mappingNode != null && mappingNode.has("languages")) {
+                JsonNode languages = mappingNode.get("languages");
+
+                // Crée un nouvel objet JSON
+                ObjectNode wrappedOptions = JsonNodeFactory.instance.objectNode();
+
+                // Ajoute les valeurs françaises si disponibles
+                JsonNode valuesFr = languages.path("fr").path("values");
+                if (!valuesFr.isMissingNode()) {
+                    wrappedOptions.set("fr", valuesFr);
+                }
+
+                // Ajoute les valeurs anglaises si disponibles
+                JsonNode valuesEn = languages.path("en").path("values");
+                if (!valuesEn.isMissingNode()) {
+                    wrappedOptions.set("en", valuesEn);
+                }
+
+                marqueurDTO.setOptions(wrappedOptions);
+            }
+
         }
     }
 

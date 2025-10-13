@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.dto.ConfigDTO;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
@@ -62,6 +63,9 @@ public class MarqueursController extends AbstractController {
     @Autowired
     private MarqueursService marqueursService;
 
+    @Autowired
+    private AfBackUtils afBackUtils;
+
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {
         return loadMarqueurs(null);
@@ -95,6 +99,8 @@ public class MarqueursController extends AbstractController {
             mav.addObject("configs", configDTOS);
             mav.addObject("buildId", currentBuildId);
         }
+
+        mav.addObject("isFrenchOnly", afBackUtils.getLanguesDisponibles().size() == 1);
 
         LOGGER.info("======================= Fin /marqueurs");
 

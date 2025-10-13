@@ -124,7 +124,7 @@ public class FileController {
         String fileName = StringUtils.substringAfterLast(file, "/");
         //On retourne la concaténation du type et le nom du fichier si présent sinon, le nom du fichier
         return demandesFilesService.getFileByDemandeFileId(pkDemandesFiles).map(DemandeFileDTO::getTypedoc)
-                .filter(StringUtils::isNotBlank).map(type -> type + fileName).orElse(fileName);
+                .filter(StringUtils::isNotBlank).map(type -> type + "_" + fileName).orElse(fileName);
     }
 
     @Secured("ROLE_LECTURE")

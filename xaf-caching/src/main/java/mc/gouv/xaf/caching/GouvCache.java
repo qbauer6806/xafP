@@ -19,7 +19,7 @@ public interface GouvCache<K, V> {
      *
      * @return
      */
-    public Map<K, V> getAll();
+    Map<K, V> getAll();
 
     /**
      * Récupération d'un objet du cache à partir de sa clé
@@ -27,7 +27,7 @@ public interface GouvCache<K, V> {
      * @param key
      * @return
      */
-    public V get(K key);
+    V get(K key);
 
     /**
      * Récupération d'un objet du cache à partir de sa clé
@@ -37,12 +37,12 @@ public interface GouvCache<K, V> {
      *         true si l'on souhaite forcer le cache à récupérer la dernière version de l'objet dans le data provider
      * @return
      */
-    public V get(K key, boolean forceUpdate);
+    V get(K key, boolean forceUpdate);
 
     /**
      * Force le cache à rafraîchir l'ensemble de sa collection d'objets
      */
-    public void refresh();
+    void refresh();
 
     /**
      * Ajoute un objet au cache
@@ -52,20 +52,20 @@ public interface GouvCache<K, V> {
      * @param value
      *         L'objet
      */
-    public void add(K key, V value);
+    void add(K key, V value);
 
     /**
      * Récupération de la totalité des objets du cache
      *
      * @return
      */
-    public Collection<V> getValues();
+    Collection<V> getValues();
 
     /**
      * Récupération de la totalité des valeurs du cache, sans les objets
      *
      * @return
      */
-    public Collection<K> getKeys();
+    Collection<K> getKeys();
 
 }

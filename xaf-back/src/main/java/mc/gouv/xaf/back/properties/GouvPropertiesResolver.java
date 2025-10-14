@@ -29,6 +29,8 @@ public interface GouvPropertiesResolver {
 
     long getUsagersCacheDuration();
 
+    long getUtilisateursCacheDuration();
+
     long getPaysCacheDuration();
 
     String getGouvSharedLogonUrl();

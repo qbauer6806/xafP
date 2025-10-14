@@ -36,15 +36,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${application.module}")
     private String applicationModule;
 
-    /**
-     * Uppercase de application.name
-     */
+    // Uppercase de application.name
     private String demarcheId;
 
     @Getter
     private String applicationPrefix = StringUtils.EMPTY;
 
-    ///// GLOBAL PROPERTIES
+    // GLOBAL PROPERTIES
     @Value("${mc.gouv.logon.url:OPTIONAL}")
     private String logonUrl;
 
@@ -77,12 +75,16 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.gichuni.api.url}")
     private String gichuniUrl;
 
-    ///// SHARED PROPERTIES
+    // SHARED PROPERTIES
     @Value("${mc.gouv.${application.name}.shared.backapi.file.containerId}")
     private String containerId;
 
     @Value("${mc.gouv.backapi.usagerscache.duration}")
     private String usagersCacheDuration;
+
+    // Valeur par défaut : 24h
+    @Value("${mc.gouv.backapi.utilisateurscache.duration:86400000}")
+    private String utilisateursCacheDuration;
 
     @Value("${mc.gouv.payscache.duration}")
     private String paysCacheDuration;
@@ -295,6 +297,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public long getUsagersCacheDuration() {
         return Long.parseLong(usagersCacheDuration);
+    }
+
+    @Override
+    public long getUtilisateursCacheDuration() {
+        return Long.parseLong(utilisateursCacheDuration);
     }
 
     @Override

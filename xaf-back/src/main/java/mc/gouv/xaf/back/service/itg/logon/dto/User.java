@@ -1,11 +1,13 @@
 package mc.gouv.xaf.back.service.itg.logon.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Set;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements Serializable, Principal {
 
     private Integer id;

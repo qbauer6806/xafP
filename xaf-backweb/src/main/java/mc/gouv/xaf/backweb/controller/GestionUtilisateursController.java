@@ -2,9 +2,8 @@ package mc.gouv.xaf.backweb.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.logon.LogonClient;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,25 +25,17 @@ import org.springframework.web.servlet.ModelAndView;
 public class GestionUtilisateursController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionUtilisateursController.class);
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    private LogonClient logonClient;
+    private UtilisateursCache utilisateursCache;
 
     @GetMapping
     public ModelAndView formUser(Model model) {
 
         LOGGER.info("Appel de la page /gestion/utilisateurs. Méthode formUser");
-        List<User> list = new ArrayList<>();
+        List<User> list = new ArrayList<>(utilisateursCache.getAll().values());
 
-        try {
-            list = logonClient.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
-        } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans formUser. Msg : {}", e.getMessage(), e);
-        }
-
-        model.addAttribute("userList", list != null ? list : new ArrayList<>());
+        model.addAttribute("userList", list);
         ModelAndView mav = new ModelAndView("gestion/utilisateurs/utilisateurs");
 
         LOGGER.info("======================= Fin /gestion/utilisateurs. Méthode formUser");

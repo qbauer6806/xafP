@@ -32,7 +32,7 @@ public class DemandesController extends AbstractController {
     private UtilisateursCache utilisateursCache;
 
     @Autowired
-    DemarchesDataProvider demarchesDataProvider;
+    private DemarchesDataProvider demarchesDataProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesController.class);
 

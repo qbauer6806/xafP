@@ -3,6 +3,9 @@ package mc.gouv.xaf.back.config;
 import jakarta.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheDataProvider;
+import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheImpl;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.nomen.impl.PaysCacheDataProvider;
 import mc.gouv.xaf.back.service.itg.nomen.impl.PaysCacheImpl;
@@ -49,6 +52,12 @@ public class AfBackConfig {
     @Bean(name = "usagersCacheImpl")
     public UsagersCache getUsagersCache(UsagersCacheDataProvider usagersCacheDataProvider) {
         return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
+    }
+
+    @Bean(name = "utilisateursCacheImpl")
+    public UtilisateursCache getUtilisateursCache(UtilisateursCacheDataProvider utilisateursCacheDataProvider) {
+        return new UtilisateursCacheImpl(utilisateursCacheDataProvider,
+                gouvPropertiesResolver.getUtilisateursCacheDuration());
     }
 
     @Bean

@@ -43,6 +43,11 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public long getUtilisateursCacheDuration() {
+        return 0;
+    }
+
+    @Override
     public String getGouvSharedLogonUrl() {
         return null;
     }

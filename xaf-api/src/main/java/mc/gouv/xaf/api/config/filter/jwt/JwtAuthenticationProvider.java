@@ -48,9 +48,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private static final String JWT_PAYLOAD_SHARED = "shared";
 
-    private String applicationName;
+    private final String applicationName;
 
-    private String secretValue;
+    private final String secretValue;
 
     public JwtAuthenticationProvider(String applicationName, String secretValue) {
         this.applicationName = applicationName;

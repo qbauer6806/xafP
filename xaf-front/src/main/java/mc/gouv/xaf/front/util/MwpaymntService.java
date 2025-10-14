@@ -7,6 +7,7 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
+import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
@@ -45,16 +46,17 @@ public class MwpaymntService {
         // User information
         UserInformationDTO userInformation = new UserInformationDTO();
         userInformation.setSub(usagerInfosDTO.getSub());
-        userInformation.setAddress1(usagerInfosDTO.getAdresse1());
+        AdresseFacturationDTO adresseFacturation = usagerInfosDTO.getAdresseFacturation();
         userInformation.setCategory(usagerInfosDTO.getType().equals(UsagerTypeEnum.INDIVIDUAL) ? UserInformationCategoryEnum.PRIVATE.name()
                 : UserInformationCategoryEnum.COMPANY.name());
-        userInformation.setCity(usagerInfosDTO.getVille());
-        userInformation.setCountry(usagerInfosDTO.getPaysCode());
+        userInformation.setAddress1(adresseFacturation.getAdresse());
+        userInformation.setCity(adresseFacturation.getVille());
+        userInformation.setCountry(adresseFacturation.getPaysCode());
+        userInformation.setZipCode(adresseFacturation.getCodePostal());
         userInformation.setEmail(usagerInfosDTO.getEmail());
         userInformation.setFirstName(usagerInfosDTO.getPrenom());
         userInformation.setLastName(usagerInfosDTO.getNom());
         userInformation.setLegalName(usagerInfosDTO.getRaisonSociale());
-        userInformation.setZipCode(usagerInfosDTO.getCodePostal());
         userInformation.setLanguage("FR");
         registerInputDTO.setUserInformation(userInformation);
         return registerInputDTO;

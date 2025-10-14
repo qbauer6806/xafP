@@ -121,7 +121,6 @@ public class ResidApiController {
     public String recuPaiement(@RequestPart("file") MultipartFile file, HttpServletRequest request, @RequestParam("idTs") String idTs) {
         logStartMethod(LOGGER);
         factureService.saveRecuPaiement(idTs, file);
-        paiementService.envoiMailAgent(idTs);
         logEndMethod(LOGGER);
         return "Fichier PDF reçu avec succès.";
     }

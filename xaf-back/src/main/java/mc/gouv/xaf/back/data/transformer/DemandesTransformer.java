@@ -27,6 +27,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,20 +271,17 @@ public class DemandesTransformer {
 
     public void hideDernierStatut(DemandeDTO demandeDTO) {
         DemandeStatutDTO statutDto = demandeDTO.getDernierStatut();
-        // Cacher l'agentId au Front Office
-        statutDto.setAgentId(null);
+        statutDto.setAgentId(null); // cacher l'agentId au FO
+
         Map<String, String> privateStatus = demarchesDataProvider.getPrivateStatusMap();
-        // si c'est un statut privé, alors on va chercher le dernier statut public pour l'afficher au FO
-        if (privateStatus.get(statutDto.getName()) != null && demandeDTO.getStatuts() != null) {
-            List<DemandeStatutDTO> allStatus = Arrays.asList(demandeDTO.getStatuts());
-            allStatus.sort(Comparator.comparing(DemandeStatutDTO::getPkStatut).reversed());
-            for (DemandeStatutDTO demandeStatutDTO : allStatus) {
-                // si on tombe sur un statut public, on utilise celui-là
-                if (privateStatus.get(demandeStatutDTO.getName()) == null) {
-                    statutDto = demandeStatutDTO;
-                    break;
-                }
-            }
+        DemandeStatutDTO[] statuts = demandeDTO.getStatuts();
+
+        if (privateStatus.containsKey(statutDto.getName()) && statuts != null) {
+            // Trouver le dernier statut public (hors EN_ATTENTE_USAGER)
+            statutDto = Arrays.stream(statuts)
+                    .filter(s -> StatutSimplifieEnum.EN_ATTENTE_USAGER != demarchesDataProvider.getStatutSimplifie(
+                            s.getName())).filter(s -> !privateStatus.containsKey(s.getName()))
+                    .max(Comparator.comparing(DemandeStatutDTO::getPkStatut)).orElse(statutDto);
         }
         demandeDTO.setDernierStatut(statutDto);
     }

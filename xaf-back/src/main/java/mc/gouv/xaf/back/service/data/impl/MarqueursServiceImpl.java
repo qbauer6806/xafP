@@ -19,6 +19,7 @@ import mc.gouv.xaf.back.data.transformer.MarqueursTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -424,6 +425,26 @@ public class MarqueursServiceImpl implements MarqueursService {
     @Override
     public JsonNode buildDemande(Map<String, String> donnees) {
         return buildDemande(donnees, null);
+    }
+
+    /**
+     * Permet de récupérer la trad pour un marqueur type "choix" donné. En FR on a la trad dans getMarqueurTrad, mais si
+     * on veut récupérer la trad EN on va la chercher dans les options du marqueur
+     *
+     * @param demandeDTO
+     * @param marqueurIdentifiant
+     * @return
+     */
+    @Override
+    public String getMarqueurChoixTradFrOuEn(DemandeDTO demandeDTO, String marqueurIdentifiant) {
+        if ("en".equals(demandeDTO.getLangue())) {
+            MarqueurDTO marqueurDTO = getMarqueur(demandeDTO.getConfig().get("buildId").asText(), marqueurIdentifiant);
+
+            return Optional.ofNullable(marqueurDTO).map(MarqueurDTO::getOptions).map(opts -> opts.get("en"))
+                    .map(mapEn -> mapEn.get(demandeDTO.getMarqueur(marqueurIdentifiant))).map(JsonNode::asText)
+                    .orElseGet(() -> demandeDTO.getMarqueurTrad(marqueurIdentifiant));
+        }
+        return demandeDTO.getMarqueurTrad(marqueurIdentifiant);
     }
 
 }

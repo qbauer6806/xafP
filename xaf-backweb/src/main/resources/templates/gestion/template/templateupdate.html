@@ -91,11 +91,6 @@
           </div>
 
           <div class="col-xs-6 text-right">
-            <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
-                    name="exportSql" type="button"
-                    value="Export SQL" style="margin-left: 30px; margin-right: 8px">
-              Export SQL
-            </button>
 
             <a class="btn btn-action ripple-effect supprimer" id="supprimer">
               <i class="icon-action_supprimer"></i> Supprimer le template
@@ -225,28 +220,6 @@
 
 <script th:inline="javascript">
 
-  function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  }
-
-  var exportSQLTemplate = function (tsCode, templateCode, templateObjet, templateCorps, templateLangue) {
-    var sqlFinal = "";
-    sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + templateCode + "_OBJET' and langue = '" + templateLangue + "';\r\n";
-    sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + templateCode + "_CORPS' and langue = '" + templateLangue + "';\r\n";
-    sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + templateCode + "_OBJET', '" + templateObjet.replaceAll("\'", "\'\'") + "', '" + templateLangue + "');\r\n";
-    sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + templateCode + "_CORPS', '" + templateCorps.replaceAll("\'", "\'\'") + "', '" + templateLangue + "');\r\n\r\n";
-    return sqlFinal;
-  };
-
   $(document).ready(function () {
 
     /*<![CDATA[*/
@@ -300,11 +273,6 @@
 
       return editorContent;
     }
-
-    $("#exportSqlBouton").click(function () {
-      var sqlGenere = exportSQLTemplate(tsCode, templateFormBean.code, templateFormBean.objet, templateFormBean.corps, templateFormBean.langue);
-      download("exportSQL-" + templateFormBean.code + ".sql", sqlGenere);
-    });
 
     $("#supprimer").click(function () {
       deleteTemplate();

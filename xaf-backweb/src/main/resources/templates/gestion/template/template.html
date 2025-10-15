@@ -89,12 +89,6 @@
         </div>
         <div class="col-xs-6 text-right">
 
-          <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
-                  name="exportSql" type="button"
-                  value="Export SQL" style="margin-left: 30px">
-            Export SQL
-          </button>
-
           <a th:href="@{/gestion/template/create}" id="createTemplate"
              style="float: right; margin-left: 10px"
              class="btn btn-action ripple-effect pull-right"><span>Créer un template mail</span></a>
@@ -326,19 +320,6 @@
     return indexTemplate;
   };
 
-  function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  }
-
   function openSuppressionModal(templateCode, templateLangue) {
     currentDeletionCode = templateCode;
     currentDeletionLang = templateLangue;
@@ -418,17 +399,6 @@
     return true;
   });
 
-  var exportSQLGlobal = function (templateList, tsCode) {
-    var sqlFinal = "";
-    templateList.forEach(function (template) {
-      sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
-      sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
-      sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
-      sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
-    });
-    return sqlFinal;
-  };
-
   /*<![CDATA[*/
   $(document).ready(function () {
     var urlModif = /*[[@{/gestion/template/update}]]*/[];
@@ -498,11 +468,6 @@
       $('#visualisationModal').modal();
 
       return true;
-    });
-
-    $("#exportSqlBouton").click(function () {
-      var sqlGenere = exportSQLGlobal(templateListRegrouped, tsCode);
-      download("exportSQL-global.sql", sqlGenere);
     });
 
     $('#importConfigButtonButton').change(function () {

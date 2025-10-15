@@ -395,7 +395,7 @@
   };
 
   $("#validerPkDemandePreview").click(function () {
-    makePreviewCall(pkDemandeTest);
+    makePreviewCall($('#pkDemandeTest').val());
     return true;
   });
 

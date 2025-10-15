@@ -190,7 +190,10 @@
       e.preventDefault();
 
       $('#agentMatricule').val($(this).data('agentmatricule'));
-
+      const etablissementCode = $(this).data('etablissementcode');
+      if (etablissementCode) {
+        $('#etablissementCode').val(etablissementCode);
+      }
       $('#editionModal').modal();
       return true;
     });

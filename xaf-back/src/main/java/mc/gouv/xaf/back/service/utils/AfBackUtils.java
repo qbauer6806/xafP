@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -564,9 +565,16 @@ public class AfBackUtils {
      * Utilisé dans certains exports excel
      */
     public static String genererTelephone(DemandeDTO demande, String marqueurIdentifiant) {
-        String indicatif = demande.getMarqueur(marqueurIdentifiant + "Indicatif").replace("t", "+");
+        String indicatif = genererTelephoneIndicatif(demande, marqueurIdentifiant + "Indicatif");
         String numero = demande.getMarqueur(marqueurIdentifiant + "Numero");
         return indicatif + numero;
+    }
+
+    /**
+     * Utilisé dans certains exports excel
+     */
+    public static String genererTelephoneIndicatif(DemandeDTO demande, String marqueurIdentifiant) {
+        return Optional.ofNullable(demande.getMarqueur(marqueurIdentifiant)).map(v -> v.replace("t", "+")).orElse("");
     }
 
     /**

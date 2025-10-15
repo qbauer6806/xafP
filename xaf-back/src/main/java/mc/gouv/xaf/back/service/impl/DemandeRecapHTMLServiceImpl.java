@@ -766,14 +766,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private String buildTelephoneHTML(JsonNode node, JsonNode champ, boolean isPdfRecap) {
         String indicatif = getNode(node, champ, "indicatif").textValue();
         String numero = escape(getNode(node, champ, "numero").textValue(), isPdfRecap);
-        StringBuilder indicateurBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(indicatif)) {
-            indicateurBuilder.append("(").append(AfBackUtils.convertTelIndicateur(indicatif)).append(") ");
-        }
-        if (StringUtils.isNotBlank(numero)) {
-            indicateurBuilder.append(numero);
-        }
-        return indicateurBuilder.toString();
+        return AfBackUtils.genererTelephone(indicatif, numero);
     }
 
     private String getSourceValue(JsonNode contenuSource, JsonNode champ, boolean isPdfRecap,

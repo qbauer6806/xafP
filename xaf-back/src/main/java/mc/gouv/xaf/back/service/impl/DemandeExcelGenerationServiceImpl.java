@@ -425,14 +425,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             } else {
                 String indicatif = getNode(node, jsonObject, "indicatif").textValue();
                 String numero = getNode(node, jsonObject, "numero").textValue();
-                StringBuilder indicateurBuilder = new StringBuilder();
-                if (StringUtils.isNotBlank(indicatif)) {
-                    indicateurBuilder.append("(").append(AfBackUtils.convertTelIndicateur(indicatif)).append(") ");
-                }
-                if (StringUtils.isNotBlank(numero)) {
-                    indicateurBuilder.append(numero);
-                }
-                return indicateurBuilder.toString();
+                return AfBackUtils.genererTelephone(indicatif, numero);
             }
         } else {
             LOGGER.error("ERREUR Type non pris en charge");

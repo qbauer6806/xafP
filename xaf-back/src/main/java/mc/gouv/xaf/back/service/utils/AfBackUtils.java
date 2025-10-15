@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -561,20 +560,10 @@ public class AfBackUtils {
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
-    /**
-     * Utilisé dans certains exports excel
-     */
-    public static String genererTelephone(DemandeDTO demande, String marqueurIdentifiant) {
-        String indicatif = genererTelephoneIndicatif(demande, marqueurIdentifiant + "Indicatif");
-        String numero = demande.getMarqueur(marqueurIdentifiant + "Numero");
-        return indicatif + numero;
-    }
-
-    /**
-     * Utilisé dans certains exports excel
-     */
-    public static String genererTelephoneIndicatif(DemandeDTO demande, String marqueurIdentifiant) {
-        return Optional.ofNullable(demande.getMarqueur(marqueurIdentifiant)).map(v -> v.replace("t", "+")).orElse("");
+    public static String genererTelephone(String indicatif, String numero) {
+        String indic = StringUtils.isNotBlank(indicatif) ? "(" + convertTelIndicateur(indicatif) + ") " : "";
+        String num = StringUtils.isNotBlank(numero) ? numero : "";
+        return indic + num;
     }
 
     /**
@@ -767,6 +756,9 @@ public class AfBackUtils {
         return new PropertiesListEntityDTO[0];
     }
 
+    /**
+     * Utilisé dans certains exports excel
+     */
     public static String convertTelIndicateur(String indicateur) {
         return StringUtils.replace(indicateur, "t", "+");
     }

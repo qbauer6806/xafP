@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import mc.gouv.xaf.back.service.data.TemplatesService;
-import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +26,6 @@ class GestionTemplateServiceImplTest {
 
     @Mock
     private TemplatesService templatesService;
-
-    // Mock utilisé pour le saveTemplateForm
-    @Mock
-    private TemplatesCache templatesCache;
 
     private final String demarcheId = "TSNAME";
     private final String codeTemplateCorps = "CODE_TEMPLATE_CORPS";

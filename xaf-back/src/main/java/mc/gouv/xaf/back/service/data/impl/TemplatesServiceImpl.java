@@ -1,25 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.ws.rs.BadRequestException;
-import mc.gouv.xaf.shared.dto.ExportTemplateDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.TemplatesRepository;
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
@@ -27,6 +9,12 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des templates.
@@ -49,16 +37,6 @@ public class TemplatesServiceImpl implements TemplatesService {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
         return templateBo;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TemplateDTO getTemplate(Integer templateId) {
-        TemplateBO templateBo = getTemplateBO(templateId);
-        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        return TemplatesTransformer.bo2Dto(templateBo);
     }
 
     /**
@@ -155,16 +133,6 @@ public class TemplatesServiceImpl implements TemplatesService {
         ret.setUpdated(true);
 
         return ret;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteTemplate(Integer templateId) {
-        TemplateBO templateBo = getTemplateBO(templateId);
-        LOGGER.info("Suppression du template...");
-        templatesRepository.delete(templateBo);
     }
 
     /**

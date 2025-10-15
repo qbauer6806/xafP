@@ -16,10 +16,10 @@ import java.util.TreeSet;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
-import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
@@ -56,7 +56,7 @@ public class MailServiceImpl implements MailService {
     private static final String SUBJECT_TAG = "TEMPLATE_SUBJECT";
 
     @Autowired
-    private TemplatesCache templatesCache;
+    private TemplatesService templatesService;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -170,10 +170,10 @@ public class MailServiceImpl implements MailService {
     private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue,
             Map<String, Object> model) throws IOException {
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
-        TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
+        TemplateDTO templateBody = templatesService.getTemplateByCodeAndLangue(bodyTemplateCode, langue);
 
         LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
-        TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
+        TemplateDTO templateSubject = templatesService.getTemplateByCodeAndLangue(subjectTemplateCode, langue);
 
         return getSubjectAndBodyByText(templateSubject.getContenu(), templateBody.getContenu(), langue, model);
     }

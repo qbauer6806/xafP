@@ -1,23 +1,22 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import mc.gouv.xaf.back.data.dao.TemplatesRepository;
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
-import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.shared.dto.ExportTemplateDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateCreateFormBean;
@@ -48,9 +47,6 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
 
     @Autowired
     private TemplatesRepository templatesRepository;
-
-    @Autowired
-    private TemplatesCache templatesCache;
 
     @Override
     public TemplateFormBean retrieveTemplateForm(TemplateFormBean formBean) {
@@ -95,9 +91,6 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
         } catch (Exception e) {
             LOGGER.error("Aucun corps trouvé pour le code {}", formBean.getCode(), e);
         }
-
-        // Refresh du cache après modification
-        templatesCache.refresh();
     }
 
     @Transactional
@@ -135,9 +128,6 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
             templateCorpsEn.setDateModif(new Date());
             templatesService.saveOrUpdateTemplate(templateCorpsEn);
         }
-
-        // Refresh du cache après modification
-        templatesCache.refresh();
     }
 
 
@@ -197,7 +187,5 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
     public void deleteTemplate(String templateCode, String langue) {
         templatesService.deleteTemplateByCode(templateCode + OBJET, langue);
         templatesService.deleteTemplateByCode(templateCode + CORPS, langue);
-
-        templatesCache.refresh();
     }
 }

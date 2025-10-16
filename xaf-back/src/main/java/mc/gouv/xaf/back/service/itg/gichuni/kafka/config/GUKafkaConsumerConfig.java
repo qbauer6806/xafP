@@ -2,11 +2,8 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.lang3.StringUtils;
+import mc.gouv.xaf.back.properties.KafkaProperties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -38,11 +35,11 @@ public class GUKafkaConsumerConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);
 
-    private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL = "XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL";
-    private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
-
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private KafkaProperties kafkaProperties;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
@@ -79,8 +76,7 @@ public class GUKafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
-            KafkaTemplate<String, String> kafkaTemplate, PropertiesService propertiesService)
-            throws DemPropertyNotFoundException {
+            KafkaTemplate<String, String> kafkaTemplate) {
 
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
@@ -88,17 +84,9 @@ public class GUKafkaConsumerConfig {
         // Afin d'éviter que l'appli s'arrête (crash total) lorsque Kafka tombe
         factory.setMissingTopicsFatal(false);
 
-        LOGGER.info("Récupération des DEM_PROPERTIES en base pour le GUKafkaConsumerConfig...");
-        PropertiesDTO backOffIntervalProp = propertiesService.getProperty(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
-        if (backOffIntervalProp == null || StringUtils.isBlank(backOffIntervalProp.getValue())) {
-            throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL);
-        }
-        int backOffInterval = Integer.parseInt(backOffIntervalProp.getValue());
-        PropertiesDTO backOffMaxAttemptsProp = propertiesService.getProperty(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
-        if (backOffMaxAttemptsProp == null || StringUtils.isBlank(backOffMaxAttemptsProp.getValue())) {
-            throw new DemPropertyNotFoundException(XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS);
-        }
-        int backOffMaxAttempts = Integer.parseInt(backOffMaxAttemptsProp.getValue());
+        LOGGER.info("Récupération des kafka properties pour le GUKafkaConsumerConfig...");
+        int backOffInterval = kafkaProperties.getBackoffInterval();
+        int backOffMaxAttempts = kafkaProperties.getBackoffMaxAttempts();
 
         BackOff bo = new FixedBackOff(backOffInterval, backOffMaxAttempts);
         factory.setCommonErrorHandler(new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate), bo));

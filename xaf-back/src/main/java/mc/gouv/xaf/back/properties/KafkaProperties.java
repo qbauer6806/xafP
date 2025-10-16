@@ -40,4 +40,22 @@ public class KafkaProperties {
     @Value("${mc.gouv.${application.name}.shared.backapi.consumer.maxpartitionfetchbytes:20971520}")
     private String maxPartitionFetchBytes;
 
+    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.outboxschedulingcron:* * * ? * *}")
+    private String outboxSchedulingCron;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.outboxretry:3}")
+    private Integer outboxRetry;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.outboxretryinterval:15}")
+    private Integer outboxRetryInterval;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.consumer.backoffinterval:100}")
+    private Integer backoffInterval;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.consumer.backoffmaxattempts:3}")
+    private Integer backoffMaxAttempts;
+
+    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.consumer.jobtimeout:10}")
+    private Integer dltConsumerJobTimeout;
+
 }

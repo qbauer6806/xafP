@@ -153,12 +153,13 @@ public class MarqueursService {
             List<Map.Entry<String, JsonNode>> tableauWithTitle) {
         if (node.isObject()) {
             JsonNode typeNode = node.get("type");
+            JsonNode titreNode = node.get("titre");
             if (typeNode != null && "tableau".equals(typeNode.asText())) {
                 // On suppose que le titre est dans le nœud parent direct
-                tableauWithTitle.add(Map.entry(parentTitle, node));
+                String titre = (parentTitle != null) ? parentTitle : titreNode.asText();
+                tableauWithTitle.add(Map.entry(titre, node));
             }
 
-            JsonNode titreNode = node.get("titre");
             String currentTitle = (titreNode != null) ? titreNode.asText() : parentTitle;
 
             // Parcourir les enfants de l'objet
@@ -171,7 +172,6 @@ public class MarqueursService {
             }
         }
     }
-
 
     private String pathToCamelCase(String input) {
         if (input == null || input.isEmpty()) {

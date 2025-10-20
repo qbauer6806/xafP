@@ -109,9 +109,26 @@
              style="float: right; margin-left: 10px" class="btn btn-action ripple-effect pull-right">
             <i class="icon-action_telecharger"></i> <span>Export JSON</span>
           </a>
-
         </div>
       </div>
+      <div class="row">
+        <div class="col-xs-12 text-right">
+
+					<span th:if="${!frOnly}">
+						<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
+						<div class="toggle" style="display:inline-block; transform: translateY(35%);">
+							<label class="switch">
+								<input class="switch-input" id="switchLangue" type="checkbox" checked="" name="langue" value="LANGUE" />
+								<input type="hidden" checked="" />
+								<span class="slider"></span>
+							</label>
+
+						</div>
+						<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
+					</span>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-xs-12 tableContent">
           <div class="tableTitle">modèles de courriels<span
@@ -453,6 +470,9 @@
       language: frenchTranslation
     });
 
+    // Filtrer par FR au départ
+    table.columns(3).search('fr', true, false).draw();
+
     table.on('click', 'button.boutonVisualiser', function (e) {
       e.preventDefault();
       isCreate = false;
@@ -479,6 +499,16 @@
         $('#submitImportConfigButtonButton').prop('disabled', true); // Désactive le bouton si aucun fichier n'est sélectionné
       }
     });
+
+    $("#switchLangue").click(function() {
+      // false == anglais --- true == francais
+      if(this.checked) {
+        table.columns(3).search('fr', true, false).draw();
+      } else {
+        table.columns(3).search('en', true, false).draw();
+      }
+    });
+
   });
   /*]]>*/
 </script>

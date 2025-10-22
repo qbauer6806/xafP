@@ -178,7 +178,7 @@ public class FileClient {
         LOGGER.info("Envoyer {}", filename);
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addPart("data", new InputStreamBody(inputStream, ContentType.getByMimeType(contentType), filename));
+        builder.addPart("data", new InputStreamBody(inputStream, ContentType.create(contentType), filename));
         HttpEntity multipart = builder.build();
         HttpPost postRequest = new HttpPost(uri);
         postRequest.setEntity(multipart);
@@ -232,8 +232,7 @@ public class FileClient {
         LOGGER.info("Envoyer {}", logSafe);
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addPart("data",
-                new InputStreamBody(part.getInputStream(), ContentType.getByMimeType(part.getContentType()),
+        builder.addPart("data", new InputStreamBody(part.getInputStream(), ContentType.create(part.getContentType()),
                         part.getSubmittedFileName()));
         HttpEntity multipart = builder.build();
         HttpPost postRequest = new HttpPost(uri);

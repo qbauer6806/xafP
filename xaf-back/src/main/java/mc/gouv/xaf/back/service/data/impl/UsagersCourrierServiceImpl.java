@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.entity.UsagersCourrierBO;
 import mc.gouv.xaf.back.data.transformer.UsagerCourrierTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -65,6 +67,9 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
     @Autowired
     private UsagersService usagersService;
+
+    @Autowired
+    private DemandesUsagersRepository demandesUsagersRepository;
 
     private UsagersCourrierBO getCourrierBO(Integer pkUsagersCourrier) {
         LOGGER.info("Récupération en base de l'usager courrier...");
@@ -251,15 +256,14 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
                     demandeId, usagerCourrierSourceId, usagerCourrierCibleId);
 
             DemandeBO demande = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
-            AccessBO accesSource = demande.getFkAccess();
-            if (!accesSource.getUsagerId().equals(usagerCourrierSourceId)) {
+            if (!demande.getFkAccess().getUsagerId().equals(usagerCourrierSourceId)) {
                 throw new DemarchesServiceException("La demande " + demande.getPkDemandes()
                         + " ne correspond pas à l'usager courrier source spécifié " + usagerCourrierSourceId,
                         HttpStatus.BAD_REQUEST);
             }
-            accesSource.getDemandes().remove(demande);
-            accessRepository.save(accesSource);
             demande.setFkAccess(accesCible);
+            DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(usagerCourrierCibleId);
+            demande.setUsager(usagerBO);
             demandesRepository.save(demande);
         }
     }

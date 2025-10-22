@@ -12,11 +12,6 @@
 
   <artifactId>xaf-shared</artifactId>
 
-  <properties>
-    <buildDate>${maven.build.timestamp}</buildDate>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>jakarta.validation</groupId>

@@ -145,6 +145,7 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
             exportTemplateDTO.setCode(template.getCode());
             exportTemplateDTO.setLangue(template.getLangue());
             exportTemplateDTO.setContenu(template.getContenu());
+            exportTemplateDTO.setDateModif(template.getDateModif());
             exportTemplateList.add(exportTemplateDTO);
         }
 

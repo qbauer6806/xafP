@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -89,6 +90,8 @@ public class FileServiceImpl implements FileService {
     private static final String SLASH_DELIMITER = "/";
     private static final String ERREUR_FILESERVICE_LOG_MESSAGE = "Erreur dans FileServiceImpl.saveFile()";
     private static final String MESSAGE_FICHIER_REFERENCE = "Le fichier {} n'a pas été supprimé car il est référencé autre part";
+    private static final String DEBUT_FILE_SERVICE_GET_FILE = "Début FileService.getFile({}, {})";
+    private static final String FIN_FILE_CLIENT_GET_FILE = "Fin FileClient.getFile({}, {}, {})";
 
     private RestTemplate restTemplate;
 
@@ -112,23 +115,38 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
-        LOGGER.info("Début FileService.getFile({}, {})", filename, containerId);
+        LOGGER.info(DEBUT_FILE_SERVICE_GET_FILE, filename, containerId);
         String accountId = gouvPropertiesResolver.getDemarcheId();
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
-        LOGGER.info("Fin FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+        LOGGER.info(FIN_FILE_CLIENT_GET_FILE, accountId, containerId, filename);
         afBackUtils.getFileClient().getFile(accountId, containerId, filename, response);
     }
 
     @Override
     public InputStream getFile(String filename, String containerId) throws IOException {
-        LOGGER.info("Début FileService.getFile({}, {})", filename, containerId);
+        LOGGER.info(DEBUT_FILE_SERVICE_GET_FILE, filename, containerId);
         String accountId = gouvPropertiesResolver.getDemarcheId();
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
         InputStream is = afBackUtils.getFileClient().getFile(accountId, containerId, filename);
-        LOGGER.info("Fin FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+        LOGGER.info(FIN_FILE_CLIENT_GET_FILE, accountId, containerId, filename);
         return is;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResponseEntity<InputStream> getFileEntity(String filename, String containerId) throws IOException {
+        LOGGER.info(DEBUT_FILE_SERVICE_GET_FILE, filename, containerId);
+        String accountId = gouvPropertiesResolver.getDemarcheId();
+        // Remplacement des espaces par des "+"...
+        filename = filename.replace(" ", "+");
+        ResponseEntity<InputStream> fileEntity = afBackUtils.getFileClient()
+                .getFileEntity(accountId, containerId, filename);
+        LOGGER.info(FIN_FILE_CLIENT_GET_FILE, accountId, containerId, filename);
+        return fileEntity;
     }
 
     @Override
@@ -260,7 +278,7 @@ public class FileServiceImpl implements FileService {
                     "La propriété obligatoire spring.servlet.multipart.max-file-size ne semble pas définie");
         }
         // Suppression de la partie "MB" pour récupérer uniquement le chiffre
-        String numberPart = maxFileSize.replaceAll("[^0-9]", "");
+        String numberPart = maxFileSize.replaceAll("\\D", "");
 
         // Conversion de la partie numérique en Long
         long tailleMaxFichier = Long.parseLong(numberPart);
@@ -398,8 +416,10 @@ public class FileServiceImpl implements FileService {
 
         // Rajouter l'AccessID dans l'URL des fichiers
 
-        URL url = new URL(gouvPropertiesResolver.getFileUrl() + SLASH_DELIMITER + gouvPropertiesResolver.getDemarcheId()
-                + SLASH_DELIMITER + gouvPropertiesResolver.getContainerId() + SLASH_DELIMITER + fileurl);
+        String virtualPath =
+                gouvPropertiesResolver.getDemarcheId() + SLASH_DELIMITER + gouvPropertiesResolver.getContainerId()
+                        + SLASH_DELIMITER + fileurl;
+        URL url = URI.create(gouvPropertiesResolver.getFileUrl() + SLASH_DELIMITER).resolve(virtualPath).toURL();
         LOGGER.info("URL du fichier calculée : {}", url);
 
         return url;
@@ -563,7 +583,8 @@ public class FileServiceImpl implements FileService {
                 && existingFilesBrouillons <= 1) {
             return true;
         }
-        LOGGER.info(MESSAGE_FICHIER_REFERENCE, AfBackUtils.logSafe(fileUrl));
+        String logSafe = AfBackUtils.logSafe(fileUrl);
+        LOGGER.info(MESSAGE_FICHIER_REFERENCE, logSafe);
         return false;
     }
 

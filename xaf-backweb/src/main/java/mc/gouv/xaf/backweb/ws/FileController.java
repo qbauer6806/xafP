@@ -105,8 +105,10 @@ public class FileController {
 
         // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
         String filePathEncoded = URLEncoder.encode(file, UTF_8);
-        InputStream inputFile = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
-        if (inputFile == null) {
+        ResponseEntity<InputStream> fileEntity = fileService.getFileEntity(filePathEncoded,
+                gouvPropertiesResolver.getContainerId());
+        InputStream body = fileEntity.getBody(); // Pour corriger l'erreur sonar java:S4449
+        if (!fileEntity.getStatusCode().is2xxSuccessful() || body == null) {
             LOGGER.warn("Fichier introuvable pour le chemin : {}", file);
             return ResponseEntity.notFound().build();
         }
@@ -117,7 +119,8 @@ public class FileController {
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
         LOGGER.info("====================== getFile() terminé, Envoi du fichier '{}' au client", nomFichierTelecharge);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputFile));
+        assert fileEntity.getBody() != null;
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(body));
     }
 
     private String getNomFichierTelecharge(Integer pkDemandesFiles, String file) {

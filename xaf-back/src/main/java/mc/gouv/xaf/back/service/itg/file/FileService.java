@@ -9,6 +9,7 @@ import java.util.List;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.vscan.ScanDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -26,6 +27,19 @@ public interface FileService {
     void getFile(String filename, String container, HttpServletResponse response) throws IOException;
 
     InputStream getFile(String filename, String containerId) throws IOException;
+
+    /**
+     * Récupère un fichier sous la forme d’un {@link ResponseEntity} contenant un {@link InputStream}.
+     *
+     * @param filename
+     *         le nom du fichier à récupérer
+     * @param containerId
+     *         l’identifiant du conteneur où le fichier est stocké
+     * @return un {@link ResponseEntity} contenant le {@link InputStream} du fichier
+     * @throws IOException
+     *         si une erreur d’entrée/sortie survient lors du processus de récupération du fichier
+     */
+    ResponseEntity<InputStream> getFileEntity(String filename, String containerId) throws IOException;
 
     InputStream getFile(String url) throws IOException;
 

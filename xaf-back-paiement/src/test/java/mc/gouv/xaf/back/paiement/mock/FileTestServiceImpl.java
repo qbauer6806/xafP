@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.vscan.ScanDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,11 +19,19 @@ public class FileTestServiceImpl implements FileService {
 
     @Override
     public void getFile(String filename, String container, HttpServletResponse response) throws IOException {
-
+        //DO NOTHING
     }
 
     @Override
     public InputStream getFile(String filename, String containerId) throws IOException {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResponseEntity<InputStream> getFileEntity(String filename, String containerId) throws IOException {
         return null;
     }
 
@@ -55,7 +64,7 @@ public class FileTestServiceImpl implements FileService {
 
     @Override
     public void deleteFile(String containerId, String fileName) {
-
+        //DO NOTHING
     }
 
     @Override
@@ -65,12 +74,12 @@ public class FileTestServiceImpl implements FileService {
 
     @Override
     public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, Integer demandeId) throws IOException {
-
+        //DO NOTHING
     }
 
     @Override
     public void updateFileMetadata(String fichierURL, String metaKey, String metaValue) throws IOException {
-
+        //DO NOTHING
     }
 
     /**
@@ -79,7 +88,7 @@ public class FileTestServiceImpl implements FileService {
      */
     @Override
     public void deleteFiles(String containerId, List<String> fileName) {
-
+        //DO NOTHING
     }
 
     @Override

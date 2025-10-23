@@ -70,6 +70,10 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String FILES = "files";
     private static final String SEARCH_VECTOR = "searchVector";
     private static final String USAGER = "usager";
+    private static final String DATA = "data";
+    private static final String VALUE = "value";
+    private static final String KEY = "key";
+    private static final String PK_DEMANDES = "pkDemandes";
 
     private final Optional<RechercheSortPathConfiguration> rechercheSortPathConfiguration;
     private final EntityManager em;
@@ -96,7 +100,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
         CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
         Root<DemandeBO> root = buildQuery(cquery, demandeRecherche, builder);
         List<Expression<?>> groupBy = new ArrayList<>();
-        groupBy.add(root.get("pkDemandes"));
+        groupBy.add(root.get(PK_DEMANDES));
         cquery.groupBy(groupBy);
         TypedQuery<DemandeBO> typedQuery = em.createQuery(cquery);
         return typedQuery.getResultList();
@@ -114,28 +118,9 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
         // groupBy obligé lorsqu'il y a des joins pour ne pas avoir de doublons + il faut donc ajouter les conditions dans le group by lorsqu'il y a un order sur des propriétés des joins
         List<Expression<?>> groupBy = new ArrayList<>();
-        groupBy.add(root.get("pkDemandes"));
+        groupBy.add(root.get(PK_DEMANDES));
         if (order != null) {
-            String orderProperty = order.getProperty();
-            // Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
-            Expression e = null;
-            if (StringUtils.equalsIgnoreCase(orderProperty, USAGER_ID)) {
-                Join<DemandeBO, AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
-                e = f.get(orderProperty);
-            } else if (StringUtils.equalsIgnoreCase(orderProperty, "dernierStatut.libelle")) {
-                Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
-                e = f.get(LIBELLE);
-                groupBy.add(f.get(LIBELLE));
-            } else if (StringUtils.equalsIgnoreCase(orderProperty, "agent.nomAffichage")) {
-                Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
-                e = f.get("nomAffichage");
-                groupBy.add(f.get("nomAffichage"));
-            } else if (orderProperty.startsWith(CONTENU) || orderProperty.startsWith(CONTENU_TRAD)) {
-                e = getJsonOrderExpression(root, cb, orderProperty);
-            }
-            if (e == null) {
-                e = root.get(orderProperty);
-            }
+            Expression<?> e = this.getExpression(order, root, groupBy, cb);
 
             if (order.getDirection() == Direction.ASC) {
                 cq.orderBy(cb.asc(e));
@@ -148,6 +133,47 @@ public class RechercheDemandesUtils extends RechercheUtils {
         typedQuery.setFirstResult((pageable.getPageNumber()) * pageable.getPageSize());
         typedQuery.setMaxResults(pageable.getPageSize());
         return typedQuery.getResultList();
+    }
+
+    private Expression<?> getExpression(Order order, Root<DemandeBO> root, List<Expression<?>> groupBy,
+            CriteriaBuilder cb) {
+        Expression<?> e = null;
+        String orderProperty = order.getProperty();
+        // Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
+        if (StringUtils.equalsIgnoreCase(orderProperty, USAGER_ID)) {
+            Join<DemandeBO, AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
+            e = f.get(orderProperty);
+        } else if (StringUtils.equalsIgnoreCase(orderProperty, "dernierStatut.libelle")) {
+            Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
+            e = f.get(LIBELLE);
+            groupBy.add(f.get(LIBELLE));
+        } else if (StringUtils.equalsIgnoreCase(orderProperty, "agent.nomAffichage")) {
+            Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
+            e = f.get("nomAffichage");
+            groupBy.add(f.get("nomAffichage"));
+        } else if (StringUtils.startsWith(orderProperty, "data.")) {
+            e = this.getExpressionData(root, orderProperty, cb);
+        } else if (orderProperty.startsWith(CONTENU) || orderProperty.startsWith(CONTENU_TRAD)) {
+            e = getJsonOrderExpression(root, cb, orderProperty);
+        }
+        if (e == null) {
+            e = root.get(orderProperty);
+        }
+        return e;
+    }
+
+    private Expression<?> getExpressionData(Root<DemandeBO> root, String orderProperty, CriteriaBuilder cb) {
+        // Exemple: orderProperty = "data.AFFECTATION_ETABLISSEMENT"
+        String dataKey = StringUtils.substringAfterLast(orderProperty, ".");
+
+        // Jointure sur la collection data
+        Join<DemandeBO, DemandesDataBO> d = root.join(DATA, JoinType.LEFT);
+
+        // Condition : uniquement les entrées ayant cette clé
+        Predicate keyPredicate = cb.equal(d.get(KEY), dataKey);
+
+        return cb.function("MAX", String.class,
+                cb.selectCase().when(keyPredicate, d.get(VALUE)).otherwise((String) null));
     }
 
     private Expression<?> getJsonOrderExpression(Root<DemandeBO> root, CriteriaBuilder cb, String jsonProperty) {
@@ -283,7 +309,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
         // Créer un prédicat pour data
         DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
         if (dataRechercheDTO != null) {
-            SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
+            SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet(DATA, JoinType.LEFT);
             String value = dataRechercheDTO.getValue();
             // vérifier c'est une array
             if (value != null && isArrayString(value)) {
@@ -294,13 +320,13 @@ public class RechercheDemandesUtils extends RechercheUtils {
                     // Supprimer les espaces autour de l'élément pour éviter les erreurs
                     element = element.trim();
                     // Créer un prédicat LIKE pour chaque élément
-                    Predicate likePredicate = cb.like(demandesData.get("value"), "%" + element + "%");
+                    Predicate likePredicate = cb.like(demandesData.get(VALUE), "%" + element + "%");
                     orPredicates.add(likePredicate);
                 }
                 predicates.add(cb.or(orPredicates.toArray(Predicate[]::new)));
             } else {
-                predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), value),
-                        cb.equal(demandesData.<String> get("key"), dataRechercheDTO.getKey())));
+                predicates.add(cb.and(cb.equal(demandesData.<String> get(VALUE), value),
+                        cb.equal(demandesData.<String> get(KEY), dataRechercheDTO.getKey())));
             }
         }
 
@@ -361,7 +387,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
                     texte.toUpperCase() + "%"));
         } else if (searchField.startsWith("usager.")) {
             // cas usager
-            Join<DemandeBO, DemandesUsagersBO> usager = root.join("usager", JoinType.LEFT);
+            Join<DemandeBO, DemandesUsagersBO> usager = root.join(USAGER, JoinType.LEFT);
             predicates.add(
                     cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), texte.toUpperCase() + "%"));
         } else if (searchField.startsWith("complement.")) {
@@ -430,11 +456,10 @@ public class RechercheDemandesUtils extends RechercheUtils {
         Join<DemandeBO, DemandesStatutsBO> statutJoin = root.join(DERNIER_STATUT, JoinType.LEFT);
 
         // Projection
-        cq.select(cb.construct(DemandeExportDTO.class, root.get("pkDemandes"), root.get("dateCreation"),
+        cq.select(cb.construct(DemandeExportDTO.class, root.get(PK_DEMANDES), root.get(DATE_CREATION),
                 root.get("dateDerModif"), root.get("courrierDateReception"), root.get("contenu"),
-                root.get("contenuTrad"), root.get("langue"), root.get("canal"), root.get("observations"),
-                root.get("courrierRefInterne"), agentJoin, usagerJoin, configJoin, statutJoin,
-                root.get("identifiant")));
+                root.get("contenuTrad"), root.get("langue"), root.get(CANAL), root.get("observations"),
+                root.get("courrierRefInterne"), agentJoin, usagerJoin, configJoin, statutJoin, root.get(IDENTIFIANT)));
 
         List<Predicate> predicates = buildPredicatesExcel(root, cb, excelRechercheDTO);
         cq.where(predicates.toArray(Predicate[]::new));
@@ -483,11 +508,11 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
         // Créer un prédicat pour data
         if (excelRechercheDTO.getData() != null) {
-            SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
+            SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet(DATA, JoinType.LEFT);
             String value = excelRechercheDTO.getData().getValue();
             // vérifier c'est une array
-            predicates.add(cb.and(cb.equal(demandesData.<String> get("value"), value),
-                    cb.equal(demandesData.<String> get("key"), excelRechercheDTO.getData().getKey())));
+            predicates.add(cb.and(cb.equal(demandesData.<String> get(VALUE), value),
+                    cb.equal(demandesData.<String> get(KEY), excelRechercheDTO.getData().getKey())));
         }
         return predicates;
     }

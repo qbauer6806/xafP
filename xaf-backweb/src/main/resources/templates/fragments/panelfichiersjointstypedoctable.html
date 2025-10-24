@@ -33,8 +33,8 @@
         <select class="form-control" onchange="updateTypedocJSON(this)"
                 th:disabled="!${editionTypedocActive} or ${cat.name == 'Fichiers internes'}"
                 th:id="${file.compFile} ? comp + ${file.pkDemandesComplementsFiles} : file + ${file.pkDemandesFiles}">
-          <option th:value="null" title="Sélectionnez un type" th:if="!${#strings.contains(file.meta, 'BACK_RECAP')}">Sélectionnez un type</option>
-          <option th:value="BACK_RECAP" title="Récapitulatif de la demande" th:if="${#strings.contains(file.meta, 'BACK_RECAP')}">Récapitulatif de la demande</option>
+          <option th:value="null" title="Sélectionnez un type" th:if="${file.meta == null or !#strings.contains(file.meta, 'BACK_RECAP')}">Sélectionnez un type</option>
+          <option th:value="BACK_RECAP" title="Récapitulatif de la demande" th:if="${file.meta != null and #strings.contains(file.meta, 'BACK_RECAP')}">Récapitulatif de la demande</option>
           <option th:each="typedoc : ${typedocList}"
                   th:id="typedoc + ${file.pkDemandesFiles}"
                   th:selected="${file.typedoc} == ${typedoc.key}" th:text="${typedoc.value}" th:title="${typedoc.value}"

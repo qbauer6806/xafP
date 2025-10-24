@@ -1,16 +1,16 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
-import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,16 +19,22 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  */
 @Component
+@Scope("prototype") // Indispensable pour éviter que les champs persistent entre exécutions du délegate
 public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMSauvegarderHistoriqueDelegate.class);
 
     @Setter
-    @Getter
     private Expression targetState;
+    @Setter
+    private Expression sourceState;
+    @Setter
+    private Expression executionRole;
 
     @Autowired
     private DemandesHistoriqueService demandesHistoriqueService;
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -41,8 +47,11 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         LOGGER.info("targetState = {}, pkDemande = {} ...", statut, pkDemande);
 
         // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeSysteme(statut);
-        demandesHistoriqueService.saveHisto(pkDemande, histo);
+        String role = executionRole != null ? (String) executionRole.getValue(execution) : null;
+        String dernierStatut = sourceState != null ? (String) sourceState.getValue(execution) : null;
+        String action = demarchesDataProvider.getHistoAction(statut, null, dernierStatut);
+        demandesHistoriqueService.ajouterHistorique(pkDemande, statut, role, action, null);
+
         LOGGER.info("==== xaf-back SAUVEGARDE HISTORIQUE <FIN>");
     }
 

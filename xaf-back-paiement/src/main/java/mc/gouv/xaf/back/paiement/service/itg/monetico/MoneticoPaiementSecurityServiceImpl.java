@@ -4,7 +4,7 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
@@ -70,21 +70,15 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
     @Override
     public String contexteCommandeDTOtoBase64(ContexteCommandeDTO contexte) {
         logStartMethod(LOGGER);
-        if (contexte == null) {
+        if (null == contexte) {
             return null;
         }
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(contexte);
-            LOGGER.info("JSON A ENCODER : {}", json);
-            byte[] ptext = json.getBytes(ISO_8859_1);
-            String utf8ContexteCommande = new String(ptext, UTF_8);
-            return encode(utf8ContexteCommande.getBytes(UTF_8));
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la sérialisation JSON avec Jackson", e);
-            return null;
-        }
+        Gson gson = new Gson();
+        String json = gson.toJson(contexte);
+        LOGGER.info("JSON A ENCODER : {}", json);
+        byte[] ptext = json.getBytes(ISO_8859_1);
+        String utf8ContexteCommande = new String(ptext, UTF_8);
+        return encode(utf8ContexteCommande.getBytes(UTF_8));
     }
 
     @Override

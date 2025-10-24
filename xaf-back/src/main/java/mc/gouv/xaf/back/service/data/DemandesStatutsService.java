@@ -66,7 +66,7 @@ public interface DemandesStatutsService {
      *         Le nouveau statut
      * @return La liste à jour des demandes
      */
-    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statutName);
+    void updateMultipleStatuts(List<DemandeBO> demandes, String statutName);
 
     /**
      * Récupérer le dernier statut d'une demande

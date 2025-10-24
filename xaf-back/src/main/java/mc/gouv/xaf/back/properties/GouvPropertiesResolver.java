@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.properties;
 
+import org.springframework.beans.factory.annotation.Value;
+import java.time.LocalDateTime;
+
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement.
  *
@@ -116,5 +119,7 @@ public interface GouvPropertiesResolver {
     String getExtensionsWhitelist();
     
     boolean getSmsEnabled();
+
+    String getMwpaymtUrl();
 
 }

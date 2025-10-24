@@ -17,14 +17,14 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
- * 
+ *
  * Interface spécifiant les fonctionnalités offertes par l'API pour le AfApiController2Tiers (appels arrivant du système tiers via le proxy 2/3 du FO).
- * 
+ *
  * @author qdeme
- * 
+ *
  */
 public interface AfApi2Tiers {
-    
+
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
 
     PeriodeOuvertureDTO createPeriodeOuverture(@Valid PeriodeOuvertureDTO periodeOuverture);

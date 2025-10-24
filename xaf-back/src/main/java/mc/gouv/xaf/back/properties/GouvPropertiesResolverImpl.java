@@ -5,6 +5,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,6 +133,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.sms.enabled:false}")
     private boolean smsEnabled;
 
+    @Value("${mc.gouv.mwpaymt.api.url}")
+    private String mwpaymtUrl;
+
     @Autowired
     private KafkaProperties kafkaProperties;
 
@@ -140,6 +144,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Autowired
     private UlisProperties ulisProperties;
+
+    @Getter
+    private LocalDateTime applicationStartTime;
 
     /**
      * propertyEditor.getReadMethod() expose le getter, peut être null si on a une prorpriété en écriture seule
@@ -200,6 +207,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
             applicationPrefix = "." + applicationName;
             demarcheId = StringUtils.upperCase(applicationName);
         }
+
+        // Initialisation de l'heure de démarrage
+        this.applicationStartTime = LocalDateTime.now();
 
         // Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();
@@ -489,4 +499,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public boolean getSmsEnabled() {
         return smsEnabled;
     }
+
+    @Override
+    public String getMwpaymtUrl() {
+        return mwpaymtUrl;
+    }
+
 }

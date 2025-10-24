@@ -13,7 +13,7 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommandeOperationDTO {
 
-    private String pkOperations;
+    private Integer pkOperations;
 
     private Integer fkCommandes;
 
@@ -23,16 +23,14 @@ public class CommandeOperationDTO {
 
     private LocalDateTime dateCreation;
 
-    private LocalDateTime dateDerniereModification;
+    private LocalDateTime dateRealisation;
 
     private Double montant;
 
-    private String numeroAutorisation;
+    private String errorCode;
 
-    private String numeroFacture;
+    private String errorMessage;
 
-    private String codeRetour;
-
-    private String libelle;
+    private String transactionReference;
 
 }

@@ -1,8 +1,9 @@
 package mc.gouv.xaf.back.service.histo;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
@@ -177,17 +178,17 @@ public class DemandesHistoriqueService {
     }
 
     public DemandeHistoriqueDTO reponseDemandeCompl(String targetState, Integer usagerId, String agentId,
-                                                    String affecteId) {
-        String agentAffecteId = StringUtils.isNotBlank(agentId) ? agentId : affecteId;
-        String agentName = getAgentName(agentAffecteId);
+            String affecteId) {
+        String agentAffecteId = StringUtils.isNotBlank(affecteId) ? affecteId : agentId;
+        String agentAffecteName = getAgentName(agentAffecteId);
         String action =
-                "Transmission d'infos complémentaires vers <span class='histo-usager'>" + agentName + CLOSING_SPAN;
+                "Transmission d'infos complémentaires vers <span class='histo-usager'>" + agentAffecteName + CLOSING_SPAN;
         DemandeHistoriqueContenuDTO contenu;
         if (usagerId != null) {
             String name = afBackUtils.getUsagerNameFromID(usagerId);
             contenu = new DemandeHistoriqueContenuDTO(name, USAGER, action, targetState);
         } else {
-            contenu = new DemandeHistoriqueContenuDTO(agentName, demarchesDataProvider.getHistoRole(), action,
+            contenu = new DemandeHistoriqueContenuDTO(agentId, demarchesDataProvider.getHistoRole(), action,
                     targetState);
         }
         return histoTs2Dem(contenu, usagerId, agentAffecteId);

@@ -1,11 +1,12 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.TicketRecapitulatifService;
@@ -15,12 +16,14 @@ import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,6 +48,9 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Autowired
     private AfMailTemplateModelProvider afMailTemplateModelProvider;
@@ -81,7 +87,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         emailInfo.setLangue(demandeDto.getLangue());
 
         try {
-            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), demandeDto);
+            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager, demandeDto);
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'envoi de l'email", e);
@@ -89,19 +95,26 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
     }
 
     private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement,
-            DemandeDTO demande) {
+            GichuniUsagerDTO usager, DemandeDTO demande) {
         Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demande);
+        String defaultMailTitre = demande.getLangue().equals("fr")
+                ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+                : SharedMessages.DEFAULT_TITRE_MAIL_EN;
+        String titre = usager.getTitre() != null ? messageSource.getMessage("civilite." + usager.getTitre(), null,
+                Locale.of(demande.getLangue())) : defaultMailTitre;
         model.put("numTPE", paiementPropertiesResolver.getTpe());
         model.put("pkOperation", operation.getPkOperations());
-        model.put("reference", moyenPaiement.getPkMoyenPaiements());
+        //TODO model.put("reference", moyenPaiement.getPkMoyenPaiements());
+        model.put("identifiant", demande.getIdentifiant());
         model.put("dateTransaction",
                 operation.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
         model.put("montant", operation.getMontant() + " EUR");
-        model.put("moyenPaiement", moyenPaiement.getModepaiement());
+        //TODO model.put("moyenPaiement", moyenPaiement.getModepaiement());
         model.put("typeTransaction", operation.getOperationType());
-        model.put("numCarte", moyenPaiement.getCbmasquee());
-        model.put("numeroAutorisation",
-                null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
+        //TODO model.put("numCarte", moyenPaiement.getCbmasquee());
+        //TODO model.put("numeroAutorisation",
+                //null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
+        model.put("titre", titre);
         return model;
     }
 

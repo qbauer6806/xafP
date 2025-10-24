@@ -142,7 +142,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         return generateToFile(dto, true);
     }
 
-    private File generateToFile(PdfTemplateAndModelDTO dto, boolean convertPdf) {
+    @Override
+    public File generateToFile(PdfTemplateAndModelDTO dto, boolean convertPdf) {
 
         String tempDir = System.getProperty("java.io.tmpdir");
         String extension = convertPdf ? ".pdf" : ".docx";

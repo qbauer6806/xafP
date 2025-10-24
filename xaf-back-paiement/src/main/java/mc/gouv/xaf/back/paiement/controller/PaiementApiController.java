@@ -2,34 +2,54 @@ package mc.gouv.xaf.back.paiement.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import mc.gouv.xaf.shared.paiement.MwpaymtGenericCallbackDTO;
+import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
+import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementInputDTO;
+import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Classe permettant de gérer un ou plusieurs PSP (Presataire de services de paiement)
  */
-public abstract class AbstractPaiementApiController {
+@RestController
+@RequestMapping(value = "/api/v1/paiement", produces = "application/json")
+public class PaiementApiController {
 
     @Autowired
     private MoneticoPaiementService moneticoPaiementService;
 
     @Autowired
     private CommandesService commandesService;
+
+    @Autowired
+    private PaiementService paiementService;
 
     /**
      * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
@@ -58,7 +78,7 @@ public abstract class AbstractPaiementApiController {
      *         Représentation d'un retour de PSP
      * @return une chaine de caractère contenant le résultat de la vérification de la clé MAC
      */
-    @PostMapping
+    @PostMapping("/monetico")
     public String updatePaiement(@RequestBody MoneticoResponseDTO moneticoResponseDTO) {
         return moneticoPaiementService.updateStatus(moneticoResponseDTO);
     }
@@ -103,6 +123,48 @@ public abstract class AbstractPaiementApiController {
             throw new DemarchesServiceException("IOError writing file to output stream",
                     HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
+    }
+
+    @GetMapping(value = "/tableaupaiement")
+    public List<TableauDTO> getTableauPaiement(@RequestParam(value = "id") String objectIds,
+            @RequestParam(value = "type") String objectType, @RequestParam(value = "usagerId") Integer usagerId) {
+        return paiementService.getTableauPaiement(objectIds, objectType, usagerId);
+    }
+
+    @PostMapping(value = "/getinfofacturation")
+    public InfoFacturationResponseDTO getInfoFacturation(@RequestBody GichuniUsagerDTO usagerDTO) {
+        return paiementService.getInfoFacturation(usagerDTO);
+    }
+
+    @GetMapping(value = "/references")
+    public List<PaymentMethodReferenceDTO> getReferences(@RequestParam(value = "usagerToken") String usagerToken) {
+        return paiementService.getReferences(usagerToken);
+    }
+
+    @PostMapping(value = "/moyenpaiement")
+    public boolean updateMoyenPaiement(@RequestParam(value = "demandeIds") String demandeIds,
+            @RequestBody GichuniUsagerDTO usager, @RequestParam(value = "orderId") String orderId, @RequestParam(value = "raisonSociale", required = false) String raisonSociale, @RequestParam(value = "langue", required = false) String langue) {
+        return paiementService.createMoyenPaiement(demandeIds, usager, orderId, raisonSociale, langue);
+    }
+
+    @PutMapping(value = "/moyenpaiement")
+    public void updateMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInputDTO, @RequestParam(value = "usagerToken") String usagerToken) {
+        paiementService.updateMoyenPaiement(moyenPaiementInputDTO, usagerToken);
+    }
+
+    @PostMapping(value = "/moyenpaiement/info")
+    public PaymentMethodInformationDTO getMoyenPaiement(@RequestBody InfoCancelInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
+        return paiementService.getMoyenPaiement(input, usagerToken);
+    }
+
+    @PostMapping
+    public void callbackPaiement(@RequestBody MwpaymtGenericCallbackDTO callbackDTO) {
+        paiementService.updatePaiementStatusAsync(callbackDTO);
+    }
+
+    @PostMapping(value = "/infopaiement")
+    public RegisterOutputDTO postInfoPaiement(@RequestBody RegisterInputDTO input, @RequestParam(value = "usagerToken") String usagerToken) {
+        return paiementService.postInfoPaiement(input, usagerToken);
     }
 
     /**

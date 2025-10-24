@@ -37,7 +37,7 @@ public class FileUtils {
     public static final String CAT_COMPLEMENTS = "Fichiers complémentaires de l'usager";
     public static final String CAT_ADMINISTRATION = "Fichiers remis par l'Administration";
     public static final String CAT_INTERNES = "Fichiers internes";
-    
+
     public static final String DEFAULT_CONTAINER = "ROOT";
 
     public static final String MC_METADATA_PREFIX = "X-MC-";

@@ -47,7 +47,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 public class AfApiController2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiController2Tiers.class);
-    
+
     @Autowired
     private AfApi2Tiers afApiService2Tiers;
 

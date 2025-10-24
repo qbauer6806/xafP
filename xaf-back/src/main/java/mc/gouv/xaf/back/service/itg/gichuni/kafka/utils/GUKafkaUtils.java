@@ -31,6 +31,7 @@ public class GUKafkaUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaUtils.class);
 
     public static final String GU_TO_TS_TOPIC = "ts-to-gichuni";
+    public static final String TS_TO_GU_PAYMENT_TOPIC = "ts-to-gichuni-payment";
 
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;

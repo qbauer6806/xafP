@@ -55,7 +55,9 @@ public class MailPreviewController extends AbstractController {
 
     private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
             throws IOException {
-        return buildMailPreviewByCode(afMailTemplateModelProvider.getMailTemplateCodeForAction(action), codeMotifChoisi, pkDemande, commentaire);
+        return buildMailPreviewByCode(
+                afMailTemplateModelProvider.getMailTemplateCodeForAction(action, demandesService.getDemande(pkDemande)),
+                codeMotifChoisi, pkDemande, commentaire);
     }
 
     private ModelAndView buildMailPreviewByCode(String templateCode, String codeMotifChoisi, Integer pkDemande, String commentaire)

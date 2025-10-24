@@ -21,13 +21,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -58,8 +61,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExcelGenerationServiceImpl.class);
 
     private static final String LABEL = "label";
+
     private static final String CONTENU = "contenu.";
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
     private PaysCache paysCache;
@@ -87,7 +90,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 
     @Override
     public void generateExcel(ExcelRechercheDTO excelRechercheDto,
-            DemandeExcelRechercheProvider demandesByDateRangeProvider, OutputStream outputStream) throws IOException {
+            DemandeExcelRechercheProvider demandesByDateRangeProvider, OutputStream outputStream)
+            throws IOException, ParseException {
 
         LOGGER.info("Début de la génération de l'export Excel des demandes...");
 
@@ -99,12 +103,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         for (DemandeConfigBO demandeConfig : demandeConfigs) {
             String buildId = demandeConfig.getBuildId();
             LOGGER.info("Chargement du fichier recap {}...", buildId);
-
             JsonNode sectionsNode = demandeConfig.getContenu().get("recap").get("sections");
-            ArrayNode sections = (sectionsNode != null && sectionsNode.isArray())
-                    ? (ArrayNode) sectionsNode
-                    : MAPPER.createArrayNode();
-
+            JSONParser jsonParser = new JSONParser();
+            JSONArray sections = (JSONArray) jsonParser.parse(sectionsNode.toString());
             String sheetName = buildId;
             DemandeExcelGenerationDTO demandeExcelGenerationDto = demarchesDataProvider.getDemandeExcelGenerationDTO();
             if (demandeExcelGenerationDto.getBuildIdNameMap() != null
@@ -122,7 +123,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             writeRow(workbook, sections, headerRow, null, true);
             List<Row> rows = new ArrayList<>();
             int n = 1;
-
             for (DemandeDTO demande : demandes) {
                 if (buildId.equals(demande.getConfig().get("buildId").asText())) {
                     LOGGER.info("Ecriture de la ligne de la demande {}...", demande.getPkDemandes());
@@ -150,7 +150,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         workbook.close();
     }
 
-    private void writeRow(XSSFWorkbook workbook, ArrayNode sections, Row row, DemandeDTO demande, boolean header) {
+    private void writeRow(XSSFWorkbook workbook, JSONArray sections, Row row, DemandeDTO demande, boolean header) {
         // 2 premières colonnes, qui ne concernent pas le contenu de la demande
         if (header) {
             Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
@@ -171,38 +171,37 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         genererColonnes(workbook, sections, row, demande, header);
     }
 
-    private void genererColonnes(XSSFWorkbook workbook, ArrayNode sections, Row row, DemandeDTO demande,
+    private void genererColonnes(XSSFWorkbook workbook, JSONArray sections, Row row, DemandeDTO demande,
             boolean header) {
-
+        // Reste des colonnes, qui sont générées à partir du fichier Recap BO
         for (int i = 0; i < sections.size(); i++) {
-            JsonNode section = sections.get(i);
-            String sectionType = section.has("type") ? section.get("type").asText() : "";
+            JSONObject section = (JSONObject) sections.get(i);
+            String sectionType = (String) section.get("type");
 
             XSSFCellStyle cellStyle = workbook.createCellStyle();
             setCellStyle(cellStyle, header, i + 1);
 
-            if (!"sousSections".equals(sectionType)) {
-                generateBasicField(section.has("titre") ? section.get("titre").asText() : "", section, row, cellStyle,
+            if (!StringUtils.equals(sectionType, "sousSections")) {
+                generateBasicField((String) section.get("titre"), section, row, cellStyle,
                         demande == null ? null : demande.getContenu(), header);
-            } else if (section.has("sousSections") && section.get("sousSections").isArray()) {
-                ArrayNode sousSections = (ArrayNode) section.get("sousSections");
-                for (JsonNode sect : sousSections) {
-                    generateBasicField(section.has("titre") ? section.get("titre").asText() : "", sect, row, cellStyle,
+            } else {
+                JSONArray sousSections = ((JSONArray) section.get("sousSections"));
+                for (Object sect : sousSections) {
+                    generateBasicField((String) section.get("titre"), (JSONObject) sect, row, cellStyle,
                             demande == null ? null : demande.getContenu(), header);
                 }
             }
         }
     }
 
-    private void generateBasicField(String nomSection, JsonNode jsonObject, Row row, CellStyle cellStyle,
+    private void generateBasicField(String nomSection, JSONObject jsonObject, Row row, CellStyle cellStyle,
             JsonNode node, boolean header) {
-        String type = jsonObject.has("type") ? jsonObject.get("type").asText() : "";
+        String type = (String) jsonObject.get("type");
+        if (StringUtils.equals(type, "champs")) {
+            JSONArray champs = (JSONArray) jsonObject.get("champs");
+            for (Object o : champs) {
+                JSONObject champ = (JSONObject) o;
 
-        if ("champs".equals(type)) {
-            ArrayNode champs =
-                    jsonObject.has("champs") && jsonObject.get("champs").isArray() ? (ArrayNode) jsonObject.get(
-                            "champs") : MAPPER.createArrayNode();
-            for (JsonNode champ : champs) {
                 Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
                 cell.setCellStyle(cellStyle);
                 String cellValue = getFieldValue(champ, node, header);
@@ -212,20 +211,18 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 cell.setCellValue(cellValue);
             }
         } else if ("tableau".equals(type)) {
-            ArrayNode columns =
-                    jsonObject.has("columns") && jsonObject.get("columns").isArray() ? (ArrayNode) jsonObject.get(
-                            "columns") : MAPPER.createArrayNode();
-            for (JsonNode column : columns) {
+            JSONArray columns = ((JSONArray) jsonObject.get("columns"));
+            for (Object column : columns) {
                 Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
                 cell.setCellStyle(cellStyle);
                 if (header) {
-                    cell.setCellValue(nomSection + " - " + column.get(LABEL).asText());
+                    cell.setCellValue(nomSection + " - " + ((JSONObject) column).get(LABEL));
                 } else {
                     JsonNode node0 = getNode(node, jsonObject, "path");
                     StringBuilder valeurColonne = new StringBuilder();
                     if (node0 instanceof ArrayNode) {
                         for (JsonNode elem : node0) {
-                            String val = getFieldValue(column, elem, header);
+                            String val = getFieldValue((JSONObject) column, elem, header);
                             if (StringUtils.isNotBlank(val)) {
                                 if (!valeurColonne.isEmpty()) {
                                     valeurColonne.append(", ");
@@ -240,41 +237,36 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
     }
 
-    private JsonNode getNode(JsonNode node, JsonNode champ, String ref) {
-        if (node == null || champ == null || !champ.has(ref)) {
-            return NullNode.getInstance();
-        }
-
-        String path = champ.get(ref).asText().replace(CONTENU, "/").replace(".", "/");
+    private JsonNode getNode(JsonNode node, JSONObject champ, String ref) {
+        String path = champ.get(ref).toString().replace(CONTENU, "/").replace(".", "/");
         if (path.charAt(0) != '/') {
             path = "/" + path;
         }
         return node.at(path);
     }
 
-    private String buildAdresseHTML(JsonNode node, JsonNode champ) {
+    private String buildAdresseHTML(JsonNode node, JSONObject champ) {
         String ligne1 = getNode(node, champ, "ligne1").textValue();
         String ligne2 = getNode(node, champ, "ligne2").textValue();
         String ligne3 = getNode(node, champ, "ligne3").textValue();
-        StringBuilder ret = new StringBuilder();
+        StringBuilder ret = new StringBuilder("");
         if (StringUtils.isNotEmpty(ligne1)) {
             ret.append(ligne1);
         }
         if (StringUtils.isNotBlank(ligne2)) {
-            ret.append("\n").append(ligne2);
+            ret.append("\n" + ligne2);
         }
         if (StringUtils.isNotBlank(ligne3)) {
-            ret.append("\n").append(ligne3);
+            ret.append("\n" + ligne3);
         }
         return ret.toString();
     }
 
-    private String getFieldValue(JsonNode jsonObject, JsonNode node, boolean header) {
-        String type = jsonObject.has("type") ? jsonObject.get("type").asText() : "";
-
+    private String getFieldValue(JSONObject jsonObject, JsonNode node, boolean header) {
+        String type = (String) jsonObject.get("type");
         if ("chaine".equals(type) || "texte".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 JsonNode node0 = getNode(node, jsonObject, "path");
                 if (node0 == null || node0 instanceof NullNode) {
@@ -285,9 +277,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             }
         } else if ("choix".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
-                String mapping = jsonObject.has("mapping") ? jsonObject.get("mapping").asText() : "";
+                String mapping = jsonObject.get("mapping").toString();
                 if (StringUtils.equals(mapping.toLowerCase(), "nationalites")) {
                     JsonNode node0 = getNode(node, jsonObject, "path");
                     if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
@@ -303,9 +295,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                         return paysCache.get(node0.asText()).getLibelle();
                     }
                 } else if (mapping.toLowerCase().startsWith("properties_")) {
-                    String path = jsonObject.has("path") ? jsonObject.get("path").asText().replace(CONTENU, "/")
-                            .replace(".", "/") : "";
-                    if (!path.startsWith("/")) {
+                    String path = jsonObject.get("path").toString().replace(CONTENU, "/").replace(".", "/");
+                    if (path.charAt(0) != '/') {
                         path = "/" + path;
                     }
                     JsonNode pathNode = node.at(path);
@@ -315,9 +306,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     String key = mapping.substring(11) + "_FR";
                     return propertiesService.getPropertyPourRecap(key, pathNode, true);
                 } else {
-                    String path = jsonObject.has("path") ? jsonObject.get("path").asText().replace(CONTENU, "/")
-                            .replace(".", "/") : "";
-                    if (!path.startsWith("/")) {
+                    String path = jsonObject.get("path").toString().replace(CONTENU, "/").replace(".", "/");
+                    if (path.charAt(0) != '/') {
                         path = "/" + path;
                     }
                     JsonNode pathNode = node.at(path);
@@ -326,9 +316,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     } else {
                         // Prise en compte valeur/valeurExtra
                         if (pathNode instanceof ObjectNode) {
-                            JsonNode valeurNode = node.at(path + "/valeur");
-                            if (valeurNode instanceof MissingNode || valeurNode instanceof NullNode || (
-                                    valeurNode instanceof TextNode && valeurNode.textValue().equals("AUTRE"))) {
+                            pathNode = node.at(path + "/valeur");
+                            if (pathNode instanceof MissingNode || pathNode instanceof NullNode
+                                    || (pathNode instanceof TextNode && pathNode.textValue().equals("AUTRE"))) {
                                 JsonNode node0 = node.at(path + "/valeurExtra");
                                 if (node0 == null || node0 instanceof NullNode) {
                                     return "";
@@ -349,7 +339,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             }
         } else if ("date".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 JsonNode node0 = getNode(node, jsonObject, "path");
                 if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
@@ -358,9 +348,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     LocalDateTime dateTime = LocalDateTime.parse(node0.asText(),
                             DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                     // Si la date a un format d'affichage
-                    String format = jsonObject.has("displayJavaFormat")
-                            ? jsonObject.get("displayJavaFormat").asText()
-                            : "";
+                    String format = (String) jsonObject.get("displayJavaFormat");
                     if (StringUtils.isBlank(format)) {
                         format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
                     }
@@ -369,11 +357,11 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             }
         } else if ("choixMultiple".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 JsonNode n = getNode(node, jsonObject, "path");
-                if (n != null && n instanceof ObjectNode) {
-                    Iterator<Map.Entry<String, JsonNode>> it = n.fields();
+                if (n instanceof ObjectNode list) {
+                    Iterator<Map.Entry<String, JsonNode>> it = list.fields();
                     StringBuilder ret = new StringBuilder();
                     while (it.hasNext()) {
                         Map.Entry<String, JsonNode> entry = it.next();
@@ -390,7 +378,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             }
         } else if ("adresse".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 String ret = buildAdresseHTML(node, jsonObject);
                 if (StringUtils.isNotEmpty(ret)) {
@@ -406,13 +394,13 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             }
         } else if ("adresseMc".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 return buildAdresseHTML(node, jsonObject);
             }
         } else if ("iban".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 String titulaire = getNode(node, jsonObject, "titulaire").textValue();
                 String bic = getNode(node, jsonObject, "bic").textValue();
@@ -421,7 +409,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             }
         } else if ("telephone".equals(type)) {
             if (header) {
-                return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
+                return (String) jsonObject.get(LABEL);
             } else {
                 String indicatif = getNode(node, jsonObject, "indicatif").textValue();
                 String numero = getNode(node, jsonObject, "numero").textValue();
@@ -448,4 +436,5 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             cellStyle.setWrapText(true);
         }
     }
+
 }

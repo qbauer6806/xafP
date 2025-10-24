@@ -69,9 +69,9 @@ import mc.gouv.xaf.shared.exception.DemarcheException;
 
 /**
  * Services proposés par le module API 2 Tiers des TS (donc appelé par le système tiers, via le proxy 2 tiers)
- * 
+ *
  * @author qdeme
- * 
+ *
  */
 @ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
 @Component
@@ -99,25 +99,25 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     @Autowired
     private GUKafkaProducer guKafkaProducer;
-    
+
     @Autowired
     private DemandesConfigService demandesConfigService;
-    
+
     @Autowired
     private PaysCache paysCache;
-    
+
     @Autowired
     private AccessService accessService;
 
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     @Autowired
     private BrouillonsService brouillonsService;
-    
+
     @Autowired
     private DemandesService demandesService;
-    
+
     @Autowired(required = false)
     private CustomRequestService customRequestService;
 
@@ -146,7 +146,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
         LOGGER.info("AfApiService2Tiers.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> page = afBackUtils.getAfApiClient2Tiers().getDemandesPageable(usagerId, paramDTO);
-        
+
         for (DemandeDTO demande : page.getContent()) {
             processDemandeFromSystemeTiers(demande);
         }
@@ -175,16 +175,16 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     @Override
     public void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU) {
         LOGGER.info("AfApiService2Tiers.desinscriptionUsager({}, {})", usagerId, AfBackUtils.logSafe(langue));
-        
+
         LOGGER.info("Suppression des brouillons...");
         brouillonsService.deleteBrouillons(usagerId);
 
         LOGGER.info("Suppression de l'accès...");
         accessService.deleteAccess(usagerId);
-        
+
         LOGGER.info("Envoi d'un message sur Kafka...");
         guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
-        
+
         LOGGER.info("Notification du système tiers...");
         afBackUtils.getAfApiClient2Tiers().desinscriptionUsager(usagerId, langue);
     }
@@ -197,7 +197,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         accessDto.setUsagerId(usagerId);
         accessDto.setContenu(dto.getContenu());
         AccessDTO access = accessService.saveOrUpdateAccess(usagerId, accessDto);
-        
+
         // Notifier MonGuichet de la création de l'accès
         guKafkaProducer.sendCreationAccesTSMessage(usagerId);
         return access;
@@ -225,18 +225,18 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     @Override
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
-        
+
         // Injecter la fk vers la config actuelle, que le système tiers devra stocker
         demande.setBuildId(demandesConfigService.getLastBuildId());
-        
+
         DemandeDTO demandeCreee = afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
-        
+
         // Suppression du brouillon éventuel
         if (demande.getBrouillonId() != null) {
             LOGGER.info("Suppression du brouillon associé à la demande (brouillonId={})", demande.getBrouillonId());
             brouillonsService.deleteBrouillon(demande.getBrouillonId(), usagerId, true);
         }
-        
+
         return demandeCreee;
     }
 
@@ -345,20 +345,20 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         LOGGER.info("AfApiService2Tiers.deleteBrouillon({}, {})", pkBrouillons, usagerId);
         brouillonsService.deleteBrouillon(pkBrouillons, usagerId, false);
     }
-    
+
     @Override
     public byte[] getDemandeRecap(Integer usagerId, Integer demandeId, DonneesMConnectDTO donneesMConnectDTO) {
         LOGGER.info("AfApiService2Tiers.getDemandeRecap({}, {}, {})", usagerId, demandeId, donneesMConnectDTO);
         return afBackUtils.getAfApiClient2Tiers().getDemandeRecap(demandeId, usagerId, donneesMConnectDTO);
     }
-    
+
     @Override
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.updateDemande({}, {})", demandeId, usagerId);
         return afBackUtils.getAfApiClient2Tiers().updateDemande(demandeId, demande, usagerId);
     }
-    
+
     @Override
     public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
         return afBackUtils.getAfApiClient2Tiers().lockDemande(demandeId, usagerId, timestamp);
@@ -404,7 +404,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         String account = gouvPropertiesResolver.getDemarcheId();
 
         LOGGER.info("====================== saveFile({},{}/{}/{})", usagerId, account, FileUtils.DEFAULT_CONTAINER, file);
-        
+
         // Ajout de l'accès et de l'UUID en préfixe, avant soumission à FILE
         AccessBO access = accessService.getAccessBO(usagerId, true);
         if (access == null) {
@@ -421,7 +421,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
             afBackUtils.getFileClient()
                     .saveFile(account, FileUtils.DEFAULT_CONTAINER, data.getInputStream(), file, data.getContentType(), meta, os);
             fileResponseDTO = objectMapper.readValue(os.toByteArray(), FileResponseDTO.class);
-            
+
             // Override du champ "message" du ResponseDTO afin d'y indiquer le filename effectif correspondant à la ressource stockée.
             // Car, en mode 2/3, c'est l'API GenTS qui génère l'UUID (voir au dessus), et non le système tiers.
             // Il faut donc trouver un moyen d'indiquer au système tiers l'URL du fichier stocké.
@@ -429,7 +429,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'appel à FILE pour la sauvegarde du fichier", e);
         }
-        
+
         return fileResponseDTO;
     }
 
@@ -539,52 +539,52 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         }
         return headerMap;
     }
-    
+
     @Override
     public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params)
             throws Exception {
         return null;
     }
-    
+
     // TODO A SUPPRIMER car devenu inutile dans XAF12 (ne sera plus appelé)
     @Override
     public void deleteFile(String string) {
         // TODO Auto-generated method stub
     }
-    
+
     @Override
     @Transactional
     public JsonNode creerConfig(JsonNode config) {
         return demandesConfigService.saveConfig(config);
     }
-    
+
     @Override
     public List<PaysDTO> getPays() {
         return new ArrayList<>(paysCache.getValues());
     }
-    
+
     /**
-     * 
+     *
      * Méthode servant à compléter le DemandeDTO remis par le système tiers avant restitution au FO
      * Car il a quelques ajustements à faire dans le cadre de la solution 2/3, dans laquelle l'API se place en intermédiaire.
-     * 
+     *
      * @param demande
      * @return
      */
     private DemandeDTO processDemandeFromSystemeTiers(DemandeDTO demande) {
         // Injection de la config avant retour au FO
         demande.setConfig(demandesConfigService.getConfig(demande.getBuildId()).getContenu());
-        
+
         // Injection d'une meta BACK_FRONT_* si pas de meta ou si présente mais pas BACK_FRONT_* ni FRONT_IDX_*
         // Ceci afin de se prémunir d'une erreur lors de l'affichage de la demande dans le FO
         // Cf. ticket https://redmine.monaco-gouvernement.mc/issues/71709
         for (DemandeFileDTO file : demande.getFichiers()) {
-            
+
             if (StringUtils.isBlank(file.getMeta()) || (!StringUtils.isBlank(file.getMeta()) && !file.getMeta().startsWith(FileUtils.META_BACK_FRONT) && !file.getMeta().startsWith(FileUtils.META_FRONT_IDX))) {
                 file.setMeta(FileUtils.META_BACK_FRONT_SYSTEME_TIERS);
             }
         }
-        
+
         return demande;
     }
 

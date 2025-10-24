@@ -14,7 +14,7 @@ public class AfMotifsTemplateModelProvider extends AfTemplateModelProvider {
     private MotifsTemplateModelProvider motifsTemplateModelProvider;
 
     public Map<String, Object> getModel(DemandeDTO demandeDTO) {
-        Map<String, Object> model = getGenericModelDemande(demandeDTO);
+        Map<String, Object> model = getGenericModelMail(demandeDTO);
         if (motifsTemplateModelProvider != null) {
             motifsTemplateModelProvider.setModel(model, demandeDTO);
         }

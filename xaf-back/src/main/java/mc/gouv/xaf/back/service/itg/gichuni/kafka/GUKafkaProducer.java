@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -31,5 +32,7 @@ public interface GUKafkaProducer {
     void sendSynchronisationDemandesMessage(List<UsagerDemandesRecapDTO> usagerDemandesRecap);
 
     void sendCreationAccesTSMessage(Integer usagerId);
+
+    void sendSuppressionPaiementMessage(String userLegacyId, String requestNumber);
 
 }

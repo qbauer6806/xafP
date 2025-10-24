@@ -169,19 +169,13 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statutName) {
+    public void updateMultipleStatuts(List<DemandeBO> demandes, String statutName) {
         try {
-            List<DemandeDTO> saved = new ArrayList<>();
-            for (DemandeDTO demandeDTO : demandes) {
-                DemandeBO demandeBO = demandesTransformer.dto2Bo(demandeDTO);
-                AccessBO accessBO = new AccessBO();
-                accessBO.setPkAccess(demandeDTO.getFkAccess());
-                accessBO.setUsagerId(demandeDTO.getUsagerId());
-                demandeBO.setFkAccess(accessBO);
-                DemandeDTO demandeDTOSaved = updateStatut(demandeBO, statutName, null, null, null, null, null);
-                saved.add(demandeDTOSaved);
+            for (DemandeBO demandeBo : demandes) {
+                AccessBO accessBO = demandeBo.getFkAccess();
+                accessBO.setUsagerId(demandeBo.getUsager().getId());
+                updateStatut(demandeBo, statutName, null, null, null, null, null);
             }
-            return saved;
         } catch (Exception e) {
             LOGGER.error("Erreur lors de updateMultipleStatuts");
             ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(

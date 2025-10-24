@@ -26,7 +26,7 @@ public interface DemarchesDataProvider {
      */
     String getStatusLibelle(String statusName);
 
-    String getDemandeur(DemandeDTO demandeDTO);
+    String getDemandeur(DemandeDTO contenuDemandeDTO);
     
     default String getUsagerTelephone(GichuniUsagerDTO usager) {
     	return null;
@@ -237,8 +237,32 @@ public interface DemarchesDataProvider {
         return null;
     }
 
+    default String getPremierStatutCreationDemande(DemandeDTO demande) {return "";}
+
     default String getLibelleDernierStatut(DemandeDTO demande) {
         return demande.getDernierStatut().getLibelle();
+    }
+
+    default boolean purgerDonneesMonetiques() { return false; }
+
+    default String statutPaiementARegulariser() {
+        return "PAIEMENT_A_REGULARISER";
+    }
+
+    default String statutPaiementARegulariserEnCours() {
+        return "EN_COURS_PAIEMENT_A_REGULARISER";
+    }
+
+    default List<String> statutsDejaEncaisses() {
+        return new ArrayList<>();
+    }
+
+    default String getObjetPaiement(DemandeDTO demande) {
+        return "object";
+    }
+
+    default String getProcedureCode() {
+        return "procedureCode";
     }
 
     default DemandeRechercheDTO getDemandeRecherche() {

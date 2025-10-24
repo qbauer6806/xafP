@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.service.data.impl;
 
+import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
@@ -33,12 +34,12 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
     }
 
     @Override
-    public List<DemandeDTO> getDemandesFromCommande(Integer pkCommandes) {
-        List<DemandeDTO> demandes = new ArrayList<>();
+    public List<DemandeBO> getDemandesFromCommande(Integer pkCommandes) {
+        List<DemandeBO> demandes = new ArrayList<>();
         List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(
                 pkCommandes);
         for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
-            demandes.add(demandesTransformer.bo2Dto(commandeDemandeBO.getDemande(), new String[] {}));
+            demandes.add(commandeDemandeBO.getDemande());
         }
         return demandes;
     }

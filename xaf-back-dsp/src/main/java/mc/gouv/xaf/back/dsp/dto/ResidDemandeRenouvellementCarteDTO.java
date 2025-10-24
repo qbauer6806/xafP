@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidMotifRenouvellementEnum;
+import mc.gouv.xaf.back.dsp.enums.common.ResidTypeCanalDemandeEnum;
 
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -24,6 +25,9 @@ public class ResidDemandeRenouvellementCarteDTO implements Serializable {
 
     @Getter
     private ResidMotifRenouvellementEnum motifRenouvellement;
+
+    @Getter
+    private ResidTypeCanalDemandeEnum typeCanalDemande;
 
     @JsonProperty("demandeBaseV2")
     public ResidDemandeBaseDTO getDemandeBase() {

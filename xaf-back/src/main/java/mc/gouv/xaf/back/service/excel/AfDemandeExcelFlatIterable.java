@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.excel;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -49,7 +50,8 @@ public class AfDemandeExcelFlatIterable implements Iterable<AfDemandeExcelFlatDT
             private void loadNextPage() {
                 Pageable pageRequest = PageRequest.of(currentPage++, pageSize);
                 Page<AfDemandeExcelFlatDTO> page = demandesService.retrieveDemandesExcelPageable(pageRequest,
-                        excelRechercheDTO, total);
+                        excelRechercheDTO, total
+                );
                 currentIterator = page.iterator();
             }
         };

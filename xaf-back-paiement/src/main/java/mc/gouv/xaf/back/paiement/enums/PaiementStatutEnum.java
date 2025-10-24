@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum PaiementStatutEnum {
     EMPREINTE_VALIDE("Empreinte bancaire valide"),
     EMPREINTE_EXPIREE("Empreinte bancaire expirée"),
+    CARTE_VALIDE("Carte bancaire valide"),
     DEBIT_ECHEC("Débit en échec"),
     DEBIT_ABANDONNE("Débit abandonné"),
     DEBIT_REALISE("Débit réalisé");

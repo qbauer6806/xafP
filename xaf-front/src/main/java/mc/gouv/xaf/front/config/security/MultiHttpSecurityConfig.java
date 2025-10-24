@@ -71,14 +71,10 @@ public class MultiHttpSecurityConfig {
         if (frontGouvPropertiesResolver.isProxy2tiersActivation()) {
             LOGGER.info(
                     "Activation du proxy 2 tiers, donc ouverture et sécurisation de l'endpoint /api2tiers/** en JWT");
-
-            http.securityMatcher("/api2tiers/**")
-                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .authorizeHttpRequests(
-                            authz -> authz.requestMatchers("/*").permitAll().anyRequest().authenticated())
-                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
-                    .csrf(AbstractHttpConfigurer::disable);
-
+            http.securityMatcher("/api2tiers/**").sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+                    .requestMatchers("/*").permitAll().anyRequest().authenticated().and()
+                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
         } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas d'ouverture de l'endpoint /api2tiers/**");
 

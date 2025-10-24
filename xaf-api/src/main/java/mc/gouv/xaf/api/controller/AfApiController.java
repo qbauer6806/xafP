@@ -51,9 +51,11 @@ import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
 
 /**
- * Controller exposant l'API REST destinée à être appelée par le FO.
+ * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
+ * REST de Spring
  *
  * @author qdeme
+ * @author fgaujous
  */
 @RestController
 @RequestMapping(value = "/api/v1", produces = "application/json")
@@ -95,16 +97,16 @@ public class AfApiController {
 
     @PutMapping(value = "/demandes/{demandeId}/lock")
     public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return afApiService.lockDemande(demandeId, usagerId, timestamp);
+        return new DemandeDTO();
     }
 
     @PutMapping(value = "/demandes/{demandeId}/unlock")
     public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return afApiService.unlockDemande(demandeId, usagerId);
+        return new DemandeDTO();
     }
 
     @PutMapping(value = "/demandes/{demandeId}/complements/{icId}")
@@ -137,7 +139,8 @@ public class AfApiController {
     public @ResponseBody Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId,
             @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
             @RequestParam(required = false) List<String> status, @RequestParam String lang,
-            @RequestParam(required = false) List<String> statusSimplifie) {
+            @RequestParam(required = false) List<String> statusSimplifie
+    ) {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> demandeDTOS = afApiService.getDemandesPageable(usagerId,
                 new PageParamDTO(page, size, sort, direction, status, lang, statusSimplifie));

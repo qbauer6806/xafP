@@ -490,13 +490,6 @@ public class AfBackUtils {
         return statutName.toLowerCase().replace("_", "-");
     }
 
-    /**
-     * Permet de récupérer le demandeur
-     */
-    public String getDemandeur(DemandeDTO demande) {
-        return demarchesDataProvider.getDemandeur(demande);
-    }
-
     public String getCivilite(Short titre, String locale) {
         return messageSource.getMessage("civilite." + titre, null, Locale.of(locale));
     }

@@ -18,7 +18,6 @@ import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
@@ -41,7 +40,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,9 +61,6 @@ public class GestionTemplateController extends AbstractController {
     private GestionTemplateService gestionTemplateService;
 
     @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private TemplatesService templatesService;
 
     @Autowired
@@ -84,7 +79,6 @@ public class GestionTemplateController extends AbstractController {
     private DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
-    private static final String TS_CODE_VAR = "tsCode";
     private static final String FR_ONLY_VAR = "frOnly";
     private static final String VARIABLES_GLOBALES_VAR = "variablesGlobales";
     private static final String MARQUEURS_VAR = "marqueurs";
@@ -94,11 +88,9 @@ public class GestionTemplateController extends AbstractController {
 
     @GetMapping
     public ModelAndView getTemplates() {
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         LOGGER.info("Appel de la page /gestion/template. Méthode getTemplates");
         ModelAndView mav = new ModelAndView("gestion/template/template");
         boolean frOnly = isFrenchOnly();
-        mav.addObject(TS_CODE_VAR, demarcheId);
         mav.addObject(FR_ONLY_VAR, frOnly);
         mav.addObject("pkDemandeTest", demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
         List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates("fr") : templatesService.getTemplates();
@@ -109,16 +101,15 @@ public class GestionTemplateController extends AbstractController {
 
     @GetMapping(path = "/update")
     public ModelAndView formUpdateInit(@ModelAttribute("templateFormBean") TemplateFormBean templateFormBean) {
-        LOGGER.info("Appel de la page /gestion/template/update. Méthode formUpdateInit");
+        LOGGER.info("Appel de la page /gestion/template/templateupdate. Méthode formUpdateInit");
         ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
-        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject(FR_ONLY_VAR, isFrenchOnly());
         mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales());
         mav.addObject(MARQUEURS_VAR, getMarqueursList());
         templateFormBean.setPkDemandeTest(
                 demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
-        LOGGER.info("======================= Fin /gestion/template/update. Méthode formUpdateInit");
+        LOGGER.info("======================= Fin /gestion/template/templateupdate. Méthode formUpdateInit");
         return mav;
     }
 
@@ -141,15 +132,14 @@ public class GestionTemplateController extends AbstractController {
     @GetMapping(path = "/create")
     public ModelAndView formCreateSave(
             @ModelAttribute("templateCreateFormBean") TemplateCreateFormBean templateCreateFormBean) {
-        LOGGER.info("Appel de la page /gestion/template/templatecreate. Méthode formCreateInit");
+        LOGGER.info("Appel de la page /gestion/template/templatecreate. Méthode formCreateSave");
         ModelAndView mav = new ModelAndView("gestion/template/templatecreate");
-        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject(FR_ONLY_VAR, isFrenchOnly());
         mav.addObject(VARIABLES_GLOBALES_VAR, getVariablesGlobales());
         mav.addObject(MARQUEURS_VAR, getMarqueursList());
         templateCreateFormBean.setPkDemandeTest(
                 demandesService.getDerniereDemande().orElse(new DemandeDTO()).getPkDemandes());
-        LOGGER.info("======================= Fin /gestion/template/templatecreate. Méthode formCreateInit");
+        LOGGER.info("======================= Fin /gestion/template/templatecreate. Méthode formCreateSave");
         return mav;
     }
 
@@ -157,7 +147,7 @@ public class GestionTemplateController extends AbstractController {
     public ModelAndView formCreateInit(
             @Valid @ModelAttribute("templateCreateFormBean") TemplateCreateFormBean templateCreateFormBean,
             BindingResult bindingResult, final RedirectAttributes ra) {
-        LOGGER.info("Appel de la page /gestion/template/templatecreate. Méthode formCreateInit");
+        LOGGER.info("Appel de la page /gestion/template/create. Méthode formCreateInit");
 
         if (bindingResult.hasErrors()) {
             List<String> erreurs = bindingResult.getAllErrors()
@@ -177,7 +167,7 @@ public class GestionTemplateController extends AbstractController {
 
         ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, Collections.singletonList("Le template mail a été créé avec succès"));
 
-        LOGGER.info("======================= Fin /gestion/template/templatecreate. Méthode formCreateInit");
+        LOGGER.info("======================= Fin /gestion/template/create. Méthode formCreateInit");
 
         return new ModelAndView("redirect:/gestion/template");
     }
@@ -204,21 +194,15 @@ public class GestionTemplateController extends AbstractController {
     }
 
     @PostMapping(path = "/import-templates")
-    public ModelAndView importConfig(@RequestParam("file") MultipartFile file) throws IOException {
+    public ModelAndView importConfig(@RequestParam("file") MultipartFile file, final RedirectAttributes ra)
+            throws IOException {
+
         LOGGER.info("Appel /import-templates");
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         gestionTemplateService.importConfig(file.getBytes());
+        ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES,
+                Collections.singletonList("L'import a été effectué avec succès"));
 
-        ModelAndView mav = new ModelAndView("redirect:/gestion/template");
-        boolean frOnly = isFrenchOnly();
-        mav.addObject(TS_CODE_VAR, demarcheId);
-        mav.addObject(FR_ONLY_VAR, frOnly);
-        List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates("fr") : templatesService.getTemplates();
-        mav.addObject("templateList", templateList);
-
-        LOGGER.info("======================= Fin /import-templates. La configuration a été importée avec succès");
-
-        return mav;
+        return new ModelAndView("redirect:/gestion/template");
     }
 
     @DeleteMapping(path = "/{langue}/{templateCode}")
@@ -243,11 +227,10 @@ public class GestionTemplateController extends AbstractController {
     }
 
     private List<MarqueurDTO> getMarqueursList() {
-        List<DemandeConfigBO> configs = demandesConfigService.getConfigsBO();
+        DemandeConfigBO config = demandesConfigService.getLastConfig();
         List<MarqueurDTO> marqueurs = new ArrayList<>();
-        String currentBuildId = configs.getFirst().getBuildId();
-        if (StringUtils.isNotBlank(currentBuildId)) {
-            marqueurs = marqueursService.getMarqueurs(currentBuildId);
+        if (config != null && StringUtils.isNotBlank(config.getBuildId())) {
+            marqueurs = marqueursService.getMarqueurs(config.getBuildId());
         }
         return marqueurs;
     }

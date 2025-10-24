@@ -1,11 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,20 +60,20 @@ public class ErrorController extends AbstractXafController {
             String jsonError = buffer.toString();
             LOGGER.error("Erreur reçue du FO (json brut) : {}", jsonError);
 
-            JsonArray array = JsonParser.parseString(jsonError).getAsJsonArray();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode arrayNode = objectMapper.readTree(jsonError);
 
             // Affichage de la stacktrace de chacune des erreurs
-            if (array != null) {
-                for (JsonElement elem : array) {
-                    JsonObject obj = elem.getAsJsonObject();
-                    JsonElement stack = obj.get("stack");
-                    if (stack != null && !(stack instanceof JsonNull)) {
-                        LOGGER.error(stack.getAsString());
+            if (arrayNode != null && arrayNode.isArray()) {
+                for (JsonNode objNode : arrayNode) {
+                    JsonNode stack = objNode.get("stack");
+                    if (stack != null && !stack.isNull()) {
+                        LOGGER.error(stack.asText());
                     }
                 }
             }
 
-        } catch (IOException | JsonSyntaxException e) {
+        } catch (IOException e) {
             LOGGER.error("Erreur dans ErrorServlet", e);
         }
 

@@ -88,7 +88,7 @@ public class BrouillonsTransformer {
 
     public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated,
             String lastBuildId) {
-        if (brouillonDTO.getBuildId().equals(lastBuildId)) {
+        if (lastBuildId.equals(brouillonDTO.getBuildId())) {
             // statut not transmitted
             setDernierStatut(brouillonDTO, notTransmitted);
         } else {

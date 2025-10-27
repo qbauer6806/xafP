@@ -297,11 +297,6 @@
     </dependency>
 
 
-    <!-- Quartz -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-quartz</artifactId>
-    </dependency>
 
     <!-- Pour appeler l'API GICHUNI en OIDC -->
     <dependency>

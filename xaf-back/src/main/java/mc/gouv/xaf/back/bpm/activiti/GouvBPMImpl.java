@@ -263,16 +263,6 @@ public class GouvBPMImpl implements GouvBPM {
                 .processInstanceBusinessKey(demandeId.toString())
                 .list();
 
-        LOGGER.info("Nombre d'instances actives : {}", activeInstances != null ? activeInstances.size() : "0");
-
-        List<Execution> messageExecutions = runtimeService.createExecutionQuery()
-                .messageEventSubscriptionName(ANNULATION_MESSAGE).list();
-
-        LOGGER.info("Nombre d'exécutions en attente du message 'annulationMessage' : {}",
-                messageExecutions != null ? messageExecutions.size() : "0");
-
-
-
         Map<String, Object> variables = new HashMap<>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
@@ -282,15 +272,6 @@ public class GouvBPMImpl implements GouvBPM {
         } else if (agent != null) {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
         }
-
-        // Normalement il y en a une seule
-        List<ProcessInstance> allInstances = runtimeService.createProcessInstanceQuery().list();
-        for (ProcessInstance pi : allInstances) {
-            LOGGER.info("Instance active: id={}, businessKey={}", pi.getId(), pi.getBusinessKey());
-        }
-
-        LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,
-                executions.size());
 
         if (executions.isEmpty()) {
             throw new GouvBPMException("Aucune execution pour annuler la demande : " + demandeId);

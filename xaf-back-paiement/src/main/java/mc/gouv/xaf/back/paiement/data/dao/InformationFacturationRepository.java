@@ -10,16 +10,4 @@ public interface InformationFacturationRepository extends JpaRepository<Informat
 
     void deleteByCommande_PkCommandesIn(Collection<Integer> commandeIds);
 
-    /*
-     * A partir du moyen de paiement faire une jointure entre pmnt_moyens_paiements, pmnt_commandes, pmnt_commandes_demandes, dem_demandes et dem_access pour récupérer l'usager id
-     *
-     */
-    /*TODO a voir si utils @Query("select da.usagerId from AccessBO da "+
-            "inner join DemandeBO dd on da.pkAccess = dd.fkAccess " +
-            "inner join CommandeDemandeBO cd on cd.demande = dd.pkDemandes " +
-            "inner join CommandeBO com on com.pkCommandes = cd.commande " +
-            "inner join MoyenPaiementBO mp on mp.commande = com.pkCommandes " +
-            "where mp.pkMoyensPaiements = :moyenPaiementId")
-    Integer findUsagerIdByPkMoyenPaiement(String moyenPaiementId);*/
-
 }

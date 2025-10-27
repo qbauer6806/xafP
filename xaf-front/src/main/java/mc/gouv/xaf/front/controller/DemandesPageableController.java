@@ -78,6 +78,9 @@ public class DemandesPageableController extends AbstractXafController {
         if (StringUtils.isNotBlank(lang)) {
             paramDTO.setLang(lang);
         }
+        if (statusSimplifie != null) {
+            paramDTO.setStatusSimplifie(statusSimplifie);
+        }
 
         try {
             LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);

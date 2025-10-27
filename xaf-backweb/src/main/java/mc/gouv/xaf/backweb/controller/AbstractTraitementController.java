@@ -57,6 +57,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
@@ -391,19 +392,15 @@ public class AbstractTraitementController extends AbstractController {
         // Extraire ces actions disponibles du diagramme BPM
         List<GouvBPMTask> activeTasks = gouvBPM.getActiveTasksForDemande(demande.getPkDemandes());
         if (activeTasks != null && !activeTasks.isEmpty()) {
-            GouvBPMTask currentTask = gouvBPM.getActiveTasksForDemande(demande.getPkDemandes()).getFirst();
-            actionsDisponibles = gouvBPM.getTaskStatutActions(currentTask);
+            GouvBPMTask activeTask = activeTasks.getFirst();
+            mav.addObject("activeTaskDefinitionKey", activeTask.getTaskDefinitionKey());
+            actionsDisponibles = gouvBPM.getTaskStatutActions(activeTask);
         }
         // On enlève la demande de rectification si ce n'est pas guichet virtuel
         if (demande.getCanal() != DemandeCanalEnum.GUICHET_VIRTUEL) {
             actionsDisponibles.removeIf(a -> "EN_ATTENTE_RECTIFICATION".equals(a.getStatut()));
         }
         mav.addObject("actionsDisponibles", actionsDisponibles);
-        // Ajout de la tache active
-        if (activeTasks != null && !activeTasks.isEmpty()) {
-            GouvBPMTask activeTask = activeTasks.getFirst();
-            mav.addObject("activeTaskDefinitionKey", activeTask.getTaskDefinitionKey());
-        }
 
         // Si pas d'instance de process en cours pour la demande, cela veut dire que celle-ci est terminé
         boolean isTerminee = !gouvBPM.isProcessInstanceAlive(demande.getPkDemandes());
@@ -428,6 +425,11 @@ public class AbstractTraitementController extends AbstractController {
         mav.addObject("accesDesactive", StatutSimplifieEnum.TERMINEE.equals(
                 demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()))
                 && demandesService.isAccesDesactive(demande.getPkDemandes()));
+
+        // Chargement de l'historique de la demande
+        List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demande.getPkDemandes());
+        List<DemandeHistoriqueAffichageDTO> historiqueAffichageDTOS = afBackUtils.histoDem2Ts(histosDem);
+        mav.addObject("histos", historiqueAffichageDTOS);
         return mav;
     }
 

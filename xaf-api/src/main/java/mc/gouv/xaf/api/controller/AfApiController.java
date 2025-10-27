@@ -51,11 +51,9 @@ import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
 
 /**
- * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
- * REST de Spring
+ * Controller exposant l'API REST destinée à être appelée par le FO.
  *
  * @author qdeme
- * @author fgaujous
  */
 @RestController
 @RequestMapping(value = "/api/v1", produces = "application/json")
@@ -139,8 +137,7 @@ public class AfApiController {
     public @ResponseBody Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId,
             @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
             @RequestParam(required = false) List<String> status, @RequestParam String lang,
-            @RequestParam(required = false) List<String> statusSimplifie
-    ) {
+            @RequestParam(required = false) List<String> statusSimplifie) {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> demandeDTOS = afApiService.getDemandesPageable(usagerId,
                 new PageParamDTO(page, size, sort, direction, status, lang, statusSimplifie));

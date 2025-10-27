@@ -59,7 +59,6 @@ public class DemandeExportController extends AbstractController {
             ExcelRechercheDTO excelRechercheDTO = new ExcelRechercheDTO();
             excelRechercheDTO.setCreationStartDate(creationStartDate);
             excelRechercheDTO.setCreationEndDate(creationEndDate);
-
             LOGGER.info("Constitution du modèle pour la génération Excel...");
             Map<String, Object> model = getModel(excelRechercheDTO);
 
@@ -73,7 +72,7 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("======================= Fin /ws/export/excel");
     }
 
-    protected Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
+    private Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
         LOGGER.info("DemandeExportController.getModel()");
 
         Map<String, Object> model = new HashMap<>();
@@ -85,7 +84,6 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("Fin DemandeExportController.getModel()");
 
         return model;
-
 
     }
 }

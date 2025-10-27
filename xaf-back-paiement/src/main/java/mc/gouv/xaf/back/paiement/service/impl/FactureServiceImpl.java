@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.Optional;
 
@@ -106,9 +107,10 @@ public class FactureServiceImpl implements FactureService {
             // On capture uniquement les exceptions pertinentes, avec un message explicite
             throw new RuntimeException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
         } finally {
-            // Suppression explicite du fichier temporaire (plutôt que deleteOnExit)
-            if (tempFile.exists() && !tempFile.delete()) {
-                LOGGER.warn("Échec de suppression du fichier temporaire : {}", tempFile.getAbsolutePath());
+            try {
+                Files.deleteIfExists(tempFile.toPath());
+            } catch (IOException e) {
+                LOGGER.warn("Échec de suppression du fichier temporaire pour la demande", e);
             }
         }
     }

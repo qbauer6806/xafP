@@ -29,7 +29,6 @@ public class MoyenPaiementTransformer {
         dto.setPaymentMethodRecord(bo.getPaymentMethodRecord());
         dto.setPaymentMethodName(bo.getPaymentMethodName());
         dto.setCommande(CommandeTransformer.bo2Dto(bo.getCommande()));
-        //TODO dto.setPaymentSupplier(PSPEnumTransformer.bo2String(bo.getPaymentSupplier()));
         return dto;
     }
 
@@ -48,7 +47,6 @@ public class MoyenPaiementTransformer {
         bo.setPaymentMethodRecord(dto.getPaymentMethodRecord());
         bo.setPaymentMethodName(dto.getPaymentMethodName());
         bo.setCommande(CommandeTransformer.dto2Bo(dto.getCommande()));
-        // TODO bo.setPaymentSupplier(PSPEnumTransformer.string2Bo(dto.getPaymentSupplier()));
         return bo;
     }
 

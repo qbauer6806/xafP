@@ -202,21 +202,7 @@ public class GichkeyService {
             uinfos.setType(UsagerTypeEnum.valueOf(type.toUpperCase()));
         }
 
-        JsonNode invoiceAddressNode = node.get("invoice_address");
-        if (invoiceAddressNode != null && !invoiceAddressNode.isEmpty()) {
-            AdresseFacturationDTO invoiceAddress = new AdresseFacturationDTO();
-            String streetAddress = invoiceAddressNode.get("street_address") != null ? invoiceAddressNode.get("street_address").asText() : "";
-            // On supprime les compléments d'adresse de l'adresse de facturation
-            String[] split = streetAddress.split("\\n");
-            invoiceAddress.setAdresse(split[0]);
-            invoiceAddress.setComplAdresse1(split.length > 1 ? split[1] : "");
-            invoiceAddress.setComplAdresse2(split.length == 3 ? split[2] : "");
-            invoiceAddress.setCodePostal(invoiceAddressNode.path("postal_code").asText(""));
-            invoiceAddress.setPaysCode(invoiceAddressNode.path("country").asText(""));
-            invoiceAddress.setVille(invoiceAddressNode.path("locality").asText(""));
-            uinfos.setAdresseFacturation(invoiceAddress);
-        }
-
+        constructInvoiceAdress(node, uinfos);
         uinfos.setTokenInfo(tokenInfo);
 
         // Récupération des informations MConnect si elles sont présentes
@@ -257,6 +243,23 @@ public class GichkeyService {
             }
         }
         return uinfos;
+    }
+
+    private static void constructInvoiceAdress(ObjectNode node, UsagerInfosDTO uinfos) {
+        JsonNode invoiceAddressNode = node.get("invoice_address");
+        if (invoiceAddressNode != null && !invoiceAddressNode.isEmpty()) {
+            AdresseFacturationDTO invoiceAddress = new AdresseFacturationDTO();
+            String streetAddress = invoiceAddressNode.get("street_address") != null ? invoiceAddressNode.get("street_address").asText() : "";
+            // On supprime les compléments d'adresse de l'adresse de facturation
+            String[] split = streetAddress.split("\\n");
+            invoiceAddress.setAdresse(split[0]);
+            invoiceAddress.setComplAdresse1(split.length > 1 ? split[1] : "");
+            invoiceAddress.setComplAdresse2(split.length == 3 ? split[2] : "");
+            invoiceAddress.setCodePostal(invoiceAddressNode.path("postal_code").asText(""));
+            invoiceAddress.setPaysCode(invoiceAddressNode.path("country").asText(""));
+            invoiceAddress.setVille(invoiceAddressNode.path("locality").asText(""));
+            uinfos.setAdresseFacturation(invoiceAddress);
+        }
     }
 
     public HttpResponse logout(UsagerInfosDTO uinfos) {

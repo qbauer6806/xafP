@@ -8,4 +8,8 @@ public class MwpaymtConstant {
     public static final String CANCEL_PATH = LYRA_PATH + "/token-cancel";
     public static final String DEBIT_PATH = LYRA_PATH + "/debit";
 
+    private MwpaymtConstant() {
+        throw new IllegalStateException("Utility class");
+    }
+
 }

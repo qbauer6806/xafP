@@ -61,6 +61,7 @@ import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
+import mc.gouv.xaf.back.paiement.service.kafka.dto.AffichagePaiementMessage;
 import mc.gouv.xaf.back.paiement.service.kafka.dto.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.transformer.MwpaymtTransformer;
 import mc.gouv.xaf.back.paiement.utils.PaiementUtils;
@@ -108,7 +109,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(rollbackFor = Exception.class)
 public class PaiementServiceImpl implements PaiementService {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
     private static final String TARIF_CR_DEMAT_KEY = "XAF_TARIF_CR_DEMAT";
@@ -116,6 +116,8 @@ public class PaiementServiceImpl implements PaiementService {
     private static final String MAIL_DEBIT_ECHEC_AGENT_CODE = "MAIL_DEBIT_ECHEC_AGENT";
     private static final String MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE = "MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT";
     private static final String MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE = "MAIL_RATTRAPAGE_DEBIT_ECHEC_TECHNIQUE";
+    public static final String OBJET = "_OBJET";
+    public static final String CORPS = "_CORPS";
 
     @Autowired
     private TableauPaiementService tableauPaiementService;
@@ -357,7 +359,7 @@ public class PaiementServiceImpl implements PaiementService {
         try {
             PropertiesDTO property = propertiesService.getProperty(SLEEP_TIME_ECRITURE_DONNEES_MONETIQUES);
             if(property != null && property.getValue() != null) {
-                LOGGER.info("Attente " + Integer.valueOf(property.getValue())+ "millisec lors du callback");
+                LOGGER.info("Attente {} millisec lors du callback", Integer.valueOf(property.getValue()));
                 Thread.sleep(Integer.valueOf(property.getValue()));
             } else {
                 LOGGER.info("Attente 2 sec lors du callback");
@@ -463,8 +465,8 @@ public class PaiementServiceImpl implements PaiementService {
             strException = strException.substring(0, 3000) + "...<br/>";
         }
         model.put("exception", strException);
-        mailService.sendMailSupport(MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_OBJET",
-                MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + "_CORPS", mailingLists, null, identifiant, 0, model, null);
+        mailService.sendMailSupport(MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + OBJET,
+                MAIL_RATTRAPAGE_DEBIT_ECHEC_CODE + CORPS, mailingLists, null, identifiant, 0, model, null);
     }
 
     @Override
@@ -501,7 +503,7 @@ public class PaiementServiceImpl implements PaiementService {
             debit = createDebitEnEchec();
             CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
             commandeOperationRepository.save(operation);
-            majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(),
+            majHistoriqueDebit(pkDemandes, demandeBo, debit.getTransactionAction().getActionDebit(),
                     moyenPaiement, commandeDemande);
             envoiMailAgent(demandesService.getDemande(pkDemandes), false);
             postKafkaMessage(usagerId, moyenPaiement, debit, operation, demandeBo);
@@ -509,7 +511,7 @@ public class PaiementServiceImpl implements PaiementService {
         }
         CommandeOperationBO operation = getCommandeOperationBO(debit, commandeDemande);
         commandeOperationRepository.save(operation);
-        majHistoriqueDebit(pkDemandes, demandeBo, usagerId, debit.getTransactionAction().getActionDebit(),
+        majHistoriqueDebit(pkDemandes, demandeBo, debit.getTransactionAction().getActionDebit(),
                 moyenPaiement, commandeDemande);
         postKafkaMessage(usagerId, moyenPaiement, debit, operation, demandeBo);
         logEndMethod(LOGGER);
@@ -519,17 +521,18 @@ public class PaiementServiceImpl implements PaiementService {
     private void postKafkaMessage(Integer usagerId, MoyenPaiementBO moyenPaiement, DebitOutputDTO debit,
             CommandeOperationBO operation, DemandeBO demandeBo) {
         DemandeDTO demande = demandesTransformer.bo2Dto(demandeBo);
-        guKafkaPaiementProducer.sendAffichagePaiementMessage(usagerId.toString(),
-                demarchesDataProvider.getProcedureCode(), PaymentTypeEnum.DEMANDE,
+        AffichagePaiementMessage apm = new AffichagePaiementMessage(gouvPropertiesResolver.getDemarcheId(),
+                demarchesDataProvider.getProcedureCode(), usagerId.toString(), PaymentTypeEnum.DEMANDE,
                 moyenPaiement.getPaymentMethodToken(), debit.getTransactionAction().getDateDebit() != null
-                        ? debit.getTransactionAction().getDateDebit()
-                        : LocalDateTime.now(), operation.getMontant(),
+                ? debit.getTransactionAction().getDateDebit()
+                : LocalDateTime.now(), operation.getMontant(),
                 debit.getTransactionAction().getActionDebit().name(), demarchesDataProvider.getObjetPaiement(demande),
                 demandeBo.getIdentifiant(),
                 demande.getDateCreation().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
                 moyenPaiement.getExpiryDate(), moyenPaiement.getPaymentMethodAccount(),
                 moyenPaiement.getEffectiveBrand(),
                 gouvPropertiesResolver.getFrontUrl() + "/demande_view.html?id=" + demandeBo.getPkDemandes());
+        guKafkaPaiementProducer.sendAffichagePaiementMessage(apm);
     }
 
     void envoiMailAgent(DemandeDTO demande, boolean debitEnSucces) {
@@ -548,11 +551,11 @@ public class PaiementServiceImpl implements PaiementService {
     private EmailInfoDTO getEmailInfoDTO(boolean debitEnSucces) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         if (debitEnSucces) {
-            emailInfo.setBodyTemplateCode(MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE + "_CORPS");
-            emailInfo.setSubjectTemplateCode(MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE + "_OBJET");
+            emailInfo.setBodyTemplateCode(MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE + CORPS);
+            emailInfo.setSubjectTemplateCode(MAIL_NOTIFICATION_DEMANDE_PAYEE_AGENT_CODE + OBJET);
         } else {
-            emailInfo.setBodyTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + "_CORPS");
-            emailInfo.setSubjectTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + "_OBJET");
+            emailInfo.setBodyTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + CORPS);
+            emailInfo.setSubjectTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + OBJET);
         }
         emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
                 afBackUtils.getDemarcheInfos().getEmailFromNom());
@@ -572,7 +575,7 @@ public class PaiementServiceImpl implements PaiementService {
         commandeRepository.save(commande);
     }
 
-    private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, Integer usagerId, ActionDebitEnum actionDebit,
+    private void majHistoriqueDebit(Integer pkDemandes, DemandeBO demandeBo, ActionDebitEnum actionDebit,
             MoyenPaiementBO moyenPaiement, CommandeDemandeBO commandeDemande) {
         LOGGER.info("Mise à jour de l'historique de la demande {}", pkDemandes);
         String state = "";

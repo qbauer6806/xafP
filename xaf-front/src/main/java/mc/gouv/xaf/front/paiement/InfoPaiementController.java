@@ -58,7 +58,7 @@ public class InfoPaiementController extends AbstractXafController {
 
     private ResponseEntity processMwpaymntCall(UsagerInfosDTO usagerInfosDTO, InfoPaiementInputDTO infoPaiementInput) {
         RegisterInputDTO registerInput = mwpaymntService.getRegisterInput(usagerInfosDTO);
-        PaiementApiClient paiementApiClient = getPaiementApiClient();
+        PaiementApiClient paiementApiClient = xafFrontserverUtils.getPaiementApiClient();
 
         // Appel au PSP via l'API server pour générer le form token
         String accessToken = usagerInfosDTO.getTokenInfo().getAccessToken();
@@ -85,7 +85,7 @@ public class InfoPaiementController extends AbstractXafController {
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
         LOGGER.info("Récupération des données de paiement pour les demandes {}...", demandeIds);
-        MoneticoDTO paiement = getMoneticoApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
+        MoneticoDTO paiement = xafFrontserverUtils.getMoneticoApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
         LOGGER.info("====================== Fin /info-paiement doPost() Monetico\n");
         return ResponseEntity.ok(paiement);
     }

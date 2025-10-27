@@ -39,7 +39,7 @@ public class MoyenPaiementController extends AbstractXafController {
     private MwpaymntService mwpaymntService;
 
     @GetMapping(value = { "/moyen-paiement" })
-    public ResponseEntity getMoyenPaiement(HttpServletRequest request) {
+    public ResponseEntity<List<MoyenPaiementOutputDTO>> getMoyenPaiement(HttpServletRequest request) {
         LOGGER.info("====================== /moyen-paiement GET start...");
 
         // Appel à la gateway de paiement pour récupérer le formToken
@@ -48,7 +48,7 @@ public class MoyenPaiementController extends AbstractXafController {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<PaymentMethodReferenceDTO> references = getPaiementApiClient().getReferences(
+        List<PaymentMethodReferenceDTO> references = xafFrontserverUtils.getPaiementApiClient().getReferences(
                 usagerInfosDTO.getTokenInfo().getAccessToken());
         references.sort(new PaymentMethodReferenceComparator());
 
@@ -57,7 +57,7 @@ public class MoyenPaiementController extends AbstractXafController {
         for (PaymentMethodReferenceDTO monGuichetAlias : references) {
             try {
                 // Appel au PSP via l'API serveur pour récupérer les infos de paiement données par monguichet
-                PaymentMethodInformationDTO pmi = getPaiementApiClient().getMoyenPaiement(
+                PaymentMethodInformationDTO pmi = xafFrontserverUtils.getPaiementApiClient().getMoyenPaiement(
                         mwpaymntService.getInfoInput(monGuichetAlias), usagerInfosDTO.getTokenInfo().getAccessToken());
 
                 if (pmi.getPaymentMethodStatus().equals(PaymentMethodStatusEnum.ACTIVE)) {
@@ -75,14 +75,14 @@ public class MoyenPaiementController extends AbstractXafController {
     }
 
     @PutMapping(value = { "/moyen-paiement" })
-    public ResponseEntity saveMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInput, HttpServletRequest request) {
+    public ResponseEntity<Void> saveMoyenPaiement(@RequestBody MoyenPaiementInputDTO moyenPaiementInput, HttpServletRequest request) {
         LOGGER.info("====================== /moyen-paiement PUT start...");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        getPaiementApiClient().updateMoyenPaiement(moyenPaiementInput, usagerInfosDTO.getTokenInfo().getAccessToken());
+        xafFrontserverUtils.getPaiementApiClient().updateMoyenPaiement(moyenPaiementInput, usagerInfosDTO.getTokenInfo().getAccessToken());
         LOGGER.info("====================== /moyen-paiement PUT end...");
         return ResponseEntity.ok().build();
     }

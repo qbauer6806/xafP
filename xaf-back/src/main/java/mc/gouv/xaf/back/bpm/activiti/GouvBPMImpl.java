@@ -41,6 +41,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
+    public static final String ANNULATION_MESSAGE = "annulationMessage";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -256,20 +257,19 @@ public class GouvBPMImpl implements GouvBPM {
         LOGGER.info("Annulation de la demande {} par l'agent '{}' ou l'usager {}", demandeId, agent, usager);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
-                .messageEventSubscriptionName("annulationMessage").list();
+                .messageEventSubscriptionName(ANNULATION_MESSAGE).list();
 
         List<ProcessInstance> activeInstances = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(demandeId.toString())
                 .list();
 
-        LOGGER.info("Nombre d'instances actives : " + activeInstances.size());
-
+        LOGGER.info("Nombre d'instances actives : {}", activeInstances != null ? activeInstances.size() : "0");
 
         List<Execution> messageExecutions = runtimeService.createExecutionQuery()
-                .messageEventSubscriptionName("annulationMessage")
-                .list();
+                .messageEventSubscriptionName(ANNULATION_MESSAGE).list();
 
-        LOGGER.info("Nombre d'exécutions en attente du message 'annulationMessage' : " + messageExecutions.size());
+        LOGGER.info("Nombre d'exécutions en attente du message 'annulationMessage' : {}",
+                messageExecutions != null ? messageExecutions.size() : "0");
 
 
 
@@ -286,7 +286,7 @@ public class GouvBPMImpl implements GouvBPM {
         // Normalement il y en a une seule
         List<ProcessInstance> allInstances = runtimeService.createProcessInstanceQuery().list();
         for (ProcessInstance pi : allInstances) {
-            LOGGER.info("Instance active: id=" + pi.getId() + ", businessKey=" + pi.getBusinessKey());
+            LOGGER.info("Instance active: id={}, businessKey={}", pi.getId(), pi.getBusinessKey());
         }
 
         LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,
@@ -297,7 +297,7 @@ public class GouvBPMImpl implements GouvBPM {
         }
 
         for (Execution ex : executions) {
-            runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
+            runtimeService.messageEventReceived(ANNULATION_MESSAGE, ex.getId(), variables);
         }
     }
 

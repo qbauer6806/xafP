@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class InfoFacturationController  extends AbstractXafController {
@@ -24,7 +23,7 @@ public class InfoFacturationController  extends AbstractXafController {
     private XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping(value = { "/info-facturation" })
-    public ResponseEntity getInfoFacturation(HttpServletRequest request) {
+    public ResponseEntity<InfoFacturationResponseDTO> getInfoFacturation(HttpServletRequest request) {
         LOGGER.info("====================== /info-facturation GET start...");
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
@@ -33,7 +32,7 @@ public class InfoFacturationController  extends AbstractXafController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         GichuniUsagerDTO gichuniUsager = usagerInfosDTO;
-        InfoFacturationResponseDTO infoFacturation = getPaiementApiClient().getInfoFacturation(gichuniUsager);
+        InfoFacturationResponseDTO infoFacturation = xafFrontserverUtils.getPaiementApiClient().getInfoFacturation(gichuniUsager);
         LOGGER.info("====================== /info-facturation GET end...");
         return ResponseEntity.ok(infoFacturation);
     }

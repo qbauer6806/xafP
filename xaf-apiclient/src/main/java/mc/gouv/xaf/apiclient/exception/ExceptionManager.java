@@ -11,8 +11,6 @@ import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
 import mc.gouv.xapi.error.exception.client.UnsupportedMediaTypeWebException;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ExceptionManager {
     private ExceptionManager() {

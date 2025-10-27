@@ -37,7 +37,7 @@ public class FactureServiceImpl implements FactureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FactureServiceImpl.class);
 
     public static final String PREFIX_FACTURE = "Justificatif_Facture_";
-    public static final String PREFIX_JUSTIFICATIF_REÇU_PAIEMENT = "Justificatif_Reçu_Paiement_";
+    public static final String PREFIX_JUSTIFICATIF_RECU_PAIEMENT = "Justificatif_Reçu_Paiement_";
 
     @Autowired
     private FileService fileService;
@@ -84,24 +84,32 @@ public class FactureServiceImpl implements FactureService {
     @Override
     public void saveRecuPaiement(String identifiantDemande, MultipartFile file) {
         DemandeDTO demande = demandesService.getDemande(identifiantDemande);
+        String fileName = PREFIX_JUSTIFICATIF_RECU_PAIEMENT + identifiantDemande + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempFile = new File(tempDir, fileName);
         try {
-            String fileName = PREFIX_JUSTIFICATIF_REÇU_PAIEMENT + identifiantDemande + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
-            File tempDir = new File(System.getProperty("java.io.tmpdir"));
-            File tempFile = new File(tempDir, fileName);
-
-            // Créer le fichier (s'il n'existe pas encore)
-            if (!tempFile.exists()) {
-                tempFile.createNewFile();
-            }
             file.transferTo(tempFile);
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            String url = fileService.saveFile(demande, tempFile.getName(), gouvPropertiesResolver.getContainerId(),
-                    "application/pdf", new FileInputStream(tempFile), output);
-            saveFichier(tempFile.getName(), url, demande);
-            tempFile.deleteOnExit();
-            output.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+            try (FileInputStream inputStream = new FileInputStream(tempFile);
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                String url = fileService.saveFile(
+                        demande,
+                        tempFile.getName(),
+                        gouvPropertiesResolver.getContainerId(),
+                        "application/pdf",
+                        inputStream,
+                        outputStream
+                );
+                saveFichier(tempFile.getName(), url, demande);
+            }
+        } catch (IOException ex) {
+            // On capture uniquement les exceptions pertinentes, avec un message explicite
+            throw new RuntimeException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
+        } finally {
+            // Suppression explicite du fichier temporaire (plutôt que deleteOnExit)
+            if (tempFile.exists() && !tempFile.delete()) {
+                LOGGER.warn("Échec de suppression du fichier temporaire : {}", tempFile.getAbsolutePath());
+            }
         }
     }
 

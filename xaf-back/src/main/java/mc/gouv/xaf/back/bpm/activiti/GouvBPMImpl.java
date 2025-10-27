@@ -262,14 +262,14 @@ public class GouvBPMImpl implements GouvBPM {
                 .processInstanceBusinessKey(demandeId.toString())
                 .list();
 
-        System.out.println("Nombre d'instances actives : " + activeInstances.size());
+        LOGGER.info("Nombre d'instances actives : " + activeInstances.size());
 
 
         List<Execution> messageExecutions = runtimeService.createExecutionQuery()
                 .messageEventSubscriptionName("annulationMessage")
                 .list();
 
-        System.out.println("Nombre d'exécutions en attente du message 'annulationMessage' : " + messageExecutions.size());
+        LOGGER.info("Nombre d'exécutions en attente du message 'annulationMessage' : " + messageExecutions.size());
 
 
 
@@ -286,7 +286,7 @@ public class GouvBPMImpl implements GouvBPM {
         // Normalement il y en a une seule
         List<ProcessInstance> allInstances = runtimeService.createProcessInstanceQuery().list();
         for (ProcessInstance pi : allInstances) {
-            System.out.println("Instance active: id=" + pi.getId() + ", businessKey=" + pi.getBusinessKey());
+            LOGGER.info("Instance active: id=" + pi.getId() + ", businessKey=" + pi.getBusinessKey());
         }
 
         LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,

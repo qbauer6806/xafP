@@ -97,16 +97,16 @@ public class AfApiController {
 
     @PutMapping(value = "/demandes/{demandeId}/lock")
     public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) {
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return new DemandeDTO();
+        return afApiService.lockDemande(demandeId, usagerId, timestamp);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/unlock")
     public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) {
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return new DemandeDTO();
+        return afApiService.unlockDemande(demandeId, usagerId);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/complements/{icId}")

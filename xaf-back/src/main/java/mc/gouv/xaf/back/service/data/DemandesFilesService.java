@@ -65,6 +65,8 @@ public interface DemandesFilesService {
      */
     void suppressionDesFichiers(DemandeDTO demandeDTO);
 
+
+
     /**
      * Récupère un objet DemandeFileDTO à partir de l’identifiant fourni.
      *

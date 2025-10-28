@@ -188,7 +188,7 @@ public class DemandesHistoriqueService {
             String name = afBackUtils.getUsagerNameFromID(usagerId);
             contenu = new DemandeHistoriqueContenuDTO(name, USAGER, action, targetState);
         } else {
-            contenu = new DemandeHistoriqueContenuDTO(agentId, demarchesDataProvider.getHistoRole(), action,
+            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId), demarchesDataProvider.getHistoRole(), action,
                     targetState);
         }
         return histoTs2Dem(contenu, usagerId, agentAffecteId);

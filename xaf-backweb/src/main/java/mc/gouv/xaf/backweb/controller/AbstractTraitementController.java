@@ -453,7 +453,8 @@ public class AbstractTraitementController extends AbstractController {
     private Integer getIcId(DemandeDTO demande) {
         Integer icId = null;
         if (StatutSimplifieEnum.EN_ATTENTE_USAGER.equals(
-                demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()))) {
+                demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()))
+                && demande.getComplements() != null) {
             // Si on est en attente d'informations complémentaires, donner à la page le icId de la demande d'IC la plus récente
             DemandeComplementsDTO latestCompl = null;
             for (DemandeComplementsDTO compl : demande.getComplements()) {

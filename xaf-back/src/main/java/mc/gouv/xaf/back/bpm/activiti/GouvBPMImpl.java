@@ -259,10 +259,6 @@ public class GouvBPMImpl implements GouvBPM {
                 .processInstanceBusinessKey(demandeId.toString(), true)
                 .messageEventSubscriptionName(ANNULATION_MESSAGE).list();
 
-        List<ProcessInstance> activeInstances = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(demandeId.toString())
-                .list();
-
         Map<String, Object> variables = new HashMap<>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);

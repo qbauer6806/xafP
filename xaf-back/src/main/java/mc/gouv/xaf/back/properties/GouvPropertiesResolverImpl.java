@@ -132,7 +132,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.sms.enabled:false}")
     private boolean smsEnabled;
 
-    @Value("${mc.gouv.mwpaymt.api.url}")
+    @Value("${mc.gouv.mwpaymt.api.url:}")
     private String mwpaymtUrl;
 
     @Autowired

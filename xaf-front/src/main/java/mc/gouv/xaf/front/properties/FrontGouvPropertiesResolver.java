@@ -180,15 +180,15 @@ public class FrontGouvPropertiesResolver {
     private String monguichetCguUrlFr;
     @Value("${mc.gouv.appfactory.monguichet.cgu.url.en}")
     private String monguichetCguUrlEn;
-    @Value("${mc.gouv.appfactory.external.lyra.javascript.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.javascript.url:}")
     private String lyraJavascriptUrl;
-    @Value("${mc.gouv.appfactory.external.lyra.additional.css.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.additional.css.url:}")
     private String lyraJavascriptCssUrl;
-    @Value("${mc.gouv.appfactory.external.lyra.additional.javascript.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.additional.javascript.url:}")
     private String lyraJavascriptAdditionalUrl;
-    @Value("${mc.gouv.appfactory.external.lyra.javascript.sri.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.javascript.sri.url:}")
     private String lyraJavascriptSriUrl;
-    @Value("${mc.gouv.appfactory.${application.name}.external.lyra.public.key}")
+    @Value("${mc.gouv.appfactory.${application.name}.external.lyra.public.key:}")
     private String lyraPublicKey;
     @Value("${mc.gouv.${application.name}.frontserver.api.url}/paiement")
     private String mwpaymtCallbackUri;

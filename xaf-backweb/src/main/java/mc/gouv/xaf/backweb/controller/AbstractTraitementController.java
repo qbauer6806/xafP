@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -60,7 +59,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
-import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UploadFileDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
@@ -407,7 +405,6 @@ public class AbstractTraitementController extends AbstractController {
         mav.addObject("isTerminee", isTerminee);
         List<FileCategoryDTO> categories = demandeFilesCategorizer.getCategoriesAndFiles(demande);
         mav.addObject("categories", categories);
-        mav.addObject("fileCount", getFileCount(categories));
         mav.addObject("typedocNullNbr", FileUtils.getNbFileNonTypes(categories));
         Integer icId = this.getIcId(demande);
         if (icId != null) {
@@ -467,20 +464,6 @@ public class AbstractTraitementController extends AbstractController {
             icId = latestCompl != null ? latestCompl.getPkDemandeComplements() : null;
         }
         return icId;
-    }
-
-    protected int getFileCount(List<FileCategoryDTO> categories) {
-        int fileCount = 0;
-        for (FileCategoryDTO cat : categories) {
-            if (CollectionUtils.isNotEmpty(cat.getFiles())) {
-                fileCount += cat.getFiles().size();
-            }
-            if (CollectionUtils.isNotEmpty(cat.getSubCategories())) {
-                fileCount += (int) cat.getSubCategories().stream().map(FileSubCategoryDTO::getFiles)
-                        .filter(Objects::nonNull).flatMap(List::stream).filter(Objects::nonNull).count();
-            }
-        }
-        return fileCount;
     }
 
     protected Boolean isLockedByUsager(Integer pkDemande, DemandeDTO demande) {

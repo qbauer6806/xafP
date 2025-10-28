@@ -89,7 +89,7 @@ import org.xml.sax.SAXException;
 public class AbstractTraitementController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTraitementController.class);
-
+    public static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String ERROR_MESSAGES = "errorMessages";
 
     private static final String I18N_TRAITEMENT_CONCURRENT_DEPOTIC_ERROR_CODE_MESSAGE = "message.error.traitement.concurrent.depotIC";
@@ -489,16 +489,14 @@ public class AbstractTraitementController extends AbstractController {
         LOGGER.info("======================= Appel de la page /traitement/typageDocuments (DemandeID = {})", pkDemande);
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-
             // Désérialisation des fichiers
-            Map<String, String> files = mapper.readValue(typedocFormBean.getFiles(),
+            Map<String, String> files = MAPPER.readValue(typedocFormBean.getFiles(),
                     new TypeReference<HashMap<String, String>>() {
 
                     });
 
             // Une autre Map contenant les changements sur les checkboxes a été ajoutée
-            Map<String, Boolean> filesCheckbox = mapper.readValue(typedocFormBean.getFilesCheckbox(),
+            Map<String, Boolean> filesCheckbox = MAPPER.readValue(typedocFormBean.getFilesCheckbox(),
                     new TypeReference<HashMap<String, Boolean>>() {
 
                     });
@@ -507,13 +505,13 @@ public class AbstractTraitementController extends AbstractController {
             boolean updateFiles = demandesFilesService.updateTypedocs(files, filesCheckbox);
 
             // Désérialisation des compléments
-            Map<String, String> complements = mapper.readValue(typedocFormBean.getComplements(),
+            Map<String, String> complements = MAPPER.readValue(typedocFormBean.getComplements(),
                     new TypeReference<HashMap<String, String>>() {
 
                     });
 
             // Même chose pour les checkboxes des compléments
-            Map<String, Boolean> complementsCheckbox = mapper.readValue(typedocFormBean.getComplementsCheckbox(),
+            Map<String, Boolean> complementsCheckbox = MAPPER.readValue(typedocFormBean.getComplementsCheckbox(),
                     new TypeReference<HashMap<String, Boolean>>() {
 
                     });
@@ -540,6 +538,15 @@ public class AbstractTraitementController extends AbstractController {
 
     protected ModelAndView dupliquer(@RequestParam() Integer pkDemande) throws JsonProcessingException {
 
+        DemandeDTO demandeDupliquee = this.dupliquerDemande(pkDemande);
+        ModelAndView mav = new ModelAndView(REDIRECT + demandeDupliquee.getPkDemandes());
+
+        LOGGER.info("======================= Fin /traitement/dupliquer");
+
+        return mav;
+    }
+
+    protected DemandeDTO dupliquerDemande(Integer pkDemande) throws JsonProcessingException {
         LOGGER.info("======================= Appel de la page /traitement/dupliquer ({})", pkDemande);
 
         LOGGER.info("Appel à DEM pour dupliquer la demande... {}", pkDemande);
@@ -599,11 +606,8 @@ public class AbstractTraitementController extends AbstractController {
         RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
         guKafkaProducer.sendCreationDemandeMessage(demandeDupliquee.getUsagerId(), demandeDupliquee.getPkDemandes(),
                 demandeDupliquee.getIdentifiant(), demandeDupliquee.getDateCreation(), recapDemandes);
-        ModelAndView mav = new ModelAndView(REDIRECT + demandeDupliquee.getPkDemandes());
-
-        LOGGER.info("======================= Fin /traitement/dupliquer");
-
-        return mav;
+        
+        return demandeDupliquee;
     }
 
     protected ModelAndView annuler(@RequestParam() Integer pkDemande, @RequestParam() String commentaire,

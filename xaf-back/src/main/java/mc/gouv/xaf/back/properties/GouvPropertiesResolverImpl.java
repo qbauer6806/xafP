@@ -1,11 +1,5 @@
 package mc.gouv.xaf.back.properties;
 
-import jakarta.annotation.PostConstruct;
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,17 +26,14 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${application.module}")
     private String applicationModule;
 
-    // Uppercase de application.name
+    @Value("${display.name}")
     private String demarcheId;
 
-    @Getter
-    private String applicationPrefix = StringUtils.EMPTY;
-
     // GLOBAL PROPERTIES
-    @Value("${mc.gouv.logon.url:OPTIONAL}")
+    @Value("${mc.gouv.logon.url:}")
     private String logonUrl;
 
-    @Value("${mc.gouv.logon.api.url:OPTIONAL}")
+    @Value("${mc.gouv.logon.api.url:}")
     private String logonRestServerUrl;
 
     @Value("${mc.gouv.file.api.url}")
@@ -51,7 +42,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.mail.api.url}")
     private String mailUrl;
 
-    @Value("${mc.gouv.sms.api.url:OPTIONAL}")
+    @Value("${mc.gouv.sms.api.url:}")
     private String smsUrl;
 
     @Getter
@@ -94,7 +85,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.file.jwt}")
     private String fileJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.sms.jwt:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.sms.jwt:}")
     private String smsJwt;
 
     @Getter
@@ -102,7 +93,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private String nomenJwt;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
-    private String paiementEnabled;
+    private boolean paiementEnabled;
 
     @Value("${mc.gouv.shared.backapi.rest.pagesize:250}")
     private String usagersPageSize;
@@ -113,10 +104,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.front.url}")
     private String frontUrl;
 
-    @Value("${mc.gouv.${application.name}.2tiers.bo.url:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.2tiers.bo.url:}")
     private String _2tiersBoUrl;
 
-    @Value("${mc.gouv.${application.name}.2tiers.bo.jwt:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.2tiers.bo.jwt:}")
     private String _2tiersBoJwt;
 
     @Value("${spring.servlet.multipart.max-file-size}")
@@ -139,68 +130,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Autowired
     private UlisProperties ulisProperties;
-
-    /**
-     * propertyEditor.getReadMethod() expose le getter, peut être null si on a une prorpriété en écriture seule
-     */
-    private Method getMethod(PropertyDescriptor propertyDescriptor) {
-        Method method;
-        try {
-            LOGGER.debug("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
-            method = propertyDescriptor.getReadMethod();
-        } catch (SecurityException e) {
-            LOGGER.error("Erreur lors de la récupération de la méthode");
-            throw e;
-        }
-        return method;
-    }
-
-    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor)
-            throws InvocationTargetException, IllegalAccessException {
-        try {
-
-            // Est-ce que le SSL est activé ?
-            boolean sslEnabled = getGUKafkaSSLEnabled();
-
-            // Est ce que l'archivage est activé ?
-            boolean archivageEnabled = StringUtils.equals(archivageProperties.getArchivageEnabled(), "true");
-
-            // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
-            // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
-            boolean pasIgnorerSSL = method.getDeclaredAnnotation(GouvSSLProperty.class) == null
-                    || (method.getDeclaredAnnotation(GouvSSLProperty.class) != null && sslEnabled);
-
-            // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
-            // archivage.enabled=false ou pas présente
-            boolean pasIgnorerArchivage = method.getDeclaredAnnotation(GouvArchivageProperty.class) == null
-                    || (method.getDeclaredAnnotation(GouvArchivageProperty.class) != null && archivageEnabled);
-
-            if (pasIgnorerSSL && pasIgnorerArchivage) {
-                Object value = method.invoke(this);
-                if (value instanceof String s) {
-                    if (StringUtils.isBlank(s)) {
-                        propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-                    }
-                } else if (value == null) {
-                    propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-                }
-            }
-        } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
-            LOGGER.error("Erreur lors de l'invocation de la méthode");
-            throw e;
-        }
-    }
-
-    @PostConstruct
-    private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
-            GouvPropertyNotFoundException {
-
-        if (StringUtils.isNotBlank(applicationName)) {
-            applicationPrefix = "." + applicationName;
-            demarcheId = StringUtils.upperCase(applicationName);
-        }
-
-    }
 
     @Override
     public String getContainerId() {
@@ -314,28 +243,24 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public boolean getGUKafkaSSLEnabled() {
-        return Boolean.parseBoolean(kafkaProperties.getKafkaSSLEnabled());
+        return kafkaProperties.isKafkaSSLEnabled();
     }
 
-    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStoreLocation() {
         return kafkaProperties.getTruststoreLocation();
     }
 
-    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStorePassword() {
         return kafkaProperties.getTruststorePassword();
     }
 
-    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStoreLocation() {
         return kafkaProperties.getKeystoreLocation();
     }
 
-    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStorePassword() {
         return kafkaProperties.getKeystorePassword();
@@ -343,7 +268,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public boolean getKafkaEnabled() {
-        return Boolean.parseBoolean(kafkaProperties.getKafkaEnabled());
+        return kafkaProperties.isKafkaEnabled();
     }
 
     @Override
@@ -374,25 +299,21 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return kafkaProperties.getMaxPartitionFetchBytes();
     }
 
-    @GouvArchivageProperty
     @Override
     public String getApiRioUrl() {
         return archivageProperties.getRioUrl();
     }
 
-    @GouvArchivageProperty
     @Override
     public String getApiRioJwt() {
         return archivageProperties.getRioJwt();
     }
 
-    @GouvArchivageProperty
     @Override
     public String getApiRioCodeAppli() {
         return archivageProperties.getRioCodeAppli();
     }
 
-    @GouvArchivageProperty
     @Override
     public String getApiRioCodeNotice() {
         return archivageProperties.getRioCodeNotice();
@@ -400,7 +321,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public boolean isPaiementEnabled() {
-        return StringUtils.equals(paiementEnabled, "true");
+        return paiementEnabled;
     }
 
     public String getPorteDocUrl() {

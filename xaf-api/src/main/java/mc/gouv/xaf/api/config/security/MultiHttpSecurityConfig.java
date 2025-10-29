@@ -3,6 +3,7 @@ package mc.gouv.xaf.api.config.security;
 import mc.gouv.xaf.api.config.filter.jwt.JwtAuthFilter;
 import mc.gouv.xaf.api.config.filter.jwt.JwtAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -52,6 +53,7 @@ public class MultiHttpSecurityConfig {
 
     @Bean
     @Order(1)
+    @ConditionalOnBean(JwtDecoder.class)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits",
                 "/api/v1/paiement/recuPaiement", "/api/v1/paiement").authorizeHttpRequests(auth -> {

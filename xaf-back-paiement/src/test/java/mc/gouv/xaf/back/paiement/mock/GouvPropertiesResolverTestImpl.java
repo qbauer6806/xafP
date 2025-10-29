@@ -154,11 +154,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getApplicationPrefix() {
-        return null;
-    }
-
-    @Override
     public String getApiRioUrl() {
         return null;
     }

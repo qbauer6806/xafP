@@ -1,22 +1,14 @@
 package mc.gouv.xaf.front.properties;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
+import lombok.Getter;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
  * Classe permettant de récupérer les propriétés externalisées dans les fichiers .properties du serveur
@@ -192,58 +184,6 @@ public class FrontGouvPropertiesResolver {
     private String lyraPublicKey;
     @Value("${mc.gouv.${application.name}.frontserver.api.url}/paiement")
     private String mwpaymtCallbackUri;
-
-    @PostConstruct
-    private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
-            GouvPropertyNotFoundException {
-
-        //Vérification que chaque propriété a bien été configurée
-        List<String> propertiesNotFound = new ArrayList<>();
-        try {
-
-            for (PropertyDescriptor propertyDescriptor : Introspector
-                    .getBeanInfo(FrontGouvPropertiesResolver.class, Object.class).getPropertyDescriptors()) {
-
-                Method method = getMethod(propertyDescriptor);
-
-                checkProperties(propertiesNotFound, method, propertyDescriptor);
-            }
-
-        } catch (IntrospectionException e) {
-            LOGGER.error("Erreur lors de l'introspection");
-            throw e;
-        }
-
-        if (!propertiesNotFound.isEmpty()) {
-            throw new GouvPropertyNotFoundException(propertiesNotFound);
-        }
-
-    }
-
-    private Method getMethod(PropertyDescriptor propertyDescriptor) {
-        Method method;
-        try {
-            LOGGER.debug("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
-            method = propertyDescriptor.getReadMethod();
-        } catch (SecurityException e) {
-            LOGGER.error("Erreur lors de la récupération de la méthode");
-            throw e;
-        }
-        return method;
-    }
-
-    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor)
-            throws InvocationTargetException, IllegalAccessException {
-        try {
-            Object value = method.invoke(this);
-            if (value == null) {
-                propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-            }
-        } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
-            LOGGER.error("Erreur lors de l'invocation de la méthode");
-            throw e;
-        }
-    }
 
     /* Properties propres à la démarche */
 

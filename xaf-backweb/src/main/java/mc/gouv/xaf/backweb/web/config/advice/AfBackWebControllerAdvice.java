@@ -42,7 +42,7 @@ public class AfBackWebControllerAdvice {
     @Value("${application.name}")
     private String applicationName;
 
-    @Value("${mc.gouv.logon.url:OPTIONAL}")
+    @Value("${mc.gouv.logon.url:}")
     private String logonUrl;
 
     private long buildTimestamp = 0;

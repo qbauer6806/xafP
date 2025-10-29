@@ -10,25 +10,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UlisProperties {
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.moyens-generaux:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.moyens-generaux:}")
     private String apiUlisMoyensGenerauxUrl;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.tiers-organisation:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.tiers-organisation:}")
     private String apiUlisTiersOrganisationUrl;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.authentication.user:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.authentication.user:}")
     private String apiUlisAuthentUser;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.authentication.password:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.authentication.password:}")
     private String apiUlisAuthentPassword;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.account:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.account:}")
     private String ulisFunctionalAccount;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.workflow:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.workflow:}")
     private String ulisUrlWorkflow;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.commercialisation:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.shared.backapi.ulis.url.commercialisation:}")
     private String ulisUrlCommercialisation;
 
 }

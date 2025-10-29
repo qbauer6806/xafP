@@ -11,13 +11,13 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaProperties {
 
     @Value("${mc.gouv.${application.name}.shared.backapi.kafka.enabled:false}")
-    private String kafkaEnabled;
+    private boolean kafkaEnabled;
 
     @Value("${mc.gouv.busmsg.kafka.server.name}")
     private String bootstrapServersConfig;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.kafka.ssl.enabled:false}")
-    private String kafkaSSLEnabled;
+    private boolean kafkaSSLEnabled;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.kafka.ssl.truststore.location}")
     private String truststoreLocation;

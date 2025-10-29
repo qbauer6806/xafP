@@ -76,8 +76,6 @@ public interface GouvPropertiesResolver {
 
     String getGichuniUrl();
 
-    String getApplicationPrefix();
-
     String getApiRioUrl();
 
     String getApiRioJwt();

@@ -94,9 +94,9 @@ public interface AfApi {
     DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException;
 
     DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException;
-    
+
     ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId);
-    
+
     ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId);
 
     ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId);

@@ -2,7 +2,7 @@ package mc.gouv.xaf.apiclient2tiers.dto;
 
 /**
  * Classe pour modélisation JSON d'une réponse de WS
- * 
+ *
  * @author qdeme
  *
  */

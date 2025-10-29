@@ -1,7 +1,6 @@
 package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
 
 @Controller
 @RequestMapping("/demandespage")
@@ -37,7 +37,8 @@ public class DemandesPageableController extends AbstractXafController {
             @RequestParam(name = RequestConstant.STATUS_PARAM, required = false) List<String> status,
             @RequestParam(name = RequestConstant.LANG_PARAM) String lang,
             @RequestParam(name = RequestConstant.STATUS_SIMPLIFIE_PARAM, required = false) List<String> statusSimplifie,
-            HttpServletRequest request) {
+            HttpServletRequest request
+    ) {
 
         LOGGER.info("====================== /demandespage doGet()");
 

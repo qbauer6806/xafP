@@ -3,8 +3,11 @@ package mc.gouv.xaf.back.paiement.service.impl;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.Optional;
 
@@ -27,6 +30,7 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FactureServiceImpl implements FactureService {
@@ -34,6 +38,7 @@ public class FactureServiceImpl implements FactureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FactureServiceImpl.class);
 
     public static final String PREFIX_FACTURE = "Justificatif_Facture_";
+    public static final String PREFIX_JUSTIFICATIF_RECU_PAIEMENT = "Justificatif_Reçu_Paiement_";
 
     @Autowired
     private FileService fileService;
@@ -74,6 +79,39 @@ public class FactureServiceImpl implements FactureService {
             // Sauvegarde du numéro de facture dans les données de la demande
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(),
                     reference);
+        }
+    }
+
+    @Override
+    public void saveRecuPaiement(String identifiantDemande, MultipartFile file) {
+        DemandeDTO demande = demandesService.getDemande(identifiantDemande);
+        String fileName = PREFIX_JUSTIFICATIF_RECU_PAIEMENT + identifiantDemande + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempFile = new File(tempDir, fileName);
+        try {
+            file.transferTo(tempFile);
+
+            try (FileInputStream inputStream = new FileInputStream(tempFile);
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                String url = fileService.saveFile(
+                        demande,
+                        tempFile.getName(),
+                        gouvPropertiesResolver.getContainerId(),
+                        "application/pdf",
+                        inputStream,
+                        outputStream
+                );
+                saveFichier(tempFile.getName(), url, demande);
+            }
+        } catch (IOException ex) {
+            // On capture uniquement les exceptions pertinentes, avec un message explicite
+            throw new RuntimeException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
+        } finally {
+            try {
+                Files.deleteIfExists(tempFile.toPath());
+            } catch (IOException e) {
+                LOGGER.warn("Échec de suppression du fichier temporaire pour la demande", e);
+            }
         }
     }
 

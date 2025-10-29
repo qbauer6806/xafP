@@ -38,6 +38,16 @@ public interface DemandesFilesService {
     void clonerDesPiecesJointes(DemandeBO demandeBO, DemandeBO newDemandeBO);
 
     /**
+     * Duplication des fichiers internes d'une demande vers une nouvelle demande.
+     *
+     * @param demandeBO
+     *         L'objet BO de la demande à cloner
+     * @param newDemandeBO
+     *         le nouvel objet BO
+     */
+    void clonerDesFichiersInternes(DemandeBO demandeBO, DemandeBO newDemandeBO);
+
+    /**
      * Permet de mettre à jour les fichiers d'une demande.
      *
      * @param demandeBo
@@ -55,6 +65,8 @@ public interface DemandesFilesService {
      */
     void suppressionDesFichiers(DemandeDTO demandeDTO);
 
+
+
     /**
      * Récupère un objet DemandeFileDTO à partir de l’identifiant fourni.
      *
@@ -64,4 +76,6 @@ public interface DemandesFilesService {
      *         associé à l’identifiant fourni.
      */
     Optional<DemandeFileDTO> getFileByDemandeFileId(Integer pkDemandesFiles);
+
+    void deleteFileByFileUrlAndId(String fileName, Integer fileId);
 }

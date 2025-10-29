@@ -4,5 +4,8 @@ public enum OperationStatutEnum {
     ACCEPTEE,
     REFUSEE,
     ERREUR,
+    SUCCES,
+    ECHEC,
+    EN_ATTENTE,
     INCIDENT
 }

@@ -16,57 +16,37 @@ public class MoyenPaiementTransformer {
 
     public static MoyenPaiementDTO bo2Dto(MoyenPaiementBO bo) {
         MoyenPaiementDTO dto = new MoyenPaiementDTO();
-        dto.setPkMoyenPaiements(bo.getPkMoyensPaiements());
-        dto.setCodeSociete(bo.getCodeSociete());
-        dto.setDateLimite(bo.getDateLimite());
-        dto.setMoyenPaiementType(MoyenPaiementTypeTransformer.bo2String(bo.getMoyenPaiementType()));
-        dto.setMoyenPaiementStatut(MoyenPaiementStatutTransformer.bo2String(bo.getMoyenPaiementStatut()));
+        dto.setPkMoyensPaiements(bo.getPkMoyensPaiements());
+        dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerniereModification(bo.getDateDerniereModification());
-        dto.setCvx(bo.getCvx());
-        dto.setVld(bo.getVld());
-        dto.setBrand(bo.getBrand());
-        dto.setNumauto(bo.getNumauto());
-        dto.setUsage(bo.getUsage());
-        dto.setTypecompte(bo.getTypecompte());
-        dto.setEcard(bo.getEcard());
-        dto.setOriginecb(bo.getOriginecb());
-        dto.setCbmasquee(bo.getCbmasquee());
-        dto.setBincb(bo.getBincb());
-        dto.setHpancb(bo.getHpancb());
-        dto.setIpclient(bo.getIpclient());
-        dto.setOriginetr(bo.getOriginetr());
-        dto.setModepaiement(bo.getModepaiement());
-        dto.setAuthentification(bo.getAuthentification());
-        dto.setLangue(bo.getLangue());
-        dto.setMac(bo.getMac());
+        dto.setMoyenPaiementStatut(MoyenPaiementStatutTransformer.bo2String(bo.getMoyenPaiementStatut()));
+        dto.setPaymentMethodType(bo.getPaymentMethodType());
+        dto.setPaymentMethodToken(bo.getPaymentMethodToken());
+        dto.setEffectiveBrand(bo.getEffectiveBrand());
+        dto.setExpiryDate(bo.getExpiryDate());
+        dto.setPaymentMethodAccount(bo.getPaymentMethodAccount());
+        dto.setCancellationDate(bo.getCancellationDate());
+        dto.setPaymentMethodRecord(bo.getPaymentMethodRecord());
+        dto.setPaymentMethodName(bo.getPaymentMethodName());
+        dto.setCommande(CommandeTransformer.bo2Dto(bo.getCommande()));
         return dto;
     }
 
     public static MoyenPaiementBO dto2Bo(MoyenPaiementDTO dto) {
         MoyenPaiementBO bo = new MoyenPaiementBO();
-        bo.setPkMoyensPaiements(dto.getPkMoyenPaiements());
-        bo.setCodeSociete(dto.getCodeSociete());
-        bo.setDateLimite(dto.getDateLimite());
-        bo.setMoyenPaiementType(MoyenPaiementTypeTransformer.string2Bo(dto.getMoyenPaiementType()));
-        bo.setMoyenPaiementStatut(MoyenPaiementStatutTransformer.string2Bo(dto.getMoyenPaiementStatut()));
+        bo.setPkMoyensPaiements(dto.getPkMoyensPaiements());
+        bo.setDateCreation(dto.getDateCreation());
         bo.setDateDerniereModification(dto.getDateDerniereModification());
-        bo.setCvx(dto.getCvx());
-        bo.setVld(dto.getVld());
-        bo.setBrand(dto.getBrand());
-        bo.setNumauto(dto.getNumauto());
-        bo.setUsage(dto.getUsage());
-        bo.setTypecompte(dto.getTypecompte());
-        bo.setEcard(dto.getEcard());
-        bo.setOriginecb(dto.getOriginecb());
-        bo.setCbmasquee(dto.getCbmasquee());
-        bo.setBincb(dto.getBincb());
-        bo.setHpancb(dto.getHpancb());
-        bo.setIpclient(dto.getIpclient());
-        bo.setOriginetr(dto.getOriginetr());
-        bo.setModepaiement(dto.getModepaiement());
-        bo.setAuthentification(dto.getAuthentification());
-        bo.setLangue(dto.getLangue());
-        bo.setMac(dto.getMac());
+        bo.setMoyenPaiementStatut(MoyenPaiementStatutTransformer.string2Bo(dto.getMoyenPaiementStatut()));
+        bo.setPaymentMethodType(dto.getPaymentMethodType());
+        bo.setPaymentMethodToken(dto.getPaymentMethodToken());
+        bo.setEffectiveBrand(dto.getEffectiveBrand());
+        bo.setExpiryDate(dto.getExpiryDate());
+        bo.setPaymentMethodAccount(dto.getPaymentMethodAccount());
+        bo.setCancellationDate(dto.getCancellationDate());
+        bo.setPaymentMethodRecord(dto.getPaymentMethodRecord());
+        bo.setPaymentMethodName(dto.getPaymentMethodName());
+        bo.setCommande(CommandeTransformer.dto2Bo(dto.getCommande()));
         return bo;
     }
 

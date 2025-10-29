@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.properties;
 
+
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement.
  *
@@ -75,8 +76,6 @@ public interface GouvPropertiesResolver {
 
     String getGichuniUrl();
 
-    String getApplicationPrefix();
-
     String getApiRioUrl();
 
     String getApiRioJwt();
@@ -116,5 +115,7 @@ public interface GouvPropertiesResolver {
     String getExtensionsWhitelist();
     
     boolean getSmsEnabled();
+
+    String getMwpaymtUrl();
 
 }

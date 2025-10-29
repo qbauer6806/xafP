@@ -24,8 +24,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     }
 
     @Override
-    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statutName) {
-        return List.of();
+    public void updateMultipleStatuts(List<DemandeBO> demandes, String statutName) {
     }
 
     @Override

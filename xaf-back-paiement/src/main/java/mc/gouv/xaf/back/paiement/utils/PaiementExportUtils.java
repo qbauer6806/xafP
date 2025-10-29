@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.paiement.utils;
 
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 
 import java.util.StringJoiner;
 
@@ -14,7 +14,7 @@ public class PaiementExportUtils {
     public static String toCSV(CommandeDTO commandeDTO) {
         StringJoiner csvString = new StringJoiner(";");
         MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
-        csvString.add(moyenPaiementDTO.getPkMoyenPaiements());
+        /* TODO csvString.add(moyenPaiementDTO.getPkMoyenPaiements());
         csvString.add(moyenPaiementDTO.getCodeSociete());
         csvString.add(moyenPaiementDTO.getDateLimite().toString());
         csvString.add("" + commandeDTO.getMontantInitial());
@@ -41,7 +41,7 @@ public class PaiementExportUtils {
         csvString.add(moyenPaiementDTO.getModepaiement());
         csvString.add(moyenPaiementDTO.getAuthentification());
         csvString.add(moyenPaiementDTO.getLangue());
-        csvString.add(moyenPaiementDTO.getMac());
+        csvString.add(moyenPaiementDTO.getMac());*/
         return csvString.toString();
     }
 
@@ -84,10 +84,10 @@ public class PaiementExportUtils {
         csvString.add(
                 commandeOperationDTO.getOperationStatut() == null ? "null" : commandeOperationDTO.getOperationStatut());
         csvString.add(commandeOperationDTO.getDateCreation().toString());
-        csvString.add(commandeOperationDTO.getDateDerniereModification().toString());
+        // TODO csvString.add(commandeOperationDTO.getDateDerniereModification().toString());
         csvString.add("" + commandeOperationDTO.getMontant());
-        csvString.add("" + commandeOperationDTO.getNumeroAutorisation());
-        csvString.add(commandeOperationDTO.getNumeroFacture());
+        // TODO csvString.add("" + commandeOperationDTO.getNumeroAutorisation());
+        // TODO csvString.add(commandeOperationDTO.getNumeroFacture());
         return csvString.toString();
     }
 

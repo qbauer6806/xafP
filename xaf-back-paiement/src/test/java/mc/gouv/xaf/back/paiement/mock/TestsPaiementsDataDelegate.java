@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;

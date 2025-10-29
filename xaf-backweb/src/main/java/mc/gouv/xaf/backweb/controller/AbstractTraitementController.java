@@ -362,7 +362,6 @@ public class AbstractTraitementController extends AbstractController {
         xafTraitementFormBean.setObservations(demande.getObservations());
         mav.addObject("xafTraitementFormBean", xafTraitementFormBean);
         boolean isAgentAssigned = StringUtils.isNotBlank(demande.getAgentAffecteId());
-        mav.addObject("isDiscussionPanelDisplayed", isAgentAssigned);
         // upload des pièces justificatives
         mav.addObject("uploadPieceJustificativeActif", this.uploadPieceJustificativeActive(isAgentAssigned));
         mav.addObject("uploadPieceJustificativeVisible", this.uploadPieceJustificativeVisible());

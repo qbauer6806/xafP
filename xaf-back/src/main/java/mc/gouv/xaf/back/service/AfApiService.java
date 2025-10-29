@@ -98,28 +98,28 @@ import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 public class AfApiService implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
-    private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
+    protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
 
     @Autowired
-    private GouvBPM gouvBPM;
+    protected GouvBPM gouvBPM;
 
     @Autowired
     private AfBackUtils afBackUtils;
 
     @Autowired
-    private UsagersCache usagersCache;
+    protected UsagersCache usagersCache;
 
     @Autowired
     private MailService mailService;
 
     @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
+    protected DemandesHistoriqueService demandesHistoriqueService;
 
     @Autowired
-    private DemandesService demandesService;
+    protected DemandesService demandesService;
 
     @Autowired
-    private DemandesConfigService demandesConfigService;
+    protected DemandesConfigService demandesConfigService;
 
     @Autowired
     private DemandesComplementsService demandesComplementsService;
@@ -143,19 +143,19 @@ public class AfApiService implements AfApi {
     private PropertiesService propertiesService;
 
     @Autowired
-    private GUKafkaProducer guKafkaProducer;
+    protected GUKafkaProducer guKafkaProducer;
 
     @Autowired
-    private GUKafkaUtils guKafkaUtils;
+    protected GUKafkaUtils guKafkaUtils;
 
     @Autowired
-    private BrouillonsService brouillonsService;
+    protected BrouillonsService brouillonsService;
 
     @Autowired
     private FileService fileService;
 
     @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    protected DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
     private MessageSource messageSource;
@@ -164,7 +164,7 @@ public class AfApiService implements AfApi {
     private AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
+    protected DemandesUsagersTransformer demandesUsagersTransformer;
 
     @Autowired
     private DemandesDataService demandesDataService;
@@ -183,7 +183,7 @@ public class AfApiService implements AfApi {
 
     @Autowired
     private Optional<UpdateDemandeExtender> updateDemandeExtenders;
-    
+
     @Autowired(required = false)
     private CustomRequestService customRequestService;
 
@@ -280,7 +280,7 @@ public class AfApiService implements AfApi {
         return demandeDto;
     }
 
-    private void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
+    protected void traiterContenuInitial(DemandeInputDTO demande, Integer usagerId, DemandeDTO demandeDto) {
         if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
             demandeDto.setContenuInitial(demande.getContenuInitial());
         } else if (demande.getBrouillonId() != null) {
@@ -389,7 +389,7 @@ public class AfApiService implements AfApi {
         periodes.addAll(periodesOuvertureService.getPeriodesOuvertureFutures());
         return periodes;
     }
-    
+
     @Override
     public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getCustom()");
@@ -618,6 +618,10 @@ public class AfApiService implements AfApi {
         if (!fromGU) {
             LOGGER.info("Envoi du message au Guichet Unique via Kafka (désinscription usager TS)...");
             guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
+            if(demarchesDataProvider.purgerDonneesMonetiques()) {
+                LOGGER.info("Envoi du message au Guichet Unique via Kafka (suppression paiement TS)...");
+                guKafkaProducer.sendSuppressionPaiementMessage(String.valueOf(usagerId), null);
+            }
         } else {
             LOGGER.info("Pas de message à envoyer au Guichet Unique via Kafka car la désinscription émane du GU");
         }

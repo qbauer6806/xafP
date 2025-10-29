@@ -20,7 +20,6 @@ import lombok.ToString;
 @Getter
 @Entity
 @Table(name = "PMNT_COMMANDES")
-@ToString
 public class CommandeBO {
 
     @Id
@@ -45,4 +44,11 @@ public class CommandeBO {
     @OneToMany(mappedBy = "commande", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommandeOperationBO> operations;
 
+    @Override
+    public String toString() {
+        return "CommandeBO{" +
+                "id=" + pkCommandes +
+                ", dateCreation=" + dateCreation +
+                '}';
+    }
 }

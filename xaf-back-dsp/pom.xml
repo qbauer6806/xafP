@@ -17,7 +17,11 @@
       <artifactId>xaf-back</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>mc.gouv.xaf</groupId>
+      <artifactId>xaf-back-paiement</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>
 

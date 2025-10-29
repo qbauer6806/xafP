@@ -78,7 +78,6 @@ public class MultiHttpSecurityConfig {
                             authz -> authz.requestMatchers("/*").permitAll().anyRequest().authenticated())
                     .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                     .csrf(AbstractHttpConfigurer::disable);
-
         } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas d'ouverture de l'endpoint /api2tiers/**");
 

@@ -18,6 +18,8 @@ public interface PdfGenerationService {
     void generateAndStoreDoc(DemandeDTO demande, PdfTypeEnum pdfType, String meta,
             PdfTemplateAndModelDTO pdfTemplateAndModelDTO) throws IOException;
 
+    File generateToFile(PdfTemplateAndModelDTO dto, boolean convertPdf);
+
     File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
             String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType);
 

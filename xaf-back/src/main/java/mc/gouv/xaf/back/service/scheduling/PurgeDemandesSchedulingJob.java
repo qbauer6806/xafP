@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.scheduling;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.shared.annotations.TypeDePurge;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -13,12 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.springframework.stereotype.Component;
 
 /**
  * Job permettant d'appeler le service de purge des demandes. <br> Il est nécessaire de péciser la liste des statuts des
  * demandes à purger.
  */
 @DisallowConcurrentExecution
+@TypeDePurge("default")
+@Component
 public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);
@@ -36,7 +40,7 @@ public class PurgeDemandesSchedulingJob implements Job {
     /**
      * @return La valeur de la propriété d'activation de la purge
      */
-    protected boolean getActivationPurge() {
+    private boolean getActivationPurge() {
         PropertiesDTO activationPurge = propertiesService.getProperty(ACTIVATION_PURGE);
         return activationPurge != null && Boolean.parseBoolean(activationPurge.getValue());
     }
@@ -45,7 +49,7 @@ public class PurgeDemandesSchedulingJob implements Job {
      * @return La liste conteant les clés des statuts à purger
      */
     @SuppressWarnings("unchecked")
-    protected List<String> getStatuts(JobExecutionContext jobExecutionContext) {
+    private List<String> getStatuts(JobExecutionContext jobExecutionContext) {
         List<String> statuts = new ArrayList<>();
         // Récupération de la liste des statuts à purger dans le contexte du job detail
         Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statuts");
@@ -55,7 +59,7 @@ public class PurgeDemandesSchedulingJob implements Job {
         return statuts;
     }
 
-    protected Integer getDelaiPurge() {
+    private Integer getDelaiPurge() {
         PropertiesDTO delaiPurgeProperty = propertiesService.getProperty(DELAI_PURGE_EN_JOURS);
         return delaiPurgeProperty != null ? Integer.parseInt(delaiPurgeProperty.getValue()) : DELAI_PAR_DEFAUT_PURGE;
     }

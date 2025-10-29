@@ -1,16 +1,5 @@
 package mc.gouv.xaf.apiclient2tiers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
-
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
@@ -20,16 +9,27 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import mc.gouv.xaf.apiclient2tiers.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient2tiers.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient2tiers.client.ApiClient;
 import mc.gouv.xaf.apiclient2tiers.dto.FileResponseDTO;
+import mc.gouv.xaf.apiclient2tiers.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.apiclient2tiers.dto.MotifDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.RecapDemandesDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.StatutSimplifieEnum;
 import mc.gouv.xaf.apiclient2tiers.dto.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.apiclient2tiers.exception.ExceptionManager;
 import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 /**
  * Classe cliente permettant au système tiers d'appeler l'API GenTS via le FO (solution 2/3 "GenTS Connect")
@@ -143,7 +143,7 @@ public class AfApiClient2Tiers extends ApiClient {
         builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
         String generatedFilename = null;
-        
+
         try (Response postResponse = builder.post(entity)) {
             // Gestion des erreurs
             int statusCode = postResponse.getStatus();

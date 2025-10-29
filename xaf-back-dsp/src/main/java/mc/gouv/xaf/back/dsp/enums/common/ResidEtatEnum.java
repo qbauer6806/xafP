@@ -12,6 +12,7 @@ public enum ResidEtatEnum {
     REF("REF"),
     REN("REN"),
     VSI("VSI"),
+    VRP("VRP"),
     SUP("SUP");
 
     String value;

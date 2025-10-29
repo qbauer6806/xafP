@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl implements BackGouvPropertiesResolver {
 
     ///// BACK PROPERTIES
-    @Value("${mc.gouv.${application.name}.backserver.front.key:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.backserver.front.key:}")
     private String frontSharedKey;
 
-    @Value("${mc.gouv.${application.name}.backserver.front.formstartpage:OPTIONAL}")
+    @Value("${mc.gouv.${application.name}.backserver.front.formstartpage:}")
     private String frontFormStartPage;
 
     @Value("${mc.gouv.backserver.help.url}")
@@ -36,19 +36,16 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
     private String sharedEnvColor;
 
     @Value("${mc.gouv.backserver.env.displaystacktrace:false}")
-    private String sharedEnvdisplayStackTrace;
+    private boolean sharedEnvdisplayStackTrace;
 
     @Value("${mc.gouv.${application.name}.backserver.novalidate:false}")
-    private String noValidate;
+    private boolean noValidate;
 
     @Value("${mc.gouv.${application.name}.backserver.gichkey.client_id}")
     private String gichkeyClientId;
 
     @Value("${mc.gouv.${application.name}.backserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
-
-    @Value("${mc.gouv.${application.name}.backserver.matomo.site_id}")
-    private String matomoSiteId;
 
     @Override
     public String getFrontSharedKey() {
@@ -77,7 +74,7 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
 
     @Override
     public boolean getGouvSharedEnvDisplayStackTrace() {
-        return Boolean.parseBoolean(sharedEnvdisplayStackTrace);
+        return sharedEnvdisplayStackTrace;
     }
 
     @Override
@@ -87,7 +84,7 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
 
     @Override
     public boolean getNovalidate() {
-        return Boolean.parseBoolean(noValidate);
+        return noValidate;
     }
 
     @Override
@@ -100,7 +97,4 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
         return gichkeyClientSecret;
     }
 
-    public String getMatomoSiteId() {
-        return matomoSiteId;
-    }
 }

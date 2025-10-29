@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka.impl;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.SuppressionPaiementMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +142,16 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
         CreationAccesTSMessage catsm = new CreationAccesTSMessage(gouvPropertiesResolver.getDemarcheId(),
                 usagerId.toString());
         sendToOutbox(catsm, catsm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
+    }
+
+    @Override
+    public void sendSuppressionPaiementMessage(String userLegacyId, String requestNumber) {
+        LOGGER.info(
+                "sendSuppressionPaiementMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+        SuppressionPaiementMessage spm = new SuppressionPaiementMessage(gouvPropertiesResolver.getDemarcheId(),
+                userLegacyId, requestNumber);
+        sendToOutbox(spm, userLegacyId, GUKafkaUtils.TS_TO_GU_PAYMENT_TOPIC);
+
     }
 
 }

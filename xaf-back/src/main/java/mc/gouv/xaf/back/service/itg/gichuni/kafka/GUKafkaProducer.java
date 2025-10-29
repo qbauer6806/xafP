@@ -32,4 +32,6 @@ public interface GUKafkaProducer {
 
     void sendCreationAccesTSMessage(Integer usagerId);
 
+    void sendSuppressionPaiementMessage(String userLegacyId, String requestNumber);
+
 }

@@ -21,7 +21,6 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 @Setter
 @Getter
 @Entity
-@ToString
 @Table(name = "PMNT_COMMANDES_DEMANDES")
 public class CommandeDemandeBO {
 
@@ -43,4 +42,14 @@ public class CommandeDemandeBO {
     @OneToMany(mappedBy = "commandeDemande", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommandeDemandeArticleBO> commandesDemandesArticles;
 
+
+    @Override
+    public String toString() {
+        return "CommandeDemandeBO{" +
+                "pkComandeDemande=" + pkCommandesDemandes +
+                ", commande=" + commande +
+                ", demande=" + demande +
+                ", montant=" + montant +
+                '}';
+    }
 }

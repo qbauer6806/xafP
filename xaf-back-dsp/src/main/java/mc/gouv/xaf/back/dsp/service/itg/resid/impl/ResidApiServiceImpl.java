@@ -15,14 +15,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
+import mc.gouv.xaf.back.dsp.dto.ResidInformationDebitDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
@@ -31,12 +32,10 @@ import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.RestitutionStatistiquesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.io.IOUtils;
@@ -55,11 +54,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
@@ -77,17 +78,13 @@ public class ResidApiServiceImpl implements ResidApiService {
     public static final String RESID_CHANGEMENT_SITUATION_PATH = "/demandes/changementSituation";
     public static final String RESID_CERTIFICAT_RESIDENCE_PATH = "/demandes/certificatResidence";
     public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
-    public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
     public static final String RESID_USAGERS_PATH = "/usagers";
     public static final String RESID_NPDHL_PATH = "/npdhl";
-
-    public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO";
+    public static final String RESID_ETAT_CAISSE_PATH = "/caisse/ouverture";
+    public static final String RESID_RETOUR_DEBIT_PATH = "/paiement/retourDebit";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private PropertiesService propertiesService;
 
     @Autowired
     private FileService fileService;
@@ -102,7 +99,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
     @Override
     public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte,
-                                                         Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
+            Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
         LOGGER.info("Appel à l'API RESID pour la création d'une carte");
 
@@ -382,47 +379,6 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity.getBody();
     }
 
-    @Override
-    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
-
-        // Construction du rest template
-        RestTemplate rest = this.getRestTemplate();
-
-        // Headers et URL
-        HttpHeaders headers = getResidRequestHeaders(jwt);
-        String requestUrl = url + RESID_ETATS_DEMANDES_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
-        try {
-            builder.queryParam("updatedAfter", URLEncoder.encode(updatedAfter, StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            LOGGER.error("Problème dans l'encodage de la date à envoyer à RESID");
-        }
-
-        // Construction de la requête
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-        URI uri = builder.build(true).encode().toUri();
-
-        // Logs DEBUG
-        LOGGER.debug("-- Appel RESID Get all demandes updated after");
-        LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
-        LOGGER.debug(HEADERS_LOG, headers);
-
-        // Appel et réponse API
-        ResponseEntity<ResidEtatsDemandesUpdatedAfterDTO> responseEntity = rest.exchange(uri, HttpMethod.GET,
-                requestEntity, ResidEtatsDemandesUpdatedAfterDTO.class);
-        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
-
-        LOGGER.info("Fin appel à l'API RESID pour la récupération des demandes updatées");
-
-        return responseEntity.getBody();
-    }
-
-    @Override
-    public void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
-        PropertiesDTO lastSynchroProperty = propertiesService.getProperty(LAST_SUCCESSFUL_SYNCHRO_KEY);
-        lastSynchroProperty.setValue(lastSuccessfulSynchroTime);
-        propertiesService.saveOrUpdateProperties(lastSynchroProperty);
-    }
 
     @Override
     public List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt)
@@ -496,6 +452,104 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         LOGGER.info("Fin appel RESID getUsagerDln1f");
         return null;
+    }
+
+    @Override
+    public ResidCaisseOuverteDTO getCaisseOuverte(String url, String jwt) {
+        LOGGER.info("Appel à l'API RESID v2 /caisseOuverte pour connaitre le statut de la caisse");
+
+        // Construction du rest template
+        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        // Headers et URL
+        HttpHeaders headers = getResidRequestHeaders(jwt);
+        String requestUrl = url + RESID_ETAT_CAISSE_PATH;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
+
+        // Construction de la requête
+        URI uri = builder.build().encode().toUri();
+
+        // Logs DEBUG
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        LOGGER.debug("-- Appel RESID Get état de la caisse");
+        LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
+        LOGGER.debug(HEADERS_LOG, headers);
+
+        // Appel et réponse
+        ResponseEntity<ResidCaisseOuverteDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
+                new ParameterizedTypeReference<>() {
+
+                });
+
+        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
+
+        LOGGER.info("Fin de l'appel vers RESID pour la récupération du statut de la caisse");
+
+        return responseEntity.getBody();
+    }
+
+    @Override
+    public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws IOException {
+
+        LOGGER.info("Préparation de la requête à destination de RESID pour récupération de PDF");
+        // Construction du rest template
+        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        String requestUrl = url + RESID_RETOUR_DEBIT_PATH;
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
+
+        // ObjectMapper pour sérialiser l'objet
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonBody = mapper.writeValueAsString(informationDebit);
+
+        // Construction du champ multipart contenant le JSON
+        HttpHeaders partHeaders = new HttpHeaders();
+        partHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> jsonPart = new HttpEntity<>(jsonBody, partHeaders);
+
+        // Corps global de la requête multipart
+        MultiValueMap<String, Object> multipartBody = new LinkedMultiValueMap<>();
+        multipartBody.add("informationDebit", jsonPart);  //
+
+        // Headers de la requête principale
+        HttpHeaders headers = getResidRequestHeaders(jwt);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setAccept(List.of(MediaType.APPLICATION_PDF));  // PDF en réponse
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartBody, headers);
+
+        // Logs DEBUG
+        LOGGER.debug("-- Appel à RESID pour téléchargement de PDF");
+        LOGGER.debug(URL_LOG, HttpMethod.POST, uri);
+        LOGGER.debug(HEADERS_LOG, headers);
+        LOGGER.debug("Body: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit));
+
+        // Appel HTTP
+        ResponseEntity<byte[]> responseEntity = rest.exchange(
+                uri,
+                HttpMethod.POST,
+                requestEntity,
+                byte[].class
+        );
+
+        LOGGER.info("Fin de l'appel vers RESID pour téléchargement de PDF");
+
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            byte[] pdfContent = responseEntity.getBody();
+            String fileName = "recu_debit.pdf"; // ou autre nom
+            return new MockMultipartFile(
+                    fileName,
+                    fileName,
+                    MediaType.APPLICATION_PDF_VALUE,
+                    pdfContent
+            );
+        } else {
+            throw new IOException(
+                    "Échec de la récupération du PDF depuis RESID. Statut: " + responseEntity.getStatusCode());
+        }
     }
 
     private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message) {

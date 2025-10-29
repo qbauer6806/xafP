@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ArchivageProperties {
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.archivage.enabled:}")
-    private String archivageEnabled;
+    @Value("${mc.gouv.${application.name}.shared.backapi.archivage.enabled:false}")
+    private boolean archivageEnabled;
 
     @Value("${mc.gouv.rio.url:#{null}}")
     private String rioUrl;

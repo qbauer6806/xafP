@@ -28,7 +28,7 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -132,7 +132,7 @@ public class MoneticoApiClient implements PaiementApiClient {
             if (keyValue.length == 2) {
                 switch (keyValue[0]) {
                     case CDR: // cdr = Code retour indiquant le résultat de la capture
-                        operation.setCodeRetour(keyValue[1]);
+                        // TODO operation.setCodeRetour(keyValue[1]);
                         if (UN.equals(keyValue[1])) {
                             operation.setOperationStatut(OperationStatutEnum.ACCEPTEE.name());
                         } else if (ZERO.equals(keyValue[1])) {
@@ -142,20 +142,20 @@ public class MoneticoApiClient implements PaiementApiClient {
                         }
                         break;
                     case AUT: // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
-                        operation.setNumeroAutorisation(keyValue[1]);
+                        // TODO operation.setNumeroAutorisation(keyValue[1]);
                         break;
                     case LIB: // lib = Libellé détaillé précisant la nature du code retour
-                        operation.setLibelle(keyValue[1]);
+                        // TODO operation.setLibelle(keyValue[1]);
                         break;
                     default:
                         LOGGER.info("Clé de paramètre inconnue : {}", keyValue[0]);
                 }
             }
         }
-        if (StringUtils.equals(UN, operation.getCodeRetour()) && StringUtils.isBlank(
+        /* TODO if (StringUtils.equals(UN, operation.getCodeRetour()) && StringUtils.isBlank(
                 operation.getNumeroAutorisation())) {
             operation.setOperationStatut(OperationStatutEnum.INCIDENT.name());
-        }
+        }*/
     }
 
     public WebTarget getTarget() {
@@ -177,15 +177,15 @@ public class MoneticoApiClient implements PaiementApiClient {
                 captureDTO.setTpe(getTpe());
                 captureDTO.setDate(LocalDateTime.now().format(dateTimeFormatter));
                 captureDTO.setDateCommande(commandeDTO.getDateCreation().format(dateFormatter));
-                captureDTO.setLgue(moyenPaiementDTO.getLangue());
+                // TODO captureDTO.setLgue(moyenPaiementDTO.getLangue());
                 captureDTO.setMontant(commandeDTO.getMontantInitial() + currency);
                 captureDTO.setMontantACapturer(commandeOperationDTO.getMontant() + currency);
                 captureDTO.setMontantDejaCapture(commandeDTO.getMontantDejaCapture() + currency);
                 BigDecimal montantRestant = BigDecimal.valueOf(commandeDTO.getMontantRestant());
                 montantRestant = montantRestant.subtract(BigDecimal.valueOf(commandeOperationDTO.getMontant()));
                 captureDTO.setMontantRestant(montantRestant + currency);
-                captureDTO.setReference(moyenPaiementDTO.getPkMoyenPaiements());
-                captureDTO.setSociete(moyenPaiementDTO.getCodeSociete());
+                // TODO captureDTO.setReference(moyenPaiementDTO.getPkMoyenPaiements());
+                // TODO captureDTO.setSociete(moyenPaiementDTO.getCodeSociete());
                 captureDTO.setVersion(paiementPropertiesResolver.getVersionCapture());
 
                 LOGGER.info("Paramètres Capture:\nURL: {}\n{}", paiementPropertiesResolver.getCaptureUrl(), captureDTO);
@@ -208,8 +208,11 @@ public class MoneticoApiClient implements PaiementApiClient {
                 int statutCode;
                 String responseString;
                 if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
-                    responseString =
+                    /*TODO responseString =
                             "version=1.0\n" + "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' + "cdr=0\n"
+                                    + "lib=autorisation refusee";*/
+                    responseString =
+                            "version=1.0\n" + "reference=cdr=0\n"
                                     + "lib=autorisation refusee";
                     statutCode = 200;
                 } else {

@@ -13,7 +13,6 @@ import mc.gouv.xapi.error.exception.client.UnsupportedMediaTypeWebException;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
 
 public class ExceptionManager {
-
     private ExceptionManager() {
     }
 
@@ -21,7 +20,6 @@ public class ExceptionManager {
 
         // Si la réponse signale une erreur
         if (response.getStatus() < 200 || response.getStatus() > 299) {
-
             switch (response.getStatus()) {
                 case HttpURLConnection.HTTP_BAD_REQUEST:
                     throw response.readEntity(BadRequestWebException.class);

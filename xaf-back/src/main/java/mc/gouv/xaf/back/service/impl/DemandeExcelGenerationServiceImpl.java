@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -58,7 +58,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExcelGenerationServiceImpl.class);
 
     private static final String LABEL = "label";
+
     private static final String CONTENU = "contenu.";
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
@@ -99,7 +101,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         for (DemandeConfigBO demandeConfig : demandeConfigs) {
             String buildId = demandeConfig.getBuildId();
             LOGGER.info("Chargement du fichier recap {}...", buildId);
-
             JsonNode sectionsNode = demandeConfig.getContenu().get("recap").get("sections");
             ArrayNode sections = (sectionsNode != null && sectionsNode.isArray())
                     ? (ArrayNode) sectionsNode
@@ -122,7 +123,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             writeRow(workbook, sections, headerRow, null, true);
             List<Row> rows = new ArrayList<>();
             int n = 1;
-
             for (DemandeDTO demande : demandes) {
                 if (buildId.equals(demande.getConfig().get("buildId").asText())) {
                     LOGGER.info("Ecriture de la ligne de la demande {}...", demande.getPkDemandes());
@@ -173,7 +173,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 
     private void genererColonnes(XSSFWorkbook workbook, ArrayNode sections, Row row, DemandeDTO demande,
             boolean header) {
-
         for (int i = 0; i < sections.size(); i++) {
             JsonNode section = sections.get(i);
             String sectionType = section.has("type") ? section.get("type").asText() : "";
@@ -240,6 +239,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
     }
 
+
     private JsonNode getNode(JsonNode node, JsonNode champ, String ref) {
         if (node == null || champ == null || !champ.has(ref)) {
             return NullNode.getInstance();
@@ -252,7 +252,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         return node.at(path);
     }
 
-    private String buildAdresseHTML(JsonNode node, JsonNode champ) {
+
+    private String buildAdresseHTML(JsonNode node, JsonNode  champ) {
         String ligne1 = getNode(node, champ, "ligne1").textValue();
         String ligne2 = getNode(node, champ, "ligne2").textValue();
         String ligne3 = getNode(node, champ, "ligne3").textValue();
@@ -271,7 +272,6 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 
     private String getFieldValue(JsonNode jsonObject, JsonNode node, boolean header) {
         String type = jsonObject.has("type") ? jsonObject.get("type").asText() : "";
-
         if ("chaine".equals(type) || "texte".equals(type)) {
             if (header) {
                 return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asText() : "";
@@ -337,6 +337,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                                 }
                             }
                         }
+
 
                         String enumField = pathNode.asText();
                         if (enumField == null || pathNode instanceof NullNode || StringUtils.isBlank(enumField)

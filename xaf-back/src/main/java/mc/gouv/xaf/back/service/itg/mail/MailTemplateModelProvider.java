@@ -16,5 +16,5 @@ public interface MailTemplateModelProvider {
     default void setModelDesinscriptionUsager(Integer usagerId, Map<String, Object> model, List<DemandeDTO> demandes) {
     }
 
-    String getMailTemplateCodeForAction(String action);
+    String getMailTemplateCodeForAction(String action, DemandeDTO demande);
 }

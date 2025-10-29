@@ -49,7 +49,8 @@ public class AfDemandeExcelFlatIterable implements Iterable<AfDemandeExcelFlatDT
             private void loadNextPage() {
                 Pageable pageRequest = PageRequest.of(currentPage++, pageSize);
                 Page<AfDemandeExcelFlatDTO> page = demandesService.retrieveDemandesExcelPageable(pageRequest,
-                        excelRechercheDTO, total);
+                        excelRechercheDTO, total
+                );
                 currentIterator = page.iterator();
             }
         };

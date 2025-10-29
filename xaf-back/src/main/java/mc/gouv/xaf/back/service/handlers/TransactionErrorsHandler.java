@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -52,8 +53,8 @@ public class TransactionErrorsHandler {
     @Autowired
     private AfBackUtils afBackUtils;
 
-    public ErrorEventDTO createErrorEvent(String contexte, List<DemandeDTO> demandeDTOS, Exception e) {
-        String[] tab = preparerMail(demandeDTOS);
+    public ErrorEventDTO createErrorEvent(String contexte, List<DemandeBO> demandeBOS, Exception e) {
+        String[] tab = preparerMail(demandeBOS);
         ErrorEventDTO errorEventDTO = new ErrorEventDTO();
         errorEventDTO.setContexte(contexte);
         errorEventDTO.setDateTransaction(LocalDateTime.now().format(formatter));
@@ -84,10 +85,10 @@ public class TransactionErrorsHandler {
         return errorEventDTO;
     }
 
-    private String[] preparerMail(List<DemandeDTO> demandeDTOS) {
+    private String[] preparerMail(List<DemandeBO> demandeBOS) {
         StringBuilder phraseBuilder = new StringBuilder("Les demandes suivantes sont impactées :<br><ul>");
         StringJoiner listeIdDemandes = new StringJoiner(",");
-        for (DemandeDTO d : demandeDTOS) {
+        for (DemandeBO d : demandeBOS) {
             listeIdDemandes.add("" + d.getPkDemandes());
             phraseBuilder.append("<li><b>")
                     .append(d.getIdentifiant())

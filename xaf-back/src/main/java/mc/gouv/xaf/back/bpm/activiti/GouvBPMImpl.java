@@ -41,6 +41,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
+    public static final String ANNULATION_MESSAGE = "annulationMessage";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -256,7 +257,7 @@ public class GouvBPMImpl implements GouvBPM {
         LOGGER.info("Annulation de la demande {} par l'agent '{}' ou l'usager {}", demandeId, agent, usager);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
-                .messageEventSubscriptionName("annulationMessage").list();
+                .messageEventSubscriptionName(ANNULATION_MESSAGE).list();
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
@@ -268,17 +269,12 @@ public class GouvBPMImpl implements GouvBPM {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
         }
 
-        // Normalement il y en a une seule
-
-        LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,
-                executions.size());
-
         if (executions.isEmpty()) {
             throw new GouvBPMException("Aucune execution pour annuler la demande : " + demandeId);
         }
 
         for (Execution ex : executions) {
-            runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
+            runtimeService.messageEventReceived(ANNULATION_MESSAGE, ex.getId(), variables);
         }
     }
 

@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.service.scheduling;
 import jakarta.annotation.PostConstruct;
 
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
-import mc.gouv.xaf.shared.util.PurgeJobSelector;
+import mc.gouv.xaf.shared.config.PurgeJobSelector;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;

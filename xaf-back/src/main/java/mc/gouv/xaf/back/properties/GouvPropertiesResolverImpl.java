@@ -1,13 +1,12 @@
 package mc.gouv.xaf.back.properties;
 
+import jakarta.annotation.PostConstruct;
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement.
@@ -202,27 +198,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         if (StringUtils.isNotBlank(applicationName)) {
             applicationPrefix = "." + applicationName;
             demarcheId = StringUtils.upperCase(applicationName);
-        }
-
-        // Vérification que chaque propriété a bien été configurée
-        List<String> propertiesNotFound = new ArrayList<>();
-        try {
-
-            for (PropertyDescriptor propertyDescriptor : Introspector
-                    .getBeanInfo(GouvPropertiesResolverImpl.class, Object.class).getPropertyDescriptors()) {
-
-                Method method = getMethod(propertyDescriptor);
-
-                checkProperties(propertiesNotFound, method, propertyDescriptor);
-            }
-
-        } catch (IntrospectionException e) {
-            LOGGER.error("Erreur lors de l'introspection");
-            throw e;
-        }
-
-        if (!propertiesNotFound.isEmpty()) {
-            throw new GouvPropertyNotFoundException(propertiesNotFound);
         }
 
     }

@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.util;
+package mc.gouv.xaf.shared.config;
 
 import mc.gouv.xaf.shared.annotations.TypeDePurge;
 import org.springframework.aop.framework.AopProxyUtils;

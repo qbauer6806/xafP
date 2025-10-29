@@ -106,6 +106,11 @@ public class AbstractTraitementController extends AbstractController {
     private static final String I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE = "message.error.traitement.typecode.null";
 
     private static final String FICHIERS_TAB = "fichiers";
+    // Pour les informations liées à la demande
+    private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
+
+    public static final String REDIRECT = "redirect:";
+    private static final String LECTURE_ROLE = "ROLE_LECTURE";
 
     @Autowired
     private DemandesService demandesService;
@@ -165,11 +170,6 @@ public class AbstractTraitementController extends AbstractController {
 
     @Autowired
     private DemandeFilesCategorizer demandeFilesCategorizer;
-
-    // Pour les informations liées à la demande
-    private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
-
-    private static final String REDIRECT = "redirect:";
 
     @Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
     @PostMapping(value = "/infosAdministration")
@@ -418,14 +418,20 @@ public class AbstractTraitementController extends AbstractController {
         mav.addObject("isGenerationZipActive", true);
         mav.addObject("isGenerationPdfActive", true);
         mav.addObject("isPanelTypeFichierOuvert", true);
-        mav.addObject("accesDesactive", StatutSimplifieEnum.TERMINEE.equals(
-                demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()))
-                && demandesService.isAccesDesactive(demande.getPkDemandes()));
+        boolean isStatutSimplifieTermine = StatutSimplifieEnum.TERMINEE.equals(
+                demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getName()));
+        mav.addObject("accesDesactive",
+                isStatutSimplifieTermine && demandesService.isAccesDesactive(demande.getPkDemandes()));
 
         // Chargement de l'historique de la demande
         List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demande.getPkDemandes());
         List<DemandeHistoriqueAffichageDTO> historiqueAffichageDTOS = afBackUtils.histoDem2Ts(histosDem);
         mav.addObject("histos", historiqueAffichageDTOS);
+
+        boolean isEditable = !AfBackUtils.hasOnlyRole(LECTURE_ROLE);
+        mav.addObject("isObservationPanelActive", isEditable);
+        mav.addObject("isDiscussionPanelActive", !isStatutSimplifieTermine && isEditable);
+
         return mav;
     }
 

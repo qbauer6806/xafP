@@ -1125,6 +1125,26 @@ public class AfBackUtils {
     }
 
     /**
+     * Vérifie si l’utilisateur actuellement authentifié possède uniquement le rôle spécifié. Cette méthode s’assure que
+     * l’utilisateur dispose exactement d’une seule autorité, et que cette autorité correspond au rôle fourni.
+     *
+     * @param role
+     *         le rôle à vérifier parmi les autorités de l’utilisateur. Ne doit pas être nul.
+     * @return true si l’utilisateur possède exactement une autorité correspondant au rôle spécifié, false dans le cas
+     *         contraire, y compris lorsque le contexte d’authentification est nul ou que l’utilisateur possède
+     *         plusieurs ou aucune autorité.
+     */
+    public static boolean hasOnlyRole(final String role) {
+        var context = SecurityContextHolder.getContext();
+        if (context == null || context.getAuthentication() == null) {
+            return false;
+        }
+        var authorities = context.getAuthentication().getAuthorities();
+        return authorities != null && authorities.size() == 1 && authorities.iterator().next().getAuthority()
+                .equals(role);
+    }
+
+    /**
      * Remplacement des sauts de ligne par des balises <br> pour un affichage HTML correct
      *
      * @param commentaire

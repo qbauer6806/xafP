@@ -655,9 +655,9 @@ public class AbstractTraitementController extends AbstractController {
 
         DemandeDTO demande = demandesService.changerAffectationDemande(pkDemande, agentId);
 
-        // Ajout d'une ligne à 'historique
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(demande.getDernierStatut().getName(),
-                agentId);
+        // Ajout d'une ligne à l'historique, le statut cible est le même que dernierStatut dans une reprise en charge
+        String dernierStatut = demande.getDernierStatut().getName();
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(dernierStatut, agentId, dernierStatut);
         LOGGER.info("Appel à DEM pour historique...");
         try {
             demandesHistoriqueService.saveHisto(pkDemande, histo);

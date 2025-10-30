@@ -88,6 +88,7 @@ import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
@@ -662,7 +663,8 @@ public class DemandesServiceImpl implements DemandesService {
         // transformer le motif
         String codeMotif = demande.getDernierStatut().getCodeMotif();
         if (codeMotif != null) {
-            demande.getDernierStatut().setCodeMotif(motifsCache.getMotif(codeMotif, "fr").getLibelle());
+            MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
+            demande.getDernierStatut().setCodeMotif(motif != null ? motif.getLibelle() : codeMotif);
         }
         byte[] bytes;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();

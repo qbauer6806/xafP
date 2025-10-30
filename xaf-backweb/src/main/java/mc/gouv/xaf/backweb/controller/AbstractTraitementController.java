@@ -105,12 +105,13 @@ public class AbstractTraitementController extends AbstractController {
     private static final String I18N_UPLOAD_FICHIER_TAILLE_NON_ACCEPTEE = "message.error.fileupload.taille";
     private static final String I18N_TRAITEMENT_TYPECODE_NULL_ERROR_CODE_MESSAGE = "message.error.traitement.typecode.null";
 
-    private static final String FICHIERS_TAB = "fichiers";
     // Pour les informations liées à la demande
     private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
+    private static final String LECTURE_ROLE = "ROLE_LECTURE";
 
     public static final String REDIRECT = "redirect:";
-    private static final String LECTURE_ROLE = "ROLE_LECTURE";
+    public static final String FICHIERS_TAB = "fichiers";
+    public static final String DETAILS_TAB = "details";
 
     @Autowired
     private DemandesService demandesService;

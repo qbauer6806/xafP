@@ -86,14 +86,4 @@ public interface DemandesStatutsService {
      */
     List<DemandeStatutDTO> getStatuts(Integer demandeId);
 
-    /**
-     * Duplication des statuts d'une demande vers une nouvelle demande.
-     *
-     * @param demandeBo
-     *         L'objet BO de la demande à cloner
-     * @param newDemandeBo
-     *         le nouvel objet BO
-     */
-    void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo);
-
 }

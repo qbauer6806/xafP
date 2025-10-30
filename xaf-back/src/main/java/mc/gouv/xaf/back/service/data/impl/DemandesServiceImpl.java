@@ -976,9 +976,6 @@ public class DemandesServiceImpl implements DemandesService {
                 demandesFilesService.clonerDesFichiersInternes(originalDemandeBo, clonedDemandeBo);
             }
 
-            // Statuts des demandes
-            demandesStatutsService.clonerStatuts(originalDemandeBo, clonedDemandeBo);
-
             // Data des demandes
             demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
 

@@ -75,6 +75,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -108,6 +110,7 @@ public class AbstractTraitementController extends AbstractController {
     // Pour les informations liées à la demande
     private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
     private static final String LECTURE_ROLE = "ROLE_LECTURE";
+    private static final String SAISIE_ROLE = "ROLE_SAISIE";
 
     public static final String REDIRECT = "redirect:";
     public static final String FICHIERS_TAB = "fichiers";
@@ -260,7 +263,7 @@ public class AbstractTraitementController extends AbstractController {
                             "La propriété obligatoire spring.servlet.multipart.max-file-size ne semble pas définie");
                 }
                 // Suppression de la partie "MB" pour récupérer uniquement le chiffre
-                String numberPart = maxFileSize.replaceAll("[^0-9]", "");
+                String numberPart = maxFileSize.replaceAll("\\D", "");
 
                 return returnErrorMessageWithArgs(pkDemande, I18N_UPLOAD_FICHIER_TAILLE_NON_ACCEPTEE,
                         redirectAttributes, new Object[] { numberPart });
@@ -429,13 +432,32 @@ public class AbstractTraitementController extends AbstractController {
         List<DemandeHistoriqueAffichageDTO> historiqueAffichageDTOS = afBackUtils.histoDem2Ts(histosDem);
         mav.addObject("histos", historiqueAffichageDTOS);
 
-        boolean isEditable = !AfBackUtils.hasOnlyRole(LECTURE_ROLE);
+        // L'agent peut éditer uniquement s'il n'a pas le rôle de secrétaire ni le rôle lecture seule.
+        boolean isEditable = this.hasOtherRoleLectureAndSaisie();
         mav.addObject("isObservationPanelActive", isEditable);
         mav.addObject("isDiscussionPanelActive", !isStatutSimplifieTermine && isEditable);
 
         return mav;
     }
 
+    /**
+     * Détermine si l'utilisateur actuellement authentifié possède au moins un rôle différent des rôles spécifiés, à
+     * savoir {@code LECTURE_ROLE} et {@code SAISIE_ROLE}.
+     *
+     * @return {@code true} si les autorités de l'utilisateur contiennent au moins un rôle ne correspondant pas à
+     *         {@code LECTURE_ROLE} ou {@code SAISIE_ROLE} ; {@code false} sinon.
+     */
+    private boolean hasOtherRoleLectureAndSaisie() {
+        var context = SecurityContextHolder.getContext();
+        if (context == null || context.getAuthentication() == null || CollectionUtils.isEmpty(
+                context.getAuthentication().getAuthorities())) {
+            return false;
+        }
+        var authorities = context.getAuthentication().getAuthorities();
+        // Retourne true si au moins un rôle de l'utilisateur n'est PAS LECTURE_ROLE ou SAISIE_ROLE
+        return authorities.stream().map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> !StringUtils.equalsAny(role, LECTURE_ROLE, SAISIE_ROLE));
+    }
     private boolean uploadPieceJustificativeActive(boolean isAgentAssigned) {
         return hasRole("ROLE_TRAITEMENT") && isAgentAssigned;
     }
@@ -633,16 +655,20 @@ public class AbstractTraitementController extends AbstractController {
 
         DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(
                 demarchesDataProvider.getStatutAnnulee());
+        saveHistorique(pkDemande, histo);
+
+        LOGGER.info("======================= Fin /traitement/prendreEnCharge");
+
+        return returnSuccessMessage(pkDemande, I18N_ANNULATION_SUCCESS_CODE_MESSAGE, redirectAttributes);
+    }
+
+    private void saveHistorique(Integer pkDemande, DemandeHistoriqueDTO histo) {
         LOGGER.info("Appel à DEM pour historique...");
         try {
             demandesHistoriqueService.saveHisto(pkDemande, histo);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
         }
-
-        LOGGER.info("======================= Fin /traitement/prendreEnCharge");
-
-        return returnSuccessMessage(pkDemande, I18N_ANNULATION_SUCCESS_CODE_MESSAGE, redirectAttributes);
     }
 
     protected ModelAndView reprendreEnCharge(@RequestParam() Integer pkDemande) {
@@ -658,13 +684,7 @@ public class AbstractTraitementController extends AbstractController {
         // Ajout d'une ligne à l'historique, le statut cible est le même que dernierStatut dans une reprise en charge
         String dernierStatut = demande.getDernierStatut().getName();
         DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(dernierStatut, agentId, dernierStatut);
-        LOGGER.info("Appel à DEM pour historique...");
-        try {
-            demandesHistoriqueService.saveHisto(pkDemande, histo);
-
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
-        }
+        saveHistorique(pkDemande, histo);
 
         ModelAndView mav = new ModelAndView(REDIRECT + pkDemande);
 
@@ -706,12 +726,7 @@ public class AbstractTraitementController extends AbstractController {
 
         // Ajout d'une ligne à l'historique
         DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(demande.getDernierStatut().getName());
-        LOGGER.info("Appel à DEM pour historique...");
-        try {
-            demandesHistoriqueService.saveHisto(pkDemande, histo);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
-        }
+        saveHistorique(pkDemande, histo);
 
         mav = new ModelAndView(REDIRECT + pkDemande);
 

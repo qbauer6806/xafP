@@ -174,4 +174,16 @@ public class FileUtils {
         return "SIZE_" + fileSizebytes + ";TYPE_" + mimetype;
     }
 
+    /**
+     * Sanitize le nom de fichier pour éviter les path traversal attacks
+     */
+    public static String sanitizeFileName(String fileName) {
+        if (fileName == null) {
+            throw new IllegalArgumentException("Le nom de fichier ne peut pas être null");
+        }
+
+        // Remplace tous les caractères potentiellement dangereux
+        return fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+    }
+
 }

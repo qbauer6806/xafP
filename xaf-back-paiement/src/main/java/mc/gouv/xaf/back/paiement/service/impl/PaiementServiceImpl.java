@@ -642,7 +642,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Async
-    public void updateDemandes(List<DemandeBO> demandes) {
+    void updateDemandes(List<DemandeBO> demandes) {
         for (DemandeBO demande : demandes) {
             try {
                 DemandesUsagersBO usager = demande.getUsager();

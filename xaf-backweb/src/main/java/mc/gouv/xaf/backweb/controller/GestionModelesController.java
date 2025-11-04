@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.service.itg.file.service.dto.FileDTO;
 import mc.gouv.xaf.back.service.itg.file.service.dto.MetaDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileComparator;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.backweb.dto.TypeModeleEnum;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -173,9 +174,12 @@ public class GestionModelesController {
             return mav;
         }
 
+        // Sanitize le nom de fichier pour éviter les path traversal
+        String sanitizedFilename = FileUtils.sanitizeFileName(filename);
+
         try {
-            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES, filename);
-            messages.add(LE_MODELE + filename + " a été supprimé avec succès.");
+            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES, sanitizedFilename);
+            messages.add(LE_MODELE + sanitizedFilename + " a été supprimé avec succès.");
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
         } catch (Exception e) {
             messages.add(e.getMessage());

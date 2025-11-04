@@ -8,20 +8,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
-
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -30,6 +23,13 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -105,10 +105,19 @@ public class FactureServiceImpl implements FactureService {
             }
         } catch (IOException ex) {
             // On capture uniquement les exceptions pertinentes, avec un message explicite
-            throw new RuntimeException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
+            throw new DemarcheException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
         } finally {
             try {
-                Files.deleteIfExists(tempFile.toPath());
+                Path tempDirPath = new File(System.getProperty("java.io.tmpdir")).toPath().normalize();
+                Path filePath = tempFile.toPath().normalize();
+
+                // Vérifie que le fichier est bien dans le répertoire temporaire
+                if (!filePath.startsWith(tempDirPath)) {
+                    // On ne lance plus d'exception, on log simplement
+                    LOGGER.warn("Le fichier est en dehors du répertoire temporaire autorisé : {}", filePath);
+                } else {
+                    Files.deleteIfExists(filePath);
+                }
             } catch (IOException e) {
                 LOGGER.warn("Échec de suppression du fichier temporaire pour la demande", e);
             }

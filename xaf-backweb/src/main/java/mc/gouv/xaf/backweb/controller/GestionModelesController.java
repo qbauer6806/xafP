@@ -20,6 +20,7 @@ import mc.gouv.xaf.back.service.utils.FileComparator;
 import mc.gouv.xaf.backweb.dto.TypeModeleEnum;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -174,7 +175,8 @@ public class GestionModelesController {
         }
 
         try {
-            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES, filename);
+            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES,
+                    FileNameUtils.getSafeFileName(filename));
             messages.add(LE_MODELE + filename + " a été supprimé avec succès.");
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
         } catch (Exception e) {

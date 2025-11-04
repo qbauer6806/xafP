@@ -1,14 +1,15 @@
 package mc.gouv.xaf.back.dsp.controller;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
-import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDebitInputDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidStatutCaisseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidTarifDTO;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidPropertiesResolver;
@@ -17,10 +18,10 @@ import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,12 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 
 @RestController
 @RequestMapping(value = "/api/v1/paiement", produces = "application/json")
@@ -120,7 +115,7 @@ public class ResidApiController {
     @PostMapping(value = "/recuPaiement", consumes = "multipart/form-data")
     public String recuPaiement(@RequestPart("file") MultipartFile file, HttpServletRequest request, @RequestParam("idTs") String idTs) {
         logStartMethod(LOGGER);
-        factureService.saveRecuPaiement(idTs, file);
+        factureService.saveRecuPaiement(FileNameUtils.getSafeFileName(idTs), file);
         logEndMethod(LOGGER);
         return "Fichier PDF reçu avec succès.";
     }

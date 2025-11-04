@@ -1,5 +1,9 @@
 package mc.gouv.xaf.back.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -10,24 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -87,6 +74,16 @@ import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
 /**
  * Services proposés par le module API des TS
@@ -95,97 +92,69 @@ import mc.gouv.xapi.error.exception.client.NotFoundWebException;
  */
 @ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' != 'true'")
 @Component
+@RequiredArgsConstructor
 public class AfApiService implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
 
-    @Autowired
-    protected GouvBPM gouvBPM;
+    protected final GouvBPM gouvBPM;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    protected final AfBackUtils afBackUtils;
 
-    @Autowired
-    protected UsagersCache usagersCache;
+    protected final UsagersCache usagersCache;
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    protected DemandesHistoriqueService demandesHistoriqueService;
+    protected final DemandesHistoriqueService demandesHistoriqueService;
 
-    @Autowired
-    protected DemandesService demandesService;
+    protected final DemandesService demandesService;
 
-    @Autowired
-    protected DemandesConfigService demandesConfigService;
+    protected final DemandesConfigService demandesConfigService;
 
-    @Autowired
-    private DemandesComplementsService demandesComplementsService;
+    protected final DemandesComplementsService demandesComplementsService;
 
-    @Autowired
-    private AccessService accessService;
+    private final AccessService accessService;
 
-    @Autowired
-    private UsagersService usagersService;
+    protected final UsagersService usagersService;
 
-    @Autowired
-    private UsagersCourrierService usagersCourrierService;
+    protected final UsagersCourrierService usagersCourrierService;
 
-    @Autowired
-    private MotifsService motifsService;
+    protected final MotifsService motifsService;
 
-    @Autowired
-    private PeriodesOuvertureService periodesOuvertureService;
+    protected final PeriodesOuvertureService periodesOuvertureService;
 
-    @Autowired
-    private PropertiesService propertiesService;
+    protected final PropertiesService propertiesService;
 
-    @Autowired
-    protected GUKafkaProducer guKafkaProducer;
+    protected final GUKafkaProducer guKafkaProducer;
 
-    @Autowired
-    protected GUKafkaUtils guKafkaUtils;
+    protected final GUKafkaUtils guKafkaUtils;
 
-    @Autowired
-    protected BrouillonsService brouillonsService;
+    protected final BrouillonsService brouillonsService;
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    protected DemarchesDataProvider demarchesDataProvider;
+    protected final DemarchesDataProvider demarchesDataProvider;
 
-    @Autowired
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
 
-    @Autowired
-    protected DemandesUsagersTransformer demandesUsagersTransformer;
+    protected final DemandesUsagersTransformer demandesUsagersTransformer;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    protected final DemandesDataService demandesDataService;
 
-    @Autowired
-    private PaysCache paysCache;
+    protected final PaysCache paysCache;
 
-    @Autowired
-    private Optional<CreateDemandeFinalizer> createDemandeFinalizers;
+    private final Optional<CreateDemandeFinalizer> createDemandeFinalizers;
 
-    @Autowired
-    private Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
+    private final Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
 
-    @Autowired
-    private Optional<CreateDemandeExtender> createDemandeExtenders;
+    private final Optional<CreateDemandeExtender> createDemandeExtenders;
 
-    @Autowired
-    private Optional<UpdateDemandeExtender> updateDemandeExtenders;
+    private final Optional<UpdateDemandeExtender> updateDemandeExtenders;
 
-    @Autowired(required = false)
-    private CustomRequestService customRequestService;
+    private final Optional<CustomRequestService> customRequestService;
 
     @Override
     @Transactional
@@ -391,39 +360,31 @@ public class AfApiService implements AfApi {
     }
 
     @Override
-    public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> getCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.getCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.getCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> postCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.postCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.postCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.postCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> putCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.putCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.putCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.putCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.deleteCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.deleteCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.deleteCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override

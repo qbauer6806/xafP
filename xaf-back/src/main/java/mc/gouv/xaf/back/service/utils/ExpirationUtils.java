@@ -1,28 +1,27 @@
 package mc.gouv.xaf.back.service.utils;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.expiration.settings.ExpirationStatutDemandeConf;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Service
+@RequiredArgsConstructor
 public class ExpirationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpirationUtils.class);
-    @Autowired
-    private DemandesService demandesService;
-    @Autowired
-    private PropertiesService propertiesService;
+
+    private final DemandesService demandesService;
+    private final PropertiesService propertiesService;
 
     public Map<DemandeDTO, String> getDemandesAExpirer(List<ExpirationStatutDemandeConf> expirationDemandeSettings) {
         Map<DemandeDTO, String> result = new HashMap<>();

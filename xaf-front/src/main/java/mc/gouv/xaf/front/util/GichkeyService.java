@@ -17,12 +17,13 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.RequestConstant;
-import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +37,6 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +46,7 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GichkeyService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GichkeyService.class);
@@ -58,14 +59,8 @@ public class GichkeyService {
     private static final String ENCODING = "gzip, deflate, br";
     private static final String ACCEPT = "*/*";
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
-
-    @Autowired
-    private GichuniService gichuniService;
-
-    private GichkeyService() {
-    }
+    private final FrontGouvPropertiesResolver propertiesResolver;
+    private final GichuniService gichuniService;
 
     private URL getURL(String chemin) {
         URL url = null;

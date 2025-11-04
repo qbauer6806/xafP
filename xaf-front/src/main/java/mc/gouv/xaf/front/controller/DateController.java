@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/date")
-public class DateController extends AbstractXafController {
+public class DateController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateController.class);
 

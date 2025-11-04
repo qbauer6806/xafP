@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -42,13 +43,13 @@ import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
 
 @Service
+@RequiredArgsConstructor
 public class ArchivageServiceImpl implements ArchivageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
@@ -58,33 +59,25 @@ public class ArchivageServiceImpl implements ArchivageService {
     private static final String CODE_NOTICE_PERMIS = "CIR_PERMIS";
     private static final String CODE_NOTICE_REGISTRE = "CIR_CG";
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    private ConvertisseurTiffService convertisseurTiffService;
+    private final ConvertisseurTiffService convertisseurTiffService;
 
-    @Autowired
-    private RioService rioService;
+    private final RioService rioService;
 
-    @Autowired
-    private ExcelExportService excelExportService;
+    private final ExcelExportService excelExportService;
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    private DemandesFilesService demandesFilesService;
+    private final DemandesFilesService demandesFilesService;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-    @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final AfBackUtils afBackUtils;
+    
+    private final DemandesHistoriqueService demandesHistoriqueService;
+
+    private final DemandesDataService demandesDataService;
 
     /**
      * {@inheritDoc}

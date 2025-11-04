@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
@@ -16,27 +17,22 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 
 @Service
+@RequiredArgsConstructor
 public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesDataService demandesDataService;
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final DemarchesDataProvider demarchesDataProvider;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
-    @Autowired
-    private CommandesDemandesService commandesDemandesService;
+    private final CommandesDemandesService commandesDemandesService;
 
-    @Autowired
-    private PaiementHistoriqueService paiementHistoriqueService;
+    private final PaiementHistoriqueService paiementHistoriqueService;
 
     @Override
     public void chargerDonneesPaiement(ModelAndView mav, DemandeDTO demande) {

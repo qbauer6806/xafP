@@ -6,6 +6,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SessionConstant;
@@ -15,20 +22,12 @@ import mc.gouv.xaf.shared.dto.DonneesExternesDemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Servlet mettant à disposition les donnees externes
@@ -37,7 +36,8 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/getInitialDemande")
-public class InitialDemandeController extends AbstractXafController {
+@RequiredArgsConstructor
+public class InitialDemandeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InitialDemandeController.class);
 
@@ -53,8 +53,7 @@ public class InitialDemandeController extends AbstractXafController {
     private static final String USAGER_INFO_NOM = "usagerInfoNom";
     private static final String USAGER_INFO_PRENOM = "usagerInfoPrenom";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity doGet(HttpServletRequest request) {
@@ -70,7 +69,7 @@ public class InitialDemandeController extends AbstractXafController {
         ObjectMapper omapper = new ObjectMapper();
         omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
+        List<PropertiesDTO> properties = xafFrontserverUtils.getAfApiClient().getFrontProperties();
         PropertiesDTO property = properties.stream()
                 .filter(prop -> "XAF_DONNEES_EXTERNES_PARAMETER_LIST".equals(prop.getKey())).findFirst().orElse(null);
 
@@ -117,7 +116,7 @@ public class InitialDemandeController extends AbstractXafController {
             data.put(USAGER_INFO_EMAIL, new String[] { usagerInfosDTO.getEmail() });
             data.put(USAGER_INFO_TITRE, new String[] { String.valueOf(usagerInfosDTO.getTitre()) });
 
-            JsonNode retour = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
+            JsonNode retour = xafFrontserverUtils.getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));

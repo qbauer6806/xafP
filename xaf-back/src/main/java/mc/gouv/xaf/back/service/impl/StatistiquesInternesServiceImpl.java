@@ -5,25 +5,23 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class StatistiquesInternesServiceImpl implements StatistiquesInternesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatistiquesInternesServiceImpl.class);
 
-    @Autowired
-    private DemandesStatistiquesInternesRepository demandesStatInternesRepository;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final DemandesStatistiquesInternesRepository demandesStatInternesRepository;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     private static final String TOTAL = "TOTAL";
 

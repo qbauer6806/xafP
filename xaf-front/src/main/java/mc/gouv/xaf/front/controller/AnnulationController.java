@@ -1,6 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -8,7 +9,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/annulation")
-public class AnnulationController extends AbstractXafController {
+@RequiredArgsConstructor
+public class AnnulationController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnulationController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @DeleteMapping(value = { "/{demandeId}" })
     public ResponseEntity doDelete(@PathVariable(required = false) String demandeId, HttpServletRequest request) {
@@ -57,7 +57,7 @@ public class AnnulationController extends AbstractXafController {
         LOGGER.info("UsagerID={}, DemandeID={}", usagerId, XafFrontserverUtils.logSafe(demandeId));
 
         LOGGER.info("Appel à la démarche...");
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         // Vérification si l'usager à le droit d'annuler cette demande
         try {
@@ -75,7 +75,7 @@ public class AnnulationController extends AbstractXafController {
             return ResponseEntity.ok().build();
         } catch (Exception exception) {
             LOGGER.error("AnnulationServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", exception);
-            return ResponseEntity.status(getCodeErreur(exception)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(exception)).build();
         }
 
     }

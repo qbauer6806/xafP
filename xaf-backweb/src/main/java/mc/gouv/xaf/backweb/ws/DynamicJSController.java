@@ -1,13 +1,12 @@
 package mc.gouv.xaf.backweb.ws;
 
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.service.DynamicJSService;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import mc.gouv.xaf.back.service.DynamicJSService;
 
 /**
  * Contrôleur permettant de retourner le fichier dynamicjs.js généré
@@ -16,10 +15,10 @@ import mc.gouv.xaf.back.service.DynamicJSService;
  */
 @GouvRestController
 @RequestMapping("/dynamicjs")
+@RequiredArgsConstructor
 public class DynamicJSController {
 
-    @Autowired
-    private DynamicJSService dynamicJSService;
+    private final DynamicJSService dynamicJSService;
 
     @GetMapping(value = "/dynamicjs.js", produces = "application/javascript")
     public ResponseEntity<String> getResponse() {

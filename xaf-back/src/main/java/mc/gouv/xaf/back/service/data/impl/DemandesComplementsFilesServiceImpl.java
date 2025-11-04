@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
@@ -11,7 +12,6 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesComplementsFilesServiceImpl implements DemandesComplementsFilesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesComplementsFilesServiceImpl.class);
 
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
-
-    @Autowired
-    private FileService fileService;
+    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    private final FileService fileService;
 
     private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes,
             Map<String, Boolean> checkboxes, AtomicBoolean success) {

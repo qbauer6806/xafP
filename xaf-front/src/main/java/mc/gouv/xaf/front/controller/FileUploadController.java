@@ -10,6 +10,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -42,7 +43,6 @@ import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -54,20 +54,16 @@ import org.springframework.web.bind.annotation.PostMapping;
  * @author qdeme
  */
 @Controller
-public class FileUploadController extends AbstractXafController {
+@RequiredArgsConstructor
+public class FileUploadController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadController.class);
 
     private static final String SLASH = "/";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
-
-    @Autowired
-    private FileControllerUtils fileControllerUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
+    private final FileControllerUtils fileControllerUtils;
 
     @PostMapping(value = { "/file" })
     public ResponseEntity<FileUploadResponseDTO> doPost(HttpServletRequest request) {
@@ -143,7 +139,7 @@ public class FileUploadController extends AbstractXafController {
 
             // Récupération de l'AccessID via appel WS à Demarches
             LOGGER.info("Appel à la démarche pour récupérer l'AccessID correspondant..");
-            AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+            AccessDTO access = xafFrontserverUtils.getAfApiClient().getAccess(usagerInfosDTO.getId());
             Integer accessId = access.getPkAccess();
             LOGGER.debug("AccessID = {}", accessId);
             if (accessId == null) {
@@ -194,7 +190,7 @@ public class FileUploadController extends AbstractXafController {
 
         } catch (Exception e) {
             LOGGER.error("FileUploadServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
-            return ResponseEntity.status(getCodeErreur(e)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(e)).build();
         }
 
     }

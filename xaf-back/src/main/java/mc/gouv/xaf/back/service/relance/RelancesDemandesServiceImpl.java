@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.relance;
 
 import java.util.List;
 import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
@@ -12,24 +12,19 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RelancesDemandesServiceImpl.class);
 
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private RelancesUtils relanceUtils;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final MailService mailService;
+    private final RelancesUtils relanceUtils;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Override
     public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer) {

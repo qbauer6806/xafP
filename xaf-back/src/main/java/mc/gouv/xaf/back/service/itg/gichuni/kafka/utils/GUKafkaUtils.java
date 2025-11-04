@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import mc.gouv.xaf.back.properties.KafkaProperties;
@@ -17,7 +18,6 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GUKafkaUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaUtils.class);
@@ -33,17 +34,10 @@ public class GUKafkaUtils {
     public static final String GU_TO_TS_TOPIC = "ts-to-gichuni";
     public static final String TS_TO_GU_PAYMENT_TOPIC = "ts-to-gichuni-payment";
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private KafkaProperties kafkaProperties;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final DemandesRepository demandesRepository;
+    private final AccessService accessService;
+    private final KafkaProperties kafkaProperties;
 
     @Getter
     private Integer dltConsumerJobTimeout = null;

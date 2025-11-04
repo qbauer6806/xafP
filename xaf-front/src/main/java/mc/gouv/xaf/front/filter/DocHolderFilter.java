@@ -1,23 +1,22 @@
 package mc.gouv.xaf.front.filter;
 
-import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Filtre de servlet pour les fonctionnalités du porte-document (doc-holder) Il fait les vérifications suivantes :
@@ -27,16 +26,14 @@ import java.io.IOException;
  * </ul>
  */
 @Component
+@RequiredArgsConstructor
 public class DocHolderFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFilter.class);
     private static final String XAF_PORTE_DOCUMENT_ACTIF = "XAF_PORTE_DOCUMENT_ACTIF";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontControllerPropertiesCache propertiesCache;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontControllerPropertiesCache propertiesCache;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

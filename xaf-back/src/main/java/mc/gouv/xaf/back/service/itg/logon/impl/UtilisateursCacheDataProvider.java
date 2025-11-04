@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.CacheService;
 import mc.gouv.xaf.back.service.itg.logon.LogonClient;
@@ -13,22 +14,17 @@ import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.CacheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UtilisateursCacheDataProvider implements GouvCacheDataProvider<String, User> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilisateursCacheDataProvider.class);
 
-    @Autowired
-    private LogonClient logonClient;
-    
-    @Autowired
-    private CacheService cacheService;
-    
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final LogonClient logonClient;
+    private final CacheService cacheService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public ConcurrentHashMap<String, User> getAll() {

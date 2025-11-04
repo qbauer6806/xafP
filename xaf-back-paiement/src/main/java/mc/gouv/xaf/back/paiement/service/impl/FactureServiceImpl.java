@@ -10,18 +10,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -30,9 +23,15 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@RequiredArgsConstructor
 public class FactureServiceImpl implements FactureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FactureServiceImpl.class);
@@ -40,21 +39,17 @@ public class FactureServiceImpl implements FactureService {
     public static final String PREFIX_FACTURE = "Justificatif_Facture_";
     public static final String PREFIX_JUSTIFICATIF_RECU_PAIEMENT = "Justificatif_Reçu_Paiement_";
 
-    @Autowired
-    private FileService fileService;
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-    @Autowired
-    private DemandesFilesService demandesFilesService;
+    private final FileService fileService;
 
-    @Autowired
-    private DemandesService demandesService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private FactureApiClient factureApiClient;
+    private final DemandesFilesService demandesFilesService;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesService demandesService;
+
+    private final FactureApiClient factureApiClient;
+
+    private final DemandesDataService demandesDataService;
 
     @Override
     public void saveFacture(String reference, Integer demandeId) throws IOException {

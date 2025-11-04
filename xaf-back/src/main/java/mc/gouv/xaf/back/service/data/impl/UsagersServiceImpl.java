@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
@@ -10,7 +11,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,21 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class UsagersServiceImpl implements UsagersService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersServiceImpl.class);
 
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
-
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private BrouillonsService brouillonsService;
+    private final AccessService accessService;
+    private final DemandesStatutsService demandesStatutsService;
+    private final DemandesRepository demandesRepository;
+    private final BrouillonsService brouillonsService;
 
     @Override
     public void desinscriptionUsager(Integer usagerId, String statutAnnulation, String codeMotif,

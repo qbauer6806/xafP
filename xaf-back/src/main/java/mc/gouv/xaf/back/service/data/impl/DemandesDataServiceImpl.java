@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
@@ -18,7 +19,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -31,21 +31,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesDataServiceImpl implements DemandesDataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesDataServiceImpl.class);
 
-    @Autowired
-    private DemandesDataRepository demandesDataRepository;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private TransactionErrorsHandler transactionErrorsHandler;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesDataRepository demandesDataRepository;
+    private final DemandesService demandesService;
+    private final TransactionErrorsHandler transactionErrorsHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public DemandeDataDTO getDemandeData(Integer demandeId, String key) {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -37,7 +38,6 @@ import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -50,36 +50,20 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesComplementsServiceImpl implements DemandesComplementsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesComplementsServiceImpl.class);
 
-    @Autowired
-    private DemandesComplementsRepository demandesComplementsRepository;
-
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
-
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandeFileTransformer demandeFileTransformer;
-
-    @Autowired
-    private DemandesTransformer demandesTransformer;
-
-    @Autowired
-    private TransactionErrorsHandler transactionErrorsHandler;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesComplementsRepository demandesComplementsRepository;
+    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    private final DemandesRepository demandesRepository;
+    private final DemandesService demandesService;
+    private final FileService fileService;
+    private final DemandeFileTransformer demandeFileTransformer;
+    private final DemandesTransformer demandesTransformer;
+    private final TransactionErrorsHandler transactionErrorsHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional

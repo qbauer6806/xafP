@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -19,7 +20,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,21 +29,15 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailAgentsWithRolesDelegate.class);
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final AfBackUtils afBackUtils;
+    private final MailService mailService;
+    private final DemandesService demandesService;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
 
     @Setter
     @Getter

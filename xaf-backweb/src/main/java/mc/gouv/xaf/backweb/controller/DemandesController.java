@@ -2,6 +2,7 @@ package mc.gouv.xaf.backweb.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
@@ -10,7 +11,6 @@ import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,15 +26,13 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/demandes")
 @Secured("ROLE_LECTURE")
+@RequiredArgsConstructor
 public class DemandesController extends AbstractController {
 
-    @Autowired
-    private UtilisateursCache utilisateursCache;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesController.class);
+
+    private final UtilisateursCache utilisateursCache;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @GetMapping
     public ModelAndView form(@RequestParam(value = "statut", required = false) String statut,

@@ -1,9 +1,9 @@
 package mc.gouv.xaf.backweb.controller;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,12 +16,12 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/")
+@RequiredArgsConstructor
 public class IndexController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexController.class);
 
-    @Autowired
-    private IndexControllerInterface indexControllerInterface;
+    private final IndexControllerInterface indexControllerInterface;
 
     @GetMapping
     public ModelAndView form() {

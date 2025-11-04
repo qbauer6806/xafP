@@ -1,5 +1,7 @@
 package mc.gouv.xaf.front.util;
 
+import java.security.SecureRandom;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationCategoryEnum;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
@@ -7,29 +9,26 @@ import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.InfoCancelInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.info.PaymentMethodInformationDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.register.RegisterOutputDTO;
-import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
-import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
-import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
+import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import mc.gouv.xaf.shared.paiement.infopaiement.AnswerDTO;
 import mc.gouv.xaf.shared.paiement.infopaiement.InfoPaiementOutputDTO;
+import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
 import mc.gouv.xaf.shared.paiement.moyenpaiement.MoyenPaiementOutputDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.security.SecureRandom;
 
 @Service
+@RequiredArgsConstructor
 public class MwpaymntService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MwpaymntService.class);
 
-    @Autowired
-    private FrontGouvPropertiesResolver gouvPropertiesResolver;
-
+    private final FrontGouvPropertiesResolver gouvPropertiesResolver;
 
     public RegisterInputDTO getRegisterInput(UsagerInfosDTO usagerInfosDTO) {
         LOGGER.info("Création du RegisterInputDTO utilisé pour appeler le middleware de paiement");

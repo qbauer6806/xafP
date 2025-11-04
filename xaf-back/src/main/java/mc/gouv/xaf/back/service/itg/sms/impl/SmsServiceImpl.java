@@ -4,6 +4,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.sms.SmsService;
@@ -20,7 +21,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -30,23 +30,16 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class SmsServiceImpl implements SmsService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SmsServiceImpl.class);
-	
-    @Autowired
-    private SmsTemplatesCache smsTemplatesCache;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmsServiceImpl.class);
 
-    private ToolManager manager = new ToolManager();
-    
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private VelocityEngine velocityEngine;
+    private final SmsTemplatesCache smsTemplatesCache;
+    private final AfBackUtils afBackUtils;
+    private final ToolManager manager;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final VelocityEngine velocityEngine;
 
 	@Override
 	public SmsDTO getSms(String identifiant) {

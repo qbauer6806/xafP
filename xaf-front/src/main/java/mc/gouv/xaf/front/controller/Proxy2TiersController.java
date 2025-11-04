@@ -1,5 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,11 +10,11 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,10 +31,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-
 /**
  * Controller utilisé dans la solution 2/3, permettant d'effectuer un proxy afin que le BO tiers puisse contacter l'API
  * GenTS
@@ -41,12 +39,12 @@ import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
  */
 @Controller
 @RequestMapping("/api2tiers")
-public class Proxy2TiersController extends AbstractXafController {
+@RequiredArgsConstructor
+public class Proxy2TiersController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Proxy2TiersController.class);
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     @RequestMapping(value = "/**", method = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
             RequestMethod.DELETE })

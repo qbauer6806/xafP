@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.ParametrageFormBean;
@@ -17,7 +18,6 @@ import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -37,17 +37,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/gestion/parametrage")
 @Secured("ROLE_CONFIGURATION")
+@RequiredArgsConstructor
 public class GestionParametrageController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametrageController.class);
 
     private static final String REDIRECT = "redirect:/gestion/parametrage";
 
-    @Autowired
-    private DemarchesService demarchesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
+    private final AfBackUtils afBackUtils;
 
     @Value("${display.name}")
     private String displayName;

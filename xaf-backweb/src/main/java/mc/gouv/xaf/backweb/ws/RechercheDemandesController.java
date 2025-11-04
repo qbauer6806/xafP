@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.ws;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.model.RechercheChampDTO;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.RechercheAdminService;
@@ -16,7 +17,6 @@ import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,15 +33,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @GouvRestController
 @Secured("ROLE_LECTURE")
 @RequestMapping("/ws/demandes")
+@RequiredArgsConstructor
 public class RechercheDemandesController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheDemandesController.class);
 
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private RechercheAdminService rechercheAdminService;
+    private final DemandesService demandesService;
+    private final RechercheAdminService rechercheAdminService;
 
     @GetMapping(value = "/pageable")
     public Page<AfBackDemandeDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,

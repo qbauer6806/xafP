@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
@@ -16,18 +17,15 @@ import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import org.apache.tika.exception.TikaException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMTestImpl implements GouvBPM {
 
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private DemandesStatutsRepository demandesStatutsRepository;
+    private final DemandesRepository demandesRepository;
+    private final DemandesStatutsRepository demandesStatutsRepository;
 
     @Override
     public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId,

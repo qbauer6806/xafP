@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -19,7 +20,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -37,24 +37,20 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/demandes/courriers")
+@RequiredArgsConstructor
 public class DemandesCourrierController extends AbstractController {
-
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private UsagersUtils usagersUtils;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
-    @Autowired
-    private UsagersCourrierService usagersCourrierService;
+    private final BackGouvPropertiesResolver gouvPropertiesResolver;
+
+    private final AfBackUtils afBackUtils;
+
+    private final DemarchesDataProvider demarchesDataProvider;
+
+    private final UsagersUtils usagersUtils;
+
+    private final UsagersCourrierService usagersCourrierService;
 
     @Secured("ROLE_SAISIE")
     @GetMapping

@@ -3,30 +3,28 @@ package mc.gouv.xaf.back.paiement.service.itg.cir.service.impl;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-
-import org.apache.http.client.HttpResponseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.RegistreDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.itg.cir.service.CirApiService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.http.client.HttpResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CirApiServiceImpl implements CirApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CirApiServiceImpl.class);
@@ -34,11 +32,9 @@ public class CirApiServiceImpl implements CirApiService {
     public static final String VEHICULES_ROUTE = "v1/vehicules";
     public static final String BEARER_PREFIX = "Bearer ";
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    private PaiementPropertiesResolver paiementPropertiesResolver;
+    private final PaiementPropertiesResolver paiementPropertiesResolver;
 
     @Override
     public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande)

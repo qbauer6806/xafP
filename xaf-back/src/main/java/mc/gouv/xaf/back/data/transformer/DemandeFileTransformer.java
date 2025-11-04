@@ -6,6 +6,7 @@ import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -14,19 +15,16 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class DemandeFileTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeFileTransformer.class);
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final AfBackUtils afBackUtils;
 
     /**
      * Méthode permettant de récupérer une liste de DTO avec le contenu des fichier sous forme de chaine de caractéres

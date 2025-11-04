@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
@@ -10,10 +11,10 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMComptaCIRDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMComptaCIRDelegate.class);
@@ -21,17 +22,13 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
     public static final String MC_COMPTA_RESULT = "MC_COMPTA_RESULT";
     public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
 
-    @Autowired
-    private FactureService factureService;
+    private final FactureService factureService;
 
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final GouvBPM gouvBPM;
 
-    @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
+    private final DemandesHistoriqueService demandesHistoriqueService;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesDataService demandesDataService;
 
     @Override
     public void execute(DelegateExecution execution) {

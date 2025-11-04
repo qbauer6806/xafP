@@ -4,21 +4,19 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe service appelée par le process Activiti pour générer un courrier PDF.
@@ -26,15 +24,13 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMExpirationCheckDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMExpirationCheckDelegate.class);
 
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final DemandesService demandesService;
+    private final GouvBPM gouvBPM;
 
     @Setter
     @Getter

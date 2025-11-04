@@ -1,35 +1,25 @@
 package mc.gouv.xaf.back.service.purge;
 
 import java.util.Date;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
+import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
+import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
-import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
-import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
-
 @Service
+@RequiredArgsConstructor
 public class PurgeBrouillonsServiceImpl implements PurgeBrouillonsService {
 
-    @Autowired
-    private BrouillonsRepository brouillonsRepository;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
-    private PurgeFilesRepository purgeFilesRepository;
-
-    @Autowired
-    private PurgeDemandesService purgeDemandesService;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
+    private final BrouillonsRepository brouillonsRepository;
+    private final BrouillonsFilesRepository brouillonsFilesRepository;
+    private final PurgeFilesRepository purgeFilesRepository;
+    private final PurgeDemandesService purgeDemandesService;
+    private final DemandesConfigService demandesConfigService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeBrouillonsServiceImpl.class);
 

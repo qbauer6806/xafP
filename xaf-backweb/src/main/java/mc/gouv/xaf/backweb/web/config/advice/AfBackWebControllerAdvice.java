@@ -1,19 +1,19 @@
 package mc.gouv.xaf.backweb.web.config.advice;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 @ControllerAdvice
+@RequiredArgsConstructor
 public class AfBackWebControllerAdvice {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackWebControllerAdvice.class);
@@ -48,8 +48,7 @@ public class AfBackWebControllerAdvice {
     private long buildTimestamp = 0;
     private static final String DATE_FORMAT_TS_MAVEN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
     @ModelAttribute(name = "helpUrl")
     public String addHelpUrl() {

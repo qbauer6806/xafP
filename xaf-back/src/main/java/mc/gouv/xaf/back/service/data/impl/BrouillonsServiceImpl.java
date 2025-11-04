@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -31,7 +32,6 @@ import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,30 +47,18 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class BrouillonsServiceImpl implements BrouillonsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsServiceImpl.class);
 
-    @Autowired
-    private BrouillonsRepository brouillonsRepository;
-
-    @Autowired
-    private BrouillonsFilesService brouillonsFilesService;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
+    private final BrouillonsRepository brouillonsRepository;
+    private final BrouillonsFilesService brouillonsFilesService;
+    private final BrouillonsFilesRepository brouillonsFilesRepository;
+    private final AccessService accessService;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final FileService fileService;
+    private final DemandesConfigService demandesConfigService;
 
     /**
      * {@inheritDoc}

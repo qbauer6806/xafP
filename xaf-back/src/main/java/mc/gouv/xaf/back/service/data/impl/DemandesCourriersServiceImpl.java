@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -21,7 +22,6 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -37,27 +37,17 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourriersServiceImpl.class);
 
-    @Autowired
-    private DemandesCourriersRepository demandesCourriersRepository;
-
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private RechercheCourriersUtils rechercheCourriersUtils;
-
-    @Autowired
-    private TransactionErrorsHandler transactionErrorsHandler;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesCourriersRepository demandesCourriersRepository;
+    private final DemandesRepository demandesRepository;
+    private final DemandesService demandesService;
+    private final RechercheCourriersUtils rechercheCourriersUtils;
+    private final TransactionErrorsHandler transactionErrorsHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * {@inheritDoc}

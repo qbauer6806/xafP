@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
@@ -9,11 +11,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Classe service appelée par le process Activiti afin de remettre le statut d'avant (dans une nouvelle instance de
@@ -22,12 +21,12 @@ import java.util.List;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMRestorePreviousStatusDelegate.class);
 
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
+    private final DemandesStatutsService demandesStatutsService;
 
     @Override
     public void execute(DelegateExecution execution) {

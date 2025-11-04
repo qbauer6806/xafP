@@ -1,16 +1,16 @@
 package mc.gouv.xaf.back.paiement.properties;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolver {
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
     private static final String XAF_MONETICO_DUREE_CARTE = "XAF_MONETICO_DUREE_CARTE";
 

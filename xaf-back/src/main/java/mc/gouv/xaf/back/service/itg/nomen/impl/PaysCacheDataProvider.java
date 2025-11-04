@@ -1,16 +1,10 @@
 package mc.gouv.xaf.back.service.itg.nomen.impl;
 
-import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.CacheService;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
@@ -22,6 +16,9 @@ import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.CacheDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.util.PaysUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * DataProvider du cache des pays et nationalités
@@ -30,32 +27,30 @@ import mc.gouv.xaf.shared.util.PaysUtils;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class PaysCacheDataProvider implements GouvCacheDataProvider<String, PaysDTO> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheDataProvider.class);
 
     private static final String CODE_ALPHA3_PARAMETRE = "CODE_ALPHA3";
-    
+
     private static final String CODE_ALPHA2_APATRIDE = "XX";
-    
+
     private static final String CODE_ALPHA3_APATRIDE = "XXA";
-    
+
     private static final String NOMENCLATURE_PAYS = "PAY-1";
-    
+
     private static final String NOMENCLATURE_NATIONALITES = "NATIO";
-    
+
     private static final String LANGUE_FR = "FR";
-    
+
     private static final String LANGUE_EN = "EN";
-    
-    @Autowired
-    private AfBackUtils afBackUtils;
-    
-    @Autowired
-    private CacheService cacheService;
-    
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    private final AfBackUtils afBackUtils;
+
+    private final CacheService cacheService;
+
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public ConcurrentHashMap<String, PaysDTO> getAll() {

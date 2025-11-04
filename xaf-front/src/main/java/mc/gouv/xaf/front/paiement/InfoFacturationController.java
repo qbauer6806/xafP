@@ -1,26 +1,24 @@
 package mc.gouv.xaf.front.paiement;
 
 import jakarta.servlet.http.HttpServletRequest;
-import mc.gouv.xaf.front.controller.AbstractXafController;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class InfoFacturationController  extends AbstractXafController {
+@RequiredArgsConstructor
+public class InfoFacturationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfoFacturationController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping(value = { "/info-facturation" })
     public ResponseEntity<InfoFacturationResponseDTO> getInfoFacturation(HttpServletRequest request) {
@@ -31,8 +29,8 @@ public class InfoFacturationController  extends AbstractXafController {
             LOGGER.error(SharedMessages.UTILISATEUR_NON_AUTORISE);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        GichuniUsagerDTO gichuniUsager = usagerInfosDTO;
-        InfoFacturationResponseDTO infoFacturation = xafFrontserverUtils.getPaiementApiClient().getInfoFacturation(gichuniUsager);
+        InfoFacturationResponseDTO infoFacturation = xafFrontserverUtils.getPaiementApiClient()
+                .getInfoFacturation(usagerInfosDTO);
         LOGGER.info("====================== /info-facturation GET end...");
         return ResponseEntity.ok(infoFacturation);
     }

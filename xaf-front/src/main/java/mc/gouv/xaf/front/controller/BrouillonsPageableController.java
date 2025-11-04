@@ -1,6 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -11,7 +12,6 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/brouillonspage")
-public class BrouillonsPageableController extends AbstractXafController {
+@RequiredArgsConstructor
+public class BrouillonsPageableController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsPageableController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity<Page<BrouillonDTO>> doGet(@RequestParam(name = RequestConstant.PAGE_PARAM) String pageNb,
@@ -74,11 +74,11 @@ public class BrouillonsPageableController extends AbstractXafController {
 
         try {
             LOGGER.info("Récupération des brouillons pour l'usager dont usagerId = {}", usagerId);
-            Page<BrouillonDTO> page = getAfApiClient().getBrouillonsPageable(usagerId, paramDTO);
+            Page<BrouillonDTO> page = xafFrontserverUtils.getAfApiClient().getBrouillonsPageable(usagerId, paramDTO);
             return ResponseEntity.ok(page);
         } catch (Exception ex) {
             LOGGER.error("BrouillonsPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET", ex);
-            return ResponseEntity.status(getCodeErreur(ex)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(ex)).build();
         }
     }
 }

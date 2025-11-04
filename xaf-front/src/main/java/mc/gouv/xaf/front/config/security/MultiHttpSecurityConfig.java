@@ -1,5 +1,6 @@
 package mc.gouv.xaf.front.config.security;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 @Configuration
+@RequiredArgsConstructor
 public class MultiHttpSecurityConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiHttpSecurityConfig.class);
@@ -36,11 +38,8 @@ public class MultiHttpSecurityConfig {
     @Value("${application.name}")
     String applicationName;
 
-    @Autowired
-    private Environment env;
-
-    @Autowired
-    private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
+    private final Environment env;
+    private final FrontGouvPropertiesResolver frontGouvPropertiesResolver;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authentication) {

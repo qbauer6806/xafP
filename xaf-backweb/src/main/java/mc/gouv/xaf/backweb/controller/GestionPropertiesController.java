@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.controller;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -10,7 +11,6 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +23,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/gestion/properties")
 @Secured("ROLE_CONFIGURATION")
+@RequiredArgsConstructor
 public class GestionPropertiesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPropertiesController.class);
     private static final String REDIRECT = "redirect:/gestion/properties";
     private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";
 
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final PropertiesService propertiesService;
+    private final AfBackUtils afBackUtils;
 
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {

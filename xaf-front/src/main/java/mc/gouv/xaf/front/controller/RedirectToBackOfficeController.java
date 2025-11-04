@@ -1,5 +1,8 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -7,16 +10,12 @@ import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
 
 /**
  * Servlet permettant de rediriger l'usager sur le Back-Office
@@ -25,16 +24,14 @@ import java.net.URI;
  */
 @Controller
 @RequestMapping("/redirect-to-backoffice")
-public class RedirectToBackOfficeController extends AbstractXafController {
+@RequiredArgsConstructor
+public class RedirectToBackOfficeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedirectToBackOfficeController.class);
     private static final String TOKEN_ID_DEMANDE = "<id>";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     @GetMapping
     public ResponseEntity doGet(HttpServletRequest request) {
@@ -71,7 +68,7 @@ public class RedirectToBackOfficeController extends AbstractXafController {
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         } catch (Exception e) {
             LOGGER.error("RedirectToBackOfficeServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            return ResponseEntity.status(getCodeErreur(e)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(e)).build();
         }
     }
 }

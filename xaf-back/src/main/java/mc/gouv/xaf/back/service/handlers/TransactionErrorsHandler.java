@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -15,12 +16,10 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -32,6 +31,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
  */
 @Service
 @Transactional(rollbackOn = Exception.class)
+@RequiredArgsConstructor
 public class TransactionErrorsHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionErrorsHandler.class);
@@ -41,17 +41,10 @@ public class TransactionErrorsHandler {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final PropertiesService propertiesService;
+    private final MailService mailService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final AfBackUtils afBackUtils;
 
     public ErrorEventDTO createErrorEvent(String contexte, List<DemandeBO> demandeBOS, Exception e) {
         String[] tab = preparerMail(demandeBOS);

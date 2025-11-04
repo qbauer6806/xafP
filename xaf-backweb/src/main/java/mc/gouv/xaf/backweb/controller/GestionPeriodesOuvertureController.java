@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -12,7 +13,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/gestion/periodesouverture")
 @Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
+@RequiredArgsConstructor
 public class GestionPeriodesOuvertureController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPeriodesOuvertureController.class);
@@ -37,8 +38,7 @@ public class GestionPeriodesOuvertureController {
     private static final String SUPPRIMER_TOUS_SUCCES = "Toutes les périodes d'ouverture ont été supprimées.";
     private static final String REDIRECT_PERIODES = "redirect:/gestion/periodesouverture?pageLength=";
 
-    @Autowired
-    private PeriodesOuvertureService periodesOuvertureService;
+    private final PeriodesOuvertureService periodesOuvertureService;
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {

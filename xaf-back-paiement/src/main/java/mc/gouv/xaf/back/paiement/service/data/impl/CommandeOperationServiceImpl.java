@@ -4,26 +4,24 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
-import mc.gouv.xaf.back.paiement.service.data.CommandeOperationService;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.service.data.CommandeOperationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CommandeOperationServiceImpl implements CommandeOperationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandeOperationServiceImpl.class);
 
-    @Autowired
-    private CommandeOperationRepository commandeOperationRepository;
+    private final CommandeOperationRepository commandeOperationRepository;
 
     @Override
     public List<CommandeOperationDTO> getAllCommandeOperationsAccepteeFilteredByDate(Date startDate, Date endDate) {

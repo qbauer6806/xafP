@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.service.histo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
@@ -20,7 +20,6 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesHistoriqueService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesHistoriqueService.class);
@@ -41,23 +41,12 @@ public class DemandesHistoriqueService {
     private static final String SUPERVISEUR = "Superviseur";
     private static final String CLOSING_SPAN = "</span>";
 
-    @Autowired
-    private DemandesHistoriqueRepository demandesHistoriqueRepository;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final DemandesHistoriqueRepository demandesHistoriqueRepository;
+    private final DemandesService demandesService;
+    private final AfBackUtils afBackUtils;
+    private final UtilisateursUtils utilisateursUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     public List<DemandeHistoriqueDTO> getHistorique(Integer demandeId) {
         // Jette une exception si la demande n'existe pas

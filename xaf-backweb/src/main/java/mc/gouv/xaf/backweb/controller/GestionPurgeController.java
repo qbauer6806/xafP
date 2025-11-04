@@ -1,10 +1,10 @@
 package mc.gouv.xaf.backweb.controller;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +19,13 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/gestion/purge")
 @Secured("ROLE_PARAMETRAGE")
+@RequiredArgsConstructor
 public class GestionPurgeController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPurgeController.class);
 
-    @Autowired
-    private PurgeDemandesService purgeService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final PurgeDemandesService purgeService;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @GetMapping()
     public ModelAndView form() {

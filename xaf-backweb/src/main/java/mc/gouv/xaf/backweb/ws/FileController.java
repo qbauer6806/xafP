@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -47,7 +48,6 @@ import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -70,23 +70,20 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @GouvRestController
 @RequestMapping("/ws/file")
+@RequiredArgsConstructor
 public class FileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
+    private final BackGouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    private DemandesService demandesService;
+    private final DemandesService demandesService;
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-    @Autowired
-    private DemandesFilesService demandesFilesService;
+    private final DemarchesDataProvider demarchesDataProvider;
+
+    private final DemandesFilesService demandesFilesService;
 
     public static final int DEFAULT_BUFFER_SIZE = 8192;
     private static final String LOG_PART = "Part à traiter : {}";

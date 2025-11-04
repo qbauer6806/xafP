@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -27,7 +28,6 @@ import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -55,28 +55,16 @@ import org.springframework.web.util.UriUtils;
 @Controller
 @Secured({ "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/template")
+@RequiredArgsConstructor
 public class GestionTemplateController extends AbstractController {
 
-    @Autowired
-    private GestionTemplateService gestionTemplateService;
-
-    @Autowired
-    private TemplatesService templatesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    private MarqueursService marqueursService;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
-
-    @Autowired
-    private DemandesService demandesService;
+    private final GestionTemplateService gestionTemplateService;
+    private final TemplatesService templatesService;
+    private final AfBackUtils afBackUtils;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final MarqueursService marqueursService;
+    private final DemandesConfigService demandesConfigService;
+    private final DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
     private static final String FR_ONLY_VAR = "frOnly";

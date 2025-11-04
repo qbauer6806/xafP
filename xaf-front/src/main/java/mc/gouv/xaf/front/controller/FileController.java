@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -22,7 +23,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,16 +38,14 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author qdeme
  */
 @Controller
-public class FileController extends AbstractXafController {
+@RequiredArgsConstructor
+public class FileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
     private static final String ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT = "Erreur: nom ou ID du fichier manquant";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     private static final String SLASH = "/";
 
@@ -160,7 +158,7 @@ public class FileController extends AbstractXafController {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.FORBIDDEN,
                     "Erreur: accès à ce fichier non autorisé");
         }
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         LOGGER.info("Appel à la démarche pour supprimer le brouillon");
         try {

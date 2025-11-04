@@ -2,18 +2,7 @@ package mc.gouv.xaf.backweb.controller;
 
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.sms.SmsTemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionSmsTemplateService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -21,6 +10,15 @@ import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
 import mc.gouv.xaf.shared.formbean.SmsTemplateFormBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Controller pour la modification de templates de SMS
@@ -30,19 +28,16 @@ import mc.gouv.xaf.shared.formbean.SmsTemplateFormBean;
 @Controller
 @Secured({ "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/smstemplate")
+@RequiredArgsConstructor
 public class GestionSmsTemplateController extends AbstractController {
 
-    @Autowired
-    private GestionSmsTemplateService gestionSmsTemplateService;
+    private final GestionSmsTemplateService gestionSmsTemplateService;
 
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
+    private final BackGouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private SmsTemplatesService smsTemplatesService;
+    private final SmsTemplatesService smsTemplatesService;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionSmsTemplateController.class);
     private static final String TS_CODE_VAR = "tsCode";

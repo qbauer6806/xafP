@@ -3,21 +3,19 @@ package mc.gouv.xaf.back.service.itg.rest.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
+import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.xaf.caching.GouvCacheDataProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * DataProvider du cache des usagers courrier
@@ -25,21 +23,15 @@ import mc.gouv.xaf.caching.GouvCacheDataProvider;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, GichuniUsagerDTO> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCacheDataProvider.class);
 
-    @Autowired
-    private GichuniApiClient gichuniApiClient;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private UsagersCourrierService usagersCourrierService;
-
-    @Autowired
-    private AccessService accessService;
+    private final GichuniApiClient gichuniApiClient;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final UsagersCourrierService usagersCourrierService;
+    private final AccessService accessService;
 
     /**
      * Filtre les ids des usagers en fonction de s'ils sont en ligne ou non.

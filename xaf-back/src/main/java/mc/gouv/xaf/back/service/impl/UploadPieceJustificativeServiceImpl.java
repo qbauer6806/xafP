@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -31,7 +32,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,24 +39,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class UploadPieceJustificativeServiceImpl implements UploadPieceJustificativeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadPieceJustificativeServiceImpl.class);
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private DemandesFilesService demandesFilesService;
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final FileService fileService;
+    private final DemandesService demandesService;
+    private final DemandesFilesService demandesFilesService;
+    private final DemandesFilesRepository demandesFilesRepository;
+    private final UtilisateursUtils utilisateursUtils;
 
     /**
      * {@inheritDoc}

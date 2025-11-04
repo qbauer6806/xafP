@@ -1,9 +1,7 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
 
 @Component
 public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
@@ -89,57 +87,7 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getGUKafkaBootstrapServersConfig() {
-        return null;
-    }
-
-    @Override
     public String getApplicationName() {
-        return null;
-    }
-
-    @Override
-    public boolean getGUKafkaSSLEnabled() {
-        return false;
-    }
-
-    @Override
-    public String getGUKafkaSSLTrustStoreLocation() {
-        return null;
-    }
-
-    @Override
-    public String getGUKafkaSSLTrustStorePassword() {
-        return null;
-    }
-
-    @Override
-    public String getGUKafkaSSLKeyStoreLocation() {
-        return null;
-    }
-
-    @Override
-    public String getGUKafkaSSLKeyStorePassword() {
-        return null;
-    }
-
-    @Override
-    public boolean getKafkaEnabled() {
-        return false;
-    }
-
-    @Override
-    public String getGUKafkaProducerMaxRequestSize() {
-        return null;
-    }
-
-    @Override
-    public String getGUKafkaConsumerFetchMaxBytes() {
-        return null;
-    }
-
-    @Override
-    public String getGUKafkaConsumerMaxPartitionFetchBytes() {
         return null;
     }
 
@@ -154,73 +102,12 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getApiRioUrl() {
-        return null;
-    }
-
-    @Override
-    public String getApiRioJwt() {
-        return null;
-    }
-
-    @Override
-    public String getApiRioCodeAppli() {
-        return null;
-    }
-
-    @Override
-    public String getApiRioCodeNotice() {
-        return null;
-    }
-
-    @Override
     public boolean isPaiementEnabled() {
         return false;
     }
 
     @Override
     public String getPorteDocUrl() {
-        return null;
-    }
-
-    @Override
-    public String getApiUlisMoyensGenerauxUrl() {
-        return null;
-    }
-
-    @Override
-    public String getApiUlisTiersOrganisationUrl() {
-        return null;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public String getApiUlisWorkflowUrl() {
-        return null;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public String getApiUlisCommercialisationUrl() {
-        return null;
-    }
-
-    @Override
-    public String getApiUlisAuthenticationUser() {
-        return null;
-    }
-
-    @Override
-    public String getApiUlisAuthenticationPassword() {
-        return null;
-    }
-
-    @Override
-    public String getApiUlisFunctionalUser() {
         return null;
     }
 

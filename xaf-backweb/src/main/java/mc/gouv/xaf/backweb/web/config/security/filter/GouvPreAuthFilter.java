@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.backweb.web.config.security.GouvAuthenticationProvider;
 import mc.gouv.xaf.backweb.web.config.security.LogonAuthenticationToken;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -29,18 +31,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * @author qdeme
  */
+@Component
+@RequiredArgsConstructor
 public class GouvPreAuthFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvPreAuthFilter.class);
 
     private final BackGouvPropertiesResolver propertiesResolver;
     private final GouvAuthenticationProvider gouvAuthenticationProvider;
-
-    public GouvPreAuthFilter(BackGouvPropertiesResolver propertiesResolver,
-            GouvAuthenticationProvider gouvAuthenticationProvider) {
-        this.propertiesResolver = propertiesResolver;
-        this.gouvAuthenticationProvider = gouvAuthenticationProvider;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

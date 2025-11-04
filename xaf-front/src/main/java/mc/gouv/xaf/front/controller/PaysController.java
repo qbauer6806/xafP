@@ -1,10 +1,15 @@
 package mc.gouv.xaf.front.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.PaysDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.http.HttpServletRequest;
-import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.PaysDTO;
-
 /**
  * Proxy vers les nomenclatures PAY-1 et NATIO de NOMEN
  *
@@ -28,12 +25,12 @@ import mc.gouv.xaf.shared.dto.PaysDTO;
  */
 @Controller
 @RequestMapping("/pays")
-public class PaysController extends AbstractXafController {
+@RequiredArgsConstructor
+public class PaysController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity<String> doGet(@RequestParam(required = false) String locale, HttpServletRequest request) {
@@ -47,7 +44,7 @@ public class PaysController extends AbstractXafController {
         }
 
         try {
-            List<PaysDTO> pays = getAfApiClient().getPays();
+            List<PaysDTO> pays = xafFrontserverUtils.getAfApiClient().getPays();
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(pays);
             LOGGER.info("====================== Fin /pays doGet()");

@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -9,7 +10,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype") // Indispensable pour éviter que les champs persistent entre exécutions du délegate
+@RequiredArgsConstructor
 public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMSauvegarderHistoriqueDelegate.class);
@@ -31,10 +32,8 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
     @Setter
     private Expression executionRole;
 
-    @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final DemandesHistoriqueService demandesHistoriqueService;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public void execute(DelegateExecution execution) {

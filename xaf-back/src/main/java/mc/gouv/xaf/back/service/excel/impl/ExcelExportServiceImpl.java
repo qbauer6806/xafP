@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -11,19 +12,16 @@ import org.jxls.builder.JxlsStreaming;
 import org.jxls.transform.poi.JxlsPoi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ExcelExportServiceImpl implements ExcelExportService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelExportServiceImpl.class);
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final AfBackUtils afBackUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public void exportExcel(String templateFileName, Map<String, Object> model, OutputStream outputStream) {

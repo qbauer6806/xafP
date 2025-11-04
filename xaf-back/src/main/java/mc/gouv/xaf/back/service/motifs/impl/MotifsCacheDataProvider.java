@@ -2,17 +2,17 @@ package mc.gouv.xaf.back.service.motifs.impl;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.MotifDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class MotifsCacheDataProvider implements GouvCacheDataProvider<Integer, MotifDTO> {
 
-    @Autowired
-    private MotifsService motifsService;
+    private final MotifsService motifsService;
 
     @Override
     public ConcurrentHashMap<Integer, MotifDTO> getAll() {

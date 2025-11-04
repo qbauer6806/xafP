@@ -1,15 +1,15 @@
 package mc.gouv.xaf.back.service.impl;
 
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.DynamicJSService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class AbstractDynamicJSServiceImpl implements DynamicJSService {
 
     protected static final String DEBUT = "\n(\"";
@@ -17,11 +17,8 @@ public class AbstractDynamicJSServiceImpl implements DynamicJSService {
     protected static final String RETURN = "return \"";
     protected static final String RETURN_INCONNU = "return \"INCONNU\";\n}\n";
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final AfBackUtils afBackUtils;
 
     protected String js = null;
 

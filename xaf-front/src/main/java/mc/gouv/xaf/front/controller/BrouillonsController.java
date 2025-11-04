@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
@@ -12,7 +13,6 @@ import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,12 +29,12 @@ import org.springframework.web.bind.annotation.PutMapping;
  * @author qdeme
  */
 @Controller
-public class BrouillonsController extends XafFrontserverUtils {
+@RequiredArgsConstructor
+public class BrouillonsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     /**
      * Factorisation des méthodes PUT et POST
@@ -52,7 +52,7 @@ public class BrouillonsController extends XafFrontserverUtils {
         }
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         if (usagerInfosDTO == null) {
             return ResponseEntity.internalServerError().build();
@@ -116,7 +116,7 @@ public class BrouillonsController extends XafFrontserverUtils {
         LOGGER.info("====================== /brouillons doGet()");
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         if (usagerInfosDTO == null) {
             return ResponseEntity.internalServerError().build();
@@ -142,7 +142,7 @@ public class BrouillonsController extends XafFrontserverUtils {
         LOGGER.info("====================== /brouillons doDelete()");
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         if (usagerInfosDTO == null) {
             return ResponseEntity.internalServerError().build();

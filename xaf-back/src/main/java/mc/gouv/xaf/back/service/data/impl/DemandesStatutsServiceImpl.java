@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -29,7 +30,6 @@ import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -42,39 +42,21 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesStatutsServiceImpl.class);
 
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private DemandesStatutsRepository demandesStatutsRepository;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private StatistiquesService statistiquesService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private GUKafkaUtils guKafkaUtils;
-
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
-
-    @Autowired
-    private DemandesTransformer demandesTransformer;
-
-    @Autowired
-    private TransactionErrorsHandler transactionErrorsHandler;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesRepository demandesRepository;
+    private final DemandesStatutsRepository demandesStatutsRepository;
+    private final DemandesService demandesService;
+    private final StatistiquesService statistiquesService;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final GUKafkaUtils guKafkaUtils;
+    private final GUKafkaProducer guKafkaProducer;
+    private final DemandesTransformer demandesTransformer;
+    private final TransactionErrorsHandler transactionErrorsHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * {@inheritDoc}

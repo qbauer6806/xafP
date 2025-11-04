@@ -2,20 +2,19 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.io.IOException;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import mc.gouv.xaf.shared.exception.DemarcheException;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe service appelée par le process Activiti pour générer un courrier PDF.
@@ -23,15 +22,13 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMPdfDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMPdfDelegate.class);
 
-    @Autowired
-    private PdfGenerationService pdfGenerationService;
-
-    @Autowired
-    private DemandesService demandesService;
+    private final PdfGenerationService pdfGenerationService;
+    private final DemandesService demandesService;
 
     @Getter
     @Setter

@@ -1,6 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -9,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/associerDemandeCourrier")
-public class AssociationDemandeCourrierController extends AbstractXafController {
+@RequiredArgsConstructor
+public class AssociationDemandeCourrierController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @PostMapping
     public ResponseEntity doPost(HttpServletRequest request) {
@@ -58,7 +58,7 @@ public class AssociationDemandeCourrierController extends AbstractXafController 
             String safeNomProprio = nomProprio.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
             LOGGER.info("UsagerID={}, IdentifiantDemande={}, NomProprio={}", usagerId, safeIdentifiant, safeNomProprio);
             LOGGER.info("Appel à la démarche...");
-            AfApiClient afApiClient = getAfApiClient();
+            AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
             afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
             LOGGER.info("Retour au client...");
             LOGGER.info("====================== Fin /associerDemandeCourrier doPost()");
@@ -68,7 +68,7 @@ public class AssociationDemandeCourrierController extends AbstractXafController 
             LOGGER.error(
                     "AssociationDemandeCourrierServlet - Une erreur est survenue lors de l'appel à la méthode POST",
                     exception);
-            return ResponseEntity.status(getCodeErreur(exception)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(exception)).build();
         }
     }
 }

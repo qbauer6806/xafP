@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -9,7 +10,6 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/motifs")
-public class MotifsController extends AbstractXafController {
+@RequiredArgsConstructor
+public class MotifsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MotifsController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity<List<MotifDTO>> doGet(HttpServletRequest request) {
@@ -43,13 +43,13 @@ public class MotifsController extends AbstractXafController {
 
         try {
             LOGGER.info("Appel de la démarche afin de récupérer les motifs...");
-            List<MotifDTO> motifs = getAfApiClient().getMotifs();
+            List<MotifDTO> motifs = xafFrontserverUtils.getAfApiClient().getMotifs();
             LOGGER.info("====================== Fin /motifs doGet()");
 
             return ResponseEntity.ok(motifs);
         } catch (Exception e) {
             LOGGER.error("MotifsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            return ResponseEntity.status(getCodeErreur(e)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(e)).build();
         }
     }
 }

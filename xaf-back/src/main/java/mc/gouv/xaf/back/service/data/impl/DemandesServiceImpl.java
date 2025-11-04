@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
@@ -46,6 +47,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
@@ -72,7 +74,6 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.pdf.impl.AfPdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -85,8 +86,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -101,9 +102,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -120,123 +119,50 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesServiceImpl implements DemandesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesServiceImpl.class);
     private static final String RECUPERATION_DEMANDES = "Récupération en base des demandes...";
     private static final String RECUPERATION_DEMANDE = "Récupération en base de la demande...";
 
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private DemandesAgentsRepository demandesAgentsRepository;
-
-    @Autowired
-    private DemandesUsagersRepository demandesUsagersRepository;
-
-    @Autowired
-    private AccessRepository accessRepository;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private PurgeFilesRepository purgeFilesRepository;
-
-    @Autowired
-    private AfPostProcessingProvider afPostProcessingProvider;
-
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
-
-    @Autowired
-    private DemandesHistoriqueRepository demandesHistoriqueRepository;
-
-    @Autowired
-    private DemandesCommentaireRepository demandesCommentaireRepository;
-
-    @Autowired
-    private DemarchesService demarchesService;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesFilesService demandesFilesService;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
-
-    @Autowired
-    private DemandesComplementsService demandesComplementsService;
-
-    @Autowired
-    private DemandesDataService demandesDataService;
-
-    @Autowired
-    private StatistiquesService statistiquesService;
-
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
-
-    @Autowired
-    private GUKafkaUtils guKafkaUtils;
-
-    @Autowired
-    private DemandesTransformer demandesTransformer;
-
-    @Autowired
-    private DemandesAgentsTransformer demandesAgentsTransformer;
-
-    @Autowired
-    private UtilisateursCache utilisateursCache;
-
-    @Autowired
-    private PaysCache paysCache;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private RechercheDemandesUtils rechercheDemandesUtils;
-
-    @Autowired
-    private DemandesComplementsRepository demandesComplementsRepository;
-
-    @Autowired
-    private AfExcelExportModelProvider excelExportModelProvider;
-
-    @Autowired
-    @Lazy
-    private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
-
-    @Autowired
-    private MotifsCache motifsCache;
-
-    @Autowired
-    private DemandeFilesCategorizer demandeFilesCategorizer;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private MarqueursService marqueursService;
-
-    @Autowired
-    private TransactionErrorsHandler transactionErrorsHandler;
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-
-    @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
-
-    @Autowired
-    private Optional<CloneDemandeExtender> cloneDemandExtenders;
-
-    @Autowired
-    private Optional<DeleteDemandeExtender> deleteDemandeExtender;
+    private final DemandesRepository demandesRepository;
+    private final DemandesAgentsRepository demandesAgentsRepository;
+    private final DemandesUsagersRepository demandesUsagersRepository;
+    private final AccessRepository accessRepository;
+    private final AccessService accessService;
+    private final PurgeFilesRepository purgeFilesRepository;
+    private final AfPostProcessingProvider afPostProcessingProvider;
+    private final DemandesStatutsService demandesStatutsService;
+    private final DemandesHistoriqueRepository demandesHistoriqueRepository;
+    private final DemandesCommentaireRepository demandesCommentaireRepository;
+    private final DemarchesService demarchesService;
+    private final FileService fileService;
+    private final DemandesFilesService demandesFilesService;
+    private final DemandesConfigService demandesConfigService;
+    private final DemandesComplementsService demandesComplementsService;
+    private final DemandesDataService demandesDataService;
+    private final StatistiquesService statistiquesService;
+    private final GUKafkaProducer guKafkaProducer;
+    private final GUKafkaUtils guKafkaUtils;
+    private final DemandesTransformer demandesTransformer;
+    private final DemandesAgentsTransformer demandesAgentsTransformer;
+    private final UtilisateursCache utilisateursCache;
+    private final PaysCache paysCache;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final RechercheDemandesUtils rechercheDemandesUtils;
+    private final DemandesComplementsRepository demandesComplementsRepository;
+    private final AfExcelExportModelProvider excelExportModelProvider;
+    private final AfTemplateModelProvider afTemplateModelProvider;
+    private final MotifsCache motifsCache;
+    private final DemandeFilesCategorizer demandeFilesCategorizer;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final MarqueursService marqueursService;
+    private final TransactionErrorsHandler transactionErrorsHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesUsagersTransformer demandesUsagersTransformer;
+    private final Optional<CloneDemandeExtender> cloneDemandExtenders;
+    private final Optional<DeleteDemandeExtender> deleteDemandeExtender;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -674,7 +600,7 @@ public class DemandesServiceImpl implements DemandesService {
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
             IContext context = report.createContext();
-            for (Entry<String, Object> entry : afPdfTemplateAndModelProvider.getGenericModelPdf(demande).entrySet()) {
+            for (Entry<String, Object> entry : afTemplateModelProvider.getGenericModelPdf(demande).entrySet()) {
                 context.put(entry.getKey(), entry.getValue());
             }
             context.put("demande", demande);

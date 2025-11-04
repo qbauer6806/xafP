@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.MotifsService;
@@ -18,7 +19,6 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -38,6 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/parametres")
+@RequiredArgsConstructor
 public class GestionParametresController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametresController.class);
@@ -47,14 +48,9 @@ public class GestionParametresController extends AbstractController {
     private static final String ERR_CONTACT = "Un problème technique a été rencontré veuillez contacter la Direction Informatique.";
     private static final String REDIRECT_GESTION_PARAMETRES = "redirect:/gestion/parametres";
 
-    @Autowired
-    private MotifsCache motifsCache;
-
-    @Autowired
-    private MotifsService motifsService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final MotifsCache motifsCache;
+    private final MotifsService motifsService;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @GetMapping
     public ModelAndView form(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) {

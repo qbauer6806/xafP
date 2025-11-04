@@ -7,6 +7,7 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
@@ -15,10 +16,10 @@ import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementSecurityServiceImpl.class);
@@ -27,8 +28,7 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
     private static final String CHIANE_POUR_HMAC = "CHAINE POUR HMAC : {}";
     private static final String HMAC = "HMAC : {}";
 
-    @Autowired
-    public PaiementPropertiesResolver paiementPropertiesResolver;
+    public final PaiementPropertiesResolver paiementPropertiesResolver;
 
     public static String encode(byte[] buf) {
         if (null == buf) {

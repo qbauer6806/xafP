@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
@@ -32,7 +33,6 @@ import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,33 +44,19 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCourrierServiceImpl.class);
 
-    @Autowired
-    private UsagersCourrierRepository usagersCourrierRepository;
-
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private EntityManager em;
-
-    @Autowired
-    private UsagersService usagersService;
-
-    @Autowired
-    private DemandesUsagersRepository demandesUsagersRepository;
-
-    @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
+    private final UsagersCourrierRepository usagersCourrierRepository;
+    private final DemandesRepository demandesRepository;
+    private final AccessService accessService;
+    private final DemandesService demandesService;
+    private final EntityManager em;
+    private final UsagersService usagersService;
+    private final DemandesUsagersRepository demandesUsagersRepository;
+    private final DemandesUsagersTransformer demandesUsagersTransformer;
 
     private UsagersCourrierBO getCourrierBO(Integer pkUsagersCourrier) {
         LOGGER.info("Récupération en base de l'usager courrier...");

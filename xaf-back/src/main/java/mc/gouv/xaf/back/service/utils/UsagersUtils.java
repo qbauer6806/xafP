@@ -1,12 +1,12 @@
 package mc.gouv.xaf.back.service.utils;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,12 +19,12 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  */
 @Component
+@RequiredArgsConstructor
 public class UsagersUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersUtils.class);
 
-    @Autowired
-    private UsagersCache usagersCache;
+    private final UsagersCache usagersCache;
 
     /**
      * Change le titre en paramètre en son abbréviation.

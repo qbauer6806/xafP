@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
 import mc.gouv.xaf.back.data.entity.PropertiesBO;
 import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
@@ -20,7 +21,6 @@ import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class PropertiesServiceImpl implements PropertiesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesServiceImpl.class);
@@ -43,8 +44,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     private static final String AUTRE = "AUTRE";
 
-    @Autowired
-    private PropertiesRepository propertiesRepository;
+    private final PropertiesRepository propertiesRepository;
 
     /**
      * Récupère toute les Properties liées à une démarche

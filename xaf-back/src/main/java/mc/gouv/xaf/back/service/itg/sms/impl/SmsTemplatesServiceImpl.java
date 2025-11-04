@@ -2,14 +2,7 @@ package mc.gouv.xaf.back.service.itg.sms.impl;
 
 import java.util.Date;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.SmsTemplatesRepository;
 import mc.gouv.xaf.back.data.entity.SmsTemplateBO;
 import mc.gouv.xaf.back.data.transformer.SmsTemplatesTransformer;
@@ -17,6 +10,11 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.itg.sms.SmsTemplatesService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des templates de SMS
@@ -25,12 +23,12 @@ import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class SmsTemplatesServiceImpl implements SmsTemplatesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmsTemplatesServiceImpl.class);
 
-    @Autowired
-    private SmsTemplatesRepository smsTemplatesRepository;
+    private final SmsTemplatesRepository smsTemplatesRepository;
 
     private SmsTemplateBO getSmsTemplateBO(Integer templateId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, templateId);

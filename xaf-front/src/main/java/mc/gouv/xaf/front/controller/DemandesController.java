@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
@@ -18,7 +19,6 @@ import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,17 +36,17 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author qdeme
  */
 @Controller
-public class DemandesController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DemandesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     private ResponseEntity traiterDemande(HttpMethod httpMethod, HttpServletRequest request, Integer demandeId,
             DemandeInputDTO demandeInput) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         if (!HttpMethod.PUT.equals(httpMethod) && !HttpMethod.POST.equals(httpMethod)) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
@@ -105,7 +105,8 @@ public class DemandesController extends AbstractXafController {
             return ResponseEntity.internalServerError().build();
         }
 
-        DemandeComplementsDTO demandeComplement = getAfApiClient().repondreDemandeComplements(demandeId,
+        DemandeComplementsDTO demandeComplement = xafFrontserverUtils.getAfApiClient()
+                .repondreDemandeComplements(demandeId,
                 demandeInfoComplId, response);
 
         return ResponseEntity.ok(demandeComplement);
@@ -152,7 +153,7 @@ public class DemandesController extends AbstractXafController {
         }
 
         LOGGER.info("Appel à la démarche pour récupérer la demande");
-        DemandeDTO demandeDto = getAfApiClient().getDemande(usagerInfosDTO.getId(), demandeId);
+        DemandeDTO demandeDto = xafFrontserverUtils.getAfApiClient().getDemande(usagerInfosDTO.getId(), demandeId);
 
         return ResponseEntity.ok(demandeDto);
     }
@@ -178,7 +179,8 @@ public class DemandesController extends AbstractXafController {
             }
         }
 
-        byte[] pdfBytes = getAfApiClient().getDemandeRecap(usagerInfosDTO.getId(), demandeId, donneesMConnectDTO);
+        byte[] pdfBytes = xafFrontserverUtils.getAfApiClient()
+                .getDemandeRecap(usagerInfosDTO.getId(), demandeId, donneesMConnectDTO);
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF).body(pdfBytes);
     }
@@ -188,7 +190,7 @@ public class DemandesController extends AbstractXafController {
             HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doGet()");
 
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {

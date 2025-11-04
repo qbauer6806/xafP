@@ -1,5 +1,9 @@
 package mc.gouv.xaf.rio.activiti.delegate;
 
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.getAllFichiers;
+
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -11,14 +15,10 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.getAllFichiers;
-
 @Component
+@RequiredArgsConstructor
 public class GouvBPMArchivageDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMArchivageDelegate.class);
@@ -27,17 +27,13 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
     public static final String MC_REFERENCE_PERMIS = "MC_REFERENCE_PERMIS";
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
 
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final GouvBPM gouvBPM;
 
-    @Autowired
-    private DemandesService demandesService;
+    private final DemandesService demandesService;
 
-    @Autowired
-    private ArchivageService archivageService;
+    private final ArchivageService archivageService;
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
     @Override
     public void execute(DelegateExecution execution) {

@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -10,7 +11,6 @@ import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,12 +28,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/accesses")
-public class AccessesController extends AbstractXafController {
+@RequiredArgsConstructor
+public class AccessesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessesController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     /**
      * Traitement des méthodes POST
@@ -50,7 +50,8 @@ public class AccessesController extends AbstractXafController {
         }
 
         LOGGER.info("Appel à la démarche pour créer l'accès...");
-        AccessDTO access = getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInput);
+        AccessDTO access = xafFrontserverUtils.getAfApiClient()
+                .createOrUpdateAccess(usagerInfosDTO.getId(), accessInput);
 
         LOGGER.debug("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}",
                 access.getPkAccess());
@@ -79,7 +80,7 @@ public class AccessesController extends AbstractXafController {
         LOGGER.info("Appel à la démarche pour récupérer l'accès...");
         AccessDTO access;
         try {
-            access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+            access = xafFrontserverUtils.getAfApiClient().getAccess(usagerInfosDTO.getId());
         } catch (NotFoundWebException e) {
             return ResponseEntity.notFound().build();
         }
@@ -110,7 +111,7 @@ public class AccessesController extends AbstractXafController {
 
         LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
         String langue = request.getParameter("langue");
-        getAfApiClient().desinscriptionUsager(usagerInfosDTO.getId(), langue);
+        xafFrontserverUtils.getAfApiClient().desinscriptionUsager(usagerInfosDTO.getId(), langue);
 
         LOGGER.info("Inclure la réponse dans le HttpServletResponse...");
         LOGGER.info("====================== Fin /accesses doDelete()");

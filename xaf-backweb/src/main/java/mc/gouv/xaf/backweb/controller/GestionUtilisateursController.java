@@ -2,11 +2,11 @@ package mc.gouv.xaf.backweb.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,12 +22,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/utilisateurs")
+@RequiredArgsConstructor
 public class GestionUtilisateursController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionUtilisateursController.class);
 
-    @Autowired
-    private UtilisateursCache utilisateursCache;
+    private final UtilisateursCache utilisateursCache;
 
     @GetMapping
     public ModelAndView formUser(Model model) {

@@ -1,20 +1,20 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMPaiementHistoriqueDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMPaiementHistoriqueDelegate.class);
 
-    @Autowired
-    private PaiementHistoriqueService paiementHistoriqueService;
+    private final PaiementHistoriqueService paiementHistoriqueService;
 
     @Override
     public void execute(DelegateExecution execution) {

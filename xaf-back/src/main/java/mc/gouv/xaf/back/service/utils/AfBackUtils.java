@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
@@ -77,7 +78,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
@@ -90,6 +90,7 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class AfBackUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackUtils.class);
@@ -146,9 +147,8 @@ public class AfBackUtils {
 
     public static final String CODE_ALPHA3_APATRIDE = "XXA";
 
-    @Autowired
     @Lazy
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     private MailClient mailClient = null;
 
@@ -158,48 +158,38 @@ public class AfBackUtils {
 
     private NomenClient nomenClient = null;
 
-    @Autowired
     @Lazy
-    private UsagersCache usagersCache;
+    private final UsagersCache usagersCache;
 
-    @Autowired
     @Lazy
-    private UtilisateursCache utilisateursCache;
+    private final UtilisateursCache utilisateursCache;
 
-    @Autowired
     @Lazy
-    private DemarchesService demarchesService;
+    private final DemarchesService demarchesService;
 
-    @Autowired
     @Lazy
-    private DemarchesDataProvider demarchesDataProvider;
+    private final DemarchesDataProvider demarchesDataProvider;
 
-    @Autowired
     @Lazy
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
-    @Autowired
     @Lazy
-    private UtilisateursUtils utilisateursUtils;
+    private final UtilisateursUtils utilisateursUtils;
 
-    @Autowired
     @Lazy
-    private MotifTemplateService motifTemplateService;
+    private final MotifTemplateService motifTemplateService;
 
-    @Autowired
     @Lazy
-    private DemandesService demandesService;
+    private final DemandesService demandesService;
 
-    @Autowired
     @Lazy
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
-    @Autowired
     @Lazy
-    private MotifsCache motifsCache;
-    @Autowired
+    private final MotifsCache motifsCache;
+
     @Lazy
-    private PaysCache paysCache;
+    private final PaysCache paysCache;
 
     private AfApiClient afApiClient2Tiers = null;
 

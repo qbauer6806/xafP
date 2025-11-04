@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.transformer.DemandesConfigTransformer;
@@ -19,29 +20,20 @@ import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.RechercheAdminService;
 import mc.gouv.xaf.shared.exception.DemarcheException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesConfigServiceImpl implements DemandesConfigService {
 
-    @Autowired
-    private DemandesConfigRepository demandesConfigRepository;
-
-    @Autowired
-    private MarqueursService marqueursService;
-
-    @Autowired
-    private BrouillonsService brouillonsService;
-
-    @Autowired
-    private DemandesConfigTransformer demandesConfigTransformer;
-
-    @Autowired
-    private RechercheAdminService rechercheAdminService;
+    private final DemandesConfigRepository demandesConfigRepository;
+    private final MarqueursService marqueursService;
+    private final BrouillonsService brouillonsService;
+    private final DemandesConfigTransformer demandesConfigTransformer;
+    private final RechercheAdminService rechercheAdminService;
 
     @Value("${maven.version}")
     private String mavenVersion;

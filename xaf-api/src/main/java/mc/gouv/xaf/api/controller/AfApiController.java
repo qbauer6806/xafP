@@ -1,32 +1,13 @@
 package mc.gouv.xaf.api.controller;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -49,26 +30,40 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
+import org.apache.tika.exception.TikaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.xml.sax.SAXException;
 
 /**
  * Controller exposant l'API REST destinée à être appelée par le FO.
  *
  * @author qdeme
  */
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/api/v1", produces = "application/json")
 public class AfApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiController.class);
 
-    @Autowired
-    private AfApi afApiService;
+    private final AfApi afApiService;
 
-    @Autowired
-    private DemandesTransformer demandesTransformer;
+    private final DemandesTransformer demandesTransformer;
 
-    @Autowired
-    private DemandesComplementsTransformer demandesComplementsTransformer;
+    private final DemandesComplementsTransformer demandesComplementsTransformer;
 
     @PutMapping(value = "/demandes/{demandeId}/annuler")
     public void annulerDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,

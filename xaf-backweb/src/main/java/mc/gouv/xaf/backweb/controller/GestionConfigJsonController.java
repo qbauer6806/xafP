@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
@@ -26,7 +27,6 @@ import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +45,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @Secured("ROLE_CONFIGURATION")
 @RequestMapping("/gestion/configjson")
+@RequiredArgsConstructor
 public class GestionConfigJsonController {
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
     private static final String REDIRECT = "redirect:/gestion/properties";
     private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";

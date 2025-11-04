@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.FileUploadCompteurDTO;
 import mc.gouv.xaf.front.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
@@ -44,12 +45,12 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class FileControllerUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileControllerUtils.class);
@@ -59,11 +60,8 @@ public class FileControllerUtils {
     private static final Map<Integer, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
     private static int compteurCleanSessions;
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     public boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");

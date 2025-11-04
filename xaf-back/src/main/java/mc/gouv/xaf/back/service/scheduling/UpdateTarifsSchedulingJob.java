@@ -1,24 +1,23 @@
 package mc.gouv.xaf.back.service.scheduling;
 
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.service.tarif.UpdateTarifsService;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import mc.gouv.xaf.back.service.tarif.UpdateTarifsService;
 
 /**
  * @author XDECOOL.EXT Job permattant de mettre à jour un tarif en fonction de sa clef Le cron de déclenchement est
  *         quant à lui spécifier dans la configuration propre à chaque besoin
  */
+@RequiredArgsConstructor
 public class UpdateTarifsSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateTarifsSchedulingJob.class);
 
-    @Autowired
-    private UpdateTarifsService updateTarifsService;
+    private final UpdateTarifsService updateTarifsService;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {

@@ -2,10 +2,8 @@ package mc.gouv.xaf.backweb.ws;
 
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -19,15 +17,11 @@ import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Sert à générer la preview des emails
@@ -37,21 +31,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @GouvRestController
 @Secured("ROLE_LECTURE")
 @RequestMapping("/ws")
+@RequiredArgsConstructor
 public class MailPreviewController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailPreviewController.class);
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
 
-    @Autowired
-    private DemandesService demandesService;
+    private final DemandesService demandesService;
 
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final GouvBPM gouvBPM;
 
     private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
             throws IOException {

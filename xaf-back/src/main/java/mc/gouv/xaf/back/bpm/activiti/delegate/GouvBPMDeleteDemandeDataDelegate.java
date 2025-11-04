@@ -1,20 +1,20 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPMException;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDeleteDemandeDataDelegate.class);
@@ -23,8 +23,7 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
     @Getter
     private Expression dataKey;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesDataService demandesDataService;
 
     @Override
     public void execute(DelegateExecution execution) {

@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.TemplatesRepository;
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
@@ -24,7 +25,6 @@ import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
  * @author mpavone
  */
 @Component
+@RequiredArgsConstructor
 public class GestionTemplateServiceImpl implements GestionTemplateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateServiceImpl.class);
@@ -42,11 +43,8 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
     private static final String LANG_FR = "fr";
     private static final String LANG_EN = "en";
 
-    @Autowired
-    private TemplatesService templatesService;
-
-    @Autowired
-    private TemplatesRepository templatesRepository;
+    private final TemplatesService templatesService;
+    private final TemplatesRepository templatesRepository;
 
     @Override
     public TemplateFormBean retrieveTemplateForm(TemplateFormBean formBean) {

@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
@@ -23,6 +24,7 @@ import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 import mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -43,69 +45,37 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesServiceImpl.class);
 
     private static final Integer OFFSET_MOIS_DATE_PURGE = 1;
-
     private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_FILE = 100;
-
     private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
 
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private StatistiquesRepository statRepository;
-
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
-
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
-
-    @Autowired
-    private PurgeFilesRepository purgeFilesRepository;
-
-    @Autowired
-    private UsagersCache usagerCache;
-
-    @Autowired
-    private GouvSchedulerService gouvSchedulerService;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesCourriersRepository demandesCourriersRepository;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
+    private final DemandesService demandesService;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final MailService mailService;
+    private final AfBackUtils afBackUtils;
+    private final PropertiesService propertiesService;
+    private final StatistiquesRepository statRepository;
+    private final DemandesFilesRepository demandesFilesRepository;
+    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    private final PurgeFilesRepository purgeFilesRepository;
+    private final UsagersCache usagerCache;
+    private final GouvSchedulerService gouvSchedulerService;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final AfTemplateModelProvider afTemplateModelProvider;
+    private final FileService fileService;
+    private final DemandesCourriersRepository demandesCourriersRepository;
+    private final BrouillonsFilesRepository brouillonsFilesRepository;
 
     @Override
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
@@ -267,7 +237,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
         emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
-        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelMail();
+        Map<String, Object> model = afTemplateModelProvider.getGenericModelMail();
         model.put("demandes", demandesAPurger);
         model.put("delai", delai);
 

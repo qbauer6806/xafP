@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.MarqueursRepository;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
@@ -21,23 +22,18 @@ import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class MarqueursServiceImpl implements MarqueursService {
 
-    @Autowired
-    private MarqueursRepository marqueursRepository;
-
-    @Autowired
-    private MarqueursTransformer marqueursTransformer;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
+    private final MarqueursRepository marqueursRepository;
+    private final MarqueursTransformer marqueursTransformer;
+    private final DemandesConfigService demandesConfigService;
 
     @Override
     public List<MarqueurDTO> getMarqueurs(String buildId) {

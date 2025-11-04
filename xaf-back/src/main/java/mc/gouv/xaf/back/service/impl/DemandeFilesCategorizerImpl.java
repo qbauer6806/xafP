@@ -1,13 +1,13 @@
 package mc.gouv.xaf.back.service.impl;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -22,7 +22,6 @@ import mc.gouv.xaf.shared.dto.FileSubCategoryDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,14 +30,14 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  */
 @Component
+@RequiredArgsConstructor
 public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
 
     private static final String JUSTIFICATIF_DEMANDE = "JUSTIFICATIF_DEMANDE";
     private static final String JUSTIFICATIF_DEMANDE_FRONT = "FRONT_JUSTIFICATIF_DEMANDE";
     private static final String XAF_SECTIONS_FICHIERS_DEMANDE = "XAF_SECTIONS_FICHIERS_DEMANDE";
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
     /**
      * @param demande

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -23,7 +24,6 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -37,22 +37,16 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/login")
-public class LoginController extends AbstractXafController {
+@RequiredArgsConstructor
+public class LoginController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
     private static final String LOGIN = "login";
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
-
-    @Autowired
-    private GichuniService gichuniService;
-
-    @Autowired
-    private GichkeyService gichkeyService;
-
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
+    private final GichuniService gichuniService;
+    private final GichkeyService gichkeyService;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @PostMapping
     public ResponseEntity<String> doPost(@RequestParam(name = "id", required = false) String sessionId,
@@ -115,7 +109,7 @@ public class LoginController extends AbstractXafController {
             LOGGER.debug("UsagerCourrierId : {}", usagerCourrierId);
 
             LOGGER.debug("Appel de la démarche pour récupérer l'usager courrier...");
-            UsagerCourrierDTO usagerCourrier = getAfApiClient().getUsagerCourrier(usagerCourrierId);
+            UsagerCourrierDTO usagerCourrier = xafFrontserverUtils.getAfApiClient().getUsagerCourrier(usagerCourrierId);
 
             if (usagerCourrier == null) {
                 LOGGER.info("Login infructueux");
@@ -124,7 +118,7 @@ public class LoginController extends AbstractXafController {
 
             LOGGER.debug("Stockage des informations usager dans la session...");
             UsagerInfosDTO uinfos = this.getUsagerInfosDTO(usagerCourrier);
-            AccessDTO accessDTO = getAfApiClient().getAccess(usagerCourrierId);
+            AccessDTO accessDTO = xafFrontserverUtils.getAfApiClient().getAccess(usagerCourrierId);
             if (accessDTO != null) {
                 uinfos.setAccessId(accessDTO.getPkAccess());
             }

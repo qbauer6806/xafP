@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
@@ -15,7 +16,6 @@ import mc.gouv.xaf.backweb.denjs.formbean.DenjsGestionAgentsFormBean;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -34,16 +34,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/denjs/gestion/agents")
 @Secured("ROLE_PARAMETRAGE")
+@RequiredArgsConstructor
 public class DenjsGestionAgentsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DenjsGestionAgentsController.class);
     private static final String AFFECTATION_SUCCES = "L'affectation de l'agent a été modifiée avec succès.";
 
-    @Autowired
-    private DenjsAffectationService denjsAffectationService;
-
-    @Autowired
-    private UtilisateursCache utilisateursCache;
+    private final DenjsAffectationService denjsAffectationService;
+    private final UtilisateursCache utilisateursCache;
 
     @GetMapping
     public ModelAndView form(

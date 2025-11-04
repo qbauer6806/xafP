@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.RechercheCatConfigRepository;
 import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
 import mc.gouv.xaf.back.data.entity.RechercheCatConfigBO;
@@ -30,21 +31,18 @@ import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class RechercheAdminServiceImpl implements RechercheAdminService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminServiceImpl.class);
 
-    @Autowired
-    private RechercheChampConfigRepository rechercheChampConfigRepository;
-
-    @Autowired
-    private RechercheCatConfigRepository rechercheCatConfigRepository;
+    private final RechercheChampConfigRepository rechercheChampConfigRepository;
+    private final RechercheCatConfigRepository rechercheCatConfigRepository;
 
     @Override
     public List<RechercheChampDTO> getRechercheChamps() {

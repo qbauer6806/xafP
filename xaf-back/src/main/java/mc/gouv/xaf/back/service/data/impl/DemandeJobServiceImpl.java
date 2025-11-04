@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import jakarta.inject.Inject;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandeJobRepository;
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.back.data.transformer.DemandeJobTransformer;
@@ -12,7 +12,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
-import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
@@ -23,7 +22,6 @@ import mc.gouv.xaf.shared.enums.JobNamesEnum;
 import mc.gouv.xaf.shared.enums.JobStatutsEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,36 +33,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandeJobServiceImpl implements DemandeJobService {
 
-    @Inject
-    DemandeJobRepository demandeJobRepository;
-
-    @Inject
-    private ApplicationContext context;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private KafkaOutboxTraitementJob kafkaOutboxTraitementJob;
-
-    @Autowired
-    private GUKafkaUtils guKafkaUtils;
-
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
-
-    @Autowired
-    private KafkaOutboxService kafkaOutboxService;
-
-    @Autowired
-    private PurgeBrouillonsService purgeBrouillonsService;
-
-    @Autowired
-    private MarqueursService marqueursService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
+
+    private final DemandeJobRepository demandeJobRepository;
+    private final ApplicationContext context;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final KafkaOutboxTraitementJob kafkaOutboxTraitementJob;
+    private final GUKafkaUtils guKafkaUtils;
+    private final GUKafkaProducer guKafkaProducer;
+    private final KafkaOutboxService kafkaOutboxService;
+    private final PurgeBrouillonsService purgeBrouillonsService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)

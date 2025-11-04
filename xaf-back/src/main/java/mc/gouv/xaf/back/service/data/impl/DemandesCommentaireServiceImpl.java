@@ -1,21 +1,20 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
 import mc.gouv.xaf.back.data.transformer.DemandesCommentaireTransformer;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesCommentaireServiceImpl implements DemandesCommentaireService {
 
-    @Autowired
-    private DemandesCommentaireRepository demandesCommentaireRepository;
+    private final DemandesCommentaireRepository demandesCommentaireRepository;
 
     @Override
     public List<DemandeCommentaireDTO> getCommentairesInternes(Integer demandeId) {

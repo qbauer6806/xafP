@@ -1,16 +1,16 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
-import org.flowable.common.engine.api.delegate.Expression;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,14 +19,14 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
     // voir pour l'autowiring dans les javaDelegate
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeInfoComplDelegate.class);
 
-    @Autowired
-    private DemandesComplementsService demandesComplementsService;
+    private final DemandesComplementsService demandesComplementsService;
 
     private Expression codeMotif;
 

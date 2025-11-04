@@ -1,16 +1,15 @@
 package mc.gouv.xaf.front.listener;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SessionConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSessionEvent;
-import jakarta.servlet.http.HttpSessionListener;
 
 /**
  * Listener pour intercepter les évènements de session créée ou détruite
@@ -18,12 +17,12 @@ import jakarta.servlet.http.HttpSessionListener;
  * @author agaidi
  */
 @Component
+@RequiredArgsConstructor
 public class DemandeLockSessionListener implements HttpSessionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeLockSessionListener.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @Override
     public void sessionCreated(HttpSessionEvent se) {

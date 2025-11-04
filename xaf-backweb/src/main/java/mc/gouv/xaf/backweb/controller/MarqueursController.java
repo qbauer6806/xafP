@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,8 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
@@ -22,7 +23,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +45,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/gestion/marqueurs")
 @Secured("ROLE_CONFIGURATION")
+@RequiredArgsConstructor
 public class MarqueursController extends AbstractController {
 
     private static final String AJOUTER_SUCCES = "Le marqueur a été ajouté.";
@@ -57,14 +58,9 @@ public class MarqueursController extends AbstractController {
 
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
 
-    @Autowired
-    private DemandesConfigService demandesConfigService;
-
-    @Autowired
-    private MarqueursService marqueursService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final DemandesConfigService demandesConfigService;
+    private final MarqueursService marqueursService;
+    private final AfBackUtils afBackUtils;
 
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {

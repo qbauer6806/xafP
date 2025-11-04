@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
@@ -31,7 +32,6 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
  * @author qdeme
  */
 @Service
+@RequiredArgsConstructor
 public class DemandesTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesTransformer.class);
@@ -49,26 +50,12 @@ public class DemandesTransformer {
     private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
 
-    @Autowired
-    private DemandesAgentsTransformer demandesAgentsTransformer;
-
-    @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
-
-    @Autowired
-    private DemandesComplementsTransformer demandesComplementsTransformer;
-
-    @Autowired
-    private DemandesConfigTransformer demandesConfigTransformer;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    private DemandesTransformer() {
-    }
+    private final DemandesAgentsTransformer demandesAgentsTransformer;
+    private final DemandesUsagersTransformer demandesUsagersTransformer;
+    private final DemandesComplementsTransformer demandesComplementsTransformer;
+    private final DemandesConfigTransformer demandesConfigTransformer;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final AfBackUtils afBackUtils;
 
     public DemandeDTO bo2Dto(DemandeBO bo) {
         return bo2Dto(bo, null);

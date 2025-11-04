@@ -8,10 +8,11 @@ import org.springframework.context.annotation.Configuration;
 public class ListenerConfig {
 
     @Bean
-    public ServletListenerRegistrationBean<DemandeLockSessionListener> sessionListenerWithMetrics() {
+    public ServletListenerRegistrationBean<DemandeLockSessionListener> sessionListenerWithMetrics(
+            DemandeLockSessionListener demandeLockSessionListener) {
         ServletListenerRegistrationBean<DemandeLockSessionListener> listenerRegBean = new ServletListenerRegistrationBean<>();
 
-        listenerRegBean.setListener(new DemandeLockSessionListener());
+        listenerRegBean.setListener(demandeLockSessionListener);
         return listenerRegBean;
     }
 }

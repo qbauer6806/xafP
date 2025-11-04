@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
@@ -16,7 +17,6 @@ import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DenjsAffectationServiceImpl.class);
@@ -36,11 +37,9 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 
     private static final String DEMANDE_AFFECTATION_ETABLISSEMENT_KEY = "AFFECTATION_ETABLISSEMENT";
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesDataService demandesDataService;
 
     @Override
     public DenjsAffectationAgentDTO getAffectationAgent(String matricule) {

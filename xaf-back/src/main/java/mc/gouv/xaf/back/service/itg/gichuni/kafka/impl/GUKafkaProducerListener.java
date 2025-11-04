@@ -4,16 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.header.Header;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.support.ProducerListener;
-import org.springframework.stereotype.Component;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
@@ -23,6 +14,13 @@ import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.header.Header;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.support.ProducerListener;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe ProducerListener permettant le traitement a posteriori d'un message Guichet Unique qui a pu être remis à Kafka
@@ -31,27 +29,17 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GUKafkaProducerListener implements ProducerListener<String, String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerListener.class);
 
-    @Autowired
-    private KafkaOutboxService kafkaOutboxService;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
+    private final KafkaOutboxService kafkaOutboxService;
+    private final PropertiesService propertiesService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final MailService mailService;
+    private final AfBackUtils afBackUtils;
+    private final KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
 
     private static final String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
     private static final String MAIL_TEMPLATE_KAFKA_DLT_CORPS = "MAIL_TEMPLATE_KAFKA_DLT_CORPS";

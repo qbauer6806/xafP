@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
-import mc.gouv.xaf.front.controller.AbstractXafController;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +23,12 @@ import org.springframework.web.bind.annotation.PostMapping;
  * @author mboutelier.ext
  */
 @Controller
-public class PaiementController extends AbstractXafController {
+@RequiredArgsConstructor
+public class PaiementController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     /**
      * Interface Retour

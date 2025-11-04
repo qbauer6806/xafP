@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -70,7 +71,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,6 +88,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xml.sax.SAXException;
 
+@RequiredArgsConstructor
 public class AbstractTraitementController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTraitementController.class);
@@ -116,64 +117,43 @@ public class AbstractTraitementController extends AbstractController {
     public static final String FICHIERS_TAB = "fichiers";
     public static final String DETAILS_TAB = "details";
 
-    @Autowired
-    private DemandesService demandesService;
+    private final DemandesService demandesService;
 
-    @Autowired
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final GouvBPM gouvBPM;
 
-    @Autowired
-    private FileController fileController;
+    private final FileController fileController;
 
-    @Autowired
-    private AfApiService afApiService;
+    private final AfApiService afApiService;
 
-    @Autowired
-    private DemandesCommentaireService demandesCommentaireService;
+    private final DemandesCommentaireService demandesCommentaireService;
 
-    @Autowired
-    private BackGouvPropertiesResolver backGouvPropertiesResolver;
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final BackGouvPropertiesResolver backGouvPropertiesResolver;
+    private final DemarchesDataProvider demarchesDataProvider;
 
-    @Autowired
-    private DemandesFilesService demandesFilesService;
-    @Autowired
-    private DemandesComplementsFilesService demandesComplementsFilesService;
-    @Autowired
-    private PropertiesService propertiesService;
-    @Autowired
-    private UploadPieceJustificativeService uploadPieceJustificativeService;
+    private final DemandesFilesService demandesFilesService;
+    private final DemandesComplementsFilesService demandesComplementsFilesService;
+    private final PropertiesService propertiesService;
+    private final UploadPieceJustificativeService uploadPieceJustificativeService;
 
-    @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
+    private final DemandesHistoriqueService demandesHistoriqueService;
 
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
+    private final DemandesStatutsService demandesStatutsService;
 
-    @Autowired
-    private GUKafkaUtils guKafkaUtils;
+    private final GUKafkaUtils guKafkaUtils;
 
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
+    private final GUKafkaProducer guKafkaProducer;
 
-    @Autowired
-    private MotifsCache motifsCache;
+    private final MotifsCache motifsCache;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
+    private final UtilisateursUtils utilisateursUtils;
 
-    @Autowired
-    private DemandeRecapHTMLService demandeRecapHTMLService;
+    private final DemandeRecapHTMLService demandeRecapHTMLService;
 
-    @Autowired
-    private DemandeFilesCategorizer demandeFilesCategorizer;
+    private final DemandeFilesCategorizer demandeFilesCategorizer;
 
     @Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
     @PostMapping(value = "/infosAdministration")

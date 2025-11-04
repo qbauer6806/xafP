@@ -3,32 +3,26 @@ package mc.gouv.xaf.back.paiement.service.kafka.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
-import mc.gouv.xaf.back.paiement.service.kafka.dto.PaymentTypeEnum;
 import mc.gouv.xaf.back.paiement.service.kafka.dto.AffichagePaiementMessage;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 @Service
 @ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@RequiredArgsConstructor
 public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaPaiementProducerImpl.class);
 
-    @Autowired
-    private KafkaOutboxService guKafkaOutboxService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final KafkaOutboxService guKafkaOutboxService;
 
     private static final ObjectMapper mapper;
 

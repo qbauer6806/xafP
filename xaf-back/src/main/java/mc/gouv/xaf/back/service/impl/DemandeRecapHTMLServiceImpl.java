@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -13,6 +12,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
@@ -43,6 +42,7 @@ import org.springframework.web.util.HtmlUtils;
  * @author mboutelier.ext
  */
 @Component
+@RequiredArgsConstructor
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     public static final String DT = "</dt>";
@@ -71,18 +71,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private final DateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
-    @Autowired
-    private MotifsCache motifsCache;
-    @Autowired
-    private PropertiesService propertiesService;
-    @Autowired
-    private DemandesService demandesService;
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final UtilisateursUtils utilisateursUtils;
+    private final MotifsCache motifsCache;
+    private final PropertiesService propertiesService;
+    private final DemandesService demandesService;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public String getHTMLDemandeGeneric(DemandeDTO demande) {

@@ -2,9 +2,9 @@ package mc.gouv.xaf.backweb;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,13 +16,11 @@ import org.springframework.web.servlet.ModelAndView;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final AfBackUtils afBackUtils;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,

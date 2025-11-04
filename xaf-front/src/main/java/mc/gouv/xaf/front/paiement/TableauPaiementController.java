@@ -1,7 +1,8 @@
 package mc.gouv.xaf.front.paiement;
 
 import jakarta.servlet.http.HttpServletRequest;
-import mc.gouv.xaf.front.controller.AbstractXafController;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.paiement.enums.TableauPaiementTypeEnum;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -9,20 +10,18 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import java.util.List;
 
 @Component
-public class TableauPaiementController  extends AbstractXafController {
+@RequiredArgsConstructor
+public class TableauPaiementController {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableauPaiementController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping(value = { "/tableau-paiement" })
     public ResponseEntity<List<TableauDTO>> getTableauPaiement(@RequestParam TableauPaiementTypeEnum type, @RequestParam String ids,

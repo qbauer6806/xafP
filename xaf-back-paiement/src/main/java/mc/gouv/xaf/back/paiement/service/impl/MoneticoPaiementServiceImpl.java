@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
@@ -39,9 +40,9 @@ import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.BillingDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -54,21 +55,18 @@ import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     public static final String UPDATE_PAIEMENT_DATA_THREAD = "THREAD_UPDATE_PAIEMENT_DATA_REF_";
@@ -81,56 +79,39 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
 
-    @Autowired
-    private CommandeRepository commandeRepository;
+    private final CommandeRepository commandeRepository;
 
-    @Autowired
-    private MoyenPaiementRepository moyenPaiementRepository;
+    private final MoyenPaiementRepository moyenPaiementRepository;
 
-    @Autowired
-    private CommandeOperationRepository commandeOperationRepository;
+    private final CommandeOperationRepository commandeOperationRepository;
 
-    @Autowired
-    private CommandeDemandeRepository commandeDemandeRepository;
+    private final CommandeDemandeRepository commandeDemandeRepository;
 
-    @Autowired
-    private CommandesDemandesService commandesDemandesService;
+    private final CommandesDemandesService commandesDemandesService;
 
-    @Autowired
-    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+    private final CommandeDemandeArticleRepository commandeDemandeArticleRepository;
 
-    @Autowired
-    private DemandesRepository demandesRepository;
+    private final DemandesRepository demandesRepository;
 
-    @Autowired
-    private PaiementHistoriqueRepository paiementHistoriqueRepository;
+    private final PaiementHistoriqueRepository paiementHistoriqueRepository;
 
-    @Autowired
-    private PaiementSecurityService paiementSecurityService;
+    private final PaiementSecurityService paiementSecurityService;
 
-    @Autowired
-    private ReferenceFactoryService referenceFactoryService;
+    private final ReferenceFactoryService referenceFactoryService;
 
-    @Autowired
-    private UsagersCache usagersCache;
+    private final UsagersCache usagersCache;
 
-    @Autowired
-    private PaiementPropertiesResolver paiementPropertiesResolver;
+    private final PaiementPropertiesResolver paiementPropertiesResolver;
 
-    @Autowired
-    private MontantService montantService;
+    private final MontantService montantService;
 
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final GouvBPM gouvBPM;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesDataService demandesDataService;
 
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
+    private final DemandesStatutsService demandesStatutsService;
 
-    @Autowired
-    private DemandesTransformer demandesTransformer;
+    private final DemandesTransformer demandesTransformer;
 
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {

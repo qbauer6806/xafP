@@ -61,7 +61,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -95,23 +94,24 @@ public class FileServiceImpl implements FileService {
 
     private RestTemplate restTemplate;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final DemandesFilesRepository demandesFilesRepository;
+    private final DemandesCourriersRepository demandesCourriersRepository;
+    private final BrouillonsFilesRepository brouillonsFilesRepository;
+    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
-
-    @Autowired
-    private DemandesCourriersRepository demandesCourriersRepository;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    public FileServiceImpl(AfBackUtils afBackUtils, GouvPropertiesResolver gouvPropertiesResolver,
+            DemandesFilesRepository demandesFilesRepository, DemandesCourriersRepository demandesCourriersRepository,
+            BrouillonsFilesRepository brouillonsFilesRepository,
+            DemandesComplementsFilesRepository demandesComplementsFilesRepository) {
+        this.afBackUtils = afBackUtils;
+        this.gouvPropertiesResolver = gouvPropertiesResolver;
+        this.demandesFilesRepository = demandesFilesRepository;
+        this.demandesCourriersRepository = demandesCourriersRepository;
+        this.brouillonsFilesRepository = brouillonsFilesRepository;
+        this.demandesComplementsFilesRepository = demandesComplementsFilesRepository;
+    }
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {

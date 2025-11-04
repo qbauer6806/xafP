@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service.keycloak;
 
 import java.util.Map;
 import mc.gouv.xaf.shared.RequestConstant;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,14 +23,13 @@ public class KeycloakTokenService {
 
     private final OAuth2AuthorizedClientManager authorizedClientManager;
     private final ClientRegistration clientRegistration;
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    @Autowired
     public KeycloakTokenService(OAuth2AuthorizedClientManager authorizedClientManager,
-            ClientRegistrationRepository clientRegistrationRepository) {
+            ClientRegistrationRepository clientRegistrationRepository, RestTemplate restTemplate) {
         this.authorizedClientManager = authorizedClientManager;
         this.clientRegistration = clientRegistrationRepository.findByRegistrationId("gichuni");
+        this.restTemplate = restTemplate;
     }
 
     public String getAccessToken() {

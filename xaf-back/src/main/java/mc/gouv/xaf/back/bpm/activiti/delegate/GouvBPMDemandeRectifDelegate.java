@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -11,16 +12,15 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMDemandeRectifDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeRectifDelegate.class);
 
-    @Autowired
-    private DemandesCommentaireService demandesCommentaireService;
+    private final DemandesCommentaireService demandesCommentaireService;
 
     private Expression commentaireUsager;
 

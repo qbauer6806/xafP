@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
@@ -25,7 +26,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,31 +35,19 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate.class);
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    private UtilisateursCache utilisateursCache;
-
-    @Autowired
-    private DenjsAffectationService denjsAffectationService;
+    private final AfBackUtils afBackUtils;
+    private final MailService mailService;
+    private final DemandesService demandesService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final UtilisateursCache utilisateursCache;
+    private final DenjsAffectationService denjsAffectationService;
 
     @Setter
     @Getter

@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.TemplatesRepository;
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
@@ -11,7 +12,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class TemplatesServiceImpl implements TemplatesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TemplatesServiceImpl.class);
 
-    @Autowired
-    private TemplatesRepository templatesRepository;
+    private final TemplatesRepository templatesRepository;
 
     private TemplateBO getTemplateBO(Integer templateId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, templateId);

@@ -2,18 +2,16 @@ package mc.gouv.xaf.back.service.scheduling;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.shared.annotations.TypeDePurge;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Component;
 @DisallowConcurrentExecution
 @TypeDePurge("default")
 @Component
+@RequiredArgsConstructor
 public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);
@@ -31,11 +30,8 @@ public class PurgeDemandesSchedulingJob implements Job {
     private static final int DELAI_PAR_DEFAUT_PURGE = 1095; // 3 ans de purge par défaut
     private static final String ACTIVATION_PURGE = "ACTIVATION_PURGE";
 
-    @Autowired
-    private PurgeDemandesService purgeDemandesService;
-
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PurgeDemandesService purgeDemandesService;
+    private final PropertiesService propertiesService;
 
     /**
      * @return La valeur de la propriété d'activation de la purge

@@ -519,7 +519,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     @Override
     public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-        LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
+        LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps()");
 
         guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecap);
 

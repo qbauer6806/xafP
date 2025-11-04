@@ -166,16 +166,15 @@ public class FileClient {
         // Constitution du chemin virtuel du fichier
         // /appfactory/demarcheId/accessId/UUID/nomDuFichier
         String virtualPath = account + SLASH + container + SLASH + filename;
-        LOGGER.info("Chemin virtuel : {}", virtualPath);
+        LOGGER.info("Chemin virtuel : {}", AfBackUtils.logSafe(virtualPath));
 
         // Constitution de l'URL d'appel
         URI uri = this.createUrl(virtualPath);
-        LOGGER.info(URL_APPEL, uri);
 
         // Constitution de la requête
         HttpClient client = HttpClientBuilder.create().build();
 
-        LOGGER.info("Envoyer {}", filename);
+        LOGGER.info("Envoyer {}", AfBackUtils.logSafe(filename));
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addPart("data", new InputStreamBody(inputStream, ContentType.create(contentType), filename));
@@ -289,8 +288,7 @@ public class FileClient {
     public void deleteFile(String account, String container, String filename) throws IOException {
         String virtualPath = account + SLASH + container + SLASH + filename;
         URI uri = this.createUrl(virtualPath);
-        LOGGER.info(URL_APPEL, uri);
-
+        
         HttpClient client = HttpClientBuilder.create().build();
         HttpDelete deleteRequest = new HttpDelete(uri);
         deleteRequest.setHeader(HttpHeaders.AUTHORIZATION, getAuthHeader());

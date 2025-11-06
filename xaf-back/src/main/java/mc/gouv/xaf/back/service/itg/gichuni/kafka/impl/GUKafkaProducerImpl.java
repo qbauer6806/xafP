@@ -36,7 +36,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
  * @author qdeme
  */
 @Service
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaProducerImpl implements GUKafkaProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerImpl.class);

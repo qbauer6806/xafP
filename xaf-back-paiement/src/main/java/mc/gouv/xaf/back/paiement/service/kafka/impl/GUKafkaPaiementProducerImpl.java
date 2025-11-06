@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaPaiementProducerImpl.class);

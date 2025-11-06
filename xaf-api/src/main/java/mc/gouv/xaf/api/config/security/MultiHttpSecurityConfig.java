@@ -26,7 +26,7 @@ public class MultiHttpSecurityConfig {
     @Value("${application.name}")
     private String applicationName;
 
-    @Value("${mc.gouv.${application.name}.apiserver.security.jwt.secret}")
+    @Value("${mc.gouv.appli.apiserver.security.jwt.secret}")
     private String secretValue;
 
     @Bean

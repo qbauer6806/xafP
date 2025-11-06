@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl implements BackGouvPropertiesResolver {
 
     ///// BACK PROPERTIES
-    @Value("${mc.gouv.${application.name}.backserver.front.key:}")
+    @Value("${mc.gouv.appli.backserver.front.key:}")
     private String frontSharedKey;
 
-    @Value("${mc.gouv.${application.name}.backserver.front.formstartpage:}")
+    @Value("${mc.gouv.appli.backserver.front.formstartpage:}")
     private String frontFormStartPage;
 
     @Value("${mc.gouv.backserver.help.url}")
@@ -38,13 +38,13 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
     @Value("${mc.gouv.backserver.env.displaystacktrace:false}")
     private boolean sharedEnvdisplayStackTrace;
 
-    @Value("${mc.gouv.${application.name}.backserver.novalidate:false}")
+    @Value("${mc.gouv.appli.backserver.novalidate:false}")
     private boolean noValidate;
 
-    @Value("${mc.gouv.${application.name}.backserver.gichkey.client_id}")
+    @Value("${mc.gouv.appli.backserver.gichkey.client_id}")
     private String gichkeyClientId;
 
-    @Value("${mc.gouv.${application.name}.backserver.gichkey.client_secret}")
+    @Value("${mc.gouv.appli.backserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
 
     @Override

@@ -24,7 +24,7 @@ import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
  * @author qdeme
  */
 @DisallowConcurrentExecution
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class KafkaOutboxSchedulingJobImpl implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaOutboxSchedulingJobImpl.class);

@@ -73,7 +73,7 @@ import mc.gouv.xaf.shared.exception.DemarcheException;
  * @author qdeme
  *
  */
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' == 'true'")
 @Component
 public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 

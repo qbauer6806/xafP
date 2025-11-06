@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @author qdeme
  */
 @Service
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class KafkaOutboxSchedulingConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaOutboxSchedulingConfig.class);

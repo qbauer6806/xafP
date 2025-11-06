@@ -42,7 +42,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
  * @author qdeme
  */
 @RestController
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' == 'true'")
 @RequestMapping(value = "/api2tiers/v1", produces = "application/json")
 public class AfApiController2Tiers {
 

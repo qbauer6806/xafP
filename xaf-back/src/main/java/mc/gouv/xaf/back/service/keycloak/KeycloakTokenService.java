@@ -72,8 +72,12 @@ public class KeycloakTokenService {
                 Map.class
         );
 
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return (String) response.getBody().get("access_token");
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, Object> body = response.getBody();
+            if (body != null && body.get("access_token") != null) {
+                return (String) body.get("access_token");
+            }
+            throw new IllegalStateException("Le corps de la réponse ou le jeton d'accès est nul");
         } else {
             throw new IllegalStateException("Impossible d'échanger le token usager : " + response.getStatusCode());
         }

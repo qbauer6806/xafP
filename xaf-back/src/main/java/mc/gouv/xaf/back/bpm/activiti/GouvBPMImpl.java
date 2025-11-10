@@ -18,6 +18,7 @@ import org.apache.tika.exception.TikaException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableTaskAlreadyClaimedException;
 import org.flowable.engine.FormService;
+import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.form.FormProperty;
@@ -51,6 +52,8 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
+    @Autowired
+    private RepositoryService repositoryService;
 
     private void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
             Integer demandeId, Map<String, Object> businessVariables) {
@@ -319,6 +322,35 @@ public class GouvBPMImpl implements GouvBPM {
         }
         completeTask(task, pkDemande);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getEngineVersion(Integer pkDemandes) {
+        ProcessInstance processInstance = this.getActiveProcessInstanceForDemandeId(pkDemandes);
+        if (processInstance == null) {
+            LOGGER.error("Aucun process instance pour la demande {}", pkDemandes);
+            return null;
+        }
+        // Récupérer la définition du process pour vérifier la version du moteur
+        return repositoryService.getProcessDefinition(processInstance.getProcessDefinitionId()).getEngineVersion();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void terminerProcess(Integer pkDemandes, String message) {
+        ProcessInstance processInstance = this.getActiveProcessInstanceForDemandeId(pkDemandes);
+        if (processInstance == null) {
+            LOGGER.error("Aucun process instance active à terminer pour la demande {}", pkDemandes);
+            return;
+        }
+        String processInstanceId = processInstance.getProcessInstanceId();
+        LOGGER.info("Suppression du process instance : {}", processInstanceId);
+        runtimeService.deleteProcessInstance(processInstanceId, message);
     }
 
 }

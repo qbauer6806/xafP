@@ -124,4 +124,20 @@ public class GouvBPMTestImpl implements GouvBPM {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getEngineVersion(Integer pkDemandes) {
+        return "";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void terminerProcess(Integer pkDemandes, String message) {
+
+    }
+
 }

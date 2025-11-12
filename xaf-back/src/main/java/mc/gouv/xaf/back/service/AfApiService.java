@@ -49,6 +49,7 @@ import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -739,7 +740,11 @@ public class AfApiService implements AfApi {
         model.put("identifiant_usager", usager.getLogin());
         String cguProp = StringUtils.equals("fr", langue) ? "XAF_CGU_URL_FR" : "XAF_CGU_URL_EN";
         model.put("cguUrl", propertiesService.getProperty(cguProp).getValue());
-        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, Locale.of(langue));
+        String defaultMailTitre = "fr".equals(langue)
+                ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+                : SharedMessages.DEFAULT_TITRE_MAIL_EN;
+        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, defaultMailTitre,
+                Locale.of(langue));
         model.put("titre", titre);
         try {
             mailService.sendMail(emailInfo, model);

@@ -1,6 +1,24 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
@@ -13,9 +31,7 @@ import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.DebitDTO;
-import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.TableauPaiementService;
 import mc.gouv.xaf.back.paiement.transformer.MwpaymtTransformer;
@@ -30,24 +46,12 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import mc.gouv.xaf.shared.paiement.infofacturation.InfoFacturationResponseDTO;
 import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.multipart.MultipartFile;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 public class PaiementServiceImplTest {
@@ -324,65 +328,4 @@ public class PaiementServiceImplTest {
         verify(commandeOperationRepository).findAllByFkDemandes(pkDemande);
     }
 
-    /*@Test
-    void testMajStatutCaisse_debitPaid_appelleMailEtSauvegarde() {
-        // GIVEN
-        when(commandeOperationRepository.findLatestCommandesOperationsForStatus(OperationStatutEnum.EN_ATTENTE))
-                .thenReturn(List.of(commandeOperation));
-        when(demandesService.getDemande(42)).thenReturn(demande);
-        when(paiementService.debit("DEM-001", null, "Bearer token"))
-                .thenReturn(debit);
-        when(debit.getStatut()).thenReturn(StatutDebitEnum.PAID);
-
-        MultipartFile recuMock = mock(MultipartFile.class);
-        when(paiementsDataProvider.regularisationPaiement(debit, "DEM-001"))
-                .thenReturn(recuMock);
-
-        // On "espionne" notre service pour vérifier les appels internes
-        PaiementServiceImpl spyService = Mockito.spy(paiementService);
-
-        // WHEN
-        spyService.majStatutCaisse("Bearer token");
-
-        // THEN
-        verify(spyService).envoiMailAgent(demande, true);
-        verify(paiementsDataProvider).regularisationPaiement(debit, "DEM-001");
-        verify(spyService).sauvegardeRecuPaiement(recuMock, "DEM-001");
-        verify(spyService, never()).envoiMailIncident(any(), anyString());
-    }*/
-
-    /*@Test
-    void testMajStatutCaisse_debitNonPaid_neFaitRien() {
-        when(commandeOperationRepository.findLatestCommandesOperationsForStatus(OperationStatutEnum.EN_ATTENTE))
-                .thenReturn(List.of(commandeOperation));
-        when(demandesService.getDemande(42)).thenReturn(demande);
-        when(paiementService.debit("DEM-001", null, "tok")).thenReturn(debit);
-        when(debit.getStatut()).thenReturn(StatutDebitEnum.UNPAID);
-
-        PaiementServiceImpl spyService = Mockito.spy(paiementService);
-
-        spyService.majStatutCaisse("tok");
-
-        verify(spyService, never()).envoiMailAgent(any(), anyBoolean());
-        verify(spyService, never()).sauvegardeRecuPaiement(any(), anyString());
-        verify(spyService, never()).envoiMailIncident(any(), anyString());
-    }*/
-
-    /*@Test
-    void testMajStatutCaisse_exception_declencheMailIncident() {
-        // GIVEN
-        when(commandeOperationRepository.findLatestCommandesOperationsForStatus(OperationStatutEnum.EN_ATTENTE))
-                .thenReturn(List.of(commandeOperation));
-        when(demandesService.getDemande(42)).thenReturn(demande);
-        when(paiementService.debit("DEM-001", null, "tok")).thenReturn(debit);
-        when(debit.getStatut()).thenThrow(new RuntimeException("Erreur statut"));
-
-        PaiementServiceImpl spyService = Mockito.spy(paiementService);
-
-        // WHEN
-        spyService.majStatutCaisse("tok");
-
-        // THEN
-        verify(spyService).envoiMailIncident(any(Exception.class), eq("DEM-001"));
-    }*/
 }

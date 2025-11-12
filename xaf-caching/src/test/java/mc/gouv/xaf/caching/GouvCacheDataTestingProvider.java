@@ -1,6 +1,5 @@
 package mc.gouv.xaf.caching;
 
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,11 +34,7 @@ public class GouvCacheDataTestingProvider implements GouvCacheDataProvider<Integ
 
     // Retourner une copie, sinon la modif se fera directement dans le cache aussi ! (même collection)
     public static ConcurrentHashMap<Integer, GouvCacheData> getData() {
-        ConcurrentHashMap<Integer, GouvCacheData> dataCopie = new ConcurrentHashMap<Integer, GouvCacheData>();
-        for (Entry<Integer, GouvCacheData> entry : data.entrySet()) {
-            dataCopie.put(entry.getKey(), entry.getValue());
-        }
-        return dataCopie;
+        return new ConcurrentHashMap<>(data);
     }
 
     public static void addData(Integer key, GouvCacheData value) {

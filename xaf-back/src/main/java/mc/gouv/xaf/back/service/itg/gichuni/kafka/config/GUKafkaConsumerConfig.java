@@ -30,7 +30,7 @@ import org.springframework.util.backoff.FixedBackOff;
  */
 @EnableKafka
 @Configuration
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 @RequiredArgsConstructor
 public class GUKafkaConsumerConfig {
 

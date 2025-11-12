@@ -22,7 +22,7 @@ import org.springframework.kafka.core.KafkaTemplate;
  * @author qdeme
  */
 @DisallowConcurrentExecution
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 @RequiredArgsConstructor
 public class KafkaOutboxSchedulingJobImpl implements Job {
 

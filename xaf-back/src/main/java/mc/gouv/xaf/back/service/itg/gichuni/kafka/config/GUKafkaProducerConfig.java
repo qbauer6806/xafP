@@ -39,7 +39,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableKafka
 @EnableAsync
 @Configuration
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaProducerConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerConfig.class);

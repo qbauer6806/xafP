@@ -349,7 +349,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<DemandeBO> demandes, LocalDateTime dateValidite,
+    public void updateDemandeData(List<DemandeBO> demandes, LocalDateTime dateValidite,
             MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());

@@ -160,8 +160,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public String saveFile(DemandeDTO demande, String filename, String containerId, String contentType,
             InputStream inputStream, OutputStream outputStream) {
-
-        LOGGER.info("FileService.saveFile({}, {}, {})", demande.getPkDemandes(), filename, contentType);
+        String safeFilename = AfBackUtils.logSafe(filename);
+        LOGGER.info("FileService.saveFile({}, {}, {})", demande.getPkDemandes(), safeFilename, contentType);
 
         // Définition de la meta pour le demande ID
         // On part du principe que le fichier a été généré côté back et n'est pas malicieux
@@ -169,10 +169,10 @@ public class FileServiceImpl implements FileService {
 
         filename = demande.getFkAccess() + SLASH_DELIMITER + UUID.randomUUID() + SLASH_DELIMITER + filename;
 
-        LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
+        LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, safeFilename);
 
         String accountId = gouvPropertiesResolver.getDemarcheId();
-        LOGGER.info(FILECLIENT_SAVE_FILE_LOG_MESSAGE, accountId, containerId, filename);
+        LOGGER.info(FILECLIENT_SAVE_FILE_LOG_MESSAGE, accountId, containerId, safeFilename);
         try {
             return afBackUtils.getFileClient()
                     .saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders, outputStream);

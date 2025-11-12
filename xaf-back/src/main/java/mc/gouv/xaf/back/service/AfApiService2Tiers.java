@@ -68,7 +68,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author qdeme
  *
  */
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' == 'true'")
 @Component
 @RequiredArgsConstructor
 public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
@@ -479,7 +479,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     @Override
     public ResponseEntity synchronizeDemandesRecaps(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
-        LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps({})", usagerDemandesRecap);
+        LOGGER.info("AfApiService2Tiers.synchronizeDemandesRecaps()");
 
         guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecap);
 

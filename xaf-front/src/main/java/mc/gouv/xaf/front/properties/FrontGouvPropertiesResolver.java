@@ -5,8 +5,6 @@ import java.util.List;
 import lombok.Getter;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Getter
 @Component
 public class FrontGouvPropertiesResolver {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FrontGouvPropertiesResolver.class);
 
     @Value("${application.name}")
     private String demarcheId;
@@ -51,34 +47,34 @@ public class FrontGouvPropertiesResolver {
     private String moneticoUrl;
 
     // FRONT
-    @Value("${mc.gouv.${application.name}.frontserver.copyright.years}")
+    @Value("${mc.gouv.appli.frontserver.copyright.years}")
     private String copyrightYears;
 
-    @Value("${mc.gouv.${application.name}.frontserver.matomo.site_id}")
+    @Value("${mc.gouv.appli.frontserver.matomo.site_id}")
     private String matomoSiteId;
 
-    @Value("${mc.gouv.${application.name}.frontserver.key}")
+    @Value("${mc.gouv.appli.frontserver.key}")
     private String frontserverKey;
 
-    @Value("${mc.gouv.${application.name}.frontserver.back.url}")
+    @Value("${mc.gouv.appli.frontserver.back.url}")
     private String backUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.redirectToBo.url}")
+    @Value("${mc.gouv.appli.frontserver.redirectToBo.url}")
     private String demandeUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.api.url}")
+    @Value("${mc.gouv.appli.frontserver.api.url}")
     private String apiUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.jwt}")
+    @Value("${mc.gouv.appli.frontserver.jwt}")
     private String frontserverJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.file.jwt}")
+    @Value("${mc.gouv.appli.frontserver.file.jwt}")
     private String fileJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.tgf.jwt:}")
+    @Value("${mc.gouv.appli.frontserver.tgf.jwt:}")
     private String tgfApiJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
+    @Value("${mc.gouv.appli.frontserver.vscan.jwt}")
     private String vscanJwt;
 
     @Value("${mc.gouv.frontserver.max.upload.intervalle}")
@@ -87,10 +83,10 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.frontserver.temps.upload.intervalle}")
     private String tempsIntervalleUpload;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.redirect.url}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.redirect.url}")
     private String gichkeyRedirectUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.keycloak.redirect.uri}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.keycloak.redirect.uri}")
     private String gichkeyKeycloakRedirectUrl;
 
     @Value("${mc.gouv.gichuni.profil.particulier.url}")
@@ -99,10 +95,10 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.gichuni.profil.entreprise.url}")
     private String gichuniProfilCompanyUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_id}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.client_id}")
     private String gichkeyClientId;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_secret}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
 
     @Value("${mc.gouv.gichuni.front.url}")
@@ -118,7 +114,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.gichuni.pub.mconnect.url.en}")
     private String pubMconnectUrlEn;
 
-    @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
+    @Value("${mc.gouv.appli.frontserver.2tiers.activation:false}")
     private boolean proxy2tiersActivation;
 
     @Value("${spring.servlet.multipart.max-file-size}")
@@ -180,9 +176,9 @@ public class FrontGouvPropertiesResolver {
     private String lyraJavascriptAdditionalUrl;
     @Value("${mc.gouv.appfactory.external.lyra.javascript.sri.url:}")
     private String lyraJavascriptSriUrl;
-    @Value("${mc.gouv.appfactory.${application.name}.external.lyra.public.key:}")
+    @Value("${mc.gouv.appfactory.appli.external.lyra.public.key:}")
     private String lyraPublicKey;
-    @Value("${mc.gouv.${application.name}.frontserver.api.url}/paiement")
+    @Value("${mc.gouv.appli.frontserver.api.url}/paiement")
     private String mwpaymtCallbackUri;
 
     /* Properties propres à la démarche */
@@ -196,12 +192,10 @@ public class FrontGouvPropertiesResolver {
 
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
 
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.gichkey.redirect.url",
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appli.frontserver.gichkey.redirect.url",
                 getGichkeyRedirectUrl()));
-        propertiesDTOS
-                .add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.copyright.years", getCopyrightYears()));
-        propertiesDTOS
-                .add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.matomo.site_id", getMatomoSiteId()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appli.frontserver.copyright.years", getCopyrightYears()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appli.frontserver.matomo.site_id", getMatomoSiteId()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.matomo.api.url", getMatomoUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.monetico.url", getMoneticoUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.fr",
@@ -256,7 +250,7 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.css.url", getLyraJavascriptCssUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.javascript.url", getLyraJavascriptAdditionalUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.javascript.sri.url", getLyraJavascriptSriUrl()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory." + demarcheId + ".external.lyra.public.key", getLyraPublicKey()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.appli.external.lyra.public.key", getLyraPublicKey()));
         return propertiesDTOS;
     }
 }

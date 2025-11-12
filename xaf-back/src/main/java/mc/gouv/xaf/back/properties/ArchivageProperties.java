@@ -10,19 +10,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ArchivageProperties {
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.archivage.enabled:false}")
+    @Value("${mc.gouv.appli.shared.backapi.archivage.enabled:false}")
     private boolean archivageEnabled;
 
     @Value("${mc.gouv.rio.url:#{null}}")
     private String rioUrl;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.rio.jwt:#{null}}")
+    @Value("${mc.gouv.appli.shared.backapi.rio.jwt:#{null}}")
     private String rioJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.rio.codeappli:#{null}}")
+    @Value("${mc.gouv.appli.shared.backapi.rio.codeappli:#{null}}")
     private String rioCodeAppli;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.rio.codenotice:#{null}}")
+    @Value("${mc.gouv.appli.shared.backapi.rio.codenotice:#{null}}")
     private String rioCodeNotice;
 
 }

@@ -40,7 +40,7 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        LOGGER.debug("GouvAuthenticationProvider.authenticate({})", authentication);
+        LOGGER.debug("GouvAuthenticationProvider.authenticate()");
 
         var auth = (LogonAuthenticationToken) authentication;
 

@@ -169,9 +169,12 @@ public class GestionModelesController extends AbstractController {
             return mav;
         }
 
+        // Sanitize le nom de fichier pour éviter les path traversal
+        String sanitizedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+
         try {
-            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES, filename);
-            messages.add(LE_MODELE + filename + " a été supprimé avec succès.");
+            afBackUtils.getFileClient().deleteFile(gouvPropertiesResolver.getDemarcheId(), MODELES, sanitizedFilename);
+            messages.add(LE_MODELE + sanitizedFilename + " a été supprimé avec succès.");
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE, messages);
         } catch (Exception e) {
             messages.add(e.getMessage());

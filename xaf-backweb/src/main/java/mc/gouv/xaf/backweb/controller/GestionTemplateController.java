@@ -200,7 +200,7 @@ public class GestionTemplateController extends AbstractController {
         gestionTemplateService.deleteTemplate(templateCode, langue);
 
         LOGGER.info("======================= Fin /deleteTemplate. Le template {} a été supprimé avec succès",
-                templateCode);
+                AfBackUtils.logSafe(templateCode));
         return ResponseEntity.ok().build();
     }
 

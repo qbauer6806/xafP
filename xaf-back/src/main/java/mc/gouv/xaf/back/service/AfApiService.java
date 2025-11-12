@@ -27,11 +27,11 @@ import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
 import mc.gouv.xaf.back.service.demande.UpdateDemandeExtender;
@@ -90,7 +90,7 @@ import org.xml.sax.SAXException;
  *
  * @author qdeme
  */
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.frontserver.2tiers.activation}' != 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' != 'true'")
 @Component
 @RequiredArgsConstructor
 public class AfApiService implements AfApi {
@@ -115,8 +115,6 @@ public class AfApiService implements AfApi {
     protected final DemandesComplementsService demandesComplementsService;
 
     private final AccessService accessService;
-
-    protected final UsagersService usagersService;
 
     protected final UsagersCourrierService usagersCourrierService;
 
@@ -155,6 +153,8 @@ public class AfApiService implements AfApi {
     private final Optional<UpdateDemandeExtender> updateDemandeExtenders;
 
     private final Optional<CustomRequestService> customRequestService;
+
+    private final DemandesStatutsService demandesStatutsService;
 
     @Override
     @Transactional
@@ -539,11 +539,9 @@ public class AfApiService implements AfApi {
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager...");
         List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerId);
 
-        List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
         String statutAnnulee = demarchesDataProvider.getStatutAnnulee();
-        String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnulee, demandesAPasserEnAnnuleeDTO,
-                statutAnnulee);
+        String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnuleeDTO, statutAnnulee);
         String demandesImpacteesPhrase = tab[0];
         String demandesImpacteesPk = tab[1];
 
@@ -553,8 +551,11 @@ public class AfApiService implements AfApi {
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
 
-        usagersService.desinscriptionUsager(usagerId, statutAnnulee,
-                demarchesDataProvider.getCodeMotifAnnulationDesinscription(), demandesAPasserEnAnnuleeDTO);
+        LOGGER.info("Suppression des brouillons...");
+        brouillonsService.deleteBrouillons(usagerId);
+
+        LOGGER.info("Suppression de l'accès...");
+        accessService.deleteAccess(usagerId);
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes "
@@ -568,6 +569,8 @@ public class AfApiService implements AfApi {
         envoiEmailUsager(demandesImpacteesPk, usager, langue, model, demarcheDTO);
 
         // Génération de l'historique pour chaque demande impactée
+        List<Integer> demandesAPasserEnAnnulee = demandesAPasserEnAnnuleeDTO.stream().map(DemandeDTO::getPkDemandes)
+                .toList();
         for (DemandeDTO demande : demandes) {
             LOGGER.info("Génération de l'historique pour la demande {}", demande.getPkDemandes());
             DemandeHistoriqueDTO histo = demandesHistoriqueService.desinscriptionUsager(
@@ -592,7 +595,7 @@ public class AfApiService implements AfApi {
     /**
      * Constitution de la liste des demandes impactées (celles qui passent au statut ANNULEE) pour l'envoi de l'email
      */
-    private String[] getDemandesImpactees(List<DemandeDTO> demandes, List<Integer> demandesAPasserEnAnnulee,
+    private String[] getDemandesImpactees(List<DemandeDTO> demandes,
             List<DemandeDTO> demandesAPasserEnAnnuleeDTO, String statutAnnuleeName) {
 
         StringBuilder demandesImpacteesIdentifiants = new StringBuilder();
@@ -617,7 +620,6 @@ public class AfApiService implements AfApi {
 
                 demandesImpacteesIdentifiants.append(demande.getIdentifiant()).append(" - ").append(libelleStatut);
                 demandesImpacteesPk.append(demande.getPkDemandes());
-                demandesAPasserEnAnnulee.add(demande.getPkDemandes());
                 demandesAPasserEnAnnuleeDTO.add(demande);
 
                 // Modif du DTO pour que l'historique prenne en compte le dernier statut comme étant "Annulée"
@@ -649,10 +651,33 @@ public class AfApiService implements AfApi {
                 variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), null);
                 gouvBPM.setProcessBusinessVariables(demande.getPkDemandes(), variables);
             }
+            String codeMotif = demarchesDataProvider.getCodeMotifAnnulationDesinscription();
+            if ("v5".equals(gouvBPM.getEngineVersion(demande.getPkDemandes()))) {
+                this.annulerAncienneDemande(demande.getPkDemandes(), statutAnnuleeName, usagerId, codeMotif);
+            } else {
+                gouvBPM.annulerDemande(demande.getPkDemandes(), null, user, codeMotif, null, statutAnnuleeName);
+            }
 
-            gouvBPM.annulerDemande(demande.getPkDemandes(), null, user,
-                    demarchesDataProvider.getCodeMotifAnnulationDesinscription(), null, statutAnnuleeName);
         }
+    }
+
+    /**
+     * Annule manuellement une demande en mettant à jour son statut et en terminant le processus BPM associé.
+     *
+     * @param pkDemandes
+     *         Identifiant de la demande à annuler.
+     * @param statutAnnulation
+     *         Nouveau statut à appliquer pour l'annulation de la demande.
+     * @param usagerId
+     *         Identifiant de l'usager associé à la demande.
+     * @param codeMotif
+     *         Code du motif justifiant l'annulation de la demande.
+     */
+    private void annulerAncienneDemande(Integer pkDemandes, String statutAnnulation, Integer usagerId,
+            String codeMotif) {
+        // dans ce cas, on annule la demande manuellement
+        demandesStatutsService.updateStatut(pkDemandes, statutAnnulation, null, usagerId, codeMotif, null, null);
+        gouvBPM.terminerProcess(pkDemandes, "ANNULATION_DESINSCRIPTION : Clôture technique (migration v5)");
     }
 
     private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue,
@@ -828,9 +853,10 @@ public class AfApiService implements AfApi {
             String url = URLEncoder.encode(fileUrl, StandardCharsets.UTF_8);
             fileService.deleteFile("ROOT", url);
         } else {
+            String logSafe = AfBackUtils.logSafe(fileUrl);
             LOGGER.info(
                     "Le fichier n'a pas été supprimé de FILE car déjà utilisé ailleurs, ou tentative de suppression d'un fichier d'une demande {}",
-                    AfBackUtils.logSafe(fileUrl));
+                    logSafe);
         }
     }
 

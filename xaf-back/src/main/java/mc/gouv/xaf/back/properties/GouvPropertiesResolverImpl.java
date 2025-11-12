@@ -58,7 +58,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private String gichuniUrl;
 
     // SHARED PROPERTIES
-    @Value("${mc.gouv.${application.name}.shared.backapi.file.containerId}")
+    @Value("${mc.gouv.appli.shared.backapi.file.containerId}")
     private String containerId;
 
     @Value("${mc.gouv.backapi.usagerscache.duration}")
@@ -71,38 +71,38 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.payscache.duration}")
     private String paysCacheDuration;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.vscan.jwt}")
+    @Value("${mc.gouv.appli.shared.backapi.vscan.jwt}")
     private String vscanJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.mail.jwt}")
+    @Value("${mc.gouv.appli.shared.backapi.mail.jwt}")
     private String mailJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.file.jwt}")
+    @Value("${mc.gouv.appli.shared.backapi.file.jwt}")
     private String fileJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.sms.jwt:}")
+    @Value("${mc.gouv.appli.shared.backapi.sms.jwt:}")
     private String smsJwt;
 
     @Getter
     @Value("${mc.gouv.shared.backapi.nomen.jwt}")
     private String nomenJwt;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
+    @Value("${mc.gouv.appli.shared.backapi.paiement.enabled:false}")
     private boolean paiementEnabled;
 
     @Value("${mc.gouv.shared.backapi.rest.pagesize:250}")
     private String usagersPageSize;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.back.url}")
+    @Value("${mc.gouv.appli.shared.backapi.back.url}")
     private String backUrl;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.front.url}")
+    @Value("${mc.gouv.appli.shared.backapi.front.url}")
     private String frontUrl;
 
-    @Value("${mc.gouv.${application.name}.2tiers.bo.url:}")
+    @Value("${mc.gouv.appli.2tiers.bo.url:}")
     private String _2tiersBoUrl;
 
-    @Value("${mc.gouv.${application.name}.2tiers.bo.jwt:}")
+    @Value("${mc.gouv.appli.2tiers.bo.jwt:}")
     private String _2tiersBoJwt;
 
     @Value("${spring.servlet.multipart.max-file-size}")
@@ -111,7 +111,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.file.extensions.whitelist}")
     private String extensionsWhitelist;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.sms.enabled:false}")
+    @Value("${mc.gouv.appli.shared.backapi.sms.enabled:false}")
     private boolean smsEnabled;
 
     @Value("${mc.gouv.mwpaymt.api.url:}")

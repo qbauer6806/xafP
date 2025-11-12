@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,10 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,14 +84,30 @@ public class FactureServiceImpl implements FactureService {
     @Override
     public void saveRecuPaiement(String identifiantDemande, MultipartFile file) {
         DemandeDTO demande = demandesService.getDemande(identifiantDemande);
-        String fileName = PREFIX_JUSTIFICATIF_RECU_PAIEMENT + identifiantDemande + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
-        File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        File tempFile = new File(tempDir, fileName);
+
+        // Sanitize l'identifiant pour éviter les path traversal
+        String sanitizedIdentifiant = FileUtils.sanitizeFileName(identifiantDemande);
+
+        String fileName =
+                PREFIX_JUSTIFICATIF_RECU_PAIEMENT + sanitizedIdentifiant + "_" + AfBackUtils.generateFileDateSuffix()
+                        + ".pdf";
+
+        Path tempDirPath = Paths.get(System.getProperty("java.io.tmpdir")).normalize();
+        Path tempFilePath = tempDirPath.resolve(fileName).normalize();
+
+        // Vérification de sécurité : s'assurer que le fichier reste dans le répertoire temporaire
+        if (!tempFilePath.startsWith(tempDirPath)) {
+            throw new DemarcheException("Nom de fichier invalide détecté.");
+        }
+
+        File tempFile = tempFilePath.toFile();
+
         try {
             file.transferTo(tempFile);
 
             try (FileInputStream inputStream = new FileInputStream(tempFile);
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
                 String url = fileService.saveFile(
                         demande,
                         tempFile.getName(),
@@ -96,14 +116,15 @@ public class FactureServiceImpl implements FactureService {
                         inputStream,
                         outputStream
                 );
+
                 saveFichier(tempFile.getName(), url, demande);
             }
+
         } catch (IOException ex) {
-            // On capture uniquement les exceptions pertinentes, avec un message explicite
-            throw new RuntimeException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
+            throw new DemarcheException("Erreur lors de l'enregistrement du reçu de paiement.", ex);
         } finally {
             try {
-                Files.deleteIfExists(tempFile.toPath());
+                Files.deleteIfExists(tempFilePath);
             } catch (IOException e) {
                 LOGGER.warn("Échec de suppression du fichier temporaire pour la demande", e);
             }

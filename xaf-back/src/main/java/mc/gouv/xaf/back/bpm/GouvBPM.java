@@ -177,4 +177,22 @@ public interface GouvBPM {
 
     void rectificationSpontanee(Integer demandeId);
 
+    /**
+     * Récupère la version du moteur associée à l'instance de processus correspondant à l'identifiant de demande
+     * fourni.
+     *
+     * @param pkDemandes
+     *         l'identifiant unique de la demande utilisé pour retrouver l'instance de processus associée
+     * @return la version du moteur de l'instance de processus associée si elle existe, ou {@code null} si aucune
+     *         instance de processus n'est trouvée
+     */
+    String getEngineVersion(Integer pkDemandes);
+
+    /**
+     * Terminer le process lié à l'identifiant de demande spécifié.
+     *
+     * @param pkDemandes
+     *         Identifiant de la demande liée au process à terminer
+     */
+    void terminerProcess(Integer pkDemandes, String message);
 }

@@ -27,6 +27,7 @@ import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
@@ -83,6 +84,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     private final PropertiesService propertiesService;
     private final GUKafkaProducer guKafkaProducer;
     private final DemandesConfigService demandesConfigService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
     private final PaysCache paysCache;
     private final AccessService accessService;
     private final AfBackUtils afBackUtils;
@@ -195,7 +197,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
 
         // Injecter la fk vers la config actuelle, que le système tiers devra stocker
-        demande.setBuildId(demandesConfigService.getLastBuildId());
+        demande.setBuildId(demandesConfigHelperService.getLastBuildId());
 
         DemandeDTO demandeCreee = afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
 

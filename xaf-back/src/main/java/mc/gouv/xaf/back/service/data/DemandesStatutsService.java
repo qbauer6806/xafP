@@ -1,10 +1,9 @@
 package mc.gouv.xaf.back.service.data;
 
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-
-import java.util.List;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -67,15 +66,6 @@ public interface DemandesStatutsService {
      * @return La liste à jour des demandes
      */
     void updateMultipleStatuts(List<DemandeBO> demandes, String statutName);
-
-    /**
-     * Récupérer le dernier statut d'une demande
-     *
-     * @param demandeId
-     *         ID de la demande
-     * @return L'objet DTO du statut
-     */
-    DemandeStatutDTO getStatut(Integer demandeId);
 
     /**
      * Récupérer tous les statuts d'une demande

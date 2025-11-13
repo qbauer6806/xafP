@@ -1,5 +1,6 @@
-package mc.gouv.xaf.backweb.controller;
+package mc.gouv.xaf.back.service.data.impl;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static mc.gouv.xaf.back.service.utils.AfBackUtils.hasRole;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,6 +10,7 @@ import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +26,11 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfApiService;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
@@ -39,6 +43,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
@@ -48,9 +53,6 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemandesComplementsComparator;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
-import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.backweb.ws.FileController;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeCommentaireDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -62,10 +64,12 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UploadFileDTO;
+import mc.gouv.xaf.shared.dto.XafTraitementFormBean;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.shared.formbean.TypedocFormBean;
+import mc.gouv.xaf.shared.util.FileNameUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
@@ -77,21 +81,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xml.sax.SAXException;
 
+@Component
 @RequiredArgsConstructor
-public class AbstractTraitementController extends AbstractController {
+public class TraitementService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTraitementController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraitementService.class);
     public static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String ERROR_MESSAGES = "errorMessages";
 
@@ -118,46 +123,28 @@ public class AbstractTraitementController extends AbstractController {
     public static final String DETAILS_TAB = "details";
 
     private final DemandesService demandesService;
-
     private final MessageSource messageSource;
-
     private final GouvBPM gouvBPM;
-
-    private final FileController fileController;
-
+    private final FileService fileService;
     private final AfApiService afApiService;
-
     private final DemandesCommentaireService demandesCommentaireService;
-
-    private final BackGouvPropertiesResolver backGouvPropertiesResolver;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
     private final DemarchesDataProvider demarchesDataProvider;
-
     private final DemandesFilesService demandesFilesService;
     private final DemandesComplementsFilesService demandesComplementsFilesService;
     private final PropertiesService propertiesService;
     private final UploadPieceJustificativeService uploadPieceJustificativeService;
-
     private final DemandesHistoriqueService demandesHistoriqueService;
-
     private final DemandesStatutsService demandesStatutsService;
-
     private final GUKafkaUtils guKafkaUtils;
-
     private final GUKafkaProducer guKafkaProducer;
-
     private final MotifsCache motifsCache;
-
     private final AfBackUtils afBackUtils;
-
     private final UtilisateursUtils utilisateursUtils;
-
     private final DemandeRecapHTMLService demandeRecapHTMLService;
-
     private final DemandeFilesCategorizer demandeFilesCategorizer;
+    private final DemandesHelperService demandesHelperService;
 
-    @Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
-    @PostMapping(value = "/infosAdministration")
-    @Transactional
     public ModelAndView infosAdministration(
             @ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
             @RequestParam() Integer pkDemande, final RedirectAttributes redirectAttributes) {
@@ -177,10 +164,6 @@ public class AbstractTraitementController extends AbstractController {
         return returnSuccessMessage(pkDemande, I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE, redirectAttributes);
     }
 
-    @Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
-    @ResponseBody
-    @PostMapping(value = "/commentaires")
-    @Transactional
     public DemandeCommentaireDTO sauvegarderComm(
             @ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
             @RequestParam() Integer pkDemande) {
@@ -209,9 +192,6 @@ public class AbstractTraitementController extends AbstractController {
         return commInterne;
     }
 
-    @Secured("ROLE_TRAITEMENT")
-    @PostMapping("/repondreDIC")
-    @Transactional
     public ModelAndView repondreDIC(@RequestParam MultipartFile[] uploadingFiles, HttpServletResponse response,
             @RequestParam String commentaireReponse, @RequestParam Integer pkDemande, @RequestParam Integer icId,
             @RequestParam String activeTaskDefinitionKey, final RedirectAttributes redirectAttributes)
@@ -232,12 +212,12 @@ public class AbstractTraitementController extends AbstractController {
         LOGGER.info("Étape 1 : upload des fichiers dans FILE...");
         Map<String, String> fileNames;
         try {
-            fileNames = fileController.saveFiles(pkDemande, uploadingFiles, response);
+            fileNames = saveFiles(pkDemande, uploadingFiles, response);
         } catch (FileUploadException e) {
             if (e.getError().equals(FileUploadErrorEnum.TAILLE_MAX_ERROR)) {
                 // refs #29646 on gére les arguments du message d'erreur relatifs à la valeur
                 // set dans les propriétés
-                String maxFileSize = backGouvPropertiesResolver.getMaxFileSize();
+                String maxFileSize = gouvPropertiesResolver.getMaxFileSize();
                 if (maxFileSize == null || maxFileSize.isEmpty()) {
                     throw new PropertyNotFoundException(
                             "La propriété obligatoire spring.servlet.multipart.max-file-size ne semble pas définie");
@@ -279,6 +259,30 @@ public class AbstractTraitementController extends AbstractController {
         return mav;
     }
 
+    /**
+     * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request MultiPart Retourne une Map
+     * correspondant aux fichiers (fileName, fileUrl)
+     */
+    private Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response)
+            throws IOException {
+        LOGGER.info("Appel de DEM afin de sauvegarder différents fichiers contenus dans la request");
+        DemandeDTO demande = demandesService.getDemande(demandeId);
+        Map<String, String> fileNames = new HashMap<>();
+        for (MultipartFile file : files) {
+            String originalFilename = file.getOriginalFilename();
+            if (StringUtils.isNotBlank(originalFilename)) {
+                String safeFileName = AfBackUtils.logSafe(originalFilename);
+                LOGGER.info("Part à traiter : {}", safeFileName);
+                String saveFile = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
+                        response);
+
+                // #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
+                fileNames.put(FileNameUtils.getSafeFileName(originalFilename), URLDecoder.decode(saveFile, UTF_8));
+            }
+        }
+        return fileNames;
+    }
+
     protected ModelAndView returnSuccessMessage(Integer pkDemande, String messageCode,
             final RedirectAttributes redirectAttributes) {
         List<String> messages = new ArrayList<>();
@@ -287,7 +291,7 @@ public class AbstractTraitementController extends AbstractController {
         return new ModelAndView(REDIRECT + pkDemande);
     }
 
-    protected ModelAndView returnSuccessMessage(Integer pkDemande, String messageCode, String demandeTab,
+    public ModelAndView returnSuccessMessage(Integer pkDemande, String messageCode, String demandeTab,
             final RedirectAttributes redirectAttributes) {
         List<String> messages = new ArrayList<>();
         messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
@@ -306,7 +310,7 @@ public class AbstractTraitementController extends AbstractController {
         return new ModelAndView(REDIRECT + pkDemande);
     }
 
-    protected ModelAndView returnErrorMessage(Integer pkDemande, String messageCode, String demandeTab,
+    public ModelAndView returnErrorMessage(Integer pkDemande, String messageCode, String demandeTab,
             final RedirectAttributes redirectAttributes) {
         List<String> messages = new ArrayList<>();
         messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
@@ -328,7 +332,7 @@ public class AbstractTraitementController extends AbstractController {
     /**
      * Vérifie que la soumission de la tache demandée est bien toujours la bonne dans le BPM
      */
-    protected ModelAndView checkActiveTask(Integer pkDemande, GouvBPMTask activeTask, String activeTaskDefinitionKey,
+    public ModelAndView checkActiveTask(Integer pkDemande, GouvBPMTask activeTask, String activeTaskDefinitionKey,
             String messageCode, final RedirectAttributes redirectAttributes) {
         String safeActiveTask = AfBackUtils.logSafe(activeTaskDefinitionKey);
         LOGGER.info("Vérification {} = {}", safeActiveTask, activeTask.getTaskDefinitionKey());
@@ -449,12 +453,12 @@ public class AbstractTraitementController extends AbstractController {
     }
 
     private String getExtensionsWhitelist() {
-        String extensionsWhitelist = backGouvPropertiesResolver.getExtensionsWhitelist();
+        String extensionsWhitelist = gouvPropertiesResolver.getExtensionsWhitelist();
         return StringUtils.isNotBlank(extensionsWhitelist) ? extensionsWhitelist : "";
     }
 
     private String getMaxTailleFichier() {
-        String maxFileSize = backGouvPropertiesResolver.getMaxFileSize();
+        String maxFileSize = gouvPropertiesResolver.getMaxFileSize();
         return StringUtils.isNotBlank(maxFileSize) ? maxFileSize : "";
     }
 
@@ -492,7 +496,7 @@ public class AbstractTraitementController extends AbstractController {
         return false;
     }
 
-    protected ModelAndView typageDocuments(TypedocFormBean typedocFormBean, Integer pkDemande,
+    public ModelAndView typageDocuments(TypedocFormBean typedocFormBean, Integer pkDemande,
             final RedirectAttributes redirectAttributes) {
         LOGGER.info("======================= Appel de la page /traitement/typageDocuments (DemandeID = {})", pkDemande);
 
@@ -544,7 +548,7 @@ public class AbstractTraitementController extends AbstractController {
         }
     }
 
-    protected ModelAndView dupliquer(@RequestParam() Integer pkDemande) throws JsonProcessingException {
+    public ModelAndView dupliquer(@RequestParam() Integer pkDemande) throws JsonProcessingException {
 
         DemandeDTO demandeDupliquee = this.dupliquerDemande(pkDemande);
         ModelAndView mav = new ModelAndView(REDIRECT + demandeDupliquee.getPkDemandes());
@@ -566,7 +570,9 @@ public class AbstractTraitementController extends AbstractController {
             LOGGER.info("Nouvelle demande : {}", demandeDupliquee.getPkDemandes());
 
             LOGGER.info("Appel à DEM pour créer un nouveau statut \"En attente\"");
-            demandesStatutsService.updateStatut(demandeDupliquee.getPkDemandes(),
+            DemandeBO demandeBO = demandesHelperService.getCheckDemarcheDemandeBO(demandeDupliquee.getPkDemandes(),
+                    false);
+            demandesStatutsService.updateStatut(demandeBO,
                     demarchesDataProvider.getPremierStatutCreationDemande(), demandeDupliquee.getAgentAffecteId(),
                     demandeDupliquee.getUsagerId(), "DUPLICATION", "Demande dupliquée", "DUPLICATION");
 
@@ -618,7 +624,7 @@ public class AbstractTraitementController extends AbstractController {
         return demandeDupliquee;
     }
 
-    protected ModelAndView annuler(@RequestParam() Integer pkDemande, @RequestParam() String commentaire,
+    public ModelAndView annuler(@RequestParam() Integer pkDemande, @RequestParam() String commentaire,
             @RequestParam() String codeMotif, final RedirectAttributes redirectAttributes) {
 
         LOGGER.info("======================= Appel de la page /traitement/Annuler ({})", pkDemande);
@@ -651,7 +657,7 @@ public class AbstractTraitementController extends AbstractController {
         }
     }
 
-    protected ModelAndView reprendreEnCharge(@RequestParam() Integer pkDemande) {
+    public ModelAndView reprendreEnCharge(@RequestParam() Integer pkDemande) {
 
         LOGGER.info("======================= Appel de la page /traitement/reprendreEnCharge ({})", pkDemande);
 
@@ -673,7 +679,7 @@ public class AbstractTraitementController extends AbstractController {
         return mav;
     }
 
-    protected ModelAndView prendreEnCharge(@RequestParam() Integer pkDemande,
+    public ModelAndView prendreEnCharge(@RequestParam() Integer pkDemande,
             @RequestParam() String activeTaskDefinitionKey, final RedirectAttributes redirectAttributes)
             throws TaskAlreadyClaimedException, TikaException, IOException, SAXException {
 
@@ -722,7 +728,7 @@ public class AbstractTraitementController extends AbstractController {
      * @param user
      * @return
      */
-    protected ModelAndView claimTask(Integer pkDemande, GouvBPMTask task, GouvBPMUser user,
+    public ModelAndView claimTask(Integer pkDemande, GouvBPMTask task, GouvBPMUser user,
             final RedirectAttributes redirectAttributes) {
         try {
             gouvBPM.claimTask(task, user);

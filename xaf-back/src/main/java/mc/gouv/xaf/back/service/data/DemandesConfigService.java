@@ -11,13 +11,9 @@ public interface DemandesConfigService {
 
     List<DemandeConfigBO> getConfigsBO();
 
-    DemandeConfigBO getLastConfig();
-
     DemandeConfigBO getConfig(String buildId);
 
     JsonNode saveConfig(JsonNode config);
-
-    String getLastBuildId();
 
     List<String> getModelPaths(JsonNode modelPaths);
 }

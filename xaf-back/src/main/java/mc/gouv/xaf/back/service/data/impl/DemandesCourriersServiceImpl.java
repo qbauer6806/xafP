@@ -44,10 +44,10 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     private final DemandesCourriersRepository demandesCourriersRepository;
     private final DemandesRepository demandesRepository;
-    private final DemandesService demandesService;
     private final RechercheCourriersUtils rechercheCourriersUtils;
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesHelperService demandesHelperService;
 
     /**
      * {@inheritDoc}
@@ -55,7 +55,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
     @Override
     public DemandeCourrierDTO saveCourrier(Integer pkDemande, DemandeCourrierDTO courrierDto) {
         try {
-            DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, true);
             if (demandeBo == null) {
                 throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
             }
@@ -94,7 +94,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     private DemandesCourriersBO getCourrierBo(Integer pkDemande, Integer pkCourrier) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, true);
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -136,7 +136,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
             courrierBo.setDatePrinted(courrierDto.getDatePrinted());
             courrierBo = demandesCourriersRepository.save(courrierBo);
 
-            DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, true);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, true);
             updateDemandeCourrier(demandeBo, courrierBo);
 
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);

@@ -52,7 +52,6 @@ import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -139,7 +138,7 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemarchesService demarchesService;
     private final FileService fileService;
     private final DemandesFilesService demandesFilesService;
-    private final DemandesConfigService demandesConfigService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
     private final DemandesComplementsService demandesComplementsService;
     private final DemandesDataService demandesDataService;
     private final StatistiquesService statistiquesService;
@@ -163,6 +162,7 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemandesUsagersTransformer demandesUsagersTransformer;
     private final Optional<CloneDemandeExtender> cloneDemandExtenders;
     private final Optional<DeleteDemandeExtender> deleteDemandeExtender;
+    private final DemandesHelperService demandesHelperService;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -242,7 +242,7 @@ public class DemandesServiceImpl implements DemandesService {
             }
 
             // on utilise la dernière config déjà présente en base
-            DemandeConfigBO config = demandesConfigService.getLastConfig();
+            DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
             demandeBo.setConfig(config);
 
             // set contenuTrad
@@ -508,48 +508,6 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeBO getCheckDemarcheDemandeBO(DemandeDTO demande, boolean checkActive) {
-        return getCheckDemarcheDemandeBO(demande.getPkDemandes(), checkActive);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive) {
-        LOGGER.debug(RECUPERATION_DEMANDE);
-        Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
-
-        // Gérer les accès désactivés
-        if (demandeBoOp.isPresent() && !demandeBoOp.get().getFkAccess().isActive() && DemarchesUtils.isFrontUser()
-                && checkActive) {
-            demandeBoOp = Optional.empty();
-        }
-
-        if (demandeBoOp.isEmpty()) {
-            LOGGER.error("Le demande ID: {}, est introuvable.", demandeId);
-            throw new DemarchesServiceException("Demande introuvable ou supprimée", HttpStatus.NOT_FOUND);
-        }
-
-        return demandeBoOp.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DemandeDTO getCheckDemarcheDemandeDTO(Integer demandeId, boolean checkActive) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, checkActive);
-        if (demandeBo == null) {
-            return null;
-        }
-        return demandesTransformer.bo2Dto(demandeBo);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public DemandeDTO getDemande(Integer pkDemande, Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDE);
         DemandeBO demandeBo = demandesRepository.findByFkAccess_UsagerIdAndPkDemandesAndFkAccess_ActiveTrue(usagerId,
@@ -665,7 +623,7 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeDTO getDemande(Integer pkDemandes) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemandes, true);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemandes, true);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return demandesTransformer.bo2Dto(demandeBo);
     }
@@ -673,7 +631,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande, true);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demande.getPkDemandes(), true);
 
             // Mise à jour du contenu
             setContenu(demandeBo, demande, partialUpdate);
@@ -739,7 +697,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public void deleteDemande(Integer demandeId) {
         try {
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
             if (demandeBo == null) {
                 throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
             }
@@ -806,7 +764,7 @@ public class DemandesServiceImpl implements DemandesService {
     public void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) {
         try {
             LOGGER.info("Suppression de la demande {}...", demandeId);
-            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demandeId, false);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
             if (demandeBo == null) {
                 throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
             }
@@ -887,7 +845,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent, boolean copierFichierInternes) {
         try {
-            DemandeBO originalDemandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
+            DemandeBO originalDemandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, true);
 
             LOGGER.info("Duplication de la demande...");
             DemandeDTO demandeDto = demandesTransformer.bo2Dto(originalDemandeBo);
@@ -993,7 +951,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO associerDemandeCourrier(Integer pkDemande, GichuniUsagerDTO gichuniUsagerDTO) {
 
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, false);
 
         Integer usagerId = gichuniUsagerDTO.getId();
 
@@ -1021,7 +979,7 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Override
     public boolean isAccesDesactive(Integer pkDemande) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(pkDemande, false);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, false);
         return !demandeBo.getFkAccess().isActive();
     }
 
@@ -1031,7 +989,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO changerAffectationDemande(int pkDemandes, String agentAffecteId) {
         try {
-            DemandeBO demandeBO = getCheckDemarcheDemandeBO(pkDemandes, true);
+            DemandeBO demandeBO = demandesHelperService.getCheckDemarcheDemandeBO(pkDemandes, true);
 
             if (agentAffecteId == null) {
                 demandeBO.setAgent(null);

@@ -1,4 +1,4 @@
-package mc.gouv.xaf.backweb.formbean;
+package mc.gouv.xaf.shared.dto;
 
 import lombok.Getter;
 import lombok.Setter;

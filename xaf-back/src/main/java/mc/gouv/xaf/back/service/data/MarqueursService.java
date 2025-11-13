@@ -13,7 +13,7 @@ public interface MarqueursService {
 
     MarqueurDTO getMarqueur(String buildId, String marqueurId);
 
-    MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueur);
+    MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueur, JsonNode configContenu);
 
     void deleteMarqueur(Integer pkMarqueur);
 

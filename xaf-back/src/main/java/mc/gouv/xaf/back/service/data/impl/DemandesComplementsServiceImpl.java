@@ -58,12 +58,12 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     private final DemandesComplementsRepository demandesComplementsRepository;
     private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
     private final DemandesRepository demandesRepository;
-    private final DemandesService demandesService;
     private final FileService fileService;
     private final DemandeFileTransformer demandeFileTransformer;
     private final DemandesTransformer demandesTransformer;
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesHelperService demandesHelperService;
 
     @Override
     @Transactional
@@ -74,7 +74,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         demandeComplementsDto.setDemandeId(demandeId);
         demandeComplementsDto.setQuestion(demandeComplements);
 
-        DemandeBO demandeBO = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+        DemandeBO demandeBO = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
         if (demandeBO == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -107,7 +107,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     @Transactional
     public List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId) {
 
-        DemandeBO demandeBO = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+        DemandeBO demandeBO = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
         if (demandeBO == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }

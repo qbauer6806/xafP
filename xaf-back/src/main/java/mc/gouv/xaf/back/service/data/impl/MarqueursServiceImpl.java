@@ -14,11 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.MarqueursRepository;
-import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.transformer.MarqueursTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
@@ -33,7 +31,7 @@ public class MarqueursServiceImpl implements MarqueursService {
 
     private final MarqueursRepository marqueursRepository;
     private final MarqueursTransformer marqueursTransformer;
-    private final DemandesConfigService demandesConfigService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
 
     @Override
     public List<MarqueurDTO> getMarqueurs(String buildId) {
@@ -51,10 +49,9 @@ public class MarqueursServiceImpl implements MarqueursService {
     }
 
     @Override
-    public MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueurDTO) {
+    public MarqueurDTO saveOrUpdateMarqueur(MarqueurDTO marqueurDTO, JsonNode configContenu) {
         // on calcule le type
-        DemandeConfigBO config = demandesConfigService.getConfig(marqueurDTO.getBuildId());
-        setDescriptionTypeOptions(marqueurDTO, config.getContenu());
+        setDescriptionTypeOptions(marqueurDTO, configContenu);
         // Création
         if (marqueurDTO.getPkMarqueur() == null) {
             MarqueurBO bo = marqueursTransformer.dto2Bo(marqueurDTO);
@@ -62,24 +59,21 @@ public class MarqueursServiceImpl implements MarqueursService {
             return marqueursTransformer.bo2Dto(bo);
         }
         // Mise à jour
-        else {
-            Optional<MarqueurBO> marqueurBOOpt = marqueursRepository.findById(marqueurDTO.getPkMarqueur());
-            if (marqueurBOOpt.isEmpty()) {
-                throw new DemarchesServiceException("Le marqueur spécifié est introuvable", HttpStatus.NOT_FOUND);
-            }
-
-            MarqueurBO marqueurBO = marqueurBOOpt.get();
-            marqueurBO.setDescription(marqueurDTO.getDescription());
-            marqueurBO.setIdentifiant(marqueurDTO.getIdentifiant());
-            marqueurBO.setChemin(marqueurDTO.getChemin());
-            marqueurBO.setBuildId(marqueurDTO.getBuildId());
-            marqueurBO.setType(marqueurDTO.getType());
-            marqueurBO.setOptions(marqueurDTO.getOptions());
-            marqueurBO = marqueursRepository.save(marqueurBO);
-
-            return marqueursTransformer.bo2Dto(marqueurBO);
-
+        Optional<MarqueurBO> marqueurBOOpt = marqueursRepository.findById(marqueurDTO.getPkMarqueur());
+        if (marqueurBOOpt.isEmpty()) {
+            throw new DemarchesServiceException("Le marqueur spécifié est introuvable", HttpStatus.NOT_FOUND);
         }
+
+        MarqueurBO marqueurBO = marqueurBOOpt.get();
+        marqueurBO.setDescription(marqueurDTO.getDescription());
+        marqueurBO.setIdentifiant(marqueurDTO.getIdentifiant());
+        marqueurBO.setChemin(marqueurDTO.getChemin());
+        marqueurBO.setBuildId(marqueurDTO.getBuildId());
+        marqueurBO.setType(marqueurDTO.getType());
+        marqueurBO.setOptions(marqueurDTO.getOptions());
+        marqueurBO = marqueursRepository.save(marqueurBO);
+
+        return marqueursTransformer.bo2Dto(marqueurBO);
     }
 
     @Override
@@ -307,7 +301,7 @@ public class MarqueursServiceImpl implements MarqueursService {
     @Override
     public JsonNode buildDemande(Map<String, String> donnees, List<Map<String, String>> donneesTableaux) {
         // Configuration initiale
-        String lastBuildId = demandesConfigService.getLastBuildId();
+        String lastBuildId = demandesConfigHelperService.getLastBuildId();
         List<MarqueurDTO> marqueurs = getMarqueurs(lastBuildId);
 
         // Utilisation de ObjectMapper pour créer un ObjectNode

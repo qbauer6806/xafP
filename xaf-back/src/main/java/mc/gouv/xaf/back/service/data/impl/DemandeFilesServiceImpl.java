@@ -23,7 +23,6 @@ import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
@@ -51,11 +50,11 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     private final DemandesRepository demandesRepository;
     private final DemandesFilesRepository demandesFilesRepository;
-    private final DemandesService demandesService;
     private final FileService fileService;
     private final DemandeFileTransformer demandeFileTransformer;
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesHelperService demandesHelperService;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -94,7 +93,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         try {
             LOGGER.info("saveFile({}, {}, {})", demandeFile, pkDemande, checkActive);
 
-            DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(pkDemande, checkActive);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, checkActive);
 
             DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
             demandeFileBo.setFkDemandes(demandeBo);

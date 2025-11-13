@@ -64,12 +64,12 @@ public class GestionUsagersController extends AbstractController {
     private static final String I18N_TRANSFERTSUPPRESSION_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE = "message.success.transfertsuppression.demandes.usager.courrier";
 
     private final PaysCache paysCache;
-    private final AfBackUtils afBackUtils;
     private final MessageSource messageSource;
     private final GouvBPM gouvBPM;
     private final UsagersCourrierService usagersCourrierService;
     private final DemandesService demandesService;
     private final UsagersCache usagersCache;
+    private final UsagersUtils usagersUtils;
 
     /**
      * Affichage de la page principale
@@ -350,6 +350,9 @@ public class GestionUsagersController extends AbstractController {
         ModelAndView mav = new ModelAndView("gestion/usagers/transfertdemandes");
         mav.addObject("usagerSourceId", usagerSourceId);
         mav.addObject("usagerCibleId", usagerCibleId);
+        mav.addObject("usagerSourceName", usagersUtils.getUsagerNameFromID(usagerSourceId));
+        mav.addObject("usagerCibleName", usagersUtils.getUsagerNameFromID(usagerCibleId));
+
         mav.addObject("demandes", demandes);
         mav.addObject("usagerSourceDTO", usagerSourceDTO);
 
@@ -396,14 +399,14 @@ public class GestionUsagersController extends AbstractController {
             List<String> messages = new ArrayList<>();
             messages.add(
                     messageSource.getMessage(I18N_TRANSFERTSUPPRESSION_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE,
-                            new Object[] { afBackUtils.getUsagerNameFromID(usagerSourceId),
-                                    afBackUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
+                            new Object[] { usagersUtils.getUsagerNameFromID(usagerSourceId),
+                                    usagersUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         } else {
             List<String> messages = new ArrayList<>();
             messages.add(messageSource.getMessage(I18N_TRANSFERT_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE,
-                    new Object[] { afBackUtils.getUsagerNameFromID(usagerSourceId),
-                            afBackUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
+                    new Object[] { usagersUtils.getUsagerNameFromID(usagerSourceId),
+                            usagersUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         }
 

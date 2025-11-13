@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.TemplatesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -63,7 +63,7 @@ public class GestionTemplateController extends AbstractController {
     private final AfBackUtils afBackUtils;
     private final AfMailTemplateModelProvider afMailTemplateModelProvider;
     private final MarqueursService marqueursService;
-    private final DemandesConfigService demandesConfigService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
     private final DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
@@ -215,7 +215,7 @@ public class GestionTemplateController extends AbstractController {
     }
 
     private List<MarqueurDTO> getMarqueursList() {
-        DemandeConfigBO config = demandesConfigService.getLastConfig();
+        DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
         List<MarqueurDTO> marqueurs = new ArrayList<>();
         if (config != null && StringUtils.isNotBlank(config.getBuildId())) {
             marqueurs = marqueursService.getMarqueurs(config.getBuildId());

@@ -15,7 +15,6 @@ import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
@@ -23,7 +22,6 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
@@ -49,7 +47,6 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 
     private final DemandesRepository demandesRepository;
     private final DemandesStatutsRepository demandesStatutsRepository;
-    private final DemandesService demandesService;
     private final StatistiquesService statistiquesService;
     private final DemarchesDataProvider demarchesDataProvider;
     private final GUKafkaUtils guKafkaUtils;
@@ -57,6 +54,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     private final DemandesTransformer demandesTransformer;
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesHelperService demandesHelperService;
 
     /**
      * {@inheritDoc}
@@ -65,7 +63,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     public DemandeDTO updateStatut(Integer demandeId, String statutName, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
 
         // Gérer les accès désactivés
         //#4877 - Traitement après désinscription, Il faut pouvoir mettre à jour des statuts de demande même si l'usager s'est désactivé de la démarche
@@ -171,27 +169,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeStatutDTO getStatut(Integer demandeId) {
-
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
-
-        // Gérer les accès désactivés
-        if (demandeBo == null) {
-            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
-        }
-
-        DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(demandeBo);
-
-        return DemandesStatutsTransformer.bo2Dto(statut);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public List<DemandeStatutDTO> getStatuts(Integer demandeId) {
 
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
 
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);

@@ -34,6 +34,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     private final BrouillonsService brouillonsService;
     private final DemandesConfigTransformer demandesConfigTransformer;
     private final RechercheAdminService rechercheAdminService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
 
     @Value("${maven.version}")
     private String mavenVersion;
@@ -48,17 +49,6 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     @Override
     public List<DemandeConfigBO> getConfigsBO() {
         return demandesConfigRepository.findAllByOrderByBuildIdDesc();
-    }
-
-    @Override
-    public String getLastBuildId() {
-        DemandeConfigBO configBO = demandesConfigRepository.findFirstByOrderByBuildIdDesc();
-        return configBO != null ? configBO.getBuildId() : null;
-    }
-
-    @Override
-    public DemandeConfigBO getLastConfig() {
-        return demandesConfigRepository.findFirstByOrderByBuildIdDesc();
     }
 
     @Override
@@ -83,7 +73,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
             ((ObjectNode) configNode).put("modelPaths", modelPaths);
             // on récupère la dernière config avant d'ajouter la nouvelle
-            DemandeConfigBO lastConfig = getLastConfig();
+            DemandeConfigBO lastConfig = demandesConfigHelperService.getLastConfig();
             String lastBuildId = lastConfig != null ? lastConfig.getBuildId() : null;
             // on sauvegarde la nouvelle config
             DemandeConfigBO newConfig = demandesConfigRepository.save(demandesConfigTransformer.json2Bo(configNode));

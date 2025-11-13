@@ -13,7 +13,6 @@ import mc.gouv.xaf.back.data.projection.DemandeDataExportProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
@@ -37,9 +36,9 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesDataServiceImpl.class);
 
     private final DemandesDataRepository demandesDataRepository;
-    private final DemandesService demandesService;
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final DemandesHelperService demandesHelperService;
 
     @Override
     public DemandeDataDTO getDemandeData(Integer demandeId, String key) {
@@ -51,7 +50,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
         // Jette une exception si la demande n'existe pas
         if (checkActive) {
-            demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
+            demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
         }
 
         DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
@@ -71,7 +70,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     public List<DemandeDataDTO> getDemandeDatas(Integer demandeId) {
 
         // Jette une exception si la demande n'existe pas
-        demandesService.getCheckDemarcheDemandeDTO(demandeId, true);
+        demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
 
         LOGGER.info("Récupération en base de la donnée de demande...");
 
@@ -127,7 +126,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     @Override
     public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value, boolean checkActive) {
         // Jette une exception si la demande n'existe pas
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, checkActive);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, checkActive);
         return saveOrUpdateDemandeDatas(demandeBo, key, value);
     }
 
@@ -138,7 +137,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     public void saveOrUpdateDemandeDatas(Integer demandeId, Map<String, String> datas) {
 
         // Jette une exception si la demande n'existe pas
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+        DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
 
         if (datas != null) {
             for (Map.Entry<String, String> entry : datas.entrySet()) {
@@ -219,7 +218,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     public void deleteDemandeData(Integer demandeId, String key) {
         try {
             // Jette une exception si la demande n'existe pas
-            demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+            demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
 
             DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
 

@@ -24,7 +24,6 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -58,7 +57,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     private final AccessService accessService;
     private final DemarchesDataProvider demarchesDataProvider;
     private final FileService fileService;
-    private final DemandesConfigService demandesConfigService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
 
     /**
      * {@inheritDoc}
@@ -75,14 +74,14 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
         brouillon.setDateCreation(new Date());
         brouillon.setDateDerModif(brouillon.getDateCreation());
-        brouillon.setBuildId(demandesConfigService.getLastBuildId());
+        brouillon.setBuildId(demandesConfigHelperService.getLastBuildId());
 
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         BrouillonBO brouillonBo = BrouillonsTransformer.dto2Bo(brouillon);
         brouillonBo.setFkAccess(accessBo);
 
         // on utilise la dernière config déjà présente en base
-        DemandeConfigBO config = demandesConfigService.getLastConfig();
+        DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
         brouillonBo.setConfig(config);
 
         LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
@@ -279,7 +278,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
                 pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        String lastBuildId = demandesConfigService.getLastBuildId();
+        String lastBuildId = demandesConfigHelperService.getLastBuildId();
         brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
                 demarchesDataProvider.getBrouillonStatutNotTransmitted(),
                 demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));

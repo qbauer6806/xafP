@@ -5,14 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,26 +57,7 @@ public interface DemandesService {
      * @return La demande demandée
      */
     DemandeDTO getDemande(Integer pkDemandes);
-
-    /**
-     * Permet de vérifier que demandeId existe bien (retourne un BO) Lance une exception sinon
-     *
-     * @return La demande, si trouvée
-     */
-    DemandeBO getCheckDemarcheDemandeBO(DemandeDTO demande, boolean checkActive);
-
-    /**
-     * Permet de vérifier que le couple demandeId existe bien (retourne un BO) Lance une exception sinon
-     *
-     * @return La demande, si trouvée
-     */
-    DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive);
-
-    /**
-     * Permet de vérifier que demandeId existe bien (retourne un DTO) Lance une exception sinon
-     */
-    DemandeDTO getCheckDemarcheDemandeDTO(Integer demandeId, boolean checkActive);
-
+    
     /**
      * Permet de modifier une demande à partir de l'UsagerID
      *

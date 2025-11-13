@@ -42,7 +42,6 @@ import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.service.FileClient;
@@ -50,11 +49,8 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
-import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -66,7 +62,6 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -74,7 +69,6 @@ import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.TypedocDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,11 +150,6 @@ public class AfBackUtils {
 
     private SmsClient smsClient = null;
 
-    private NomenClient nomenClient = null;
-
-    @Lazy
-    private final UsagersCache usagersCache;
-
     @Lazy
     private final UtilisateursCache utilisateursCache;
 
@@ -175,12 +164,6 @@ public class AfBackUtils {
 
     @Lazy
     private final UtilisateursUtils utilisateursUtils;
-
-    @Lazy
-    private final MotifTemplateService motifTemplateService;
-
-    @Lazy
-    private final DemandesService demandesService;
 
     @Lazy
     private final PropertiesService propertiesService;
@@ -289,27 +272,6 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne le nom d'un usager à partir de son ID
-     *
-     * @param usagerId
-     *         une String contenant l'id de l'usager
-     * @return une Sring composer de son prénom et son nom
-     */
-    public String getUsagerNameFromID(Integer usagerId) {
-        GichuniUsagerDTO u = usagersCache.get(usagerId);
-        StringBuilder builder = new StringBuilder();
-        if (null != u) {
-            if (StringUtils.isNotBlank(u.getPrenom())) {
-                builder.append(AfBackUtils.escapeChars(u.getPrenom())).append(' ');
-            }
-            if (StringUtils.isNotBlank(u.getNom())) {
-                builder.append(AfBackUtils.escapeChars(u.getNom()));
-            }
-        }
-        return StringEscapeUtils.escapeHtml4(builder.toString());
-    }
-
-    /**
      * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: HHmmssSSS
      */
     public static String generateFileDateSuffix() {
@@ -347,13 +309,6 @@ public class AfBackUtils {
             smsClient = new SmsClient(smsUrl, smsJwt);
         }
         return smsClient;
-    }
-
-    public NomenClient getNomenClient() {
-        if (nomenClient == null) {
-            nomenClient = new NomenClient(gouvPropertiesResolver.getNomenUrl(), gouvPropertiesResolver.getNomenJwt());
-        }
-        return nomenClient;
     }
 
     /**
@@ -594,21 +549,6 @@ public class AfBackUtils {
         return StringUtils.isBlank(value) ? "" : value;
     }
 
-    public String getDernierCodeMotif(DemandeDTO demande) {
-        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
-        String motif = codeDernierMotif;
-
-        try {
-            if (codeDernierMotif != null) {
-                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
-            }
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la récupération du motif", e);
-        }
-
-        return motif;
-    }
-
     /**
      * Permet de récupérer le flag indiquant que la démarche peut générer des courriers
      *
@@ -813,11 +753,6 @@ public class AfBackUtils {
             langues.put("en", "Anglais");
         }
         return langues;
-    }
-
-    public String getIdentifiantFromPkDemande(Integer pkDemande) {
-        DemandeDTO demande = demandesService.getDemande(pkDemande);
-        return demande.getIdentifiant();
     }
 
     public boolean isEmailHtmlEnabled() {

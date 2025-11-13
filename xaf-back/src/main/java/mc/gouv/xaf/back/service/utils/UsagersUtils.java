@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,6 +158,27 @@ public class UsagersUtils {
             }
         }
         return StringUtils.trim(StringUtils.defaultString(nomUsager));
+    }
+
+    /**
+     * Retourne le nom d'un usager à partir de son ID
+     *
+     * @param usagerId
+     *         une String contenant l'id de l'usager
+     * @return une Sring composer de son prénom et son nom
+     */
+    public String getUsagerNameFromID(Integer usagerId) {
+        GichuniUsagerDTO u = usagersCache.get(usagerId);
+        StringBuilder builder = new StringBuilder();
+        if (null != u) {
+            if (StringUtils.isNotBlank(u.getPrenom())) {
+                builder.append(AfBackUtils.escapeChars(u.getPrenom())).append(' ');
+            }
+            if (StringUtils.isNotBlank(u.getNom())) {
+                builder.append(AfBackUtils.escapeChars(u.getNom()));
+            }
+        }
+        return StringEscapeUtils.escapeHtml4(builder.toString());
     }
 
 }

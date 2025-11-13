@@ -18,9 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
@@ -415,30 +413,6 @@ public class FileController {
         }
 
         LOGGER.info("======================= Fin /file/apercu");
-    }
-
-    /**
-     * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request MultiPart Retourne une Map
-     * correspondant aux fichiers (fileName, fileUrl)
-     */
-    public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response)
-            throws IOException {
-        LOGGER.info("Appel de DEM afin de sauvegarder différents fichiers contenus dans la request");
-        DemandeDTO demande = demandesService.getDemande(demandeId);
-        Map<String, String> fileNames = new HashMap<>();
-        for (MultipartFile file : files) {
-            String originalFilename = file.getOriginalFilename();
-            if (StringUtils.isNotBlank(originalFilename)) {
-                String safeFileName = AfBackUtils.logSafe(originalFilename);
-                LOGGER.info(LOG_PART, safeFileName);
-                String saveFile = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
-                        response);
-
-                // #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
-                fileNames.put(FileNameUtils.getSafeFileName(originalFilename), URLDecoder.decode(saveFile, UTF_8));
-            }
-        }
-        return fileNames;
     }
 
     /**

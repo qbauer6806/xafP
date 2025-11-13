@@ -6,20 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Classe utilitaire pour le projet Demarches
@@ -55,36 +49,6 @@ public class DemarchesUtils {
         HashMap<String, Object> result = new HashMap<>();
         result.put("errors", liste);
         return result;
-    }
-
-    /**
-     * Retourne le dernier statut d'une demande BO
-     */
-    public static DemandesStatutsBO getLatestStatus(DemandeBO demandeBO) {
-        DemandesStatutsBO ret = null;
-        for (DemandesStatutsBO statut : demandeBO.getStatuts()) {
-            // getTime() à la place de Date.after() car sinon les millisecondes ne sont pas prises en compte
-            // Particulièrement embêtant pour les tests unitaires qui changent les statuts très vite...
-            if (ret == null || ret.getPkDemandesStatuts() < statut.getPkDemandesStatuts()) {
-                ret = statut;
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Retourne le dernier statut d'une demande DTO
-     */
-    public static DemandeStatutDTO getLatestStatus(DemandeDTO demandeDTO) {
-        DemandeStatutDTO ret = null;
-        for (DemandeStatutDTO statut : demandeDTO.getStatuts()) {
-            // getTime() à la place de Date.after() car sinon les millisecondes ne sont pas prises en compte
-            // Particulièrement embêtant pour les tests unitaires qui changent les statuts très vite...
-            if (ret == null || ret.getPkStatut() < statut.getPkStatut()) {
-                ret = statut;
-            }
-        }
-        return ret;
     }
 
     /**

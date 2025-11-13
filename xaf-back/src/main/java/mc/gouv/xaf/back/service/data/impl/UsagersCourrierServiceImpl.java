@@ -9,7 +9,6 @@ import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
@@ -22,13 +21,11 @@ import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
 import mc.gouv.xaf.back.data.transformer.UsagerCourrierTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,7 +49,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     private final UsagersCourrierRepository usagersCourrierRepository;
     private final DemandesRepository demandesRepository;
     private final AccessService accessService;
-    private final DemandesService demandesService;
+    private final DemandesHelperService demandesHelperService;
     private final EntityManager em;
     private final UsagersService usagersService;
     private final DemandesUsagersRepository demandesUsagersRepository;
@@ -242,7 +239,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             LOGGER.info("Transfert de la demande {} de l'usager courrier source {} vers l'usager courrier cible {}...",
                     demandeId, usagerCourrierSourceId, usagerCourrierCibleId);
 
-            DemandeBO demande = demandesService.getCheckDemarcheDemandeBO(demandeId, true);
+            DemandeBO demande = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, true);
             if (!demande.getFkAccess().getUsagerId().equals(usagerCourrierSourceId)) {
                 throw new DemarchesServiceException("La demande " + demande.getPkDemandes()
                         + " ne correspond pas à l'usager courrier source spécifié " + usagerCourrierSourceId,
@@ -261,13 +258,4 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
-            List<String> buildIds) {
-        return demandesService.getDerniereDemandePourDuplication(usagerId, statuts, buildIds);
-
-    }
 }

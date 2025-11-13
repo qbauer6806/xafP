@@ -4,21 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 public class GenerateConfigFromRecaps {
 
@@ -39,13 +36,13 @@ public class GenerateConfigFromRecaps {
             }
 
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode config = mapper.createObjectNode();
+            ObjectNode config = mapper.createObjectNode();
 
             // buildId
-            ((ObjectNode) config).put("buildId", recapFront.get("buildId"));
+            config.set("buildId", recapFront.get("buildId"));
 
             // modelPaths
-            JsonNode modelPaths = mapper.createObjectNode();
+            ObjectNode modelPaths = mapper.createObjectNode();
             // marqueurs
             ArrayNode marqueurs = mapper.createArrayNode();
             JsonNode displayFields = recapFront.get("initDonnees").get("projectDemande").get("displayFields");
@@ -75,27 +72,31 @@ public class GenerateConfigFromRecaps {
                         path += champ.get("path").asText();
                     } else {
                         String type = champ.get("type").asText();
-                        if (type.equals("adresse") || type.equals("adresseMc")) {
-                            String suffix = "Ligne1";
-                            String pathWithSuffix = champ.get("ligne1").asText();
-                            path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
-                        } else if (type.equals("iban")) {
-                            String suffix = "Iban";
-                            String pathWithSuffix = champ.get("iban").asText();
-                            path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
-                        } else if (type.equals("telephone")) {
-                            String suffix = "Indicatif";
-                            String pathWithSuffix = champ.get("indicatif").asText();
-                            path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                        switch (type) {
+                            case "adresse", "adresseMc" -> {
+                                String suffix = "Ligne1";
+                                String pathWithSuffix = champ.get("ligne1").asText();
+                                path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                            }
+                            case "iban" -> {
+                                String suffix = "Iban";
+                                String pathWithSuffix = champ.get("iban").asText();
+                                path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                            }
+                            case "telephone" -> {
+                                String suffix = "Indicatif";
+                                String pathWithSuffix = champ.get("indicatif").asText();
+                                path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
+                            }
                         }
                     }
                     addToPathByType(marqueurs, champ, path);
                 }
             }
 
-            ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
+            modelPaths.set("marqueurs", marqueurs);
             // pas besoin d'ajouter le noeud rechercheAvancee dans modelPaths car dans tous les cas un nouveau fichier config sera utilisé sur une montée de version XAF 12
-            ((ObjectNode) config).put("modelPaths", modelPaths);
+            config.set("modelPaths", modelPaths);
 
             JsonNode properties = recapFront.get("properties");
             cleanApostrophes((ObjectNode) properties);
@@ -104,15 +105,15 @@ public class GenerateConfigFromRecaps {
                 if (n.get("name").asText().equals("projectDemandeRecap")) {
 
                     // recap
-                    JsonNode recapConfig = mapper.createObjectNode();
+                    ObjectNode recapConfig = mapper.createObjectNode();
 
                     // sections
-                    ((ObjectNode) recapConfig).put("sections", n.get("sections"));
+                    recapConfig.set("sections", n.get("sections"));
                     // update sections
                     JsonNode sections = recapConfig.get("sections");
                     for (JsonNode section : sections) {
                         // add titreKey
-                        properties.get("fr").fields().forEachRemaining(property -> {
+                        properties.get("fr").properties().forEach(property -> {
                             if (property.getValue().asText().equals(section.get("titre").asText())) {
                                 ((ObjectNode) section).put("titreKey", property.getKey());
                             }
@@ -144,7 +145,7 @@ public class GenerateConfigFromRecaps {
 
                     // fichiers
                     ArrayNode fichiers = mapper.createArrayNode();
-                    JsonNode fichiersNode = mapper.createObjectNode();
+                    ObjectNode fichiersNode = mapper.createObjectNode();
                     ArrayNode champs = mapper.createArrayNode();
                     JsonNode fichiersRecapsFront = null;
                     // find fichiers
@@ -154,31 +155,31 @@ public class GenerateConfigFromRecaps {
 
                             String titreKey = sectionsRecapsFront.get("titre").asText();
                             // find titre in properties
-                            properties.get("fr").fields().forEachRemaining(property -> {
+                            properties.get("fr").properties().forEach(property -> {
                                 if (property.getKey().equals(titreKey)) {
-                                    ((ObjectNode) fichiersNode).put("titre", property.getValue().asText());
+                                    fichiersNode.put("titre", property.getValue().asText());
                                 }
                             });
-                            ((ObjectNode) fichiersNode).put("titreKey", titreKey);
-                            ((ObjectNode) fichiersNode).put("type", sectionsRecapsFront.get("type").asText());
+                            fichiersNode.put("titreKey", titreKey);
+                            fichiersNode.put("type", sectionsRecapsFront.get("type").asText());
 
                             fichiersRecapsFront = sectionsRecapsFront.get("fichiers");
 
                             // create champs
                             int fileIndexCounter = 0;
                             for (JsonNode column : fichiersRecapsFront.get("columns")) {
-                                JsonNode champ = mapper.createObjectNode();
-                                ((ObjectNode) champ).put("type", column.get("type").asText());
+                                ObjectNode champ = mapper.createObjectNode();
+                                champ.put("type", column.get("type").asText());
                                 String idPrefix = column.get("idPrefix").asText();
-                                ((ObjectNode) champ).put("idPrefix", idPrefix);
-                                properties.get("fr").fields().forEachRemaining(property -> {
+                                champ.put("idPrefix", idPrefix);
+                                properties.get("fr").properties().forEach(property -> {
                                     if (property.getKey().contains("." + idPrefix + ".")) {
-                                        ((ObjectNode) champ).put("label", property.getValue().asText());
-                                        ((ObjectNode) champ).put("labelKey", property.getKey());
+                                        champ.put("label", property.getValue().asText());
+                                        champ.put("labelKey", property.getKey());
                                     }
                                 });
                                 // fileIndex
-                                ((ObjectNode) champ).put("fileIndex", fileIndexCounter);
+                                champ.put("fileIndex", fileIndexCounter);
                                 // path
                                 ArrayNode paths = mapper.createArrayNode();
                                 // sur des vieux recaps FO il n'y a pas nombre, donc on set à 1
@@ -187,7 +188,7 @@ public class GenerateConfigFromRecaps {
                                 for (int i = 0; i < nombre; fileIndexCounter++, i++) {
                                     paths.add("fichiers[" + fileIndexCounter + "]");
                                 }
-                                ((ObjectNode) champ).put("path", paths);
+                                champ.set("path", paths);
 
                                 champs.add(champ);
                             }
@@ -195,30 +196,30 @@ public class GenerateConfigFromRecaps {
                             break;
                         }
                     }
-                    ((ObjectNode) fichiersNode).put("champs", champs);
+                    fichiersNode.set("champs", champs);
                     fichiers.add(fichiersNode);
 
                     // idPrefix
                     if (fichiersRecapsFront != null) {
-                        ((ObjectNode) fichiersNode).put("idPrefix", fichiersRecapsFront.get("idPrefix").asText());
+                        fichiersNode.put("idPrefix", fichiersRecapsFront.get("idPrefix").asText());
                     }
-                    ((ObjectNode) fichiersNode).put("path", "fichiers");
-                    ((ObjectNode) fichiersNode).put("virtual", true);
-                    ((ObjectNode) recapConfig).put("fichiers", fichiers);
+                    fichiersNode.put("path", "fichiers");
+                    fichiersNode.put("virtual", true);
+                    recapConfig.set("fichiers", fichiers);
 
                     // name
-                    ((ObjectNode) recapConfig).put("name", n.get("name").asText());
+                    recapConfig.put("name", n.get("name").asText());
 
                     // donnee
-                    ((ObjectNode) recapConfig).put("donnee", n.get("donnee").asText());
+                    recapConfig.put("donnee", n.get("donnee").asText());
 
-                    ((ObjectNode) config).put("recap", recapConfig);
+                    config.set("recap", recapConfig);
 
                     // mappings
-                    ((ObjectNode) config).put("mappings", recapFront.get("mappings"));
+                    config.set("mappings", recapFront.get("mappings"));
 
                     // translations
-                    ((ObjectNode) config).put("translations", properties);
+                    config.set("translations", properties);
 
                     break;
                 }
@@ -243,7 +244,8 @@ public class GenerateConfigFromRecaps {
             }
 
             // Parcourir les enfants de l'objet
-            node.fields().forEachRemaining(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+            node.properties().forEach(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+
         } else if (node.isArray()) {
             // Si le nœud est un tableau
             node.forEach(childNode -> extractTableauNodes(childNode, tableauNodes));
@@ -286,26 +288,21 @@ public class GenerateConfigFromRecaps {
     }
 
     private static void cleanApostrophes(ObjectNode node) {
-        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            JsonNode valueNode = field.getValue();
+        // Parcourt les propriétés au lieu des "fields" (fields est déprécié)
+        node.properties().forEach(entry -> {
+            JsonNode valueNode = entry.getValue();
 
             if (valueNode.isObject()) {
-                // Si le champ est un objet, on appelle la fonction récursive
+                // Appel récursif pour les objets imbriqués
                 cleanApostrophes((ObjectNode) valueNode);
             } else if (valueNode.isTextual()) {
-                // Si le champ est une chaîne de caractères, on nettoie les apostrophes
-                String value = valueNode.asText();
-                // Supprimer les apostrophes de début et fin
-                value = value.replaceAll("(^')|('$)", "");
+                // Nettoyage des apostrophes dans les chaînes
+                String value = valueNode.asText().replaceAll("(^')|('$)", "")  // supprime apostrophes début/fin
+                        .replaceAll("''", "'");       // remplace doubles apostrophes
 
-                // Remplacer les apostrophes doubles internes par une seule
-                value = value.replaceAll("''", "'");
-                node.put(field.getKey(), value);
+                node.put(entry.getKey(), value);
             }
-        }
+        });
     }
 
     public static List<String> extractBuildIds(List<String> fileNames) {
@@ -396,21 +393,29 @@ public class GenerateConfigFromRecaps {
 
     private static String getIdPrefixChamp(JsonNode champ, JsonNode recapFront) {
         String idPrefix = "";
-        for (Iterator<Entry<String, JsonNode>> it = recapFront.get("initDonnees").get("projectDemande")
-                .get("displayFields").fields(); it.hasNext(); ) {
-            Entry<String, JsonNode> e = it.next();
-            JsonNode data = e.getValue().get("data");
-            String dataString = data.asText();
-            if (data.isArray()) {
+
+        JsonNode displayFields = recapFront.path("initDonnees").path("projectDemande").path("displayFields");
+        if (!displayFields.isObject()) {
+            return idPrefix;
+        }
+
+        for (Map.Entry<String, JsonNode> e : displayFields.properties()) {
+            JsonNode data = e.getValue().path("data");
+            String dataString;
+
+            if (data.isArray() && !data.isEmpty()) {
                 dataString = data.get(0).asText();
+            } else {
+                dataString = data.asText();
             }
-            if (dataString.equals(champ.get("path").asText()) || dataString.contains(
-                    champ.get("path").asText() + ".")) {
+
+            String champPath = champ.path("path").asText();
+            if (dataString.equals(champPath) || dataString.contains(champPath + ".")) {
                 idPrefix = e.getKey();
                 break;
             }
-
         }
+
         return idPrefix;
     }
 

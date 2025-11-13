@@ -7,11 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.CacheService;
+import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurLienDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurParametreDTO;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.CacheDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
@@ -46,7 +46,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
 
     private static final String LANGUE_EN = "EN";
 
-    private final AfBackUtils afBackUtils;
+    private final NomenClient nomenClient;
 
     private final CacheService cacheService;
 
@@ -174,7 +174,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         // Si la valeur n'est pas présente en base ou est expirée, appeler l'API
         if (paysDbCacheFr == null || (new Date().after(new Date(paysDbCacheFr.getDateMaj().getTime() + cacheDuration)))) {
             LOGGER.info("Appel de l'API NOMEN ({},{}) car JSON non présent en base ou expiré...", nomenclature, locale);
-            nomenRet = afBackUtils.getNomenClient().getNomenclatureAvecLocale(nomenclature, locale);
+            nomenRet = nomenClient.getNomenclatureAvecLocale(nomenclature, locale);
             if (paysDbCacheFr == null) {
                 paysDbCacheFr = new CacheDTO();
                 paysDbCacheFr.setPkCache(nomenclature + "_" + locale);

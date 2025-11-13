@@ -112,13 +112,13 @@ public class MarqueursController extends AbstractController {
     @Transactional
     public ModelAndView ajouter(@RequestParam String description, @RequestParam String identifiant,
             @RequestParam String chemin, @RequestParam String buildId, final RedirectAttributes redirectAttributes) {
-
         MarqueurDTO marqueur = new MarqueurDTO();
         marqueur.setDescription(description);
         marqueur.setIdentifiant(identifiant);
         marqueur.setChemin(chemin);
         marqueur.setBuildId(buildId);
-        marqueursService.saveOrUpdateMarqueur(marqueur);
+        DemandeConfigBO config = demandesConfigService.getConfig(buildId);
+        marqueursService.saveOrUpdateMarqueur(marqueur, config.getContenu());
         return redirectSuccess(redirectAttributes, AJOUTER_SUCCES, buildId);
     }
 
@@ -142,7 +142,8 @@ public class MarqueursController extends AbstractController {
         marqueurDTO.setIdentifiant(identifiant);
         marqueurDTO.setChemin(chemin);
         marqueurDTO.setBuildId(buildId);
-        marqueursService.saveOrUpdateMarqueur(marqueurDTO);
+        DemandeConfigBO config = demandesConfigService.getConfig(buildId);
+        marqueursService.saveOrUpdateMarqueur(marqueurDTO, config.getContenu());
         return redirectSuccess(redirectAttributes, MODIFIER_SUCCES, buildId);
     }
 

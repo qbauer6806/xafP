@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class CommandeTransformer {
 
+
+
     private CommandeTransformer() {
     }
 
@@ -36,6 +38,7 @@ public class CommandeTransformer {
         bo.setMontantInitial(dto.getMontantInitial());
         bo.setMontantDejaCapture(dto.getMontantDejaCapture());
         bo.setMontantRestant(dto.getMontantRestant());
+        bo.setMoyenPaiement(MoyenPaiementTransformer.dto2Bo(dto.getMoyenPaiement()));
         return bo;
     }
 

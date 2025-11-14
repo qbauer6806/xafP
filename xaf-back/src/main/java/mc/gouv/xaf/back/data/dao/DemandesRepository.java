@@ -24,6 +24,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     DemandeBO findByIdentifiant(String identifiant);
 
+    DemandeBO findByPkDemandesAndUsagerId(Integer pkDemandes, Integer usagerId);
+
     /**
      * Récupération d'une demande pour une démarche et un usager AVEC un Accès actif
      */

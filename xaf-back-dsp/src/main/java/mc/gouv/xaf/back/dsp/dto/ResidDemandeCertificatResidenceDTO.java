@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidEntiteDemandantCDREnum;
+import mc.gouv.xaf.back.dsp.enums.common.ResidTypeCanalDemandeEnum;
 
 import java.io.Serializable;
 
@@ -24,6 +25,12 @@ public class ResidDemandeCertificatResidenceDTO implements Serializable {
 
     @Getter
     private ResidEntiteDemandantCDREnum entiteDemandantCDR;
+
+    @Getter
+    private ResidTypeCanalDemandeEnum typeCanalDemande;
+
+    @Getter
+    private ResidPaiementEnLigneDTO paiementEnLigne;
 
     @JsonProperty("demandeBaseV2")
     public ResidDemandeBaseDTO getDemandeBase() {

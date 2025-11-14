@@ -1,0 +1,74 @@
+package mc.gouv.xaf.back.paiement.transformer;
+
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.TransactionInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationCategoryEnum;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.common.UserInformationDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
+import mc.gouv.xaf.apiclient.paiement.mwpaymt.enums.ActionDebitEnum;
+import mc.gouv.xaf.back.paiement.data.entity.InformationFacturationBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.dto.DebitDTO;
+import mc.gouv.xaf.back.paiement.enums.StatutDebitEnum;
+import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+@Service
+public class MwpaymtTransformer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MwpaymtTransformer.class);
+
+    public DebitInputDTO infoDebitToMwpaymtDebitDTO(String idTs, String orderIdResid, MoyenPaiementBO moyenPaiement, InformationFacturationBO infoFacturation,
+            double montant) {
+        DebitInputDTO mwpaymtDebitDTO = new DebitInputDTO();
+
+        // User information (ie les info de facturation)
+        UserInformationDTO userInformation = new UserInformationDTO();
+        //userInformation.setSub(null);
+        userInformation.setAddress1(infoFacturation.getAdresseLigne1());
+        userInformation.setCategory(infoFacturation.getRaisonSociale() != null
+                ? UserInformationCategoryEnum.COMPANY.name()
+                : UserInformationCategoryEnum.PRIVATE.name());
+        userInformation.setCity(infoFacturation.getVille());
+        userInformation.setCountry(infoFacturation.getPays());
+        userInformation.setEmail(infoFacturation.getEmail());
+        userInformation.setFirstName(infoFacturation.getPrenom());
+        userInformation.setLastName(infoFacturation.getNom());
+        userInformation.setLegalName(infoFacturation.getRaisonSociale());
+        userInformation.setZipCode(infoFacturation.getCodePostal());
+        userInformation.setLanguage(infoFacturation.getLangue() != null ? infoFacturation.getLangue() : "FR");
+        mwpaymtDebitDTO.setUserInformation(userInformation);
+
+        mwpaymtDebitDTO.setPaymentMethodToken(moyenPaiement.getPaymentMethodToken());
+
+        // Transaction information
+        TransactionInformationDTO transactionInformation = new TransactionInformationDTO();
+        transactionInformation.setMetadatakey("Numéro de demande RESID");
+        transactionInformation.setMetadatavalue(orderIdResid != null ? orderIdResid : "");
+        transactionInformation.setOrderId(idTs);
+        transactionInformation.setAmount((float) montant);
+        mwpaymtDebitDTO.setTransactionInformation(transactionInformation);
+
+        return mwpaymtDebitDTO;
+    }
+
+    public DebitDTO debitOutputDTOToDebitDTO(DebitOutputDTO output) {
+        DebitDTO debitDTO = new DebitDTO();
+        debitDTO.setStatut(output.getTransactionAction().getActionDebit().equals(ActionDebitEnum.SUCCESS) ? StatutDebitEnum.PAID : StatutDebitEnum.UNPAID);
+        switch (output.getTransactionAction().getActionDebit()) {
+            case SUCCESS:
+                debitDTO.setStatut(StatutDebitEnum.PAID);
+                break;
+            case FAILURE:
+                debitDTO.setStatut(StatutDebitEnum.UNPAID);
+                break;
+            case PENDING:
+                debitDTO.setStatut(StatutDebitEnum.PENDING);
+                break;
+        }
+        debitDTO.setExpectedCaptureDate(output.getTransactionAction().getDateDebit() != null ? output.getTransactionAction().getDateDebit() : null);
+        return debitDTO;
+    }
+
+}

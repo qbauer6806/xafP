@@ -28,8 +28,8 @@ public class AfMailTemplateModelProvider extends AfTemplateModelProvider {
         return model;
     }
 
-    public String getMailTemplateCodeForAction(String action) {
-        return mailTemplateModelProvider.getMailTemplateCodeForAction(action);
+    public String getMailTemplateCodeForAction(String action, DemandeDTO demande) {
+        return mailTemplateModelProvider.getMailTemplateCodeForAction(action, demande);
     }
 
     /**

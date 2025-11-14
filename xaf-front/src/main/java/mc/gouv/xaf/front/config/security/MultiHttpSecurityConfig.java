@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -70,18 +71,23 @@ public class MultiHttpSecurityConfig {
         if (frontGouvPropertiesResolver.isProxy2tiersActivation()) {
             LOGGER.info(
                     "Activation du proxy 2 tiers, donc ouverture et sécurisation de l'endpoint /api2tiers/** en JWT");
-            http.securityMatcher("/api2tiers/**").sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                    .requestMatchers("/*").permitAll().anyRequest().authenticated().and()
-                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
+
+            http.securityMatcher("/api2tiers/**")
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(
+                            authz -> authz.requestMatchers("/*").permitAll().anyRequest().authenticated())
+                    .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                    .csrf(AbstractHttpConfigurer::disable);
+
         } else {
             LOGGER.info("Pas d'activation du proxy 2 tiers, donc pas d'ouverture de l'endpoint /api2tiers/**");
-            http.authorizeRequests().requestMatchers("/api2tiers/**")
-                    .denyAll() // Empêcher l'accès à /api2tiers/** par défaut
-                    .requestMatchers("/*").permitAll().anyRequest().permitAll().and().csrf()
-                    .disable(); // Autorise toutes les autres requêtes
+            http.authorizeHttpRequests(authz -> authz.requestMatchers("/api2tiers/**")
+                            .denyAll() // Empêcher l'accès à /api2tiers/** par défaut
+                            .requestMatchers("/*").permitAll().anyRequest().permitAll())
+                    .csrf(AbstractHttpConfigurer::disable); // Autorise toutes les autres requêtes
         }
         return http.build();
+
     }
 
 }

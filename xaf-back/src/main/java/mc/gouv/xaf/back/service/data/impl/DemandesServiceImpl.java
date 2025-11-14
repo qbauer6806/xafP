@@ -972,6 +972,11 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
+        return cloneDemande(pkDemande, false, false);
+    }
+
+    @Override
+    public DemandeDTO cloneDemande(Integer pkDemande, boolean conserverAgent, boolean copierFichierInternes) {
         try {
             DemandeBO originalDemandeBo = getCheckDemarcheDemandeBO(pkDemande, true);
 
@@ -985,8 +990,20 @@ public class DemandesServiceImpl implements DemandesService {
             // Demandes d'informations complémentaires des demandes
             demandesComplementsService.clonerDemandeComplements(originalDemandeBo, clonedDemandeBo);
 
+            // Fichiers internes
+            if(copierFichierInternes) {
+                demandesFilesService.clonerDesFichiersInternes(originalDemandeBo, clonedDemandeBo);
+            }
+
+            // Statuts des demandes
+            demandesStatutsService.clonerStatuts(originalDemandeBo, clonedDemandeBo);
+
             // Data des demandes
             demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
+
+            if (conserverAgent) {
+                changerAffectationDemande(clonedDemandeBo.getPkDemandes(), originalDemandeBo.getAgent().getId());
+            }
 
             // Génération d'un nouvel identifiant de demande
             String identifiant = generatePublicID();

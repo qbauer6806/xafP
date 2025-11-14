@@ -37,6 +37,7 @@ public class GUKafkaUtils {
 
     public static final String XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT = "XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT";
     public static final String GU_TO_TS_TOPIC = "ts-to-gichuni";
+    public static final String TS_TO_GU_PAYMENT_TOPIC = "ts-to-gichuni-payment";
 
     @Autowired
     private PropertiesService propertiesService;

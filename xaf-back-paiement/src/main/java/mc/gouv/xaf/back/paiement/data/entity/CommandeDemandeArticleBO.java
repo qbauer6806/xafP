@@ -21,7 +21,6 @@ import lombok.ToString;
 @Setter
 @Getter
 @Entity
-@ToString
 @Table(name = "PMNT_COMMANDES_DEMANDES_ARTICLES")
 public class CommandeDemandeArticleBO {
 
@@ -37,4 +36,14 @@ public class CommandeDemandeArticleBO {
     private String codeTarif;
 
     private double montant;
+
+    @Override
+    public String toString() {
+        return "CommandeDemandeArticleBO{" +
+                "pkCommandesDemandesArticles=" + pkCommandesDemandesArticles +
+                ", commandeDemande=" + commandeDemande +
+                ", codeTarif='" + codeTarif + '\'' +
+                ", montant=" + montant +
+                '}';
+    }
 }

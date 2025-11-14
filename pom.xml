@@ -13,13 +13,12 @@
     <!-- Nexus repo url -->
     <repo.public.url>https://nexus.monaco-gouvernement.mc/repository/public/</repo.public.url>
     <repo.releases.url>https://nexus.monaco-gouvernement.mc/repository/releases/</repo.releases.url>
-    <repo.snapshots.url>https://nexus.monaco-gouvernement.mc/repository/snapshots/
-    </repo.snapshots.url>
+    <repo.snapshots.url>https://nexus.monaco-gouvernement.mc/repository/snapshots/</repo.snapshots.url>
 
     <revision>0.0.0-SNAPSHOT</revision>
     <java.version>21</java.version>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <tika.version>3.2.1</tika.version>
     <xcb-wlib.version>1.2.0</xcb-wlib.version>
     <poi-ooxml.version>5.4.1</poi-ooxml.version>

@@ -9,8 +9,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import jakarta.persistence.EntityNotFoundException;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -190,11 +192,30 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                 .toList();
     }
 
+    private List<DemandesFilesBO> getFichiersInternes(DemandeBO demandeBo) {
+        return demandeBo.getFiles().stream().filter(fichier -> FileUtils.isFileCreatedByBack(fichier.getMeta()))
+                .toList();
+    }
+
     @Override
     public void clonerDesPiecesJointes(DemandeBO demandeBo, DemandeBO newDemandeBo) {
         if (demandeBo.getFiles() != null) {
             LOGGER.info("Suppression des pièces jointes...");
             List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(getFichiersUsager(demandeBo));
+            List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
+            for (DemandesFilesBO fileBo : filesBo) {
+                fileBo.setPkDemandesFiles(null);
+                fileBo.setFkDemandes(newDemandeBo);
+                demandesFilesRepository.save(fileBo);
+            }
+            newDemandeBo.setFiles(new HashSet<>(filesBo));
+        }
+    }
+
+    @Override
+    public void clonerDesFichiersInternes(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+        if (demandeBo.getFiles() != null) {
+            List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(getFichiersInternes(demandeBo));
             List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
             for (DemandesFilesBO fileBo : filesBo) {
                 fileBo.setPkDemandesFiles(null);
@@ -238,5 +259,13 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
-
+    @Override
+    public void deleteFileByFileUrlAndId(String fileUrl, Integer fileId) {
+        DemandesFilesBO entity = demandesFilesRepository.findById(fileId)
+                .orElseThrow(() -> new EntityNotFoundException("Fichier "+ fileId + " non trouvée en base de données"));
+        entity.setFkDemandes(null);
+        demandesFilesRepository.save(entity);
+        demandesFilesRepository.delete(entity);
+        fileService.deleteFile("ROOT", fileUrl);
+    }
 }

@@ -2,10 +2,10 @@ package mc.gouv.xaf.front.paiement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 import mc.gouv.xaf.front.controller.AbstractXafController;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -16,11 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * Servlet permettant à Monetico d'enregistrer un paiement
@@ -28,7 +24,6 @@ import java.util.Map;
  * @author mboutelier.ext
  */
 @Controller
-@RequestMapping("/paiement")
 public class PaiementController extends AbstractXafController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementController.class);
@@ -36,19 +31,16 @@ public class PaiementController extends AbstractXafController {
     @Autowired
     private XafFrontserverUtils xafFrontserverUtils;
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
-
-    protected PaiementApiClient getStcApiClient() {
-        return new PaiementApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getFrontserverJwt());
-    }
-
     /**
      * Interface Retour
      */
-    @GetMapping
-    public ResponseEntity doPost(HttpServletRequest request) {
+    @PostMapping(value = { "/paiement" })
+    public ResponseEntity processPaiement(HttpServletRequest request) {
         LOGGER.info("====================== /paiement doPost()");
+        return processPaiementMonetico(request);
+    }
+
+    private ResponseEntity processPaiementMonetico(HttpServletRequest request) {
         try {
             LOGGER.info("Vérification de la présence de la clé MAC...");
             if (request.getParameter("MAC") == null) {
@@ -82,7 +74,7 @@ public class PaiementController extends AbstractXafController {
             if (StringUtils.isNotEmpty(texteLibre)) {
                 moneticoResponseDTO.setTexteLibre(texteLibre);
             }
-            String sResult = getStcApiClient().updatePaiementStatus(moneticoResponseDTO);
+            String sResult = getMoneticoApiClient().updatePaiementStatus(moneticoResponseDTO);
             LOGGER.info("sResult = {}", sResult);
             LOGGER.info("response = version=2\ncdr={}", sResult);
             LOGGER.info("====================== Fin /paiement doPost()\n");
@@ -94,5 +86,8 @@ public class PaiementController extends AbstractXafController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+
+
 
 }

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
@@ -130,7 +130,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             demandesHistoriqueService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
-            // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(),
                     PaiementStatutEnum.DEBIT_REALISE.name());
             demandesDataService.saveOrUpdateDemandeData(demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(),
@@ -144,9 +143,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             } else {
                 demandesHistoriqueService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
-            LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
+            //LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
             ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
-            gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
+            //gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
         }
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT <fin>");
     }

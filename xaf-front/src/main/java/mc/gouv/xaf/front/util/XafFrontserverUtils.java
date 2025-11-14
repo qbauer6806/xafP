@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
+import mc.gouv.xaf.apiclient.paiement.monetico.MoneticoApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -186,6 +188,15 @@ public class XafFrontserverUtils {
 
     public AfApiClient getAfApiClient() {
         return new AfApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getFrontserverJwt());
+    }
+
+    public MoneticoApiClient getMoneticoApiClient() {
+        return new MoneticoApiClient(propertiesResolver.getApiUrl(),
+                propertiesResolver.getFrontserverJwt());
+    }
+
+    public PaiementApiClient getPaiementApiClient() {
+        return new PaiementApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getFrontserverJwt());
     }
 
     public JsonNode getConfig() throws IOException {

@@ -26,6 +26,7 @@ public class StatistiqueTransformer {
         if (!StringUtils.isEmpty(bo.getTypeConnexionUsager())) {
             dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
         }
+        dto.setOrigine(bo.getOrigine());
         return dto;
     }
 
@@ -44,6 +45,7 @@ public class StatistiqueTransformer {
         if (dto.getTypeConnexionUsager() != null) {
             bo.setTypeConnexionUsager(dto.getTypeConnexionUsager().name());
         }
+        bo.setOrigine(dto.getOrigine());
         return bo;
     }
 

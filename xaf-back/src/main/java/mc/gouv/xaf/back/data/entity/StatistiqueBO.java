@@ -52,4 +52,7 @@ public class StatistiqueBO {
     @Column(name = "TYPE_CONNEXION_USAGER", length = 256)
     private String typeConnexionUsager;
 
+    @Column(name = "ORIGINE")
+    private String origine;
+
 }

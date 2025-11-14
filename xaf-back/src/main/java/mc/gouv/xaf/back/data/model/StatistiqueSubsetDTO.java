@@ -18,4 +18,6 @@ public class StatistiqueSubsetDTO {
 
     private Date dateSuppression;
 
+    private String origineSuppression;
+
 }

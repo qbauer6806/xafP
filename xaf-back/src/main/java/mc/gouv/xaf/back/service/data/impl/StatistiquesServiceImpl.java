@@ -65,19 +65,4 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         return saveStatistique(statistiqueDTO);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteStatistique(Integer statId) {
-        statRepository.deleteById(statId);
-    }
-
-    @Override
-    public void deleteStatistiques(Integer pkDemande) {
-        LOGGER.info("Suppression des statistiques de la demande {}", pkDemande);
-        List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(pkDemande);
-        statRepository.deleteAll(statistiquesBO);
-    }
-
 }

@@ -1,11 +1,9 @@
 package mc.gouv.xaf.back.service.data;
 
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import java.util.Optional;
 
 /**
@@ -56,15 +54,6 @@ public interface DemandesFilesService {
      *         La liste de fichiers à ajouter à la demande.
      */
     void updateFichiers(DemandeBO demandeBo, DemandeFileDTO[] fichiers);
-
-    /**
-     * Suppression des fichiers liés à la demande au moment de la supression de cette dernière.
-     *
-     * @param demandeDTO
-     *         La demande à supprimer
-     */
-    void suppressionDesFichiers(DemandeDTO demandeDTO);
-
 
 
     /**

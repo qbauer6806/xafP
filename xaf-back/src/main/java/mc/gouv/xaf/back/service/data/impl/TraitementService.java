@@ -49,6 +49,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemandesComplementsComparator;
 import mc.gouv.xaf.back.service.utils.FileUtils;
@@ -144,6 +145,7 @@ public class TraitementService {
     private final DemandeRecapHTMLService demandeRecapHTMLService;
     private final DemandeFilesCategorizer demandeFilesCategorizer;
     private final DemandesHelperService demandesHelperService;
+    private final PurgeDemandesService purgeDemandesService;
 
     public ModelAndView infosAdministration(
             @ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
@@ -442,6 +444,7 @@ public class TraitementService {
         return authorities.stream().map(GrantedAuthority::getAuthority)
                 .anyMatch(role -> !StringUtils.equalsAny(role, LECTURE_ROLE, SAISIE_ROLE));
     }
+
     private boolean uploadPieceJustificativeActive(boolean isAgentAssigned) {
         return hasRole("ROLE_TRAITEMENT") && isAgentAssigned;
     }
@@ -558,7 +561,7 @@ public class TraitementService {
         return mav;
     }
 
-    protected DemandeDTO dupliquerDemande(Integer pkDemande) throws JsonProcessingException {
+    protected DemandeDTO dupliquerDemande(Integer pkDemande) {
         LOGGER.info("======================= Appel de la page /traitement/dupliquer ({})", pkDemande);
 
         LOGGER.info("Appel à DEM pour dupliquer la demande... {}", pkDemande);
@@ -572,9 +575,9 @@ public class TraitementService {
             LOGGER.info("Appel à DEM pour créer un nouveau statut \"En attente\"");
             DemandeBO demandeBO = demandesHelperService.getCheckDemarcheDemandeBO(demandeDupliquee.getPkDemandes(),
                     false);
-            demandesStatutsService.updateStatut(demandeBO,
-                    demarchesDataProvider.getPremierStatutCreationDemande(), demandeDupliquee.getAgentAffecteId(),
-                    demandeDupliquee.getUsagerId(), "DUPLICATION", "Demande dupliquée", "DUPLICATION");
+            demandesStatutsService.updateStatut(demandeBO, demarchesDataProvider.getPremierStatutCreationDemande(),
+                    demandeDupliquee.getAgentAffecteId(), demandeDupliquee.getUsagerId(), "DUPLICATION",
+                    "Demande dupliquée", "DUPLICATION");
 
             LOGGER.info("Création d'une instance de process dans le BPM pour cette demande ({})...",
                     demandeDupliquee.getPkDemandes());
@@ -600,7 +603,7 @@ public class TraitementService {
             if (demandeDupliquee != null && demandeDupliquee.getPkDemandes() != null) {
                 LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}",
                         demandeDupliquee.getPkDemandes(), demandeDupliquee.getIdentifiant());
-                demandesService.deleteDemande(demandeDupliquee.getPkDemandes());
+                purgeDemandesService.deleteDemande(demandeDupliquee.getPkDemandes());
             }
 
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
@@ -620,7 +623,7 @@ public class TraitementService {
         RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
         guKafkaProducer.sendCreationDemandeMessage(demandeDupliquee.getUsagerId(), demandeDupliquee.getPkDemandes(),
                 demandeDupliquee.getIdentifiant(), demandeDupliquee.getDateCreation(), recapDemandes);
-        
+
         return demandeDupliquee;
     }
 

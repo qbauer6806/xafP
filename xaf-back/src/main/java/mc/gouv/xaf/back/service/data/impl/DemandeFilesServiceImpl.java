@@ -2,8 +2,6 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -26,7 +24,6 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -228,22 +225,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                 bo.setDate(new Date());
             }
             demandesFilesRepository.saveAll(demandeBo.getFiles());
-        }
-    }
-
-    @Override
-    public void suppressionDesFichiers(DemandeDTO demandeDTO) {
-        DemandeFileDTO[] fichiers = demandeDTO.getFichiers();
-        if (null != fichiers) {
-            for (DemandeFileDTO currentFileToDelete : fichiers) {
-                // On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
-                // demande ou ses enfants (ie les demandes dupliquées qui découlent de cette demande)
-                // On vérifie également si le fichier est présent dans un brouillon, dans ce cas on ne supprime pas
-                if (fileService.isFileDeletable(currentFileToDelete.getUrl())) {
-                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                    fileService.deleteFile("ROOT", url);
-                }
-            }
         }
     }
 

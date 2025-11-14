@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +56,7 @@ public interface DemandesService {
      * @return La demande demandée
      */
     DemandeDTO getDemande(Integer pkDemandes);
-    
+
     /**
      * Permet de modifier une demande à partir de l'UsagerID
      *
@@ -66,13 +65,6 @@ public interface DemandesService {
      * @return La demande modifiée
      */
     DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate);
-
-    /**
-     * Permet de supprimer une demande à partir de l'UsagerID
-     */
-    void deleteDemande(Integer demandeId) throws JsonProcessingException;
-
-    void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder en base une demande
@@ -157,23 +149,6 @@ public interface DemandesService {
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
     byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO);
-
-    List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux);
-
-    /**
-     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
-     *
-     * @param dernierStatutDateDebut
-     *         : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
-     * @param dernierStatutDateFin
-     *         : la date limite (purger les demandes dont date dernier statut < dernierStatutDateDebut). en general
-     *         DateDebut + 1 jour
-     * @param dernierStatutList
-     * @return
-     */
-    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList);
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 

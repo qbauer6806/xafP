@@ -25,20 +25,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
-import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
-import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
-import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
@@ -58,17 +53,11 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
-import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.demande.CloneDemandeExtender;
-import mc.gouv.xaf.back.service.demande.DeleteDemandeExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
@@ -90,10 +79,8 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
-import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
-import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -128,22 +115,15 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemandesRepository demandesRepository;
     private final DemandesAgentsRepository demandesAgentsRepository;
     private final DemandesUsagersRepository demandesUsagersRepository;
-    private final AccessRepository accessRepository;
     private final AccessService accessService;
-    private final PurgeFilesRepository purgeFilesRepository;
     private final AfPostProcessingProvider afPostProcessingProvider;
     private final DemandesStatutsService demandesStatutsService;
-    private final DemandesHistoriqueRepository demandesHistoriqueRepository;
-    private final DemandesCommentaireRepository demandesCommentaireRepository;
     private final DemarchesService demarchesService;
     private final FileService fileService;
     private final DemandesFilesService demandesFilesService;
     private final DemandesConfigHelperService demandesConfigHelperService;
     private final DemandesComplementsService demandesComplementsService;
     private final DemandesDataService demandesDataService;
-    private final StatistiquesService statistiquesService;
-    private final GUKafkaProducer guKafkaProducer;
-    private final GUKafkaUtils guKafkaUtils;
     private final DemandesTransformer demandesTransformer;
     private final DemandesAgentsTransformer demandesAgentsTransformer;
     private final UtilisateursCache utilisateursCache;
@@ -161,7 +141,6 @@ public class DemandesServiceImpl implements DemandesService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DemandesUsagersTransformer demandesUsagersTransformer;
     private final Optional<CloneDemandeExtender> cloneDemandExtenders;
-    private final Optional<DeleteDemandeExtender> deleteDemandeExtender;
     private final DemandesHelperService demandesHelperService;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
@@ -435,8 +414,8 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
         checkAccess(usagerId);
-        return demandesRepository.findByUsagerId(usagerId).stream()
-                .map(demande -> demandesTransformer.lightProjection2Dto(demande)).toList();
+        return demandesRepository.findByUsagerId(usagerId).stream().map(demandesTransformer::lightProjection2Dto)
+                .toList();
     }
 
     private void checkAccess(Integer usagerId) {
@@ -490,7 +469,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public List<DemandeDTO> getAllDemandesFilteredByStatuts(List<String> statuts) {
         return demandesRepository.findAllByDernierStatut_NameIn(statuts).stream()
-                .map(demande -> demandesTransformer.lightProjection2Dto(demande)).toList();
+                .map(demandesTransformer::lightProjection2Dto).toList();
     }
 
     /**
@@ -695,149 +674,6 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteDemande(Integer demandeId) {
-        try {
-            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
-            if (demandeBo == null) {
-                throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-            }
-
-            DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
-            LOGGER.info("Suppression des fichiers de la demande {}...", demandeId);
-            demandesFilesService.suppressionDesFichiers(demandeDTO);
-            LOGGER.info("Suppression des fichiers complémentaires de la demande {}...", demandeId);
-            demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
-
-            AccessBO access = suppressionDeLaDemande(demandeBo, demandeId);
-
-            String identifiant = demandeBo.getIdentifiant();
-            Date dateCreation = demandeBo.getDateCreation();
-            LOGGER.info(
-                    "Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
-            List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
-            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-            guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation,
-                    recapDemandes);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de deleteDemande");
-            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
-                    "DemandesServiceImpl - méthode deleteDemande()", demandeId, e);
-            applicationEventPublisher.publishEvent(esErrorEventDTO);
-            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, Integer demandeId) {
-        StatistiqueDTO stat = new StatistiqueDTO();
-        stat.setCanal(demandeBo.getCanal());
-        stat.setDate(new Date());
-        stat.setDemandeId(demandeId);
-        stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
-        stat.setIdentifiantDemande(demandeBo.getIdentifiant());
-        stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-        if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
-            stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
-        }
-        AccessBO access = demandeBo.getFkAccess();
-        access.getDemandes().remove(demandeBo);
-        access = accessRepository.save(access);
-
-        // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
-        LOGGER.info("Suppression de l'historique de la demande...");
-        List<DemandesHistoriqueBO> histos = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
-        demandesHistoriqueRepository.deleteAll(histos);
-
-        LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
-        statistiquesService.saveStatistique(stat);
-
-        LOGGER.info("Suppression de la demande {}...", demandeId);
-        demandesRepository.delete(demandeBo);
-
-        return access;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) {
-        try {
-            LOGGER.info("Suppression de la demande {}...", demandeId);
-            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
-            if (demandeBo == null) {
-                throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-            }
-            AccessBO access = demandeBo.getFkAccess();
-
-            /*** Insertion de statistique */
-            LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
-            StatistiqueDTO stat = new StatistiqueDTO();
-            stat.setCanal(demandeBo.getCanal());
-            stat.setDate(new Date());
-            stat.setDemandeId(demandeId);
-            stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
-            stat.setIdentifiantDemande(demandeBo.getIdentifiant());
-            stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-            statistiquesService.saveStatistique(stat);
-
-            // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
-            LOGGER.info("Suppression de l'historique de la demande...");
-            demandesHistoriqueRepository.deleteByFkDemandesPkDemandes(demandeId);
-            // Suppression des commentaires de la demande (pas géré par cascade, donc le faire ici)
-            LOGGER.info("Suppression des commentaires de la demande...");
-            demandesCommentaireRepository.deleteByFkDemandesPkDemandes(demandeId);
-
-            /*** Sauvegarde des fichiers à purger avant suppression de la demande. */
-            /*** Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande */
-            LOGGER.info("insertion des fichiers à purger dans la table pour la demande: {}", demandeId);
-            purgeFilesRepository.insertFilesToPurge(demandeId);
-            purgeFilesRepository.insertFilesComplementsToPurge(demandeId);
-            purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
-
-            DemandesAgentsBO agent = demandeBo.getAgent();
-            DemandesUsagersBO usager = demandeBo.getUsager();
-
-            deleteDemandeExtender.ifPresent(
-                    deleteDemandeExtender -> deleteDemandeExtender.executeExtraDeleteBeforeDemandeDeletion(
-                            demandeBo));
-
-            /*** Suppression de la demande. */
-            LOGGER.info("Appel du répo pour la suppression...");
-            demandesRepository.delete(demandeBo);
-
-            // Suppression de l'agent (pas géré par cascade, donc le faire ici)
-            LOGGER.info("Vérification de l'agent");
-            if (agent != null && !demandesRepository.existsByAgent(agent)) {
-                LOGGER.info("L'agent associé n'est pas utilisé ailleurs, suppression...");
-                demandesAgentsRepository.delete(agent);
-            }
-            // Suppression de l'usager (pas géré par cascade, donc le faire ici)
-            LOGGER.info("Vérification de l'usager");
-            if (!demandesRepository.existsByUsager(usager)) {
-                LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
-                demandesUsagersRepository.delete(usager);
-            }
-
-            LOGGER.info(
-                    "Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
-            List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(access.getUsagerId());
-            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-            guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, demandeBo.getIdentifiant(),
-                    demandeBo.getDateCreation(), recapDemandes);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de deleteDemandeInGivenStatus");
-            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
-                    "DemandesServiceImpl - méthode deleteDemandeInGivenStatus()", demandeId, e);
-            applicationEventPublisher.publishEvent(esErrorEventDTO);
-            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public DemandeDTO cloneDemande(Integer pkDemande) {
         return cloneDemande(pkDemande, false, false);
     }
@@ -858,7 +694,7 @@ public class DemandesServiceImpl implements DemandesService {
             demandesComplementsService.clonerDemandeComplements(originalDemandeBo, clonedDemandeBo);
 
             // Fichiers internes
-            if(copierFichierInternes) {
+            if (copierFichierInternes) {
                 demandesFilesService.clonerDesFichiersInternes(originalDemandeBo, clonedDemandeBo);
             }
 
@@ -1019,25 +855,6 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.debug(RECUPERATION_DEMANDE);
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
         return demandesTransformer.bo2Dto(demandeBo);
-    }
-
-    @Override
-    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList) {
-
-        LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return demandesTransformer.bo2Dto(
-                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
-                        dernierStatutDateFin, dernierStatutList));
-
-    }
-
-    @Override
-    public List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux) {
-        LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
-        return demandesRepository.findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(
-                dernierStatutDateDebut, dernierStatutList, canaux);
     }
 
     @Override

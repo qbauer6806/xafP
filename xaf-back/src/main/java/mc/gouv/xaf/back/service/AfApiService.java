@@ -48,6 +48,7 @@ import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -100,62 +101,35 @@ public class AfApiService implements AfApi {
     protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
 
     protected final GouvBPM gouvBPM;
-
     protected final AfBackUtils afBackUtils;
-
     protected final UsagersCache usagersCache;
-
     private final MailService mailService;
-
     protected final DemandesHistoriqueService demandesHistoriqueService;
-
     protected final DemandesService demandesService;
-
     protected final DemandesConfigService demandesConfigService;
-
     protected final DemandesComplementsService demandesComplementsService;
-
     private final AccessService accessService;
-
     protected final UsagersCourrierService usagersCourrierService;
-
     protected final MotifsService motifsService;
-
     protected final PeriodesOuvertureService periodesOuvertureService;
-
     protected final PropertiesService propertiesService;
-
     protected final GUKafkaProducer guKafkaProducer;
-
     protected final GUKafkaUtils guKafkaUtils;
-
     protected final BrouillonsService brouillonsService;
-
     private final FileService fileService;
-
     protected final DemarchesDataProvider demarchesDataProvider;
-
     private final MessageSource messageSource;
-
     private final AfMailTemplateModelProvider afMailTemplateModelProvider;
-
     protected final DemandesUsagersTransformer demandesUsagersTransformer;
-
     protected final DemandesDataService demandesDataService;
-
     protected final PaysCache paysCache;
-
     private final Optional<CreateDemandeFinalizer> createDemandeFinalizers;
-
     private final Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
-
     private final Optional<CreateDemandeExtender> createDemandeExtenders;
-
     private final Optional<UpdateDemandeExtender> updateDemandeExtenders;
-
     private final Optional<CustomRequestService> customRequestService;
-
     private final DemandesStatutsService demandesStatutsService;
+    private final PurgeDemandesService purgeDemandesService;
 
     @Override
     @Transactional
@@ -221,7 +195,7 @@ public class AfApiService implements AfApi {
             if (demandeDto.getPkDemandes() != null) {
                 LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
                         demandeDto.getIdentifiant());
-                demandesService.deleteDemande(demandeDto.getPkDemandes());
+                purgeDemandesService.deleteDemande(demandeDto.getPkDemandes());
             }
             throw new DemarcheException("Erreur lors de la création d'une demande", e);
         }
@@ -583,7 +557,7 @@ public class AfApiService implements AfApi {
         if (!fromGU) {
             LOGGER.info("Envoi du message au Guichet Unique via Kafka (désinscription usager TS)...");
             guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
-            if(demarchesDataProvider.purgerDonneesMonetiques()) {
+            if (demarchesDataProvider.purgerDonneesMonetiques()) {
                 LOGGER.info("Envoi du message au Guichet Unique via Kafka (suppression paiement TS)...");
                 guKafkaProducer.sendSuppressionPaiementMessage(String.valueOf(usagerId), null);
             }

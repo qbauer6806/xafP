@@ -1,0 +1,243 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <title th:text="${nomDemarche}"></title>
+
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+  <link
+      th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
+      rel="stylesheet"/>
+
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link
+      th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
+      rel="stylesheet"/>
+
+</head>
+
+<body th:with="pagePurgeActive='active'">
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div id="wrapper">
+
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
+
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+        <a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
+        <a id="ariane1" th:href="@{/gestion/purgeselective}" class="breadcrumb-item">Purge séléctive</a>&nbsp;&gt;&nbsp;
+      </div>
+      <div class="triangleTopright"></div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="text-center">
+        <h1>Purge sélective</h1>
+      </div>
+      <br/><br/>
+
+      <!-- Formulaire pour saisir l'identifiant -->
+      <form th:action="@{/gestion/purgeselective}" method="post" id="purgeForm">
+
+
+        <div class="col-xs-12 text-right">
+          <button type="button" class="btn btn-action ripple-effect" id="addIdentifiant">
+            <i class="icon-action_plus"></i><span>Ajouter un identifiant</span>
+          </button>
+          <button type="submit" class="btn btn-action ripple-effect"><i class="icon-action_supprimer"></i><span>Purger les demandes</span></button>
+
+        </div>
+
+        <div id="identifiantsContainer">
+          <div class="row identifiantRow" style="display: flex;align-items: center;justify-content: center; margin-bottom:10px;">
+            <div class="col-xs-4 col-md-3 col-lg-2 text-center">
+              <h2 style="margin-top:0; margin-bottom: 0">Identifiant de la demande</h2>
+            </div>
+            <div class="col-xs-4 col-md-3 col-lg-2 form-group">
+              <label></label>
+              <input type="text" name="identifiants" class="form-control identifiantInput" placeholder="Saisir l'identifiant"/>
+              <div class="errorMessage" style="color: red; margin-top: 5px; display: none;">
+                Format attendu : XXX-XXXXXXXX-XXXX
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </form>
+
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Confirmer la purge</h4>
+        </div>
+        <div class="modal-body">
+          <p>Voulez-vous vraiment purger les demandes suivantes ?</p>
+          <ul id="confirmIdentifiants"></ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-action-second ripple-effect" data-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-action ripple-effect" id="confirmBtn">Confirmer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+
+  $(".errorTooltip").each(
+      function () {
+        var $this = $(this);
+        var title = $this.data("title");
+        //New title sans les crochets car les erreurs et un toString d'un tableau d'erreur messages
+        var newTitle = title.substring(1,
+            title.length - 1);
+        $this.tooltip({
+          placement: "bottom",
+          title: newTitle
+        });
+      });
+
+  const form = document.getElementById('purgeForm');
+  const container = document.getElementById('identifiantsContainer');
+  const addBtn = document.getElementById('addIdentifiant');
+  const confirmList = document.getElementById('confirmIdentifiants');
+  const confirmBtn = document.getElementById('confirmBtn');
+
+  const regex = /^[A-Z]{3}-[A-Z0-9]{8}-[A-Z0-9]{4}$/i;
+
+  // Ajout d’un champ supplémentaire
+  addBtn.addEventListener('click', () => {
+    const newRow = document.querySelector('.identifiantRow').cloneNode(true);
+    newRow.querySelector('.identifiantInput').value = '';
+    newRow.querySelector('.errorMessage').style.display = 'none';
+    container.appendChild(newRow);
+  });
+
+  // Validation avant affichage modal
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const inputs = form.querySelectorAll('.identifiantInput');
+    let allValid = true;
+    let values = [];
+
+    inputs.forEach(input => {
+      const errorMessage = input.parentNode.querySelector('.errorMessage');
+      if (!regex.test(input.value)) {
+        errorMessage.style.display = 'block';
+        allValid = false;
+      } else {
+        errorMessage.style.display = 'none';
+        values.push(input.value);
+      }
+    });
+
+    if (!allValid || values.length === 0) {
+      return;
+    }
+
+    // Affiche la liste dans la modal
+    confirmList.innerHTML = '';
+    values.forEach(v => {
+      const li = document.createElement('li');
+      li.textContent = v;
+      confirmList.appendChild(li);
+    });
+
+    $('#confirmModal').modal('show');
+  });
+
+  // Confirmation et soumission réelle
+  confirmBtn.addEventListener('click', () => {
+    confirmBtn.disabled = true;
+    confirmBtn.classList.add('loading');
+    form.submit();
+  });
+
+  var messagesWarningList = /*[[${warningMessages}]]*/'default';
+
+  if (messagesWarningList !== 'undefined' && messagesWarningList !== null) {
+    $.each(messagesWarningList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'warning'
+      });
+    });
+  }
+
+  var messagesSuccessList = /*[[${successMessages}]]*/'default';
+
+  if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+    $.each(messagesSuccessList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'success'
+      });
+    });
+  }
+
+  var messagesErrorList = /*[[${errorMessages}]]*/'default';
+
+  if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+    $.each(messagesErrorList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'danger'
+      });
+    });
+  }
+
+</script>
+</html>
+
+
+
+
+
+
+
+

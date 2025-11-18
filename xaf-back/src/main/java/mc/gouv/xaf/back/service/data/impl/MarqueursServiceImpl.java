@@ -119,8 +119,16 @@ public class MarqueursServiceImpl implements MarqueursService {
             JsonNode config) {
         for (String modelPath : modelPaths) {
             String id = pathToCamelCase(modelPath);
-            // si le marqueur est déjà présent (du précédent buildId par exemple), on ne génère pas le marqueur
-            if (marqueurDTOS.stream().noneMatch(marqueurDTO -> id.equals(marqueurDTO.getIdentifiant()))) {
+
+            // Rechercher si le marqueur existe déjà
+            Optional<MarqueurDTO> existing = marqueurDTOS.stream().filter(m -> id.equals(m.getIdentifiant()))
+                    .findFirst();
+
+            if (existing.isPresent()) {
+                // ➜ Mettre à jour uniquement descriptionTypeOptions
+                setDescriptionTypeOptions(existing.get(), config);
+            } else {
+                // ➜ Créer un nouveau marqueur
                 MarqueurDTO marqueur = new MarqueurDTO();
                 marqueur.setChemin(modelPath);
                 marqueur.setIdentifiant(id);

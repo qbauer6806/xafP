@@ -32,6 +32,7 @@ import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
 import mc.gouv.xaf.back.service.demande.UpdateDemandeExtender;
@@ -130,6 +131,7 @@ public class AfApiService implements AfApi {
     private final Optional<CustomRequestService> customRequestService;
     private final DemandesStatutsService demandesStatutsService;
     private final PurgeDemandesService purgeDemandesService;
+    private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
 
     @Override
     @Transactional
@@ -246,7 +248,8 @@ public class AfApiService implements AfApi {
                 StringUtils.lowerCase(demandeDto.getLangue()));
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
-
+        createDemandeBpmnVariablesProvider.ifPresent(
+                provider -> variables.putAll(provider.getVariablesBpmn(demandeDto)));
         gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(), variables);
     }
 

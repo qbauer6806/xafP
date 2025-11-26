@@ -20,4 +20,6 @@ public interface DemandesDataRepository extends CrudRepository<DemandesDataBO, I
     List<DemandesDataBO> findByKeyAndValueAndFkDemandesIn(String key, String value, List<DemandeBO> fkDemandes);
 
     List<DemandeDataExportProjection> findByFkDemandes_PkDemandes(Integer pkDemandes);
+
+    List<DemandesDataBO> findByFkDemandesPkDemandesAndKeyStartsWith(Integer fkDemandes, String key);
 }

@@ -285,7 +285,7 @@ public class TraitementService {
         return fileNames;
     }
 
-    protected ModelAndView returnSuccessMessage(Integer pkDemande, String messageCode,
+    public ModelAndView returnSuccessMessage(Integer pkDemande, String messageCode,
             final RedirectAttributes redirectAttributes) {
         List<String> messages = new ArrayList<>();
         messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
@@ -304,7 +304,7 @@ public class TraitementService {
         return new ModelAndView(url);
     }
 
-    protected ModelAndView returnErrorMessage(Integer pkDemande, String messageCode,
+    public ModelAndView returnErrorMessage(Integer pkDemande, String messageCode,
             final RedirectAttributes redirectAttributes) {
         List<String> messages = new ArrayList<>();
         messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
@@ -563,7 +563,7 @@ public class TraitementService {
         return mav;
     }
 
-    protected DemandeDTO dupliquerDemande(Integer pkDemande) {
+    public DemandeDTO dupliquerDemande(Integer pkDemande) {
         LOGGER.info("======================= Appel de la page /traitement/dupliquer ({})", pkDemande);
 
         LOGGER.info("Appel à DEM pour dupliquer la demande... {}", pkDemande);

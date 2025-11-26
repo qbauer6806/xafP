@@ -413,6 +413,8 @@ public class TraitementService {
         mav.addObject("accesDesactive",
                 isStatutSimplifieTermine && demandesService.isAccesDesactive(demande.getPkDemandes()));
 
+        mav.addObject("isStatutFinal", isStatutSimplifieTermine);
+
         // Chargement de l'historique de la demande
         List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demande.getPkDemandes());
         List<DemandeHistoriqueAffichageDTO> historiqueAffichageDTOS = afBackUtils.histoDem2Ts(histosDem);

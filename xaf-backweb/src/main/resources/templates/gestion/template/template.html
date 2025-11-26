@@ -350,12 +350,13 @@
   function openSuppressionModal(templateCode, templateLangue) {
     currentDeletionCode = templateCode;
     currentDeletionLang = templateLangue;
-    $('#validerSuppression').click(function () {
-      deleteTemplate();
-      return true;
-    })
     $('#suppressionModal').modal();
   }
+
+  $('#validerSuppression').click(function () {
+    deleteTemplate();
+    return true;
+  })
 
   function deleteTemplate() {
     var token = $("meta[name='_csrf']").attr("content");

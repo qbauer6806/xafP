@@ -2,7 +2,6 @@ package mc.gouv.xaf.shared.formbean;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -30,7 +29,7 @@ public class TemplateCreateFormBean {
     private String objetFr;
 
     @NotEmpty(message = "Le contenu du mail doit être précisé")
-    @Size(max = 1500, message = "Le contenu Français doit avoir une taille comprise entre 0 et 5000")
+    @Size(max = 5000, message = "Le contenu Français doit avoir une taille comprise entre 0 et 5000")
     private String corpsFr;
 
     @Size(max = 256, message = "L'objet du mail Anglais doit avoir une taille comprise entre 3 et 256")

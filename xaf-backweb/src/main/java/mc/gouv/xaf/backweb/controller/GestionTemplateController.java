@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -211,7 +212,11 @@ public class GestionTemplateController extends AbstractController {
     }
 
     private Map<String, Object> getVariablesGlobales() {
-        return afMailTemplateModelProvider.getModel(null, "", new DemandeDTO(), null, null, null);
+        Optional<DemandeDTO> demandeOpt = demandesService.getDerniereDemande();
+        if (demandeOpt.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return afMailTemplateModelProvider.getModel(null, "", demandeOpt.get(), null, null, null);
     }
 
     private List<MarqueurDTO> getMarqueursList() {

@@ -35,6 +35,7 @@ import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.ReponseDemandeInfoComplFinalizer;
 import mc.gouv.xaf.back.service.demande.UpdateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.UpdateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
@@ -132,6 +133,7 @@ public class AfApiService implements AfApi {
     private final DemandesStatutsService demandesStatutsService;
     private final PurgeDemandesService purgeDemandesService;
     private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
+    private final Optional<ReponseDemandeInfoComplFinalizer> demandeComplementFinalizer;
 
     @Override
     @Transactional
@@ -421,6 +423,10 @@ public class AfApiService implements AfApi {
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
         demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
+
+        demandeComplementFinalizer.ifPresent(
+                demandeComplementFinalizer -> demandeComplementFinalizer.finaliserReponseDemandeInfoCompl(demande,
+                        demandeComplementsDto));
 
         return demandeComplementsDto;
     }

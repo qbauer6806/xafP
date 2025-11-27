@@ -116,6 +116,20 @@ public class DemandesDataServiceImpl implements DemandesDataService {
      * {@inheritDoc}
      */
     @Override
+    public List<DemandeDataDTO> getDemandeDatasByFkDemandesPkDemandesAndKeyStartsWith(Integer fkDemandes,
+            String keyPrefix) {
+        LOGGER.info("Récupération en base des demandes data pour FK demande {} et Key prefix {}...", fkDemandes,
+                keyPrefix);
+        List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByFkDemandesPkDemandesAndKeyStartsWith(
+                fkDemandes, keyPrefix);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return DemandesDataTransformer.bo2Dto(demandesDatasBo);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DemandeDataDTO saveOrUpdateDemandeData(Integer demandeId, String key, String value) {
         return saveOrUpdateDemandeData(demandeId, key, value, true);
     }

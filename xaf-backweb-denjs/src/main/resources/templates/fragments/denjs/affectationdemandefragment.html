@@ -1,64 +1,64 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!-- fragments/affectationdemandefragment.html Permet d'affecter une demande à un autre établissement que celui choisi -->
 
-<body>
-
-<div id="affectationdemandefragment"
-     th:fragment="affectationdemandefragment">
-  <div id="affecter-box" style="display: none">
-    <form method="POST" id="affecterDemandeForm"
-          th:action="@{/demandes/affecterEtablissement}+'?'+${_csrf.parameterName}+'='+${_csrf.token}"
-          enctype="multipart/form-data">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-xs-12">
-            <span style="color: rgb(94, 97, 100); font-size: 16pt">Affecter la demande</span>
-          </div>
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="affectationdemandefragment">
+  <div class="modal fade" id="affecter-box" tabindex="-1" aria-labelledby="affectationLabel"
+       data-backdrop="static" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width: auto">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h2 class="modal-title">Affecter la demande</h2>
         </div>
-        <br/>
-        <div class="row">
-          <div class="col-xs-12">
-            <span style="color: rgb(94, 97, 100);">Veuillez sélectionner un établissement dans la liste ci-dessous pour affecter la demande :</span>
-            <br/>
-            <br/>
-            <!-- les 3 champs suivants sont disabled par défaut, car selon le TS, il peut y avoir ou pas changement de statut lors d'une réaffectation, et si changement de statut alors on enregistre les motifs/commentaires. -->
-            <!-- La page principale (traitement.html) doit donc récupèrer les valeurs du formulaire de traitement, les assigner à ces 3 champs hidden et activer les champs -->
-            <input type="hidden" name="codeMotifChoisi" id="codeMotifChoisiAffectation"
-                   disabled="disabled">
-            <input type="hidden" name="commentaireUsager" id="commentaireUsagerAffectation"
-                   disabled="disabled">
-            <input type="hidden" name="texteAEnvoyer" id="texteAEnvoyerAffectation"
-                   disabled="disabled">
+        <div class="modal-body">
+          <form method="POST" id="affecterDemandeForm"
+                th:action="@{/demandes/affecterEtablissement}+'?'+${_csrf.parameterName}+'='+${_csrf.token}"
+                enctype="multipart/form-data">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-xs-12">
+                  <span style="color: rgb(94, 97, 100);">Veuillez sélectionner un établissement dans la liste ci-dessous pour affecter la demande :</span>
+                  <br/>
+                  <br/>
+                  <!-- les 3 champs suivants sont disabled par défaut, car selon le TS, il peut y avoir ou pas changement de statut lors d'une réaffectation, et si changement de statut alors on enregistre les motifs/commentaires. -->
+                  <!-- La page principale (traitement.html) doit donc récupèrer les valeurs du formulaire de traitement, les assigner à ces 3 champs hidden et activer les champs -->
+                  <input type="hidden" name="codeMotifChoisi" id="codeMotifChoisiAffectation"
+                         disabled="disabled">
+                  <input type="hidden" name="commentaireUsager" id="commentaireUsagerAffectation"
+                         disabled="disabled">
+                  <input type="hidden" name="texteAEnvoyer" id="texteAEnvoyerAffectation"
+                         disabled="disabled">
 
-            <input type="hidden" name="pkDemande" id="affecterPkDemande"
-                   th:value="${demandeDTO.pkDemandes}"/>
-            <input type="hidden" name="activeTaskDefinitionKey"
-                   th:value="${activeTaskDefinitionKey}"/>
-            <select id="etablissementCode" required type="text" name="etablissementCode"
-                    class="form-control">
-              <option th:value="aucun">
-                Sélectionner un établissement
-              </option>
-              <option th:each="etablissement : ${etablissements}" th:value="${etablissement.code}"
-                      th:text="${etablissement.nom}">
-              </option>
-            </select>
-          </div>
-        </div>
-        <br/>
-        <div class="row">
-          <div class="col-xs-12 text-center margin-top">
-            <a href="#"
-               class="btn btn-action-second ripple-effect affecter-annuler"
-               style="margin-right: 10px">Annuler</a>
-            <input id="affecter-button" type="submit" name="action" value="Valider"
-                   class="btn btn-action"/>
-          </div>
+                  <input type="hidden" name="pkDemande" id="affecterPkDemande"
+                         th:value="${demandeDTO.pkDemandes}"/>
+                  <input type="hidden" name="activeTaskDefinitionKey"
+                         th:value="${activeTaskDefinitionKey}"/>
+                  <select id="etablissementCode" required type="text" name="etablissementCode"
+                          class="form-control">
+                    <option th:value="aucun">
+                      Sélectionner un établissement
+                    </option>
+                    <option th:each="etablissement : ${etablissements}"
+                            th:value="${etablissement.code}"
+                            th:text="${etablissement.nom}">
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <br/>
+              <div class="modal-footer">
+                <div class="row">
+                  <div class="col-xs-12 text-center margin-top">
+                    <a href="#"
+                       class="btn btn-action-second ripple-effect affecter-annuler"
+                       style="margin-right: 10px">Annuler</a>
+                    <input id="affecter-button" type="submit" name="action" value="Valider"
+                           class="btn btn-action"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-    </form>
+    </div>
   </div>
-</div>
-
-</body>
-</html>
+</th:block>

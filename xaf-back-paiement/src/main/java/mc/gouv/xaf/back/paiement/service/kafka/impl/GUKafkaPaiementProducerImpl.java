@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaPaiementProducerImpl.class);
@@ -38,15 +38,10 @@ public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
     }
 
     @Override
-    public void sendAffichagePaiementMessage(String userLegacyId, String procedureCode,
-            PaymentTypeEnum paymentType, String paymentMethodToken, LocalDateTime paymentDate, double paymentAmount,
-            String paymentStatus, String requestObject, String requestNumber, LocalDateTime requestDate, String paymentMethodExpiryDate, String paymentMethodAccount, String effectiveBrand, String link) {
+    public void sendAffichagePaiementMessage(AffichagePaiementMessage apm) {
         LOGGER.info(
                 "sendAffichagePaiementMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-        AffichagePaiementMessage apm = new AffichagePaiementMessage(gouvPropertiesResolver.getDemarcheId(), procedureCode,
-                userLegacyId, paymentType, paymentMethodToken, paymentDate, paymentAmount, paymentStatus, requestObject,
-                requestNumber, requestDate, paymentMethodExpiryDate, paymentMethodAccount, effectiveBrand, link);
-        sendToOutbox(apm, userLegacyId, GUKafkaUtils.TS_TO_GU_PAYMENT_TOPIC);
+        sendToOutbox(apm, apm.getUserLegacyId(), GUKafkaUtils.TS_TO_GU_PAYMENT_TOPIC);
     }
 
 

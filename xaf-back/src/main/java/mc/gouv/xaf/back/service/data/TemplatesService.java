@@ -1,8 +1,7 @@
 package mc.gouv.xaf.back.service.data;
 
-import mc.gouv.xaf.shared.dto.TemplateDTO;
-
 import java.util.List;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 /**
  * Service permettant la manipulation des templates.
@@ -10,13 +9,6 @@ import java.util.List;
  * @author qdeme
  */
 public interface TemplatesService {
-
-    /**
-     * Permet de récupérer le template correspondant à un TemplateID
-     *
-     * @return Le template demandé
-     */
-    TemplateDTO getTemplate(Integer templateId);
 
     /**
      * Permet de récupérer le template correspondant à un code template, et une langue
@@ -45,9 +37,9 @@ public interface TemplatesService {
     TemplateDTO saveOrUpdateTemplate(TemplateDTO template);
 
     /**
-     * Permet de supprimer un template à partir du TemplateID
+     * Permet de supprimer un template à partir du TemplateCode
      */
-    void deleteTemplate(Integer templateId);
+    void deleteTemplateByCode(String templateCode, String langue);
 
     /**
      * Permet de sauvegarder en base un template

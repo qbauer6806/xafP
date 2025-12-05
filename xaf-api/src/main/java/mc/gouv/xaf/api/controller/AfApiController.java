@@ -7,7 +7,6 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,11 +51,9 @@ import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
 
 /**
- * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
- * REST de Spring
+ * Controller exposant l'API REST destinée à être appelée par le FO.
  *
  * @author qdeme
- * @author fgaujous
  */
 @RestController
 @RequestMapping(value = "/api/v1", produces = "application/json")
@@ -98,16 +95,16 @@ public class AfApiController {
 
     @PutMapping(value = "/demandes/{demandeId}/lock")
     public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) {
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return new DemandeDTO();
+        return afApiService.lockDemande(demandeId, usagerId, timestamp);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/unlock")
     public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) {
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
-        return new DemandeDTO();
+        return afApiService.unlockDemande(demandeId, usagerId);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/complements/{icId}")
@@ -139,10 +136,11 @@ public class AfApiController {
     @GetMapping(value = "/demandespage")
     public @ResponseBody Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId,
             @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
-            @RequestParam String status, @RequestParam String lang) {
+            @RequestParam(required = false) List<String> status, @RequestParam String lang,
+            @RequestParam(required = false) List<String> statusSimplifie) {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
         Page<DemandeDTO> demandeDTOS = afApiService.getDemandesPageable(usagerId,
-                new PageParamDTO(page, size, sort, direction, status, lang));
+                new PageParamDTO(page, size, sort, direction, status, lang, statusSimplifie));
         demandesTransformer.hideInfosPageable(demandeDTOS.getContent());
         return demandeDTOS;
     }
@@ -236,7 +234,7 @@ public class AfApiController {
     public ResponseEntity getCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.getCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -244,7 +242,7 @@ public class AfApiController {
     public ResponseEntity postCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.postCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.postCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -252,7 +250,7 @@ public class AfApiController {
     public ResponseEntity putCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.putCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.putCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -260,7 +258,7 @@ public class AfApiController {
     public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return afApiService.deleteCustomRequest(request, usagerId);
     }
 
     @PostMapping(value = "/brouillons")
@@ -296,7 +294,8 @@ public class AfApiController {
     @DeleteMapping(value = "/file/{accessId}/{uuid}/{filename}")
     public void deleteFileRequest(@PathVariable(required = false) String accessId,
             @PathVariable(required = false) String uuid, @PathVariable(required = false) String filename) {
-        LOGGER.info("AbstractAfApiController.deleteFileRequest({},{},{})", accessId, uuid, filename);
+        LOGGER.info("AbstractAfApiController.deleteFileRequest({},{},{})", AfBackUtils.logSafe(accessId),
+                AfBackUtils.logSafe(uuid), AfBackUtils.logSafe(filename));
         afApiService.deleteFile("/" + accessId + "/" + uuid + "/" + filename);
     }
 
@@ -305,7 +304,8 @@ public class AfApiController {
             @RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page, @RequestParam int size,
             @RequestParam String sort, @RequestParam String direction) {
         LOGGER.info("AbstractAfApiController.getBrouillonsPageable({})", usagerId);
-        return afApiService.getBrouillonsPageable(usagerId, new PageParamDTO(page, size, sort, direction, null, null));
+        return afApiService.getBrouillonsPageable(usagerId,
+                new PageParamDTO(page, size, sort, direction, null, null, null));
     }
 
     @ExceptionHandler({ WebException.class })

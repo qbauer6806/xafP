@@ -1,10 +1,12 @@
 package mc.gouv.xaf.backweb.controller;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.CacheService;
 import mc.gouv.xaf.back.service.itg.logon.LogonClient;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.shared.dto.CacheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,25 +28,30 @@ import org.springframework.web.servlet.ModelAndView;
 public class GestionUtilisateursController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionUtilisateursController.class);
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private LogonClient logonClient;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private CacheService cacheService;
 
     @GetMapping
     public ModelAndView formUser(Model model) {
 
         LOGGER.info("Appel de la page /gestion/utilisateurs. Méthode formUser");
-        List<User> list = new ArrayList<>();
 
-        try {
-            list = logonClient.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
-        } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans formUser. Msg : {}", e.getMessage(), e);
-        }
+        ObjectMapper mapper = new ObjectMapper();
 
-        model.addAttribute("userList", list != null ? list : new ArrayList<>());
+        LOGGER.info("Appel de l'API LOGON...");
+        List<User> users = logonClient.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
+        CacheDTO logonUsersCache = new CacheDTO();
+        logonUsersCache.setPkCache("LOGON_USERS");
+        logonUsersCache.setData(mapper.valueToTree(users));
+        cacheService.updateCache(logonUsersCache);
+        model.addAttribute("userList", users);
         ModelAndView mav = new ModelAndView("gestion/utilisateurs/utilisateurs");
 
         LOGGER.info("======================= Fin /gestion/utilisateurs. Méthode formUser");

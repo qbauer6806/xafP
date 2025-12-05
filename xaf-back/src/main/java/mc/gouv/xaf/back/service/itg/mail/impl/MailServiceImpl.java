@@ -16,10 +16,10 @@ import java.util.TreeSet;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
-import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
@@ -52,9 +52,11 @@ public class MailServiceImpl implements MailService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
 
     private static final String XAF_NOTIFICATION_MAIL_AGENT = "XAF_NOTIFICATION_MAIL_AGENT";
+    private static final String BODY_TAG = "TEMPLATE_BODY";
+    private static final String SUBJECT_TAG = "TEMPLATE_SUBJECT";
 
     @Autowired
-    private TemplatesCache templatesCache;
+    private TemplatesService templatesService;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -158,13 +160,26 @@ public class MailServiceImpl implements MailService {
         return getSubjectAndBody(subjectTemplateCode, bodyTemplateCode, langue, model);
     }
 
+    @Override
+    public String[] getMailPreviewByText(String bodyTemplateText, String subjectTemplateText, String langue,
+            Map<String, Object> model) throws IOException {
+        LOGGER.info("MailServiceImpl.getMailPreviewByText({},{})", bodyTemplateText, subjectTemplateText);
+        return getSubjectAndBodyByText(subjectTemplateText, bodyTemplateText, langue, model);
+    }
+
     private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue,
             Map<String, Object> model) throws IOException {
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
-        TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
+        TemplateDTO templateBody = templatesService.getTemplateByCodeAndLangue(bodyTemplateCode, langue);
 
         LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
-        TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
+        TemplateDTO templateSubject = templatesService.getTemplateByCodeAndLangue(subjectTemplateCode, langue);
+
+        return getSubjectAndBodyByText(templateSubject.getContenu(), templateBody.getContenu(), langue, model);
+    }
+
+    private String[] getSubjectAndBodyByText(String templateSubject, String templateBody, String langue,
+            Map<String, Object> model) throws IOException {
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = getContext();
@@ -174,13 +189,13 @@ public class MailServiceImpl implements MailService {
             }
         }
         StringWriter output = new StringWriter();
-        if (!velocityEngine.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
+        if (!velocityEngine.evaluate(context, output, BODY_TAG, templateBody)) {
             throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailBodyToSend = output.toString();
         output = new StringWriter();
-        if (!velocityEngine.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
+        if (!velocityEngine.evaluate(context, output, SUBJECT_TAG, templateSubject)) {
             throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du subject n'a pas fonctionné.",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -199,7 +214,7 @@ public class MailServiceImpl implements MailService {
             InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
             String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             output = new StringWriter();
-            if (!velocityEngine.evaluate(context, output, templateBody.getCode(), contenu)) {
+            if (!velocityEngine.evaluate(context, output, BODY_TAG, contenu)) {
                 throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.",
                         HttpStatus.INTERNAL_SERVER_ERROR);
             }

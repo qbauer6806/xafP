@@ -87,7 +87,7 @@
 
       <div class="row">
         <div class="col-xs-12">
-          <a href="#" id="rechercherAutreUsager"
+          <a id="rechercherAutreUsager"
              class="btn btn-action ripple-effect">Rechercher un autre
             usager</a>
         </div>
@@ -187,12 +187,7 @@
   var ville = [[${usagerSourceDTO.ville}]];
   var usagerSourceId = [[${usagerSourceDTO.pkUsagersCourrier}]];
 
-  var urlTransfert = [[${transfererSupprimer} ? @{/gestion/usagers / transferersupprimer /
-  } : @{
-  /gestion/us
-  agers / transferer /
-  }]]
-  ;
+  var urlTransfert = [[${transfererSupprimer} ? @{/gestion/usagers/transferersupprimer/} : @{/gestion/usagers/transferer/}]];
 
   $(document).ready(function () {
 
@@ -226,7 +221,7 @@
         "targets": 0,
         "orderable": false
       }],
-      "order": [[2, 'asc']]
+      "order": [ [2, 'asc']]
 
     });
 

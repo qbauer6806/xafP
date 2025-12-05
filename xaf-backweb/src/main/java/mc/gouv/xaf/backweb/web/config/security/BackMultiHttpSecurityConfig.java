@@ -2,7 +2,6 @@ package mc.gouv.xaf.backweb.web.config.security;
 
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.backweb.web.config.security.filter.GouvPreAuthFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,26 +13,30 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 /**
  * @author mpavone
  */
+@Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
-@Configuration
 public class BackMultiHttpSecurityConfig {
 
-    @Autowired
-    private BackGouvPropertiesResolver propertiesResolver;
+    @Bean
+    public GouvAuthenticationProvider gouvAuthenticationProvider() {
+        return new GouvAuthenticationProvider();
+    }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests().requestMatchers("/monitor", "/css/**", "/js/**", "/font/**", "/img/**", "/webjars/**",
-                        "/h2-console/**", "/fonts/**", "/dynamicjs/**").permitAll().anyRequest().authenticated().and()
-                .exceptionHandling().accessDeniedPage("/error/403").and()
-                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
-                .addFilterBefore(gouvPreAuthFilterRegistration(), BasicAuthenticationFilter.class);
-        return http.build();
+    public GouvPreAuthFilter gouvPreAuthFilter(BackGouvPropertiesResolver propertiesResolver) {
+        return new GouvPreAuthFilter(propertiesResolver, gouvAuthenticationProvider());
     }
 
-    private GouvPreAuthFilter gouvPreAuthFilterRegistration() {
-        return new GouvPreAuthFilter(propertiesResolver);
-    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, GouvPreAuthFilter gouvPreAuthFilter)
+            throws Exception {
 
+        return http.authorizeHttpRequests(
+                        authz -> authz.requestMatchers("/monitor", "/css/**", "/js/**", "/font/**", "/img/**", "/webjars/**",
+                                "/h2-console/**", "/fonts/**", "/dynamicjs/**").permitAll().anyRequest().authenticated())
+                .exceptionHandling(ex -> ex.accessDeniedPage("/error/403"))
+                .securityContext(ctx -> ctx.requireExplicitSave(false))
+                .addFilterBefore(gouvPreAuthFilter, BasicAuthenticationFilter.class).build();
+    }
 }

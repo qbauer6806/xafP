@@ -3,6 +3,7 @@ package mc.gouv.xaf.api.config.security;
 import mc.gouv.xaf.api.config.filter.jwt.JwtAuthFilter;
 import mc.gouv.xaf.api.config.filter.jwt.JwtAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -24,29 +26,34 @@ public class MultiHttpSecurityConfig {
     @Value("${application.name}")
     private String applicationName;
 
-    @Value("${mc.gouv.${application.name}.apiserver.security.jwt.secret}")
+    @Value("${mc.gouv.appli.apiserver.security.jwt.secret}")
     private String secretValue;
 
     @Bean
-    public JwtAuthenticationProvider configureGlobal() {
-        return new JwtAuthenticationProvider(applicationName, secretValue);
+    public JwtAuthFilter jwtAuthFilter() {
+        return new JwtAuthFilter(jwtAuthenticationProvider());
     }
 
     @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider() {
+        return new JwtAuthenticationProvider(applicationName, secretValue);
+    }
+
+
+    @Bean
     @Order(2)
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/**");
-
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .requestMatchers("/*", "/swagger.json", "/swagger/*", "/h2-console/**").permitAll().anyRequest()
-                .authenticated();
-
-        http.addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable();
-        return http.build();
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        return http.securityMatcher("/api/**")
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        authz -> authz.requestMatchers("/", "/swagger.json", "/swagger/**", "/h2-console/**")
+                                .permitAll().anyRequest().authenticated()).csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
 
     @Bean
     @Order(1)
+    @ConditionalOnBean(JwtDecoder.class)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.securityMatcher("/api/v1/paiement/tarif", "/api/v1/paiement/debit", "/api/v1/paiement/rattrapageDebits",
                 "/api/v1/paiement/recuPaiement", "/api/v1/paiement").authorizeHttpRequests(auth -> {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class DemandesFilesServiceTestImpl implements DemandesFilesService {
@@ -62,9 +63,18 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<DemandeFileDTO> getFileByDemandeFileId(Integer pkDemandesFiles) {
+        return Optional.empty();
+    }
+
     @Override
     public void deleteFileByFileUrlAndId(String fileName, Integer fileId) {
 
     }
+
 
 }

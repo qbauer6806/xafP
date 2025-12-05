@@ -6,9 +6,8 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
-import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
+import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -38,13 +37,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     Page<DemandeBO> findAll(Pageable pageRequest);
 
-    Page<DemandeExportProjection> findAllBy(Pageable pageRequest);
-
     List<DemandeBO> findAllByIdentifiantIn(List<String> identifiants);
 
     List<DemandeBO> findAllByDernierStatut_Name(String dernierStatut);
-
-    Page<DemandeExportProjection> findAllByDernierStatut_Name(Pageable pageable, String dernierStatut);
 
     List<DemandeLightProjection> findAllByDernierStatut_NameIn(List<String> statuts);
 
@@ -54,33 +49,6 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     Optional<DemandeBO> findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(
             Integer usagerId, List<String> statuts, List<String> buildIds);
-
-    /**
-     * Permet de récupérer les demandes créées entre deux dates
-     */
-    Page<DemandeExportProjection> findByDateCreationBetween(Pageable pageRequest, Date startDate, Date endDate);
-
-    /**
-     * Permet de récupérer les demandes créées à partir d'une date donnée
-     */
-    Page<DemandeExportProjection> findByDateCreationGreaterThanEqual(Pageable pageRequest, Date startDate);
-
-    /**
-     * Permet de récupérer les demandes créées à jusqu'à une date donnée
-     */
-    Page<DemandeExportProjection> findByDateCreationLessThanEqual(Pageable pageRequest, Date endDate);
-
-    /**
-     * Permet de récupérer les demandes créées entre deux dates
-     */
-    Page<DemandeExportProjection> findByDateCreationBetweenAndDernierStatut_Name(Pageable pageRequest, Date startDate,
-            Date endDate, String dernierStatut);
-
-    /**
-     * Permet de récupérer les demandes créées à partir d'une date donnée
-     */
-    Page<DemandeExportProjection> findByDateCreationGreaterThanEqualAndDernierStatut_Name(Pageable pageRequest,
-            Date startDate, String dernierStatut);
 
     @Query("SELECT d.pkDemandes FROM DemandeBO d " + "JOIN d.dernierStatut ds "
             + "WHERE ds.date < :dernierStatutDateDebut " + "AND ds.name IN :dernierStatutList "
@@ -102,23 +70,21 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
             Date dernierStatutDateFin, List<String> dernierStatutList);
 
     /**
-     * Permet de récupérer les demandes créées à jusqu'à une date donnée
-     */
-    Page<DemandeExportProjection> findByDateCreationLessThanEqualAndDernierStatut_Name(Pageable pageable, Date endDate,
-            String dernierStatut);
-
-    /**
      * Récupération demandes de l'usager FRONT (paginée)
      */
-    @Query("select d from DemandeBO d inner join d.fkAccess fa inner join TraductionBO t on (d.dernierStatut.name = t.cle and t.langue = :langue) "
-            + "where fa.usagerId = :usagerId and fa.active = true and d.dernierStatut.name in :status")
-    Page<DemandeBO> findByUsagerIdAndStatuts(@Param("usagerId") Integer usagerId, @Param("status") String[] status,
-            @Param("langue") String langue, Pageable pageRequest);
+    Page<DemandeBO> findByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(Integer usagerId,
+            List<String> status, Pageable pageRequest);
 
-    @Query("select d.pkDemandes as pkDemandes, d.identifiant as identifiant, d.dateCreation as dateCreation, s.name as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.active = true and s.fkDemandes.pkDemandes = d.pkDemandes")
-    List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("usagerId") Integer usagerId);
+    Page<DemandeBO> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId, Pageable pageable);
+
+    List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
 
     boolean existsByAgent(DemandesAgentsBO agent);
 
     boolean existsByUsager(DemandesUsagersBO usager);
+
+    Optional<DemandeBO> findFirstByOrderByDateCreationDesc();
+
+
 }
+

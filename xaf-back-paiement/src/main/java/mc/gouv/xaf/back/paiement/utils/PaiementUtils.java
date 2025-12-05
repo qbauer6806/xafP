@@ -20,4 +20,8 @@ public class PaiementUtils {
         ZonedDateTime systemZdt = local.atZone(ZoneId.systemDefault());
         return systemZdt.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
     }
+
+    private PaiementUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 }

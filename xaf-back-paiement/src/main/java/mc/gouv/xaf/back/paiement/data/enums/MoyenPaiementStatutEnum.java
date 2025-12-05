@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.data.enums;
 
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 public enum MoyenPaiementStatutEnum {
     INVALIDE("INVALID"),
@@ -8,7 +7,7 @@ public enum MoyenPaiementStatutEnum {
     ENREGISTRE_A_LA_CREATION("ENREGISTRE_A_LA_CREATION"),
     EN_ATTENTE_DE_VALIDATION("EN_ATTENTE_DE_VALIDATION");
 
-    public String mwpaymtValue;
+    private String mwpaymtValue;
 
     MoyenPaiementStatutEnum(String libelle) {
         this.mwpaymtValue = libelle;

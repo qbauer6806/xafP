@@ -18,6 +18,7 @@ import org.apache.tika.exception.TikaException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.common.engine.api.FlowableTaskAlreadyClaimedException;
 import org.flowable.engine.FormService;
+import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.form.FormProperty;
@@ -41,6 +42,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
+    public static final String ANNULATION_MESSAGE = "annulationMessage";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -50,6 +52,8 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
+    @Autowired
+    private RepositoryService repositoryService;
 
     private void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
             Integer demandeId, Map<String, Object> businessVariables) {
@@ -256,22 +260,7 @@ public class GouvBPMImpl implements GouvBPM {
         LOGGER.info("Annulation de la demande {} par l'agent '{}' ou l'usager {}", demandeId, agent, usager);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
-                .messageEventSubscriptionName("annulationMessage").list();
-
-        List<ProcessInstance> activeInstances = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(demandeId.toString())
-                .list();
-
-        System.out.println("Nombre d'instances actives : " + activeInstances.size());
-
-
-        List<Execution> messageExecutions = runtimeService.createExecutionQuery()
-                .messageEventSubscriptionName("annulationMessage")
-                .list();
-
-        System.out.println("Nombre d'exécutions en attente du message 'annulationMessage' : " + messageExecutions.size());
-
-
+                .messageEventSubscriptionName(ANNULATION_MESSAGE).list();
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
@@ -283,21 +272,12 @@ public class GouvBPMImpl implements GouvBPM {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
         }
 
-        // Normalement il y en a une seule
-        List<ProcessInstance> allInstances = runtimeService.createProcessInstanceQuery().list();
-        for (ProcessInstance pi : allInstances) {
-            System.out.println("Instance active: id=" + pi.getId() + ", businessKey=" + pi.getBusinessKey());
-        }
-
-        LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,
-                executions.size());
-
         if (executions.isEmpty()) {
             throw new GouvBPMException("Aucune execution pour annuler la demande : " + demandeId);
         }
 
         for (Execution ex : executions) {
-            runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
+            runtimeService.messageEventReceived(ANNULATION_MESSAGE, ex.getId(), variables);
         }
     }
 
@@ -342,6 +322,35 @@ public class GouvBPMImpl implements GouvBPM {
         }
         completeTask(task, pkDemande);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getEngineVersion(Integer pkDemandes) {
+        ProcessInstance processInstance = this.getActiveProcessInstanceForDemandeId(pkDemandes);
+        if (processInstance == null) {
+            LOGGER.error("Aucun process instance pour la demande {}", pkDemandes);
+            return null;
+        }
+        // Récupérer la définition du process pour vérifier la version du moteur
+        return repositoryService.getProcessDefinition(processInstance.getProcessDefinitionId()).getEngineVersion();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void terminerProcess(Integer pkDemandes, String message) {
+        ProcessInstance processInstance = this.getActiveProcessInstanceForDemandeId(pkDemandes);
+        if (processInstance == null) {
+            LOGGER.error("Aucun process instance active à terminer pour la demande {}", pkDemandes);
+            return;
+        }
+        String processInstanceId = processInstance.getProcessInstanceId();
+        LOGGER.info("Suppression du process instance : {}", processInstanceId);
+        runtimeService.deleteProcessInstance(processInstanceId, message);
     }
 
 }

@@ -226,6 +226,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
+
     @Override
     public void updateFichiers(DemandeBO demandeBo, DemandeFileDTO[] fichiers) {
         // on supprime uniquement les fichiers front (on ne veut pas supprimer justifs ou autre après une rectification)
@@ -259,6 +260,18 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<DemandeFileDTO> getFileByDemandeFileId(Integer pkDemandesFiles) {
+        if (pkDemandesFiles == null) {
+            return Optional.empty();
+        }
+        Optional<DemandesFilesBO> demandesFilesBO = demandesFilesRepository.findById(pkDemandesFiles);
+        return demandesFilesBO.map(DemandesFilesTransformer::bo2Dto);
+    }
+
     @Override
     public void deleteFileByFileUrlAndId(String fileUrl, Integer fileId) {
         DemandesFilesBO entity = demandesFilesRepository.findById(fileId)
@@ -268,4 +281,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         demandesFilesRepository.delete(entity);
         fileService.deleteFile("ROOT", fileUrl);
     }
+
+
 }

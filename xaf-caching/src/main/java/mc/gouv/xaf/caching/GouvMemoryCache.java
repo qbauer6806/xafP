@@ -67,6 +67,9 @@ public class GouvMemoryCache<K, V> implements GouvCache<K, V> {
      */
     @Override
     public V get(K key, boolean forceUpdate) {
+        if (key == null) {
+            return null;
+        }
         V value = null;
         // S'il n'est pas encore temps de rafraîchir la clé... (ou qu'on ne force pas à le faire)
         if (!isTimeToRefreshSingleKey(key) && !forceUpdate) {

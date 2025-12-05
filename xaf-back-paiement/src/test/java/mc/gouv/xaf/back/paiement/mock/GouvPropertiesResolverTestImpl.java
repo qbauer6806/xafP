@@ -44,6 +44,11 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public long getUtilisateursCacheDuration() {
+        return 0;
+    }
+
+    @Override
     public String getGouvSharedLogonUrl() {
         return null;
     }
@@ -145,11 +150,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public String getGichuniUrl() {
-        return null;
-    }
-
-    @Override
-    public String getApplicationPrefix() {
         return null;
     }
 

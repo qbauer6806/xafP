@@ -16,10 +16,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +40,7 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
-import mc.gouv.xaf.back.data.projection.DemandeExportProjection;
+import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
@@ -60,8 +58,8 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
-import mc.gouv.xaf.back.service.demande.DeleteDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CloneDemandeExtender;
+import mc.gouv.xaf.back.service.demande.DeleteDemandeExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
@@ -88,7 +86,9 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
@@ -501,6 +501,11 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
+    public Optional<DemandeDTO> getDerniereDemande() {
+        return demandesRepository.findFirstByOrderByDateCreationDesc().map(demandesTransformer::bo2Dto);
+    }
+
+    @Override
     public List<DemandeDTO> getDemandesLight(Integer usagerId) {
         LOGGER.info(RECUPERATION_DEMANDES);
         checkAccess(usagerId);
@@ -530,33 +535,10 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
-    public Page<AfDemandeExcelFlatDTO> getAllDemandesFilteredByDateAndStatut(Pageable pageable, Date startDate,
-            Date endDate, String statut) {
-        Page<DemandeExportProjection> demandesPage;
-        if (statut == null) {
-            if (startDate != null && endDate != null) {
-                demandesPage = demandesRepository.findByDateCreationBetween(pageable, startDate, endDate);
-            } else if (startDate != null) {
-                demandesPage = demandesRepository.findByDateCreationGreaterThanEqual(pageable, startDate);
-            } else if (endDate != null) {
-                demandesPage = demandesRepository.findByDateCreationLessThanEqual(pageable, endDate);
-            } else {
-                demandesPage = demandesRepository.findAllBy(pageable);
-            }
-        } else {
-            if (startDate != null && endDate != null) {
-                demandesPage = demandesRepository.findByDateCreationBetweenAndDernierStatut_Name(pageable, startDate,
-                        endDate, statut);
-            } else if (startDate != null) {
-                demandesPage = demandesRepository.findByDateCreationGreaterThanEqualAndDernierStatut_Name(pageable,
-                        startDate, statut);
-            } else if (endDate != null) {
-                demandesPage = demandesRepository.findByDateCreationLessThanEqualAndDernierStatut_Name(pageable,
-                        endDate, statut);
-            } else {
-                demandesPage = demandesRepository.findAllByDernierStatut_Name(pageable, statut);
-            }
-        }
+    public Page<AfDemandeExcelFlatDTO> retrieveDemandesExcelPageable(Pageable pageable,
+            ExcelRechercheDTO excelRechercheDTO, long total) {
+        Page<DemandeExportDTO> demandesPage = rechercheDemandesUtils.getDemandesExcelPageable(excelRechercheDTO,
+                pageable, total);
 
         return demandesPage.map(demande -> {
             DemandeDTO dto = demandesTransformer.exportProjection2Dto(demande);
@@ -681,7 +663,8 @@ public class DemandesServiceImpl implements DemandesService {
         // transformer le motif
         String codeMotif = demande.getDernierStatut().getCodeMotif();
         if (codeMotif != null) {
-            demande.getDernierStatut().setCodeMotif(motifsCache.getMotif(codeMotif, "fr").getLibelle());
+            MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
+            demande.getDernierStatut().setCodeMotif(motif != null ? motif.getLibelle() : codeMotif);
         }
         byte[] bytes;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -995,9 +978,6 @@ public class DemandesServiceImpl implements DemandesService {
                 demandesFilesService.clonerDesFichiersInternes(originalDemandeBo, clonedDemandeBo);
             }
 
-            // Statuts des demandes
-            demandesStatutsService.clonerStatuts(originalDemandeBo, clonedDemandeBo);
-
             // Data des demandes
             demandesDataService.clonerDemandeData(originalDemandeBo, clonedDemandeBo);
 
@@ -1063,13 +1043,18 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, String[] status,
+    public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, List<String> status,
             PageParamDTO paramDTO) {
         String sortColumn = paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<DemandeBO> bos = demandesRepository.findByUsagerIdAndStatuts(usagerId, status, paramDTO.getLang(),
-                pageable);
+        Page<DemandeBO> bos;
+        if (status != null) {
+            bos = demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(usagerId, status,
+                    pageable);
+        } else {
+            bos = demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrue(usagerId, pageable);
+        }
         return demandesTransformer.boPage2DtoPage(bos);
     }
 
@@ -1172,35 +1157,9 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public AfDemandeExcelFlatIterable retrieveDemandesLazy(String plainStartDate, String plainEndDate, String statut) {
-        Date startDate = null;
-        Date endDate = null;
-
-        SimpleDateFormat frenchDateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
-        if (StringUtils.isNotEmpty(plainStartDate)) {
-            try {
-                startDate = frenchDateFormat.parse(plainStartDate);
-            } catch (ParseException e) {
-                throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-        if (StringUtils.isNotEmpty(plainEndDate)) {
-            try {
-                endDate = frenchDateFormat.parse(plainEndDate);
-            } catch (ParseException e) {
-                throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            // Last moment of days
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(endDate);
-            cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
-            cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
-            cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
-            endDate = cal.getTime();
-        }
-
-        return new AfDemandeExcelFlatIterable(this, startDate, endDate, statut);
+    public AfDemandeExcelFlatIterable retrieveDemandesExcel(ExcelRechercheDTO excelRecherche) {
+        long total = rechercheDemandesUtils.countDemandesExcel(excelRecherche);
+        return new AfDemandeExcelFlatIterable(this, excelRecherche, total);
     }
 
 }

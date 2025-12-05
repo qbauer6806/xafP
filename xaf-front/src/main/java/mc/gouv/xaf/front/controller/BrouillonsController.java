@@ -123,7 +123,7 @@ public class BrouillonsController extends XafFrontserverUtils {
         }
 
         try {
-            LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
+            LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", XafFrontserverUtils.logSafe(brouillonId));
             BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
 
             if (brouillonDto.getContenuInitial() != null) {

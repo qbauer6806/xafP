@@ -25,6 +25,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -84,26 +85,49 @@ public class FileController {
 
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
+    @Autowired
+    private DemandesFilesService demandesFilesService;
 
     public static final int DEFAULT_BUFFER_SIZE = 8192;
     private static final String LOG_PART = "Part à traiter : {}";
 
     @Secured("ROLE_LECTURE")
     @GetMapping(value = "/get/**")
-    @ResponseStatus(HttpStatus.OK) // 200
-    public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        LOGGER.info("====================== getFile()");
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> getFile(HttpServletRequest request,
+            @RequestParam(required = false) Integer pkDemandesFiles) throws IOException {
+        LOGGER.info("====================== getFile() - téléchargement");
 
         // Bugfix #41714 - Modification de la façon de récupération du chemin du fichier, suite à la migration Java 11,
         // cet élément reste encodé
-        String file = request.getServletPath();
-        file = file.replace("/ws/file/get/", "");
+        String file = request.getServletPath().replace("/ws/file/get/", "");
         LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
 
         // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
         String filePathEncoded = URLEncoder.encode(file, UTF_8);
-        fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId(), response);
-        LOGGER.info("====================== getFile() terminé, retour au client...");
+        ResponseEntity<InputStream> fileEntity = fileService.getFileEntity(filePathEncoded,
+                gouvPropertiesResolver.getContainerId());
+        InputStream body = fileEntity.getBody(); // Pour corriger l'erreur sonar java:S4449
+        if (!fileEntity.getStatusCode().is2xxSuccessful() || body == null) {
+            LOGGER.warn("Fichier introuvable pour le chemin : {}", file);
+            return ResponseEntity.notFound().build();
+        }
+        String nomFichierTelecharge = this.getNomFichierTelecharge(pkDemandesFiles, file);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomFichierTelecharge + "\"");
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        LOGGER.info("====================== getFile() terminé, Envoi du fichier '{}' au client", nomFichierTelecharge);
+        assert fileEntity.getBody() != null;
+        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(body));
+    }
+
+    private String getNomFichierTelecharge(Integer pkDemandesFiles, String file) {
+        String fileName = StringUtils.substringAfterLast(file, "/");
+        //On retourne la concaténation du type et le nom du fichier si présent sinon, le nom du fichier
+        return demandesFilesService.getFileByDemandeFileId(pkDemandesFiles).map(DemandeFileDTO::getTypedoc)
+                .filter(StringUtils::isNotBlank).map(type -> type + "_" + fileName).orElse(fileName);
     }
 
     @Secured("ROLE_LECTURE")

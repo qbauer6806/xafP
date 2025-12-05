@@ -53,4 +53,7 @@ public class DemandeInputDTO {
 
     private JsonNode donneesExternes;
 
+    // Champ pour solution 2/3 : fk vers la config stockée dans l'API GenTS (build_id). A stocker par système tiers.
+    private String buildId;
+
 }

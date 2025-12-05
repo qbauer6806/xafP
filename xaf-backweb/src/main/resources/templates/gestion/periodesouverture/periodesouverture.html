@@ -13,7 +13,7 @@
   <meta th:content="${_csrf.headerName}" th:name="_csrf_header"/>
 
 
-  <title th:text="${titre}"></title>
+    <title th:text="${nomDemarche}"></title>
 
   <!-- Import FONTS -->
   <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
@@ -26,6 +26,8 @@
   <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/element.css}"/>
   <link rel="stylesheet"
         th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+  <link rel="stylesheet"
+        th:href="@{/webjars/Eonasdan-bootstrap-datetimepicker/css/bootstrap-datetimepicker.css}"/>
   <link rel="shortcut icon" th:href="@{/img/favicon.ico}"
         type="image/x-icon"/>
   <link rel="stylesheet"

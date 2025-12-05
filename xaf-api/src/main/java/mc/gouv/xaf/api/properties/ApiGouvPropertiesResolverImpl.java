@@ -16,10 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class ApiGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl implements ApiGouvPropertiesResolver {
 
-    @Value("${mc.gouv.${application.name}.apiserver.gichkey.client_id}")
+    @Value("${mc.gouv.appli.apiserver.gichkey.client_id}")
     private String gichkeyClientId;
 
-    @Value("${mc.gouv.${application.name}.apiserver.gichkey.client_secret}")
+    @Value("${mc.gouv.appli.apiserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
 
     @Override

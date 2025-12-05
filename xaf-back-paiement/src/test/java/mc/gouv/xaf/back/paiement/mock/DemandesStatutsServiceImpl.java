@@ -37,8 +37,4 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         return List.of();
     }
 
-    @Override
-    public void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo) {
-
-    }
 }

@@ -218,33 +218,4 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         return DemandesStatutsTransformer.bo2Dto(new ArrayList<>(demandeBo.getStatuts()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo) {
-        // Cette variable sert à stocker le futur dernier statut
-        DemandesStatutsBO dernierStatutBo = null;
-        if (demandeBo.getStatuts() != null) {
-            LOGGER.info("Duplication des statuts de la demande");
-            List<DemandeStatutDTO> statutsDto = DemandesStatutsTransformer.bo2Dto(
-                    new ArrayList<>(demandeBo.getStatuts()));
-            List<DemandesStatutsBO> statutsBo = new ArrayList<>();
-            for (DemandeStatutDTO statutDto : statutsDto) {
-                DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
-                statutBo.setPkDemandesStatuts(null);
-                statutBo.setFkDemandes(newDemandeBo);
-                demandesStatutsRepository.save(statutBo);
-                statutsBo.add(statutBo);
-                if (demandeBo.getDernierStatut().getPkDemandesStatuts().equals(statutDto.getPkStatut())) {
-                    // Il s'agit du dernier statut de la demande
-                    dernierStatutBo = statutBo;
-                }
-            }
-            newDemandeBo.setStatuts(new HashSet<>(statutsBo));
-        }
-
-        // "Dernier statut" d'une demande
-        newDemandeBo.setDernierStatut(dernierStatutBo);
-    }
 }

@@ -22,6 +22,12 @@ APP.buildDefaultDatafunction = function (params) {
   //sort=identifiant,desc
   params.sort = columns[params.order[0].column].data + ","
       + params.order[0].dir;
+
+  if (!params.fields || params.fields.length === 0) {
+    params.fields = 'data';
+  } else if (!params.fields.includes('data')) {
+    params.fields += ',data';
+  }
 }
 
 APP.getConfigurationDataTableCourriers = function (columns, imprimes) {

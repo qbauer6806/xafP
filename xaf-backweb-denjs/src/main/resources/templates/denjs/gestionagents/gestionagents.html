@@ -11,7 +11,7 @@
   <meta th:name="_csrf" th:content="${_csrf.token}"/>
   <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 
-  <title th:text="${titre}"></title>
+  <title th:text="${nomDemarche}"></title>
 
   <!-- Import FONTS -->
   <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
@@ -190,7 +190,10 @@
       e.preventDefault();
 
       $('#agentMatricule').val($(this).data('agentmatricule'));
-
+      const etablissementCode = $(this).data('etablissementcode');
+      if (etablissementCode) {
+        $('#etablissementCode').val(etablissementCode);
+      }
       $('#editionModal').modal();
       return true;
     });

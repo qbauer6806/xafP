@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
 
 @Controller
 @RequestMapping("/demandespage")
@@ -33,8 +34,11 @@ public class DemandesPageableController extends AbstractXafController {
             @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
             @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
             @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
-            @RequestParam(name = RequestConstant.STATUS_PARAM) String status,
-            @RequestParam(name = RequestConstant.LANG_PARAM) String lang, HttpServletRequest request) {
+            @RequestParam(name = RequestConstant.STATUS_PARAM, required = false) List<String> status,
+            @RequestParam(name = RequestConstant.LANG_PARAM) String lang,
+            @RequestParam(name = RequestConstant.STATUS_SIMPLIFIE_PARAM, required = false) List<String> statusSimplifie,
+            HttpServletRequest request
+    ) {
 
         LOGGER.info("====================== /demandespage doGet()");
 
@@ -68,11 +72,14 @@ public class DemandesPageableController extends AbstractXafController {
         if (StringUtils.isNotBlank(direction)) {
             paramDTO.setDirection(direction);
         }
-        if (StringUtils.isNotBlank(status)) {
+        if (status != null) {
             paramDTO.setStatus(status);
         }
         if (StringUtils.isNotBlank(lang)) {
             paramDTO.setLang(lang);
+        }
+        if (statusSimplifie != null) {
+            paramDTO.setStatusSimplifie(statusSimplifie);
         }
 
         try {

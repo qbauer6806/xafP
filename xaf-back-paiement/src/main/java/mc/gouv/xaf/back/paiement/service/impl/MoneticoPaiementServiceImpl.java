@@ -39,9 +39,9 @@ import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.BillingDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -54,10 +54,7 @@ import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -368,7 +365,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<DemandeBO> demandes, LocalDateTime dateValidite,
+    public void updateDemandeData(List<DemandeBO> demandes, LocalDateTime dateValidite,
             MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());

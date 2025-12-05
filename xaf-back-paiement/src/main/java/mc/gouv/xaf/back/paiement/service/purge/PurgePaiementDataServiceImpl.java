@@ -125,12 +125,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
         }
 
         for (Integer pkDemande : pkDemandesPurge) {
-            demandesRepository.findById(pkDemande).ifPresent(demande -> {
-                guKafkaProducer.sendSuppressionPaiementMessage(
-                        demande.getIdentifiant(),
-                        String.valueOf(demande.getFkAccess().getUsagerId())
-                );
-            });
+            demandesRepository.findById(pkDemande).ifPresent(demande ->
+                    guKafkaProducer.sendSuppressionPaiementMessage(
+                            demande.getIdentifiant(),
+                            String.valueOf(demande.getFkAccess().getUsagerId())
+                    )
+            );
         }
     }
 }

@@ -1,9 +1,9 @@
 package mc.gouv.xaf.shared.dto;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class PageParamDTOTest {
 
@@ -15,23 +15,16 @@ class PageParamDTOTest {
         assertEquals("identifiant", paramDTO.getSort());
         assertEquals("ASC", paramDTO.getDirection());
         assertEquals("fr", paramDTO.getLang());
-        assertNotNull(paramDTO.getStatus());
-        assertEquals("[]", paramDTO.getStatus());
     }
 
     @Test
     void newPageParamDTOWithParamTest() {
-        PageParamDTO paramDTO = new PageParamDTO(2, 2, "date", "DESC", "[\"REFUSEE\",\"VALIDEE\"]", "en");
+        List<String> statuts = List.of("REFUSEE", "VALIDEE");
+        PageParamDTO paramDTO = new PageParamDTO(2, 2, "date", "DESC", statuts, "en", null);
         assertEquals(2, paramDTO.getPage());
         assertEquals(2, paramDTO.getSize());
         assertEquals("date", paramDTO.getSort());
         assertEquals("DESC", paramDTO.getDirection());
-        String status = paramDTO.getStatus();
-        assertEquals("[\"REFUSEE\",\"VALIDEE\"]", status);
-        String[] statusArray = paramDTO.getStatusArray();
-        assertEquals(2, statusArray.length);
-        assertEquals("REFUSEE", statusArray[0]);
-        assertEquals("VALIDEE", statusArray[1]);
         assertEquals("en", paramDTO.getLang());
     }
 

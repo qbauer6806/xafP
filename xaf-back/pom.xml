@@ -13,7 +13,7 @@
   <artifactId>xaf-back</artifactId>
 
   <properties>
-    <openhtml.version>1.1.28</openhtml.version>
+    <openhtml.version>1.1.29</openhtml.version>
     <xdocreport.version>2.1.0</xdocreport.version>
     <jxls.version>3.0.0</jxls.version>
   </properties>
@@ -52,21 +52,6 @@
     <artifactId>httpmime</artifactId>
     <version>4.5.14</version>
   </dependency>
-
-  <dependency>
-    <groupId>com.googlecode.json-simple</groupId>
-    <artifactId>json-simple</artifactId>
-    <version>1.1.1</version>
-  </dependency>
-
-
-
-
-  <dependency>
-      <groupId>com.fasterxml.uuid</groupId>
-      <artifactId>java-uuid-generator</artifactId>
-      <version>5.1.0</version>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
@@ -312,11 +297,6 @@
     </dependency>
 
 
-    <!-- Quartz -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-quartz</artifactId>
-    </dependency>
 
     <!-- Pour appeler l'API GICHUNI en OIDC -->
     <dependency>
@@ -333,13 +313,7 @@
     <dependency>
       <groupId>io.hypersistence</groupId>
       <artifactId>hypersistence-utils-hibernate-63</artifactId>
-      <version>3.9.10</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-openfeign</artifactId>
-      <version>4.3.0</version>
+      <version>3.10.3</version>
     </dependency>
 
     <dependency>
@@ -351,7 +325,6 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
-
   </dependencies>
 
 </project>

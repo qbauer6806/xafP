@@ -71,6 +71,7 @@
     input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
       background-color: #0F607C;
     }
+
   </style>
 
 </head>
@@ -86,7 +87,7 @@
   <div id="page-content-wrapper">
     <div class="breadcrumbContent">
       <div class="breadcrumb">
-        <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MODÈLES DE COURRIELS</span>
+        <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MODÈLES DE TEMPLATES MAIL</span>
       </div>
       <div class="triangleTopright"></div>
     </div>
@@ -94,31 +95,50 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-xs-6">
-          <h1>administration des modèles de courriels</h1>
+          <h1>Administration des templates mails</h1>
         </div>
         <div class="col-xs-6 text-right">
+
+          <a th:href="@{/gestion/template/create}" id="createTemplate"
+             style="float: right; margin-left: 10px"
+             class="btn btn-action ripple-effect pull-right"><span>Créer un template mail</span></a>
+
+          <form th:action="@{/gestion/template/import-templates}" method="post"
+                enctype="multipart/form-data">
+            <input type="submit" value="Valider l'import"
+                   style="float: right; margin-left: 10px"
+                   id="submitImportConfigButtonButton"
+                   class="btn btn-action ripple-effect pull-right" disabled/>
+
+            <input type="file" name="file" value="Importer" style="margin-left: 10px"
+                   id="importConfigButtonButton" accept=".json"
+                   class="btn btn-action ripple-effect pull-right"/>
+          </form>
+
+          <a th:href="@{/gestion/template/export-templates}" id="exportCourrielsButton"
+             style="float: right; margin-left: 10px" class="btn btn-action ripple-effect pull-right">
+            <i class="icon-action_telecharger"></i> <span>Export JSON</span>
+          </a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 text-right">
 
 					<span th:if="${!frOnly}">
 						<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
 						<div class="toggle" style="display:inline-block; transform: translateY(35%);">
 							<label class="switch">
-								<input class="switch-input" id="switchLangue" type="checkbox" checked=""
-                       name="langue" value="LANGUE"/>
-								<input type="hidden" checked=""/>
+								<input class="switch-input" id="switchLangue" type="checkbox" checked="" name="langue" value="LANGUE" />
+								<input type="hidden" checked="" />
 								<span class="slider"></span>
 							</label>
 
 						</div>
 						<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
 					</span>
-
-          <button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
-                  name="exportSql" type="button"
-                  value="Export SQL" style="margin-left: 30px">
-            Export SQL
-          </button>
         </div>
       </div>
+
       <div class="row">
         <div class="col-xs-12 tableContent">
           <div class="tableTitle">modèles de courriels<span
@@ -144,17 +164,34 @@
 
   <!-- EDITION MODAL -->
   <div id="visualisationModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document" style="width: 70%">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
               aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Prévisualisation du template de mail - <span id="codeMailModal"></span></h4>
+          <h4 class="modal-title">Prévisualisation du template de mail<span id="codeMailModal"></span></h4>
         </div>
         <div class="modal-body">
-          <p><span style="font-weight: bold; text-decoration: underline">Titre de l'email :</span>
-            <span id="objetMailModal"></span></p>
-
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row">
+                <div class="col-xs-4">
+                  <label for="pkDemandeTest">Tester ce mail avec la demande (identifiant technique)<span class="required"></span>: </label>
+                </div>
+                <div class="col-xs-6">
+                  <input type="text" id="pkDemandeTest" th:object="${templateFormBean}" th:value="${pkDemandeTest}" class="form-control"/>
+                </div>
+                <div class="col-xs-2">
+                  <button class="btn btn-action ripple-effect" id="validerPkDemandePreview"
+                          name="validerPkDemandePreview" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div><h3 style="margin-bottom: 20px">Résultat prévisualisation :</h3></div>
           <p><span id="corpsMailModal"></span></p>
         </div>
       </div><!-- /.modal-content -->
@@ -162,12 +199,80 @@
   </div><!-- /.modal -->
   <!-- FIN EDITION MODAL -->
 
+  <!-- SUPPRESSION MODAL -->
+  <div id="suppressionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Voulez-vous réellement supprimer le template ? </h4>
+        </div>
+        <div class="modal-body">
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row" style="text-align: center">
+                <div class="col-md-12">
+                  <button class="btn btn-action-second ripple-effect"
+                          id="annulerSuppression"
+                          name="annulerSuppression" type="button"
+                          value="Annuler" style="margin-right: 20px"
+                          data-dismiss="modal" aria-label="Annuler">
+                    Annuler
+                  </button>
+                  <button class="btn btn-action ripple-effect" id="validerSuppression"
+                          name="validerSuppression" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN SUPPRESSION MODAL -->
+
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script th:src="@{/js/datetime-moment.js(${applicationBuildTimestamp})}"></script>
 
 <script th:inline="javascript">
+
+  var currentSubjectText = '';
+  var currentContentText = '';
+
+  var currentDeletionCode = '';
+  var currentDeletionLang = '';
+
+  var messagesSuccessList = /*[[${successMessages}]]*/'default';
+  var pkDemandeTest = /*[[${pkDemandeTest}]]*/;
+
+  if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+    $.each(messagesSuccessList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'success'
+      });
+    });
+  }
+
+  var messagesErrorList = /*[[${errorMessages}]]*/'default';
+
+  if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+    $.each(messagesErrorList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'danger'
+      });
+    });
+  }
+
 
   $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
 
@@ -211,6 +316,9 @@
       data: "date",
       keyword: false,
       render: function (data, type, template) {
+        if (!template.date) {
+          return "N/A";
+        }
         return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(template.date)
             .format("DD/MM/YYYY HH:mm:ss") + '</span>';
       }
@@ -221,9 +329,11 @@
       render: function (data, type, template, meta) {
         return '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
             '<i class="icon-action_editer"></i></button>' +
-            '<a href="' + APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue + '">' +
-            '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Modifier">' +
-            '<i class="icon-action_modifier"></i></a>';
+            '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '" ' +
+            'onclick="window.location.href=\''+ APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue +'\'">' +
+            '<i class="icon-action_modifier"></i></button>' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-ligne="' + meta.row + '" onclick="openSuppressionModal(\'' + template.code + '\', \'' + template.langue + '\')">' +
+            '<i class="icon-action_supprimer"></i></button>';
       }
     }];
 
@@ -237,35 +347,89 @@
     return indexTemplate;
   };
 
-  function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
+  function openSuppressionModal(templateCode, templateLangue) {
+    currentDeletionCode = templateCode;
+    currentDeletionLang = templateLangue;
+    $('#validerSuppression').click(function () {
+      deleteTemplate();
+      return true;
+    })
+    $('#suppressionModal').modal();
   }
 
-  var exportSQLGlobal = function (templateList, tsCode) {
-    var sqlFinal = "";
-    templateList.forEach(function (template) {
-      sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
-      sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
-      sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
-      sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
+  function deleteTemplate() {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    $.ajax({
+      url: APP.getContextPath() + '/gestion/template/' + currentDeletionLang + '/' + currentDeletionCode,
+      type: 'DELETE',
+      beforeSend: function (xhr) { xhr.setRequestHeader(header, token); },
+      success: function (data) {
+
+        $('#suppressionModal').modal('hide');
+
+        const msg = (data && data.message) || 'Template supprimé avec succès';
+        $.notify({ message: msg }, { type: 'success' });
+
+        var table = $('#datatable-templates').DataTable();
+        table.rows(function (idx, row) {
+          return row.code === currentDeletionCode;
+        }).remove().draw();
+
+        $("#templatesCounter").text(table.data().length);
+      },
+      error: function (xhr) {
+        let msg = "Une erreur est survenue.";
+        try { msg = JSON.parse(xhr.responseText)?.message || msg; } catch(e){}
+        $.notify({ message: msg }, { type: 'danger' });
+      }
     });
-    return sqlFinal;
+  }
+
+  var makePreviewCall = function (pkDemande) {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    var body = {
+      subjectText: currentSubjectText,
+      templateText: currentContentText,
+      codeMotifChoisi: null,
+      pkDemande: pkDemande,
+      commentaire: "** Commentaire à envoyer **",
+      texteAEnvoyer: "** Texte à envoyer **"
+    };
+
+    $.ajax({
+      url: APP.getContextPath() + '/ws/mailpreview-by-text',
+      type: 'post',
+      contentType: 'application/json',
+      data: JSON.stringify(body),
+      dataType: "html",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader(header, token);
+        $('#visualisationModal').modal();
+        $('#corpsMailModal').html("Chargement en cours...");
+      },
+      success: function (data) {
+        $('#corpsMailModal').html(data);
+      },
+      error: function (xhr, status, error) {
+        const msg =JSON.parse(xhr.responseText)?.message || "Une erreur est survenue.";
+        $.notify({message: msg}, {type: 'danger'});
+      }
+    });
   };
+
+  $("#validerPkDemandePreview").click(function () {
+    makePreviewCall($('#pkDemandeTest').val());
+    return true;
+  });
 
   /*<![CDATA[*/
   $(document).ready(function () {
     var urlModif = /*[[@{/gestion/template/update}]]*/[];
     var templateList = /*[[${templateList}]]*/[];
-    var tsCode = /*[[(${tsCode})]]*/;
 
     // Ici nous transformons la liste des DTO des templates en une liste compréhensible par les gestionnaires
     // On regroupera donc les templates objet + corps
@@ -309,7 +473,7 @@
       searching: true,
       select: false,
       bInfo: false,
-      order: [ [0, "desc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
+      order: [ [3, "desc"], [0, "asc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
       columns: columnsProperties,
       data: templateListRegrouped,
       language: frenchTranslation
@@ -318,36 +482,42 @@
     // Filtrer par FR au départ
     table.columns(3).search('fr', true, false).draw();
 
-
     table.on('click', 'button.boutonVisualiser', function (e) {
       e.preventDefault();
       isCreate = false;
 
       var ligne = $(this).data("ligne");
       var contenuMail = table.row(ligne).data();
-      $('#objetMailModal').html(contenuMail.objet);
-      $('#corpsMailModal').html(contenuMail.corps);
-      $('#codeMailModal').html(contenuMail.code);
+
+      currentSubjectText = contenuMail.objet
+      currentContentText = contenuMail.corps
+
+      makePreviewCall(pkDemandeTest);
 
       $('#visualisationModal').modal();
 
       return true;
     });
 
+    $('#importConfigButtonButton').change(function () {
+      const fileInput = document.getElementById('importConfigButtonButton');
 
-    $("#switchLangue").click(function () {
+      if (fileInput.files.length > 0) {
+        $('#submitImportConfigButtonButton').prop('disabled', false);// Active le bouton si un fichier est sélectionné
+      } else {
+        $('#submitImportConfigButtonButton').prop('disabled', true); // Désactive le bouton si aucun fichier n'est sélectionné
+      }
+    });
+
+    $("#switchLangue").click(function() {
       // false == anglais --- true == francais
-      if (this.checked) {
+      if(this.checked) {
         table.columns(3).search('fr', true, false).draw();
       } else {
         table.columns(3).search('en', true, false).draw();
       }
     });
 
-    $("#exportSqlBouton").click(function () {
-      var sqlGenere = exportSQLGlobal(templateListRegrouped, tsCode);
-      download("exportSQL-global.sql", sqlGenere);
-    });
   });
   /*]]>*/
 </script>

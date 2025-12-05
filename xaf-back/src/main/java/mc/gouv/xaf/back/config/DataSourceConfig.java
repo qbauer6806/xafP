@@ -29,53 +29,53 @@ public class DataSourceConfig {
     @Value("${mc.gouv.database.class}")
     private String driver;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.url}")
+    @Value("${mc.gouv.appli.shared.backapi.database.url}")
     private String url;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.user}")
+    @Value("${mc.gouv.appli.shared.backapi.database.user}")
     private String user;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.pass}")
+    @Value("${mc.gouv.appli.shared.backapi.database.pass}")
     private String pass;
 
     // Optionnel
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.minIddle:0}")
+    @Value("${mc.gouv.appli.shared.backapi.database.minIddle:0}")
     private String minIddle;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.maxIddle:5}")
+    @Value("${mc.gouv.appli.shared.backapi.database.maxIddle:5}")
     private String maxIddle;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.removeAbandoned:false}")
+    @Value("${mc.gouv.appli.shared.backapi.database.removeAbandoned:false}")
     private String removeAbandoned;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.removeAbandonedTimout:60}")
+    @Value("${mc.gouv.appli.shared.backapi.database.removeAbandonedTimout:60}")
     private String removeAbandonedTimout;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.maxWait:5000}")
+    @Value("${mc.gouv.appli.shared.backapi.database.maxWait:5000}")
     private String maxWait;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.maxActive:5}")
+    @Value("${mc.gouv.appli.shared.backapi.database.maxActive:5}")
     private String maxActive;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.initialSize:0}")
+    @Value("${mc.gouv.appli.shared.backapi.database.initialSize:0}")
     private String initialSize;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.connectionProperties:}")
+    @Value("${mc.gouv.appli.shared.backapi.database.connectionProperties:}")
     private String connectionProperties;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.testOnBorrow:true}")
+    @Value("${mc.gouv.appli.shared.backapi.database.testOnBorrow:true}")
     private String testOnBorrow;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.validationQuery:SELECT 1}")
+    @Value("${mc.gouv.appli.shared.backapi.database.validationQuery:SELECT 1}")
     private String validationQuery;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.validationInterval:30000}")
+    @Value("${mc.gouv.appli.shared.backapi.database.validationInterval:30000}")
     private String validationInterval;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.testWhileIddle:true}")
+    @Value("${mc.gouv.appli.shared.backapi.database.testWhileIddle:true}")
     private String testWhileIddle;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.timeBetweenEvictionRunsMillis:60000}")
+    @Value("${mc.gouv.appli.shared.backapi.database.timeBetweenEvictionRunsMillis:60000}")
     private String timeBetweenEvictionRunsMillis;
 
     /**

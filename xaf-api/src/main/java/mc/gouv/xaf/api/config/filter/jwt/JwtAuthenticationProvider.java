@@ -5,9 +5,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.crypto.SecretKey;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -47,9 +48,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private static final String JWT_PAYLOAD_SHARED = "shared";
 
-    private String applicationName;
+    private final String applicationName;
 
-    private String secretValue;
+    private final String secretValue;
 
     public JwtAuthenticationProvider(String applicationName, String secretValue) {
         this.applicationName = applicationName;
@@ -59,8 +60,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     @SuppressWarnings("unchecked")
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        Jws<Claims> jws = null;
-        List<String> roles = null;
+        Jws<Claims> jws;
+        List<String> roles;
         JwtAuthToken authenticationJwt = (JwtAuthToken) authentication;
         try {
             jws = verify(authenticationJwt.getToken());
@@ -70,12 +71,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 throw new BadCredentialsException("Aucun algorithme mentionné pour la signature du jwt");
             }
             String algo = (String) algoObj;
-            if (!StringUtils.equals(algo, SignatureAlgorithm.HS256.name())) {
+            if (!StringUtils.equals(algo, Jwts.SIG.HS256.getId())) {
                 LOGGER.error("algorithme utilisé : {} != HS256", algo);
                 throw new BadCredentialsException("Erreur dans l'algorithme utilisé pour la signature du jwt");
             }
 
-            Map<?, ?> mapGouvProperties = (Map<?, ?>) jws.getBody().get(JWT_PAYLOAD_GOUV);
+            Map<?, ?> mapGouvProperties = (Map<?, ?>) jws.getPayload().get(JWT_PAYLOAD_GOUV);
             if (mapGouvProperties == null) {
                 LOGGER.error("gouv manquant dans le token JWT");
                 throw new BadCredentialsException("Element gouv manquant dans le JWT");
@@ -111,7 +112,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Erreur lors de la vérification du token JWT");
         }
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        String subject = jws.getBody().getSubject();
+        String subject = jws.getPayload().getSubject();
         if (StringUtils.isBlank(subject)) {
             LOGGER.error("sub manquant dans le token JWT");
             throw new BadCredentialsException("Element sub manquant dans le JWT");
@@ -147,7 +148,9 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new DemarcheException(
                     "Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
         }
-        return Jwts.parser().setSigningKey(secretValue.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token);
+        SecretKey key = Keys.hmacShaKeyFor(secretValue.getBytes(StandardCharsets.UTF_8));
+
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
     }
 
     @Override

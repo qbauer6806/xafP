@@ -54,7 +54,7 @@ public class AnnulationController extends AbstractXafController {
         }
 
         Integer usagerId = usagerInfosDTO.getId();
-        LOGGER.info("UsagerID={}, DemandeID={}", usagerId, demandeId);
+        LOGGER.info("UsagerID={}, DemandeID={}", usagerId, XafFrontserverUtils.logSafe(demandeId));
 
         LOGGER.info("Appel à la démarche...");
         AfApiClient afApiClient = getAfApiClient();

@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +121,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             try {
                 String contentString = new String(content, contentEncoding);
                 for (String line : contentString.split("\r\n|\r|\n")) {
-                    LOGGER.info("{} {}", prefix, line);
+                    LOGGER.info("{} {}", prefix, AfBackUtils.logSafe(line));
                 }
             } catch (UnsupportedEncodingException e) {
                 LOGGER.info("{} [{} bytes content]", prefix, content.length);

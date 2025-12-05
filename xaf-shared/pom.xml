@@ -12,11 +12,6 @@
 
   <artifactId>xaf-shared</artifactId>
 
-  <properties>
-    <buildDate>${maven.build.timestamp}</buildDate>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>jakarta.validation</groupId>
@@ -26,10 +21,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -64,10 +55,11 @@
         </exclusion>
       </exclusions>
     </dependency>
-      <dependency>
-          <groupId>org.quartz-scheduler</groupId>
-          <artifactId>quartz</artifactId>
-      </dependency>
+    <!-- Quartz -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-quartz</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

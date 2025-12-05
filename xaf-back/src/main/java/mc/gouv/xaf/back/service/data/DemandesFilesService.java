@@ -6,6 +6,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service permettant la manipulation des fichiers joints aux demandes.
@@ -64,7 +65,17 @@ public interface DemandesFilesService {
      */
     void suppressionDesFichiers(DemandeDTO demandeDTO);
 
+
+
+    /**
+     * Récupère un objet DemandeFileDTO à partir de l’identifiant fourni.
+     *
+     * @param pkDemandesFiles
+     *         L’identifiant du fichier à récupérer.
+     * @return Un Optional contenant le DemandeFileDTO s’il est trouvé, ou un Optional vide si aucun fichier n’est
+     *         associé à l’identifiant fourni.
+     */
+    Optional<DemandeFileDTO> getFileByDemandeFileId(Integer pkDemandesFiles);
+
     void deleteFileByFileUrlAndId(String fileName, Integer fileId);
-
-
 }

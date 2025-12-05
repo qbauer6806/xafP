@@ -35,12 +35,12 @@ public class PaiementController extends AbstractXafController {
      * Interface Retour
      */
     @PostMapping(value = { "/paiement" })
-    public ResponseEntity processPaiement(HttpServletRequest request) {
+    public ResponseEntity<String> processPaiement(HttpServletRequest request) {
         LOGGER.info("====================== /paiement doPost()");
         return processPaiementMonetico(request);
     }
 
-    private ResponseEntity processPaiementMonetico(HttpServletRequest request) {
+    private ResponseEntity<String> processPaiementMonetico(HttpServletRequest request) {
         try {
             LOGGER.info("Vérification de la présence de la clé MAC...");
             if (request.getParameter("MAC") == null) {
@@ -74,7 +74,7 @@ public class PaiementController extends AbstractXafController {
             if (StringUtils.isNotEmpty(texteLibre)) {
                 moneticoResponseDTO.setTexteLibre(texteLibre);
             }
-            String sResult = getMoneticoApiClient().updatePaiementStatus(moneticoResponseDTO);
+            String sResult = xafFrontserverUtils.getMoneticoApiClient().updatePaiementStatus(moneticoResponseDTO);
             LOGGER.info("sResult = {}", sResult);
             LOGGER.info("response = version=2\ncdr={}", sResult);
             LOGGER.info("====================== Fin /paiement doPost()\n");

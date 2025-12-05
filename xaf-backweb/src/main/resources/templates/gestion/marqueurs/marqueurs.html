@@ -13,7 +13,7 @@
   <meta th:content="${_csrf.headerName}" th:name="_csrf_header"/>
 
 
-  <title th:text="${titre}"></title>
+  <title th:text="${nomDemarche}"></title>
 
   <!-- Import FONTS -->
   <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
@@ -154,6 +154,7 @@
               <tr>
                 <th>Clé</th>
                 <th>Valeur</th>
+                <th th:if="!${isFrenchOnly}">Valeur (EN)</th>
               </tr>
               </thead>
               <tbody>
@@ -374,27 +375,47 @@
       e.preventDefault();
 
       $('#titreOptions').html($(this).data('identifiant'));
-
       $('#optionsTable tbody').empty();
 
       var encodedOptions = $(this).data('options');
       if (encodedOptions) {
         try {
           var optionsString = decodeURIComponent(encodedOptions);
-
           var options = JSON.parse(optionsString);
 
-          for (var key in options) {
-            if (options.hasOwnProperty(key)) {
-              var value = options[key];
-              $('#optionsTable tbody').append('<tr><td>' + key + '</td><td>' + value + '</td></tr>');
+          // Vérifie si le JSON contient des clés "fr" et "en"
+          var isBilingual = options.hasOwnProperty('fr') && options.hasOwnProperty('en');
+
+          if (isBilingual) {
+            var optionsFr = options.fr || {};
+            var optionsEn = options.en || {};
+
+            for (var key in optionsFr) {
+              if (optionsFr.hasOwnProperty(key)) {
+                var valFr = optionsFr[key];
+                var valEn = optionsEn[key] || '';
+                $('#optionsTable tbody').append(
+                    '<tr><td>' + key + '</td><td>' + valFr + '</td><td>' + valEn + '</td></tr>'
+                );
+              }
+            }
+          } else {
+            // Sinon, format simple (FR uniquement)
+            for (var key in options) {
+              if (options.hasOwnProperty(key)) {
+                var value = options[key];
+                $('#optionsTable tbody').append(
+                    '<tr><td>' + key + '</td><td>' + value + '</td><td></td></tr>'
+                );
+              }
             }
           }
         } catch (e) {
           console.error('Failed to parse options JSON', e);
+          $('#optionsTable tbody').append('<tr><td colspan="3">Erreur de parsing du JSON</td></tr>');
         }
       } else {
-        $('#optionsTable tbody').append('<tr><td colspan="2">No options available</td></tr>');
+        $('#optionsTable tbody').append('<tr><td colspan="3">Aucune option disponible</td></tr>');
       }
 
       $('#optionsModal').modal();

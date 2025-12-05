@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.data.transformer;
 import java.util.ArrayList;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
@@ -38,7 +39,8 @@ public class BrouillonsTransformer {
         dto.setMeta(bo.getMeta());
         dto.setContenu(bo.getContenu());
         dto.setContenuInitial(bo.getContenuInitial());
-        dto.setBuildId(bo.getConfig().getBuildId());
+        DemandeConfigBO demandeConfigBO = bo.getConfig();
+        dto.setBuildId(demandeConfigBO != null ? demandeConfigBO.getBuildId() : null);
         dto.setRecapType(bo.getRecapType());
         return dto;
     }
@@ -86,7 +88,7 @@ public class BrouillonsTransformer {
 
     public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated,
             String lastBuildId) {
-        if (brouillonDTO.getBuildId().equals(lastBuildId)) {
+        if (lastBuildId.equals(brouillonDTO.getBuildId())) {
             // statut not transmitted
             setDernierStatut(brouillonDTO, notTransmitted);
         } else {

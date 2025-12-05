@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -71,6 +70,7 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
+import mc.gouv.xaf.shared.dto.TypedocDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -78,7 +78,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
@@ -94,11 +93,11 @@ import org.springframework.stereotype.Component;
 public class AfBackUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackUtils.class);
-    
+
     public static final String SMS_ENVOYE_STATUT = "Envoyé";
 
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
-    
+
     public static final String SMS_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     public static final String STATUT_PUBLIC_SUPPRIMEE = "SUPPRIMEE";
@@ -154,7 +153,7 @@ public class AfBackUtils {
     private MailClient mailClient = null;
 
     private FileClient fileClient = null;
-    
+
     private SmsClient smsClient = null;
 
     private NomenClient nomenClient = null;
@@ -210,6 +209,7 @@ public class AfBackUtils {
 
     /* pour n'utiliser qu'une seule instance d'objectmapper (threadsafe). */
     static final ObjectMapper mapper = new ObjectMapper();
+
     static {
         mapper.registerModule(new JavaTimeModule()); // pour la gestion des OffsetDateTime
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -243,12 +243,15 @@ public class AfBackUtils {
         }
         return isoCodeMap.get(alpha3Code);
     }
+
     /**
      * Convertit un code ISO Alpha-2 en code ISO Alpha-3.
      *
-     * @param alpha2   Code ISO Alpha-2 à convertir.
-     * @param fromPays Indique si la conversion concerne un pays (true) ou une nationalité (false).
-     * @return         Le code ISO Alpha-3 correspondant, ou null si le code Alpha-2 est invalide ou inconnu.
+     * @param alpha2
+     *         Code ISO Alpha-2 à convertir.
+     * @param fromPays
+     *         Indique si la conversion concerne un pays (true) ou une nationalité (false).
+     * @return Le code ISO Alpha-3 correspondant, ou null si le code Alpha-2 est invalide ou inconnu.
      */
     public String getAlpha3IsoCodeFromAlpha2(String alpha2, boolean fromPays) {
         if (StringUtils.isBlank(alpha2)) {
@@ -267,9 +270,11 @@ public class AfBackUtils {
     /**
      * Convertit un code ISO Alpha-3 en code ISO Alpha-2.
      *
-     * @param alpha3   Code ISO Alpha-3 à convertir.
-     * @param fromPays Indique si la conversion concerne un pays (true) ou une nationalité (false).
-     * @return         Le code ISO Alpha-2 correspondant, ou null si le code Alpha-3 est invalide ou inconnu.
+     * @param alpha3
+     *         Code ISO Alpha-3 à convertir.
+     * @param fromPays
+     *         Indique si la conversion concerne un pays (true) ou une nationalité (false).
+     * @return Le code ISO Alpha-2 correspondant, ou null si le code Alpha-3 est invalide ou inconnu.
      */
     public String getAlpha2IsoCodeFromAlpha3(String alpha3, boolean fromPays) {
         if (StringUtils.isBlank(alpha3)) {
@@ -282,10 +287,8 @@ public class AfBackUtils {
         if (CollectionUtils.isEmpty(values)) {
             return null;
         }
-        return values.stream()
-                .filter(paysDTO -> StringUtils.equalsIgnoreCase(paysDTO.getCodeAlpha3(), alpha3))
-                .findFirst().map(PaysDTO::getCode)
-                .orElse(null);
+        return values.stream().filter(paysDTO -> StringUtils.equalsIgnoreCase(paysDTO.getCodeAlpha3(), alpha3))
+                .findFirst().map(PaysDTO::getCode).orElse(null);
     }
 
     /**
@@ -346,7 +349,7 @@ public class AfBackUtils {
         }
         return fileClient;
     }
-    
+
     public SmsClient getSmsClient() {
         if (smsClient == null) {
             String smsUrl = gouvPropertiesResolver.getSmsUrl();
@@ -475,8 +478,7 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne la classe CSS de la couleur associée à un statut
-     * Utilisé dans les fichiers html/thymeleaf
+     * Retourne la classe CSS de la couleur associée à un statut Utilisé dans les fichiers html/thymeleaf
      *
      * @param statutName
      * @return
@@ -486,13 +488,6 @@ public class AfBackUtils {
             return "default-status-color";
         }
         return statutName.toLowerCase().replace("_", "-");
-    }
-
-    /**
-     * Permet de récupérer le demandeur
-     */
-    public String getDemandeur(DemandeDTO demande) {
-        return demarchesDataProvider.getDemandeur(demande);
     }
 
     public String getCivilite(Short titre, String locale) {
@@ -556,6 +551,12 @@ public class AfBackUtils {
             return "";
         }
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
+    }
+
+    public static String genererTelephone(String indicatif, String numero) {
+        String indic = StringUtils.isNotBlank(indicatif) ? "(" + convertTelIndicateur(indicatif) + ") " : "";
+        String num = StringUtils.isNotBlank(numero) ? numero : "";
+        return indic + num;
     }
 
     /**
@@ -644,7 +645,7 @@ public class AfBackUtils {
     public boolean getDemarcheCanHandleProperties() {
         return demarchesDataProvider.getDemarcheCanHandleProperties();
     }
-    
+
     /**
      * Permet de savoir si la démarche envoie des SMS ou non
      *
@@ -739,10 +740,18 @@ public class AfBackUtils {
     }
 
     public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
-        Gson gson = new Gson();
-        return gson.fromJson(json, PropertiesListEntityDTO[].class);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(json, PropertiesListEntityDTO[].class);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de AfBackUtils.parserPropertiesListJson()", e);
+        }
+        return new PropertiesListEntityDTO[0];
     }
 
+    /**
+     * Utilisé dans certains exports excel
+     */
     public static String convertTelIndicateur(String indicateur) {
         return StringUtils.replace(indicateur, "t", "+");
     }
@@ -906,8 +915,10 @@ public class AfBackUtils {
     }
 
     private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
-        String donneeTableauValue = tableauDonneeNode != null && tableauDonneeNode.isTextual()
-                && !"null".equals(tableauDonneeNode.asText()) ? tableauDonneeNode.asText() : "";
+        String donneeTableauValue =
+                tableauDonneeNode != null && tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())
+                        ? tableauDonneeNode.asText()
+                        : "";
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 
@@ -1002,7 +1013,8 @@ public class AfBackUtils {
                     utilisateurAffecte = u.getNom();
                 }
             } catch (Exception exception) {
-                LOGGER.error("Erreur de recuperation de l'utilisateur affecté à la demande {} à partir de son matricule {}",
+                LOGGER.error(
+                        "Erreur de recuperation de l'utilisateur affecté à la demande {} à partir de son matricule {}",
                         demande.getPkDemandes(), agentId, exception);
             }
         }
@@ -1098,8 +1110,9 @@ public class AfBackUtils {
 
     public static boolean isDocumentsValidesActif(DemandeDTO demande) {
         List<DemandeFileDTO> fichiers = FileUtils.getAllFileDemande(demande);
-        return fichiers.stream().anyMatch(demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc())
-                && !"NON_APPLICABLE".equals(demandeFileDTO.getTypedoc()));
+        return fichiers.stream().anyMatch(
+                demandeFileDTO -> StringUtils.isNotBlank(demandeFileDTO.getTypedoc()) && !"NON_APPLICABLE".equals(
+                        demandeFileDTO.getTypedoc()));
     }
 
     public static boolean hasRole(final String role) {
@@ -1113,6 +1126,7 @@ public class AfBackUtils {
 
     /**
      * Remplacement des sauts de ligne par des balises <br> pour un affichage HTML correct
+     *
      * @param commentaire
      * @return
      */
@@ -1123,4 +1137,17 @@ public class AfBackUtils {
         return commentaire.replaceAll("\\r?\\n", "<br/>");
     }
 
+    public static String getInfoBulle(DemandeFileDTO file, List<TypedocDTO> liste) {
+        if (file == null || liste == null) {
+            return StringUtils.EMPTY;
+        }
+        String libelle = liste.stream().filter(f -> f.getKey().equals(file.getTypedoc())).map(TypedocDTO::getValue)
+                .findFirst().orElse("");
+        String[] metas = file.getMeta().split(";");
+        String agent = Arrays.stream(metas).filter(e -> e.startsWith("AGENT_NAME_")).findFirst().orElse("");
+        String agentName = StringUtils.substringAfter(agent, "AGENT_NAME_");
+        String date = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(file.getDate());
+        return String.format("%s importé le %s par %s sous la qualification de %s", file.getName(), date, agentName,
+                libelle);
+    }
 }

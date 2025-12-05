@@ -6,21 +6,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.backweb.web.config.security.GouvAuthenticationProvider;
 import mc.gouv.xaf.backweb.web.config.security.LogonAuthenticationToken;
 import mc.gouv.xaf.backweb.web.config.security.LogonBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Pour que GouvAuthenticationProvider.authenticate() puisse être appelé et puisse donc analyser le header "ksession"
- * pour appeler Logon afin d'effectuer l'authentification, il faut d'abord fournir un user/mdp à Spring en premier
- * lieu... or ce n'est pas ce que l'on souhaite. On souhaite simplement donner le ksession dans les headers HTTP. Du
- * coup, ce filter crée une authentification factice afin d'entrer dans le authenticate() qui vérifie le ksession
+ * Filtre pré-authentification pour la passerelle Logon.
+ * Ce filtre intercepte chaque requête afin de vérifier la présence du paramètre de session
+ * Gouv ("ksession"). Si celui-ci est présent, il crée un LogonAuthenticationToken
+ * et délègue l’authentification au GouvAuthenticationProvider.
+ * Cela permet d’utiliser un mécanisme d’authentification basé uniquement sur le "ksession"
+ * transmis dans la requête, sans demander à Spring Security de gérer un couple utilisateur/mot de passe.
+ * En cas d’absence ou d’échec d’authentification, l’utilisateur est redirigé vers la page
+ * de déconnexion du Logon partagé.
  *
  * @author qdeme
  */
@@ -28,54 +33,63 @@ public class GouvPreAuthFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvPreAuthFilter.class);
 
-    private BackGouvPropertiesResolver propertiesResolver;
+    private final BackGouvPropertiesResolver propertiesResolver;
+    private final GouvAuthenticationProvider gouvAuthenticationProvider;
 
-    public GouvPreAuthFilter(BackGouvPropertiesResolver propertiesResolver) {
+    public GouvPreAuthFilter(BackGouvPropertiesResolver propertiesResolver,
+            GouvAuthenticationProvider gouvAuthenticationProvider) {
         this.propertiesResolver = propertiesResolver;
+        this.gouvAuthenticationProvider = gouvAuthenticationProvider;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-            FilterChain filterChain) throws ServletException, IOException {
-        SecurityContext context = SecurityContextHolder.getContext();
-        String gouvSession = httpRequest.getParameter(LogonBean.GOUV_SESSION_REQUEST_PARAM);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
 
-        //On vérifie si GOUV_SESSION_REQUEST_PARAM n'est pas vide car ça se peut qu'une autre personne veuille se connecter sans déconnexion de la précédente au préalable
+        var context = SecurityContextHolder.getContext();
+        var gouvSession = request.getParameter(LogonBean.GOUV_SESSION_REQUEST_PARAM);
+
+        // Déjà authentifié et pas de nouvelle session => on continue
         if (context.getAuthentication() != null && context.getAuthentication().isAuthenticated() && StringUtils.isBlank(
                 gouvSession)) {
-            // do nothing
-        } else {
-
-            if (StringUtils.isBlank(gouvSession)) {
-                LOGGER.error("Session Logon inexistante dans la requête");
-                // redirection sur la page de logon
-                httpResponse.sendRedirect(propertiesResolver.getGouvSharedLogonUrl() + "/logout.jsp");
-                return;
-            }
-
-            String appRoot = httpRequest.getParameter(LogonBean.GOUV_APP_ROOT_REQUEST_PARAM);
-
-            if (StringUtils.isBlank(gouvSession)) {
-                LOGGER.error("appRoot inexistant dans la requête");
-                throw new BadCredentialsException("Invalid appRoot");
-            }
-
-            String appId = httpRequest.getParameter(LogonBean.GOUV_APP_ID_REQUEST_PARAM);
-
-            if (StringUtils.isBlank(appId)) {
-                LOGGER.error("appId inexistante dans la requête");
-                throw new BadCredentialsException("Invalid appId");
-            }
-
-            LogonBean logonBean = new LogonBean(gouvSession, appRoot, appId);
-
-            LogonAuthenticationToken auth = new LogonAuthenticationToken(logonBean, null);
-            // Gestion de l'authentification via le provider (si à true, le système pense que l'utilisateur est admis
-            auth.setAuthenticated(false);
-            context.setAuthentication(auth);
+            chain.doFilter(request, response);
+            return;
         }
 
-        filterChain.doFilter(httpRequest, httpResponse);
+        // Paramètre session manquant
+        if (StringUtils.isBlank(gouvSession)) {
+            LOGGER.error("Session Logon inexistante dans la requête");
+            redirectToLogout(response);
+            return;
+        }
+
+        // Paramètres appRoot / appId requis
+        var appRoot = request.getParameter(LogonBean.GOUV_APP_ROOT_REQUEST_PARAM);
+        var appId = request.getParameter(LogonBean.GOUV_APP_ID_REQUEST_PARAM);
+
+        if (StringUtils.isAnyBlank(appRoot, appId)) {
+            LOGGER.error("Paramètres appRoot/appId invalides");
+            throw new BadCredentialsException("Invalid appRoot or appId");
+        }
+
+        // Authentification via ksession
+        var logonBean = new LogonBean(gouvSession, appRoot, appId);
+        var authToken = new LogonAuthenticationToken(logonBean, null);
+
+        try {
+            var authenticated = gouvAuthenticationProvider.authenticate(authToken);
+            context.setAuthentication(authenticated);
+        } catch (AuthenticationException e) {
+            LOGGER.error("Authentication failed", e);
+            SecurityContextHolder.clearContext();
+            redirectToLogout(response);
+            return;
+        }
+
+        chain.doFilter(request, response);
     }
 
+    private void redirectToLogout(HttpServletResponse response) throws IOException {
+        response.sendRedirect(propertiesResolver.getGouvSharedLogonUrl() + "/logout.jsp");
+    }
 }

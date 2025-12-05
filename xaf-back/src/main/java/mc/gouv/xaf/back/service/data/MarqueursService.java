@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 
 public interface MarqueursService {
@@ -25,4 +26,6 @@ public interface MarqueursService {
     JsonNode buildDemande(Map<String, String> donnees, List<Map<String, String>> donneesTableaux);
 
     JsonNode buildDemande(Map<String, String> donnees);
+
+    String getMarqueurChoixTradFrOuEn(DemandeDTO demandeDTO, String marqueurIdentifiant);
 }

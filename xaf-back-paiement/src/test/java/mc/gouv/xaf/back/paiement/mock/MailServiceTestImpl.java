@@ -46,6 +46,12 @@ public class MailServiceTestImpl implements MailService {
     }
 
     @Override
+    public String[] getMailPreviewByText(String bodyTemplateText, String subjectTemplateText, String langue,
+            Map<String, Object> model) throws IOException {
+        return new String[0];
+    }
+
+    @Override
     public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists,
             Integer pkDemande, String identifiantDemande, int incident, Map<String, Object> modelAdd,
             Map<String, InputStream> attachments) {

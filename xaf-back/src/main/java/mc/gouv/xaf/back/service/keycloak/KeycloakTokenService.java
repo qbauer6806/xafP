@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class KeycloakTokenService {
@@ -74,8 +72,12 @@ public class KeycloakTokenService {
                 Map.class
         );
 
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return (String) response.getBody().get("access_token");
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, Object> body = response.getBody();
+            if (body != null && body.get("access_token") != null) {
+                return (String) body.get("access_token");
+            }
+            throw new IllegalStateException("Le corps de la réponse ou le jeton d'accès est nul");
         } else {
             throw new IllegalStateException("Impossible d'échanger le token usager : " + response.getStatusCode());
         }

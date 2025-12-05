@@ -66,7 +66,6 @@ public class GichuniApiClient {
         outputDTO.setTokenSupplier(demarcheId);
         outputDTO.setPaymentMethodType(paymentMethodType);
         outputDTO.setProfileId(usagerSub);
-        // RestTemplate restTemplateWithToken = restTemplateWithToken(usagerToken);
         return restTemplate.postForObject(
                 gouvPropertiesResolver.getGichuniUrl() + "/payment-methods/reference", outputDTO,
                 ReferencePostOutputDTO.class);
@@ -80,16 +79,15 @@ public class GichuniApiClient {
                 null,
                 new ParameterizedTypeReference<>() {}
         );
-        List<PaymentMethodReferenceDTO> result = response.getBody();
-        return result;
+        return response.getBody();
     }
 
     private RestTemplate restTemplateWithToken(String token) {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getInterceptors().add((request, body, execution) -> {
+        RestTemplate restTemplateWithToken = new RestTemplate();
+        restTemplateWithToken.getInterceptors().add((request, body, execution) -> {
             request.getHeaders().setBearerAuth(token);
             return execution.execute(request, body);
         });
-        return restTemplate;
+        return restTemplateWithToken;
     }
 }

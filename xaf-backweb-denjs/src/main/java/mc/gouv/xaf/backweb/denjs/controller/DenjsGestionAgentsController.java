@@ -7,12 +7,11 @@ import java.util.List;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.denjs.dto.DenjsAgentEtablissementDTO;
 import mc.gouv.xaf.backweb.denjs.formbean.DenjsGestionAgentsFormBean;
-import mc.gouv.xaf.back.service.itg.logon.LogonClient;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +40,10 @@ public class DenjsGestionAgentsController {
     private static final String AFFECTATION_SUCCES = "L'affectation de l'agent a été modifiée avec succès.";
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
     private DenjsAffectationService denjsAffectationService;
 
     @Autowired
-    private LogonClient logonClient;
+    private UtilisateursCache utilisateursCache;
 
     @GetMapping
     public ModelAndView form(
@@ -61,7 +57,7 @@ public class DenjsGestionAgentsController {
 
         List<User> list;
         try {
-            list = logonClient.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
+            list = new ArrayList<>(utilisateursCache.getAll().values());
 
             List<DenjsAgentEtablissementDTO> agents = new ArrayList<>();
             for (User user : list) {

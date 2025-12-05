@@ -25,7 +25,7 @@ public class TableauPaiementController  extends AbstractXafController {
     private XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping(value = { "/tableau-paiement" })
-    public ResponseEntity getTableauPaiement(@RequestParam TableauPaiementTypeEnum type, @RequestParam String ids,
+    public ResponseEntity<List<TableauDTO>> getTableauPaiement(@RequestParam TableauPaiementTypeEnum type, @RequestParam String ids,
             HttpServletRequest request) {
         LOGGER.info("====================== /tableau-paiement GET start...");
 
@@ -36,7 +36,7 @@ public class TableauPaiementController  extends AbstractXafController {
         }
         // On va chercher selon les paramètres donnés (ie dans les brouillons ou dans les
         // demandes) le montant de l'opération ainsi que le total à fournir au front
-        List<TableauDTO> tableauPaiementResponse = getPaiementApiClient().getTableauPaiement(ids,
+        List<TableauDTO> tableauPaiementResponse = xafFrontserverUtils.getPaiementApiClient().getTableauPaiement(ids,
                 type.name(), usagerInfosDTO.getId());
 
         LOGGER.info("====================== /tableau-paiement GET end...");

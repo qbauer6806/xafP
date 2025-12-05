@@ -1,22 +1,12 @@
 package mc.gouv.xaf.front.properties;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe permettant de récupérer les propriétés externalisées dans les fichiers .properties du serveur
@@ -26,8 +16,6 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 @Getter
 @Component
 public class FrontGouvPropertiesResolver {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FrontGouvPropertiesResolver.class);
 
     @Value("${application.name}")
     private String demarcheId;
@@ -59,34 +47,34 @@ public class FrontGouvPropertiesResolver {
     private String moneticoUrl;
 
     // FRONT
-    @Value("${mc.gouv.${application.name}.frontserver.copyright.years}")
+    @Value("${mc.gouv.appli.frontserver.copyright.years}")
     private String copyrightYears;
 
-    @Value("${mc.gouv.${application.name}.frontserver.matomo.site_id}")
+    @Value("${mc.gouv.appli.frontserver.matomo.site_id}")
     private String matomoSiteId;
 
-    @Value("${mc.gouv.${application.name}.frontserver.key}")
+    @Value("${mc.gouv.appli.frontserver.key}")
     private String frontserverKey;
 
-    @Value("${mc.gouv.${application.name}.frontserver.back.url}")
+    @Value("${mc.gouv.appli.frontserver.back.url}")
     private String backUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.redirectToBo.url}")
+    @Value("${mc.gouv.appli.frontserver.redirectToBo.url}")
     private String demandeUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.api.url}")
+    @Value("${mc.gouv.appli.frontserver.api.url}")
     private String apiUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.jwt}")
+    @Value("${mc.gouv.appli.frontserver.jwt}")
     private String frontserverJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.file.jwt}")
+    @Value("${mc.gouv.appli.frontserver.file.jwt}")
     private String fileJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.tgf.jwt:}")
+    @Value("${mc.gouv.appli.frontserver.tgf.jwt:}")
     private String tgfApiJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
+    @Value("${mc.gouv.appli.frontserver.vscan.jwt}")
     private String vscanJwt;
 
     @Value("${mc.gouv.frontserver.max.upload.intervalle}")
@@ -95,10 +83,10 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.frontserver.temps.upload.intervalle}")
     private String tempsIntervalleUpload;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.redirect.url}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.redirect.url}")
     private String gichkeyRedirectUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.keycloak.redirect.uri}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.keycloak.redirect.uri}")
     private String gichkeyKeycloakRedirectUrl;
 
     @Value("${mc.gouv.gichuni.profil.particulier.url}")
@@ -107,10 +95,10 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.gichuni.profil.entreprise.url}")
     private String gichuniProfilCompanyUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_id}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.client_id}")
     private String gichkeyClientId;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_secret}")
+    @Value("${mc.gouv.appli.frontserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
 
     @Value("${mc.gouv.gichuni.front.url}")
@@ -126,7 +114,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.gichuni.pub.mconnect.url.en}")
     private String pubMconnectUrlEn;
 
-    @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
+    @Value("${mc.gouv.appli.frontserver.2tiers.activation:false}")
     private boolean proxy2tiersActivation;
 
     @Value("${spring.servlet.multipart.max-file-size}")
@@ -180,70 +168,18 @@ public class FrontGouvPropertiesResolver {
     private String monguichetCguUrlFr;
     @Value("${mc.gouv.appfactory.monguichet.cgu.url.en}")
     private String monguichetCguUrlEn;
-    @Value("${mc.gouv.appfactory.external.lyra.javascript.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.javascript.url:}")
     private String lyraJavascriptUrl;
-    @Value("${mc.gouv.appfactory.external.lyra.additional.css.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.additional.css.url:}")
     private String lyraJavascriptCssUrl;
-    @Value("${mc.gouv.appfactory.external.lyra.additional.javascript.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.additional.javascript.url:}")
     private String lyraJavascriptAdditionalUrl;
-    @Value("${mc.gouv.appfactory.external.lyra.javascript.sri.url}")
+    @Value("${mc.gouv.appfactory.external.lyra.javascript.sri.url:}")
     private String lyraJavascriptSriUrl;
-    @Value("${mc.gouv.appfactory.${application.name}.external.lyra.public.key}")
+    @Value("${mc.gouv.appfactory.appli.external.lyra.public.key:}")
     private String lyraPublicKey;
-    @Value("${mc.gouv.${application.name}.frontserver.api.url}/paiement")
+    @Value("${mc.gouv.appli.frontserver.api.url}/paiement")
     private String mwpaymtCallbackUri;
-
-    @PostConstruct
-    private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
-            GouvPropertyNotFoundException {
-
-        //Vérification que chaque propriété a bien été configurée
-        List<String> propertiesNotFound = new ArrayList<>();
-        try {
-
-            for (PropertyDescriptor propertyDescriptor : Introspector
-                    .getBeanInfo(FrontGouvPropertiesResolver.class, Object.class).getPropertyDescriptors()) {
-
-                Method method = getMethod(propertyDescriptor);
-
-                checkProperties(propertiesNotFound, method, propertyDescriptor);
-            }
-
-        } catch (IntrospectionException e) {
-            LOGGER.error("Erreur lors de l'introspection");
-            throw e;
-        }
-
-        if (!propertiesNotFound.isEmpty()) {
-            throw new GouvPropertyNotFoundException(propertiesNotFound);
-        }
-
-    }
-
-    private Method getMethod(PropertyDescriptor propertyDescriptor) {
-        Method method;
-        try {
-            LOGGER.debug("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
-            method = propertyDescriptor.getReadMethod();
-        } catch (SecurityException e) {
-            LOGGER.error("Erreur lors de la récupération de la méthode");
-            throw e;
-        }
-        return method;
-    }
-
-    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor)
-            throws InvocationTargetException, IllegalAccessException {
-        try {
-            Object value = method.invoke(this);
-            if (value == null) {
-                propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-            }
-        } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
-            LOGGER.error("Erreur lors de l'invocation de la méthode");
-            throw e;
-        }
-    }
 
     /* Properties propres à la démarche */
 
@@ -256,12 +192,10 @@ public class FrontGouvPropertiesResolver {
 
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
 
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.gichkey.redirect.url",
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appli.frontserver.gichkey.redirect.url",
                 getGichkeyRedirectUrl()));
-        propertiesDTOS
-                .add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.copyright.years", getCopyrightYears()));
-        propertiesDTOS
-                .add(new PropertiesDTO("mc.gouv." + demarcheId + ".frontserver.matomo.site_id", getMatomoSiteId()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appli.frontserver.copyright.years", getCopyrightYears()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appli.frontserver.matomo.site_id", getMatomoSiteId()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.matomo.api.url", getMatomoUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.monetico.url", getMoneticoUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.fr",
@@ -316,7 +250,7 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.css.url", getLyraJavascriptCssUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.additional.javascript.url", getLyraJavascriptAdditionalUrl()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.external.lyra.javascript.sri.url", getLyraJavascriptSriUrl()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory." + demarcheId + ".external.lyra.public.key", getLyraPublicKey()));
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.appfactory.appli.external.lyra.public.key", getLyraPublicKey()));
         return propertiesDTOS;
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import mc.gouv.xaf.back.data.transformer.MarqueursTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -117,8 +119,16 @@ public class MarqueursServiceImpl implements MarqueursService {
             JsonNode config) {
         for (String modelPath : modelPaths) {
             String id = pathToCamelCase(modelPath);
-            // si le marqueur est déjà présent (du précédent buildId par exemple), on ne génère pas le marqueur
-            if (marqueurDTOS.stream().noneMatch(marqueurDTO -> id.equals(marqueurDTO.getIdentifiant()))) {
+
+            // Rechercher si le marqueur existe déjà
+            Optional<MarqueurDTO> existing = marqueurDTOS.stream().filter(m -> id.equals(m.getIdentifiant()))
+                    .findFirst();
+
+            if (existing.isPresent()) {
+                // ➜ Mettre à jour uniquement descriptionTypeOptions
+                setDescriptionTypeOptions(existing.get(), config);
+            } else {
+                // ➜ Créer un nouveau marqueur
                 MarqueurDTO marqueur = new MarqueurDTO();
                 marqueur.setChemin(modelPath);
                 marqueur.setIdentifiant(id);
@@ -205,8 +215,29 @@ public class MarqueursServiceImpl implements MarqueursService {
         JsonNode isDynamic = champ.get("isDynamic");
         if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && (
                 isDynamic == null || !isDynamic.asBoolean())) {
-            marqueurDTO.setOptions(
-                    mappings.get(champ.get("mapping").asText()).get("languages").get("fr").get("values"));
+            // Récupère le mapping pour ce champ
+            JsonNode mappingNode = mappings.get(champ.get("mapping").asText());
+            if (mappingNode != null && mappingNode.has("languages")) {
+                JsonNode languages = mappingNode.get("languages");
+
+                // Crée un nouvel objet JSON
+                ObjectNode wrappedOptions = JsonNodeFactory.instance.objectNode();
+
+                // Ajoute les valeurs françaises si disponibles
+                JsonNode valuesFr = languages.path("fr").path("values");
+                if (!valuesFr.isMissingNode()) {
+                    wrappedOptions.set("fr", valuesFr);
+                }
+
+                // Ajoute les valeurs anglaises si disponibles
+                JsonNode valuesEn = languages.path("en").path("values");
+                if (!valuesEn.isMissingNode()) {
+                    wrappedOptions.set("en", valuesEn);
+                }
+
+                marqueurDTO.setOptions(wrappedOptions);
+            }
+
         }
     }
 
@@ -402,6 +433,26 @@ public class MarqueursServiceImpl implements MarqueursService {
     @Override
     public JsonNode buildDemande(Map<String, String> donnees) {
         return buildDemande(donnees, null);
+    }
+
+    /**
+     * Permet de récupérer la trad pour un marqueur type "choix" donné. En FR on a la trad dans getMarqueurTrad, mais si
+     * on veut récupérer la trad EN on va la chercher dans les options du marqueur
+     *
+     * @param demandeDTO
+     * @param marqueurIdentifiant
+     * @return
+     */
+    @Override
+    public String getMarqueurChoixTradFrOuEn(DemandeDTO demandeDTO, String marqueurIdentifiant) {
+        if ("en".equals(demandeDTO.getLangue())) {
+            MarqueurDTO marqueurDTO = getMarqueur(demandeDTO.getConfig().get("buildId").asText(), marqueurIdentifiant);
+
+            return Optional.ofNullable(marqueurDTO).map(MarqueurDTO::getOptions).map(opts -> opts.get("en"))
+                    .map(mapEn -> mapEn.get(demandeDTO.getMarqueur(marqueurIdentifiant))).map(JsonNode::asText)
+                    .orElseGet(() -> demandeDTO.getMarqueurTrad(marqueurIdentifiant));
+        }
+        return demandeDTO.getMarqueurTrad(marqueurIdentifiant);
     }
 
 }

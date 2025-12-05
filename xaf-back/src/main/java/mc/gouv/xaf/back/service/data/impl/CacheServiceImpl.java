@@ -60,10 +60,7 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public CacheDTO getCache(String pkCache) {
         Optional<CacheBO> ret = cacheRepository.findById(pkCache);
-        if (ret.isPresent()) {
-            return CacheTransformer.bo2Dto(ret.get());
-        }
-        return null;
+        return ret.map(CacheTransformer::bo2Dto).orElse(null);
     }
 
     /**

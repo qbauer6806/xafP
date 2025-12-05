@@ -19,7 +19,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
  * @author qdeme
  */
 @Service
-@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'false'")
+@ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'false'")
 public class GUKafkaProducerDisabledImpl implements GUKafkaProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerDisabledImpl.class);

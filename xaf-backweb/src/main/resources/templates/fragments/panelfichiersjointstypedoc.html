@@ -10,10 +10,10 @@
       <div th:each="cat : ${categories}">
         <div class="row">
           <div class="col-xs-12">
-            <div class="col-xs-9">
+            <div class="col-xs-8">
               <h3 th:text="${cat.name}"></h3>
             </div>
-            <div class="dropdown col-xs-3 text-right" style="padding: 0"
+            <div class="dropdown col-xs-4 text-right" style="padding: 0"
                  th:if="${cat.name == 'Fichiers de la demande initiale'}">
               <button class="btn btn-action dropdown-toggle"
                       data-toggle="dropdown"
@@ -57,6 +57,13 @@
                   </ul>
                 </li>
               </ul>
+            </div>
+            <div th:if="${cat.name == 'Fichiers internes' and uploadPieceJustificativeVisible}"
+                 class="col-xs-4" style="padding: 0">
+              <input id="upload-piece-justificative" class="btn btn-action ripple-effect"
+                     th:disabled="!${uploadPieceJustificativeActif}" type="button"
+                     style="float: right;"
+                     value="Importer une Pièce Justificative"/>
             </div>
           </div>
         </div>
@@ -129,6 +136,115 @@
     <i class="hide" id="loaderMessage">Téléchargement en cours, veuillez patienter ...</i>
   </h2>
   <div class="tab-pane loader" id="tabLoader" role="tabpanel"></div>
+
+  <!-- POP UP pour Importer une Pièce Justificative -->
+  <div class="modal fade" id="import-piece-justificative" tabindex="-1"
+       aria-labelledby="importLabel" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width: auto">
+      <div class="modal-content">
+
+        <div class="modal-header text-center">
+          <h2 class="modal-title" id="importLabel">Import de(s) Pièce(s) Justificative(s)</h2>
+        </div>
+
+        <div class="modal-body">
+          <div class="row">
+            <!-- Colonne Fichier -->
+            <div class="form-group col-md-4">
+              <label for="uploadFile">Fichier <span class="text-danger">*</span></label>
+              <input class="form-control" id="uploadFile" type="file" name="uploadingFiles"
+                     th:accept="${#strings.replace(extensionsWhitelist, '*.', '.')}"
+                     th:title="'Formats acceptés : ' + ${extensionsWhitelist} + ' / Taille maximale : ' + ${maxFileSize}"/>
+            </div>
+
+            <!-- Colonne Type du fichier -->
+            <div class="form-group col-md-4">
+              <label for="typeFichier">Type du fichier <span class="text-danger">*</span></label>
+              <select id="typeFichier" th:data-field="typeFichier" class="form-control">
+                <option th:value="null" title="Sélectionnez un type">Sélectionnez un type</option>
+                <option th:each="typedoc : ${typedocList}" th:text="${typedoc.value}"
+                        th:title="${typedoc.value}" th:value="${typedoc.key}"
+                        th:object="${typedoc}">
+                </option>
+              </select>
+            </div>
+            <div class="form-group col-md-2">
+              <label for="visibilitePiece"
+                     title="Définit si la pièce est visible par l’usager">Visible</label>
+              <div>
+                <input id="visibilitePiece" type="checkbox" checked>
+              </div>
+            </div>
+            <!-- Colonne Bouton AJOUTER -->
+            <div class="form-group col-md-2">
+              <button id="upload-button-valider" type="button"
+                      style="margin-left: 34px;top: 25px;" class="btn btn-action ripple-effect"
+                      onclick="ajouterLigne();">
+                Ajouter
+              </button>
+            </div>
+          </div>
+
+          <!-- Liste des fichiers -->
+          <div id="contenuFichiers" class="row mt-3">
+            <div class="col-md-12">
+              <table class="table table-bordered" id="fichiers">
+                <thead>
+                <tr>
+                  <th>Nom du fichier</th>
+                  <th>Type</th>
+                  <th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="fichiers-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <input type="hidden" name="pkDemande" th:value="${demandeDTO.pkDemandes}"/>
+          <input id="extensionsWhitelist" type="hidden" name="extensionsWhitelist"
+                 th:value="${extensionsWhitelist}"/>
+          <input id="maxTailleFichier" type="hidden" name="maxTailleFichier"
+                 th:value="${maxFileSize}"/>
+
+          <div class="row mt-3 text-center">
+            <span id="messageErreurUploadFichier" class="text-danger"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-action-second ripple-effect" data-dismiss="modal">
+            Annuler
+          </button>
+          <input id="upload-button" type="submit" value="Importer"
+                 class="btn btn-action ripple-effect" disabled/>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="confirm-suppression-piece" tabindex="-1"
+       aria-labelledby="suppressionLabel" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" style="width:auto">
+      <div class="modal-content">
+        <div class="modal-header text-center">
+          <h2 class="modal-title" id="suppressionLabel">Confirmation de suppression</h2>
+        </div>
+        <div class="modal-body text-center">
+          <p>Êtes-vous sûr de vouloir supprimer cette pièce justificative ?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-action-second ripple-effect" data-dismiss="modal">
+            Non
+          </button>
+          <input data-action="confirmerSuppression" type="submit" value="Oui"
+                 class="btn btn-action ripple-effect"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
 </body>
 </html>

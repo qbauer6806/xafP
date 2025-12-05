@@ -42,13 +42,12 @@ public class GestionPurgeSelectiveController extends AbstractController {
     @PostMapping
     public ModelAndView traiterDemande(@RequestParam("identifiants") List<String> identifiants,
             final RedirectAttributes redirectAttributes) {
-        LOGGER.info("Identifiants reçus: {}", identifiants);
-
         List<String> successMessages = new ArrayList<>();
         List<String> warningMessages = new ArrayList<>();
         List<String> errorMessages = new ArrayList<>();
 
         for (String identifiant : identifiants) {
+            LOGGER.info("Purge de l'identifiant {}", AfBackUtils.logSafe(identifiant));
             if (identifiant == null || identifiant.isBlank()) {
                 warningMessages.add("Identifiant vide ignoré");
                 continue;

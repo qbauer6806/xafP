@@ -227,13 +227,8 @@ public class GestionModelesController extends AbstractController {
     }
 
     private boolean metaContainsTypeModele(Set<MetaDTO> metas, String typeModele) {
-        boolean res = false;
-        for (MetaDTO meta : metas) {
-            if (meta.getKey().equals("TypeModele") && meta.getValue().equals(typeModele)) {
-                res = true;
-            }
-        }
-        return res;
+        return metas.stream()
+                .anyMatch(m -> "TypeModele".equalsIgnoreCase(m.getKey()) && typeModele.equals(m.getValue()));
     }
 
 }

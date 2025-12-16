@@ -18,6 +18,7 @@ import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.transformer.MarqueursTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.shared.dto.BuildDemandeFromMarqueursDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.springframework.http.HttpStatus;
@@ -307,7 +308,7 @@ public class MarqueursServiceImpl implements MarqueursService {
     }
 
     @Override
-    public JsonNode buildDemande(Map<String, String> donnees, List<Map<String, String>> donneesTableaux) {
+    public JsonNode buildDemande(BuildDemandeFromMarqueursDTO buildDemandeFromMarqueursDTO) {
         // Configuration initiale
         String lastBuildId = demandesConfigHelperService.getLastBuildId();
         List<MarqueurDTO> marqueurs = getMarqueurs(lastBuildId);
@@ -317,38 +318,73 @@ public class MarqueursServiceImpl implements MarqueursService {
         ObjectNode demandeNode = mapper.createObjectNode();
 
         // Iteration sur chaque entrée
-        donnees.forEach((marqueur, valeur) -> {
-            MarqueurDTO marqueurMatch = marqueurs.stream().filter(m -> m.getIdentifiant().equals(marqueur)).findFirst()
-                    .orElse(null);
+        if (buildDemandeFromMarqueursDTO.getDonnees() != null) {
+            buildDemandeFromMarqueursDTO.getDonnees().forEach((marqueur, valeur) -> {
+                MarqueurDTO marqueurMatch = marqueurs.stream().filter(m -> m.getIdentifiant().equals(marqueur))
+                        .findFirst().orElse(null);
 
-            if (marqueurMatch != null) {
-                String chemin = marqueurMatch.getChemin();
-                chemin = chemin.replaceFirst("^contenu\\.", "");
-                String[] segments = chemin.split("\\.");
+                if (marqueurMatch != null) {
+                    String chemin = marqueurMatch.getChemin();
+                    chemin = chemin.replaceFirst("^contenu\\.", "");
+                    String[] segments = chemin.split("\\.");
 
-                // Permet d'itérer et de configurer chaque niveau du chemin
-                ObjectNode currentNode = demandeNode;
-                for (int i = 0; i < segments.length; i++) {
-                    String segment = segments[i];
+                    // Permet d'itérer et de configurer chaque niveau du chemin
+                    ObjectNode currentNode = demandeNode;
+                    for (int i = 0; i < segments.length; i++) {
+                        String segment = segments[i];
 
-                    // Si c'est le dernier segment, ajouter la valeur
-                    if (i == segments.length - 1) {
-                        currentNode.put(segment, valeur);
-                    } else {
-                        // Si le segment n'existe pas, créer une nouvelle branche
-                        if (!currentNode.has(segment)) {
-                            currentNode.set(segment, mapper.createObjectNode());
+                        // Si c'est le dernier segment, ajouter la valeur
+                        if (i == segments.length - 1) {
+                            currentNode.put(segment, valeur);
+                        } else {
+                            // Si le segment n'existe pas, créer une nouvelle branche
+                            if (!currentNode.has(segment)) {
+                                currentNode.set(segment, mapper.createObjectNode());
+                            }
+                            // Descendre d'un niveau dans le noeud courant
+                            currentNode = (ObjectNode) currentNode.get(segment);
                         }
-                        // Descendre d'un niveau dans le noeud courant
-                        currentNode = (ObjectNode) currentNode.get(segment);
                     }
                 }
-            }
-        });
+            });
+        }
 
-        if (donneesTableaux != null) {
+        // choix multiple
+        if (buildDemandeFromMarqueursDTO.getDonneesChoixMultiple() != null) {
+            buildDemandeFromMarqueursDTO.getDonneesChoixMultiple().forEach((marqueur, valeurs) -> {
+                MarqueurDTO marqueurMatch = marqueurs.stream().filter(m -> m.getIdentifiant().equals(marqueur))
+                        .findFirst().orElse(null);
+
+                if (marqueurMatch != null) {
+                    String chemin = marqueurMatch.getChemin();
+                    chemin = chemin.replaceFirst("^contenu\\.", "");
+                    String[] segments = chemin.split("\\.");
+
+                    ObjectNode currentNode = demandeNode;
+
+                    for (int i = 0; i < segments.length; i++) {
+                        String segment = segments[i];
+
+                        // Dernier segment → tableau
+                        if (i == segments.length - 1) {
+                            ArrayNode arrayNode = mapper.createArrayNode();
+                            valeurs.forEach(arrayNode::add);
+                            currentNode.set(segment, arrayNode);
+                        } else {
+                            // créer la branche si absente
+                            if (!currentNode.has(segment) || !currentNode.get(segment).isObject()) {
+                                currentNode.set(segment, mapper.createObjectNode());
+                            }
+                            currentNode = (ObjectNode) currentNode.get(segment);
+                        }
+                    }
+                }
+            });
+        }
+
+        if (buildDemandeFromMarqueursDTO.getDonneesTableaux() != null) {
             // Traitement des tableaux
-            donneesTableaux.forEach(tableau -> {
+            buildDemandeFromMarqueursDTO.getDonneesTableaux().forEach(tableau -> {
                 // Assume que tous les objets du tableau partagent le même chemin initial commun
                 Optional<String> cheminCommumOptionnel = tableau.keySet().stream()
                         .map(marqueur -> marqueurs.stream().filter(m -> m.getIdentifiant().equals(marqueur)).findFirst()
@@ -418,11 +454,6 @@ public class MarqueursServiceImpl implements MarqueursService {
         }
 
         return demandeNode;
-    }
-
-    @Override
-    public JsonNode buildDemande(Map<String, String> donnees) {
-        return buildDemande(donnees, null);
     }
 
     /**

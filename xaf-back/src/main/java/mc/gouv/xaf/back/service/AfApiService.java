@@ -130,6 +130,7 @@ public class AfApiService implements AfApi {
     private final Optional<CreateDemandeExtender> createDemandeExtenders;
     private final Optional<UpdateDemandeExtender> updateDemandeExtenders;
     private final Optional<CustomRequestService> customRequestService;
+    private final Optional<DonneesExternesService> donneesExternesService;
     private final DemandesStatutsService demandesStatutsService;
     private final PurgeDemandesService purgeDemandesService;
     private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
@@ -855,8 +856,8 @@ public class AfApiService implements AfApi {
     }
 
     @Override
-    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws Exception {
-        return null;
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) {
+        return donneesExternesService.map(service -> service.getDonneesExternes(usagerId, params)).orElse(null);
     }
 
     @Override

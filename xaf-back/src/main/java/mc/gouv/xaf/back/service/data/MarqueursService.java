@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.service.data;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.shared.dto.BuildDemandeFromMarqueursDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 
@@ -23,9 +23,7 @@ public interface MarqueursService {
 
     void importConfig(byte[] file) throws IOException;
 
-    JsonNode buildDemande(Map<String, String> donnees, List<Map<String, String>> donneesTableaux);
-
-    JsonNode buildDemande(Map<String, String> donnees);
+    JsonNode buildDemande(BuildDemandeFromMarqueursDTO buildDemandeFromMarqueursDTO);
 
     String getMarqueurChoixTradFrOuEn(DemandeDTO demandeDTO, String marqueurIdentifiant);
 }

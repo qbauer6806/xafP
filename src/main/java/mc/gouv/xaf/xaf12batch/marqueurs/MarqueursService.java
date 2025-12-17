@@ -99,7 +99,13 @@ public class MarqueursService {
                 return marqueurDTO;
             }
             for (JsonNode column : tableau.get("columns")) {
-                String path = column.get("path").asText();
+                String path;
+                if(column.get("path") != null) {
+                    path = column.get("path").asText();
+                } else {
+                    path = column.get("idPrefix").asText();
+                }
+
                 if (path.equals(modifiedModelPath.substring(modifiedModelPath.lastIndexOf('.') + 1))) {
                     // si c'est un type particulier on ajoute le suffixe
                     String description = column.get("label").asText();

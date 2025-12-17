@@ -19,10 +19,8 @@ import java.util.*;
 @Service
 public class DemandeTransformer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeTransformer.class);
-
     public static final String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeTransformer.class);
     @Autowired
     private PaysNationalitesCache paysCache;
 
@@ -58,7 +56,13 @@ public class DemandeTransformer {
                 JsonNode mapping = champ.get("mapping");
                 // il faut itérer sur chaque contenu du tableau
                 for (int i = 0; i < array.size(); i++) {
-                    String path = rootPath + "." + i + "." + champ.get("path").asText();
+                    String key;
+                    if(champ.get("path") != null) {
+                        key = champ.get("path").asText();
+                    } else {
+                        key = champ.get("idPrefix").asText();
+                    }
+                    String path = rootPath + "." + i + "." + key;
                     processContenuTrad(contenuTrad, mappings, mapping, champ, path);
                 }
 
@@ -294,11 +298,17 @@ public class DemandeTransformer {
             for (JsonNode tableau : tableauxNodes) {
                 String rootPath = tableau.get("path").asText();
                 JsonNode array = getNodeFromPath(contenu, rootPath);
+                String idPrefix = tableau.get("idPrefix") != null ? tableau.get("idPrefix").asText() : "";
                 for (JsonNode champ : tableau.get("columns")) {
                     JsonNode type = champ.get("type");
                     // si c'est un type complexe on fait la transformation
                     if (type != null) {
-                        String key = champ.get("path").asText();
+                        String key;
+                        if(champ.get("path") != null) {
+                            key = champ.get("path").asText();
+                        } else {
+                            key = idPrefix;
+                        }
                         if (type.asText().equals("adresse")) {
                             setComplexElements(
                                     new String[] { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal" }, key,

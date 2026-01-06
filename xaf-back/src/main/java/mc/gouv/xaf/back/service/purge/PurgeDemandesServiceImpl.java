@@ -69,6 +69,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @EnableScheduling
@@ -184,6 +185,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 dernierStatutDateDebut, dernierStatutList, canaux);
     }
 
+    @Transactional
     @Override
     public void deleteDemandeWithoutPurgeFichiers(Integer demandeId, String origineSuppression) {
         try {

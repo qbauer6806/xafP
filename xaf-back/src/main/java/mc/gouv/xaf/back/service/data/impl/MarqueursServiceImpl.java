@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -427,7 +428,22 @@ public class MarqueursServiceImpl implements MarqueursService {
                             String lastPath = elements[elements.length - 1];
                             String value = entry.getValue();
                             String type = marqueur.getType();
-                            if (type.equals("adresse") || type.equals("adresseMC") || type.equals(
+                            if ("choixMultiple".equals(type)) {
+                                try {
+                                    // Désérialisation de la liste sérialisée
+                                    JsonNode parsedNode = mapper.readTree(value);
+
+                                    if (parsedNode.isArray()) {
+                                        itemNode.set(lastPath, parsedNode);
+                                    } else {
+                                        // Sécurité : si ce n'est pas un tableau, on met un tableau vide
+                                        itemNode.set(lastPath, mapper.createArrayNode());
+                                    }
+                                } catch (JsonProcessingException e) {
+                                    // JSON invalide → tableau vide
+                                    itemNode.set(lastPath, mapper.createArrayNode());
+                                }
+                            } else if (type.equals("adresse") || type.equals("adresseMC") || type.equals(
                                     "telephone") || type.equals("iban")) {
                                 // cas des types spéciaux
                                 // récupérer l'avant-dernier élément du tableau

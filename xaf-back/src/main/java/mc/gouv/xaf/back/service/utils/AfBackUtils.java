@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
@@ -795,8 +796,9 @@ public class AfBackUtils {
             return node.asText();
         }
 
-        // Si c'est un tableau contenant des chaînes de caractères
+        // Si c'est un array
         if (node.isArray()) {
+            // Si l'array contient uniquement des chaînes de caractères, c'est un type choixMultiple
             if (!node.isEmpty() && node.get(0).isTextual()) {
                 List<String> choices = new ArrayList<>(node.size());
                 node.forEach(arrayElement -> {
@@ -807,7 +809,7 @@ public class AfBackUtils {
                 return choices;
             }
 
-            // Sinon, c'est un tableau complexe
+            // Sinon, c'est un type tableau
             List<Map<String, String>> list = new ArrayList<>(node.size());
             node.forEach(arrayElement -> {
                 Map<String, String> map = new HashMap<>();
@@ -817,7 +819,7 @@ public class AfBackUtils {
                     // Récupération directe du marqueur
                     MarqueurBO marqueur = marqueursMap.get(donneeTableauPath);
                     if (marqueur != null) {
-                        putMarqueur(map, tableauDonnee.getValue(), marqueur);
+                        putMarqueurTableau(map, tableauDonnee.getValue(), marqueur);
                     } else {
                         // Vérifier si le chemin a un suffixe connu
                         String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
@@ -826,7 +828,7 @@ public class AfBackUtils {
                             String suffixedPath = donneeTableauPath + "." + suffixe;
                             marqueur = marqueursMap.get(suffixedPath);
                             if (marqueur != null) {
-                                putMarqueur(map, tableauDonnee.getValue().get(suffixe), marqueur);
+                                putMarqueurTableau(map, tableauDonnee.getValue().get(suffixe), marqueur);
                             }
                         }
                     }
@@ -839,11 +841,18 @@ public class AfBackUtils {
         return "";
     }
 
-    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
-        String donneeTableauValue =
-                tableauDonneeNode != null && tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())
-                        ? tableauDonneeNode.asText()
-                        : "";
+    private void putMarqueurTableau(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
+        String donneeTableauValue = "";
+        if (tableauDonneeNode != null && !tableauDonneeNode.isNull()) {
+            if (tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())) {
+                // cas texte simple dans tableau
+                donneeTableauValue = tableauDonneeNode.asText();
+            } else if (tableauDonneeNode.isArray()) {
+                // cas choix multiple dans tableau, on stocke sous format "VALEUR1, VALEUR2"
+                donneeTableauValue = StreamSupport.stream(tableauDonneeNode.spliterator(), false)
+                        .filter(JsonNode::isTextual).map(JsonNode::asText).collect(Collectors.joining(", "));
+            }
+        }
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 

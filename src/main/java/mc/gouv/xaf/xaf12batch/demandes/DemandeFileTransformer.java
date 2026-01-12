@@ -5,11 +5,12 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import mc.gouv.file.apiclient.FileClient;
+import mc.gouv.xaf.xaf12batch.file.FileClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,23 +19,12 @@ public class DemandeFileTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeFileTransformer.class);
 
-    private FileClient fileClient = null;
+    @Autowired
+    private FileClient fileClient;
 
     @Value("${application.name}")
     private String applicationName;
 
-    @Value("${file.url}")
-    private String fileApiUrl;
-
-    @Value("${file.jwt}")
-    private String fileJwt;
-
-    public FileClient getFileClient() {
-        if (fileClient == null) {
-            fileClient = new FileClient(fileApiUrl, fileJwt);
-        }
-        return fileClient;
-    }
 
     private String getFileURL(String url) {
         if (url.startsWith("/")) {
@@ -55,7 +45,7 @@ public class DemandeFileTransformer {
     private InputStream getFileInputStream(String fileUrl) throws IOException {
         InputStream is;
         try {
-            is = getFileClient().getFile(fileUrl);
+            is = fileClient.getFile(fileUrl);
         } catch (IOException e) {
             throw new IOException("Could not connect to file", e);
         }

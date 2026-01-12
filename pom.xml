@@ -60,12 +60,6 @@
     </dependency>
 
     <dependency>
-      <groupId>mc.gouv.file</groupId>
-      <artifactId>file-apiclient</artifactId>
-      <version>1.6.0</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-core</artifactId>
       <version>3.0.0</version>
@@ -103,6 +97,18 @@
       <groupId>org.flowable</groupId>
       <artifactId>flowable-spring-boot-starter</artifactId>
       <version>${flowable.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.14</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <version>4.5.14</version>
     </dependency>
 
     <dependency>

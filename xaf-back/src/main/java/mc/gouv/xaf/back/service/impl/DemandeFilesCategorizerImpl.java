@@ -71,7 +71,8 @@ public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
 
         if (demandeFiles != null) {
             for (DemandeFileDTO file : demande.getFichiers()) {
-                if (file.getMeta() == null || file.getMeta().startsWith(FileUtils.META_FRONT)) {
+                if (!file.isSupprimee() && (file.getMeta() == null || file.getMeta()
+                        .startsWith(FileUtils.META_FRONT))) {
                     String idSection = AfBackUtils.getSectionFromMetaFichier(file.getMeta());
                     listeSections.computeIfAbsent(idSection, key -> this.creerSubCategory(key, mapClesSections))
                             .getFiles().add(file);
@@ -113,7 +114,8 @@ public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
         if (complements != null) {
             for (DemandeComplementsDTO compl : complements) {
                 if (compl.getReponse() != null) {
-                    List<DemandeComplementsFileDTO> filesList = Arrays.asList(compl.getReponse().getFichiers());
+                    List<DemandeComplementsFileDTO> filesList = Arrays.stream(compl.getReponse().getFichiers())
+                            .filter(f -> !f.isSupprimee()).toList();
                     files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTOCategorizer(filesList,
                             compl.getReponse().getDate()));
                 }
@@ -140,7 +142,8 @@ public class DemandeFilesCategorizerImpl implements DemandeFilesCategorizer {
         List<DemandeFileDTO> files = new ArrayList<>();
         if (demandeFiles != null) {
             for (DemandeFileDTO file : demandeFiles) {
-                if (!StringUtils.isBlank(file.getMeta()) && file.getMeta().contains(JUSTIFICATIF_DEMANDE_FRONT)) {
+                if (!file.isSupprimee() && !StringUtils.isBlank(file.getMeta()) && file.getMeta()
+                        .contains(JUSTIFICATIF_DEMANDE_FRONT)) {
                     files.add(file);
                 }
             }

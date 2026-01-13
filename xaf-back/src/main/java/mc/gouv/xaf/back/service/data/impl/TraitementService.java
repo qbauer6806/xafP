@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.time.Instant;
@@ -35,7 +34,6 @@ import mc.gouv.xaf.back.service.AfApiService;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.UploadPieceJustificativeService;
 import mc.gouv.xaf.back.service.data.DemandesCommentaireService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -64,7 +62,6 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.UploadFileDTO;
 import mc.gouv.xaf.shared.dto.XafTraitementFormBean;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
@@ -77,17 +74,11 @@ import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -134,7 +125,6 @@ public class TraitementService {
     private final DemandesFilesService demandesFilesService;
     private final DemandesComplementsFilesService demandesComplementsFilesService;
     private final PropertiesService propertiesService;
-    private final UploadPieceJustificativeService uploadPieceJustificativeService;
     private final DemandesHistoriqueService demandesHistoriqueService;
     private final DemandesStatutsService demandesStatutsService;
     private final GUKafkaUtils guKafkaUtils;
@@ -414,6 +404,9 @@ public class TraitementService {
                 isStatutSimplifieTermine && demandesService.isAccesDesactive(demande.getPkDemandes()));
 
         mav.addObject("isStatutFinal", isStatutSimplifieTermine);
+
+        mav.addObject("isSuppressionPJActif",
+                hasRole("ROLE_PARAMETRAGE") && (demande.getAgentAffecteId() != null || isStatutSimplifieTermine));
 
         // Chargement de l'historique de la demande
         List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demande.getPkDemandes());
@@ -745,68 +738,5 @@ public class TraitementService {
         return null;
     }
 
-    /**
-     * Permets d'uploader des pièces justificatives depuis le BO
-     *
-     * @param pkDemande
-     *         l'identifiant de la demande
-     * @param files
-     *         les fichiers à ajouter
-     * @param metadonnees
-     *         mapping du nom de fichier, son type, visibilité de la pièce
-     * @param response
-     *         la réponse
-     * @return le message
-     */
-    @Secured({ "ROLE_TRAITEMENT" })
-    @PostMapping(value = "/upload/{pkDemande}")
-    @Transactional
-    public ResponseEntity<String> uploadPieceJustificative(@PathVariable Integer pkDemande,
-            @RequestPart("files") MultipartFile[] files, @RequestPart("metadonnees") List<UploadFileDTO> metadonnees,
-            HttpServletResponse response) {
-
-        LOGGER.info("Apple à la méthode uploadPieceJustificative pour la demande {}", pkDemande);
-        if (files == null || files.length == 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun fichier sélectionné");
-        }
-        if (CollectionUtils.isEmpty(metadonnees)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun type de fichier sélectionné");
-        }
-        if (files.length != metadonnees.size()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Veuillez associer un type à chaque fichier sélectionné");
-        }
-
-        return uploadPieceJustificativeService.enregistrerPieceJustificative(pkDemande, files, metadonnees, response);
-    }
-
-    @Secured({ "ROLE_TRAITEMENT" })
-    @PostMapping(value = "/suppression/{pkDemandeFile}")
-    @Transactional
-    public ResponseEntity<String> supprimerPieceJustificative(@PathVariable Integer pkDemandeFile) {
-        LOGGER.info("Apple à la méthode supprimerPieceJustificative pour la pièce {}", pkDemandeFile);
-
-        return uploadPieceJustificativeService.supprimerPieceJustificative(pkDemandeFile);
-    }
-
-    /**
-     * Modifie la visibilité d'un fichier associé à une demande.
-     *
-     * @param pkDemandeFile
-     *         l'identifiant du fichier dont la visibilité doit être modifiée
-     * @param visibleUsager
-     *         la nouvelle visibilité du fichier (true pour visible, false pour invisible) par l'usager
-     * @return un objet ResponseEntity contenant un message indiquant le résultat de l'opération
-     */
-    @Secured({ "ROLE_TRAITEMENT" })
-    @PostMapping(value = "/updateVisibilite/{pkDemandeFile}")
-    @Transactional
-    public ResponseEntity<String> changerVisibiliteFichier(@PathVariable Integer pkDemandeFile,
-            @RequestParam Boolean visibleUsager) {
-        LOGGER.info("Apple à la méthode changerVisibiliteFichier pour la pièce {} et param {}", pkDemandeFile,
-                visibleUsager);
-
-        return uploadPieceJustificativeService.changerVisibiliteFichier(pkDemandeFile, visibleUsager);
-    }
 
 }

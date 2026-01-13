@@ -89,10 +89,8 @@ public interface FileService {
 
     void deleteFiles(String containerId, List<String> fileName);
 
-    boolean isFileDeletable(String fileName);
-
-    boolean isFileBrouillonDeletable(String fileName);
-
     boolean isFileFromBrouillonDeletable(String fileUrl);
+
+    String dupliquerFichier(String fileUrl, DemandeDTO demande);
 
 }

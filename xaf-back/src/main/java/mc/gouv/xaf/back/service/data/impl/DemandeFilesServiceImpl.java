@@ -1,7 +1,13 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -11,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -19,17 +26,22 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +64,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DemandesHelperService demandesHelperService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final DemandesHistoriqueService demandesHistoriqueService;
+    private final DemandesTransformer demandesTransformer;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -183,31 +198,64 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Override
     public void clonerDesPiecesJointes(DemandeBO demandeBo, DemandeBO newDemandeBo) {
-        if (demandeBo.getFiles() != null) {
-            LOGGER.info("Suppression des pièces jointes...");
-            List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(getFichiersUsager(demandeBo));
-            List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
-            for (DemandesFilesBO fileBo : filesBo) {
-                fileBo.setPkDemandesFiles(null);
-                fileBo.setFkDemandes(newDemandeBo);
-                demandesFilesRepository.save(fileBo);
-            }
-            newDemandeBo.setFiles(new HashSet<>(filesBo));
-        }
+        LOGGER.info("Suppression des pièces jointes...");
+        clonerFichiers(demandeBo, newDemandeBo, getFichiersUsager(demandeBo));
     }
 
     @Override
     public void clonerDesFichiersInternes(DemandeBO demandeBo, DemandeBO newDemandeBo) {
-        if (demandeBo.getFiles() != null) {
-            List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(getFichiersInternes(demandeBo));
-            List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
-            for (DemandesFilesBO fileBo : filesBo) {
-                fileBo.setPkDemandesFiles(null);
-                fileBo.setFkDemandes(newDemandeBo);
-                demandesFilesRepository.save(fileBo);
-            }
-            newDemandeBo.setFiles(new HashSet<>(filesBo));
+        clonerFichiers(demandeBo, newDemandeBo, getFichiersInternes(demandeBo));
+    }
+
+    private void clonerFichiers(DemandeBO demandeBo, DemandeBO newDemandeBo, List<DemandesFilesBO> fichiers) {
+        if (demandeBo.getFiles() == null) {
+            return;
         }
+        List<String> getAllPathsFichiers = getAllPathsFichiers(demandeBo);
+
+        // on ne récupère pas les fichiers qui ont été purgé par un agent
+        List<DemandeFileDTO> filesDto = DemandesFilesTransformer.bo2Dto(fichiers).stream()
+                .filter(dto -> !dto.isSupprimee()).toList();
+        // on copie les fichiers dans file et on met à jour la référence
+        filesDto.forEach(demandeFileDTO -> {
+            String oldUrl = demandeFileDTO.getUrl();
+            String urlWithoutSlash = fileService.dupliquerFichier(oldUrl,
+                    demandesTransformer.bo2Dto(demandeBo));
+            if (urlWithoutSlash != null) {
+                String newUrl = urlWithoutSlash.startsWith("/") ? urlWithoutSlash : "/" + urlWithoutSlash;
+                demandeFileDTO.setUrl(newUrl);
+                // on maj l'url dans le contenu de la demande
+                for (String path : getAllPathsFichiers) {
+                    // on supprime contenu.
+                    String normalizedPath = path.replaceFirst("^contenu\\.", "");
+                    // on récupère le noeud dans le contenu qui correspond au fichier
+                    JsonNode node = resolvePath(newDemandeBo.getContenu(), normalizedPath);
+                    JsonNode nodeTrad = resolvePath(newDemandeBo.getContenuTrad(), normalizedPath);
+
+                    if (node != null && node.isObject()) {
+                        ObjectNode objectNode = (ObjectNode) node;
+                        ObjectNode objectNodeTrad = (ObjectNode) nodeTrad;
+
+                        JsonNode urlNode = objectNode.get("url");
+                        if (urlNode != null && objectNodeTrad != null && urlNode.isTextual() && oldUrl.equals(
+                                urlNode.asText())) {
+                            objectNode.put("url", newUrl);
+                            objectNodeTrad.put("url", newUrl);
+                        }
+                    }
+                }
+            }
+        });
+
+        List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
+
+        for (DemandesFilesBO fileBo : filesBo) {
+            fileBo.setPkDemandesFiles(null);
+            fileBo.setFkDemandes(newDemandeBo);
+            demandesFilesRepository.save(fileBo);
+        }
+
+        newDemandeBo.setFiles(new HashSet<>(filesBo));
     }
 
 
@@ -250,5 +298,158 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         fileService.deleteFile("ROOT", fileUrl);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
+    @Override
+    public ResponseEntity<String> supprimerPieceJustificative(Integer idDemandeFile, boolean garderHistorique) {
+        Optional<DemandesFilesBO> demandesFilesBO = demandesFilesRepository.findById(idDemandeFile);
+        if (demandesFilesBO.isEmpty()) {
+            return ResponseEntity.status(500)
+                    .body(String.format("La pièce justificative avec l'identifiant %s n'existe pas", idDemandeFile));
+        }
+        DemandesFilesBO demandeFile = demandesFilesBO.get();
+        String url = demandeFile.getUrl();
+
+        LOGGER.info("Le fichier {} sera effacé de file.", url);
+
+        String urlEncode = URLEncoder.encode(url, UTF_8);
+        if (urlEncode != null && urlEncode.startsWith("/")) {
+            urlEncode = urlEncode.substring(1);
+        }
+
+        fileService.deleteFile(gouvPropertiesResolver.getContainerId(), urlEncode);
+        if (garderHistorique) {
+            LOGGER.info("On flag le fichier supprimee et on ajoute l'action dans l'historique");
+            demandeFile.setSupprimee(true);
+            demandesFilesRepository.save(demandeFile);
+            // ajouter le flag dans le contenu de la demande
+            DemandeBO demandeBO = demandeFile.getFkDemandes();
+            for (String path : getAllPathsFichiers(demandeBO)) {
+                // on supprime contenu.
+                String normalizedPath = path.replaceFirst("^contenu\\.", "");
+                // on récupère le noeud dans le contenu qui correspond au fichier
+                JsonNode node = resolvePath(demandeBO.getContenu(), normalizedPath);
+                JsonNode nodeTrad = resolvePath(demandeBO.getContenuTrad(), normalizedPath);
+
+                if (node != null && node.isObject()) {
+                    ObjectNode objectNode = (ObjectNode) node;
+                    // on le met dans contenuTrad aussi au cas où
+                    ObjectNode objectNodeTrad = (ObjectNode) nodeTrad;
+                    JsonNode urlNode = objectNode.get("url");
+                    if (urlNode != null && objectNodeTrad != null && urlNode.isTextual() && url.equals(
+                            urlNode.asText())) {
+                        objectNode.put("supprimee", true);
+                        objectNodeTrad.put("supprimee", true);
+                    }
+                }
+            }
+            demandesRepository.save(demandeBO);
+            DemandeHistoriqueDTO histo = demandesHistoriqueService.suppressionPJ(demandeFile.getName());
+            demandesHistoriqueService.saveHisto(demandeFile.getFkDemandes().getPkDemandes(), histo);
+        } else {
+            LOGGER.info("Suppression dans la table dem_demandes_files");
+            demandesFilesRepository.delete(demandeFile);
+        }
+        return ResponseEntity.ok().body("Le fichier a été supprimé avec succès");
+
+    }
+
+    @Override
+    public void supprimerPieceJustificativeContenu(DemandeBO demandeBO) {
+        for (String path : getAllPathsFichiers(demandeBO)) {
+
+            // on supprime contenu.
+            String normalizedPath = path.replaceFirst("^contenu\\.", "");
+            // on récupère le noeud dans le contenu qui correspond au fichier
+            JsonNode node = resolvePath(demandeBO.getContenu(), normalizedPath);
+
+            if (node == null || !node.isObject()) {
+                continue;
+            }
+
+            ObjectNode objectNode = (ObjectNode) node;
+
+            // si supprimee != true → on ne fait rien
+            if (!objectNode.path("supprimee").asBoolean(false)) {
+                continue;
+            }
+
+            // on récupère le parent (le tableau)
+            ParentAndIndex parent = resolveParentArray(demandeBO.getContenu(), normalizedPath);
+
+            if (parent != null && parent.parentArray != null) {
+                parent.parentArray.remove(parent.index);
+            }
+        }
+    }
+
+    private List<String> getAllPathsFichiers(DemandeBO demandeBO) {
+        JsonNode fichiersConfig = demandeBO.getConfig().getContenu().get("recap").get("fichiers");
+        return StreamSupport.stream(fichiersConfig.spliterator(), false)
+                .flatMap(f -> StreamSupport.stream(f.path("champs").spliterator(), false))
+                .flatMap(c -> StreamSupport.stream(c.path("path").spliterator(), false)).filter(JsonNode::isTextual)
+                .map(JsonNode::asText).toList();
+    }
+
+    private ParentAndIndex resolveParentArray(JsonNode root, String path) {
+        String[] tokens = path.split("\\.");
+
+        JsonNode current = root;
+
+        for (int i = 0; i < tokens.length - 1; i++) {
+            String token = tokens[i];
+
+            if (current.isArray()) {
+                current = current.get(Integer.parseInt(token));
+            } else {
+                current = current.get(token);
+            }
+
+            if (current == null) {
+                return null;
+            }
+        }
+
+        String lastToken = tokens[tokens.length - 1];
+
+        if (current.isArray()) {
+            int index = Integer.parseInt(lastToken);
+            return new ParentAndIndex((ArrayNode) current, index);
+        }
+
+        return null;
+    }
+
+    private JsonNode resolvePath(JsonNode root, String path) {
+        JsonNode current = root;
+
+        for (String part : path.split("\\.")) {
+            if (current == null || current.isMissingNode() || current.isNull()) {
+                return null;
+            }
+
+            // ex: cv[0]
+            if (part.contains("[")) {
+                String fieldName = part.substring(0, part.indexOf('['));
+                int index = Integer.parseInt(part.substring(part.indexOf('[') + 1, part.indexOf(']')));
+
+                current = current.path(fieldName);
+                if (!current.isArray() || current.size() <= index) {
+                    return null;
+                }
+                current = current.get(index);
+            } else {
+                current = current.path(part);
+            }
+        }
+        return current;
+    }
+
+    private record ParentAndIndex(ArrayNode parentArray, int index) {
+
+    }
 
 }

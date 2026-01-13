@@ -17,9 +17,11 @@ import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
@@ -52,6 +54,8 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final DemandesHelperService demandesHelperService;
+    private final FileService fileService;
+    private final DemandesTransformer demandesTransformer;
 
     @Override
     @Transactional
@@ -227,8 +231,17 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
                 // Fichiers des demandes d'informations complémentaires des demandes
                 if (dcBoFiles != null) {
                     LOGGER.info("Duplication des pièces jointes des demandes d'informations complémentaires");
+                    // on ne récupère pas les fichiers qui ont été purgé par un agent
                     List<DemandeComplementsFileDTO> dcfilesDto = DemandesComplementsFilesTransformer.bo2Dto(
-                            new ArrayList<>(dcBoFiles));
+                            new ArrayList<>(dcBoFiles)).stream().filter(dto -> !dto.isSupprimee()).toList();
+                    // on copie les fichiers dans file et on met à jour la référence
+                    dcfilesDto.forEach(demandeFileDTO -> {
+                        String newUrl = fileService.dupliquerFichier(demandeFileDTO.getUrl(),
+                                demandesTransformer.bo2Dto(demandeBo));
+                        if (newUrl != null) {
+                            demandeFileDTO.setUrl(newUrl);
+                        }
+                    });
                     List<DemandesComplementsFilesBO> dcfilesBo = DemandesComplementsFilesTransformer.dto2Bo(dcfilesDto);
                     for (DemandesComplementsFilesBO dcfileBo : dcfilesBo) {
                         dcfileBo.setPkDemandesComplementsFiles(null);

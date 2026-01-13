@@ -196,10 +196,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         List<BrouillonsFilesBO> fichiersSupprimes = findRemovedFiles(oldFiles, newFiles);
 
         for (BrouillonsFilesBO fichier : fichiersSupprimes) {
-            if (fileService.isFileFromBrouillonDeletable(fichier.getUrl())) {
-                String url = URLEncoder.encode(fichier.getUrl(), StandardCharsets.UTF_8);
-                fileService.deleteFile("ROOT", url);
-            }
+            String url = URLEncoder.encode(fichier.getUrl(), StandardCharsets.UTF_8);
+            fileService.deleteFile("ROOT", url);
         }
     }
 
@@ -237,10 +235,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
             if (brouillonsFilesBOS != null) {
                 for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
-                    if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
-                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                        fileService.deleteFile("ROOT", url);
-                    }
+                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                    fileService.deleteFile("ROOT", url);
                 }
             }
         }

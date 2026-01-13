@@ -78,6 +78,37 @@
             </button>
           </a>
         </div>
+        <!-- Cas bouton supprimer pour les fichiers de la demande initiale -->
+        <div class="bouton-action"
+             th:if="${isSuppressionPJActif
+             and file.meta != null
+             and #strings.contains(file.meta, 'FRONT_IDX')}">
+          <a class="nopadding" th:data="${file.pkDemandesFiles}">
+            <button class="btn btn-action ripple-effect greyTooltip" data-placement="bottom"
+                    data-toggle="tooltip"
+                    th:data-original-title="Supprimer"
+                    title=""
+                    type="button"
+                    onclick="supprimerLigneFichierDemandeInitiale(this)">
+              <i class="icon-action_supprimer"></i>
+            </button>
+          </a>
+        </div>
+        <!-- Cas bouton supprimer pour les fichiers info comp -->
+        <div class="bouton-action"
+             th:if="${isSuppressionPJActif and file.compFile}">
+          <a class="nopadding" th:data="${file.pkDemandesComplementsFiles}">
+            <button class="btn btn-action ripple-effect greyTooltip" data-placement="bottom"
+                    data-toggle="tooltip"
+                    th:data-original-title="Supprimer"
+                    title=""
+                    type="button"
+                    onclick="supprimerLigneFichierInfoComp(this)">
+              <i class="icon-action_supprimer"></i>
+            </button>
+          </a>
+        </div>
+        <!-- Cas bouton supprimer pour les fichiers uploadés par l'agent -->
         <div class="bouton-action" th:if="${cat.name == 'Fichiers internes' and !#strings.contains(file.meta, 'BACK_RECAP')}">
           <a class="nopadding" th:data="${file.pkDemandesFiles}">
             <button class="btn btn-action ripple-effect greyTooltip" data-placement="bottom"

@@ -113,38 +113,6 @@ public class UploadPieceJustificativeServiceImpl implements UploadPieceJustifica
 
     /**
      * {@inheritDoc}
-     *
-     * @return
-     */
-    @Override
-    public ResponseEntity<String> supprimerPieceJustificative(Integer idDemandeFile) {
-        Optional<DemandesFilesBO> demandesFilesBO = demandesFilesRepository.findById(idDemandeFile);
-        if (demandesFilesBO.isEmpty()) {
-            return ResponseEntity.status(500)
-                    .body(String.format("La pièce justificative avec l'identifiant %s n'existe pas", idDemandeFile));
-        }
-        DemandesFilesBO demandeFile = demandesFilesBO.get();
-        String url = demandeFile.getUrl();
-        if (demandesFilesRepository.countByUrl(url)
-                == 1) { // On supprime le fichier s'il n'est référencé qu'une seule fois
-            LOGGER.info("Le fichier {} sera effacé de file.", url);
-
-            String urlEncode = URLEncoder.encode(url, UTF_8);
-            if (urlEncode != null && urlEncode.startsWith("/")) {
-                urlEncode = urlEncode.substring(1);
-            }
-
-            fileService.deleteFile(gouvPropertiesResolver.getContainerId(), urlEncode);
-            demandesFilesRepository.delete(demandeFile);
-            return ResponseEntity.ok().body("Le fichier a été supprimé avec succès");
-        } else {
-            return ResponseEntity.status(500)
-                    .body(String.format("Impossible de supprimer le fichier %s car référencé ailleurs", url));
-        }
-    }
-
-    /**
-     * {@inheritDoc}
      */
     @Override
     public ResponseEntity<String> changerVisibiliteFichier(Integer idDemandeFile, boolean visibleUsager) {

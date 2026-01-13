@@ -23,6 +23,7 @@ public class DemandesFilesTransformer {
         dto.setDate(bo.getDate());
         dto.setTypedoc(bo.getTypedoc());
         dto.setVerification(bo.isVerification());
+        dto.setSupprimee(bo.isSupprimee());
         dto.setContenu(bo.getContenu());
         return dto;
     }
@@ -39,6 +40,7 @@ public class DemandesFilesTransformer {
         bo.setDate(dto.getDate());
         bo.setTypedoc(dto.getTypedoc());
         bo.setVerification(dto.isVerification());
+        bo.setSupprimee(dto.isSupprimee());
         bo.setContenu(dto.getContenu());
         return bo;
     }

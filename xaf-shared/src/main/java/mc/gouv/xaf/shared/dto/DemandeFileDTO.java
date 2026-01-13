@@ -32,6 +32,7 @@ public class DemandeFileDTO {
     // Correspond à la checkbox de vérification de pièces jointes dans le BO
     // Va jusqu'en base
     private boolean verification;
+    private boolean supprimee;
 
     private String contenu;
 

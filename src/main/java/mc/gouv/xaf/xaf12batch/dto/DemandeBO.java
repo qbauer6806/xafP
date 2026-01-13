@@ -39,6 +39,10 @@ public class DemandeBO {
     @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode contenuInitial;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "FK_DERNIER_STATUT")
+    private DemandesStatutsBO dernierStatut;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "FK_CONFIG")
     private DemandeConfigBO config;

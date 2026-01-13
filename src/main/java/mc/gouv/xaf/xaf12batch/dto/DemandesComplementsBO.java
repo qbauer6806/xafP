@@ -9,37 +9,28 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Classe BO de la table DEM.DEMANDES_COMPLEMENTS
+ *
+ * @author qdeme
+ */
 @Setter
 @Getter
 @Entity
-@Table(name = "DEM_DEMANDES_FILES")
-public class DemandesFilesBO {
+@Table(name = "DEM_DEMANDES_COMPLEMENTS")
+public class DemandesComplementsBO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PK_DEMANDESFILES", nullable = false)
-    private Integer pkDemandesFiles;
+    @Column(name = "PK_DEMANDESCOMPLEMENTS", nullable = false)
+    private Integer pkDemandesComplements;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "FK_DEMANDES")
     private DemandeBO fkDemandes;
 
-    @Column(name = "SUPPRIMEE")
-    private boolean supprimee;
-
-
-    @Column(name = "URL", length = 1024, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 1024)
-    private String url;
-
-    @Column(name = "CONTENU", length = 100000)
-    private String contenu;
-
-
 }
+

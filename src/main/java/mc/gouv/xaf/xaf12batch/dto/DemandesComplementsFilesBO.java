@@ -2,9 +2,12 @@ package mc.gouv.xaf.xaf12batch.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,5 +34,11 @@ public class DemandesComplementsFilesBO {
     @Column(name = "CONTENU", length = 100000)
     private String contenu;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "FK_DEMANDESCOMPLEMENTS")
+    private DemandesComplementsBO fkDemandesComplements;
+
+    @Column(name = "SUPPRIMEE")
+    private boolean supprimee;
 
 }

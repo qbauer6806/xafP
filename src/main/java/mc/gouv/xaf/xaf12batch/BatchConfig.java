@@ -51,6 +51,9 @@ public class BatchConfig {
     private MigrateCommentairesBpmTasklet migrateCommentairesBpmTasklet;
 
     @Autowired
+    private DuplicateFilesTasklet duplicateFilesTasklet;
+
+    @Autowired
     private DemandeFileTransformer demandeFileTransformer;
 
     @Autowired
@@ -315,6 +318,12 @@ public class BatchConfig {
     }
 
     @Bean
+    public Step duplicateFilesStep() {
+        return new StepBuilder("duplicateFilesStep", jobRepository).tasklet(duplicateFilesTasklet, transactionManager)
+                .allowStartIfComplete(true).build();
+    }
+
+    @Bean
     public Job batchJob() {
         return new JobBuilder("batchJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
@@ -322,7 +331,7 @@ public class BatchConfig {
                 .next(complementsFilesStep(null))
                 .next(demandesStep(null))
                 .next(agentsStep(null)).next(usagersStep(null)).next(resetMarqueursStep())
-                .next(migrateCommentaireBpmStep())
+                .next(migrateCommentaireBpmStep()).next(duplicateFilesStep())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.data;
 
+import org.springframework.http.ResponseEntity;
 import java.util.Map;
 
 /**
@@ -10,4 +11,6 @@ import java.util.Map;
 public interface DemandesComplementsFilesService {
 
     boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes);
+
+    ResponseEntity<String> supprimerPieceJustificative(Integer idDemandeFile);
 }

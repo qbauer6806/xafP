@@ -243,6 +243,19 @@ public class DemandesHistoriqueService {
         return histoTs2Dem(contenu, usagerId, null);
     }
 
+    public DemandeHistoriqueDTO suppressionPJ(String fileName) {
+        String agentId = AfBackUtils.getAuthenticatedAgentId();
+        String agentName = getAgentName(agentId);
+        String html = "Supprime le fichier " + truncateMiddle(fileName);
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
+                demarchesDataProvider.getHistoRole(), html, null);
+        return histoTs2Dem(contenu, null, agentId);
+    }
+
+    private String truncateMiddle(String input) {
+        return StringUtils.abbreviateMiddle(input, "[...]", 30);
+    }
+
     public void actionSysteme(Integer demandeId, String targetState, String action) {
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(null, SYSTEME, action, targetState);
         DemandeHistoriqueDTO histo = histoTs2Dem(contenu, null, null);

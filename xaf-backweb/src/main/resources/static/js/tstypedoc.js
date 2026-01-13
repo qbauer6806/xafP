@@ -288,7 +288,7 @@ function uploadFichier() {
 
   const pkDemande = document.querySelector('input[name="pkDemande"]').value;
   // Envoi
-  const url = APP.getContextPath() + "/demandes/upload/" + pkDemande;
+  const url = APP.getContextPath() + "/ws/file/upload/" + pkDemande;
   $.ajax({
     url: url,
     method: "POST",
@@ -414,15 +414,35 @@ function removeFile(idToRemove) {
   }
 }
 
-/**
- * ouvre la pop up de confirmation de suppression d'une pièce justificative
- */
-function supprimerLigne(deleteButton) {
+function ouvrirModalSuppression(deleteButton, actionUrl, modal) {
   const id = deleteButton.parentNode.getAttribute('data');
-  const element = document.querySelector(
-      'input[data-action="confirmerSuppression"]');
-  element.setAttribute("data-id", id);
-  $('#confirm-suppression-piece').modal();
+  const modalElement = document.querySelector(modal);
+  if (!modalElement) {
+    return;
+  }
+  const btnConfirmer = modalElement.querySelector('#btn-confirmer-suppression');
+  if (!btnConfirmer) {
+    return;
+  }
+  btnConfirmer.setAttribute("data-id", id);
+  btnConfirmer.setAttribute("data-url", actionUrl);
+  $(modal).modal();
+}
+
+function supprimerLigne(deleteButton) {
+  ouvrirModalSuppression(deleteButton,
+      '/ws/file/suppression/', '#confirm-suppression-piece');
+}
+
+function supprimerLigneFichierDemandeInitiale(deleteButton) {
+  ouvrirModalSuppression(deleteButton,
+      '/ws/file/suppressionPJDemandeInitiale/',
+      '#confirm-suppression-piece-init-info-comp');
+}
+
+function supprimerLigneFichierInfoComp(deleteButton) {
+  ouvrirModalSuppression(deleteButton, '/ws/file/suppressionPJInfoComp/',
+      '#confirm-suppression-piece-init-info-comp');
 }
 
 function updateVisibiliteFichier(updateButton) {
@@ -441,7 +461,7 @@ function updateVisibiliteFichier(updateButton) {
   const pkDemande = document.querySelector('input[name="pkDemande"]').value;
   // Envoi
   $.ajax({
-    url: APP.getContextPath() + "/demandes/updateVisibilite/" + pkDemandeFile,
+    url: APP.getContextPath() + "/ws/file/updateVisibilite/" + pkDemandeFile,
     method: "POST",
     data: {visibleUsager: updateButton.checked},
     beforeSend: function (xhr) {
@@ -467,51 +487,60 @@ function updateVisibiliteFichier(updateButton) {
   });
 }
 
-document.querySelector(
-    'input[data-action="confirmerSuppression"]').addEventListener('click',
-    function () {
+function initSuppressionBouton() {
+  const boutons = document.querySelectorAll('#btn-confirmer-suppression');
+  if (!boutons.length) {
+    return;
+  }
+
+  boutons.forEach(btn => {
+    btn.addEventListener('click', function () {
       const pkDemandeFile = this.getAttribute('data-id');
-      if (!pkDemandeFile) {
-        $('#confirm-suppression-piece').hide();
-        $.notify({
-          message: "Erreur technique : l’identifiant de la pièce est manquant ou indéfini"
-        }, {
-          type: 'danger'
-        });
+      const url = this.getAttribute('data-url');
+
+      if (!pkDemandeFile || !url) {
+        $('.modal.show').modal('hide');
+        $.notify(
+            {message: "Erreur technique : l’identifiant de la pièce est manquant ou indéfini"},
+            {type: 'danger'}
+        );
         return;
       }
+
       const header = $("meta[name='_csrf_header']").attr("content");
       const token = $("meta[name='_csrf']").attr("content");
-
       const pkDemande = document.querySelector('input[name="pkDemande"]').value;
-      // Envoi
+
+      this.classList.add('disabled', 'loading');
+
       $.ajax({
-        url: APP.getContextPath() + "/demandes/suppression/" + pkDemandeFile,
+        url: APP.getContextPath() + url + pkDemandeFile,
         method: "POST",
         processData: false,
         contentType: false,
-        beforeSend: function (xhr) {
-          xhr.setRequestHeader(header, token);
-        },
-        success: function (response) {
+        beforeSend: xhr => xhr.setRequestHeader(header, token),
+        success: response => {
           localStorage.setItem("uploadMessage", response);
-          location.assign(APP.getContextPath() + "/demandes/" + pkDemande
-              + "?demandeTab=fichiers");
+          location.assign(
+              APP.getContextPath() + "/demandes/" + pkDemande
+              + "?demandeTab=fichiers"
+          );
         },
-        error: function (xhr, status, error) {
-          $('#confirm-suppression-piece').hide();
+        error: (xhr, status, error) => {
+          $('.modal.show').modal('hide');
           const messageErreur = handleAjaxError(xhr, status, error);
-          $.notify({
-            message: messageErreur
-          }, {
-            type: 'danger'
-          });
+          $.notify({message: messageErreur}, {type: 'danger'});
+
           if (xhr.status === 401) {
             setTimeout(() => location.reload(), 2000);
           }
         }
       });
     });
+  });
+}
+
+initSuppressionBouton();
 
 // Fonction dédiée pour gérer les erreurs
 function handleAjaxError(xhr, status, error) {

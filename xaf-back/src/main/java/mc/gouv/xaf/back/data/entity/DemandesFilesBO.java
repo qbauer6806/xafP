@@ -62,6 +62,9 @@ public class DemandesFilesBO {
     @Column(name = "VERIFICATION")
     private boolean verification;
 
+    @Column(name = "SUPPRIMEE")
+    private boolean supprimee;
+
     @Column(name = "CONTENU", length = 100000)
     private String contenu;
 

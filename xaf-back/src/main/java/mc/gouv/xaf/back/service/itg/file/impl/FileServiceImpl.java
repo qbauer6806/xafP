@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
@@ -79,6 +77,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
@@ -96,22 +95,7 @@ public class FileServiceImpl implements FileService {
 
     private final AfBackUtils afBackUtils;
     private final GouvPropertiesResolver gouvPropertiesResolver;
-    private final DemandesFilesRepository demandesFilesRepository;
-    private final DemandesCourriersRepository demandesCourriersRepository;
     private final BrouillonsFilesRepository brouillonsFilesRepository;
-    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
-
-    public FileServiceImpl(AfBackUtils afBackUtils, GouvPropertiesResolver gouvPropertiesResolver,
-            DemandesFilesRepository demandesFilesRepository, DemandesCourriersRepository demandesCourriersRepository,
-            BrouillonsFilesRepository brouillonsFilesRepository,
-            DemandesComplementsFilesRepository demandesComplementsFilesRepository) {
-        this.afBackUtils = afBackUtils;
-        this.gouvPropertiesResolver = gouvPropertiesResolver;
-        this.demandesFilesRepository = demandesFilesRepository;
-        this.demandesCourriersRepository = demandesCourriersRepository;
-        this.brouillonsFilesRepository = brouillonsFilesRepository;
-        this.demandesComplementsFilesRepository = demandesComplementsFilesRepository;
-    }
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
@@ -553,40 +537,50 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean isFileDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
-        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
-        if (existingFiles <= 1 && existingFilesBrouillons == 0) {
-            return true;
-        }
-        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
-        return false;
-    }
-
-    @Override
-    public boolean isFileBrouillonDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
-        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
-        if (existingFiles == 0 && existingFilesBrouillons <= 1) {
-            return true;
-        }
-        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
-        return false;
-    }
-
-    @Override
     public boolean isFileFromBrouillonDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
-        int existingFilesCourriers = demandesCourriersRepository.countByUrl(fileUrl);
-        int existingFilesComplements = demandesComplementsFilesRepository.countByUrl(fileUrl);
         int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
-        if (existingFiles == 0 && existingFilesCourriers == 0 && existingFilesComplements == 0
-                && existingFilesBrouillons <= 1) {
+        if (existingFilesBrouillons == 1) {
             return true;
         }
         String logSafe = AfBackUtils.logSafe(fileUrl);
         LOGGER.info(MESSAGE_FICHIER_REFERENCE, logSafe);
         return false;
+    }
+
+    @Override
+    public String dupliquerFichier(String fileUrl, DemandeDTO demande) {
+        try {
+            FileInfo fileInfo = recupererFichierAvecContentType(fileUrl);
+
+            try (InputStream is = fileInfo.inputStream()) {
+                return saveFile(demande, fileInfo.fileName(), gouvPropertiesResolver.getContainerId(),
+                        fileInfo.contentType(), is, null);
+            }
+
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la duplication du fichier : {}", fileUrl);
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private FileInfo recupererFichierAvecContentType(String fileUrl) throws IOException {
+        URI uri = URI.create(fileUrl);
+        ResponseEntity<InputStream> response = getFileEntity(uri.getPath(), gouvPropertiesResolver.getContainerId());
+
+        String contentType = response.getHeaders().getContentType() != null
+                ? response.getHeaders().getContentType().toString()
+                : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        return new FileInfo(extraireNomFichier(fileUrl), contentType, response.getBody());
+    }
+
+    private String extraireNomFichier(String fileUrl) {
+        return fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+    }
+
+    private record FileInfo(String fileName, String contentType, InputStream inputStream) {
+
     }
 
 }

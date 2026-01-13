@@ -300,25 +300,16 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
             PurgeFilesBO cf = all.next();
 
-            if (demandesFilesRepository.countByUrl(cf.getUrl()) == 0
-                    && demandesCourriersRepository.countByUrl(cf.getUrl()) == 0
-                    && demandesComplementsFilesRepository.countByUrl(cf.getUrl()) == 0
-                    && brouillonsFilesRepository.countByUrl(cf.getUrl()) == 0) {
-                LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
+            LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
 
-                String url = cf.getUrl();
-                if (url != null && url.startsWith("/")) {
-                    url = url.substring(1);
-                }
-
-                lotCourant.add(url);
-                compteGlobalFichiers++;
-                compte++;
-            } else {
-                LOGGER.info("Exclusion du fichier {} car référencé ailleurs. Ce fichier ne sera pas supprimé.",
-                        cf.getUrl());
-                compteGlobalFichiersExclus++;
+            String url = cf.getUrl();
+            if (url != null && url.startsWith("/")) {
+                url = url.substring(1);
             }
+
+            lotCourant.add(url);
+            compteGlobalFichiers++;
+            compte++;
 
             purgeFilesRepository.delete(cf);
 

@@ -705,6 +705,10 @@ public class DemandesServiceImpl implements DemandesService {
                 changerAffectationDemande(clonedDemandeBo.getPkDemandes(), originalDemandeBo.getAgent().getId());
             }
 
+            // si la demande dupliquée contient des fichiers purgés par l'agent, on les retire du contenu
+            demandesFilesService.supprimerPieceJustificativeContenu(clonedDemandeBo);
+
+
             // Génération d'un nouvel identifiant de demande
             String identifiant = generatePublicID();
             clonedDemandeBo.setIdentifiant(identifiant);

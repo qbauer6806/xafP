@@ -20,14 +20,7 @@ public interface UploadPieceJustificativeService {
      */
     ResponseEntity<String> enregistrerPieceJustificative(Integer pkDemande, MultipartFile[] files,
             List<UploadFileDTO> metadonnees, HttpServletResponse response);
-
-    /**
-     * supprimer un fichier depuis le BO
-     * @param idDemandeFile l'identifiant du fichier à supprimer
-     * @return le message du résultat du traitement des fichiers
-     */
-    ResponseEntity<String> supprimerPieceJustificative(Integer idDemandeFile);
-
+    
     /**
      * Modifie la visibilité d'un fichier associé à une demande.
      *

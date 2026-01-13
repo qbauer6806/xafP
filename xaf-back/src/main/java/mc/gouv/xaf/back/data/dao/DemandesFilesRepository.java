@@ -15,6 +15,4 @@ public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO,
 
     List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndMeta(Integer pkDemande, String meta);
 
-    Integer countByUrl(String url);
-
 }

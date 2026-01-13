@@ -2,9 +2,10 @@ package mc.gouv.xaf.back.service.data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import java.util.Optional;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Service permettant la manipulation des fichiers joints aux demandes.
@@ -67,4 +68,18 @@ public interface DemandesFilesService {
     Optional<DemandeFileDTO> getFileByDemandeFileId(Integer pkDemandesFiles);
 
     void deleteFileByFileUrlAndId(String fileName, Integer fileId);
+
+    /**
+     * supprimer un fichier depuis le BO
+     *
+     * @param idDemandeFile
+     *         l'identifiant du fichier à supprimer
+     * @param garderHistorique
+     *         si on doit laisser le fichier dans la table dem demandes files
+     * @return le message du résultat du traitement des fichiers
+     */
+    ResponseEntity<String> supprimerPieceJustificative(Integer idDemandeFile, boolean garderHistorique);
+
+    void supprimerPieceJustificativeContenu(DemandeBO demandeBo);
+
 }

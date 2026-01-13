@@ -2,6 +2,9 @@ package mc.gouv.xaf.xaf12batch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import mc.gouv.xaf.xaf12batch.demandes.DemandeFileTransformer;
 import mc.gouv.xaf.xaf12batch.demandes.DemandeTransformer;
 import mc.gouv.xaf.xaf12batch.demandes.DemandesAgentsTransformer;
@@ -24,6 +27,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -32,7 +36,9 @@ import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -70,6 +76,9 @@ public class BatchConfig {
 
     @Autowired
     private GouvCache<Integer, GichuniUsagerDTO> usagersCache;
+
+    @Value("${batch.steps:}")
+    private String stepsToRun;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfig.class);
 
@@ -325,14 +334,47 @@ public class BatchConfig {
 
     @Bean
     public Job batchJob() {
-        return new JobBuilder("batchJob", jobRepository)
-                .incrementer(new RunIdIncrementer())
-                .start(filesStep(null))
-                .next(complementsFilesStep(null))
-                .next(demandesStep(null))
-                .next(agentsStep(null)).next(usagersStep(null)).next(resetMarqueursStep())
-                .next(migrateCommentaireBpmStep()).next(duplicateFilesStep())
-                .build();
+        Set<String> stepsSet = getStepsSet();
+        // 1. Initialisation du builder
+        SimpleJobBuilder builder = new JobBuilder("batchJob", jobRepository).incrementer(new RunIdIncrementer())
+                .start(emptyStep()); // On commence par un step technique vide ou le premier step actif
+
+        // 2. Ajout conditionnel des steps
+        if (stepsSet == null || stepsSet.contains("files")) {
+            builder.next(filesStep(null));
+        }
+        if (stepsSet == null || stepsSet.contains("complementsFiles")) {
+            builder.next(complementsFilesStep(null));
+        }
+        if (stepsSet == null || stepsSet.contains("demandes")) {
+            builder.next(demandesStep(null));
+        }
+        if (stepsSet == null || stepsSet.contains("agents")) {
+            builder.next(agentsStep(null));
+        }
+        if (stepsSet == null || stepsSet.contains("usagers")) {
+            builder.next(usagersStep(null));
+        }
+        if (stepsSet == null || stepsSet.contains("resetMarqueurs")) {
+            builder.next(resetMarqueursStep());
+        }
+        if (stepsSet == null || stepsSet.contains("migrateCommentaireBpm")) {
+            builder.next(migrateCommentaireBpmStep());
+        }
+        if (stepsSet == null || stepsSet.contains("duplicateFiles")) {
+            builder.next(duplicateFilesStep());
+        }
+
+        return builder.build();
+    }
+
+    /**
+     * Un step qui ne fait rien, utile pour amorcer le builder si le premier step de la liste est désactivé.
+     */
+    @Bean
+    public Step emptyStep() {
+        return new StepBuilder("emptyStep", jobRepository).tasklet(
+                (contribution, chunkContext) -> RepeatStatus.FINISHED, transactionManager).build();
     }
 
     @Bean
@@ -343,6 +385,13 @@ public class BatchConfig {
                     DefaultFlowable5SpringCompatibilityHandler::new);
         };
 
+    }
+
+    private Set<String> getStepsSet() {
+        if (stepsToRun == null || stepsToRun.isEmpty()) {
+            return null;
+        }
+        return Arrays.stream(stepsToRun.split(",")).map(String::trim).collect(Collectors.toSet());
     }
 
 }

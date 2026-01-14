@@ -37,7 +37,7 @@ public class DocHolderConsentController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderConsentController.class);
 
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     /**
      * Renvoie si l'utilisateur connecté a consenti ou non <b>côté TS</b> à l'usage du porte-documents

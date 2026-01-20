@@ -80,7 +80,7 @@ pipeline {
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv(credentialsId: 'sonar-prod', installationName: 'sonar') {
-                    sh 'mvn ${MC_M2_OPTS_REVISION} sonar:sonar'
+                    sh 'mvn ${MC_M2_OPTS_REVISION} org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar'
                 }
             }
         }

@@ -967,16 +967,37 @@ public class AfBackUtils {
     }
 
     public static String genererAdresse(DemandeDTO demandeDTO, String marqueurIdentifiant) {
-        String adresseComplete = escapeChars(demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne1"));
-        String adresse2 = demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne2");
-        String adresse3 = demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne3");
-        if (!StringUtils.isEmpty(adresse2)) {
-            adresseComplete += "\n" + escapeChars(adresse2);
+        return genererAdresse(demandeDTO, marqueurIdentifiant, "\n");
+    }
+
+    public static String genererAdresseInline(DemandeDTO demandeDTO, String marqueurIdentifiant) {
+        return genererAdresse(demandeDTO, marqueurIdentifiant, " - ");
+    }
+
+    private static String genererAdresse(DemandeDTO demandeDTO, String marqueurIdentifiant, String separateur) {
+        StringBuilder adresse = new StringBuilder();
+
+        String ligne1 = escapeChars(demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne1"));
+        String ligne2 = demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne2");
+        String ligne3 = demandeDTO.getMarqueur(marqueurIdentifiant + "Ligne3");
+
+        if (!StringUtils.isEmpty(ligne1)) {
+            adresse.append(ligne1);
         }
-        if (!StringUtils.isEmpty(adresse3)) {
-            adresseComplete += "\n" + escapeChars(adresse3);
+        if (!StringUtils.isEmpty(ligne2)) {
+            if (!adresse.isEmpty()) {
+                adresse.append(separateur);
+            }
+            adresse.append(escapeChars(ligne2));
         }
-        return adresseComplete;
+        if (!StringUtils.isEmpty(ligne3)) {
+            if (!adresse.isEmpty()) {
+                adresse.append(separateur);
+            }
+            adresse.append(escapeChars(ligne3));
+        }
+
+        return adresse.toString();
     }
 
     /**

@@ -185,13 +185,15 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 : new ArrayList<>();
 
         JsonNode contenuSource = null;
-        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            // récupérer le contenu de la demandeInitial et traduire
-            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
-            demandesService.setContenuTrad(contenuSource, demande.getConfig());
-        } else if (demande.getPkDemandeSource() != null) {
-            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
-            contenuSource = d != null ? d.getContenuTrad() : null;
+        if (demarchesDataProvider.isAfficheDemandeSource()) {
+            if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+                // récupérer le contenu de la demandeInitial et traduire
+                contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
+                demandesService.setContenuTrad(contenuSource, demande.getConfig());
+            } else if (demande.getPkDemandeSource() != null) {
+                DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
+                contenuSource = d != null ? d.getContenuTrad() : null;
+            }
         }
 
         if (sectionsNode != null && sectionsNode.isArray()) {

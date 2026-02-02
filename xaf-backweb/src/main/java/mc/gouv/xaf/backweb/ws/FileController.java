@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -13,7 +14,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.UploadPieceJustificativeService;
@@ -103,9 +102,7 @@ public class FileController {
         String file = request.getServletPath().replace("/ws/file/get/", "");
         LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
 
-        // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-        String filePathEncoded = URLEncoder.encode(file, UTF_8);
-        ResponseEntity<InputStream> fileEntity = fileService.getFileEntity(filePathEncoded,
+        ResponseEntity<InputStream> fileEntity = fileService.getFileEntity(file,
                 gouvPropertiesResolver.getContainerId());
         InputStream body = fileEntity.getBody(); // Pour corriger l'erreur sonar java:S4449
         if (!fileEntity.getStatusCode().is2xxSuccessful() || body == null) {
@@ -328,8 +325,6 @@ public class FileController {
                 continue;
             }
             String file = currentFile.getUrl();
-            // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-            String filePathEncoded = URLEncoder.encode(file, UTF_8);
             String fileName = currentFile.getName();
             int extensionIndex = fileName.lastIndexOf(".");
             String extension = fileName.substring(extensionIndex + 1);
@@ -341,7 +336,7 @@ public class FileController {
                     typeDoc + fileName.replace("." + extension, "-" + count + "." + extension));
             InputStream is = fileService.getFile(
                     gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/"
-                            + filePathEncoded);
+                            + file);
             copyInputStreamToFile(is, fileToAdd);
             result.add(fileToAdd);
             count++;
@@ -407,9 +402,7 @@ public class FileController {
         String file = request.getServletPath();
         file = file.replace("/ws/file/get/apercu", "");
         try {
-            // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-            String filePathEncoded = URLEncoder.encode(file, UTF_8);
-            InputStream inputFile = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
+            InputStream inputFile = fileService.getFile(file, gouvPropertiesResolver.getContainerId());
             LOGGER.info("Écriture du fichier dans l'OutputStream...");
             IOUtils.copy(inputFile, response.getOutputStream());
         } catch (IOException e) {

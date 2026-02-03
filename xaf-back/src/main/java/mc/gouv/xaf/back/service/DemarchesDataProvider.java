@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.back.service.histo.HistoValidationEnum;
+import mc.gouv.xaf.back.service.histo.HistoValidationNiveauEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
@@ -129,7 +130,8 @@ public interface DemarchesDataProvider {
     /**
      * Permets de définir la correspondance de l'action de l'historique pour chaque statut
      */
-    String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut);
+    String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut,
+            HistoValidationNiveauEnum niveauEnum);
 
     default String getHistoRole() {
         return "Utilisateur";

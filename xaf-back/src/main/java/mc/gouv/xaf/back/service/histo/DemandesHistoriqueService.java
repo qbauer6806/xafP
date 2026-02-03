@@ -134,7 +134,8 @@ public class DemandesHistoriqueService {
                                               String dernierStatut) {
         String role, name;
         String agentName = getAgentName(agentId);
-        String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum, dernierStatut);
+        String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum, dernierStatut,
+                niveauEnum);
         String statut = targetState;
         if (histoValidationEnum != null) {
             role = (niveauEnum != null) ? VALIDEUR + " " + niveauEnum : VALIDEUR;

@@ -48,7 +48,7 @@ public class GouvBPMSauvegarderHistoriqueDelegate implements JavaDelegate {
         // Ajout d'une ligne à l'historique
         String role = executionRole != null ? (String) executionRole.getValue(execution) : null;
         String dernierStatut = sourceState != null ? (String) sourceState.getValue(execution) : null;
-        String action = demarchesDataProvider.getHistoAction(statut, null, dernierStatut);
+        String action = demarchesDataProvider.getHistoAction(statut, null, dernierStatut, null);
         demandesHistoriqueService.ajouterHistorique(pkDemande, statut, role, action, null);
 
         LOGGER.info("==== xaf-back SAUVEGARDE HISTORIQUE <FIN>");

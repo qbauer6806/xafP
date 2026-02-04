@@ -391,6 +391,16 @@
             </div>
           </div>
         </div>
+        <div class="row container-fluid" th:if="${wysiwygVersion}">
+          <div th:class="form-group">
+            <div class="col-xs-2">
+              <label>Version WYSIWYG</label>
+            </div>
+            <div class="col-xs-8">
+              <span th:text="${wysiwygVersion}"/>
+            </div>
+          </div>
+        </div>
         <div class="row container-fluid">
           <div class="col-xs-12">
             <div class="text-center">

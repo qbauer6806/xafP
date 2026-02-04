@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -10,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.ParametrageFormBean;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -45,6 +48,7 @@ public class GestionParametrageController {
     private static final String REDIRECT = "redirect:/gestion/parametrage";
 
     private final DemarchesService demarchesService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
     private final AfBackUtils afBackUtils;
 
     @Value("${display.name}")
@@ -85,6 +89,10 @@ public class GestionParametrageController {
 
         mav.addObject("displayName", displayName);
         mav.addObject("xafVersion", xafVersion);
+        DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
+        JsonNode node = config.getContenu().get("wysiwygVersion");
+        String wysiwygVersion = node != null ? node.asText() : null;
+        mav.addObject("wysiwygVersion", wysiwygVersion);
         mav.addObject("tsVersion", mavenVersion);
 
         LOGGER.info("======================= Fin /gestion/parametrage. Méthode form");

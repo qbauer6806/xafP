@@ -86,7 +86,7 @@
         <select class="form-control" id="selectBuildId">
           <option th:each="config : ${configs}" th:selected="${config.buildId} == ${buildId}"
                   th:value="${config.buildId}"
-                  th:text="${config.buildId}+' | '+${config.date}+' | '+${config.version}"></option>
+                  th:text="${config.buildId}+' | '+${config.date}+' | '+${config.version}+' | '+${config.wysiwygVersion}"></option>
         </select>
       </div>
       <div class="col-md-3">

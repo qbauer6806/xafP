@@ -86,6 +86,8 @@ public class DuplicateFilesTasklet implements Tasklet {
 
             DemandesComplementsFilesBO demandesFilesBO = DemandesComplementsFilesRepository.findById(id).orElse(null);
             if (demandesFilesBO == null || demandesFilesBO.isSupprimee()) {
+                LOGGER.info("Problème id {} : fichier absent ou supprimé", id);
+                LOGGER.info("{}/{} fichiers complément traités", i++, idsComplement.size());
                 continue;
             }
 
@@ -99,6 +101,8 @@ public class DuplicateFilesTasklet implements Tasklet {
             );
 
             if (urlWithoutSlash == null) {
+                LOGGER.info("Problème id {} : impossible de récupérer le fichier", id);
+                LOGGER.info("{}/{} fichiers complément traités", i++, idsComplement.size());
                 continue;
             }
 

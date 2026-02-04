@@ -88,8 +88,11 @@ public class FileService {
     public String dupliquerFichier(String fileUrl, String pkDemande, String dernierStatut) {
         try {
             FileInfo fileInfo = recupererFichierAvecContentType(fileUrl);
-
             try (InputStream is = fileInfo.inputStream()) {
+                if (is == null) {
+                    LOGGER.error("InputStream null pour {}", fileUrl);
+                    return null;
+                }
                 String[] parts = fileUrl.split("/");
                 // on récupère le fkAccess
                 String fkAccess = parts[1];
@@ -98,8 +101,7 @@ public class FileService {
             }
 
         } catch (IOException e) {
-            LOGGER.error("Erreur lors de la duplication du fichier : {}", fileUrl);
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Erreur lors de la duplication du fichier : {}", fileUrl, e);
             return null;
         }
     }

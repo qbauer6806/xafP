@@ -81,6 +81,7 @@
         <!-- Cas bouton supprimer pour les fichiers de la demande initiale -->
         <div class="bouton-action"
              th:if="${isSuppressionPJActif
+             and !file.compFile
              and file.meta != null
              and #strings.contains(file.meta, 'FRONT_IDX')}">
           <a class="nopadding" th:data="${file.pkDemandesFiles}">

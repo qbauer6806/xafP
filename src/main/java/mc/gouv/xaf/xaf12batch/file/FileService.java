@@ -87,10 +87,14 @@ public class FileService {
 
     public String dupliquerFichier(String fileUrl, String pkDemande, String dernierStatut) {
         try {
-            FileInfo fileInfo = recupererFichierAvecContentType(fileUrl);
+            LOGGER.info("fileUrl récupéré de la base => {}", fileUrl);
+            // Afin de gérér à la fois les vieux fichiers (non encodés) et les nouveaux (déjà encodés), on décode, pour ensuite réencoder dans la construction de l'url
+            String fileUrlDecode = java.net.URLDecoder.decode(fileUrl, java.nio.charset.StandardCharsets.UTF_8);
+            LOGGER.info("fileUrl decode => {}", fileUrlDecode);
+            FileInfo fileInfo = recupererFichierAvecContentType(fileUrlDecode);
             try (InputStream is = fileInfo.inputStream()) {
                 if (is == null) {
-                    LOGGER.error("InputStream null pour {}", fileUrl);
+                    LOGGER.warn("InputStream null pour {}", fileUrl);
                     return null;
                 }
                 String[] parts = fileUrl.split("/");

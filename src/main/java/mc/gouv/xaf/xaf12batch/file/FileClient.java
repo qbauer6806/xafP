@@ -2,6 +2,7 @@ package mc.gouv.xaf.xaf12batch.file;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,6 +13,7 @@ import java.util.Map.Entry;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -25,6 +27,7 @@ import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,13 +86,48 @@ public class FileClient {
         HttpGet request = new HttpGet(uri);
         request.setHeader(HttpHeaders.AUTHORIZATION, getAuthHeader());
         LOGGER.info("getFileEntity : Appel du WS FILE");
-        HttpResponse response = client.execute(request);
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (HttpStatus.SC_OK != statusCode) {
+
+        final CloseableHttpResponse response = client.execute(request);
+        final int statusCode = response.getStatusLine().getStatusCode();
+
+        if (statusCode != HttpStatus.SC_OK) {
+            try {
+                EntityUtils.consumeQuietly(response.getEntity());
+            } finally {
+                response.close();
+            }
             LOGGER.warn("Fichier introuvable pour le chemin : {}", virtualPath);
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body(response.getEntity().getContent());
+
+        // l'inputstream est lié à la connexion
+        final InputStream raw = response.getEntity().getContent();
+
+        InputStream wrapped = new FilterInputStream(raw) {
+
+            @Override
+            public void close() throws IOException {
+                // fermer le stream et fermer la réponse pour libérer la connexion
+                try {
+                    super.close();
+                } finally {
+                    response.close();
+                }
+            }
+        };
+
+        // recopier content-type/content-length si présents
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+        Header ct = response.getEntity().getContentType();
+        if (ct != null && ct.getValue() != null) {
+            builder.header(HttpHeaders.CONTENT_TYPE, ct.getValue());
+        }
+        long len = response.getEntity().getContentLength();
+        if (len >= 0) {
+            builder.contentLength(len);
+        }
+
+        return builder.body(wrapped);
     }
 
     private URI createUrl(String virtualPath) {

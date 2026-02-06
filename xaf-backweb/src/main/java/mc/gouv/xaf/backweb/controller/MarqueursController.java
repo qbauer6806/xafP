@@ -81,9 +81,9 @@ public class MarqueursController extends AbstractController {
             ZonedDateTime dateTime = Instant.ofEpochMilli(Long.parseLong(config.getBuildId()))
                     .atZone(ZoneId.systemDefault());
             configDTO.setDate(dateTime.format(formatter));
-            configDTO.setVersion(config.getVersion() != null ? "WYSI " + config.getVersion() : "");
+            configDTO.setVersion(config.getVersion() != null ? config.getVersion() : "");
             JsonNode node = config.getContenu().get("wysiwygVersion");
-            String wysiwygVersion = node != null ? node.asText() : "";
+            String wysiwygVersion = node != null ?  "WYSI " + node.asText() : "";
             configDTO.setWysiwygVersion(wysiwygVersion);
             configDTOS.add(configDTO);
         }

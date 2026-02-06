@@ -117,7 +117,7 @@
           <span class="icon-action_suivant"></span>
         </a>
         <ul class="" style="left: 40px; display: none;">
-          <li sec:authorize="hasRole('ROLE_PARAMETRAGE')">
+          <li sec:authorize="hasRole('ROLE_PARAMETRAGE') || hasRole('ROLE_CONFIGURATION')">
             <a id="menuHistoriqueSuppressions" th:href="@{/gestion/purge}">
               <div class="whiteBullet"></div>
               Historique des suppressions

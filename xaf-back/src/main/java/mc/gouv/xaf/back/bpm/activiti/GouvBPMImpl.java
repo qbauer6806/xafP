@@ -13,7 +13,6 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
@@ -299,24 +298,6 @@ public class GouvBPMImpl implements GouvBPM {
         for (Execution ex : executions) {
             runtimeService.messageEventReceived("rectificationMessage", ex.getId(), variables);
         }
-    }
-
-    @Override
-    public void reponseRectification(Integer pkDemande, Integer usagerId) {
-        LOGGER.info("Réponse à la demande de rectification de la demande {} par l'usager", pkDemande);
-
-        GouvBPMUser user = new GouvBPMUser();
-        user.setId(usagerId.toString());
-
-        GouvBPMTask task = getActiveTasksForDemande(pkDemande).getFirst();
-
-        try {
-            claimTask(task, user);
-        } catch (TaskAlreadyClaimedException e1) {
-            throw new DemarcheException("Erreur lors du claim de la tache", e1);
-        }
-        completeTask(task, pkDemande);
-
     }
 
     /**

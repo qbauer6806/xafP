@@ -152,10 +152,19 @@ public class DemandesHistoriqueService {
         return histoTs2Dem(contenu, usagerId, agentId);
     }
 
-    public DemandeHistoriqueDTO updateDemande(Integer usagerId, String agentId, String targetState) {
-        String usagerName = usagersUtils.getUsagerNameFromID(usagerId);
-        String action = "Rectifie sa demande";
-        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(usagerName, USAGER, action, targetState);
+    public DemandeHistoriqueDTO updateDemande(String targetState, Integer usagerId, String agentId) {
+        DemandeHistoriqueContenuDTO contenu;
+        // rectification par usager
+        if (usagerId != null) {
+            String usagerName = usagersUtils.getUsagerNameFromID(usagerId);
+            String action = "Rectifie sa demande";
+            contenu = new DemandeHistoriqueContenuDTO(usagerName, USAGER, action, targetState);
+        } else {
+            // par agent
+            String action = "Rectifie la demande à la place de l'usager";
+            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId), demarchesDataProvider.getHistoRole(),
+                    action, targetState);
+        }
         return histoTs2Dem(contenu, usagerId, agentId);
     }
 

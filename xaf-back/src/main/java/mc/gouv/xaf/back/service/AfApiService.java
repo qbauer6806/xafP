@@ -31,13 +31,12 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.RectificationService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
 import mc.gouv.xaf.back.service.demande.ReponseDemandeInfoComplFinalizer;
-import mc.gouv.xaf.back.service.demande.UpdateDemandeExtender;
-import mc.gouv.xaf.back.service.demande.UpdateDemandeFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -100,7 +99,7 @@ import org.xml.sax.SAXException;
 public class AfApiService implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
-    protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
+    public static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
 
     protected final GouvBPM gouvBPM;
     protected final AfBackUtils afBackUtils;
@@ -126,15 +125,14 @@ public class AfApiService implements AfApi {
     protected final DemandesDataService demandesDataService;
     protected final PaysCache paysCache;
     private final Optional<CreateDemandeFinalizer> createDemandeFinalizers;
-    private final Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
     private final Optional<CreateDemandeExtender> createDemandeExtenders;
-    private final Optional<UpdateDemandeExtender> updateDemandeExtenders;
     private final Optional<CustomRequestService> customRequestService;
     private final Optional<DonneesExternesService> donneesExternesService;
     private final DemandesStatutsService demandesStatutsService;
     private final PurgeDemandesService purgeDemandesService;
     private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
     private final Optional<ReponseDemandeInfoComplFinalizer> demandeComplementFinalizer;
+    private final RectificationService rectificationService;
 
     @Override
     @Transactional
@@ -273,55 +271,7 @@ public class AfApiService implements AfApi {
     @Override
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
-
-        DemandeDTO demandeEnBase = demandesService.getDemande(demandeId);
-        if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {
-            throw new BadRequestWebException("La demande n'est pas éligible à une rectification.");
-        }
-        DemandeDTO demandeDtoUpdated;
-        try {
-            final DemandeDTO demandeDto = buildDemandeFromInputAfterUpdate(demande, usagerId, demandeId);
-
-            updateDemandeExtenders.ifPresent(extender -> extender.applyUpdateTreatment(demande, demandeDto));
-
-            LOGGER.debug("DTO reconstitué : {}", demandeDto);
-
-            // Partial update sur contenu et fichiers uniquement
-            demandeDtoUpdated = demandesService.updateDemande(demandeDto, true);
-
-            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDtoUpdated);
-
-            gouvBPM.reponseRectification(demandeId, usagerId);
-
-            // Ajout d'une ligne à l'historique
-            LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
-
-            // Récupération du statut courant (qui vient d'être mis par le BPM) afin de déterminer le statut
-            // cible à donner à l'historique
-            demandeEnBase = demandesService.getDemande(demandeId);
-            DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
-
-            DemandeHistoriqueDTO histo = demandesHistoriqueService.updateDemande(usagerId, demande.getCreeParAgentId(),
-                    statut.getName());
-            demandesHistoriqueService.saveHisto(demandeDtoUpdated.getPkDemandes(), histo);
-
-            demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
-
-            updateDemandeFinalizers.ifPresent(finalizer -> finalizer.finalizeDemandeUpdate(demandeDtoUpdated));
-        } catch (Exception e) {
-            // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
-            throw new DemarcheException("Erreur lors de la mise à jour d'une demande", e);
-        }
-        return demandeDtoUpdated;
-    }
-
-    private DemandeDTO buildDemandeFromInputAfterUpdate(DemandeInputDTO demande, Integer usagerId, Integer demandeId) {
-        DemandeDTO demandeDto = new DemandeDTO();
-        demandeDto.setUsagerId(usagerId);
-        demandeDto.setPkDemandes(demandeId);
-        demandeDto.setContenu(demande.getContenu());
-        demandeDto.setFichiers(demande.getFichiers());
-        return demandeDto;
+        return rectificationService.updateDemande(demandeId, demande, usagerId, null);
     }
 
     /**

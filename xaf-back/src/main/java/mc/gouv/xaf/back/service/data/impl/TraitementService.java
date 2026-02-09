@@ -92,7 +92,7 @@ public class TraitementService {
     public static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String ERROR_MESSAGES = "errorMessages";
 
-    private static final String I18N_TRAITEMENT_CONCURRENT_DEPOTIC_ERROR_CODE_MESSAGE = "message.error.traitement.concurrent.depotIC";
+    public static final String I18N_TRAITEMENT_CONCURRENT_DEPOTIC_ERROR_CODE_MESSAGE = "message.error.traitement.concurrent.depotIC";
     private static final String I18N_ANNULATION_SUCCESS_CODE_MESSAGE = "message.success.annulation";
     private static final String I18N_TRAITEMENT_CONCURRENT_FINAL_ERROR_CODE_MESSAGE = "message.error.traitement.concurrent.final";
     public static final String I18N_ENVOI_SUCCESS_CODE_MESSAGE = "message.success.envoi";

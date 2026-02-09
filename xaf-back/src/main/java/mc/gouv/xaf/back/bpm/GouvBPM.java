@@ -173,8 +173,6 @@ public interface GouvBPM {
 
     void setAssignee(Integer demandeId, String assignee);
 
-    void reponseRectification(Integer pkDemande, Integer usagerId);
-
     void rectificationSpontanee(Integer demandeId);
 
     /**

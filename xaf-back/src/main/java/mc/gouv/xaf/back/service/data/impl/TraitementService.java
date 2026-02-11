@@ -65,6 +65,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.XafTraitementFormBean;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.XafDemandeStatutEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.shared.formbean.TypedocFormBean;
 import mc.gouv.xaf.shared.util.FileNameUtils;
@@ -375,7 +376,8 @@ public class TraitementService {
         }
         // On enlève la demande de rectification si ce n'est pas guichet virtuel
         if (demande.getCanal() != DemandeCanalEnum.GUICHET_VIRTUEL) {
-            actionsDisponibles.removeIf(a -> "EN_ATTENTE_RECTIFICATION".equals(a.getStatut()));
+            actionsDisponibles.removeIf(
+                    a -> XafDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name().equals(a.getStatut()));
         }
         mav.addObject("actionsDisponibles", actionsDisponibles);
 

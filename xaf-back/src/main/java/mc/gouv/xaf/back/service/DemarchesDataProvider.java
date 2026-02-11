@@ -45,8 +45,6 @@ public interface DemarchesDataProvider {
         return new LinkedHashMap<>();
     }
 
-    String getVersion();
-
     boolean getDemarcheCanGenerateCourriers();
 
     default boolean getDemarcheCanHandlePeriodesOuverture() {
@@ -77,10 +75,6 @@ public interface DemarchesDataProvider {
 
     default DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
         return null;
-    }
-
-    default boolean isEligibleRectification(DemandeDTO demande) {
-        return false;
     }
 
     default String getExportLibelle() {

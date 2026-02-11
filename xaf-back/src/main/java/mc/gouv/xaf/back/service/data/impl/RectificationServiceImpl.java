@@ -10,7 +10,6 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.RectificationService;
@@ -21,6 +20,7 @@ import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.enums.XafDemandeStatutEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import org.slf4j.Logger;
@@ -37,7 +37,6 @@ public class RectificationServiceImpl implements RectificationService {
 
     private final GouvBPM gouvBPM;
     private final DemandesService demandesService;
-    private final DemarchesDataProvider demarchesDataProvider;
     private final DemandesDataService demandesDataService;
     private final DemandesHistoriqueService demandesHistoriqueService;
     private final Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
@@ -47,7 +46,7 @@ public class RectificationServiceImpl implements RectificationService {
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId, String agentId) {
 
         DemandeDTO demandeEnBase = demandesService.getDemande(demandeId);
-        if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {
+        if (!XafDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name().equals(demandeEnBase.getDernierStatut().getName())) {
             throw new BadRequestWebException("La demande n'est pas éligible à une rectification.");
         }
         try {

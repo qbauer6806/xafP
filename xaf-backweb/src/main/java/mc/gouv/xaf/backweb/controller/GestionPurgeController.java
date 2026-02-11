@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/gestion/purge")
-@Secured("ROLE_PARAMETRAGE")
+@Secured({ "ROLE_PARAMETRAGE", "ROLE_CONFIGURATION" })
 @RequiredArgsConstructor
 public class GestionPurgeController extends AbstractController {
 

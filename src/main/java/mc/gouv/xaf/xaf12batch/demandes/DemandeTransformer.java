@@ -319,6 +319,8 @@ public class DemandeTransformer {
                             setComplexElements(new String[] { "indicatif", "numero" }, key, array);
                         } else if (type.asText().equals("iban")) {
                             setComplexElements(new String[] { "iban", "bic" }, key, array);
+                        } else if (type.asText().equals("choixMultiple")) {
+                            setChoixMultiplesInTableau(champ, key, array);
                         }
                     }
 
@@ -345,6 +347,40 @@ public class DemandeTransformer {
             // si le newNode n'est pas vide, on l'ajoute
             if (!newNode.isEmpty()) {
                 ((ObjectNode) element).put(key, newNode);
+            }
+        }
+
+    }
+
+    private void setChoixMultiplesInTableau(JsonNode champConfig, String key, JsonNode array) {
+        ObjectMapper mapper = new ObjectMapper();
+        for (JsonNode element : array) {
+            ArrayNode arrayNodeValues = mapper.createArrayNode();
+            JsonNode mappingValues = champConfig.get("mappingValues");
+            JsonNode node = element.get(key);
+            // si c'est une array ça veut dire que le format a déjà changé
+            if (node != null && !node.isNull() && !node.isMissingNode() && !node.isArray()) {
+                Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> field = fields.next();
+                    String fieldKey = field.getKey();
+                    JsonNode value = field.getValue();
+                    // on regarde d'abord que la valeur est bien un boolean et true
+                    if (value.isBoolean() && value.asBoolean()) {
+                        // chercher la key camelCase dans le champ
+                        for (JsonNode mapppingValue : mappingValues) {
+                            if (mapppingValue.get("camelKey").asText().equals(fieldKey)) {
+                                arrayNodeValues.add(mapppingValue.get("key").asText());
+                                break;
+                            }
+                        }
+                    } else if (value.isTextual()) {
+                        // c'est un champ custom autre donc on met le libellé
+                        arrayNodeValues.add(value.asText());
+                    }
+                }
+                // Remplacer le noeud existant avec le nouveau ArrayNode
+                ((ObjectNode) element).set(key, arrayNodeValues);
             }
         }
 

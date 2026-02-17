@@ -74,6 +74,9 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.XafCodeMotifEnum;
+import mc.gouv.xaf.shared.enums.XafDemandeStatutEnum;
+import mc.gouv.xaf.shared.enums.XafTemplateEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
@@ -150,10 +153,10 @@ public class AfApiService implements AfApi {
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
-                demarchesDataProvider.getStatutAnnulee());
+                XafDemandeStatutEnum.ANNULEE.name());
 
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeUsager(
-                demarchesDataProvider.getStatutAnnulee(), usagerId);
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeUsager(XafDemandeStatutEnum.ANNULEE.name(),
+                usagerId);
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
     }
@@ -475,7 +478,7 @@ public class AfApiService implements AfApi {
         List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerId);
 
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
-        String statutAnnulee = demarchesDataProvider.getStatutAnnulee();
+        String statutAnnulee = XafDemandeStatutEnum.ANNULEE.name();
         String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnuleeDTO, statutAnnulee);
         String demandesImpacteesPhrase = tab[0];
         String demandesImpacteesPk = tab[1];
@@ -586,7 +589,7 @@ public class AfApiService implements AfApi {
                 variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), null);
                 gouvBPM.setProcessBusinessVariables(demande.getPkDemandes(), variables);
             }
-            String codeMotif = demarchesDataProvider.getCodeMotifAnnulationDesinscription();
+            String codeMotif = XafCodeMotifEnum.ANNULATION_DESINSCRIPTION.name();
             if ("v5".equals(gouvBPM.getEngineVersion(demande.getPkDemandes()))) {
                 this.annulerAncienneDemande(demande.getPkDemandes(), statutAnnuleeName, usagerId, codeMotif);
             } else {
@@ -618,10 +621,8 @@ public class AfApiService implements AfApi {
     private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue,
             Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourUsager() + "_CORPS");
-        emailInfo.setSubjectTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourUsager() + "_OBJET");
+        emailInfo.setBodyTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name() + "_CORPS");
+        emailInfo.setSubjectTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name() + "_OBJET");
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         String prenom = StringUtils.EMPTY;
@@ -655,10 +656,8 @@ public class AfApiService implements AfApi {
     private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager,
             Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourAgents() + "_CORPS");
-        emailInfo.setSubjectTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourAgents() + "_OBJET");
+        emailInfo.setBodyTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER.name() + "_CORPS");
+        emailInfo.setSubjectTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER.name() + "_OBJET");
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 

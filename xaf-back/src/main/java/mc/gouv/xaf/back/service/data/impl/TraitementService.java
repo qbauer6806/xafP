@@ -641,11 +641,9 @@ public class TraitementService {
         variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), null);
         gouvBPM.setProcessBusinessVariables(pkDemande, variables);
 
-        gouvBPM.annulerDemande(pkDemande, agent, null, codeMotif, commentaire,
-                demarchesDataProvider.getStatutAnnulee());
+        gouvBPM.annulerDemande(pkDemande, agent, null, codeMotif, commentaire, XafDemandeStatutEnum.ANNULEE.name());
 
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(
-                demarchesDataProvider.getStatutAnnulee());
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(XafDemandeStatutEnum.ANNULEE.name());
         saveHistorique(pkDemande, histo);
 
         LOGGER.info("======================= Fin /traitement/prendreEnCharge");

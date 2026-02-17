@@ -13,6 +13,7 @@ import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
+import mc.gouv.xaf.shared.enums.XafCodeMotifEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -94,20 +95,9 @@ public interface DemarchesDataProvider {
         return Arrays.asList(TitreUsagerEnum.values());
     }
 
-    /**
-     * @return TSCODEDemandeStatutEnum.ANNULEE.name()
-     */
-    String getStatutAnnulee();
-
-    /**
-     * @return TSCODECodeMotifEnum.ANNULATION_PAR_USAGER.name()
-     */
-    String getCodeMotifAnnulationParUsager();
-
-    /**
-     * @return TSCODECodeMotifEnum.ANNULATION_DESINSCRIPTION.name()
-     */
-    String getCodeMotifAnnulationDesinscription();
+    default String getCodeMotifAnnulationParUsager() {
+        return XafCodeMotifEnum.ANNULATION_PAR_USAGER.name();
+    }
 
     /**
      * @return return TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name()
@@ -138,16 +128,6 @@ public interface DemarchesDataProvider {
     default List<String> getStatutsDemandeNonAnnuleeDesinscriptionUsager(){
         return getStatutsAPurger();
     }
-
-    /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT.name();
-     */
-    String getMailTemplateCodeDesinscriptionUsagerPourAgents();
-
-    /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name();
-     */
-    String getMailTemplateCodeDesinscriptionUsagerPourUsager();
 
     default String[] getRolesDesinscriptionUsagerPourAgents() {
         return new String[] { "TRAITEMENT" };

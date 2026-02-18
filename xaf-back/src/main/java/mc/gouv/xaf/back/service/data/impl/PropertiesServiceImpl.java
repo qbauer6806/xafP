@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
@@ -13,7 +14,9 @@ import mc.gouv.xaf.back.data.entity.PropertiesBO;
 import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.templates.AfPropertiesTemplateProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.TemplateUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
@@ -21,6 +24,7 @@ import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +50,9 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     private final PropertiesRepository propertiesRepository;
 
+    private final TemplateUtils templateUtils;
+
+    private final ObjectProvider<AfPropertiesTemplateProvider> afPropertiesTemplateProvider;
     /**
      * Récupère toute les Properties liées à une démarche
      *
@@ -106,6 +113,30 @@ public class PropertiesServiceImpl implements PropertiesService {
         for (PropertiesDTO propertiesDTO : propertiesByTypeList) {
             if (propertiesDTO.getKey().startsWith("LISTE_")) {
                 sortValueOfGivenProperty(propertiesDTO);
+            }
+        }
+        AfPropertiesTemplateProvider provider = afPropertiesTemplateProvider.getIfAvailable();
+        if (provider == null) {
+            return propertiesByTypeList;
+        }
+
+        for (PropertiesDTO dto : propertiesByTypeList) {
+
+            String key = dto.getKey();
+            String template = dto.getValue();
+
+            if (key == null  || template == null) {
+                continue;
+            }
+
+            Map<String, String> model = provider.getModel(key);
+            if (model == null || model.isEmpty()) {
+                continue;
+            }
+            try {
+                dto.setValue(templateUtils.renderWithVelocity(template, model));
+            } catch (Exception e) {
+                LOGGER.warn("Erreur rendu template Velocity pour key={}", key, e);
             }
         }
         return propertiesByTypeList;

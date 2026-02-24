@@ -245,4 +245,5 @@ public interface DemarchesDataProvider {
         return null;
     }
 
+    default  List<Map.Entry<String, String>> getFilterDataRecherche() {return List.of();}
 }

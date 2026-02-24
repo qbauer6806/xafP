@@ -221,7 +221,25 @@
                           </div>
 
                           <br/>
-
+                          <div class="row"
+                               th:if="${filtersDataRecherche != null and !filtersDataRecherche.isEmpty()}">
+                            <div class="col-xs-12">
+                              <div class="row" th:each="f : ${filtersDataRecherche}">
+                                <div class="col-xs-12 col-md-3" style="margin-top: 1em;">
+                                  <div class="form-group" style="margin-left: 2em;">
+                                    <label th:for="${'filter_' + f.key}"
+                                           th:text="${f.value}"></label>
+                                    <input type="text"
+                                           maxlength="40"
+                                           class="form-control"
+                                           th:id="${'filter_' + f.key}"
+                                           th:name="${f.key}"
+                                           th:value="${param[f.key] != null ? param[f.key][0] : ''}" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                           <div class="row">
                             <div class="col-xs-12 text-center">
                               <button id="rechercherButton2"

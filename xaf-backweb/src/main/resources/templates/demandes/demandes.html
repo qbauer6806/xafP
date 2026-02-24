@@ -382,6 +382,11 @@
     if ($("input[name='statut']:checked").length === 0) {
       params.aucunStatut = true;
     }
+
+    if (params.COMMISSION_REF) {
+      params.data = "AND:COMMISSION_REF=" + params.COMMISSION_REF;
+      delete params.COMMISSION_REF;
+    }
     if (demandeRechercheData) {
       params.data = demandeRechercheData;
     }

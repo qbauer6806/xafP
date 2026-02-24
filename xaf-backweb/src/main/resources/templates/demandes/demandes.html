@@ -337,10 +337,12 @@
   /*<![CDATA[*/
   var demandeRechercheData = /*[[${demandeRechercheData}]]*/;
   var filtersDataRechercheKeys = /*[[${filtersDataRecherche}]]*/;
-  if (filtersDataRechercheKeys) {
-    filtersDataRechercheKeys = filtersDataRechercheKeys.map(function(f) {
-      return f.key;
-    });
+
+  if (filtersDataRechercheKeys && filtersDataRechercheKeys.length) {
+    filtersDataRechercheKeys = filtersDataRechercheKeys
+        .flatMap(function (f) {
+          return Object.keys(f);
+        });
   } else {
     filtersDataRechercheKeys = [];
   }
@@ -389,11 +391,6 @@
 
     if ($("input[name='statut']:checked").length === 0) {
       params.aucunStatut = true;
-    }
-
-    if (params.COMMISSION_REF) {
-      params.data = "AND:COMMISSION_REF=" + params.COMMISSION_REF;
-      delete params.COMMISSION_REF;
     }
     if (demandeRechercheData) {
       params.data = demandeRechercheData;

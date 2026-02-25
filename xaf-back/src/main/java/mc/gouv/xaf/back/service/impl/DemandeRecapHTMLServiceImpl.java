@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import java.text.DateFormat;
@@ -15,7 +14,6 @@ import java.util.function.Predicate;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
@@ -75,13 +73,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     @Autowired
     private MotifsCache motifsCache;
     @Autowired
-    private PropertiesService propertiesService;
-    @Autowired
     private DemandesService demandesService;
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
     public String getHTMLDemandeGeneric(DemandeDTO demande) {

@@ -1023,11 +1023,15 @@ public class AfBackUtils {
     }
 
     public static String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
+        return genererAdresseComplete(demande, marqueurIdentifiant, "\n");
+    }
+
+    public static String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant, String separateur) {
         String codePostal = demande.getMarqueur(marqueurIdentifiant + "CodePostal");
         String ville = demande.getMarqueur(marqueurIdentifiant + "Ville");
-        String adresseComplete = genererAdresse(demande, marqueurIdentifiant);
+        String adresseComplete = genererAdresse(demande, marqueurIdentifiant, separateur);
         if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
-            adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
+            adresseComplete += separateur + escapeChars(codePostal) + " " + escapeChars(ville);
         }
         return adresseComplete;
     }
@@ -1038,6 +1042,10 @@ public class AfBackUtils {
 
     public static String genererAdresseInline(DemandeDTO demandeDTO, String marqueurIdentifiant) {
         return genererAdresse(demandeDTO, marqueurIdentifiant, " - ");
+    }
+
+    public static String genererAdresseCompleteInline(DemandeDTO demandeDTO, String marqueurIdentifiant) {
+        return genererAdresseComplete(demandeDTO, marqueurIdentifiant, " - ");
     }
 
     private static String genererAdresse(DemandeDTO demandeDTO, String marqueurIdentifiant, String separateur) {

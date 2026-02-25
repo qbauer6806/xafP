@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -570,14 +569,13 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private String getSecondLevelHTML(JsonNode node, JsonNode champ, boolean isPdfRecap, boolean pourTableau,
             List<SourceFiableDTO> donneesCertifiees) throws IllegalArgumentException, SecurityException {
         String type = champ.has("type") ? champ.get("type").asText() : "";
-        if (StringUtils.equals(type, "chaine") || StringUtils.equals(type, "texte")) {
+        if (StringUtils.equals(type, "chaine") || StringUtils.equals(type, "texte") || StringUtils.equals(type,
+                "choix")) {
             JsonNode node0 = getNode(node, champ);
             if (node0 == null || node0 instanceof NullNode) {
                 return "";
             }
             return escape(node0.asText(), isPdfRecap);
-        } else if (StringUtils.equals(type, "choix")) {
-            return buildChoixHTML(node, champ);
         } else if (StringUtils.equals(type, "date")) {
             return buildDateHTML(node, champ);
         } else if (StringUtils.equals(type, "choixMultiple")) {
@@ -630,25 +628,6 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             result = isPdfRecap ? HtmlUtils.htmlEscapeDecimal(str) : StringEscapeUtils.escapeHtml4(str);
         }
         return result;
-    }
-
-    private String buildChoixHTML(JsonNode node, JsonNode champ) {
-        String mapping = champ.get("mapping").asText();
-        String chemin = getChemin(champ);
-        JsonNode pathNode = node.at(chemin);
-        if (pathNode instanceof MissingNode) {
-            return "N/A";
-        }
-        if (mapping.startsWith("properties_")) {
-            String key = mapping.substring(11) + "_FR";
-            return propertiesService.getPropertyPourRecap(key, pathNode, true);
-        }
-        String enumField = pathNode.asText();
-        if (enumField == null || pathNode instanceof NullNode || StringUtils.isBlank(enumField) || enumField.equals(
-                "null")) {
-            return "";
-        }
-        return enumField;
     }
 
     private String buildDateHTML(JsonNode node, JsonNode champ) {

@@ -54,7 +54,7 @@
       <td class="check-col-small" th:if="${cat.name == 'Fichiers internes'}">
             <input type="checkbox" th:checked="${#strings.contains(file.meta, 'BACK_FRONT_COMPLEMENT_DEMANDE')}"
                    th:data-id="${file.pkDemandesFiles}" onchange="updateVisibiliteFichier(this)"
-                  th:disabled="${#strings.contains(file.meta, 'BACK_RECAP')}"/>
+                  th:disabled="${#strings.contains(file.meta, 'BACK_RECAP') || !uploadPieceJustificativeActif}"/>
       </td>
       <td class="action-col">
         <div class="bouton-action">
@@ -117,7 +117,8 @@
                     th:data-original-title="Supprimer"
                     title=""
                     type="button"
-                    onclick="supprimerLigne(this)">
+                    onclick="supprimerLigne(this)"
+                    th:disabled="!${uploadPieceJustificativeActif}">
               <i class="icon-action_supprimer"></i>
             </button>
           </a>

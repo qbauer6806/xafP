@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.purge;
 import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.commons.lang3.tuple.Triple;
 
 public interface PurgeDemandesService {
@@ -32,7 +31,7 @@ public interface PurgeDemandesService {
 
     Triple<Integer, Integer, Integer> executerPurgeFichiers();
 
-    void deleteDemandeWithoutPurgeFichiers(Integer demandeId, String origineSuppression);
+    void deleteDemandePurgeSelective(Integer demandeId, String origineSuppression);
 
     void deleteDemande(Integer demandeId);
 

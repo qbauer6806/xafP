@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
@@ -40,6 +41,7 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -137,6 +139,7 @@ public class TraitementService {
     private final DemandeFilesCategorizer demandeFilesCategorizer;
     private final DemandesHelperService demandesHelperService;
     private final PurgeDemandesService purgeDemandesService;
+    private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
 
     public ModelAndView infosAdministration(
             @ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
@@ -592,7 +595,9 @@ public class TraitementService {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDupliquee.getUsagerId());
             variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(),
                     demandeDupliquee.getIdentifiant());
-
+            DemandeDTO finalDemandeDupliquee = demandeDupliquee;
+            createDemandeBpmnVariablesProvider.ifPresent(
+                    provider -> variables.putAll(provider.getVariablesBpmn(finalDemandeDupliquee)));
             gouvBPM.startProcessInstanceByMessage("duplicationMessage", user, demandeDupliquee.getPkDemandes(),
                     variables);
 
@@ -636,11 +641,9 @@ public class TraitementService {
         variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), null);
         gouvBPM.setProcessBusinessVariables(pkDemande, variables);
 
-        gouvBPM.annulerDemande(pkDemande, agent, null, codeMotif, commentaire,
-                demarchesDataProvider.getStatutAnnulee());
+        gouvBPM.annulerDemande(pkDemande, agent, null, codeMotif, commentaire, XafDemandeStatutEnum.ANNULEE.name());
 
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(
-                demarchesDataProvider.getStatutAnnulee());
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(XafDemandeStatutEnum.ANNULEE.name());
         saveHistorique(pkDemande, histo);
 
         LOGGER.info("======================= Fin /traitement/prendreEnCharge");

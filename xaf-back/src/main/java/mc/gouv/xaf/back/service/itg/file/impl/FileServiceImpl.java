@@ -568,9 +568,8 @@ public class FileServiceImpl implements FileService {
         URI uri = URI.create(fileUrl);
         ResponseEntity<InputStream> response = getFileEntity(uri.getPath(), gouvPropertiesResolver.getContainerId());
 
-        String contentType = response.getHeaders().getContentType() != null
-                ? response.getHeaders().getContentType().toString()
-                : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        MediaType mediaType = response.getHeaders().getContentType();
+        String contentType = mediaType != null ? mediaType.toString() : MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
         return new FileInfo(extraireNomFichier(fileUrl), contentType, response.getBody());
     }

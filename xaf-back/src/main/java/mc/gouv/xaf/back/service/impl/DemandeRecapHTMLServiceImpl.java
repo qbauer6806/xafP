@@ -84,7 +84,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         htmlBuilder.append(SPAN_DD);
 
         // Date de transmission/dépôt
-        boolean isVirtuel = demande.getCanal() == DemandeCanalEnum.GUICHET_VIRTUEL;
+        boolean isVirtuel = demande.getCourrierDateReception() == null;
         htmlBuilder.append("<dt><span>Date de ");
         htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
         htmlBuilder.append("</span></dt><dd><span>");

@@ -66,7 +66,8 @@ public class GouvBPMDocDelegate implements JavaDelegate {
         }
 
         try {
-            pdfGenerationService.generateAndStoreDoc(demandeDto, PdfTypeEnum.FICHIER, metaStr, pdfTemplateAndModelDTO);
+            pdfGenerationService.generateAndStoreDoc(demandeDto, PdfTypeEnum.FICHIER, metaStr, pdfTemplateAndModelDTO,
+                    false);
         } catch (IOException e) {
             throw new DemarcheException("Erreur la génération du doc", e);
         } finally {

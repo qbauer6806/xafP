@@ -63,8 +63,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     @Override
     public void generateAndStoreDoc(DemandeDTO demande, PdfTypeEnum pdfType, String meta,
-            PdfTemplateAndModelDTO pdfTemplateAndModelDTO) throws IOException {
-        generateAndStorePdf(demande, pdfType, meta, false, pdfTemplateAndModelDTO);
+            PdfTemplateAndModelDTO pdfTemplateAndModelDTO, boolean convertPdf) throws IOException {
+        generateAndStorePdf(demande, pdfType, meta, convertPdf, pdfTemplateAndModelDTO);
     }
 
     private void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta, boolean convertPdf,

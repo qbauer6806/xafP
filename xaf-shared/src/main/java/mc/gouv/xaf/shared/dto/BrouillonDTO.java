@@ -40,9 +40,12 @@ public class BrouillonDTO {
 
     private String recapType;
 
+    @ToString.Exclude
     private JsonNode meta;
 
     private DemandeStatutDTO dernierStatut;
+
+    @ToString.Exclude
     private JsonNode contenuInitial;
 
 }

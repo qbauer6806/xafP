@@ -20,8 +20,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Configuration
 public class WebConfig {
 
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Bean
     public WebServerFactoryCustomizer<JettyServletWebServerFactory> webServerFactoryCustomizer() {
@@ -50,7 +50,7 @@ public class WebConfig {
             var error405Page = new ErrorPage(HttpStatus.METHOD_NOT_ALLOWED, "/error/405");
             var error500Page = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/error/500");
             factory.addErrorPages(error404Page, error500Page, error405Page);
-            factory.setDisplayName(displayName);
+            factory.setDisplayName(applicationName.toUpperCase());
 
         };
     }

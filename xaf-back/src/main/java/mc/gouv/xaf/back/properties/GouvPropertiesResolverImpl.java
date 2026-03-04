@@ -21,9 +21,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${application.module}")
     private String applicationModule;
 
-    @Value("${display.name}")
-    private String demarcheId;
-
     // GLOBAL PROPERTIES
     @Value("${mc.gouv.logon.url:}")
     private String logonUrl;
@@ -124,7 +121,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getDemarcheId() {
-        return demarcheId;
+        return applicationName.toUpperCase();
     }
 
     @Override

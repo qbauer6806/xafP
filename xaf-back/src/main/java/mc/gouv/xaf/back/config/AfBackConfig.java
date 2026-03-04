@@ -32,8 +32,8 @@ public class AfBackConfig {
 
     private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Value("${logging.file.path}")
     private String loggingFile;
@@ -41,7 +41,7 @@ public class AfBackConfig {
     @PostConstruct
     public void loadProperties() {
         System.setProperty("MC_LOGDIR", loggingFile);
-        System.setProperty("MC_APPNAME", displayName);
+        System.setProperty("MC_APPNAME", applicationName.toUpperCase());
     }
 
     @Bean(name = "paysCacheImpl")

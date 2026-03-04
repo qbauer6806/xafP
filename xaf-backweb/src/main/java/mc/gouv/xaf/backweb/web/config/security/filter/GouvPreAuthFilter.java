@@ -77,6 +77,9 @@ public class GouvPreAuthFilter extends OncePerRequestFilter {
         try {
             var authenticated = gouvAuthenticationProvider.authenticate(authToken);
             context.setAuthentication(authenticated);
+            
+            // Redirection vers URL sans paramètres
+            response.sendRedirect(request.getContextPath() + "/");
         } catch (AuthenticationException e) {
             LOGGER.error("Authentication failed", e);
             SecurityContextHolder.clearContext();

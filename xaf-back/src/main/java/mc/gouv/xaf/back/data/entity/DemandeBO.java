@@ -86,7 +86,7 @@ public class DemandeBO {
     @JoinColumn(name = "FK_DEMANDESAGENTS")
     private DemandesAgentsBO agent;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "FK_CONFIG")
     private DemandeConfigBO config;
 

@@ -41,7 +41,11 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private SourceFiableDTO[] donneesCertifiees;
     private Integer pkDemandeSource;
     private Long modificationTimestamp;
+
+    @ToString.Exclude
     private transient JsonNode contenuInitial;
+
+    @ToString.Exclude
     private transient JsonNode meta;
     private transient DemandeAgentDTO agent;
     private TypeConnexionUsagerEnum typeConnexionUsager;

@@ -10,11 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UlisProperties {
 
-    @Value("${mc.gouv.appli.shared.backapi.ulis.url.moyens-generaux:}")
-    private String apiUlisMoyensGenerauxUrl;
-
-    @Value("${mc.gouv.appli.shared.backapi.ulis.url.tiers-organisation:}")
-    private String apiUlisTiersOrganisationUrl;
+    @Value("${mc.gouv.ulis.api.url:}")
+    private String apiUlisUrl;
 
     @Value("${mc.gouv.appli.shared.backapi.ulis.authentication.user:}")
     private String apiUlisAuthentUser;
@@ -24,11 +21,5 @@ public class UlisProperties {
 
     @Value("${mc.gouv.appli.shared.backapi.ulis.account:}")
     private String ulisFunctionalAccount;
-
-    @Value("${mc.gouv.appli.shared.backapi.ulis.url.workflow:}")
-    private String ulisUrlWorkflow;
-
-    @Value("${mc.gouv.appli.shared.backapi.ulis.url.commercialisation:}")
-    private String ulisUrlCommercialisation;
 
 }

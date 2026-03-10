@@ -67,7 +67,7 @@ public class GestionPurgeSelectiveController extends AbstractController {
                     continue;
                 }
                 String origineSuppression = utilisateursUtils.getUserNameFromID(AfBackUtils.getAuthenticatedAgentId());
-                purgeDemandesService.deleteDemandeWithoutPurgeFichiers(demandeDTO.getPkDemandes(), origineSuppression);
+                purgeDemandesService.deleteDemandePurgeSelective(demandeDTO.getPkDemandes(), origineSuppression);
                 successMessages.add("La demande " + identifiant + " a été purgée avec succès.");
 
             } catch (Exception e) {

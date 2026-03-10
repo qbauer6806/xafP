@@ -34,8 +34,8 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
 
     private final LogonClient logonClient;
 
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -69,7 +69,7 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
         Set<Role> roles = user.getRoles();
         for (Role role : roles) {
             // Il faut que ces droits concernent l'application en question
-            if (role.getAppli().getCode().equals(displayName)) {
+            if (role.getAppli().getCode().equals(applicationName.toUpperCase())) {
                 Set<Droit> droits = role.getDroits();
                 for (Droit droit : droits) {
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + droit.getCode()));

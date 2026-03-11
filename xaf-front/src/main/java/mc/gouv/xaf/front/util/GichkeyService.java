@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -182,6 +183,8 @@ public class GichkeyService {
         TextNode phoneNumberNode = (TextNode) node.get("phone_number");
         TextNode landlineNumberNode = (TextNode) node.get("landline_number");
         TextNode publicFunctionStatusNode = (TextNode) node.get("public_function_status");
+        BooleanNode phoneNumberVerifiedNode = (BooleanNode) node.get("phone_number_verified");
+        BooleanNode emailVerifiedNode = (BooleanNode) node.get("email_verified");
         TextNode emailNode = (TextNode) node.get("email");
         IntNode usagerIdNode = (IntNode) node.get("usager_id");
         TextNode subNode = (TextNode) node.get("sub");
@@ -194,6 +197,8 @@ public class GichkeyService {
         String usagerNomNaissance = birthNameNode != null ? birthNameNode.asText() : null;
         String usagerVilleNaissance = birthCityNode != null ? birthCityNode.asText() : null;
         String usagerTelephonePortable = phoneNumberNode != null ? phoneNumberNode.asText() : null;
+        boolean usagerTelephonePortableVerifie = phoneNumberVerifiedNode != null && phoneNumberVerifiedNode.asBoolean();
+        boolean emailVerifie = emailVerifiedNode != null && emailVerifiedNode.asBoolean();
         String usagerTelephoneFixe = landlineNumberNode != null ? landlineNumberNode.asText() : null;
         String usagerDateNaissance = birthDateNode != null ? birthDateNode.asText() : null;
         String usagerStatutFonctionPublique =
@@ -228,6 +233,8 @@ public class GichkeyService {
         if (usagerTelephoneFixe != null && !usagerTelephoneFixe.isEmpty()) {
             uinfos.setTelephoneFixe(new TelephoneDTO(usagerTelephoneFixe));
         }
+        uinfos.setTelephonePortableVerifie(usagerTelephonePortableVerifie);
+        uinfos.setEmailVerifie(emailVerifie);
         uinfos.setNationalite(usagerNationalite);
         uinfos.setStatutFonctionPublique(usagerStatutFonctionPublique);
         uinfos.setUsagerCourrier(false);

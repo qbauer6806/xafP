@@ -22,6 +22,7 @@ public class GichuniUsagerDTO {
     private String login;
     private Short etat;
     private String email;
+    private boolean emailVerifie;
     private Short titre;
     private String prenom;
     private String secondPrenom;
@@ -32,6 +33,7 @@ public class GichuniUsagerDTO {
     private String villeNaissance;
     private Instant dateNaissance;
     private TelephoneDTO telephonePortable;
+    private boolean telephonePortableVerifie;
     private TelephoneDTO telephoneFixe;
     private String raisonSociale;
     private String statutFonctionPublique;

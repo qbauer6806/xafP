@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.data.transformer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,14 @@ public class MarqueursTransformer {
     }
 
     public List<MarqueurDTO> bos2Dtos(List<MarqueurBO> bos) {
+        ArrayList<MarqueurDTO> dtos = new ArrayList<>();
+        for (MarqueurBO bo : bos) {
+            dtos.add(bo2Dto(bo));
+        }
+        return dtos;
+    }
+
+    public List<MarqueurDTO> bos2Dtos(Set<MarqueurBO> bos) {
         ArrayList<MarqueurDTO> dtos = new ArrayList<>();
         for (MarqueurBO bo : bos) {
             dtos.add(bo2Dto(bo));

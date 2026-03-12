@@ -470,6 +470,11 @@ public class DemandesServiceImpl implements DemandesService {
             DemandeDTO dto = demandesTransformer.exportProjection2Dto(demande);
             // pour des questions de performances et éviter l'effet n+1 sur le onetomany, on doit récupérer les data dans un second temps
             dto.setData(demandesDataService.getDemandeDatasProjection(demande.getPkDemandes()));
+            // mapper les marqueurs
+            List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(demande.getConfig().getBuildId());
+            dto.setMarqueurs(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenu()));
+            // mapper les marqueurs
+            dto.setMarqueursTrad(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenuTrad()));
             return excelExportModelProvider.getDemandeFlat(dto);
         });
     }

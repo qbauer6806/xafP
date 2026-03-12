@@ -53,7 +53,7 @@ public class BrouillonBO {
     @OneToMany(mappedBy = "fkBrouillons", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BrouillonsFilesBO> files;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "FK_CONFIG")
     private DemandeConfigBO config;
 

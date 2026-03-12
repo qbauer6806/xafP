@@ -144,6 +144,11 @@ public interface DemandesService {
     List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date);
 
     /**
+     * Retourne les demandes qui ont été créées entre la date de départ et d'arrivée
+     */
+    List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String statut, Date date1, Date date2);
+
+    /**
      * Retourne une demande en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT
      */
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);

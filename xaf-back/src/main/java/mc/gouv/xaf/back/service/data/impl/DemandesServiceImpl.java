@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +54,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.demande.CloneDemandeExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.back.service.excel.AfExcelExportModelProvider;
@@ -79,6 +81,8 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -142,6 +146,7 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemandesUsagersTransformer demandesUsagersTransformer;
     private final Optional<CloneDemandeExtender> cloneDemandExtenders;
     private final DemandesHelperService demandesHelperService;
+    private final PropertiesService propertiesService;
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -353,6 +358,22 @@ public class DemandesServiceImpl implements DemandesService {
                         enumValue = StringUtils.isBlank(enumKey)
                                 ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
+                    } else if (mapping.asText().startsWith("properties_")) {
+                        String propertyKey = mapping.asText().replaceFirst("^properties_", "") + "_FR";
+                        PropertiesDTO prop = propertiesService.getProperty(propertyKey);
+                        if (prop != null) {
+                            PropertiesListEntityDTO[] listProperties = AfBackUtils.parserPropertiesListJson(
+                                    prop.getValue());
+                            if (null == listProperties || listProperties.length == 0) {
+                                LOGGER.warn("Impossible de transformer la valeur de la dem_property (key={}) en map",
+                                        propertyKey);
+                                enumValue = enumKey;
+                            } else {
+                                Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(listProperties)
+                                        .filter(e -> e.getId().equals(enumKey)).findFirst();
+                                enumValue = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(enumKey);
+                            }
+                        }
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }
@@ -449,6 +470,11 @@ public class DemandesServiceImpl implements DemandesService {
             DemandeDTO dto = demandesTransformer.exportProjection2Dto(demande);
             // pour des questions de performances et éviter l'effet n+1 sur le onetomany, on doit récupérer les data dans un second temps
             dto.setData(demandesDataService.getDemandeDatasProjection(demande.getPkDemandes()));
+            // mapper les marqueurs
+            List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(demande.getConfig().getBuildId());
+            dto.setMarqueurs(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenu()));
+            // mapper les marqueurs
+            dto.setMarqueursTrad(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenuTrad()));
             return excelExportModelProvider.getDemandeFlat(dto);
         });
     }
@@ -479,6 +505,14 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
         List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_NameAndDernierStatutDateLessThan(statut,
                 date);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return demandesTransformer.bo2Dto(demandes);
+    }
+
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String statut, Date date1, Date date2) {
+        List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_NameAndDernierStatutDateGreaterThanAndDernierStatutDateLessThan(statut,
+                date1, date2);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return demandesTransformer.bo2Dto(demandes);
     }

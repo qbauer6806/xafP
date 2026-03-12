@@ -15,12 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
@@ -88,17 +84,13 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private final AfBackUtils afBackUtils;
     private final PropertiesService propertiesService;
     private final StatistiquesRepository statRepository;
-    private final DemandesFilesRepository demandesFilesRepository;
     private final DemandesRepository demandesRepository;
-    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
     private final PurgeFilesRepository purgeFilesRepository;
     private final UsagersCache usagerCache;
     private final GouvSchedulerService gouvSchedulerService;
     private final AfMailTemplateModelProvider afMailTemplateModelProvider;
     private final AfTemplateModelProvider afTemplateModelProvider;
     private final FileService fileService;
-    private final DemandesCourriersRepository demandesCourriersRepository;
-    private final BrouillonsFilesRepository brouillonsFilesRepository;
     private final DemandesHelperService demandesHelperService;
     private final DemandesHistoriqueRepository demandesHistoriqueRepository;
     private final DemandesCommentaireRepository demandesCommentaireRepository;
@@ -112,6 +104,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private final TransactionErrorsHandler transactionErrorsHandler;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Transactional
     @Override
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) {
         StringBuilder demandesAPurger = new StringBuilder();
@@ -187,7 +180,11 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     @Transactional
     @Override
-    public void deleteDemandeWithoutPurgeFichiers(Integer demandeId, String origineSuppression) {
+    public void deleteDemandePurgeSelective(Integer demandeId, String origineSuppression) {
+        deleteDemandeWithoutPurgeFichiers(demandeId, origineSuppression);
+    }
+
+    private void deleteDemandeWithoutPurgeFichiers(Integer demandeId, String origineSuppression) {
         try {
             LOGGER.info("Suppression de la demande {}...", demandeId);
             DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
@@ -277,6 +274,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     }
 
+    @Transactional
     @Override
     public void deleteDemande(Integer demandeId) {
         deleteDemandeWithoutPurgeFichiers(demandeId, null);

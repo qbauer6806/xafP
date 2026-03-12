@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,6 +13,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
@@ -24,6 +28,7 @@ import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.TelephoneDTO;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -169,12 +174,35 @@ public class GichkeyService {
         }
         TextNode nameNode = (TextNode) node.get("family_name");
         TextNode givenNameNode = (TextNode) node.get("given_name");
+        TextNode secondNameNode = (TextNode) node.get("secondName");
+        TextNode thirdNameNode = (TextNode) node.get("thirdName");
+        TextNode nationalityNode = (TextNode) node.get("nationality");
+        TextNode birthNameNode = (TextNode) node.get("birth_name");
+        TextNode birthCityNode = (TextNode) node.get("birth_city");
+        TextNode birthDateNode = (TextNode) node.get("birth_date");
+        TextNode phoneNumberNode = (TextNode) node.get("phone_number");
+        TextNode landlineNumberNode = (TextNode) node.get("landline_number");
+        TextNode publicFunctionStatusNode = (TextNode) node.get("public_function_status");
+        BooleanNode phoneNumberVerifiedNode = (BooleanNode) node.get("phone_number_verified");
+        BooleanNode emailVerifiedNode = (BooleanNode) node.get("email_verified");
         TextNode emailNode = (TextNode) node.get("email");
         IntNode usagerIdNode = (IntNode) node.get("usager_id");
         TextNode subNode = (TextNode) node.get("sub");
         TextNode typeNode = (TextNode) node.get("type");
         String usagerNom = nameNode.asText();
         String usagerPrenom = givenNameNode.asText();
+        String usagerSecondPrenom = secondNameNode != null ? secondNameNode.asText() : null;
+        String usagerTroisiemePrenom = thirdNameNode != null ? thirdNameNode.asText() : null;
+        String usagerNationalite = nationalityNode != null ? nationalityNode.asText() : null;
+        String usagerNomNaissance = birthNameNode != null ? birthNameNode.asText() : null;
+        String usagerVilleNaissance = birthCityNode != null ? birthCityNode.asText() : null;
+        String usagerTelephonePortable = phoneNumberNode != null ? phoneNumberNode.asText() : null;
+        boolean usagerTelephonePortableVerifie = phoneNumberVerifiedNode != null && phoneNumberVerifiedNode.asBoolean();
+        boolean emailVerifie = emailVerifiedNode != null && emailVerifiedNode.asBoolean();
+        String usagerTelephoneFixe = landlineNumberNode != null ? landlineNumberNode.asText() : null;
+        String usagerDateNaissance = birthDateNode != null ? birthDateNode.asText() : null;
+        String usagerStatutFonctionPublique =
+                publicFunctionStatusNode != null ? publicFunctionStatusNode.asText() : null;
         String usagerEmail = emailNode.asText();
         Integer usagerId = usagerIdNode.asInt();
         String usagerSub = subNode.asText();
@@ -191,6 +219,24 @@ public class GichkeyService {
         uinfos.setLogin(StringUtils.defaultString(usagerPrenom + " " + usagerNom));
         uinfos.setNom(usagerNom);
         uinfos.setPrenom(usagerPrenom);
+        uinfos.setSecondPrenom(usagerSecondPrenom);
+        uinfos.setTroisiemePrenom(usagerTroisiemePrenom);
+        uinfos.setNomNaissance(usagerNomNaissance);
+        uinfos.setVilleNaissance(usagerVilleNaissance);
+        if (usagerDateNaissance != null && !usagerDateNaissance.isEmpty()) {
+            uinfos.setDateNaissance(LocalDate.parse(usagerDateNaissance, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    .atStartOfDay(ZoneOffset.UTC).toInstant());
+        }
+        if (usagerTelephonePortable != null && !usagerTelephonePortable.isEmpty()) {
+            uinfos.setTelephonePortable(new TelephoneDTO(usagerTelephonePortable));
+        }
+        if (usagerTelephoneFixe != null && !usagerTelephoneFixe.isEmpty()) {
+            uinfos.setTelephoneFixe(new TelephoneDTO(usagerTelephoneFixe));
+        }
+        uinfos.setTelephonePortableVerifie(usagerTelephonePortableVerifie);
+        uinfos.setEmailVerifie(emailVerifie);
+        uinfos.setNationalite(usagerNationalite);
+        uinfos.setStatutFonctionPublique(usagerStatutFonctionPublique);
         uinfos.setUsagerCourrier(false);
         uinfos.setSub(usagerSub);
         if (type != null) {
@@ -207,7 +253,7 @@ public class GichkeyService {
 
                 TextNode givenNameNode0 = (TextNode) mconnect.get("given_name");
                 TextNode familyNameNode = (TextNode) mconnect.get("family_name");
-                TextNode birthNameNode = (TextNode) mconnect.get("birth_name");
+                TextNode mconnectBirthNameNode = (TextNode) mconnect.get("birth_name");
                 TextNode genderNode = (TextNode) mconnect.get("gender");
                 TextNode birthPlaceNode = (TextNode) mconnect.get("birth_place");
                 TextNode birthDatetimeNode = (TextNode) mconnect.get("birth_datetime");
@@ -217,7 +263,7 @@ public class GichkeyService {
                 DonneesMConnectDTO mConnectUInfos = new DonneesMConnectDTO();
                 mConnectUInfos.setGivenName(givenNameNode0.asText());
                 mConnectUInfos.setFamilyName(familyNameNode.asText());
-                mConnectUInfos.setBirthName(birthNameNode.asText());
+                mConnectUInfos.setBirthName(mconnectBirthNameNode.asText());
                 mConnectUInfos.setGender(genderNode.asText());
                 mConnectUInfos.setBirthPlace(birthPlaceNode.asText());
                 mConnectUInfos.setBirthDatetime(

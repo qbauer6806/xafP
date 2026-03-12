@@ -45,6 +45,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateLessThan(String dernierStatut, Date date);
 
+    List<DemandeBO> findAllByDernierStatut_NameAndDernierStatutDateGreaterThanAndDernierStatutDateLessThan(String dernierStatut, Date date1, Date date2);
+
     List<DemandeLightProjection> findByUsagerId(Integer usagerId);
 
     Optional<DemandeBO> findFirstByUsager_IdAndDernierStatut_NameInAndConfig_BuildIdInOrderByDateCreationDesc(

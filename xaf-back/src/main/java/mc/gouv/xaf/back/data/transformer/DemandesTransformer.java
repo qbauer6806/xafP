@@ -9,13 +9,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -26,6 +24,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
@@ -56,6 +55,7 @@ public class DemandesTransformer {
     private final DemandesConfigTransformer demandesConfigTransformer;
     private final DemarchesDataProvider demarchesDataProvider;
     private final AfBackUtils afBackUtils;
+    private final MarqueursTransformer marqueursTransformer;
 
     public DemandeDTO bo2Dto(DemandeBO bo) {
         return bo2Dto(bo, null);
@@ -218,14 +218,6 @@ public class DemandesTransformer {
         dto.setContenu(bo.getContenu());
         dto.setContenuTrad(bo.getContenuTrad());
 
-        // Mapper le contenu de la config
-        if (bo.getConfig() != null) {
-            // mapper les marqueurs
-            dto.setMarqueurs(buildMarqueurs(bo.getConfig(), bo.getContenu()));
-            // mapper les marqueurs
-            dto.setMarqueursTrad(buildMarqueurs(bo.getConfig(), bo.getContenuTrad()));
-        }
-
         // Mapper le "dernier statut"
         if (bo.getDernierStatut() != null) {
             DemandesStatutsBO statut = bo.getDernierStatut();
@@ -293,13 +285,16 @@ public class DemandesTransformer {
     }
 
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
-        Set<MarqueurBO> marqueurs = config.getMarqueurs();
+        return buildMarqueurs(marqueursTransformer.bos2Dtos(config.getMarqueurs()), contenu);
+    }
+
+    public Map<String, Object> buildMarqueurs(List<MarqueurDTO> marqueurs, JsonNode contenu) {
         // Mise en cache des marqueurs pour un accès rapide O(1)
-        Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
+        Map<String, MarqueurDTO> marqueursMap = marqueurs.stream()
                 .filter(marqueurBO -> marqueurBO.getChemin() != null) // Pour éviter les nulles
-                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur,
+                .collect(Collectors.toMap(MarqueurDTO::getChemin, marqueur -> marqueur,
                         (existing, replacement) -> existing)); // On garde la première valeur en cas de doublon sur le chemin
-        return marqueurs.stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+        return marqueurs.stream().collect(Collectors.toMap(MarqueurDTO::getIdentifiant,
                 marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), marqueursMap),
                 (existing, replacement) -> {
                     // en cas de doublon d'identifiant, on utilise la 1ère valeur

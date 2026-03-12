@@ -325,6 +325,11 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.glassfish.jersey.connectors</groupId>
+      <artifactId>jersey-apache5-connector</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

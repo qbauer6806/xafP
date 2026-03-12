@@ -51,8 +51,8 @@ public class GestionParametrageController {
     private final DemandesConfigHelperService demandesConfigHelperService;
     private final AfBackUtils afBackUtils;
 
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Value("${maven.version}")
     private String mavenVersion;
@@ -87,7 +87,7 @@ public class GestionParametrageController {
             parametrageFormBean.setNomSousDirectionComplementEn(demarche.getNomSousDirectionComplementEn());
         }
 
-        mav.addObject("displayName", displayName);
+        mav.addObject("displayName", applicationName.toUpperCase());
         mav.addObject("xafVersion", xafVersion);
         DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
         JsonNode node = config.getContenu().get("wysiwygVersion");

@@ -40,7 +40,6 @@ import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
-import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemarchesService;
@@ -63,6 +62,7 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -781,7 +781,7 @@ public class AfBackUtils {
         return afApiClient2Tiers;
     }
 
-    public Object getMarqueurValue(JsonNode contenu, String path, Map<String, MarqueurBO> marqueursMap) {
+    public Object getMarqueurValue(JsonNode contenu, String path, Map<String, MarqueurDTO> marqueursMap) {
         if (path == null) {
             return "";
         }
@@ -817,7 +817,7 @@ public class AfBackUtils {
                     String donneeTableauPath = path + "." + tableauDonnee.getKey();
 
                     // Récupération directe du marqueur
-                    MarqueurBO marqueur = marqueursMap.get(donneeTableauPath);
+                    MarqueurDTO marqueur = marqueursMap.get(donneeTableauPath);
                     if (marqueur != null) {
                         putMarqueurTableau(map, tableauDonnee.getValue(), marqueur);
                     } else {
@@ -841,7 +841,7 @@ public class AfBackUtils {
         return "";
     }
 
-    private void putMarqueurTableau(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
+    private void putMarqueurTableau(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurDTO marqueurFound) {
         String donneeTableauValue = "";
         if (tableauDonneeNode != null && !tableauDonneeNode.isNull()) {
             if (tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())) {
@@ -957,11 +957,15 @@ public class AfBackUtils {
     }
 
     public static String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant) {
+        return genererAdresseComplete(demande, marqueurIdentifiant, "\n");
+    }
+
+    public static String genererAdresseComplete(DemandeDTO demande, String marqueurIdentifiant, String separateur) {
         String codePostal = demande.getMarqueur(marqueurIdentifiant + "CodePostal");
         String ville = demande.getMarqueur(marqueurIdentifiant + "Ville");
-        String adresseComplete = genererAdresse(demande, marqueurIdentifiant);
+        String adresseComplete = genererAdresse(demande, marqueurIdentifiant, separateur);
         if (!StringUtils.isEmpty(codePostal) && !StringUtils.isEmpty(ville)) {
-            adresseComplete += "\n" + escapeChars(codePostal) + " " + escapeChars(ville);
+            adresseComplete += separateur + escapeChars(codePostal) + " " + escapeChars(ville);
         }
         return adresseComplete;
     }
@@ -972,6 +976,10 @@ public class AfBackUtils {
 
     public static String genererAdresseInline(DemandeDTO demandeDTO, String marqueurIdentifiant) {
         return genererAdresse(demandeDTO, marqueurIdentifiant, " - ");
+    }
+
+    public static String genererAdresseCompleteInline(DemandeDTO demandeDTO, String marqueurIdentifiant) {
+        return genererAdresseComplete(demandeDTO, marqueurIdentifiant, " - ");
     }
 
     private static String genererAdresse(DemandeDTO demandeDTO, String marqueurIdentifiant, String separateur) {

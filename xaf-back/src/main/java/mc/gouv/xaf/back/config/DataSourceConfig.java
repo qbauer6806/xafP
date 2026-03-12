@@ -22,9 +22,6 @@ public class DataSourceConfig {
     @Value("${application.name}")
     private String applicationName;
 
-    @Value("${display.name}")
-    private String displayName;
-
     // Obligatoire
     @Value("${mc.gouv.database.class}")
     private String driver;
@@ -87,7 +84,7 @@ public class DataSourceConfig {
     @Primary
     public DataSource getDataSource() throws SQLException, MalformedObjectNameException, NotCompliantMBeanException,
             InstanceAlreadyExistsException, MBeanRegistrationException {
-        return getDataSource(StringUtils.upperCase(applicationName), displayName);
+        return getDataSource(StringUtils.upperCase(applicationName), applicationName.toUpperCase());
     }
 
     /**

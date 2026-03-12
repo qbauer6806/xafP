@@ -224,11 +224,16 @@
                           <div class="row"
                                th:if="${filtersDataRecherche != null and !filtersDataRecherche.isEmpty()}">
                             <div class="col-xs-12">
-                              <div class="row" th:each="f : ${filtersDataRecherche}">
-                                <div class="col-xs-12 col-md-3" style="margin-top: 1em;">
+
+                              <div th:each="f, iter : ${filtersDataRecherche}">
+                                <!-- Ouvre une nouvelle ligne tous les 3 éléments -->
+                                <div th:if="${iter.index % 3 == 0}" class="row"></div>
+
+                                <div class="col-xs-12 col-md-4" style="margin-top: 1em;">
                                   <div class="form-group" style="margin-left: 2em;">
                                     <label th:for="${'filter_' + f.key}"
-                                           th:text="${f.value}"></label>
+                                           th:text="${f.label}"></label>
+
                                     <input type="text"
                                            maxlength="40"
                                            class="form-control"
@@ -237,9 +242,10 @@
                                            th:value="${param[f.key] != null ? param[f.key][0] : ''}" />
                                   </div>
                                 </div>
+
+                                <!-- Ferme la ligne après 3 colonnes (ou à la fin de la liste) -->
+                                <div th:if="${iter.index % 3 == 2 or iter.last}" class="row"></div>
                               </div>
-                            </div>
-                          </div>
 
                           <div class="row">
                             <div class="col-xs-12 text-center">
@@ -337,16 +343,11 @@
 <script type="text/javascript" th:inline="javascript">
   /*<![CDATA[*/
   var demandeRechercheData = /*[[${demandeRechercheData}]]*/;
-  var filtersDataRechercheKeys = /*[[${filtersDataRecherche}]]*/;
+  var filtersDataRecherche = /*[[${filtersDataRecherche}]]*/ [];
+  var filtersDataRechercheKeys = (filtersDataRecherche && filtersDataRecherche.length)
+      ? filtersDataRecherche.map(function (f) { return f.key; })
+      : [];
 
-  if (filtersDataRechercheKeys && filtersDataRechercheKeys.length) {
-    filtersDataRechercheKeys = filtersDataRechercheKeys
-        .flatMap(function (f) {
-          return Object.keys(f);
-        });
-  } else {
-    filtersDataRechercheKeys = [];
-  }
   var demandeRechercheCreationStartDate = /*[[${demandeRechercheCreationStartDate}]]*/;
   var demandeRechercheCreationEndDate = /*[[${demandeRechercheCreationEndDate}]]*/;
 

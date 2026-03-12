@@ -11,6 +11,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.SearchFilterDefinition;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
 import mc.gouv.xaf.shared.enums.XafCodeMotifEnum;
@@ -245,6 +246,8 @@ public interface DemarchesDataProvider {
         return null;
     }
 
-    default  List<Map.Entry<String, String>> getFilterDataRecherche() {return List.of();}
+    default List<SearchFilterDefinition> getFilterDataRecherche() {
+        return List.of();
+    }
 
 }

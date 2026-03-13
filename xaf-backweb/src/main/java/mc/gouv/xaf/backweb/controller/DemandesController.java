@@ -58,6 +58,7 @@ public class DemandesController extends AbstractController {
         mav.addObject("agentsInit", agentsAffichage);
         mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         mav.addObject("texte", texte);
+        mav.addObject("filtersDataRecherche", demarchesDataProvider.getFilterDataRecherche());
         DemandeRechercheDTO demandeRechercheDTO = demarchesDataProvider.getDemandeRecherche();
         if (demandeRechercheDTO != null) {
             mav.addObject("demandeRechercheData",

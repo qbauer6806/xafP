@@ -23,11 +23,26 @@ BEGIN
   END IF;
 
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'statalltsetl') THEN
-    EXECUTE 'GRANT USAGE ON SCHEMA @@tscode@@ TO statalltsetl';
-    EXECUTE 'grant select on @@tscode@@.dem_statistiques to statalltsetl';
-    EXECUTE 'grant select on @@tscode@@.dem_statistiques_demarches to statalltsetl;';
-    EXECUTE 'grant select on @@tscode@@.dem_statistiques_statuts to statalltsetl;';
-    EXECUTE 'grant select on @@tscode@@.dem_statistiques_types to statalltsetl;';
-    EXECUTE 'grant select on @@tscode@@.dem_statistiques_types_demarches to statalltsetl;';
+      EXECUTE 'GRANT USAGE ON SCHEMA @@tscode@@ TO statalltsetl';
+
+      IF to_regclass('@@tscode@@.dem_statistiques') IS NOT NULL THEN
+          EXECUTE 'GRANT SELECT ON @@tscode@@.dem_statistiques TO statalltsetl';
+      END IF;
+
+      IF to_regclass('@@tscode@@.dem_statistiques_demarches') IS NOT NULL THEN
+          EXECUTE 'GRANT SELECT ON @@tscode@@.dem_statistiques_demarches TO statalltsetl';
+      END IF;
+
+      IF to_regclass('@@tscode@@.dem_statistiques_statuts') IS NOT NULL THEN
+          EXECUTE 'GRANT SELECT ON @@tscode@@.dem_statistiques_statuts TO statalltsetl';
+      END IF;
+
+      IF to_regclass('@@tscode@@.dem_statistiques_types') IS NOT NULL THEN
+          EXECUTE 'GRANT SELECT ON @@tscode@@.dem_statistiques_types TO statalltsetl';
+      END IF;
+
+      IF to_regclass('@@tscode@@.dem_statistiques_types_demarches') IS NOT NULL THEN
+          EXECUTE 'GRANT SELECT ON @@tscode@@.dem_statistiques_types_demarches TO statalltsetl';
+      END IF;
   END IF;
 END $$;

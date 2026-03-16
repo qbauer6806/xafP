@@ -239,7 +239,7 @@
                                            class="form-control"
                                            th:id="${'filter_' + f.key}"
                                            th:name="${f.key}"
-                                           th:value="${param[f.key] != null ? param[f.key][0] : ''}" />
+                                           th:value="${param[f.key] != null ? param[f.key][0] : ''}"/>
                                   </div>
                                 </div>
 
@@ -247,8 +247,8 @@
                                 <div th:if="${iter.index % 3 == 2 or iter.last}" class="row"></div>
                               </div>
 
-                        </div>
-                      </div>
+                            </div>
+                          </div>
                           <div class="row">
                             <div class="col-xs-12 text-center">
                               <button id="rechercherButton2"
@@ -257,12 +257,13 @@
                               </button>
                             </div>
                           </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
-
                 </div>
               </div>
-</div>
               <div class="row" id="affinerDiv">
                 <div class="col-xs-12">
 

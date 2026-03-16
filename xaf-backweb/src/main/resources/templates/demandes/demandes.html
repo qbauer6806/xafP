@@ -221,7 +221,34 @@
                           </div>
 
                           <br/>
+                          <div class="row"
+                               th:if="${filtersDataRecherche != null and !filtersDataRecherche.isEmpty()}">
+                            <div class="col-xs-12">
 
+                              <div th:each="f, iter : ${filtersDataRecherche}">
+                                <!-- Ouvre une nouvelle ligne tous les 3 éléments -->
+                                <div th:if="${iter.index % 3 == 0}" class="row"></div>
+
+                                <div class="col-xs-12 col-md-4" style="margin-top: 1em;">
+                                  <div class="form-group" style="margin-left: 2em;">
+                                    <label th:for="${'filter_' + f.key}"
+                                           th:text="${f.label}"></label>
+
+                                    <input type="text"
+                                           maxlength="40"
+                                           class="form-control"
+                                           th:id="${'filter_' + f.key}"
+                                           th:name="${f.key}"
+                                           th:value="${param[f.key] != null ? param[f.key][0] : ''}"/>
+                                  </div>
+                                </div>
+
+                                <!-- Ferme la ligne après 3 colonnes (ou à la fin de la liste) -->
+                                <div th:if="${iter.index % 3 == 2 or iter.last}" class="row"></div>
+                              </div>
+
+                            </div>
+                          </div>
                           <div class="row">
                             <div class="col-xs-12 text-center">
                               <button id="rechercherButton2"
@@ -230,15 +257,13 @@
                               </button>
                             </div>
                           </div>
-
                         </div>
                       </div>
+
                     </div>
                   </div>
-
                 </div>
               </div>
-
               <div class="row" id="affinerDiv">
                 <div class="col-xs-12">
 
@@ -318,6 +343,11 @@
 <script type="text/javascript" th:inline="javascript">
   /*<![CDATA[*/
   var demandeRechercheData = /*[[${demandeRechercheData}]]*/;
+  var filtersDataRecherche = /*[[${filtersDataRecherche}]]*/ [];
+  var filtersDataRechercheKeys = (filtersDataRecherche && filtersDataRecherche.length)
+      ? filtersDataRecherche.map(function (f) { return f.key; })
+      : [];
+
   var demandeRechercheCreationStartDate = /*[[${demandeRechercheCreationStartDate}]]*/;
   var demandeRechercheCreationEndDate = /*[[${demandeRechercheCreationEndDate}]]*/;
 
@@ -367,7 +397,17 @@
     if (demandeRechercheData) {
       params.data = demandeRechercheData;
     }
-
+    if (filtersDataRechercheKeys && filtersDataRechercheKeys.length) {
+      for (var i = 0; i < filtersDataRechercheKeys.length; i++) {
+        var key = filtersDataRechercheKeys[i];
+        var value = params[key];
+        if (value !== undefined && value !== null && value !== '') {
+          params.data = "AND:" + key + "=" + value;
+          delete params[key];
+          break;
+        }
+      }
+    }
     params.sort = columns[params.order[0].column].data
         + "," + params.order[0].dir;
 

@@ -201,26 +201,26 @@ public class DemandesTransformer {
         return dto;
     }
 
-    public DemandeDTO exportProjection2Dto(DemandeExportDTO bo) {
+    public DemandeDTO exportProjection2Dto(DemandeExportDTO demandeExportDTO) {
         DemandeDTO dto = new DemandeDTO();
-        dto.setDateCreation(bo.getDateCreation());
-        dto.setDateDerModif(bo.getDateDerModif());
-        dto.setCourrierDateReception(bo.getCourrierDateReception());
-        dto.setCourrierRefInterne(bo.getCourrierRefInterne());
-        dto.setLangue(bo.getLangue());
-        dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
-        dto.setObservations(bo.getObservations());
-        dto.setPkDemandes(bo.getPkDemandes());
-        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
-        dto.setUsager(demandesUsagersTransformer.bo2Dto(bo.getUsager()));
-        dto.setIdentifiant(bo.getIdentifiant());
+        dto.setDateCreation(demandeExportDTO.getDateCreation());
+        dto.setDateDerModif(demandeExportDTO.getDateDerModif());
+        dto.setCourrierDateReception(demandeExportDTO.getCourrierDateReception());
+        dto.setCourrierRefInterne(demandeExportDTO.getCourrierRefInterne());
+        dto.setLangue(demandeExportDTO.getLangue());
+        dto.setCanal(DemandeCanalEnum.valueOf(demandeExportDTO.getCanal()));
+        dto.setObservations(demandeExportDTO.getObservations());
+        dto.setPkDemandes(demandeExportDTO.getPkDemandes());
+        dto.setAgent(demandesAgentsTransformer.bo2Dto(demandeExportDTO.getAgent()));
+        dto.setUsager(demandesUsagersTransformer.bo2Dto(demandeExportDTO.getUsager()));
+        dto.setIdentifiant(demandeExportDTO.getIdentifiant());
         // Mapper le contenu de la demande
-        dto.setContenu(bo.getContenu());
-        dto.setContenuTrad(bo.getContenuTrad());
+        dto.setContenu(demandeExportDTO.getContenu());
+        dto.setContenuTrad(demandeExportDTO.getContenuTrad());
 
         // Mapper le "dernier statut"
-        if (bo.getDernierStatut() != null) {
-            DemandesStatutsBO statut = bo.getDernierStatut();
+        if (demandeExportDTO.getDernierStatut() != null) {
+            DemandesStatutsBO statut = demandeExportDTO.getDernierStatut();
             DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
             dto.setDernierStatut(statutDto);
         }

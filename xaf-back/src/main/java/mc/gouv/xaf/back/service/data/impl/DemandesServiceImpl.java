@@ -475,6 +475,8 @@ public class DemandesServiceImpl implements DemandesService {
             dto.setMarqueurs(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenu()));
             // mapper les marqueurs
             dto.setMarqueursTrad(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenuTrad()));
+            dto.setComplements(demandesComplementsService.getDemandesComplements(demande.getPkDemandes())
+                    .toArray(DemandeComplementsDTO[]::new));
             return excelExportModelProvider.getDemandeFlat(dto);
         });
     }

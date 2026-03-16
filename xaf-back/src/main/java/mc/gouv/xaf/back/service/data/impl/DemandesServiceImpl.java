@@ -18,6 +18,7 @@ import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.demande.CloneDemandeExtender;
 import mc.gouv.xaf.back.service.demande.DeleteDemandeExtender;
@@ -90,6 +92,8 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
@@ -222,6 +226,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private MarqueursService marqueursService;
+
+    @Autowired
+    private PropertiesService propertiesService;
 
     @Autowired
     private TransactionErrorsHandler transactionErrorsHandler;
@@ -448,6 +455,22 @@ public class DemandesServiceImpl implements DemandesService {
                         enumValue = StringUtils.isBlank(enumKey)
                                 ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
+                    } else if (mapping.asText().startsWith("properties_")) {
+                        String propertyKey = mapping.asText().replaceFirst("^properties_", "") + "_FR";
+                        PropertiesDTO prop = propertiesService.getProperty(propertyKey);
+                        if (prop != null) {
+                            PropertiesListEntityDTO[] listProperties = AfBackUtils.parserPropertiesListJson(
+                                    prop.getValue());
+                            if (null == listProperties || listProperties.length == 0) {
+                                LOGGER.warn("Impossible de transformer la valeur de la dem_property (key={}) en map",
+                                        propertyKey);
+                                enumValue = enumKey;
+                            } else {
+                                Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(listProperties)
+                                        .filter(e -> e.getId().equals(enumKey)).findFirst();
+                                enumValue = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(enumKey);
+                            }
+                        }
                     }
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }

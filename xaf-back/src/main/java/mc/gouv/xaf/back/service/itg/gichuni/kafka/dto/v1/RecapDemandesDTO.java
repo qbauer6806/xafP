@@ -1,12 +1,16 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Bloc "recapDemandes" du message SynchronisationDemandesMessage envoyé au Guichet Unique
  *
  * @author qdeme
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RecapDemandesDTO {
 
@@ -29,37 +33,5 @@ public class RecapDemandesDTO {
      * Nombre de demandes terminées de l'usager
      */
     private Integer terminees;
-
-    public Integer getTotal() {
-        return total;
-    }
-
-    public void setTotal(Integer total) {
-        this.total = total;
-    }
-
-    public Integer getEnCours() {
-        return enCours;
-    }
-
-    public void setEnCours(Integer enCours) {
-        this.enCours = enCours;
-    }
-
-    public Integer getEnAttenteUsager() {
-        return enAttenteUsager;
-    }
-
-    public void setEnAttenteUsager(Integer enAttenteUsager) {
-        this.enAttenteUsager = enAttenteUsager;
-    }
-
-    public Integer getTerminees() {
-        return terminees;
-    }
-
-    public void setTerminees(Integer terminees) {
-        this.terminees = terminees;
-    }
 
 }

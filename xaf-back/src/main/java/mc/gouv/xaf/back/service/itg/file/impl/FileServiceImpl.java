@@ -550,9 +550,14 @@ public class FileServiceImpl implements FileService {
     @Override
     public String dupliquerFichier(String fileUrl, DemandeDTO demande) {
         try {
-            FileInfo fileInfo = recupererFichierAvecContentType(fileUrl);
-
+            // Afin de gérér à la fois les vieux fichiers (non encodés) et les nouveaux (déjà encodés), on décode, pour ensuite réencoder dans la construction de l'url
+            String fileUrlDecode = java.net.URLDecoder.decode(fileUrl, java.nio.charset.StandardCharsets.UTF_8);
+            FileInfo fileInfo = recupererFichierAvecContentType(fileUrlDecode);
             try (InputStream is = fileInfo.inputStream()) {
+                if (is == null) {
+                    LOGGER.warn("InputStream null pour {}", fileUrl);
+                    return null;
+                }
                 return saveFile(demande, fileInfo.fileName(), gouvPropertiesResolver.getContainerId(),
                         fileInfo.contentType(), is, null);
             }
@@ -565,8 +570,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private FileInfo recupererFichierAvecContentType(String fileUrl) throws IOException {
-        URI uri = URI.create(fileUrl);
-        ResponseEntity<InputStream> response = getFileEntity(uri.getPath(), gouvPropertiesResolver.getContainerId());
+        ResponseEntity<InputStream> response = getFileEntity(fileUrl, gouvPropertiesResolver.getContainerId());
 
         MediaType mediaType = response.getHeaders().getContentType();
         String contentType = mediaType != null ? mediaType.toString() : MediaType.APPLICATION_OCTET_STREAM_VALUE;

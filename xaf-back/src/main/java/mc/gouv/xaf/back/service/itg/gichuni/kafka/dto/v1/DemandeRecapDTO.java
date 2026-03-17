@@ -4,12 +4,16 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Bloc "demandeRecap" de certain messages envoyés au Guichet Unique
  *
  * @author qdeme
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeRecapDTO {
 
@@ -21,37 +25,5 @@ public class DemandeRecapDTO {
     private Date dateCreation;
 
     private String statutSimplifie;
-
-    public Integer getDemandeId() {
-        return demandeId;
-    }
-
-    public void setDemandeId(Integer demandeId) {
-        this.demandeId = demandeId;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public String getStatutSimplifie() {
-        return statutSimplifie;
-    }
-
-    public void setStatutSimplifie(String statutSimplifie) {
-        this.statutSimplifie = statutSimplifie;
-    }
 
 }

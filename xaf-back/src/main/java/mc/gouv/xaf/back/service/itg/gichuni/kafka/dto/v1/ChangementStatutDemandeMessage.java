@@ -4,6 +4,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Changement de statut simplifié d'une demande
@@ -25,6 +27,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  *
  * @author qdeme
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChangementStatutDemandeMessage extends GUKafkaMessage {
 
@@ -57,62 +61,6 @@ public class ChangementStatutDemandeMessage extends GUKafkaMessage {
         this.identifiant = identifiant;
         this.dateStatutSimplifie = dateStatutSimplifie;
         this.statutSimplifie = statutSimplifie;
-        this.recapDemandes = recapDemandes;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(String usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public Integer getDemandeId() {
-        return demandeId;
-    }
-
-    public void setDemandeId(Integer demandeId) {
-        this.demandeId = demandeId;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-
-    public Date getDateStatutSimplifie() {
-        return dateStatutSimplifie;
-    }
-
-    public void setDateStatutSimplifie(Date dateStatutSimplifie) {
-        this.dateStatutSimplifie = dateStatutSimplifie;
-    }
-
-    public String getStatutSimplifie() {
-        return statutSimplifie;
-    }
-
-    public void setStatutSimplifie(String statutSimplifie) {
-        this.statutSimplifie = statutSimplifie;
-    }
-
-    public RecapDemandesDTO getRecapDemandes() {
-        return recapDemandes;
-    }
-
-    public void setRecapDemandes(RecapDemandesDTO recapDemandes) {
         this.recapDemandes = recapDemandes;
     }
 

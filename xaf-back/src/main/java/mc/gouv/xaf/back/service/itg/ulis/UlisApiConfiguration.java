@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service.itg.ulis;
 
 import mc.gouv.xaf.back.properties.UlisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,6 @@ public class UlisApiConfiguration {
      */
 
     @Bean
-    @Qualifier("ulisMoyensGenerauxClientApi")
     public UlisClientApi ulisMoyensGenerauxClientApi() {
         return new UlisClientApi(ulisProperties.getApiUlisUrl() + MOYENS_GENERAUX_URL,
                 ulisProperties.getApiUlisAuthentUser(),
@@ -35,7 +33,6 @@ public class UlisApiConfiguration {
     }
 
     @Bean
-    @Qualifier("ulisTiersOrganisationClientApi")
     public UlisClientApi ulisTiersOrganisationClientApi() {
         return new UlisClientApi(ulisProperties.getApiUlisUrl() + TIERS_ORGANISATION_V1_URL,
                 ulisProperties.getApiUlisAuthentUser(),
@@ -43,8 +40,7 @@ public class UlisApiConfiguration {
     }
 
     @Bean
-    @Qualifier("workflowClientApi")
-    public UlisClientApi ulisWorkflowClientApi() {
+    public UlisClientApi workflowClientApi() {
         return new UlisClientApi(
                 ulisProperties.getApiUlisUrl() + WORKFLOW_URL,
                 ulisProperties.getApiUlisAuthentUser(),
@@ -52,8 +48,7 @@ public class UlisApiConfiguration {
     }
 
     @Bean
-    @Qualifier("commercialisationClientApi")
-    public UlisClientApi ulisCommercialisationClientApi() {
+    public UlisClientApi commercialisationClientApi() {
         return new UlisClientApi(
                 ulisProperties.getApiUlisUrl() + ACCUEIL_COMMERCIALISATION_URL,
                 ulisProperties.getApiUlisAuthentUser(),

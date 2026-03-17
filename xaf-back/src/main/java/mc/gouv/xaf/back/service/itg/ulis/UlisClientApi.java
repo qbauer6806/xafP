@@ -3,11 +3,13 @@ package mc.gouv.xaf.back.service.itg.ulis;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
+import lombok.Getter;
 import mc.gouv.xaf.apiclient.authentication.AuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.apache5.connector.Apache5ConnectorProvider;
 
+@Getter
 public class UlisClientApi {
 
 
@@ -28,9 +30,8 @@ public class UlisClientApi {
     public static final String CONTEXT_PATH_CODIFICATION = "codifications";
     public static final String CONTEXT_PATH_INDEXATION_GED = "indexation-ged";
 
-    private AuthorizationHeaderProvider authorizationHeaderProvider;
-    private WebTarget target;
-    private Client client;
+    private final AuthorizationHeaderProvider authorizationHeaderProvider;
+    private final WebTarget target;
 
     public UlisClientApi(String serviceUrl, String user, String password) {
         this.authorizationHeaderProvider = new BasicAuthorizationHeaderProvider(user, password);
@@ -38,18 +39,10 @@ public class UlisClientApi {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.connectorProvider(new Apache5ConnectorProvider());
 
-        this.client = ClientBuilder.newClient(clientConfig)
-                .register(UlisObjectMapperProvider.class)
-                .register(UlisLogFilter.class);
-
-        this.target = client.target(serviceUrl);
+        try (Client client = ClientBuilder.newClient(clientConfig).register(UlisObjectMapperProvider.class)
+                .register(UlisLogFilter.class)) {
+            this.target = client.target(serviceUrl);
+        }
     }
 
-    public AuthorizationHeaderProvider getAuthorizationHeaderProvider() {
-        return authorizationHeaderProvider;
-    }
-
-    public WebTarget getTarget() {
-        return target;
-    }
 }

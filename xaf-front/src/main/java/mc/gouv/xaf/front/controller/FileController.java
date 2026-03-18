@@ -132,6 +132,73 @@ public class FileController {
         }
     }
 
+    @GetMapping(value = { "/file/public" }, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity doGetPublic(@RequestParam(required = false) String mode,
+            @RequestParam(required = false) String fileId) {
+        LOGGER.info("====================== /filedownload doGetPublic()");
+
+        try {
+            LOGGER.info("====================== /fileservlet doGetPublic()");
+
+            String[] parts = fileId.split("/");
+            if (parts.length != 2) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                        ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT);
+            }
+            String uuid = parts[0];
+            String filename = parts[1];
+
+            if (StringUtils.isBlank(filename)) {
+                return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.BAD_REQUEST,
+                        ERREUR_NOM_OU_ID_DU_FICHIER_MANQUANT);
+            }
+
+            String accountId = propertiesResolver.getDemarcheId().toUpperCase();
+            String containerId = XafFrontserverUtils.CONTAINER_ROOT;
+
+            LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
+
+            String fileNameDecode = URLDecoder.decode(filename, StandardCharsets.UTF_8);
+
+            String fullFilename = uuid + SLASH + URLEncoder.encode(fileNameDecode, StandardCharsets.UTF_8);
+            String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + fullFilename;
+
+            // Constitution de l'URL d'appel
+            URL url = new URI(propertiesResolver.getFileUrl() + virtualPath).toURL();
+
+            // Constitution de la requête
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpGet getRequest = new HttpGet(url.toString());
+
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION,
+                    xafFrontserverUtils.getAuthHeader(XafFrontserverUtils.ServiceTarget.FILE));
+
+            LOGGER.info("Appel du WS FILE");
+            ClassicHttpResponse getResponse = (ClassicHttpResponse) client.execute(getRequest);
+            String contentType = getResponse.getEntity().getContentType();
+
+            LOGGER.info("Constitution de la réponse pour retour au client");
+            ResponseEntity.BodyBuilder response = ResponseEntity.status(getResponse.getCode())
+                    .header(HttpHeaders.CONTENT_TYPE, contentType);
+
+            for (Header header : getResponse.getHeaders()) {
+                if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
+                    String headerValue = "preview".equalsIgnoreCase(mode) ? header.getValue()
+                            .replace("attachment;", "inline;") : header.getValue();
+                    response.header(header.getName(), URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
+                }
+            }
+
+            LOGGER.info("====================== Fin /fileservlet doGet()");
+
+            return response.body(new InputStreamResource(getResponse.getEntity().getContent()));
+
+        } catch (Exception e) {
+            LOGGER.error("FileController - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @DeleteMapping(value = { "/file" })
     public ResponseEntity doDelete(@RequestParam(required = false) String fileId,
             HttpServletRequest request) {

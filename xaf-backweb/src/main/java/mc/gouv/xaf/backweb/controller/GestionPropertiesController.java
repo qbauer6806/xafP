@@ -8,7 +8,6 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.annotation.Secured;
@@ -53,8 +52,7 @@ public class GestionPropertiesController {
         String safeValue = AfBackUtils.logSafe(value);
         LOGGER.info("======================= Appel de la page /gestion/properties/modifier ({}, {})", pkProperties,
                 safeValue);
-        String valueSafe = StringEscapeUtils.escapeHtml4(value);
-        propertiesService.updatePropertyValue(pkProperties, valueSafe);
+        propertiesService.updatePropertyValue(pkProperties, value);
         List<String> messages = new ArrayList<>();
         messages.add(MODIFIER_SUCCES);
         redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);

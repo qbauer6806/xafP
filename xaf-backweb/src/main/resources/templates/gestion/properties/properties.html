@@ -197,9 +197,8 @@
       keyword: false,
       render: function (data, type, property) {
         return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" data-toggle="tooltip"'
-            + ' data-placement="bottom" data-original-title="Modifier la propriété" data-pkproperties="' + property.pkProperties
-            + '" data-type="' + property.type + '" data-key="' + property.key + '" data-descriptif="' + property.descriptif
-            + '" data-value="' + property.value + '"><i class="icon-action_modifier"></i></button>';
+            + ' data-placement="bottom" data-original-title="Modifier la propriété">'
+            + '<i class="icon-action_modifier"></i></button>';
       }
     }];
 
@@ -245,15 +244,17 @@
     $(".boutonModifier").click(function (e) {
       e.preventDefault();
 
-      $('#pkProperties').val($(this).data('pkproperties'));
-      $('#propertiesType').text($(this).data('type'));
-      $('#propertiesKey').text($(this).data('key'));
-      $('#propertiesDescriptif').text($(this).data('descriptif'));
-      $('#propertiesValue').val($(this).data('value'));
+      var table = $('#datatable-properties').DataTable();
+      var property = table.row($(this).closest('tr')).data();
 
-      if ($(this).data('key').startsWith("LISTE_")) {
-        // Redirection vers IHM d'édition du json
-        document.location.href = "configjson?key=" + $(this).data('key');
+      $('#pkProperties').val(property.pkProperties);
+      $('#propertiesType').text(property.type);
+      $('#propertiesKey').text(property.key);
+      $('#propertiesDescriptif').text(property.descriptif);
+      $('#propertiesValue').val(property.value);
+
+      if (property.key.startsWith("LISTE_")) {
+        document.location.href = "configjson?key=" + encodeURIComponent(property.key);
       } else {
         $('#editionModal').modal();
       }

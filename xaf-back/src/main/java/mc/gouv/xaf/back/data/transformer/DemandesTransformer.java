@@ -61,6 +61,10 @@ public class DemandesTransformer {
         return bo2Dto(bo, null);
     }
 
+    public DemandeDTO bo2Dto(DemandeBO bo, boolean deepCopy) {
+        return bo2Dto(bo, null, deepCopy);
+    }
+
     /**
      * <p>
      * Détermine quels champs vont être ajoutés à l'objet Demande.
@@ -104,6 +108,10 @@ public class DemandesTransformer {
     }
 
     public DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
+        return bo2Dto(bo, fields, false);
+    }
+
+    public DemandeDTO bo2Dto(DemandeBO bo, String[] fields, boolean deepCopy) {
         if (bo == null) {
             return null;
         }
@@ -138,9 +146,13 @@ public class DemandesTransformer {
         }
 
         // Mapper le contenu de la demande
-        dto.setContenu(bo.getContenu());
-
-        dto.setContenuTrad(bo.getContenuTrad());
+        if (deepCopy) {
+            dto.setContenu(bo.getContenu() == null ? null : bo.getContenu().deepCopy());
+            dto.setContenuTrad(bo.getContenuTrad() == null ? null : bo.getContenuTrad().deepCopy());
+        } else {
+            dto.setContenu(bo.getContenu());
+            dto.setContenuTrad(bo.getContenuTrad());
+        }
 
         // Mapper le contenu de la config
         if (bo.getConfig() != null) {

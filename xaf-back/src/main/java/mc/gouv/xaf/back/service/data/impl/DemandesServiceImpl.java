@@ -720,7 +720,7 @@ public class DemandesServiceImpl implements DemandesService {
             DemandeBO originalDemandeBo = demandesHelperService.getCheckDemarcheDemandeBO(pkDemande, true);
 
             LOGGER.info("Duplication de la demande...");
-            DemandeDTO demandeDto = demandesTransformer.bo2Dto(originalDemandeBo);
+            DemandeDTO demandeDto = demandesTransformer.bo2Dto(originalDemandeBo, true);
             DemandeBO clonedDemandeBo = fillAndSaveDemandeToClone(demandeDto, originalDemandeBo);
 
             // Pièces jointes des demandes

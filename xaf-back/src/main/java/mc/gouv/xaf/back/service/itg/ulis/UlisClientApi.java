@@ -34,14 +34,14 @@ public class UlisClientApi implements AutoCloseable {
     private final WebTarget target;
     private final AuthorizationHeaderProvider authorizationHeaderProvider;
 
+    @SuppressWarnings("java:S2095")
     public UlisClientApi(String serviceUrl, String user, String password) {
         this.authorizationHeaderProvider = new BasicAuthorizationHeaderProvider(user, password);
 
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.connectorProvider(new Apache5ConnectorProvider());
 
-        this.client = ClientBuilder.newClient(clientConfig)
-                .register(UlisObjectMapperProvider.class)
+        this.client = ClientBuilder.newClient(clientConfig).register(UlisObjectMapperProvider.class)
                 .register(UlisLogFilter.class);
 
         this.target = this.client.target(serviceUrl);

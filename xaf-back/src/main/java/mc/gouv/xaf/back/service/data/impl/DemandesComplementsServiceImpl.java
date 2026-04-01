@@ -236,9 +236,10 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
                             new ArrayList<>(dcBoFiles)).stream().filter(dto -> !dto.isSupprimee()).toList();
                     // on copie les fichiers dans file et on met à jour la référence
                     dcfilesDto.forEach(demandeFileDTO -> {
-                        String newUrl = fileService.dupliquerFichier(demandeFileDTO.getUrl(),
+                        String urlWithoutSlash = fileService.dupliquerFichier(demandeFileDTO.getUrl(),
                                 demandesTransformer.bo2Dto(demandeBo));
-                        if (newUrl != null) {
+                        if (urlWithoutSlash != null) {
+                            String newUrl = urlWithoutSlash.startsWith("/") ? urlWithoutSlash : "/" + urlWithoutSlash;
                             demandeFileDTO.setUrl(newUrl);
                         }
                     });

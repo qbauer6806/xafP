@@ -10,7 +10,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.apache5.connector.Apache5ConnectorProvider;
 
 @Getter
-public class UlisClientApi {
+public class UlisClientApi implements AutoCloseable {
 
 
     public static final String CONTEXT_USER_HEADER = "Context-User";
@@ -31,21 +31,36 @@ public class UlisClientApi {
     public static final String CONTEXT_PATH_INDEXATION_GED = "indexation-ged";
     public static final String CONTEXT_PATH_EDITION_BUREAUTIQUE = "editions-bureautiques";
 
-    private final AuthorizationHeaderProvider authorizationHeaderProvider;
-    private final WebTarget target;
     private final Client client;
+    private final WebTarget target;
+    private final AuthorizationHeaderProvider authorizationHeaderProvider;
 
+    @SuppressWarnings("java:S2095")
     public UlisClientApi(String serviceUrl, String user, String password) {
         this.authorizationHeaderProvider = new BasicAuthorizationHeaderProvider(user, password);
 
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.connectorProvider(new Apache5ConnectorProvider());
 
-        this.client = ClientBuilder.newClient(clientConfig)
-                .register(UlisObjectMapperProvider.class)
+        this.client = ClientBuilder.newClient(clientConfig).register(UlisObjectMapperProvider.class)
                 .register(UlisLogFilter.class);
 
         this.target = this.client.target(serviceUrl);
+    }
+
+    public WebTarget getTarget() {
+        return target;
+    }
+
+    public AuthorizationHeaderProvider getAuthorizationHeaderProvider() {
+        return authorizationHeaderProvider;
+    }
+
+    @Override
+    public void close() {
+        if (client != null) {
+            client.close();
+        }
     }
 
 }

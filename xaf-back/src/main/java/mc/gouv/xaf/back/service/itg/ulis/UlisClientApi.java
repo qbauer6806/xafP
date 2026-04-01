@@ -29,9 +29,11 @@ public class UlisClientApi {
     public static final String CONTEXT_PATH_PERSONNE_PHYSIQUE = "tiers/personnes-physiques/%s";
     public static final String CONTEXT_PATH_CODIFICATION = "codifications";
     public static final String CONTEXT_PATH_INDEXATION_GED = "indexation-ged";
+    public static final String CONTEXT_PATH_EDITION_BUREAUTIQUE = "editions-bureautiques";
 
     private final AuthorizationHeaderProvider authorizationHeaderProvider;
     private final WebTarget target;
+    private final Client client;
 
     public UlisClientApi(String serviceUrl, String user, String password) {
         this.authorizationHeaderProvider = new BasicAuthorizationHeaderProvider(user, password);
@@ -39,10 +41,11 @@ public class UlisClientApi {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.connectorProvider(new Apache5ConnectorProvider());
 
-        try (Client client = ClientBuilder.newClient(clientConfig).register(UlisObjectMapperProvider.class)
-                .register(UlisLogFilter.class)) {
-            this.target = client.target(serviceUrl);
-        }
+        this.client = ClientBuilder.newClient(clientConfig)
+                .register(UlisObjectMapperProvider.class)
+                .register(UlisLogFilter.class);
+
+        this.target = this.client.target(serviceUrl);
     }
 
 }

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -231,16 +232,16 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         if (!surCreationDemande) {
-            // Suppression des fichiers liés au brouillon
-            Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
-            if (brouillonsFilesBOS != null) {
-                for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
-                    fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
-                }
-            }
+            deleteBrouillonFiles(brouillonBo);
         }
 
         brouillonsRepository.delete(brouillonBo);
+    }
+
+    private void deleteBrouillonFiles(BrouillonBO brouillon) {
+        // Suppression des fichiers liés au brouillon
+        Optional.ofNullable(brouillon.getFiles()).orElse(Collections.emptySet())
+                .forEach(file -> fileService.deleteFile("ROOT", file.getUrl()));
     }
 
     /**
@@ -250,6 +251,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     public void deleteBrouillons(Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, usagerId);
         List<BrouillonBO> brouillons = brouillonsRepository.findByFkAccess_UsagerId(usagerId);
+        for (BrouillonBO brouillon : brouillons) {
+            deleteBrouillonFiles(brouillon);
+        }
         brouillonsRepository.deleteAll(brouillons);
     }
 

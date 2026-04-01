@@ -235,8 +235,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
             if (brouillonsFilesBOS != null) {
                 for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
-                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                    fileService.deleteFile("ROOT", url);
+                    fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
                 }
             }
         }

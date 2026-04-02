@@ -22,6 +22,10 @@ public class UlisClientApi implements AutoCloseable {
     public static final String CONTEXT_PATH_RECHERCHE_DEMANDE = "resultats-recherche/ACGLR006/API_LOGDOM";
     public static final String CONTEXT_PATH_SYNTHESE =
             "synthese-metier/ACGLY001/API_LOGDOM/ACDEM_NUM/%s/ACDOS_NUM/%s";
+    public static final String CONTEXT_PATH_RECHERCHE_REFERENCE_COMMISSION =
+            "synthese-metier/ACGLY005/PROPATTRIB/ACDOS_NUMDIR/%s/ACPRO_NUM/%s";
+    public static final String CONTEXT_PATH_RECHERCHE_COMMISSIONS =
+            "resultats-recherche/ACGLR020/ACGLR020MC";
     public static final String CONTEXT_PATH_RECHERCHE_CONTRAT_LOCATIF =
             "resultats-recherche/GLCOR017/API_LOGDOM";
     public static final String CONTEXT_PATH_RECHERCHE_CONTRAT_LOCATIF_DETAILS =

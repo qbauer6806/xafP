@@ -5,8 +5,11 @@ import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesHistoriqueTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -43,6 +46,8 @@ public class DemandesHistoriqueService {
     private static final String CLOSING_SPAN = "</span>";
 
     private final DemandesHistoriqueRepository demandesHistoriqueRepository;
+    private final DemandesRepository demandesRepository;
+    private final DemandesStatutsRepository demandesStatutsRepository;
     private final UtilisateursUtils utilisateursUtils;
     private final GouvPropertiesResolver gouvPropertiesResolver;
     private final DemarchesDataProvider demarchesDataProvider;
@@ -64,19 +69,33 @@ public class DemandesHistoriqueService {
         LOGGER.info("Appel à DEM pour historique...");
         try {
             DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
-
-            LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
-            DemandesHistoriqueBO demandeHistoriqueBo = DemandesHistoriqueTransformer.dto2Bo(demandeHistoriqueDto);
-
-            demandeHistoriqueBo.setFkDemandes(demandeBo);
-            demandeHistoriqueBo.setFkStatut(demandeBo.getDernierStatut());
-            demandeHistoriqueBo.setDate(new Date());
-
-            LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
-            demandesHistoriqueRepository.save(demandeHistoriqueBo);
+            saveHisto(demandeHistoriqueDto, demandeBo, demandeBo.getDernierStatut());
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la création de l'historique {}", demandeHistoriqueDto, e);
         }
+    }
+
+    public void saveHistoDesinscription(Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto,
+            Integer pkDernierStatut) {
+        LOGGER.info("Appel à DEM pour historique...");
+        try {
+            saveHisto(demandeHistoriqueDto, demandesRepository.getReferenceById(demandeId),
+                    demandesStatutsRepository.getReferenceById(pkDernierStatut));
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la création de l'historique {}", demandeHistoriqueDto, e);
+        }
+    }
+
+    private void saveHisto(DemandeHistoriqueDTO demandeHistoriqueDto, DemandeBO demandeBo, DemandesStatutsBO statutBo) {
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
+        DemandesHistoriqueBO demandeHistoriqueBo = DemandesHistoriqueTransformer.dto2Bo(demandeHistoriqueDto);
+
+        demandeHistoriqueBo.setFkDemandes(demandeBo);
+        demandeHistoriqueBo.setFkStatut(statutBo);
+        demandeHistoriqueBo.setDate(new Date());
+
+        LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
+        demandesHistoriqueRepository.save(demandeHistoriqueBo);
     }
 
     public DemandeHistoriqueDTO statusChangeDemandeValidation(String targetState, String statutValidationName) {

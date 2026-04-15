@@ -1,6 +1,6 @@
 package mc.gouv.xaf.xaf12batch;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireBO;
 import mc.gouv.xaf.xaf12batch.bpm.DemandesCommentaireRepository;
@@ -17,6 +17,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class MigrateCommentairesBpmTasklet implements Tasklet {
@@ -45,18 +47,27 @@ public class MigrateCommentairesBpmTasklet implements Tasklet {
                             .singleResult().getBusinessKey());
             if (demandesRepository.existsById(demandeId)) {
                 LOGGER.info("Récupération des commentaires liés à la demande {} ...", demandeId);
-                List<CommentaireInterneDTO> commInternes;
-                commInternes = (List<CommentaireInterneDTO>) runtimeService.getVariable(t.getProcessInstanceId(),
-                        "MC_COMMINTERNES");
-                if (commInternes != null && !commInternes.isEmpty()) {
+                List<?> rawList = (List<?>) runtimeService.getVariable(t.getProcessInstanceId(), "MC_COMMINTERNES");
+                if (rawList != null && !rawList.isEmpty()) {
                     DemandeBO demandeBO = new DemandeBO();
                     demandeBO.setPkDemandes(demandeId);
+                    ObjectMapper objectMapper = new ObjectMapper();
+
                     // on migre les données
-                    for (CommentaireInterneDTO commInterne : commInternes) {
+                    for (Object obj : rawList) {
+                        CommentaireInterneDTO dto;
+
+                        try {
+                            dto = objectMapper.convertValue(obj, CommentaireInterneDTO.class);
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.warn("Conversion impossible pour {}", obj.getClass(), e);
+                            continue;
+                        }
+
                         DemandesCommentaireBO demandesCommentaireBO = new DemandesCommentaireBO();
-                        demandesCommentaireBO.setCommentaire(sanitize(commInterne.getCommentaire()));
-                        demandesCommentaireBO.setAgentId(commInterne.getAgentId());
-                        demandesCommentaireBO.setDate(commInterne.getDate());
+                        demandesCommentaireBO.setCommentaire(sanitize(dto.getCommentaire()));
+                        demandesCommentaireBO.setAgentId(dto.getAgentId());
+                        demandesCommentaireBO.setDate(dto.getDate());
                         demandesCommentaireBO.setFkDemandes(demandeBO);
                         DemandesCommentaireBO savedCommentaire = demandesCommentaireRepository.save(
                                 demandesCommentaireBO);

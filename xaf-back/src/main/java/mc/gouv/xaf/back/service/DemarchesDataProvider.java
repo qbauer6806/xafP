@@ -250,4 +250,15 @@ public interface DemarchesDataProvider {
         return List.of();
     }
 
+    /**
+     * Permet d’assurer la compatibilité avec les anciennes demandes encore actives, utilisant d’anciens fichiers BPMN
+     * lorsque le flag IS_EN_ATTENTE_VALIDATION est égal à 1. Dans ce cas, la méthode renvoie le statut cible à
+     * appliquer
+     *
+     * Par défaut, retourne TSCODEDemandeStatutEnum.VALIDATION_HIERARCHIQUE.name().
+     */
+    default String getIsEnAttenteValidationStatus() {
+        return "VALIDATION_HIERARCHIQUE";
+    }
+
 }

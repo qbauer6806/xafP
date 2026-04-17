@@ -1,13 +1,10 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -315,12 +312,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
         LOGGER.info("Le fichier {} sera effacé de file.", url);
 
-        String urlEncode = URLEncoder.encode(url, UTF_8);
-        if (urlEncode != null && urlEncode.startsWith("/")) {
-            urlEncode = urlEncode.substring(1);
-        }
-
-        fileService.deleteFile(gouvPropertiesResolver.getContainerId(), urlEncode);
+        fileService.deleteFile(gouvPropertiesResolver.getContainerId(), url);
         if (garderHistorique) {
             LOGGER.info("On flag le fichier supprimee et on ajoute l'action dans l'historique");
             demandeFile.setSupprimee(true);

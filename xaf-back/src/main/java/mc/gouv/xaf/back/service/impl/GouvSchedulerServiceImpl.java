@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
@@ -13,16 +14,15 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvSchedulerServiceImpl implements GouvSchedulerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvSchedulerServiceImpl.class);
 
-    @Autowired
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
     /**
      * Création d'un job quartz

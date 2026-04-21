@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -36,11 +37,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
@@ -49,20 +50,15 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
     private static final String TD_TR_TABLE_TAG = "</td></tr></table>";
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    private DemandesFilesService demandesFileService;
+    private final DemandesFilesService demandesFileService;
 
-    @Autowired
-    private DemandeRecapHTMLService demandeRecapHTMLService;
+    private final DemandeRecapHTMLService demandeRecapHTMLService;
 
-    @Autowired
-    private PdfHeaderProvider pdfHeaderProvider;
+    private final PdfHeaderProvider pdfHeaderProvider;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
     @Override
     public void generateAndStorePdf(DemandeDTO demande) throws IOException {

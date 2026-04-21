@@ -1,11 +1,20 @@
 package mc.gouv.xaf.api.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.util.Date;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.service.AfApi2Tiers;
+import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,17 +33,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import mc.gouv.xaf.back.service.AfApi2Tiers;
-import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
-
 /**
  * Interface spécifiant les méthodes devant être implémentées dans l'API dite "2/3" Ce sont donc des méthodes visant à
  * être appelées par le Back Office tiers (non GENTS) via le FO GENTS (pour des raisons de ségmentation réseau)
@@ -44,12 +42,12 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 @RestController
 @ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' == 'true'")
 @RequestMapping(value = "/api2tiers/v1", produces = "application/json")
+@RequiredArgsConstructor
 public class AfApiController2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiController2Tiers.class);
 
-    @Autowired
-    private AfApi2Tiers afApiService2Tiers;
+    private final AfApi2Tiers afApiService2Tiers;
 
     @GetMapping(value = "/periodesouverture")
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {

@@ -1,23 +1,22 @@
 package mc.gouv.xaf.back.service.tarif.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.tarif.UpdateTarifsService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 public class UpdateTarifsServiceImpl implements UpdateTarifsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateTarifsServiceImpl.class);
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
     @Override
     public void updateTarifs(String tarifToUpdateKey) {

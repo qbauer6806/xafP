@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
@@ -16,13 +17,13 @@ import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
+import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
-import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
@@ -34,54 +35,41 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
     public static final String MC_CAPTURE_RESULT = "MC_CAPTURE_RESULT";
-    public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
     private static final String NB_JOURS_AVANT_EXPIRATION_PAIEMENT = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
 
-    @Autowired
-    private DemandesService demandesService;
+    private final DemandesService demandesService;
 
-    @Autowired
-    private CaptureService captureService;
+    private final CaptureService captureService;
 
-    @Autowired
-    private GouvBPM gouvBPM;
+    private final GouvBPM gouvBPM;
 
-    @Autowired
-    private TicketRecapitulatifServiceImpl ticketRecapitulatifService;
+    private final TicketRecapitulatifServiceImpl ticketRecapitulatifService;
 
-    @Autowired
-    private DemandesDataService demandesDataService;
+    private final DemandesDataService demandesDataService;
 
-    @Autowired
-    private PaiementHistoriqueService paiementHistoriqueService;
+    private final PaiementHistoriqueService paiementHistoriqueService;
 
-    @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
+    private final DemandesHistoriqueService demandesHistoriqueService;
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
-    @Autowired
-    private CommandesService commandesService;
+    private final CommandesService commandesService;
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final AfTemplateModelProvider afTemplateModelProvider;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -162,7 +150,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         }
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
-        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelDemande(demandeDTO);
+        Map<String, Object> model = afTemplateModelProvider.getGenericModelDemande(demandeDTO);
 
         // Calcul de la date expiration de la demande avec valeur par défaut à 35 jours
         PropertiesDTO prop = propertiesService.getProperty(NB_JOURS_AVANT_EXPIRATION_PAIEMENT);

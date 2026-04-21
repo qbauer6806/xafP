@@ -8,7 +8,7 @@ import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import java.util.Date;
 
 /**
- * Modélise d'un statistique
+ * Modélise une statistique
  */
 @Setter
 @Getter
@@ -30,5 +30,7 @@ public class StatistiqueDTO {
     private String identifiantDemande;
 
     private TypeConnexionUsagerEnum typeConnexionUsager;
+
+    private String origine;
 
 }

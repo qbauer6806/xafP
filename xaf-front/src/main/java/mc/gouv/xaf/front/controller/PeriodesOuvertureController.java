@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -9,7 +10,6 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,12 +24,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/periodesouverture")
-public class PeriodesOuvertureController extends AbstractXafController {
+@RequiredArgsConstructor
+public class PeriodesOuvertureController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodesOuvertureController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PeriodeOuvertureDTO>> doGet(HttpServletRequest request) {
@@ -43,7 +43,7 @@ public class PeriodesOuvertureController extends AbstractXafController {
         }
 
         LOGGER.info("Appel de la démarche afin de récupérer les périodes d'ouverture...");
-        List<PeriodeOuvertureDTO> periodes = getAfApiClient().getPeriodesOuverture();
+        List<PeriodeOuvertureDTO> periodes = xafFrontserverUtils.getAfApiClient().getPeriodesOuverture();
         LOGGER.info("====================== Fin /periodesouverture doGet()");
 
         return ResponseEntity.ok(periodes);

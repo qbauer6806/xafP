@@ -4,7 +4,6 @@ import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_VIRTUEL;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,20 +13,37 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
+import mc.gouv.xaf.back.data.dao.DemandesCommentaireRepository;
+import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
 import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
+import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesHelperService;
+import mc.gouv.xaf.back.service.demande.DeleteDemandeExtender;
+import mc.gouv.xaf.back.service.handlers.TransactionErrorsHandler;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
@@ -36,79 +52,61 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesServiceImpl.class);
 
     private static final Integer OFFSET_MOIS_DATE_PURGE = 1;
-
     private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_FILE = 100;
-
     private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
 
-    @Autowired
-    private DemandesService demandesService;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final MailService mailService;
+    private final AfBackUtils afBackUtils;
+    private final PropertiesService propertiesService;
+    private final StatistiquesRepository statRepository;
+    private final DemandesRepository demandesRepository;
+    private final PurgeFilesRepository purgeFilesRepository;
+    private final UsagersCache usagerCache;
+    private final GouvSchedulerService gouvSchedulerService;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final AfTemplateModelProvider afTemplateModelProvider;
+    private final FileService fileService;
+    private final DemandesHelperService demandesHelperService;
+    private final DemandesHistoriqueRepository demandesHistoriqueRepository;
+    private final DemandesCommentaireRepository demandesCommentaireRepository;
+    private final DemandesUsagersRepository demandesUsagersRepository;
+    private final Optional<DeleteDemandeExtender> deleteDemandeExtender;
+    private final StatistiquesService statistiquesService;
+    private final GUKafkaProducer guKafkaProducer;
+    private final GUKafkaUtils guKafkaUtils;
+    private final DemandesTransformer demandesTransformer;
+    private final DemandesAgentsRepository demandesAgentsRepository;
+    private final TransactionErrorsHandler transactionErrorsHandler;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private StatistiquesRepository statRepository;
-
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
-
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
-
-    @Autowired
-    private PurgeFilesRepository purgeFilesRepository;
-
-    @Autowired
-    private UsagersCache usagerCache;
-
-    @Autowired
-    private GouvSchedulerService gouvSchedulerService;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesCourriersRepository demandesCourriersRepository;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
+    @Transactional
     @Override
-    public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
+    public void purgerDemandesDansStatuts(List<String> statuts, int jours) {
         StringBuilder demandesAPurger = new StringBuilder();
         PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(DELAI_ENVOI_MAIL_PURGE);
 
@@ -123,12 +121,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         // PURGE DES DEMANDES
         Date debutSequentiel = new Date();
 
-        List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(dateDebutPurge, statuts,
+        List<Integer> listDem = getAllDemandeIdsForPurge(dateDebutPurge, statuts,
                 Arrays.asList(GUICHET_VIRTUEL.name(), COURRIER.name(), GUICHET_PHYSIQUE.name()));
 
+        String origineSuppression = "Purge automatique";
         for (Integer demandeId : listDem) {
-
-            demandesService.deleteDemandeInGivenStatus(demandeId, statuts, jours);
+            deleteDemandeWithoutPurgeFichiers(demandeId, origineSuppression);
             demandesSuppr++;
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", demandeId, demandesSuppr);
         }
@@ -140,7 +138,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         LOGGER.info("Début des envois mails utilisateur ... Demandes dont dernier statut final est >= à {} et < à {}",
                 dateDebutPurge, dateFinPurge);
-        List<DemandeDTO> listDto = demandesService.getAllDemandeForRelanceAvantPurge(dateDebutPurge, dateFinPurge,
+        List<DemandeDTO> listDto = getAllDemandeForRelanceAvantPurge(dateDebutPurge, dateFinPurge,
                 statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
@@ -173,6 +171,119 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         LOGGER.info("fin");
     }
 
+    private List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
+            List<String> canaux) {
+        LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
+        return demandesRepository.findPkDemandesByDernierStatutDateBeforeAndDernierStatutNameInAndCanalIn(
+                dernierStatutDateDebut, dernierStatutList, canaux);
+    }
+
+    @Transactional
+    @Override
+    public void deleteDemandePurgeSelective(Integer demandeId, String origineSuppression) {
+        deleteDemandeWithoutPurgeFichiers(demandeId, origineSuppression);
+    }
+
+    private void deleteDemandeWithoutPurgeFichiers(Integer demandeId, String origineSuppression) {
+        try {
+            LOGGER.info("Suppression de la demande {}...", demandeId);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
+            if (demandeBo == null) {
+                throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            }
+
+            // Insertion de statistique
+            LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
+            StatistiqueDTO stat = new StatistiqueDTO();
+            stat.setCanal(demandeBo.getCanal());
+            stat.setDate(new Date());
+            stat.setDemandeId(demandeId);
+            stat.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
+            stat.setIdentifiantDemande(demandeBo.getIdentifiant());
+            stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
+            if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
+                stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
+            }
+            stat.setOrigine(origineSuppression);
+            statistiquesService.saveStatistique(stat);
+
+            // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Suppression de l'historique de la demande...");
+            demandesHistoriqueRepository.deleteByFkDemandesPkDemandes(demandeId);
+            // Suppression des commentaires de la demande (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Suppression des commentaires de la demande...");
+            demandesCommentaireRepository.deleteByFkDemandesPkDemandes(demandeId);
+
+            // Sauvegarde des fichiers à purger avant suppression de la demande.
+            // Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande
+            LOGGER.info("insertion des fichiers à purger dans la table pour la demande: {}", demandeId);
+            purgeFilesRepository.insertFilesToPurge(demandeId);
+            purgeFilesRepository.insertFilesComplementsToPurge(demandeId);
+            purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
+
+            // Traitement supplémentaire si besoin
+            deleteDemandeExtender.ifPresent(
+                    deleteDemandeExtender -> deleteDemandeExtender.executeExtraDeleteBeforeDemandeDeletion(demandeBo));
+
+            DemandesAgentsBO agent = demandeBo.getAgent();
+            DemandesUsagersBO usager = demandeBo.getUsager();
+
+            Integer usagerId = demandeBo.getFkAccess().getUsagerId();
+
+            // Suppression de la demande.
+            LOGGER.info("Appel du répo pour la suppression...");
+            demandesRepository.delete(demandeBo);
+
+            // Suppression de l'agent (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Vérification de l'agent");
+            if (agent != null && !demandesRepository.existsByAgent(agent)) {
+                LOGGER.info("L'agent associé n'est pas utilisé ailleurs, suppression...");
+                demandesAgentsRepository.delete(agent);
+            }
+            // Suppression de l'usager (pas géré par cascade, donc le faire ici)
+            LOGGER.info("Vérification de l'usager");
+            if (!demandesRepository.existsByUsager(usager)) {
+                LOGGER.info("L'usager associé n'est pas utilisé ailleurs, suppression...");
+                demandesUsagersRepository.delete(usager);
+            }
+
+            String identifiant = demandeBo.getIdentifiant();
+            Date dateCreation = demandeBo.getDateCreation();
+            LOGGER.info(
+                    "Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+            List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(usagerId);
+            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+            guKafkaProducer.sendSuppressionDemandeMessage(usagerId, demandeId, identifiant, dateCreation,
+                    recapDemandes);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de deleteDemande");
+            ErrorEventDTO esErrorEventDTO = transactionErrorsHandler.createErrorEvent(
+                    "DemandesServiceImpl - méthode deleteDemande()", demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
+            List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
+        return demandesTransformer.bo2Dto(
+                demandesRepository.findByDernierStatut_DateBetweenAndDernierStatut_NameIn(dernierStatutDateDebut,
+                        dernierStatutDateFin, dernierStatutList));
+
+    }
+
+    @Transactional
+    @Override
+    public void deleteDemande(Integer demandeId) {
+        deleteDemandeWithoutPurgeFichiers(demandeId, null);
+        Triple<Integer, Integer, Integer> result = executerPurgeFichiers();
+        LOGGER.info("Fin suppression de la demande, {} fichier(s) supprimé(s)...", result.getLeft());
+        LOGGER.info("Fin suppression de la demande, {} fichier(s) exclus car référencés...", result.getMiddle());
+        LOGGER.info("Fin suppression de la demande, {} appels vers file effectué(s)...", result.getRight());
+    }
+
     @Override
     public Triple<Integer, Integer, Integer> executerPurgeFichiers() {
 
@@ -187,25 +298,16 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
             PurgeFilesBO cf = all.next();
 
-            if (demandesFilesRepository.countByUrl(cf.getUrl()) == 0
-                    && demandesCourriersRepository.countByUrl(cf.getUrl()) == 0
-                    && demandesComplementsFilesRepository.countByUrl(cf.getUrl()) == 0
-                    && brouillonsFilesRepository.countByUrl(cf.getUrl()) == 0) {
-                LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
+            LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
 
-                String url = cf.getUrl();
-                if (url != null && url.startsWith("/")) {
-                    url = url.substring(1);
-                }
-
-                lotCourant.add(url);
-                compteGlobalFichiers++;
-                compte++;
-            } else {
-                LOGGER.info("Exclusion du fichier {} car référencé ailleurs. Ce fichier ne sera pas supprimé.",
-                        cf.getUrl());
-                compteGlobalFichiersExclus++;
+            String url = cf.getUrl();
+            if (url != null && url.startsWith("/")) {
+                url = url.substring(1);
             }
+
+            lotCourant.add(url);
+            compteGlobalFichiers++;
+            compte++;
 
             purgeFilesRepository.delete(cf);
 
@@ -267,7 +369,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
         emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
-        Map<String, Object> model = afMailTemplateModelProvider.getGenericModelMail();
+        Map<String, Object> model = afTemplateModelProvider.getGenericModelMail();
         model.put("demandes", demandesAPurger);
         model.put("delai", delai);
 

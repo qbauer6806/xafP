@@ -89,11 +89,17 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.appli.frontserver.gichkey.keycloak.redirect.uri}")
     private String gichkeyKeycloakRedirectUrl;
 
-    @Value("${mc.gouv.gichuni.profil.particulier.url}")
-    private String gichuniProfilIndividualUrl;
+    @Value("${mc.gouv.gichuni.profil.particulier.url.fr}")
+    private String gichuniProfilIndividualUrlFr;
 
-    @Value("${mc.gouv.gichuni.profil.entreprise.url}")
-    private String gichuniProfilCompanyUrl;
+    @Value("${mc.gouv.gichuni.profil.particulier.url.fr}")
+    private String gichuniProfilIndividualUrlEn;
+
+    @Value("${mc.gouv.gichuni.profil.entreprise.url.fr}")
+    private String gichuniProfilCompanyUrlFr;
+
+    @Value("${mc.gouv.gichuni.profil.entreprise.url.en}")
+    private String gichuniProfilCompanyUrlEn;
 
     @Value("${mc.gouv.appli.frontserver.gichkey.client_id}")
     private String gichkeyClientId;
@@ -202,9 +208,14 @@ public class FrontGouvPropertiesResolver {
                 getLienRevocationCertifsElectroniquesFr()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.mconnect.revocation.certificats.url.en",
                 getLienRevocationCertifsElectroniquesEn()));
-        propertiesDTOS
-                .add(new PropertiesDTO("mc.gouv.gichuni.profil.particulier.url", getGichuniProfilIndividualUrl()));
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.profil.entreprise.url", getGichuniProfilCompanyUrl()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.profil.particulier.url.fr", getGichuniProfilIndividualUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.profil.particulier.url.en", getGichuniProfilIndividualUrlEn()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.profil.entreprise.url.fr", getGichuniProfilCompanyUrlFr()));
+        propertiesDTOS.add(
+                new PropertiesDTO("mc.gouv.gichuni.profil.entreprise.url.en", getGichuniProfilCompanyUrlEn()));
         propertiesDTOS.add(new PropertiesDTO("mc.gouv.gichuni.front.url", getGichuniFrontUrl()));
         propertiesDTOS.add(
                 new PropertiesDTO("mc.gouv.gichuni.demarche.particulier.url.fr", getGichuniDemarcheParticulierUrlFr()));

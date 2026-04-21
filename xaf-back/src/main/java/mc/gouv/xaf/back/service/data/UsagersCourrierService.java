@@ -1,8 +1,6 @@
 package mc.gouv.xaf.back.service.data;
 
 import java.util.List;
-import java.util.Optional;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
@@ -58,10 +56,4 @@ public interface UsagersCourrierService {
      * Permet de transférer des demandes d'un usager courrier à un autre.
      */
     void transferer(Integer usagerCourrierSourceId, Integer usagerCourrierCibleId, List<Integer> demandeIds);
-
-    /**
-     * Permet de récupérer la derniere demande connue selon les statuts definis
-     */
-    Optional<DemandeDTO> getDerniereDemandePourDuplication(Integer usagerId, List<String> statuts,
-            List<String> buildIds);
 }

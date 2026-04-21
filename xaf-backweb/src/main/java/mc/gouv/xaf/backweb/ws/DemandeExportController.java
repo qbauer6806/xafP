@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
@@ -13,7 +14,6 @@ import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,16 +28,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @GouvRestController
 @Secured("ROLE_EXPORT")
 @RequestMapping("/ws/export")
+@RequiredArgsConstructor
 public class DemandeExportController extends AbstractController {
 
-    @Autowired
-    private ExcelExportService excelExportService;
-
-    @Autowired
-    private DemarchesService demarchesService;
-
-    @Autowired
-    private DemandesService demandesService;
+    private final ExcelExportService excelExportService;
+    private final DemarchesService demarchesService;
+    private final DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 

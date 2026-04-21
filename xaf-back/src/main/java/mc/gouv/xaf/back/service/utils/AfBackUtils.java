@@ -36,12 +36,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.mail.MailClient;
-import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.service.FileClient;
@@ -49,11 +49,8 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
 import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
-import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
-import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -65,7 +62,7 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -73,11 +70,9 @@ import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.TypedocDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
@@ -90,6 +85,7 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class AfBackUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackUtils.class);
@@ -146,9 +142,8 @@ public class AfBackUtils {
 
     public static final String CODE_ALPHA3_APATRIDE = "XXA";
 
-    @Autowired
     @Lazy
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     private MailClient mailClient = null;
 
@@ -156,50 +151,29 @@ public class AfBackUtils {
 
     private SmsClient smsClient = null;
 
-    private NomenClient nomenClient = null;
+    @Lazy
+    private final UtilisateursCache utilisateursCache;
 
-    @Autowired
     @Lazy
-    private UsagersCache usagersCache;
+    private final DemarchesService demarchesService;
 
-    @Autowired
     @Lazy
-    private UtilisateursCache utilisateursCache;
+    private final DemarchesDataProvider demarchesDataProvider;
 
-    @Autowired
     @Lazy
-    private DemarchesService demarchesService;
+    private final MessageSource messageSource;
 
-    @Autowired
     @Lazy
-    private DemarchesDataProvider demarchesDataProvider;
+    private final UtilisateursUtils utilisateursUtils;
 
-    @Autowired
     @Lazy
-    private MessageSource messageSource;
+    private final PropertiesService propertiesService;
 
-    @Autowired
     @Lazy
-    private UtilisateursUtils utilisateursUtils;
+    private final MotifsCache motifsCache;
 
-    @Autowired
     @Lazy
-    private MotifTemplateService motifTemplateService;
-
-    @Autowired
-    @Lazy
-    private DemandesService demandesService;
-
-    @Autowired
-    @Lazy
-    private PropertiesService propertiesService;
-
-    @Autowired
-    @Lazy
-    private MotifsCache motifsCache;
-    @Autowired
-    @Lazy
-    private PaysCache paysCache;
+    private final PaysCache paysCache;
 
     private AfApiClient afApiClient2Tiers = null;
 
@@ -299,27 +273,6 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne le nom d'un usager à partir de son ID
-     *
-     * @param usagerId
-     *         une String contenant l'id de l'usager
-     * @return une Sring composer de son prénom et son nom
-     */
-    public String getUsagerNameFromID(Integer usagerId) {
-        GichuniUsagerDTO u = usagersCache.get(usagerId);
-        StringBuilder builder = new StringBuilder();
-        if (null != u) {
-            if (StringUtils.isNotBlank(u.getPrenom())) {
-                builder.append(AfBackUtils.escapeChars(u.getPrenom())).append(' ');
-            }
-            if (StringUtils.isNotBlank(u.getNom())) {
-                builder.append(AfBackUtils.escapeChars(u.getNom()));
-            }
-        }
-        return StringEscapeUtils.escapeHtml4(builder.toString());
-    }
-
-    /**
      * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: HHmmssSSS
      */
     public static String generateFileDateSuffix() {
@@ -357,13 +310,6 @@ public class AfBackUtils {
             smsClient = new SmsClient(smsUrl, smsJwt);
         }
         return smsClient;
-    }
-
-    public NomenClient getNomenClient() {
-        if (nomenClient == null) {
-            nomenClient = new NomenClient(gouvPropertiesResolver.getNomenUrl(), gouvPropertiesResolver.getNomenJwt());
-        }
-        return nomenClient;
     }
 
     /**
@@ -604,21 +550,6 @@ public class AfBackUtils {
         return StringUtils.isBlank(value) ? "" : value;
     }
 
-    public String getDernierCodeMotif(DemandeDTO demande) {
-        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
-        String motif = codeDernierMotif;
-
-        try {
-            if (codeDernierMotif != null) {
-                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
-            }
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la récupération du motif", e);
-        }
-
-        return motif;
-    }
-
     /**
      * Permet de récupérer le flag indiquant que la démarche peut générer des courriers
      *
@@ -825,11 +756,6 @@ public class AfBackUtils {
         return langues;
     }
 
-    public String getIdentifiantFromPkDemande(Integer pkDemande) {
-        DemandeDTO demande = demandesService.getDemande(pkDemande);
-        return demande.getIdentifiant();
-    }
-
     public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
@@ -855,7 +781,7 @@ public class AfBackUtils {
         return afApiClient2Tiers;
     }
 
-    public Object getMarqueurValue(JsonNode contenu, String path, Map<String, MarqueurBO> marqueursMap) {
+    public Object getMarqueurValue(JsonNode contenu, String path, Map<String, MarqueurDTO> marqueursMap) {
         if (path == null) {
             return "";
         }
@@ -870,8 +796,9 @@ public class AfBackUtils {
             return node.asText();
         }
 
-        // Si c'est un tableau contenant des chaînes de caractères
+        // Si c'est un array
         if (node.isArray()) {
+            // Si l'array contient uniquement des chaînes de caractères, c'est un type choixMultiple
             if (!node.isEmpty() && node.get(0).isTextual()) {
                 List<String> choices = new ArrayList<>(node.size());
                 node.forEach(arrayElement -> {
@@ -882,7 +809,7 @@ public class AfBackUtils {
                 return choices;
             }
 
-            // Sinon, c'est un tableau complexe
+            // Sinon, c'est un type tableau
             List<Map<String, String>> list = new ArrayList<>(node.size());
             node.forEach(arrayElement -> {
                 Map<String, String> map = new HashMap<>();
@@ -890,9 +817,9 @@ public class AfBackUtils {
                     String donneeTableauPath = path + "." + tableauDonnee.getKey();
 
                     // Récupération directe du marqueur
-                    MarqueurBO marqueur = marqueursMap.get(donneeTableauPath);
+                    MarqueurDTO marqueur = marqueursMap.get(donneeTableauPath);
                     if (marqueur != null) {
-                        putMarqueur(map, tableauDonnee.getValue(), marqueur);
+                        putMarqueurTableau(map, tableauDonnee.getValue(), marqueur);
                     } else {
                         // Vérifier si le chemin a un suffixe connu
                         String[] suffixes = { "ligne1", "ligne2", "ligne3", "ville", "pays", "codePostal", "bic",
@@ -901,7 +828,7 @@ public class AfBackUtils {
                             String suffixedPath = donneeTableauPath + "." + suffixe;
                             marqueur = marqueursMap.get(suffixedPath);
                             if (marqueur != null) {
-                                putMarqueur(map, tableauDonnee.getValue().get(suffixe), marqueur);
+                                putMarqueurTableau(map, tableauDonnee.getValue().get(suffixe), marqueur);
                             }
                         }
                     }
@@ -914,11 +841,18 @@ public class AfBackUtils {
         return "";
     }
 
-    private void putMarqueur(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurBO marqueurFound) {
-        String donneeTableauValue =
-                tableauDonneeNode != null && tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())
-                        ? tableauDonneeNode.asText()
-                        : "";
+    private void putMarqueurTableau(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurDTO marqueurFound) {
+        String donneeTableauValue = "";
+        if (tableauDonneeNode != null && !tableauDonneeNode.isNull()) {
+            if (tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())) {
+                // cas texte simple dans tableau
+                donneeTableauValue = tableauDonneeNode.asText();
+            } else if (tableauDonneeNode.isArray()) {
+                // cas choix multiple dans tableau, on stocke sous format "VALEUR1, VALEUR2"
+                donneeTableauValue = StreamSupport.stream(tableauDonneeNode.spliterator(), false)
+                        .filter(JsonNode::isTextual).map(JsonNode::asText).collect(Collectors.joining(", "));
+            }
+        }
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
     }
 

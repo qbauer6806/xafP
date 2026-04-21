@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.ws;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
@@ -8,7 +9,6 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @GouvRestController
 @Secured("ROLE_SAISIE")
 @RequestMapping("/ws/courriers")
+@RequiredArgsConstructor
 public class RechercheCourriersController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheCourriersController.class);
 
-    @Autowired
-    private DemandesCourriersService demandesCourriersService;
+    private final DemandesCourriersService demandesCourriersService;
 
     @GetMapping(value = "/pageable")
     public Page<DemandeCourrierDTO> getDemandesCourriers(@RequestParam(value = "texte", required = false) String texte,

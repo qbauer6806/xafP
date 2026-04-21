@@ -2,14 +2,11 @@ package mc.gouv.xaf.back.service.templates.impl;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.sms.SmsTemplatesService;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
+import org.springframework.stereotype.Component;
 
 /**
  * Data provider du cache de templates SMS
@@ -17,10 +14,10 @@ import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class SmsTemplatesCacheDataProvider implements GouvCacheDataProvider<Integer, SmsTemplateDTO> {
 
-    @Autowired
-    private SmsTemplatesService smsTemplatesService;
+    private final SmsTemplatesService smsTemplatesService;
 
     @Override
     public ConcurrentHashMap<Integer, SmsTemplateDTO> getAll() {

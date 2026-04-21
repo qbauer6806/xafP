@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -13,18 +14,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.UploadPieceJustificativeService;
+import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -35,7 +36,9 @@ import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.UploadFileDTO;
 import mc.gouv.xaf.shared.util.FileNameUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -47,7 +50,6 @@ import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -57,8 +59,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,23 +74,18 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @GouvRestController
 @RequestMapping("/ws/file")
+@RequiredArgsConstructor
 public class FileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-    @Autowired
-    private DemandesFilesService demandesFilesService;
+    private final BackGouvPropertiesResolver gouvPropertiesResolver;
+    private final FileService fileService;
+    private final DemandesService demandesService;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final DemandesFilesService demandesFilesService;
+    private final DemandesComplementsFilesService demandesComplementsFilesService;
+    private final UploadPieceJustificativeService uploadPieceJustificativeService;
 
     public static final int DEFAULT_BUFFER_SIZE = 8192;
     private static final String LOG_PART = "Part à traiter : {}";
@@ -103,9 +102,7 @@ public class FileController {
         String file = request.getServletPath().replace("/ws/file/get/", "");
         LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
 
-        // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-        String filePathEncoded = URLEncoder.encode(file, UTF_8);
-        ResponseEntity<InputStream> fileEntity = fileService.getFileEntity(filePathEncoded,
+        ResponseEntity<InputStream> fileEntity = fileService.getFileEntity(file,
                 gouvPropertiesResolver.getContainerId());
         InputStream body = fileEntity.getBody(); // Pour corriger l'erreur sonar java:S4449
         if (!fileEntity.getStatusCode().is2xxSuccessful() || body == null) {
@@ -328,8 +325,6 @@ public class FileController {
                 continue;
             }
             String file = currentFile.getUrl();
-            // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-            String filePathEncoded = URLEncoder.encode(file, UTF_8);
             String fileName = currentFile.getName();
             int extensionIndex = fileName.lastIndexOf(".");
             String extension = fileName.substring(extensionIndex + 1);
@@ -341,7 +336,7 @@ public class FileController {
                     typeDoc + fileName.replace("." + extension, "-" + count + "." + extension));
             InputStream is = fileService.getFile(
                     gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/"
-                            + filePathEncoded);
+                            + file);
             copyInputStreamToFile(is, fileToAdd);
             result.add(fileToAdd);
             count++;
@@ -407,9 +402,7 @@ public class FileController {
         String file = request.getServletPath();
         file = file.replace("/ws/file/get/apercu", "");
         try {
-            // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-            String filePathEncoded = URLEncoder.encode(file, UTF_8);
-            InputStream inputFile = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
+            InputStream inputFile = fileService.getFile(file, gouvPropertiesResolver.getContainerId());
             LOGGER.info("Écriture du fichier dans l'OutputStream...");
             IOUtils.copy(inputFile, response.getOutputStream());
         } catch (IOException e) {
@@ -418,30 +411,6 @@ public class FileController {
         }
 
         LOGGER.info("======================= Fin /file/apercu");
-    }
-
-    /**
-     * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request MultiPart Retourne une Map
-     * correspondant aux fichiers (fileName, fileUrl)
-     */
-    public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response)
-            throws IOException {
-        LOGGER.info("Appel de DEM afin de sauvegarder différents fichiers contenus dans la request");
-        DemandeDTO demande = demandesService.getDemande(demandeId);
-        Map<String, String> fileNames = new HashMap<>();
-        for (MultipartFile file : files) {
-            String originalFilename = file.getOriginalFilename();
-            if (StringUtils.isNotBlank(originalFilename)) {
-                String safeFileName = AfBackUtils.logSafe(originalFilename);
-                LOGGER.info(LOG_PART, safeFileName);
-                String saveFile = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
-                        response);
-
-                // #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
-                fileNames.put(FileNameUtils.getSafeFileName(originalFilename), URLDecoder.decode(saveFile, UTF_8));
-            }
-        }
-        return fileNames;
     }
 
     /**
@@ -495,5 +464,84 @@ public class FileController {
             }
         }
         return null;
+    }
+
+    /**
+     * Permets d'uploader des pièces justificatives depuis le BO
+     *
+     * @param pkDemande
+     *         l'identifiant de la demande
+     * @param files
+     *         les fichiers à ajouter
+     * @param metadonnees
+     *         mapping du nom de fichier, son type, visibilité de la pièce
+     * @param response
+     *         la réponse
+     * @return le message
+     */
+    @Secured({ "ROLE_TRAITEMENT" })
+    @PostMapping(value = "/upload/{pkDemande}")
+    @Transactional
+    public ResponseEntity<String> uploadPieceJustificative(@PathVariable Integer pkDemande,
+            @RequestPart("files") MultipartFile[] files, @RequestPart("metadonnees") List<UploadFileDTO> metadonnees,
+            HttpServletResponse response) {
+
+        LOGGER.info("Appel à la méthode uploadPieceJustificative pour la demande {}", pkDemande);
+        if (files == null || files.length == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun fichier sélectionné");
+        }
+        if (CollectionUtils.isEmpty(metadonnees)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aucun type de fichier sélectionné");
+        }
+        if (files.length != metadonnees.size()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Veuillez associer un type à chaque fichier sélectionné");
+        }
+
+        return uploadPieceJustificativeService.enregistrerPieceJustificative(pkDemande, files, metadonnees, response);
+    }
+
+    @Secured({ "ROLE_PARAMETRAGE" })
+    @PostMapping(value = "/suppression/{pkDemandeFile}")
+    @Transactional
+    public ResponseEntity<String> supprimerPieceJustificative(@PathVariable Integer pkDemandeFile) {
+        LOGGER.info("Appel à la méthode supprimerPieceJustificative pour la pièce {}", pkDemandeFile);
+        return demandesFilesService.supprimerPieceJustificative(pkDemandeFile, false);
+    }
+
+    @Secured({ "ROLE_PARAMETRAGE" })
+    @PostMapping(value = "/suppressionPJDemandeInitiale/{pkDemandeFile}")
+    @Transactional
+    public ResponseEntity<String> supprimerPieceJustificativeDemandeInitiale(@PathVariable Integer pkDemandeFile) {
+        LOGGER.info("Appel à la méthode supprimerPieceJustificativeDemandeInitiale pour la pièce {}", pkDemandeFile);
+        return demandesFilesService.supprimerPieceJustificative(pkDemandeFile, true);
+    }
+
+    @Secured({ "ROLE_PARAMETRAGE" })
+    @PostMapping(value = "/suppressionPJInfoComp/{pkDemandeFile}")
+    @Transactional
+    public ResponseEntity<String> supprimerPieceJustificativeInfoComp(@PathVariable Integer pkDemandeFile) {
+        LOGGER.info("Appel à la méthode supprimerPieceJustificativeInfoComp pour la pièce {}", pkDemandeFile);
+        return demandesComplementsFilesService.supprimerPieceJustificative(pkDemandeFile);
+    }
+
+    /**
+     * Modifie la visibilité d'un fichier associé à une demande.
+     *
+     * @param pkDemandeFile
+     *         l'identifiant du fichier dont la visibilité doit être modifiée
+     * @param visibleUsager
+     *         la nouvelle visibilité du fichier (true pour visible, false pour invisible) par l'usager
+     * @return un objet ResponseEntity contenant un message indiquant le résultat de l'opération
+     */
+    @Secured({ "ROLE_TRAITEMENT" })
+    @PostMapping(value = "/updateVisibilite/{pkDemandeFile}")
+    @Transactional
+    public ResponseEntity<String> changerVisibiliteFichier(@PathVariable Integer pkDemandeFile,
+            @RequestParam Boolean visibleUsager) {
+        LOGGER.info("Appel à la méthode changerVisibiliteFichier pour la pièce {} et param {}", pkDemandeFile,
+                visibleUsager);
+
+        return uploadPieceJustificativeService.changerVisibiliteFichier(pkDemandeFile, visibleUsager);
     }
 }

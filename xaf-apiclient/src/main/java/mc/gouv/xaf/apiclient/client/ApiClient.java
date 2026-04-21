@@ -7,10 +7,12 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
+import lombok.Getter;
 import mc.gouv.xaf.apiclient.authentication.AuthorizationHeaderProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
+@Getter
 public abstract class ApiClient {
 
     private String serviceUrl;
@@ -81,24 +83,8 @@ public abstract class ApiClient {
         this.target = client.target(serviceUrl);
     }
 
-    public String getServiceUrl() {
-        return serviceUrl;
-    }
-
-    public AuthorizationHeaderProvider getAuthorizationHeaderProvider() {
-        return authorizationHeaderProvider;
-    }
-
     public void setAuthorizationHeaderProvider(AuthorizationHeaderProvider authorizationHeaderProvider) {
         this.authorizationHeaderProvider = authorizationHeaderProvider;
-    }
-
-    public WebTarget getTarget() {
-        return target;
-    }
-
-    public Client getClient() {
-        return client;
     }
 
 }

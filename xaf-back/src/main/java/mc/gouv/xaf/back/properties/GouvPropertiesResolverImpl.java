@@ -2,9 +2,6 @@ package mc.gouv.xaf.back.properties;
 
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,16 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GouvPropertiesResolverImpl.class);
-
     @Value("${application.name}")
     private String applicationName;
 
     @Value("${application.module}")
     private String applicationModule;
-
-    @Value("${display.name}")
-    private String demarcheId;
 
     // GLOBAL PROPERTIES
     @Value("${mc.gouv.logon.url:}")
@@ -122,15 +114,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.mwpaymt.api.url:}")
     private String mwpaymtUrl;
 
-    @Autowired
-    private KafkaProperties kafkaProperties;
-
-    @Autowired
-    private ArchivageProperties archivageProperties;
-
-    @Autowired
-    private UlisProperties ulisProperties;
-
     @Override
     public String getContainerId() {
         return containerId;
@@ -138,7 +121,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getDemarcheId() {
-        return demarcheId;
+        return applicationName.toUpperCase();
     }
 
     @Override
@@ -232,43 +215,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getGUKafkaBootstrapServersConfig() {
-        return kafkaProperties.getBootstrapServersConfig();
-    }
-
-    @Override
     public String getApplicationName() {
         return applicationName;
-    }
-
-    @Override
-    public boolean getGUKafkaSSLEnabled() {
-        return kafkaProperties.isKafkaSSLEnabled();
-    }
-
-    @Override
-    public String getGUKafkaSSLTrustStoreLocation() {
-        return kafkaProperties.getTruststoreLocation();
-    }
-
-    @Override
-    public String getGUKafkaSSLTrustStorePassword() {
-        return kafkaProperties.getTruststorePassword();
-    }
-
-    @Override
-    public String getGUKafkaSSLKeyStoreLocation() {
-        return kafkaProperties.getKeystoreLocation();
-    }
-
-    @Override
-    public String getGUKafkaSSLKeyStorePassword() {
-        return kafkaProperties.getKeystorePassword();
-    }
-
-    @Override
-    public boolean getKafkaEnabled() {
-        return kafkaProperties.isKafkaEnabled();
     }
 
     @Override
@@ -282,44 +230,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getGUKafkaProducerMaxRequestSize() {
-
-        return kafkaProperties.getMaxRequestSizeConfig();
-    }
-
-    @Override
-    public String getGUKafkaConsumerFetchMaxBytes() {
-
-        return kafkaProperties.getFetchMaxBytes();
-    }
-
-    @Override
-    public String getGUKafkaConsumerMaxPartitionFetchBytes() {
-
-        return kafkaProperties.getMaxPartitionFetchBytes();
-    }
-
-    @Override
-    public String getApiRioUrl() {
-        return archivageProperties.getRioUrl();
-    }
-
-    @Override
-    public String getApiRioJwt() {
-        return archivageProperties.getRioJwt();
-    }
-
-    @Override
-    public String getApiRioCodeAppli() {
-        return archivageProperties.getRioCodeAppli();
-    }
-
-    @Override
-    public String getApiRioCodeNotice() {
-        return archivageProperties.getRioCodeNotice();
-    }
-
-    @Override
     public boolean isPaiementEnabled() {
         return paiementEnabled;
     }
@@ -327,41 +237,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getPorteDocUrl() {
         String value = getGichuniUrl();
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
-    }
-
-    @Override
-    public String getApiUlisMoyensGenerauxUrl() {
-        return ulisProperties.getApiUlisMoyensGenerauxUrl();
-    }
-
-    @Override
-    public String getApiUlisTiersOrganisationUrl() {
-        return ulisProperties.getApiUlisTiersOrganisationUrl();
-    }
-
-    @Override
-    public String getApiUlisAuthenticationUser() {
-        return ulisProperties.getApiUlisAuthentUser();
-    }
-
-    @Override
-    public String getApiUlisAuthenticationPassword() {
-        return ulisProperties.getApiUlisAuthentPassword();
-    }
-
-    @Override
-    public String getApiUlisFunctionalUser() {
-        return ulisProperties.getUlisFunctionalAccount();
-    }
-
-    @Override
-    public String getApiUlisWorkflowUrl() {
-        return ulisProperties.getUlisUrlWorkflow();
-    }
-
-    @Override
-    public String getApiUlisCommercialisationUrl() {
-        return ulisProperties.getUlisUrlCommercialisation();
     }
 
     @Override

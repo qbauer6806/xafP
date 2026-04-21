@@ -1,17 +1,18 @@
 package mc.gouv.xaf.back.service.histo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.transformer.DemandesHistoriqueTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesHelperService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -20,7 +21,6 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesHistoriqueService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesHistoriqueService.class);
@@ -41,27 +42,16 @@ public class DemandesHistoriqueService {
     private static final String SUPERVISEUR = "Superviseur";
     private static final String CLOSING_SPAN = "</span>";
 
-    @Autowired
-    private DemandesHistoriqueRepository demandesHistoriqueRepository;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final DemandesHistoriqueRepository demandesHistoriqueRepository;
+    private final UtilisateursUtils utilisateursUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final UsagersUtils usagersUtils;
+    private final DemandesHelperService demandesHelperService;
 
     public List<DemandeHistoriqueDTO> getHistorique(Integer demandeId) {
         // Jette une exception si la demande n'existe pas
-        demandesService.getCheckDemarcheDemandeDTO(demandeId, false);
+        demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
 
         List<DemandesHistoriqueBO> demandeHistorique = demandesHistoriqueRepository.findByFkDemandesPkDemandes(
                 demandeId);
@@ -73,7 +63,7 @@ public class DemandesHistoriqueService {
     public void saveHisto(Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
         LOGGER.info("Appel à DEM pour historique...");
         try {
-            DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demandeId, false);
+            DemandeBO demandeBo = demandesHelperService.getCheckDemarcheDemandeBO(demandeId, false);
 
             LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
             DemandesHistoriqueBO demandeHistoriqueBo = DemandesHistoriqueTransformer.dto2Bo(demandeHistoriqueDto);
@@ -144,7 +134,8 @@ public class DemandesHistoriqueService {
                                               String dernierStatut) {
         String role, name;
         String agentName = getAgentName(agentId);
-        String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum, dernierStatut);
+        String action = demarchesDataProvider.getHistoAction(targetState, histoValidationEnum, dernierStatut,
+                niveauEnum);
         String statut = targetState;
         if (histoValidationEnum != null) {
             role = (niveauEnum != null) ? VALIDEUR + " " + niveauEnum : VALIDEUR;
@@ -152,7 +143,7 @@ public class DemandesHistoriqueService {
             // dans ce cas on doit retrouver le nouveau statut
             statut = newStatut;
         } else {
-            name = (usagerId != null) ? afBackUtils.getUsagerNameFromID(usagerId) : agentName;
+            name = (usagerId != null) ? usagersUtils.getUsagerNameFromID(usagerId) : agentName;
             role = (usagerId != null)
                     ? USAGER
                     : (StringUtils.isNotBlank(agentId) ? demarchesDataProvider.getHistoRole() : null);
@@ -161,15 +152,24 @@ public class DemandesHistoriqueService {
         return histoTs2Dem(contenu, usagerId, agentId);
     }
 
-    public DemandeHistoriqueDTO updateDemande(Integer usagerId, String agentId, String targetState) {
-        String usagerName = afBackUtils.getUsagerNameFromID(usagerId);
-        String action = "Rectifie sa demande";
-        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(usagerName, USAGER, action, targetState);
+    public DemandeHistoriqueDTO updateDemande(String targetState, Integer usagerId, String agentId) {
+        DemandeHistoriqueContenuDTO contenu;
+        // rectification par usager
+        if (usagerId != null) {
+            String usagerName = usagersUtils.getUsagerNameFromID(usagerId);
+            String action = "Rectifie sa demande";
+            contenu = new DemandeHistoriqueContenuDTO(usagerName, USAGER, action, targetState);
+        } else {
+            // par agent
+            String action = "Rectifie la demande à la place de l'usager";
+            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId), demarchesDataProvider.getHistoRole(),
+                    action, targetState);
+        }
         return histoTs2Dem(contenu, usagerId, agentId);
     }
 
     public DemandeHistoriqueDTO desinscriptionUsager(String targetState, Integer usagerId, boolean avecAnnulation) {
-        String usagerName = afBackUtils.getUsagerNameFromID(usagerId);
+        String usagerName = usagersUtils.getUsagerNameFromID(usagerId);
         String action = avecAnnulation
                 ? "Désinscription : passage de la demande en statut annulée"
                 : "Désinscription de l'usager";
@@ -185,7 +185,7 @@ public class DemandesHistoriqueService {
                 "Transmission d'infos complémentaires vers <span class='histo-usager'>" + agentAffecteName + CLOSING_SPAN;
         DemandeHistoriqueContenuDTO contenu;
         if (usagerId != null) {
-            String name = afBackUtils.getUsagerNameFromID(usagerId);
+            String name = usagersUtils.getUsagerNameFromID(usagerId);
             contenu = new DemandeHistoriqueContenuDTO(name, USAGER, action, targetState);
         } else {
             contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId), demarchesDataProvider.getHistoRole(), action,
@@ -244,13 +244,26 @@ public class DemandesHistoriqueService {
     }
 
     public DemandeHistoriqueDTO associationDemandeCourrier(Integer usagerId) {
-        String usagerName = afBackUtils.getUsagerNameFromID(usagerId);
+        String usagerName = usagersUtils.getUsagerNameFromID(usagerId);
         String html = "Affectation de la demande courrier à l'usager Web <span class='histo-usager'>" + usagerName
                 + CLOSING_SPAN;
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO();
         contenu.setStatutName(null); // null pour pastille blanche par défaut
         contenu.setHtml(html);
         return histoTs2Dem(contenu, usagerId, null);
+    }
+
+    public DemandeHistoriqueDTO suppressionPJ(String fileName) {
+        String agentId = AfBackUtils.getAuthenticatedAgentId();
+        String agentName = getAgentName(agentId);
+        String html = "Supprime le fichier " + truncateMiddle(fileName);
+        DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
+                demarchesDataProvider.getHistoRole(), html, null);
+        return histoTs2Dem(contenu, null, agentId);
+    }
+
+    private String truncateMiddle(String input) {
+        return StringUtils.abbreviateMiddle(input, "[...]", 30);
     }
 
     public void actionSysteme(Integer demandeId, String targetState, String action) {
@@ -260,7 +273,7 @@ public class DemandesHistoriqueService {
     }
 
     public void actionUsager(Integer demandeId, Integer usagerId, String targetState, String action) {
-        String usagerName = afBackUtils.getUsagerNameFromID(usagerId);
+        String usagerName = usagersUtils.getUsagerNameFromID(usagerId);
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(usagerName, USAGER, action, targetState);
         DemandeHistoriqueDTO histo = histoTs2Dem(contenu, usagerId, null);
         saveHisto(demandeId, histo);

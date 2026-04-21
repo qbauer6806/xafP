@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Map.Entry;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -33,7 +34,6 @@ import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,28 +43,18 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfGenerationServiceImpl.class);
     private static final String APPEL_MESSAGE = "Appel au TemplateAndModelProvider de la démarche {}...";
 
-    @Autowired
-    private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private DemandesCourriersService demandesCourriersService;
-
-    @Autowired
-    private DemandesFilesService demandesFileService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
+    private final FileService fileService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final DemandesCourriersService demandesCourriersService;
+    private final DemandesFilesService demandesFileService;
+    private final AfBackUtils afBackUtils;
 
     @Override
     public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws IOException {
@@ -73,8 +63,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     @Override
     public void generateAndStoreDoc(DemandeDTO demande, PdfTypeEnum pdfType, String meta,
-            PdfTemplateAndModelDTO pdfTemplateAndModelDTO) throws IOException {
-        generateAndStorePdf(demande, pdfType, meta, false, pdfTemplateAndModelDTO);
+            PdfTemplateAndModelDTO pdfTemplateAndModelDTO, boolean convertPdf) throws IOException {
+        generateAndStorePdf(demande, pdfType, meta, convertPdf, pdfTemplateAndModelDTO);
     }
 
     private void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta, boolean convertPdf,

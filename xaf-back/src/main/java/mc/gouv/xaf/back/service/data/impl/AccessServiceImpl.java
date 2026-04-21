@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.UsagersCourrierRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -16,7 +17,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,18 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class AccessServiceImpl implements AccessService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessServiceImpl.class);
 
-    @Autowired
-    private AccessRepository accessRepository;
-
-    @Autowired
-    private UsagersCourrierRepository usagerCourrierRepository;
-
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
+    private final AccessRepository accessRepository;
+    private final UsagersCourrierRepository usagerCourrierRepository;
+    private final GUKafkaProducer guKafkaProducer;
 
     /**
      * {@inheritDoc}

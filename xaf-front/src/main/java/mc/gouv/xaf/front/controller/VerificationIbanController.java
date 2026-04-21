@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.TgfApiIbanResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -14,7 +15,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,15 +28,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/verification-iban")
-public class VerificationIbanController extends AbstractXafController {
+@RequiredArgsConstructor
+public class VerificationIbanController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VerificationIbanController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     @PostMapping
     public ResponseEntity doPost(HttpServletRequest request) {

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.properties.KafkaProperties;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -45,27 +45,25 @@ public class GUKafkaProducerConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerConfig.class);
 
     @Bean
-    public ProducerFactory<String, String> producerFactory(GouvPropertiesResolver gouvPropertiesResolver) {
+    public ProducerFactory<String, String> producerFactory(KafkaProperties kafkaProperties) {
         LOGGER.info("Création du GUKafkaProducer...");
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServersConfig());
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         // Messages jusqu'à 20MB (rajouter aussi message.max.bytes=20971520 dans server.properties de Kafka sinon :
         // org.apache.kafka.common.errors.RecordTooLargeException: The request included a message larger than the max message size the server will accept.
-        configProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
-                gouvPropertiesResolver.getGUKafkaProducerMaxRequestSize());
+        configProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, kafkaProperties.getMaxRequestSizeConfig());
 
-        boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
+        boolean sslEnabled = kafkaProperties.isKafkaSSLEnabled();
         if (sslEnabled) {
             configProps.put("security.protocol", "SSL");
 
-            configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
-            configProps.put("ssl.truststore.password", gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-            configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-            configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-            configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
+            configProps.put("ssl.truststore.location", kafkaProperties.getTruststoreLocation());
+            configProps.put("ssl.truststore.password", kafkaProperties.getTruststorePassword());
+            configProps.put("ssl.key.password", kafkaProperties.getKeystorePassword());
+            configProps.put("ssl.keystore.password", kafkaProperties.getKeystorePassword());
+            configProps.put("ssl.keystore.location", kafkaProperties.getKeystoreLocation());
             configProps.put("ssl.endpoint.identification.algorithm", "");
         }
 
@@ -74,8 +72,8 @@ public class GUKafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate(GUKafkaProducerListener guKafkaProducerListener,
-            GouvPropertiesResolver gouvPropertiesResolver) {
-        KafkaTemplate<String, String> kt = new KafkaTemplate<>(producerFactory(gouvPropertiesResolver));
+            KafkaProperties kafkaProperties) {
+        KafkaTemplate<String, String> kt = new KafkaTemplate<>(producerFactory(kafkaProperties));
         kt.setProducerListener(guKafkaProducerListener);
         return kt;
     }

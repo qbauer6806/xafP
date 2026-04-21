@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -23,7 +25,6 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -31,7 +32,6 @@ import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,30 +47,18 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class BrouillonsServiceImpl implements BrouillonsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsServiceImpl.class);
 
-    @Autowired
-    private BrouillonsRepository brouillonsRepository;
-
-    @Autowired
-    private BrouillonsFilesService brouillonsFilesService;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
+    private final BrouillonsRepository brouillonsRepository;
+    private final BrouillonsFilesService brouillonsFilesService;
+    private final BrouillonsFilesRepository brouillonsFilesRepository;
+    private final AccessService accessService;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final FileService fileService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
 
     /**
      * {@inheritDoc}
@@ -87,14 +75,14 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
         brouillon.setDateCreation(new Date());
         brouillon.setDateDerModif(brouillon.getDateCreation());
-        brouillon.setBuildId(demandesConfigService.getLastBuildId());
+        brouillon.setBuildId(demandesConfigHelperService.getLastBuildId());
 
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         BrouillonBO brouillonBo = BrouillonsTransformer.dto2Bo(brouillon);
         brouillonBo.setFkAccess(accessBo);
 
         // on utilise la dernière config déjà présente en base
-        DemandeConfigBO config = demandesConfigService.getLastConfig();
+        DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
         brouillonBo.setConfig(config);
 
         LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
@@ -209,10 +197,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         List<BrouillonsFilesBO> fichiersSupprimes = findRemovedFiles(oldFiles, newFiles);
 
         for (BrouillonsFilesBO fichier : fichiersSupprimes) {
-            if (fileService.isFileFromBrouillonDeletable(fichier.getUrl())) {
-                String url = URLEncoder.encode(fichier.getUrl(), StandardCharsets.UTF_8);
-                fileService.deleteFile("ROOT", url);
-            }
+            String url = URLEncoder.encode(fichier.getUrl(), StandardCharsets.UTF_8);
+            fileService.deleteFile("ROOT", url);
         }
     }
 
@@ -246,19 +232,16 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         if (!surCreationDemande) {
-            // Suppression des fichiers liés au brouillon
-            Set<BrouillonsFilesBO> brouillonsFilesBOS = brouillonBo.getFiles();
-            if (brouillonsFilesBOS != null) {
-                for (BrouillonsFilesBO currentFileToDelete : brouillonsFilesBOS) {
-                    if (fileService.isFileBrouillonDeletable(currentFileToDelete.getUrl())) {
-                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                        fileService.deleteFile("ROOT", url);
-                    }
-                }
-            }
+            deleteBrouillonFiles(brouillonBo);
         }
 
         brouillonsRepository.delete(brouillonBo);
+    }
+
+    private void deleteBrouillonFiles(BrouillonBO brouillon) {
+        // Suppression des fichiers liés au brouillon
+        Optional.ofNullable(brouillon.getFiles()).orElse(Collections.emptySet())
+                .forEach(file -> fileService.deleteFile("ROOT", file.getUrl()));
     }
 
     /**
@@ -268,6 +251,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     public void deleteBrouillons(Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, usagerId);
         List<BrouillonBO> brouillons = brouillonsRepository.findByFkAccess_UsagerId(usagerId);
+        for (BrouillonBO brouillon : brouillons) {
+            deleteBrouillonFiles(brouillon);
+        }
         brouillonsRepository.deleteAll(brouillons);
     }
 
@@ -291,7 +277,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
                 pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        String lastBuildId = demandesConfigService.getLastBuildId();
+        String lastBuildId = demandesConfigHelperService.getLastBuildId();
         brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
                 demarchesDataProvider.getBrouillonStatutNotTransmitted(),
                 demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));

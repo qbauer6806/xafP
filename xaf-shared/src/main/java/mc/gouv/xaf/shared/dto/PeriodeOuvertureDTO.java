@@ -23,6 +23,4 @@ public class PeriodeOuvertureDTO {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dateFin;
 
-    private String demarcheId = "STAGE";
-
 }

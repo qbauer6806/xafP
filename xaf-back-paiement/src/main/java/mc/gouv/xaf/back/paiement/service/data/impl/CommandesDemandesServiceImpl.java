@@ -1,27 +1,21 @@
 package mc.gouv.xaf.back.paiement.service.data.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeDemandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
+@RequiredArgsConstructor
 public class CommandesDemandesServiceImpl implements CommandesDemandesService {
 
-    @Autowired
-    private CommandeDemandeRepository commandeDemandeRepository;
-
-    @Autowired
-    private DemandesTransformer demandesTransformer;
+    private final CommandeDemandeRepository commandeDemandeRepository;
 
     @Override
     public CommandeDemandeDTO getDerniereCommandeDemande(Integer demandeId) {

@@ -12,11 +12,7 @@ public interface StatistiquesRepository extends CrudRepository<StatistiqueBO, In
 
     List<StatistiqueBO> findByDemandeId(Integer demandeId);
 
-    List<StatistiqueBO> findByStatutPublicAndDateBetween(String statut, Date d1, Date d2);
-
-    StatistiqueBO findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(Integer demandeId, String statut);
-
-    @Query("SELECT new mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO(s2.identifiantDemande, s2.statutPublic, s2.date,s1.date) "
+    @Query("SELECT new mc.gouv.xaf.back.data.model.StatistiqueSubsetDTO(s2.identifiantDemande, s2.statutPublic, s2.date,s1.date, s1.origine) "
             + "FROM StatistiqueBO s1 " + "JOIN StatistiqueBO s2 ON s1.demandeId = s2.demandeId "
             + "WHERE s1.statutPublic = 'SUPPRIMEE' " + "AND s1.date between :startDate AND :endDate "
             + "AND s2.statutPublic IN :statutValideOuRefuse")

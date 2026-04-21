@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.KafkaProperties;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.impl.KafkaOutboxSchedulingJobImpl;
@@ -10,7 +11,6 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
+@RequiredArgsConstructor
 public class KafkaOutboxSchedulingConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaOutboxSchedulingConfig.class);
@@ -36,11 +37,8 @@ public class KafkaOutboxSchedulingConfig {
     @Getter
     private Integer retryInterval = null;
 
-    @Autowired
-    private GouvSchedulerService schedulerService;
-
-    @Autowired
-    private KafkaProperties kafkaProperties;
+    private final GouvSchedulerService schedulerService;
+    private final KafkaProperties kafkaProperties;
 
     @PostConstruct
     private void init() throws SchedulerException {

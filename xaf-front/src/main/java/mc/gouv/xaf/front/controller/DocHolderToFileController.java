@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.FileControllerUtils;
@@ -18,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,18 +27,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/doc-holder/tofile")
-public class DocHolderToFileController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DocHolderToFileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderToFileController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
-
-    @Autowired
-    private FileControllerUtils fileControllerUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver frontGouvPropertiesResolver;
+    private final FileControllerUtils fileControllerUtils;
 
     /**
      * Méthode qui permet de transférer un fichier du porte-document à FILE

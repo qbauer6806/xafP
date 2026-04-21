@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -29,7 +30,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
@@ -40,6 +40,7 @@ import org.springframework.web.util.HtmlUtils;
  * @author mboutelier.ext
  */
 @Component
+@RequiredArgsConstructor
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     public static final String DT = "</dt>";
@@ -68,14 +69,10 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private final DateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
-    @Autowired
-    private MotifsCache motifsCache;
-    @Autowired
-    private DemandesService demandesService;
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
+    private final UtilisateursUtils utilisateursUtils;
+    private final MotifsCache motifsCache;
+    private final DemandesService demandesService;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public String getHTMLDemandeGeneric(DemandeDTO demande) {
@@ -87,7 +84,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         htmlBuilder.append(SPAN_DD);
 
         // Date de transmission/dépôt
-        boolean isVirtuel = demande.getCanal() == DemandeCanalEnum.GUICHET_VIRTUEL;
+        boolean isVirtuel = demande.getCourrierDateReception() == null;
         htmlBuilder.append("<dt><span>Date de ");
         htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
         htmlBuilder.append("</span></dt><dd><span>");
@@ -185,13 +182,15 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 : new ArrayList<>();
 
         JsonNode contenuSource = null;
-        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            // récupérer le contenu de la demandeInitial et traduire
-            contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
-            demandesService.setContenuTrad(contenuSource, demande.getConfig());
-        } else if (demande.getPkDemandeSource() != null) {
-            DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
-            contenuSource = d != null ? d.getContenuTrad() : null;
+        if (demarchesDataProvider.isAfficheDemandeSource()) {
+            if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+                // récupérer le contenu de la demandeInitial et traduire
+                contenuSource = demande.getContenuInitial().get("contenu").deepCopy();
+                demandesService.setContenuTrad(contenuSource, demande.getConfig());
+            } else if (demande.getPkDemandeSource() != null) {
+                DemandeDTO d = demandesService.getDemande(demande.getPkDemandeSource());
+                contenuSource = d != null ? d.getContenuTrad() : null;
+            }
         }
 
         if (sectionsNode != null && sectionsNode.isArray()) {

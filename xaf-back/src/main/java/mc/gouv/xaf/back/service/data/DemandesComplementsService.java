@@ -1,12 +1,10 @@
 package mc.gouv.xaf.back.service.data;
 
 import java.util.List;
-
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Service permettant la manipulation des demandes d'informations complémentaires
@@ -36,31 +34,6 @@ public interface DemandesComplementsService {
      */
     DemandeComplementsDTO getDemandeComplements(Integer pkDemande, Integer pkDemandeComplements);
 
-    /**
-     * Permet de modifier une demande d'informations complémentaires à partir de l'UsagerID
-     *
-     * @return La demande d'informations complémentaires modifiée
-     */
-    DemandeComplementsDTO updateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
-            DemandeComplementsQuestionDTO demandeComplements);
-
-    /**
-     * Permet de supprimer une demande d'informations complémentaires à partir de l'UsagerID
-     */
-    void deleteDemandeComplements(Integer pkDemande, Integer pkDemandeComplements);
-
-    /**
-     * Permet de supprimer la réponse d'une demande d'informations complémentaires et de l'UsagerID
-     */
-    void deleteDemandeComplementsReponse(Integer pkDemande, Integer pkDemandeComplements);
-
-    /**
-     * Permet de sauvegarder ou mettre à jour une demande d'informations complémentaires en base
-     *
-     * @return La demande d'informations complémentaires sauvegardée ou mise à jour
-     */
-    DemandeComplementsDTO saveOrUpdateDemandeComplements(Integer pkDemande, Integer pkDemandeComplements,
-            DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de répondre à une demande d'informations complémentaires
@@ -80,18 +53,4 @@ public interface DemandesComplementsService {
      */
     void clonerDemandeComplements(DemandeBO demandeBo, DemandeBO newDemandeBo);
 
-    /**
-     * Suppression des fichiers complémentaires de la demande
-     *
-     * @param demandeDTO
-     *         La demande à supprimer
-     * @param statutCheck
-     *         Flag permettant de savoir si on fait un check des statuts ou pas
-     * @param statuts
-     *         Liste des statuts à check
-     * @param jours
-     *         nombre de jour avant la suppression
-     */
-    void suppressionDesFichiersDesDemandesComplementaires(DemandeDTO demandeDTO, boolean statutCheck,
-            List<String> statuts, int jours);
 }

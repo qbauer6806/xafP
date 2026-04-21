@@ -78,6 +78,7 @@
               <th>Statut final</th>
               <th>Date du statut final</th>
               <th>Date de suppression</th>
+              <th>Origine de suppression</th>
             </tr>
             </thead>
           </table>
@@ -123,6 +124,12 @@
         return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateSuppression)
             .format("DD/MM/YYYY HH:mm:ss") + '</span>';
       }
+    },
+    {
+      title: 'Origine de suppression',
+      render: function (data, type, demandePurgee) {
+        return demandePurgee.origineSuppression;
+      }
     }
   ];
 
@@ -141,7 +148,9 @@
       searching: false,
       select: false,
       bInfo: false,
-      order: [ [2, "desc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
+      order: [
+        [3, "desc"]
+      ], // NE PAS supprimer l'espace entre les deux accolades de debut
       columns: columnsProperties,
       data: demandesPurgees,
       language: frenchTranslation

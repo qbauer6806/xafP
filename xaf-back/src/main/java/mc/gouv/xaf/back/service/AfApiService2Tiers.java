@@ -1,5 +1,11 @@
 package mc.gouv.xaf.back.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.Normalizer;
@@ -10,42 +16,23 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.data.impl.MotifsServiceImpl;
+import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileResponseDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
@@ -66,6 +53,15 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Services proposés par le module API 2 Tiers des TS (donc appelé par le système tiers, via le proxy 2 tiers)
@@ -75,6 +71,7 @@ import mc.gouv.xaf.shared.exception.DemarcheException;
  */
 @ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' == 'true'")
 @Component
+@RequiredArgsConstructor
 public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService2Tiers.class);
@@ -82,44 +79,17 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     private static final String FILE_PATH = "/api2tiers/v1/file/";
     private static final String LOG_CHEMIN = "Chemin du fichier récupéré dans la requête : {}";
 
-    @Autowired
-    private MotifsServiceImpl motifsService;
-
-    @Autowired
-    private PeriodesOuvertureService periodesOuvertureService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private UsagersCache usagersCache;
-
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
-
-    @Autowired
-    private PaysCache paysCache;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private BrouillonsService brouillonsService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired(required = false)
-    private CustomRequestService customRequestService;
+    private final PeriodesOuvertureService periodesOuvertureService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final PropertiesService propertiesService;
+    private final GUKafkaProducer guKafkaProducer;
+    private final DemandesConfigService demandesConfigService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
+    private final PaysCache paysCache;
+    private final AccessService accessService;
+    private final AfBackUtils afBackUtils;
+    private final BrouillonsService brouillonsService;
+    private final Optional<CustomRequestService> customRequestService;
 
     @Override
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -227,7 +197,7 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
         LOGGER.info("AfApiService2Tiers.creerDemande({}, {})", demande, usagerId);
 
         // Injecter la fk vers la config actuelle, que le système tiers devra stocker
-        demande.setBuildId(demandesConfigService.getLastBuildId());
+        demande.setBuildId(demandesConfigHelperService.getLastBuildId());
 
         DemandeDTO demandeCreee = afBackUtils.getAfApiClient2Tiers().creerDemande(demande, usagerId);
 
@@ -247,39 +217,31 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     }
 
     @Override
-    public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> getCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.getCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.getCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> postCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.postCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.postCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.postCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> putCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.putCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.putCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.putCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.deleteCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.deleteCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.deleteCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override

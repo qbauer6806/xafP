@@ -3,13 +3,15 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.config.BackserverCondition;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.metrics.KafkaMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,10 +21,6 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.xaf.back.config.BackserverCondition;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
-
 /**
  * Ce Consumer consomme les messages de la DLT du topic gichuni-to-ts-{codeAppli} afin de les y remettre. L'API pourra
  * donc à nouveau les consommer sur gichuni-to-ts-{codeAppli}. Le KafkaListener de ce Consumer n'est actif que sur
@@ -31,6 +29,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
  * @author qdeme
  */
 @Service
+@RequiredArgsConstructor
 @Conditional({ BackserverCondition.class })
 @ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaDLTConsumer {
@@ -43,17 +42,10 @@ public class GUKafkaDLTConsumer {
 
     private boolean jobOn = false;
 
-    @Autowired
-    private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
-
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private GUKafkaUtils guKafkaUtils;
+    private final KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final GUKafkaUtils guKafkaUtils;
 
     /**
      * KafkaListener du DLT du topic gichuni-to-ts-{codeAppli} (gichuni-to-ts-${codeAppli}.DLT)<br> Jamais actif sauf
@@ -176,14 +168,14 @@ public class GUKafkaDLTConsumer {
             Integer nb = entry.getValue();
             if (nb > 0) {
                 nbMessagesTraites += nb;
-                if (builder.length() > 0) {
+                if (!builder.isEmpty()) {
                     builder.append(", ");
                 }
                 builder.append(nb).append(" sur p").append(entry.getKey());
             }
         }
 
-        if (builder.length() > 0) {
+        if (!builder.isEmpty()) {
             builder.insert(0, '(');
             builder.append(')');
         }

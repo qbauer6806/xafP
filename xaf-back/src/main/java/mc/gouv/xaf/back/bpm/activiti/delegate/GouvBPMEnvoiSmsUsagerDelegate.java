@@ -1,16 +1,8 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Map;
-
-import org.flowable.common.engine.api.delegate.Expression;
-import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.delegate.JavaDelegate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -23,6 +15,12 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe service appelée par le process Activiti pour envoyer un SMS à l'usager.
@@ -30,27 +28,16 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMEnvoiSmsUsagerDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiSmsUsagerDelegate.class);
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private UsagersCache usagerCache;
-
-    @Autowired
-    private SmsService smsService;
-    
-    @Autowired
-    private AfSmsTemplateModelProvider afMailTemplateModelProvider;
-    
-    @Autowired
-    DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private DemandesService demandesService;
+    private final UsagersCache usagerCache;
+    private final SmsService smsService;
+    private final AfSmsTemplateModelProvider afMailTemplateModelProvider;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final DemandesService demandesService;
 
     @Setter
     @Getter

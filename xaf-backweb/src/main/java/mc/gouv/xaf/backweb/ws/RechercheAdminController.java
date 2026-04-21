@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.model.RechercheCategoryDTO;
 import mc.gouv.xaf.back.data.model.RechercheChampDTO;
 import mc.gouv.xaf.back.service.data.RechercheAdminService;
@@ -14,7 +15,6 @@ import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +30,12 @@ import org.springframework.web.multipart.MultipartFile;
 @GouvRestController
 @Secured("ROLE_CONFIGURATION")
 @RequestMapping("/ws/admin/")
+@RequiredArgsConstructor
 public class RechercheAdminController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminController.class);
 
-    @Autowired
-    private RechercheAdminService rechercheAdminService;
+    private final RechercheAdminService rechercheAdminService;
 
     @PostMapping(value = "/updaterecherchechamps")
     public String updateRechercheChamps(@RequestBody List<RechercheChampDTO> rechercheChamps) {

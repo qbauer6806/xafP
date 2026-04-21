@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -11,7 +12,6 @@ import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,12 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/demandelock")
-public class DemandeLockController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DemandeLockController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeLockController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @PutMapping
     public ResponseEntity doPut(@RequestParam Integer demandeId, HttpServletRequest request) {
@@ -48,7 +48,7 @@ public class DemandeLockController extends AbstractXafController {
 
         Integer usagerId = usagerInfosDTO.getId();
 
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         if (demandeId != null) {
             /* gestion du lock */
@@ -71,7 +71,7 @@ public class DemandeLockController extends AbstractXafController {
         }
 
         Integer usagerId = usagerInfosDTO.getId();
-        AfApiClient afApiClient = getAfApiClient();
+        AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
         if (demandeId != null) {
             /* gestion du lock */

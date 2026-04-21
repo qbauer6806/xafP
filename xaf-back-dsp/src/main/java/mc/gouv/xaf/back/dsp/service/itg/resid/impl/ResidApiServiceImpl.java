@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.dsp.dto.ResidCaisseOuverteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
@@ -41,7 +42,6 @@ import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -64,6 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
+@RequiredArgsConstructor
 public class ResidApiServiceImpl implements ResidApiService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -83,17 +84,13 @@ public class ResidApiServiceImpl implements ResidApiService {
     public static final String RESID_ETAT_CAISSE_PATH = "/caisse/ouverture";
     public static final String RESID_RETOUR_DEBIT_PATH = "/paiement/retourDebit";
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    private RestTemplateBuilder restTemplateBuilder;
+    private final RestTemplateBuilder restTemplateBuilder;
 
-    @Autowired
-    private RestitutionStatistiquesService restitutionStatsService;
+    private final RestitutionStatistiquesService restitutionStatsService;
 
     private RestTemplate restTemplate;
 

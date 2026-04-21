@@ -1,19 +1,16 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.CacheRepository;
 import mc.gouv.xaf.back.data.entity.CacheBO;
 import mc.gouv.xaf.back.data.transformer.CacheTransformer;
 import mc.gouv.xaf.back.service.data.CacheService;
 import mc.gouv.xaf.shared.dto.CacheDTO;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 
@@ -49,10 +46,10 @@ import mc.gouv.xaf.shared.dto.CacheDTO;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class CacheServiceImpl implements CacheService {
-    
-    @Autowired
-    private CacheRepository cacheRepository;
+
+    private final CacheRepository cacheRepository;
 
     /**
      * {@inheritDoc}

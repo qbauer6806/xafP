@@ -49,9 +49,9 @@
         <a id="ariane0" th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
           id="ariane1" th:href="@{/gestion/usagers}" class="breadcrumb-link">USAGERS</a>
         &gt; Transfert demande(s) - <span
-          th:text="${AfBackUtils.getUsagerNameFromID(usagerSourceId)}"></span>
+          th:text="${usagerSourceName}"></span>
         vers <span
-          th:text="${AfBackUtils.getUsagerNameFromID(usagerCibleId)}"></span>
+          th:text="${usagerCibleName}"></span>
         <span th:if="${transfererSupprimer}"> (pour suppression)</span>
       </div>
       <div class="triangleTopright"></div>

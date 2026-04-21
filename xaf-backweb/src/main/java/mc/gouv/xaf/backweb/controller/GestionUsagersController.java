@@ -1,31 +1,12 @@
 package mc.gouv.xaf.backweb.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -43,6 +24,22 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controller pour la page /gestionusagers
@@ -51,6 +48,7 @@ import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
  */
 @Controller
 @RequestMapping("/gestion/usagers")
+@RequiredArgsConstructor
 public class GestionUsagersController extends AbstractController {
 
     private static final String REDIRECT_USAGER = "redirect:/gestion/usagers";
@@ -65,26 +63,13 @@ public class GestionUsagersController extends AbstractController {
     private static final String I18N_TRANSFERT_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE = "message.success.transfert.demandes.usager.courrier";
     private static final String I18N_TRANSFERTSUPPRESSION_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE = "message.success.transfertsuppression.demandes.usager.courrier";
 
-    @Autowired
-    private PaysCache paysCache;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private GouvBPM gouvBPM;
-
-    @Autowired
-    private UsagersCourrierService usagersCourrierService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private UsagersCache usagersCache;
+    private final PaysCache paysCache;
+    private final MessageSource messageSource;
+    private final GouvBPM gouvBPM;
+    private final UsagersCourrierService usagersCourrierService;
+    private final DemandesService demandesService;
+    private final UsagersCache usagersCache;
+    private final UsagersUtils usagersUtils;
 
     /**
      * Affichage de la page principale
@@ -365,6 +350,9 @@ public class GestionUsagersController extends AbstractController {
         ModelAndView mav = new ModelAndView("gestion/usagers/transfertdemandes");
         mav.addObject("usagerSourceId", usagerSourceId);
         mav.addObject("usagerCibleId", usagerCibleId);
+        mav.addObject("usagerSourceName", usagersUtils.getUsagerNameFromID(usagerSourceId));
+        mav.addObject("usagerCibleName", usagersUtils.getUsagerNameFromID(usagerCibleId));
+
         mav.addObject("demandes", demandes);
         mav.addObject("usagerSourceDTO", usagerSourceDTO);
 
@@ -411,14 +399,14 @@ public class GestionUsagersController extends AbstractController {
             List<String> messages = new ArrayList<>();
             messages.add(
                     messageSource.getMessage(I18N_TRANSFERTSUPPRESSION_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE,
-                            new Object[] { afBackUtils.getUsagerNameFromID(usagerSourceId),
-                                    afBackUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
+                            new Object[] { usagersUtils.getUsagerNameFromID(usagerSourceId),
+                                    usagersUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         } else {
             List<String> messages = new ArrayList<>();
             messages.add(messageSource.getMessage(I18N_TRANSFERT_DEMANDES_USAGER_COURRIER_SUCCESS_CODE_MESSAGE,
-                    new Object[] { afBackUtils.getUsagerNameFromID(usagerSourceId),
-                            afBackUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
+                    new Object[] { usagersUtils.getUsagerNameFromID(usagerSourceId),
+                            usagersUtils.getUsagerNameFromID(usagerCibleId) }, Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         }
 

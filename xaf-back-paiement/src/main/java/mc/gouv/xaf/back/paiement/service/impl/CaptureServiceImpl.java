@@ -1,5 +1,13 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
@@ -10,8 +18,8 @@ import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
@@ -21,35 +29,26 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
-
 @Component
+@RequiredArgsConstructor
 public class CaptureServiceImpl implements CaptureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceImpl.class);
 
-    @Autowired
-    private CommandeOperationRepository commandeOperationRepository;
-    @Autowired
-    private PaiementApiClient paiementApiClient;
-    @Autowired
-    private FactureApiClient factureApiClient;
-    @Autowired
-    private CommandeRepository commandeRepository;
-    @Autowired
-    private ReferenceFactoryService referenceFactoryService;
-    @Autowired
-    private PaiementsDataProvider paiementsDataProvider;
+    private final CommandeOperationRepository commandeOperationRepository;
+
+    private final PaiementApiClient paiementApiClient;
+
+    private final FactureApiClient factureApiClient;
+
+    private final CommandeRepository commandeRepository;
+
+    private final ReferenceFactoryService referenceFactoryService;
+
+    private final PaiementsDataProvider paiementsDataProvider;
 
     @Override
     public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO)

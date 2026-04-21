@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.file.service.dto.FileDTO;
 import mc.gouv.xaf.back.service.itg.file.service.dto.MetaDTO;
@@ -24,7 +25,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -41,7 +41,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/gestion/modeles")
 @Secured("ROLE_CONFIGURATION")
-public class GestionModelesController {
+@RequiredArgsConstructor
+public class GestionModelesController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionModelesController.class);
     private static final String MODELES = "MODELES";
@@ -49,14 +50,9 @@ public class GestionModelesController {
     private static final String LE_MODELE = "Le modèle ";
     private static final String SUCCESS_MESSAGE = "successMessages";
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private BackGouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private FileService fileService;
+    private final AfBackUtils afBackUtils;
+    private final BackGouvPropertiesResolver gouvPropertiesResolver;
+    private final FileService fileService;
 
     @GetMapping
     public ModelAndView form(@RequestParam(name = "typeModele", required = false) String typeModele) throws Exception {

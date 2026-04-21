@@ -1,6 +1,5 @@
 package mc.gouv.xaf.backweb.web.config.security;
 
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.backweb.web.config.security.filter.GouvPreAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,16 +16,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 public class BackMultiHttpSecurityConfig {
-
-    @Bean
-    public GouvAuthenticationProvider gouvAuthenticationProvider() {
-        return new GouvAuthenticationProvider();
-    }
-
-    @Bean
-    public GouvPreAuthFilter gouvPreAuthFilter(BackGouvPropertiesResolver propertiesResolver) {
-        return new GouvPreAuthFilter(propertiesResolver, gouvAuthenticationProvider());
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, GouvPreAuthFilter gouvPreAuthFilter)

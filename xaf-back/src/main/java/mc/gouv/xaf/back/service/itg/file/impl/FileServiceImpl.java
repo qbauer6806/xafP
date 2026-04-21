@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
@@ -61,7 +59,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -80,6 +77,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
@@ -95,23 +93,9 @@ public class FileServiceImpl implements FileService {
 
     private RestTemplate restTemplate;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
-
-    @Autowired
-    private DemandesCourriersRepository demandesCourriersRepository;
-
-    @Autowired
-    private BrouillonsFilesRepository brouillonsFilesRepository;
-
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    private final AfBackUtils afBackUtils;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final BrouillonsFilesRepository brouillonsFilesRepository;
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
@@ -553,40 +537,53 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean isFileDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
-        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
-        if (existingFiles <= 1 && existingFilesBrouillons == 0) {
-            return true;
-        }
-        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
-        return false;
-    }
-
-    @Override
-    public boolean isFileBrouillonDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
-        int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
-        if (existingFiles == 0 && existingFilesBrouillons <= 1) {
-            return true;
-        }
-        LOGGER.info(MESSAGE_FICHIER_REFERENCE, fileUrl);
-        return false;
-    }
-
-    @Override
     public boolean isFileFromBrouillonDeletable(String fileUrl) {
-        int existingFiles = demandesFilesRepository.countByUrl(fileUrl);
-        int existingFilesCourriers = demandesCourriersRepository.countByUrl(fileUrl);
-        int existingFilesComplements = demandesComplementsFilesRepository.countByUrl(fileUrl);
         int existingFilesBrouillons = brouillonsFilesRepository.countByUrl(fileUrl);
-        if (existingFiles == 0 && existingFilesCourriers == 0 && existingFilesComplements == 0
-                && existingFilesBrouillons <= 1) {
+        if (existingFilesBrouillons == 1) {
             return true;
         }
         String logSafe = AfBackUtils.logSafe(fileUrl);
         LOGGER.info(MESSAGE_FICHIER_REFERENCE, logSafe);
         return false;
+    }
+
+    @Override
+    public String dupliquerFichier(String fileUrl, DemandeDTO demande) {
+        try {
+            // Afin de gérér à la fois les vieux fichiers (non encodés) et les nouveaux (déjà encodés), on décode, pour ensuite réencoder dans la construction de l'url
+            String fileUrlDecode = java.net.URLDecoder.decode(fileUrl, java.nio.charset.StandardCharsets.UTF_8);
+            FileInfo fileInfo = recupererFichierAvecContentType(fileUrlDecode);
+            try (InputStream is = fileInfo.inputStream()) {
+                if (is == null) {
+                    LOGGER.warn("InputStream null pour {}", fileUrl);
+                    return null;
+                }
+                return saveFile(demande, fileInfo.fileName(), gouvPropertiesResolver.getContainerId(),
+                        fileInfo.contentType(), is, null);
+            }
+
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la duplication du fichier : {}", fileUrl);
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private FileInfo recupererFichierAvecContentType(String fileUrl) throws IOException {
+        ResponseEntity<InputStream> response = getFileEntity(fileUrl, gouvPropertiesResolver.getContainerId());
+
+        MediaType mediaType = response.getHeaders().getContentType();
+        String contentType = mediaType != null ? mediaType.toString() : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        return new FileInfo(extraireNomFichier(fileUrl), contentType, response.getBody());
+    }
+
+    private String extraireNomFichier(String fileUrl) {
+        return fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+    }
+
+    private record FileInfo(String fileName, String contentType, InputStream inputStream) {
+
     }
 
 }

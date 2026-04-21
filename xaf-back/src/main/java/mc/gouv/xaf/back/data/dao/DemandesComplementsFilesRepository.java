@@ -13,5 +13,4 @@ public interface DemandesComplementsFilesRepository extends CrudRepository<Deman
 
     List<DemandesComplementsFilesBO> findAllByUrl(String url);
 
-    Integer countByUrl(String url);
 }

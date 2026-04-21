@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import org.apache.commons.io.IOUtils;
@@ -18,7 +19,6 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,12 +27,12 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GichuniService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GichuniService.class);
 
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     private URL getURL(Integer id) {
         URL url = null;

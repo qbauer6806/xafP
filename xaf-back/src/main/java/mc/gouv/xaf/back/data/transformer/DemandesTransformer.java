@@ -9,12 +9,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.data.entity.MarqueurBO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -25,13 +24,13 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +38,7 @@ import org.springframework.stereotype.Service;
  * @author qdeme
  */
 @Service
+@RequiredArgsConstructor
 public class DemandesTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesTransformer.class);
@@ -49,29 +49,20 @@ public class DemandesTransformer {
     private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
 
-    @Autowired
-    private DemandesAgentsTransformer demandesAgentsTransformer;
-
-    @Autowired
-    private DemandesUsagersTransformer demandesUsagersTransformer;
-
-    @Autowired
-    private DemandesComplementsTransformer demandesComplementsTransformer;
-
-    @Autowired
-    private DemandesConfigTransformer demandesConfigTransformer;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    private DemandesTransformer() {
-    }
+    private final DemandesAgentsTransformer demandesAgentsTransformer;
+    private final DemandesUsagersTransformer demandesUsagersTransformer;
+    private final DemandesComplementsTransformer demandesComplementsTransformer;
+    private final DemandesConfigTransformer demandesConfigTransformer;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final AfBackUtils afBackUtils;
+    private final MarqueursTransformer marqueursTransformer;
 
     public DemandeDTO bo2Dto(DemandeBO bo) {
         return bo2Dto(bo, null);
+    }
+
+    public DemandeDTO bo2Dto(DemandeBO bo, boolean deepCopy) {
+        return bo2Dto(bo, null, deepCopy);
     }
 
     /**
@@ -117,6 +108,10 @@ public class DemandesTransformer {
     }
 
     public DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
+        return bo2Dto(bo, fields, false);
+    }
+
+    public DemandeDTO bo2Dto(DemandeBO bo, String[] fields, boolean deepCopy) {
         if (bo == null) {
             return null;
         }
@@ -151,9 +146,13 @@ public class DemandesTransformer {
         }
 
         // Mapper le contenu de la demande
-        dto.setContenu(bo.getContenu());
-
-        dto.setContenuTrad(bo.getContenuTrad());
+        if (deepCopy) {
+            dto.setContenu(bo.getContenu() == null ? null : bo.getContenu().deepCopy());
+            dto.setContenuTrad(bo.getContenuTrad() == null ? null : bo.getContenuTrad().deepCopy());
+        } else {
+            dto.setContenu(bo.getContenu());
+            dto.setContenuTrad(bo.getContenuTrad());
+        }
 
         // Mapper le contenu de la config
         if (bo.getConfig() != null) {
@@ -214,34 +213,26 @@ public class DemandesTransformer {
         return dto;
     }
 
-    public DemandeDTO exportProjection2Dto(DemandeExportDTO bo) {
+    public DemandeDTO exportProjection2Dto(DemandeExportDTO demandeExportDTO) {
         DemandeDTO dto = new DemandeDTO();
-        dto.setDateCreation(bo.getDateCreation());
-        dto.setDateDerModif(bo.getDateDerModif());
-        dto.setCourrierDateReception(bo.getCourrierDateReception());
-        dto.setCourrierRefInterne(bo.getCourrierRefInterne());
-        dto.setLangue(bo.getLangue());
-        dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
-        dto.setObservations(bo.getObservations());
-        dto.setPkDemandes(bo.getPkDemandes());
-        dto.setAgent(demandesAgentsTransformer.bo2Dto(bo.getAgent()));
-        dto.setUsager(demandesUsagersTransformer.bo2Dto(bo.getUsager()));
-        dto.setIdentifiant(bo.getIdentifiant());
+        dto.setDateCreation(demandeExportDTO.getDateCreation());
+        dto.setDateDerModif(demandeExportDTO.getDateDerModif());
+        dto.setCourrierDateReception(demandeExportDTO.getCourrierDateReception());
+        dto.setCourrierRefInterne(demandeExportDTO.getCourrierRefInterne());
+        dto.setLangue(demandeExportDTO.getLangue());
+        dto.setCanal(DemandeCanalEnum.valueOf(demandeExportDTO.getCanal()));
+        dto.setObservations(demandeExportDTO.getObservations());
+        dto.setPkDemandes(demandeExportDTO.getPkDemandes());
+        dto.setAgent(demandesAgentsTransformer.bo2Dto(demandeExportDTO.getAgent()));
+        dto.setUsager(demandesUsagersTransformer.bo2Dto(demandeExportDTO.getUsager()));
+        dto.setIdentifiant(demandeExportDTO.getIdentifiant());
         // Mapper le contenu de la demande
-        dto.setContenu(bo.getContenu());
-        dto.setContenuTrad(bo.getContenuTrad());
-
-        // Mapper le contenu de la config
-        if (bo.getConfig() != null) {
-            // mapper les marqueurs
-            dto.setMarqueurs(buildMarqueurs(bo.getConfig(), bo.getContenu()));
-            // mapper les marqueurs
-            dto.setMarqueursTrad(buildMarqueurs(bo.getConfig(), bo.getContenuTrad()));
-        }
+        dto.setContenu(demandeExportDTO.getContenu());
+        dto.setContenuTrad(demandeExportDTO.getContenuTrad());
 
         // Mapper le "dernier statut"
-        if (bo.getDernierStatut() != null) {
-            DemandesStatutsBO statut = bo.getDernierStatut();
+        if (demandeExportDTO.getDernierStatut() != null) {
+            DemandesStatutsBO statut = demandeExportDTO.getDernierStatut();
             DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
             dto.setDernierStatut(statutDto);
         }
@@ -306,13 +297,16 @@ public class DemandesTransformer {
     }
 
     private Map<String, Object> buildMarqueurs(DemandeConfigBO config, JsonNode contenu) {
-        Set<MarqueurBO> marqueurs = config.getMarqueurs();
+        return buildMarqueurs(marqueursTransformer.bos2Dtos(config.getMarqueurs()), contenu);
+    }
+
+    public Map<String, Object> buildMarqueurs(List<MarqueurDTO> marqueurs, JsonNode contenu) {
         // Mise en cache des marqueurs pour un accès rapide O(1)
-        Map<String, MarqueurBO> marqueursMap = marqueurs.stream()
+        Map<String, MarqueurDTO> marqueursMap = marqueurs.stream()
                 .filter(marqueurBO -> marqueurBO.getChemin() != null) // Pour éviter les nulles
-                .collect(Collectors.toMap(MarqueurBO::getChemin, marqueur -> marqueur,
+                .collect(Collectors.toMap(MarqueurDTO::getChemin, marqueur -> marqueur,
                         (existing, replacement) -> existing)); // On garde la première valeur en cas de doublon sur le chemin
-        return marqueurs.stream().collect(Collectors.toMap(MarqueurBO::getIdentifiant,
+        return marqueurs.stream().collect(Collectors.toMap(MarqueurDTO::getIdentifiant,
                 marqueur -> afBackUtils.getMarqueurValue(contenu, marqueur.getChemin(), marqueursMap),
                 (existing, replacement) -> {
                     // en cas de doublon d'identifiant, on utilise la 1ère valeur

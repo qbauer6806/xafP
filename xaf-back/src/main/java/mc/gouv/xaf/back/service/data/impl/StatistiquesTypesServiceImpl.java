@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.StatistiquesTypesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiquesTypesBO;
 import mc.gouv.xaf.back.data.transformer.StatistiquesTypesTransformer;
@@ -7,24 +10,20 @@ import mc.gouv.xaf.back.service.data.StatistiquesTypesService;
 import mc.gouv.xaf.shared.dto.StatistiquesTypesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Service permettant la manipulation des statistiques types.
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class StatistiquesTypesServiceImpl implements StatistiquesTypesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatistiquesTypesServiceImpl.class);
 
-    @Autowired
-    private StatistiquesTypesRepository statTypeRepository;
+    private final StatistiquesTypesRepository statTypeRepository;
 
     @Override
     public void deleteStatistiquesTypes(String identifiantDemande) {

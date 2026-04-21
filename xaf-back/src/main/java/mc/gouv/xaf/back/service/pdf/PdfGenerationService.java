@@ -16,7 +16,7 @@ public interface PdfGenerationService {
     void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws IOException;
 
     void generateAndStoreDoc(DemandeDTO demande, PdfTypeEnum pdfType, String meta,
-            PdfTemplateAndModelDTO pdfTemplateAndModelDTO) throws IOException;
+            PdfTemplateAndModelDTO pdfTemplateAndModelDTO, boolean convertPdf) throws IOException;
 
     File generateToFile(PdfTemplateAndModelDTO dto, boolean convertPdf);
 

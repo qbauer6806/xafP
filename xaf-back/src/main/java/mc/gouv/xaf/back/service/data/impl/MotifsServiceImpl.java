@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.MotifsRepository;
 import mc.gouv.xaf.back.data.entity.MotifBO;
 import mc.gouv.xaf.back.data.transformer.MotifTransformer;
@@ -13,7 +14,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class MotifsServiceImpl implements MotifsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MotifsServiceImpl.class);
 
-    @Autowired
-    private MotifsRepository motifsRepository;
+    private final MotifsRepository motifsRepository;
 
     private MotifBO getMotifBO(Integer pkMotif) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE, pkMotif);

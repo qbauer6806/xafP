@@ -1,24 +1,22 @@
 package mc.gouv.xaf.rio.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.rio.dto.RioDocumentDTO;
 import mc.gouv.xaf.rio.dto.RioFileDocumentDTO;
 import mc.gouv.xaf.rio.service.RioApiClient;
 import mc.gouv.xaf.rio.service.RioService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RioServiceImpl implements RioService {
 
     // Variabiliser si besoin
     private static final String CODE_APPLI = "CIR";
 
-    @Autowired
-    private RioApiClient rioApiClient;
-
-    @Autowired
-    private GouvPropertiesResolver propertiesResolver;
+    private final RioApiClient rioApiClient;
+    private final GouvPropertiesResolver propertiesResolver;
 
     @Override
     public RioDocumentDTO createDocument(String refDocument, String codeNotice) {

@@ -6,6 +6,7 @@ import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -14,16 +15,16 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AfPdfTemplateAndModelProvider extends AfTemplateModelProvider {
+@RequiredArgsConstructor
+public class AfPdfTemplateAndModelProvider {
 
     private final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
-    @Autowired
-    private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+    private final PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+    private final AfTemplateModelProvider afTemplateModelProvider;
 
     public PdfOptions getPdfOptions() {
         PdfOptions pdfOptions = PdfOptions.create();
@@ -42,7 +43,7 @@ public class AfPdfTemplateAndModelProvider extends AfTemplateModelProvider {
 
     private Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire,
             String texteAEnvoyer) {
-        Map<String, Object> model = getGenericModelDemandePdf(demande, codeMotif, commentaire);
+        Map<String, Object> model = afTemplateModelProvider.getGenericModelDemandePdf(demande, codeMotif, commentaire);
         model.put("demande", demande);
         DemandeAgentDTO agent = demande.getAgent();
         model.put("nomAgent", agent != null ? agent.getNom() : "");

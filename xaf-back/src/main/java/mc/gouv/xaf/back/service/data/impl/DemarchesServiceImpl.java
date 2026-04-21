@@ -1,6 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.transformer.DemarchesTransformer;
@@ -10,13 +13,9 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.util.Optional;
 
 /**
  * Service permettant la manipulation des démarches.
@@ -25,12 +24,12 @@ import java.util.Optional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemarchesServiceImpl implements DemarchesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemarchesServiceImpl.class);
 
-    @Autowired
-    private DemarchesRepository demarchesRepository;
+    private final DemarchesRepository demarchesRepository;
 
     @Override
     public DemarcheDTO getDemarche() {

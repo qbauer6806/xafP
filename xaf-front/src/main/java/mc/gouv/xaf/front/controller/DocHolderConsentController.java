@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.DocHolderConsentDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -22,7 +23,6 @@ import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -32,12 +32,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/doc-holder/consent")
-public class DocHolderConsentController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DocHolderConsentController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderConsentController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     /**
      * Renvoie si l'utilisateur connecté a consenti ou non <b>côté TS</b> à l'usage du porte-documents
@@ -61,7 +61,7 @@ public class DocHolderConsentController extends AbstractXafController {
         }
 
         LOGGER.info("Récupération des données d'accès");
-        AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+        AccessDTO access = xafFrontserverUtils.getAfApiClient().getAccess(usagerInfosDTO.getId());
         if (access == null) {
             LOGGER.error("Impossible de récupérer l'AccessDTO pour l'utilisateur id {}", usagerInfosDTO.getId());
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
@@ -111,7 +111,7 @@ public class DocHolderConsentController extends AbstractXafController {
         }
 
         LOGGER.info("Récupération des données d'accès");
-        AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+        AccessDTO access = xafFrontserverUtils.getAfApiClient().getAccess(usagerInfosDTO.getId());
         if (access == null) {
             LOGGER.error("Impossible de récupérer l'AccessDTO pour l'utilisateur id {}", usagerInfosDTO.getId());
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
@@ -134,7 +134,7 @@ public class DocHolderConsentController extends AbstractXafController {
             accessInputDTO.setContenu(accessInputNode);
 
             LOGGER.info("Mise à jour des données d'accès");
-            getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInputDTO);
+            xafFrontserverUtils.getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInputDTO);
 
             LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
             return ResponseEntity.status(204).build();
@@ -149,7 +149,7 @@ public class DocHolderConsentController extends AbstractXafController {
             accessInputDTO.setContenu(access.getContenu());
 
             LOGGER.info("Mise à jour des données d'accès");
-            getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInputDTO);
+            xafFrontserverUtils.getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInputDTO);
 
             LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
             return ResponseEntity.status(204).build();

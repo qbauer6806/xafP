@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.MwpaymtApiClient;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitInputDTO;
 import mc.gouv.xaf.apiclient.paiement.mwpaymt.dto.debit.DebitOutputDTO;
@@ -98,7 +99,6 @@ import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -107,6 +107,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class PaiementServiceImpl implements PaiementService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
@@ -119,92 +120,35 @@ public class PaiementServiceImpl implements PaiementService {
     public static final String OBJET = "_OBJET";
     public static final String CORPS = "_CORPS";
 
-    @Autowired
-    private TableauPaiementService tableauPaiementService;
-
-    @Autowired
-    private BrouillonsService brouillonsService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private CommandeRepository commandeRepository;
-
-    @Autowired
-    private DemandesRepository demandesRepository;
-
-    @Autowired
-    private CommandeDemandeRepository commandeDemandeRepository;
-
-    @Autowired
-    private CommandeOperationRepository commandeOperationRepository;
-
-    @Autowired
-    private MoyenPaiementRepository moyenPaiementRepository;
-
-    @Autowired
-    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
-
-    @Autowired
-    private InformationFacturationRepository infoFacturationRepository;
-
-    @Autowired
-    private MontantService montantService;
-
-    @Autowired
-    private CommandesDemandesService commandesDemandesService;
-
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
-
-    @Autowired
-    private DemandesTransformer demandesTransformer;
-
-    @Autowired
-    private GichuniApiClient gichuniApiClient;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private GouvBPM gouvBPM;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private MwpaymtTransformer mwpaymtTransformer;
-
-    @Autowired
-    private DemandesHistoriqueService demandesHistoriqueService;
-
-    @Autowired
-    private PaiementsDataProvider paiementsDataProvider;
-
-    @Autowired
-    private GUKafkaPaiementProducer guKafkaPaiementProducer;
-
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private KeycloakTokenService keycloakTokenService;
-
-    @Autowired
-    private FactureService factureService;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    private PaiementHistoriqueService paiementHistoriqueService;
+    private final TableauPaiementService tableauPaiementService;
+    private final BrouillonsService brouillonsService;
+    private final DemandesService demandesService;
+    private final CommandeRepository commandeRepository;
+    private final DemandesRepository demandesRepository;
+    private final CommandeDemandeRepository commandeDemandeRepository;
+    private final CommandeOperationRepository commandeOperationRepository;
+    private final MoyenPaiementRepository moyenPaiementRepository;
+    private final CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+    private final InformationFacturationRepository infoFacturationRepository;
+    private final MontantService montantService;
+    private final CommandesDemandesService commandesDemandesService;
+    private final DemandesStatutsService demandesStatutsService;
+    private final DemandesTransformer demandesTransformer;
+    private final GichuniApiClient gichuniApiClient;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final GouvBPM gouvBPM;
+    private final PropertiesService propertiesService;
+    private final MwpaymtTransformer mwpaymtTransformer;
+    private final DemandesHistoriqueService demandesHistoriqueService;
+    private final PaiementsDataProvider paiementsDataProvider;
+    private final GUKafkaPaiementProducer guKafkaPaiementProducer;
+    private final DemarchesDataProvider demarchesDataProvider;
+    private final KeycloakTokenService keycloakTokenService;
+    private final FactureService factureService;
+    private final MailService mailService;
+    private final AfBackUtils afBackUtils;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final PaiementHistoriqueService paiementHistoriqueService;
 
     @Override
     public List<TableauDTO> getTableauPaiement(String ids, String objectType, Integer usagerId) {

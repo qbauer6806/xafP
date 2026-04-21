@@ -1,17 +1,25 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
+import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +30,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class DemandesComplementsFilesServiceImpl implements DemandesComplementsFilesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesComplementsFilesServiceImpl.class);
 
-    @Autowired
-    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
-
-    @Autowired
-    private FileService fileService;
+    private final DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+    private final FileService fileService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final DemandesHistoriqueService demandesHistoriqueService;
 
     private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes,
             Map<String, Boolean> checkboxes, AtomicBoolean success) {
@@ -72,6 +80,33 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
         }
         LOGGER.info("Fin updateTypedocs()");
         return success.get();
+    }
+
+    @Override
+    public ResponseEntity<String> supprimerPieceJustificative(Integer idDemandeFile) {
+        Optional<DemandesComplementsFilesBO> demandesFilesBO = demandesComplementsFilesRepository.findById(
+                idDemandeFile);
+        if (demandesFilesBO.isEmpty()) {
+            return ResponseEntity.status(500)
+                    .body(String.format("La pièce justificative avec l'identifiant %s n'existe pas", idDemandeFile));
+        }
+        DemandesComplementsFilesBO demandeFile = demandesFilesBO.get();
+        String url = demandeFile.getUrl();
+        LOGGER.info("Le fichier {} sera effacé de file.", url);
+
+        String urlEncode = URLEncoder.encode(url, UTF_8);
+        if (urlEncode != null && urlEncode.startsWith("/")) {
+            urlEncode = urlEncode.substring(1);
+        }
+
+        fileService.deleteFile(gouvPropertiesResolver.getContainerId(), urlEncode);
+        LOGGER.info("On flag le fichier supprimee et on ajoute l'action dans l'historique");
+        demandeFile.setSupprimee(true);
+        demandesComplementsFilesRepository.save(demandeFile);
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.suppressionPJ(demandeFile.getName());
+        demandesHistoriqueService.saveHisto(demandeFile.getFkDemandesComplements().getFkDemandes().getPkDemandes(),
+                histo);
+        return ResponseEntity.ok().body("Le fichier a été supprimé avec succès");
     }
 
 }

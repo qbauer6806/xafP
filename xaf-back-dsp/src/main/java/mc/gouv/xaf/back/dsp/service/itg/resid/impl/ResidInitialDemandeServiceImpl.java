@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
@@ -19,14 +23,10 @@ import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-
 @Component
+@RequiredArgsConstructor
 public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeService {
 
     public static final String DONNEES_EXTERNES_MCONNECT_GIVENNAME = "GivenName";
@@ -38,12 +38,12 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
     public static final String DONNEES_EXTERNES_USAGER_INFO_EMAIL = "usagerInfoEmail";
     public static final String DONNEES_EXTERNES_USAGER_INFO_TITRE = "usagerInfoTitre";
     private static final Logger LOGGER = LoggerFactory.getLogger(ResidInitialDemandeServiceImpl.class);
-    @Autowired
-    private ResidApiService residApiService;
-    @Autowired
-    private ResidPropertiesResolver residPropertiesResolver;
-    @Autowired
-    private ResidInitialDemandeMapper residInitialDemandeMapper;
+
+    private final ResidApiService residApiService;
+
+    private final ResidPropertiesResolver residPropertiesResolver;
+
+    private final ResidInitialDemandeMapper residInitialDemandeMapper;
 
     static final ObjectMapper mapper = new ObjectMapper();
 

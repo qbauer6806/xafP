@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
@@ -17,15 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AfPostProcessingProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfPostProcessingProvider.class);
 
     private final PostProcessingProvider postProcessingProvider;
-
-    public AfPostProcessingProvider(PostProcessingProvider postProcessingProvider) {
-        this.postProcessingProvider = postProcessingProvider;
-    }
 
     public DemandeDTO postprocess(DemandeDTO demande, JsonNode donneesExternes) {
         JsonNode contenu = demande.getContenu();

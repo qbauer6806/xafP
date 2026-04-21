@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -9,7 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.ParametrageFormBean;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -17,7 +21,6 @@ import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -37,20 +40,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/gestion/parametrage")
 @Secured("ROLE_CONFIGURATION")
+@RequiredArgsConstructor
 public class GestionParametrageController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametrageController.class);
 
     private static final String REDIRECT = "redirect:/gestion/parametrage";
 
-    @Autowired
-    private DemarchesService demarchesService;
+    private final DemarchesService demarchesService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
+    private final AfBackUtils afBackUtils;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Value("${maven.version}")
     private String mavenVersion;
@@ -85,8 +87,12 @@ public class GestionParametrageController {
             parametrageFormBean.setNomSousDirectionComplementEn(demarche.getNomSousDirectionComplementEn());
         }
 
-        mav.addObject("displayName", displayName);
+        mav.addObject("displayName", applicationName.toUpperCase());
         mav.addObject("xafVersion", xafVersion);
+        DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
+        JsonNode node = config.getContenu().get("wysiwygVersion");
+        String wysiwygVersion = node != null ? node.asText() : null;
+        mav.addObject("wysiwygVersion", wysiwygVersion);
         mav.addObject("tsVersion", mavenVersion);
 
         LOGGER.info("======================= Fin /gestion/parametrage. Méthode form");

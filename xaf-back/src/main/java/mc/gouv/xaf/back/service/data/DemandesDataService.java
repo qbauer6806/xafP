@@ -1,10 +1,9 @@
 package mc.gouv.xaf.back.service.data;
 
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-
 import java.util.List;
 import java.util.Map;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 /**
  * Service permettant la manipulation des données d'une demande.
@@ -49,6 +48,17 @@ public interface DemandesDataService {
      */
     List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value, List<DemandeBO> demandes);
 
+    /**
+     * Récupère une liste de DemandeDataDTO dont la clé étrangère de la demande correspond à la valeur fournie et dont
+     * la clé commence par le préfixe spécifié.
+     *
+     * @param fkDemandes
+     *         La clé étrangère de la demande permettant de filtrer les données.
+     * @param key
+     *         Le préfixe que les clés des données retournées doivent commencer.
+     * @return Une liste de DemandeDataDTO correspondant aux critères.
+     */
+    List<DemandeDataDTO> getDemandeDatasByFkDemandesPkDemandesAndKeyStartsWith(Integer fkDemandes, String key);
     /**
      * Permet de sauvegarder ou mettre à jour une donnée de demande en base
      *

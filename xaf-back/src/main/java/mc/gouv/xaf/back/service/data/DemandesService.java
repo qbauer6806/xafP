@@ -1,18 +1,16 @@
 package mc.gouv.xaf.back.service.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,25 +58,6 @@ public interface DemandesService {
     DemandeDTO getDemande(Integer pkDemandes);
 
     /**
-     * Permet de vérifier que demandeId existe bien (retourne un BO) Lance une exception sinon
-     *
-     * @return La demande, si trouvée
-     */
-    DemandeBO getCheckDemarcheDemandeBO(DemandeDTO demande, boolean checkActive);
-
-    /**
-     * Permet de vérifier que le couple demandeId existe bien (retourne un BO) Lance une exception sinon
-     *
-     * @return La demande, si trouvée
-     */
-    DemandeBO getCheckDemarcheDemandeBO(Integer demandeId, boolean checkActive);
-
-    /**
-     * Permet de vérifier que demandeId existe bien (retourne un DTO) Lance une exception sinon
-     */
-    DemandeDTO getCheckDemarcheDemandeDTO(Integer demandeId, boolean checkActive);
-
-    /**
      * Permet de modifier une demande à partir de l'UsagerID
      *
      * @param partialUpdate
@@ -86,13 +65,6 @@ public interface DemandesService {
      * @return La demande modifiée
      */
     DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate);
-
-    /**
-     * Permet de supprimer une demande à partir de l'UsagerID
-     */
-    void deleteDemande(Integer demandeId) throws JsonProcessingException;
-
-    void deleteDemandeInGivenStatus(Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder en base une demande
@@ -172,28 +144,16 @@ public interface DemandesService {
     List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date);
 
     /**
+     * Retourne les demandes qui ont été créées entre la date de départ et d'arrivée
+     */
+    List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String statut, Date date1, Date date2);
+
+    /**
      * Retourne une demande en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT
      */
     DemandeDTO getDemandeFilterFiles(Integer pkDemande, Integer usagerId);
 
     byte[] getDemandeRecap(Integer pkDemande, Integer usagerId, DonneesMConnectDTO donneesMConnectDTO);
-
-    List<Integer> getAllDemandeIdsForPurge(Date dernierStatutDateDebut, List<String> dernierStatutList,
-            List<String> canaux);
-
-    /**
-     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
-     *
-     * @param dernierStatutDateDebut
-     *         : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
-     * @param dernierStatutDateFin
-     *         : la date limite (purger les demandes dont date dernier statut < dernierStatutDateDebut). en general
-     *         DateDebut + 1 jour
-     * @param dernierStatutList
-     * @return
-     */
-    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(Date dernierStatutDateDebut, Date dernierStatutDateFin,
-            List<String> dernierStatutList);
 
     void setContenuTrad(JsonNode contenuTrad, JsonNode config);
 

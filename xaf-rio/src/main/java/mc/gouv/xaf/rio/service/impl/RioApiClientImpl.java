@@ -1,13 +1,16 @@
 package mc.gouv.xaf.rio.service.impl;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import jakarta.annotation.PostConstruct;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.properties.ArchivageProperties;
 import mc.gouv.xaf.rio.dto.RioDocumentDTO;
 import mc.gouv.xaf.rio.dto.RioDocumentRequestDTO;
 import mc.gouv.xaf.rio.dto.RioFileDocumentDTO;
 import mc.gouv.xaf.rio.service.RioApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,11 +25,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import jakarta.annotation.PostConstruct;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
 @Service
+@RequiredArgsConstructor
 public class RioApiClientImpl implements RioApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RioApiClientImpl.class);
@@ -42,17 +42,14 @@ public class RioApiClientImpl implements RioApiClient {
     public static final String RIO_CREATE_FILE_DOCUMENT = "/documents/%s/%s/%s/notices/%s/newfile";
     public static final String RIO_GET_FILE_DOCUMENT = "/documents/%s/%s/notices/%s/files/%s";
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private RestTemplateBuilder restTemplateBuilder;
+    private final ArchivageProperties archivageProperties;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     @PostConstruct
     @SuppressWarnings("squid:S2696")
     private void setUp() {
-        url = gouvPropertiesResolver.getApiRioUrl();
-        jwt = gouvPropertiesResolver.getApiRioJwt();
+        url = archivageProperties.getRioUrl();
+        jwt = archivageProperties.getRioJwt();
     }
 
     @Override

@@ -33,7 +33,7 @@ public class DemandeConfigBO {
     @Size(max = 128)
     private String version;
 
-    @OneToMany(mappedBy = "buildId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "buildId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<MarqueurBO> marqueurs;
 
 }

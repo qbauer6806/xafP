@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.paiement.service.scheduling;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.service.purge.PurgePaiementDataService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
@@ -10,12 +13,8 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Job permettant d'appeler le service de purge des demandes.
@@ -29,18 +28,17 @@ import java.util.List;
 @DisallowConcurrentExecution
 @TypeDePurge("paiement")
 @Component
+@RequiredArgsConstructor
 public class PurgeDemandesPaiementsSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesPaiementsSchedulingJob.class);
 
-    @Autowired
-    private PurgeDemandesService purgeDemandesService;
+    private final PurgeDemandesService purgeDemandesService;
 
-    @Autowired
-    private PurgePaiementDataService purgePaiementDataService;
+    private final PurgePaiementDataService purgePaiementDataService;
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
+
 
     private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
     private static final int DELAI_PAR_DEFAUT_PURGE = 1095; // 3 ans de purge par défaut

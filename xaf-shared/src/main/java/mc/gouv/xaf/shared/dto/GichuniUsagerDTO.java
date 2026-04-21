@@ -2,7 +2,7 @@ package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
-
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
@@ -22,10 +22,21 @@ public class GichuniUsagerDTO {
     private String login;
     private Short etat;
     private String email;
+    private boolean emailVerifie;
     private Short titre;
     private String prenom;
+    private String secondPrenom;
+    private String troisiemePrenom;
+    private String nationalite;
     private String nom;
+    private String nomNaissance;
+    private String villeNaissance;
+    private Instant dateNaissance;
+    private TelephoneDTO telephonePortable;
+    private boolean telephonePortableVerifie;
+    private TelephoneDTO telephoneFixe;
     private String raisonSociale;
+    private String statutFonctionPublique;
     private String adresse1;
     private String adresse2;
     private String complementAdresse;

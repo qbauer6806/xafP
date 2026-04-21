@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.data.transformer.StatistiqueTransformer;
@@ -9,26 +11,21 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Service permettant la manipulation des statistiques.
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class StatistiquesServiceImpl implements StatistiquesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StatistiquesServiceImpl.class);
 
-    @Autowired
-    private StatistiquesRepository statRepository;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final StatistiquesRepository statRepository;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     /**
      * {@inheritDoc}
@@ -40,7 +37,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(stat.getDemandeId());
 
         if (!statistiquesBO.isEmpty()) {
-            StatistiqueBO derniereStat = statistiquesBO.get(statistiquesBO.size() - 1);
+            StatistiqueBO derniereStat = statistiquesBO.getLast();
 
             // On ne crée pas de nouvelle information si le dernier statut est le même l'actuel
             if (derniereStat.getStatutPublic().equals(stat.getStatutPublic())) {
@@ -66,21 +63,6 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         statistiqueDTO.setIdentifiantDemande(demandeDTO.getIdentifiant());
         statistiqueDTO.setTypeConnexionUsager(demandeDTO.getTypeConnexionUsager());
         return saveStatistique(statistiqueDTO);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteStatistique(Integer statId) {
-        statRepository.deleteById(statId);
-    }
-
-    @Override
-    public void deleteStatistiques(Integer pkDemande) {
-        LOGGER.info("Suppression des statistiques de la demande {}", pkDemande);
-        List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeId(pkDemande);
-        statRepository.deleteAll(statistiquesBO);
     }
 
 }

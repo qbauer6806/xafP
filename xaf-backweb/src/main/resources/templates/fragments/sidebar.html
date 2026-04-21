@@ -103,19 +103,35 @@
         </a>
       </li>
 
-      <!-- TODO lot 2 : Ajouter un lien pour les demandes supprimées prochainement -->
-      <li th:class="${pagePurgeActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_PARAMETRAGE')">
-        <a id="menuPurge" th:href="@{/gestion/purge}">
+      <li th:class="${pagePurgeActive} ? 'active' : ''"
+          sec:authorize="hasAnyRole('ROLE_PARAMETRAGE', 'ROLE_CONFIGURATION')">
+        <a id="menuPurge">
           <div class="contentTooltip">
-							<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title=""
-                    data-original-title="Suppressions"></span>
+							<span class="greyTooltip" data-toggle="tooltip"
+                    data-placement="right" title="" data-original-title="Suppressions"></span>
           </div>
           <div class="iconContent">
             <i class="icon icon-icon_historique"></i>
           </div>
-          <div class="menuContent">Historique des suppressions</div>
+          <div class="menuContent">Suppressions</div>
+          <span class="icon-action_suivant"></span>
         </a>
+        <ul class="" style="left: 40px; display: none;">
+          <li sec:authorize="hasRole('ROLE_PARAMETRAGE') || hasRole('ROLE_CONFIGURATION')">
+            <a id="menuHistoriqueSuppressions" th:href="@{/gestion/purge}">
+              <div class="whiteBullet"></div>
+              Historique des suppressions
+            </a>
+          </li>
+          <li sec:authorize="hasRole('ROLE_CONFIGURATION')">
+            <a id="menuPurgeSelective" th:href="@{/gestion/purgeselective}">
+              <div class="whiteBullet"></div>
+              Purge sélective
+            </a>
+          </li>
+        </ul>
       </li>
+
 
       <!-- Ajout d'un fragment permettant de rajouter des elements custom dans la sidebar -->
       <div th:replace="~{fragments/customsidebarelements :: customsidebarelements} ?: _"></div>

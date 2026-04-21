@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Sens : TS -> GU (topic ts-to-gichuni)
@@ -10,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  *
  * @author qdeme
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DesinscriptionUsagerTSMessage extends GUKafkaMessage {
 
@@ -25,22 +29,6 @@ public class DesinscriptionUsagerTSMessage extends GUKafkaMessage {
         this();
         this.demarcheId = demarcheId;
         this.usagerId = usagerId;
-    }
-
-    public String getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(String usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
     }
 
 }

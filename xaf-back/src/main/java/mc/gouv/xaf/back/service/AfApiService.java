@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -30,11 +31,12 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.RectificationService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
-import mc.gouv.xaf.back.service.demande.UpdateDemandeExtender;
-import mc.gouv.xaf.back.service.demande.UpdateDemandeFinalizer;
+import mc.gouv.xaf.back.service.demande.ReponseDemandeInfoComplFinalizer;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -47,6 +49,7 @@ import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -71,6 +74,9 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.XafCodeMotifEnum;
+import mc.gouv.xaf.shared.enums.XafDemandeStatutEnum;
+import mc.gouv.xaf.shared.enums.XafTemplateEnum;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
@@ -78,7 +84,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -93,96 +98,44 @@ import org.xml.sax.SAXException;
  */
 @ConditionalOnExpression(value = "'${mc.gouv.appli.frontserver.2tiers.activation}' != 'true'")
 @Component
+@RequiredArgsConstructor
 public class AfApiService implements AfApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
-    protected static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
+    public static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
 
-    @Autowired
-    protected GouvBPM gouvBPM;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    protected UsagersCache usagersCache;
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    protected DemandesHistoriqueService demandesHistoriqueService;
-
-    @Autowired
-    protected DemandesService demandesService;
-
-    @Autowired
-    protected DemandesConfigService demandesConfigService;
-
-    @Autowired
-    private DemandesComplementsService demandesComplementsService;
-
-    @Autowired
-    private AccessService accessService;
-
-    @Autowired
-    private UsagersCourrierService usagersCourrierService;
-
-    @Autowired
-    private MotifsService motifsService;
-
-    @Autowired
-    private PeriodesOuvertureService periodesOuvertureService;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    protected GUKafkaProducer guKafkaProducer;
-
-    @Autowired
-    protected GUKafkaUtils guKafkaUtils;
-
-    @Autowired
-    protected BrouillonsService brouillonsService;
-
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    protected DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    protected DemandesUsagersTransformer demandesUsagersTransformer;
-
-    @Autowired
-    private DemandesDataService demandesDataService;
-
-    @Autowired
-    private PaysCache paysCache;
-
-    @Autowired
-    private Optional<CreateDemandeFinalizer> createDemandeFinalizers;
-
-    @Autowired
-    private Optional<UpdateDemandeFinalizer> updateDemandeFinalizers;
-
-    @Autowired
-    private Optional<CreateDemandeExtender> createDemandeExtenders;
-
-    @Autowired
-    private Optional<UpdateDemandeExtender> updateDemandeExtenders;
-
-    @Autowired(required = false)
-    private CustomRequestService customRequestService;
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
+    protected final GouvBPM gouvBPM;
+    protected final AfBackUtils afBackUtils;
+    protected final UsagersCache usagersCache;
+    private final MailService mailService;
+    protected final DemandesHistoriqueService demandesHistoriqueService;
+    protected final DemandesService demandesService;
+    protected final DemandesConfigService demandesConfigService;
+    protected final DemandesComplementsService demandesComplementsService;
+    private final AccessService accessService;
+    protected final UsagersCourrierService usagersCourrierService;
+    protected final MotifsService motifsService;
+    protected final PeriodesOuvertureService periodesOuvertureService;
+    protected final PropertiesService propertiesService;
+    protected final GUKafkaProducer guKafkaProducer;
+    protected final GUKafkaUtils guKafkaUtils;
+    protected final BrouillonsService brouillonsService;
+    private final FileService fileService;
+    protected final DemarchesDataProvider demarchesDataProvider;
+    private final MessageSource messageSource;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    protected final DemandesUsagersTransformer demandesUsagersTransformer;
+    protected final DemandesDataService demandesDataService;
+    protected final PaysCache paysCache;
+    private final Optional<CreateDemandeFinalizer> createDemandeFinalizers;
+    private final Optional<CreateDemandeExtender> createDemandeExtenders;
+    private final Optional<CustomRequestService> customRequestService;
+    private final Optional<DonneesExternesService> donneesExternesService;
+    private final DemandesStatutsService demandesStatutsService;
+    private final PurgeDemandesService purgeDemandesService;
+    private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
+    private final Optional<ReponseDemandeInfoComplFinalizer> demandeComplementFinalizer;
+    private final RectificationService rectificationService;
 
     @Override
     @Transactional
@@ -200,10 +153,10 @@ public class AfApiService implements AfApi {
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
-                demarchesDataProvider.getStatutAnnulee());
+                XafDemandeStatutEnum.ANNULEE.name());
 
-        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeUsager(
-                demarchesDataProvider.getStatutAnnulee(), usagerId);
+        DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeUsager(XafDemandeStatutEnum.ANNULEE.name(),
+                usagerId);
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
     }
@@ -248,7 +201,7 @@ public class AfApiService implements AfApi {
             if (demandeDto.getPkDemandes() != null) {
                 LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
                         demandeDto.getIdentifiant());
-                demandesService.deleteDemande(demandeDto.getPkDemandes());
+                purgeDemandesService.deleteDemande(demandeDto.getPkDemandes());
             }
             throw new DemarcheException("Erreur lors de la création d'une demande", e);
         }
@@ -299,7 +252,8 @@ public class AfApiService implements AfApi {
                 StringUtils.lowerCase(demandeDto.getLangue()));
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), demandeDto.getUsagerId());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_IDENTIFIANT.name(), demandeDto.getIdentifiant());
-
+        createDemandeBpmnVariablesProvider.ifPresent(
+                provider -> variables.putAll(provider.getVariablesBpmn(demandeDto)));
         gouvBPM.startProcessInstance("process", user, demandeDto.getPkDemandes(), variables);
     }
 
@@ -320,55 +274,7 @@ public class AfApiService implements AfApi {
     @Override
     @Transactional
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
-
-        DemandeDTO demandeEnBase = demandesService.getDemande(demandeId);
-        if (!demarchesDataProvider.isEligibleRectification(demandeEnBase)) {
-            throw new BadRequestWebException("La demande n'est pas éligible à une rectification.");
-        }
-        DemandeDTO demandeDtoUpdated;
-        try {
-            final DemandeDTO demandeDto = buildDemandeFromInputAfterUpdate(demande, usagerId, demandeId);
-
-            updateDemandeExtenders.ifPresent(extender -> extender.applyUpdateTreatment(demande, demandeDto));
-
-            LOGGER.debug("DTO reconstitué : {}", demandeDto);
-
-            // Partial update sur contenu et fichiers uniquement
-            demandeDtoUpdated = demandesService.updateDemande(demandeDto, true);
-
-            LOGGER.debug("DTO après sauvegarde en base : {}", demandeDtoUpdated);
-
-            gouvBPM.reponseRectification(demandeId, usagerId);
-
-            // Ajout d'une ligne à l'historique
-            LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
-
-            // Récupération du statut courant (qui vient d'être mis par le BPM) afin de déterminer le statut
-            // cible à donner à l'historique
-            demandeEnBase = demandesService.getDemande(demandeId);
-            DemandeStatutDTO statut = demandeEnBase.getDernierStatut();
-
-            DemandeHistoriqueDTO histo = demandesHistoriqueService.updateDemande(usagerId, demande.getCreeParAgentId(),
-                    statut.getName());
-            demandesHistoriqueService.saveHisto(demandeDtoUpdated.getPkDemandes(), histo);
-
-            demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
-
-            updateDemandeFinalizers.ifPresent(finalizer -> finalizer.finalizeDemandeUpdate(demandeDtoUpdated));
-        } catch (Exception e) {
-            // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
-            throw new DemarcheException("Erreur lors de la mise à jour d'une demande", e);
-        }
-        return demandeDtoUpdated;
-    }
-
-    private DemandeDTO buildDemandeFromInputAfterUpdate(DemandeInputDTO demande, Integer usagerId, Integer demandeId) {
-        DemandeDTO demandeDto = new DemandeDTO();
-        demandeDto.setUsagerId(usagerId);
-        demandeDto.setPkDemandes(demandeId);
-        demandeDto.setContenu(demande.getContenu());
-        demandeDto.setFichiers(demande.getFichiers());
-        return demandeDto;
+        return rectificationService.updateDemande(demandeId, demande, usagerId, null);
     }
 
     /**
@@ -388,39 +294,31 @@ public class AfApiService implements AfApi {
     }
 
     @Override
-    public ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> getCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.getCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.getCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.getCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> postCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.postCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.postCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.postCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> putCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.putCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.putCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.putCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
-    public ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
+    public ResponseEntity<?> deleteCustomRequest(HttpServletRequest request, Integer usagerId) {
         LOGGER.info("AfApiService2Tiers.deleteCustom()");
-        if (customRequestService == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        }
-        return customRequestService.deleteCustomRequest(request, usagerId);
+        return customRequestService.map(service -> service.deleteCustomRequest(request, usagerId))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
     }
 
     @Override
@@ -479,6 +377,10 @@ public class AfApiService implements AfApi {
         demandesHistoriqueService.saveHisto(demandeId, histo);
 
         demandesDataService.deleteDemandeData(demandeId, RelancesUtils.DATES_RELANCES_KEY);
+
+        demandeComplementFinalizer.ifPresent(
+                demandeComplementFinalizer -> demandeComplementFinalizer.finaliserReponseDemandeInfoCompl(demande,
+                        demandeComplementsDto));
 
         return demandeComplementsDto;
     }
@@ -576,7 +478,7 @@ public class AfApiService implements AfApi {
         List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerId);
 
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
-        String statutAnnulee = demarchesDataProvider.getStatutAnnulee();
+        String statutAnnulee = XafDemandeStatutEnum.ANNULEE.name();
         String[] tab = this.getDemandesImpactees(demandes, demandesAPasserEnAnnuleeDTO, statutAnnulee);
         String demandesImpacteesPhrase = tab[0];
         String demandesImpacteesPk = tab[1];
@@ -618,7 +520,7 @@ public class AfApiService implements AfApi {
         if (!fromGU) {
             LOGGER.info("Envoi du message au Guichet Unique via Kafka (désinscription usager TS)...");
             guKafkaProducer.sendDesinscriptionUsagerTSMessage(usagerId);
-            if(demarchesDataProvider.purgerDonneesMonetiques()) {
+            if (demarchesDataProvider.purgerDonneesMonetiques()) {
                 LOGGER.info("Envoi du message au Guichet Unique via Kafka (suppression paiement TS)...");
                 guKafkaProducer.sendSuppressionPaiementMessage(String.valueOf(usagerId), null);
             }
@@ -687,7 +589,7 @@ public class AfApiService implements AfApi {
                 variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), null);
                 gouvBPM.setProcessBusinessVariables(demande.getPkDemandes(), variables);
             }
-            String codeMotif = demarchesDataProvider.getCodeMotifAnnulationDesinscription();
+            String codeMotif = XafCodeMotifEnum.ANNULATION_DESINSCRIPTION.name();
             if ("v5".equals(gouvBPM.getEngineVersion(demande.getPkDemandes()))) {
                 this.annulerAncienneDemande(demande.getPkDemandes(), statutAnnuleeName, usagerId, codeMotif);
             } else {
@@ -719,10 +621,8 @@ public class AfApiService implements AfApi {
     private void envoiEmailUsager(String demandesImpacteesPk, GichuniUsagerDTO usager, String langue,
             Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourUsager() + "_CORPS");
-        emailInfo.setSubjectTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourUsager() + "_OBJET");
+        emailInfo.setBodyTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name() + "_CORPS");
+        emailInfo.setSubjectTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name() + "_OBJET");
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         String prenom = StringUtils.EMPTY;
@@ -756,10 +656,8 @@ public class AfApiService implements AfApi {
     private void envoiEmailAgents(String demandesImpacteesPk, String demandesImpacteesPhrase, GichuniUsagerDTO usager,
             Map<String, Object> model, DemarcheDTO demarcheDTO) {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourAgents() + "_CORPS");
-        emailInfo.setSubjectTemplateCode(
-                demarchesDataProvider.getMailTemplateCodeDesinscriptionUsagerPourAgents() + "_OBJET");
+        emailInfo.setBodyTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER.name() + "_CORPS");
+        emailInfo.setSubjectTemplateCode(XafTemplateEnum.MAIL_DESINSCRIPTION_USAGER.name() + "_OBJET");
         emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 
@@ -907,8 +805,8 @@ public class AfApiService implements AfApi {
     }
 
     @Override
-    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws Exception {
-        return null;
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) {
+        return donneesExternesService.map(service -> service.getDonneesExternes(usagerId, params)).orElse(null);
     }
 
     @Override

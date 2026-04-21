@@ -1,22 +1,21 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.GichkeyService;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -25,13 +24,14 @@ import jakarta.servlet.http.HttpSession;
  */
 @Controller
 @RequestMapping("/sessions")
-public class SessionsController extends AbstractXafController {
+@RequiredArgsConstructor
+public class SessionsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionsController.class);
     private static final String LOGIN = "login";
 
-    @Autowired
-    private GichkeyService gichkeyService;
+    private final GichkeyService gichkeyService;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity<UsagerInfosDTO> doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -72,7 +72,7 @@ public class SessionsController extends AbstractXafController {
             return ResponseEntity.ok(usagerInfosDTO);
         } catch (Exception e) {
             LOGGER.error("SessionsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            return ResponseEntity.status(getCodeErreur(e)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(e)).build();
         }
     }
 
@@ -117,7 +117,7 @@ public class SessionsController extends AbstractXafController {
 
         } catch (Exception e) {
             LOGGER.error("SessionsServlet - Une erreur est survenue lors de l'appel à la méthode PUT", e);
-            return ResponseEntity.status(getCodeErreur(e)).build();
+            return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(e)).build();
         }
     }
 }

@@ -2,13 +2,13 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.properties.KafkaProperties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,42 +31,37 @@ import org.springframework.util.backoff.FixedBackOff;
 @EnableKafka
 @Configuration
 @ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
+@RequiredArgsConstructor
 public class GUKafkaConsumerConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private KafkaProperties kafkaProperties;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final KafkaProperties kafkaProperties;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         LOGGER.info("Création du GUKafkaConsumer...");
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
+        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServersConfig());
 
         // GroupID : le code appli (DemarcheID)
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, gouvPropertiesResolver.getDemarcheId());
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-        configProps.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG,
-                gouvPropertiesResolver.getGUKafkaConsumerFetchMaxBytes());
-        configProps.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG,
-                gouvPropertiesResolver.getGUKafkaConsumerMaxPartitionFetchBytes());
+        configProps.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, kafkaProperties.getFetchMaxBytes());
+        configProps.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, kafkaProperties.getMaxPartitionFetchBytes());
 
-        boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
+        boolean sslEnabled = kafkaProperties.isKafkaSSLEnabled();
         if (sslEnabled) {
             configProps.put("security.protocol", "SSL");
 
-            configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
-            configProps.put("ssl.truststore.password", gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-            configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-            configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-            configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
+            configProps.put("ssl.truststore.location", kafkaProperties.getTruststoreLocation());
+            configProps.put("ssl.truststore.password", kafkaProperties.getTruststorePassword());
+            configProps.put("ssl.key.password", kafkaProperties.getKeystorePassword());
+            configProps.put("ssl.keystore.password", kafkaProperties.getKeystorePassword());
+            configProps.put("ssl.keystore.location", kafkaProperties.getKeystoreLocation());
             configProps.put("ssl.endpoint.identification.algorithm", "");
         }
 

@@ -1,23 +1,22 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.transformer.PaiementHistoriqueTransformer;
 import mc.gouv.xaf.back.paiement.dto.PaiementHistoriqueDTO;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public abstract class DefaultPaiementHistoriqueServiceImpl implements PaiementHistoriqueService {
 
-    @Autowired
-    private PaiementHistoriqueRepository paiementHistoriqueRepository;
+    private final PaiementHistoriqueRepository paiementHistoriqueRepository;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
+    private final AfBackUtils afBackUtils;
 
     @Override
     public List<PaiementHistoriqueDTO> findAllByDemandeId(Integer demandeId) {

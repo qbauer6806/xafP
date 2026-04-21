@@ -1,5 +1,13 @@
 package mc.gouv.xaf.back.paiement.service.purge;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
@@ -11,57 +19,37 @@ import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
-import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgePaiementDataServiceImpl.class);
 
-    @Autowired
-    private CommandeDemandeRepository commandeDemandeRepository;
+    private final CommandeDemandeRepository commandeDemandeRepository;
 
-    @Autowired
-    private CommandeRepository commandeRepository;
+    private final CommandeRepository commandeRepository;
 
-    @Autowired
-    private CommandeOperationRepository commandeOperationRepository;
+    private final CommandeOperationRepository commandeOperationRepository;
 
-    @Autowired
-    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+    private final CommandeDemandeArticleRepository commandeDemandeArticleRepository;
 
-    @Autowired
-    private PaiementHistoriqueRepository paiementHistoriqueRepository;
+    private final PaiementHistoriqueRepository paiementHistoriqueRepository;
 
-    @Autowired
-    private InformationFacturationRepository informationFacturationRepository;
+    private final InformationFacturationRepository informationFacturationRepository;
 
-    @Autowired
-    private MoyenPaiementRepository moyenPaiementRepository;
+    private final MoyenPaiementRepository moyenPaiementRepository;
 
-    @Autowired
-    private DemandesRepository demandesRepository;
+    private final DemandesRepository demandesRepository;
 
-    @Autowired
-    private GUKafkaProducer guKafkaProducer;
+    private final GUKafkaProducer guKafkaProducer;
 
     @Override
     @Transactional

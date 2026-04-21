@@ -1,11 +1,10 @@
 package mc.gouv.xaf.back.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Classe permettant l'exécution du job de traitement de l'Outbox Kafka depuis le BO
@@ -14,10 +13,10 @@ import mc.gouv.xaf.back.service.data.KafkaOutboxService;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class KafkaOutboxTraitementJobImpl implements KafkaOutboxTraitementJob {
 
-    @Autowired
-    private KafkaOutboxService kafkaOutboxService;
+    private final KafkaOutboxService kafkaOutboxService;
 
     @Override
     public String execute() {

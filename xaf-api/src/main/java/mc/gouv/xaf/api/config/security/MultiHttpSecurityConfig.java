@@ -39,7 +39,6 @@ public class MultiHttpSecurityConfig {
         return new JwtAuthenticationProvider(applicationName, secretValue);
     }
 
-
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {

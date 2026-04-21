@@ -6,12 +6,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import mc.gouv.xaf.back.service.histo.HistoValidationEnum;
+import mc.gouv.xaf.back.service.histo.HistoValidationNiveauEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.SearchFilterDefinition;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
+import mc.gouv.xaf.shared.enums.XafCodeMotifEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -43,8 +46,6 @@ public interface DemarchesDataProvider {
     default Map<String, String> getPrivateStatusMap() {
         return new LinkedHashMap<>();
     }
-
-    String getVersion();
 
     boolean getDemarcheCanGenerateCourriers();
 
@@ -78,10 +79,6 @@ public interface DemarchesDataProvider {
         return null;
     }
 
-    default boolean isEligibleRectification(DemandeDTO demande) {
-        return false;
-    }
-
     default String getExportLibelle() {
         return "Export Anonymisé";
     }
@@ -99,20 +96,9 @@ public interface DemarchesDataProvider {
         return Arrays.asList(TitreUsagerEnum.values());
     }
 
-    /**
-     * @return TSCODEDemandeStatutEnum.ANNULEE.name()
-     */
-    String getStatutAnnulee();
-
-    /**
-     * @return TSCODECodeMotifEnum.ANNULATION_PAR_USAGER.name()
-     */
-    String getCodeMotifAnnulationParUsager();
-
-    /**
-     * @return TSCODECodeMotifEnum.ANNULATION_DESINSCRIPTION.name()
-     */
-    String getCodeMotifAnnulationDesinscription();
+    default String getCodeMotifAnnulationParUsager() {
+        return XafCodeMotifEnum.ANNULATION_PAR_USAGER.name();
+    }
 
     /**
      * @return return TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name()
@@ -129,7 +115,8 @@ public interface DemarchesDataProvider {
     /**
      * Permets de définir la correspondance de l'action de l'historique pour chaque statut
      */
-    String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut);
+    String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut,
+            HistoValidationNiveauEnum niveauEnum);
 
     default String getHistoRole() {
         return "Utilisateur";
@@ -142,16 +129,6 @@ public interface DemarchesDataProvider {
     default List<String> getStatutsDemandeNonAnnuleeDesinscriptionUsager(){
         return getStatutsAPurger();
     }
-
-    /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT.name();
-     */
-    String getMailTemplateCodeDesinscriptionUsagerPourAgents();
-
-    /**
-     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER.name();
-     */
-    String getMailTemplateCodeDesinscriptionUsagerPourUsager();
 
     default String[] getRolesDesinscriptionUsagerPourAgents() {
         return new String[] { "TRAITEMENT" };
@@ -267,6 +244,10 @@ public interface DemarchesDataProvider {
 
     default DemandeRechercheDTO getDemandeRecherche() {
         return null;
+    }
+
+    default List<SearchFilterDefinition> getFilterDataRecherche() {
+        return List.of();
     }
 
 }

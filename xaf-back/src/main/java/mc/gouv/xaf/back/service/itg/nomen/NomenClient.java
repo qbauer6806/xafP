@@ -6,7 +6,9 @@ import jakarta.ws.rs.core.Response;
 import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.client.ApiClient;
 import mc.gouv.xaf.apiclient.exception.ExceptionManager;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
+import org.springframework.stereotype.Component;
 
 /**
  * Client permettant d'appeler l'API NOMEN
@@ -14,22 +16,15 @@ import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
  * @author qdeme
  * 
  */
+@Component
 public class NomenClient extends ApiClient {
 
     public static final String NOMEN_PATH = "nomenclatures";
 
     public static final String VALEUR_PATH = "/valeurs";
-
-    /**
-     * Crée une instance du client avec sécurisation JWT
-     *
-     * @param serviceUrl
-     *            URL du WS à appeler
-     * @param jwtToken
-     *            JWT à utiliser pour l'authentification
-     */
-    public NomenClient(String serviceUrl, String jwtToken) {
-        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken));
+    
+    public NomenClient(GouvPropertiesResolver resolver) {
+        super(resolver.getNomenUrl(), new JwtAuthorizationHeaderProvider(resolver.getNomenJwt()));
     }
 
     public NomenNomenclatureDTO getNomenclature(String identifiant) {

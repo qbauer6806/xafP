@@ -1,11 +1,19 @@
 package mc.gouv.xaf.front.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.front.dto.CustomRequestRechercheDTO;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.enums.HttpMethod;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.fluent.Request;
@@ -13,7 +21,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,16 +31,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.http.HttpServletRequest;
-import mc.gouv.xaf.front.dto.CustomRequestRechercheDTO;
-import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.enums.HttpMethod;
-import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import mc.gouv.xaf.shared.SharedMessages;
-
 /**
  * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE. Cette servlet
  * permet d'appeler des fonctions API custom/spécifiques d'une démarche
@@ -42,15 +39,13 @@ import mc.gouv.xaf.shared.SharedMessages;
  */
 @RestController
 @RequestMapping("/customRequest/**")
-public class CustomRequestController extends AbstractXafController {
+@RequiredArgsConstructor
+public class CustomRequestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomRequestController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver propertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver propertiesResolver;
 
     // List des headers qui sont interdits à copier, voir https://hg.openjdk.org/jdk8u/jdk8u-dev/jdk/file/31bc1a681b51/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#l186
     private final String[] restrictedHeaders = { "Access-Control-Request-Headers", "Access-Control-Request-Method",
@@ -84,7 +79,7 @@ public class CustomRequestController extends AbstractXafController {
 
         LOGGER.info("Appel à {}", serviceUrl);
 
-        Request serviceRequest = null;
+        Request serviceRequest;
         try {
             serviceRequest = this.getRequest(request, httpMethod, serviceUrl);
         } catch (IOException e) {

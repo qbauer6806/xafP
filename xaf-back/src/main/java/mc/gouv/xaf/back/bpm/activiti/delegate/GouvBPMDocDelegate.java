@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -13,25 +14,20 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * Classe service appelée par le process Activiti pour générer un doc.
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMDocDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDocDelegate.class);
 
-    @Autowired
-    private PdfGenerationService pdfGenerationService;
-
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
+    private final PdfGenerationService pdfGenerationService;
+    private final DemandesService demandesService;
+    private final AfPdfTemplateAndModelProvider afPdfTemplateAndModelProvider;
 
     private Expression meta;
 
@@ -70,7 +66,8 @@ public class GouvBPMDocDelegate implements JavaDelegate {
         }
 
         try {
-            pdfGenerationService.generateAndStoreDoc(demandeDto, PdfTypeEnum.FICHIER, metaStr, pdfTemplateAndModelDTO);
+            pdfGenerationService.generateAndStoreDoc(demandeDto, PdfTypeEnum.FICHIER, metaStr, pdfTemplateAndModelDTO,
+                    false);
         } catch (IOException e) {
             throw new DemarcheException("Erreur la génération du doc", e);
         } finally {

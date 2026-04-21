@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/logerror")
-public class ErrorController extends AbstractXafController {
+@RequiredArgsConstructor
+public class ErrorController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ErrorController.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @PostMapping
     public ResponseEntity doPost(HttpServletRequest request) {

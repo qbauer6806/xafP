@@ -10,9 +10,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.quartz.Job;
@@ -20,18 +20,19 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Job permettant l'expiration des consentements porte-documents périmés côté TS
  */
+@Component
+@RequiredArgsConstructor
 public class ExpirationDocHolderConsentSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExpirationDocHolderConsentSchedulingJob.class);
-    @Autowired
-    private AccessRepository accessRepository;
-    @Autowired
-    private PropertiesService propertiesService;
+
+    private final AccessRepository accessRepository;
+    private final PropertiesService propertiesService;
 
     private static final String DOCHOLDER_CONSENT_NODE = "docholderConsent";
     private static final String CONSENTING_NODE = "consenting";

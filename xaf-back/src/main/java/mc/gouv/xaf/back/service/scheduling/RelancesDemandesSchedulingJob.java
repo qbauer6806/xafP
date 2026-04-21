@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.scheduling;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.relance.RelancesDemandesService;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
@@ -10,13 +11,13 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Job permettant d'appeler le service de relance des demandes.
  * <br>
  * Il est nécessaire de péciser la liste des statuts des demandes à purger.
  */
+@RequiredArgsConstructor
 public class RelancesDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RelancesDemandesSchedulingJob.class);
@@ -26,11 +27,8 @@ public class RelancesDemandesSchedulingJob implements Job {
 
     private static final String XAF_RAPPEL_ACTIVATION = "XAF_RAPPEL_ACTIVATION";
 
-    @Autowired
-    private RelancesDemandesService relanceDemandesService;
-
-    @Autowired
-    private PropertiesService propertiesService;
+    private final RelancesDemandesService relanceDemandesService;
+    private final PropertiesService propertiesService;
 
     @Override
     @SuppressWarnings("unchecked")

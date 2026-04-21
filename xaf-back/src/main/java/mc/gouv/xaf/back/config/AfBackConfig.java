@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.config;
 
 import jakarta.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheDataProvider;
@@ -12,7 +13,6 @@ import mc.gouv.xaf.back.service.itg.nomen.impl.PaysCacheImpl;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheDataProvider;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -27,13 +27,13 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
  */
 @Configuration
 @EnableCaching
+@RequiredArgsConstructor
 public class AfBackConfig {
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Value("${logging.file.path}")
     private String loggingFile;
@@ -41,7 +41,7 @@ public class AfBackConfig {
     @PostConstruct
     public void loadProperties() {
         System.setProperty("MC_LOGDIR", loggingFile);
-        System.setProperty("MC_APPNAME", displayName);
+        System.setProperty("MC_APPNAME", applicationName.toUpperCase());
     }
 
     @Bean(name = "paysCacheImpl")

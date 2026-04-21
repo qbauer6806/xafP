@@ -223,26 +223,68 @@
       </div>
     </div>
   </div>
-  <div class="modal fade" id="confirm-suppression-piece" tabindex="-1"
-       aria-labelledby="suppressionLabel" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog" style="width:auto">
+  <!-- Modal suppression demande initiale et info comp -->
+  <div id="confirm-suppression-piece-init-info-comp" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header text-center">
-          <h2 class="modal-title" id="suppressionLabel">Confirmation de suppression</h2>
-        </div>
-        <div class="modal-body text-center">
-          <p>Êtes-vous sûr de vouloir supprimer cette pièce justificative ?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-action-second ripple-effect" data-dismiss="modal">
-            Non
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
           </button>
-          <input data-action="confirmerSuppression" type="submit" value="Oui"
-                 class="btn btn-action ripple-effect"/>
+          <h4 class="modal-title">Confirmation de suppression</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row no-margin-row">
+            <div>
+              <span>Êtes-vous sûr de vouloir supprimer cette pièce justificative ?</span>
+              <br/><br/>
+              <span class="label statusbox" style="background-color: #EC661C">Attention</span><br/>
+              <div style="color: #EC661C">
+                <span>En cas de suppression, </span>
+                <span><b><u>ce fichier ne sera plus visible ni accessible</u></b></span>
+                <span> au sein de l'outil de suivi et du formulaire usager.</span>
+              </div>
+            </div>
+            <div class="margin-top text-right">
+              <button class="btn btn-action-second ripple-effect" data-dismiss="modal"
+                      type="button">
+                annuler
+              </button>
+              <input id="btn-confirmer-suppression" type="submit" value="Supprimer"
+                     class="btn btn-action ripple-effect"/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <!-- Modal suppression fichier uploadés par agent -->
+  <div id="confirm-suppression-piece" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Confirmation de suppression</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row no-margin-row">
+            <div>
+              <span>Êtes-vous sûr de vouloir supprimer cette pièce justificative ?</span>
+            </div>
+            <div class="margin-top text-right">
+              <button class="btn btn-action-second ripple-effect"
+                      data-dismiss="modal" type="button">
+                annuler
+              </button>
+              <input id="btn-confirmer-suppression" type="submit" value="Supprimer"
+                     class="btn btn-action ripple-effect"/>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
 </div>
 

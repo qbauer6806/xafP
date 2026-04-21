@@ -1,14 +1,13 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.AfApi;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaEventListener;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerGUMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Listener d'événements Kafka en provenance du Guichet Unique.
@@ -16,12 +15,12 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GUKafkaEventListenerImpl implements GUKafkaEventListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaEventListenerImpl.class);
 
-    @Autowired
-    private AfApi afApiService;
+    private final AfApi afApiService;
 
     @Override
     public void desinscriptionUsagerGuichetUnique(GUKafkaMessage message) {

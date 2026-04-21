@@ -39,6 +39,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Classe cliente permettant d'appeler le WS FILE
@@ -108,7 +109,8 @@ public class FileClient {
     }
 
     private URI createUrl(String virtualPath) {
-        return URI.create(serviceUrl + SLASH).resolve(virtualPath);
+        return UriComponentsBuilder.fromHttpUrl(serviceUrl).path(SLASH).path(virtualPath).build().toUri();
+
     }
 
     public void getFile(String account, String container, String filename, HttpServletResponse response)

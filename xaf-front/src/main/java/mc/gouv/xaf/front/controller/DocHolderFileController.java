@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.DocHolderFileDTO;
 import mc.gouv.xaf.front.dto.DocHolderFilePostDTO;
 import mc.gouv.xaf.front.dto.DocHolderFileUpdateDTO;
@@ -34,9 +35,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,7 +47,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/doc-holder/file")
 @MultipartConfig
-public class DocHolderFileController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DocHolderFileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileController.class);
     private static final String SERVICE_URL = "/file";
@@ -58,17 +58,10 @@ public class DocHolderFileController extends AbstractXafController {
     public static final String VERIFICATION = "Vérification des paramètres envoyés";
     public static final String FILENAME = "filename";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
-
-    @Autowired
-    private FileControllerUtils fileControllerUtils;
-
-    @Autowired
-    private DocHolderUtils docHolderUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver frontGouvPropertiesResolver;
+    private final FileControllerUtils fileControllerUtils;
+    private final DocHolderUtils docHolderUtils;
 
     /**
      * Méthode pour l'opération <b>getFile</b>
@@ -222,7 +215,7 @@ public class DocHolderFileController extends AbstractXafController {
         }
 
         LOGGER.info(VERIFICATION);
-        DocHolderFileDTO fileDTO = null;
+        DocHolderFileDTO fileDTO;
         try {
             fileDTO = mapper.readValue(req.getInputStream(), DocHolderFileDTO.class);
         } catch (IOException e) {

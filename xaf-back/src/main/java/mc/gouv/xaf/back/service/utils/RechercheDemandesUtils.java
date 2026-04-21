@@ -42,6 +42,7 @@ import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -500,10 +501,9 @@ public class RechercheDemandesUtils extends RechercheUtils {
             predicates.add(cb.lessThanOrEqualTo(root.get(DATE_CREATION), endOfDay));
         }
 
-        // Créer un prédicat pour statut
-        if (excelRechercheDTO.getStatut() != null) {
-            predicates.add(
-                    cb.equal(root.join(DERNIER_STATUT, JoinType.LEFT).get("name"), excelRechercheDTO.getStatut()));
+        // Créer un prédicat pour les statuts
+        if (CollectionUtils.isNotEmpty(excelRechercheDTO.getStatuts())) {
+            predicates.add(root.join(DERNIER_STATUT, JoinType.LEFT).get("name").in(excelRechercheDTO.getStatuts()));
         }
 
         // Créer un prédicat pour data

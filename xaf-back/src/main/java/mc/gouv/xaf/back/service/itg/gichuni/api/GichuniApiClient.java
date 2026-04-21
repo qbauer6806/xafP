@@ -1,14 +1,14 @@
 package mc.gouv.xaf.back.service.itg.gichuni.api;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.ReferencePostOutputDTO;
 import mc.gouv.xaf.shared.paiement.mongichet.PaymentMethodReferenceDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,11 @@ import org.springframework.web.client.RestTemplate;
  * @author qdeme
  */
 @Service
+@RequiredArgsConstructor
 public class GichuniApiClient {
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private RestTemplate restTemplate;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final RestTemplate restTemplate;
 
     public GichuniUsagerDTO getUsager(Integer id) {
         GichuniUsagerDTO[] usagers = restTemplate.getForObject(

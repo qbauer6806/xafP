@@ -4,6 +4,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Sens : TS -> GU (topic ts-to-gichuni)
@@ -13,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  *
  * @author qdeme
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SuppressionDemandeMessage extends GUKafkaMessage {
 
@@ -42,54 +46,6 @@ public class SuppressionDemandeMessage extends GUKafkaMessage {
         this.demandeId = demandeId;
         this.identifiant = identifiant;
         this.dateSuppression = dateSuppression;
-        this.recapDemandes = recapDemandes;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(String usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public Integer getDemandeId() {
-        return demandeId;
-    }
-
-    public void setDemandeId(Integer demandeId) {
-        this.demandeId = demandeId;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-
-    public Date getDateSuppression() {
-        return dateSuppression;
-    }
-
-    public void setDateSuppression(Date dateSuppression) {
-        this.dateSuppression = dateSuppression;
-    }
-
-    public RecapDemandesDTO getRecapDemandes() {
-        return recapDemandes;
-    }
-
-    public void setRecapDemandes(RecapDemandesDTO recapDemandes) {
         this.recapDemandes = recapDemandes;
     }
 

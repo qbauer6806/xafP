@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -24,29 +25,25 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
 
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMArchivageTachesDelegate.class);
     private static final String XAF_ARCHIVAGE_ACTIVATION = "XAF_ARCHIVAGE_ACTIVATION";
-    @Autowired
-    private GouvBPM gouvBPM;
 
-    @Autowired
-    private DemandesService demandesService;
+    private final GouvBPM gouvBPM;
 
-    @Autowired
-    private ArchivageService archivageService;
+    private final DemandesService demandesService;
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final ArchivageService archivageService;
 
-    @Autowired
-    private TachesService tachesService;
+    private final PropertiesService propertiesService;
+
+    private final TachesService tachesService;
 
     @Override
     public void execute(DelegateExecution execution) {

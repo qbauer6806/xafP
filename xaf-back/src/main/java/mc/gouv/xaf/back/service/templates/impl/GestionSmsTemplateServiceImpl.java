@@ -1,17 +1,15 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
 import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.sms.SmsTemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionSmsTemplateService;
 import mc.gouv.xaf.back.service.templates.SmsTemplatesCache;
 import mc.gouv.xaf.shared.dto.SmsTemplateDTO;
 import mc.gouv.xaf.shared.formbean.SmsTemplateFormBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Implémentation du service pour la gestion des templates SMS
@@ -19,15 +17,13 @@ import mc.gouv.xaf.shared.formbean.SmsTemplateFormBean;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class GestionSmsTemplateServiceImpl implements GestionSmsTemplateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionSmsTemplateServiceImpl.class);
 
-    @Autowired
-    private SmsTemplatesService smsTemplatesService;
-
-    @Autowired
-    private SmsTemplatesCache smsTemplatesCache;
+    private final SmsTemplatesService smsTemplatesService;
+    private final SmsTemplatesCache smsTemplatesCache;
 
     @Override
     public SmsTemplateFormBean retrieveTemplateForm(SmsTemplateFormBean formBean) {

@@ -1,12 +1,12 @@
 package mc.gouv.xaf.backweb.controller;
 
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +22,12 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/gestion/courriers")
+@RequiredArgsConstructor
 public class GestionCourrierController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionCourrierController.class);
 
-    @Autowired
-    private DemandesCourriersService demandesCourrierService;
+    private final DemandesCourriersService demandesCourrierService;
 
     @Secured({ "ROLE_TRAITEMENT", "ROLE_SAISIE" })
     @GetMapping

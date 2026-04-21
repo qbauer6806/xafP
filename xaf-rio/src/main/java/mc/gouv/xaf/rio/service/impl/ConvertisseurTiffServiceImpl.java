@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.rio.service.ConvertisseurTiffService;
@@ -31,19 +32,16 @@ import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConvertisseurTiffServiceImpl.class);
 
-    @Autowired
-    private FileService fileService;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final FileService fileService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     public Map<String, InputStream> generateTiffs(List<DemandeFileDTO> files) throws IOException {
         Map<String, InputStream> fileMap = new HashMap<>();

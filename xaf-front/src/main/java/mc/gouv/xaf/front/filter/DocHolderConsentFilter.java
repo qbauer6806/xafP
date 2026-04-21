@@ -1,35 +1,32 @@
 package mc.gouv.xaf.front.filter;
 
-import mc.gouv.xaf.front.dto.UsagerInfosDTO;
-import mc.gouv.xaf.front.util.DocHolderUtils;
-import mc.gouv.xaf.front.util.XafFrontserverUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.util.DocHolderUtils;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * @author ttorreze.ext Filtre permettant de vérifier si l'usager a consenti (côté TS) à l'utilisation du
  *         porte-documents.
  */
 @Component
+@RequiredArgsConstructor
 public class DocHolderConsentFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderConsentFilter.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private DocHolderUtils docHolderUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final DocHolderUtils docHolderUtils;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

@@ -10,11 +10,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
-import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.TemplatesService;
+import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -27,7 +29,6 @@ import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -55,28 +56,16 @@ import org.springframework.web.util.UriUtils;
 @Controller
 @Secured({ "ROLE_CONFIGURATION" })
 @RequestMapping("/gestion/template")
+@RequiredArgsConstructor
 public class GestionTemplateController extends AbstractController {
 
-    @Autowired
-    private GestionTemplateService gestionTemplateService;
-
-    @Autowired
-    private TemplatesService templatesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private AfMailTemplateModelProvider afMailTemplateModelProvider;
-
-    @Autowired
-    private MarqueursService marqueursService;
-
-    @Autowired
-    private DemandesConfigService demandesConfigService;
-
-    @Autowired
-    private DemandesService demandesService;
+    private final GestionTemplateService gestionTemplateService;
+    private final TemplatesService templatesService;
+    private final AfBackUtils afBackUtils;
+    private final AfMailTemplateModelProvider afMailTemplateModelProvider;
+    private final MarqueursService marqueursService;
+    private final DemandesConfigHelperService demandesConfigHelperService;
+    private final DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
     private static final String FR_ONLY_VAR = "frOnly";
@@ -223,11 +212,15 @@ public class GestionTemplateController extends AbstractController {
     }
 
     private Map<String, Object> getVariablesGlobales() {
-        return afMailTemplateModelProvider.getModel(null, "", new DemandeDTO(), null, null, null);
+        Optional<DemandeDTO> demandeOpt = demandesService.getDerniereDemande();
+        if (demandeOpt.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return afMailTemplateModelProvider.getModel(null, "", demandeOpt.get(), null, null, null);
     }
 
     private List<MarqueurDTO> getMarqueursList() {
-        DemandeConfigBO config = demandesConfigService.getLastConfig();
+        DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
         List<MarqueurDTO> marqueurs = new ArrayList<>();
         if (config != null && StringUtils.isNotBlank(config.getBuildId())) {
             marqueurs = marqueursService.getMarqueurs(config.getBuildId());

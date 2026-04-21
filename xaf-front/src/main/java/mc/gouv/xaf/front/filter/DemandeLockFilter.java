@@ -9,21 +9,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SessionConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class DemandeLockFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeLockFilter.class);
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

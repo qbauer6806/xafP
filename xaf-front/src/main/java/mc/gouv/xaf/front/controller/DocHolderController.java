@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
@@ -18,9 +19,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,16 +29,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/doc-holder")
-public class DocHolderController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DocHolderController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderController.class);
     private static final String BEARER = "Bearer ";
 
-    @Autowired
-    private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
-
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver frontGouvPropertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
 
     /**
      * Permet de savoir si l'utilisateur courrant possède un porte-document ou non
@@ -126,7 +123,7 @@ public class DocHolderController extends AbstractXafController {
         try {
             LOGGER.info("Suppression du consentement du porte-documents côté TS");
             LOGGER.info("Récupération des données d'accès");
-            AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+            AccessDTO access = xafFrontserverUtils.getAfApiClient().getAccess(usagerInfosDTO.getId());
             if (access == null) {
                 LOGGER.error("Impossible de récupérer l'AccessDTO pour l'utilisateur id {}", usagerInfosDTO.getId());
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
@@ -141,7 +138,7 @@ public class DocHolderController extends AbstractXafController {
                 accessInputDTO.setContenu(access.getContenu());
 
                 LOGGER.info("Mise à jour des données d'accès");
-                getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInputDTO);
+                xafFrontserverUtils.getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInputDTO);
             }
 
             LOGGER.info("Suppression du porte-documents côté GU");

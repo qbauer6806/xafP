@@ -1,32 +1,29 @@
 package mc.gouv.xaf.backweb.ws;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
+import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.backweb.formbean.PdfPreviewFormBean;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
-import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
-import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.xaf.backweb.formbean.PdfPreviewFormBean;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Controller pour le service de génération d'aperçu PDF
@@ -36,13 +33,11 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 @GouvRestController
 @Secured("ROLE_LECTURE")
 @RequestMapping("/ws/pdf")
+@RequiredArgsConstructor
 public class ApercuPdfController extends AbstractController {
 
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private PdfGenerationService pdfGenerationService;
+    private final DemandesService demandesService;
+    private final PdfGenerationService pdfGenerationService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApercuPdfController.class);
 

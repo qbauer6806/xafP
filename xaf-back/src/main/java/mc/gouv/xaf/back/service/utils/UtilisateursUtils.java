@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Civilite;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
@@ -7,7 +8,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -21,13 +21,13 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  */
 @Component
+@RequiredArgsConstructor
 public class UtilisateursUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilisateursUtils.class);
 
-    @Autowired
     @Lazy
-    private UtilisateursCache utilisateursCache;
+    private final UtilisateursCache utilisateursCache;
 
     /**
      * Retourne le prénom et le nom d'un utilisateur à partir de son matricule.

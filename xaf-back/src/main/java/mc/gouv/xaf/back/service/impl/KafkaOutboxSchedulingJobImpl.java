@@ -2,7 +2,10 @@ package mc.gouv.xaf.back.service.impl;
 
 import java.util.Date;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
+import mc.gouv.xaf.back.service.data.KafkaOutboxService;
+import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.quartz.DisallowConcurrentExecution;
@@ -10,13 +13,8 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.kafka.core.KafkaTemplate;
-
-import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
-import mc.gouv.xaf.back.service.data.KafkaOutboxService;
-import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 
 /**
  * Job Quartz permettant la lecture périodique de l'Outbox Kafka afin d'envoyer les messages vers Kafka
@@ -25,18 +23,14 @@ import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
  */
 @DisallowConcurrentExecution
 @ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
+@RequiredArgsConstructor
 public class KafkaOutboxSchedulingJobImpl implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaOutboxSchedulingJobImpl.class);
 
-    @Autowired
-    private KafkaOutboxService kafkaOutboxService;
-
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
-
-    @Autowired
-    private KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
+    private final KafkaOutboxService kafkaOutboxService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
 
     @Override
     public synchronized void execute(JobExecutionContext jobExecutionContext) {

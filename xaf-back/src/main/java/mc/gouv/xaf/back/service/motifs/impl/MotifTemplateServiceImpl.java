@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
@@ -15,28 +16,19 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class MotifTemplateServiceImpl implements MotifTemplateService {
 
     private static final String ECHEC_VELOCITY = "Velocity template processing failed.";
-    private static final Logger LOGGER = LoggerFactory.getLogger(MotifTemplateServiceImpl.class);
 
-    @Autowired
-    private MotifsCache motifsCache;
-
-    @Autowired
-    private AfMotifsTemplateModelProvider afMotifsTemplateModelProvider;
-
-    @Autowired
-    private VelocityEngine velocityEngine;
-
-    private ToolManager manager = new ToolManager();
+    private final MotifsCache motifsCache;
+    private final AfMotifsTemplateModelProvider afMotifsTemplateModelProvider;
+    private final VelocityEngine velocityEngine;
+    private final ToolManager manager;
 
     public MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) {
         MotifDTO motif = motifsCache.getMotif(codeMotif, langue);

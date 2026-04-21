@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -18,9 +19,9 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe mère de AfSmsTMP et AfMailTMP permettant de factoriser la génération d'éléments génériques/communs
@@ -28,40 +29,29 @@ import org.springframework.context.MessageSource;
  * 
  * @author qdeme
  */
+@Component
+@RequiredArgsConstructor
 public class AfTemplateModelProvider {
 
-    @Autowired
-    private MotifsCache motifsCache;
-
-    @Autowired
-    private UsagersCache usagersCache;
-
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private PropertiesService propertiesService;
+    private final MotifsCache motifsCache;
+    private final UsagersCache usagersCache;
+    private final UtilisateursUtils utilisateursUtils;
+    private final AfBackUtils afBackUtils;
+    private final MessageSource messageSource;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final PropertiesService propertiesService;
 
     @Value("${mc.gouv.gichuni.front.url}")
     private String gichuniFrontUrl;
 
-    protected Map<String, Object> getGenericModelDemandeMailSms(DemandeDTO demande, String codeMotif,
+    public Map<String, Object> getGenericModelDemandeMailSms(DemandeDTO demande, String codeMotif,
             String commentaire, Map<String, Object> bpmVariables) {
         Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, bpmVariables);
         model.putAll(getGenericModelMail(demande));
         return model;
     }
 
-    protected Map<String, Object> getGenericModelDemandePdf(DemandeDTO demande, String codeMotif, String commentaire) {
+    public Map<String, Object> getGenericModelDemandePdf(DemandeDTO demande, String codeMotif, String commentaire) {
         Map<String, Object> model = getGenericModelDemande(demande, codeMotif, commentaire, null);
         model.putAll(getGenericModelPdf(demande));
         return model;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.dto.DocHolderFileSearchDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -16,9 +17,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,16 +25,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/doc-holder/search")
-public class DocHolderSearchController extends AbstractXafController {
+@RequiredArgsConstructor
+public class DocHolderSearchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderSearchController.class);
     private static final String SERVICE_URL = "/search";
 
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
-
-    @Autowired
-    private FrontGouvPropertiesResolver frontGouvPropertiesResolver;
+    private final XafFrontserverUtils xafFrontserverUtils;
+    private final FrontGouvPropertiesResolver frontGouvPropertiesResolver;
 
     /**
      * Méthode pour l'opération <b>searchFiles</b> Elle permet de récupérer la liste de tous les documents enregistrés

@@ -13,7 +13,7 @@
   <artifactId>xaf-back</artifactId>
 
   <properties>
-    <openhtml.version>1.1.29</openhtml.version>
+    <openhtml.version>1.1.37</openhtml.version>
     <xdocreport.version>2.1.0</xdocreport.version>
     <jxls.version>3.0.0</jxls.version>
   </properties>
@@ -324,6 +324,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.glassfish.jersey.connectors</groupId>
+      <artifactId>jersey-apache5-connector</artifactId>
     </dependency>
   </dependencies>
 

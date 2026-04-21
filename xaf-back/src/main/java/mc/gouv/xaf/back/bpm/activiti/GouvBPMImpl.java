@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMException;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
@@ -12,7 +13,6 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
@@ -27,7 +27,6 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,22 +37,17 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
     public static final String ANNULATION_MESSAGE = "annulationMessage";
 
-    @Autowired
-    private RuntimeService runtimeService;
-
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
-    private FormService formService;
-    @Autowired
-    private RepositoryService repositoryService;
+    private final RuntimeService runtimeService;
+    private final TaskService taskService;
+    private final FormService formService;
+    private final RepositoryService repositoryService;
 
     private void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
             Integer demandeId, Map<String, Object> businessVariables) {
@@ -304,24 +298,6 @@ public class GouvBPMImpl implements GouvBPM {
         for (Execution ex : executions) {
             runtimeService.messageEventReceived("rectificationMessage", ex.getId(), variables);
         }
-    }
-
-    @Override
-    public void reponseRectification(Integer pkDemande, Integer usagerId) {
-        LOGGER.info("Réponse à la demande de rectification de la demande {} par l'usager", pkDemande);
-
-        GouvBPMUser user = new GouvBPMUser();
-        user.setId(usagerId.toString());
-
-        GouvBPMTask task = getActiveTasksForDemande(pkDemande).getFirst();
-
-        try {
-            claimTask(task, user);
-        } catch (TaskAlreadyClaimedException e1) {
-            throw new DemarcheException("Erreur lors du claim de la tache", e1);
-        }
-        completeTask(task, pkDemande);
-
     }
 
     /**

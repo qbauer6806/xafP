@@ -18,8 +18,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Configuration
 public class ApiConfig {
 
-    @Value("${display.name}")
-    private String displayName;
+    @Value("${application.name}")
+    private String applicationName;
 
     @Value("${logging.file.path}")
     private String loggingFile;
@@ -27,7 +27,7 @@ public class ApiConfig {
     @PostConstruct
     public void loadProperties() {
         System.setProperty("MC_LOGDIR", loggingFile);
-        System.setProperty("MC_APPNAME", displayName);
+        System.setProperty("MC_APPNAME", applicationName.toUpperCase());
     }
 
     @Bean
@@ -73,7 +73,7 @@ public class ApiConfig {
                 server.addEventListener(mbContainer);
                 server.addBean(mbContainer);
             });
-            factory.setDisplayName(displayName);
+            factory.setDisplayName(applicationName);
         };
     }
 

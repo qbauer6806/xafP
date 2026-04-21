@@ -1,16 +1,16 @@
 package mc.gouv.xaf.back.paiement.properties;
 
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolver {
 
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
 
     private static final String XAF_MONETICO_DUREE_CARTE = "XAF_MONETICO_DUREE_CARTE";
 
@@ -34,49 +34,49 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     private static final String XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE = "XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE";
     private static final String PAIEMENT_IMMEDIAT_HEURE_DIFFERE_DEFAULT = "23:58:00";
 
-    @Value("mc.gouv.cir.api.url")
+    @Value("${mc.gouv.cir.api.url}")
     private String cirServiceUrl;
 
-    @Value("mc.gouv.appli.shared.backapi.cir.api.jwt")
+    @Value("${mc.gouv.appli.shared.backapi.cir.api.jwt}")
     private String cirServiceToken;
 
-    @Value("mc.gouv.appli.shared.backapi.cir.registre:0")
+    @Value("${mc.gouv.appli.shared.backapi.cir.registre:0}")
     private String cirRegistre;
 
-    @Value("mc.gouv.appli.shared.backapi.cir.permis:0")
+    @Value("${mc.gouv.appli.shared.backapi.cir.permis:0}")
     private String cirPermis;
 
-    @Value("mc.gouv.appli.shared.backapi.cir.immat:")
+    @Value("${mc.gouv.appli.shared.backapi.cir.immat:}")
     private String cirImmat;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.currency")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.currency}")
     private String moneticoCurrency;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.tpe")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.tpe}")
     private String moneticoTpe;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.clesceau")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.clesceau}")
     private String moneticoCleSceau;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.versionaller")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.versionaller}")
     private String moneticoVersionAller;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.versioncapture")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.versioncapture}")
     private String moneticoVersionCapture;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.codesitestandard")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.codesitestandard}")
     private String moneticoCodeSiteStandard;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.codesiteiframe")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.codesiteiframe}")
     private String moneticoCodeSiteIframe;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.captureurl")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.captureurl}")
     private String moneticoCaptureUrl;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.successurl")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.successurl}")
     private String moneticoSuccessUrl;
 
-    @Value("mc.gouv.appli.shared.backapi.monetico.echecurl")
+    @Value("${mc.gouv.appli.shared.backapi.monetico.echecurl}")
     private String moneticoEchecUrl;
 
     @Override

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.PeriodesOuvertureRepository;
 import mc.gouv.xaf.back.data.entity.PeriodesOuvertureBO;
 import mc.gouv.xaf.back.data.transformer.PeriodeOuvertureTransformer;
@@ -12,7 +13,6 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,12 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PeriodesOuvertureServiceImpl.class);
 
-    @Autowired
-    private PeriodesOuvertureRepository periodesOuvertureRepository;
+    private final PeriodesOuvertureRepository periodesOuvertureRepository;
 
     @Override
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {

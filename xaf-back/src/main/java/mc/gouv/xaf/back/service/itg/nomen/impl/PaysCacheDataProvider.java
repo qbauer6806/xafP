@@ -1,27 +1,24 @@
 package mc.gouv.xaf.back.service.itg.nomen.impl;
 
-import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.CacheService;
+import mc.gouv.xaf.back.service.itg.nomen.NomenClient;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurLienDTO;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenValeurValeurParametreDTO;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.caching.GouvCacheDataProvider;
 import mc.gouv.xaf.shared.dto.CacheDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
 import mc.gouv.xaf.shared.util.PaysUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * DataProvider du cache des pays et nationalités
@@ -30,32 +27,30 @@ import mc.gouv.xaf.shared.util.PaysUtils;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class PaysCacheDataProvider implements GouvCacheDataProvider<String, PaysDTO> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheDataProvider.class);
 
     private static final String CODE_ALPHA3_PARAMETRE = "CODE_ALPHA3";
-    
+
     private static final String CODE_ALPHA2_APATRIDE = "XX";
-    
+
     private static final String CODE_ALPHA3_APATRIDE = "XXA";
-    
+
     private static final String NOMENCLATURE_PAYS = "PAY-1";
-    
+
     private static final String NOMENCLATURE_NATIONALITES = "NATIO";
-    
+
     private static final String LANGUE_FR = "FR";
-    
+
     private static final String LANGUE_EN = "EN";
-    
-    @Autowired
-    private AfBackUtils afBackUtils;
-    
-    @Autowired
-    private CacheService cacheService;
-    
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    private final NomenClient nomenClient;
+
+    private final CacheService cacheService;
+
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public ConcurrentHashMap<String, PaysDTO> getAll() {
@@ -179,7 +174,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         // Si la valeur n'est pas présente en base ou est expirée, appeler l'API
         if (paysDbCacheFr == null || (new Date().after(new Date(paysDbCacheFr.getDateMaj().getTime() + cacheDuration)))) {
             LOGGER.info("Appel de l'API NOMEN ({},{}) car JSON non présent en base ou expiré...", nomenclature, locale);
-            nomenRet = afBackUtils.getNomenClient().getNomenclatureAvecLocale(nomenclature, locale);
+            nomenRet = nomenClient.getNomenclatureAvecLocale(nomenclature, locale);
             if (paysDbCacheFr == null) {
                 paysDbCacheFr = new CacheDTO();
                 paysDbCacheFr.setPkCache(nomenclature + "_" + locale);

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -36,7 +37,6 @@ import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -47,6 +47,7 @@ import org.springframework.stereotype.Component;
  * @author qdeme
  */
 @Component
+@RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
@@ -55,19 +56,11 @@ public class MailServiceImpl implements MailService {
     private static final String BODY_TAG = "TEMPLATE_BODY";
     private static final String SUBJECT_TAG = "TEMPLATE_SUBJECT";
 
-    @Autowired
-    private TemplatesService templatesService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
-
-    @Autowired
-    private PropertiesService propertiesService;
-
-    @Autowired
-    private VelocityEngine velocityEngine;
-
-    private ToolManager manager = new ToolManager();
+    private final TemplatesService templatesService;
+    private final AfBackUtils afBackUtils;
+    private final PropertiesService propertiesService;
+    private final VelocityEngine velocityEngine;
+    private final ToolManager manager;
 
     /**
      * {@inheritDoc}

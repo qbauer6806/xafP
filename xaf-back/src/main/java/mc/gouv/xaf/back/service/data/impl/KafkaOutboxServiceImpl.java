@@ -3,22 +3,20 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import mc.gouv.xaf.shared.SharedMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
 import mc.gouv.xaf.back.data.dao.KafkaOutboxRepository;
 import mc.gouv.xaf.back.data.entity.KafkaOutboxBO;
 import mc.gouv.xaf.back.data.transformer.KafkaOutboxTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation de l'outbox direction Kafka
@@ -27,12 +25,12 @@ import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
+@RequiredArgsConstructor
 public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaOutboxServiceImpl.class);
 
-    @Autowired
-    private KafkaOutboxRepository kafkaOutboxRepository;
+    private final KafkaOutboxRepository kafkaOutboxRepository;
 
     @Override
     public List<KafkaOutboxDTO> getOutboxElements() {

@@ -12,6 +12,4 @@ import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 public interface DemandesCourriersRepository extends CrudRepository<DemandesCourriersBO, Integer> {
 
     List<DemandesCourriersBO> findAll();
-
-    Integer countByUrl(String url);
 }

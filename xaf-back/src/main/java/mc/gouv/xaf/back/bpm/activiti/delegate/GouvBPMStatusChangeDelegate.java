@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
@@ -10,7 +11,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype") // Indispensable pour éviter que les champs persistent entre exécutions du délegate
+@RequiredArgsConstructor
 public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMStatusChangeDelegate.class);
@@ -30,8 +31,7 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
     @Setter
     private Expression codeMotif;
 
-    @Autowired
-    private DemandesStatutsService demandesStatutsService;
+    private final DemandesStatutsService demandesStatutsService;
 
     @Override
     public void execute(DelegateExecution execution) {

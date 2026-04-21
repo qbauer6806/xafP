@@ -15,7 +15,6 @@ public class PurgeJobSelector {
 
     private final Map<String, Class<? extends Job>> jobClasses = new HashMap<>();
 
-    @Autowired
     public PurgeJobSelector(List<Job> jobs) {
         for (Job job : jobs) {
             // Récupérer la vraie classe derrière le proxy

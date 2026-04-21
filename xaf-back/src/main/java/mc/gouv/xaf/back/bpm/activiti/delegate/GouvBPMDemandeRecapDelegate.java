@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -10,7 +11,6 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,15 +20,13 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  */
 @Component
+@RequiredArgsConstructor
 public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeRecapDelegate.class);
 
-    @Autowired
-    private DemandesService demandesService;
-
-    @Autowired
-    private PdfRecapGenerationService pdfRecapGenerationService;
+    private final DemandesService demandesService;
+    private final PdfRecapGenerationService pdfRecapGenerationService;
 
     private Expression overwrite;
 

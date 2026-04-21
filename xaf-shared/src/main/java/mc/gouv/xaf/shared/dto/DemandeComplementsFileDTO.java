@@ -27,6 +27,8 @@ public class DemandeComplementsFileDTO {
 
     private boolean verification;
 
+    private boolean supprimee;
+
     private String contenu;
 
 }

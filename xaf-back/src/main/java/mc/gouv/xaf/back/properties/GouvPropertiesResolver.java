@@ -50,57 +50,16 @@ public interface GouvPropertiesResolver {
 
     boolean isBackserver();
 
-    String getGUKafkaBootstrapServersConfig();
-
     String getApplicationName();
-
-    boolean getGUKafkaSSLEnabled();
-
-    String getGUKafkaSSLTrustStoreLocation();
-
-    String getGUKafkaSSLTrustStorePassword();
-
-    String getGUKafkaSSLKeyStoreLocation();
-
-    String getGUKafkaSSLKeyStorePassword();
-
-    boolean getKafkaEnabled();
-
-    String getGUKafkaProducerMaxRequestSize();
-
-    String getGUKafkaConsumerFetchMaxBytes();
-
-    String getGUKafkaConsumerMaxPartitionFetchBytes();
 
     String getGichkeyUrl();
 
     String getGichuniUrl();
 
-    String getApiRioUrl();
-
-    String getApiRioJwt();
-
-    String getApiRioCodeAppli();
-
-    String getApiRioCodeNotice();
 
     boolean isPaiementEnabled();
 
     String getPorteDocUrl();
-
-    String getApiUlisMoyensGenerauxUrl();
-
-    String getApiUlisTiersOrganisationUrl();
-
-    String getApiUlisWorkflowUrl();
-
-    String getApiUlisCommercialisationUrl();
-
-    String getApiUlisAuthenticationUser();
-
-    String getApiUlisAuthenticationPassword();
-
-    String getApiUlisFunctionalUser();
 
     String getFrontUrl();
 

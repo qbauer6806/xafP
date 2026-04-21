@@ -25,6 +25,9 @@ public class DemandeTransformer {
     private PaysNationalitesCache paysCache;
 
     public JsonNode getNodeFromPath(JsonNode contenu, String path) {
+        if ("contenu".equals(path)) {
+            return contenu;
+        }
         String chemin = getCheminRelatif(path);
         return contenu.at(chemin);
     }
@@ -209,8 +212,15 @@ public class DemandeTransformer {
         //	 "[donnee,demandeur]" / field = prenom
         String field = donneeExterneKeyArray.removeLast();
         // "/donnee/demandeur"
-        String p = "/" + String.join("/", donneeExterneKeyArray);
-        ((ObjectNode) contenu.at(p)).put(field, nouvelleValeur);
+        JsonNode parentNode;
+        if (donneeExterneKeyArray.isEmpty()) {
+            parentNode = contenu;
+        } else {
+            String parentPath = "/" + String.join("/", donneeExterneKeyArray);
+            parentNode = contenu.at(parentPath);
+        }
+
+        ((ObjectNode) parentNode).set(field, nouvelleValeur);
     }
 
     public void changeChoixAdditionnel(JsonNode node) {

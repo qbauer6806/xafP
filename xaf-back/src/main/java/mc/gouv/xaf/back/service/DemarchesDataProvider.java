@@ -135,6 +135,14 @@ public interface DemarchesDataProvider {
     }
 
     /**
+     * Permet d'activer ou de désactiver l'envoi du mail de désinscription aux agents pour une démarche. Par défaut, la
+     * fonctionnalité est activée.
+     */
+    default boolean isEnvoieMailDesinscriptionUsagerPourAgents() {
+        return true;
+    }
+
+    /**
      * Retourne le libellé du statut brouillon non transmis
      */
     default String getBrouillonStatutNotTransmitted() {

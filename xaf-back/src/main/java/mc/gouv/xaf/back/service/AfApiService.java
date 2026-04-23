@@ -502,7 +502,10 @@ public class AfApiService implements AfApi {
         Map<String, Object> model = afMailTemplateModelProvider.getModelDesinscriptionUsager(usagerId, demandes);
         DemarcheDTO demarcheDTO = afBackUtils.getDemarcheInfos();
 
-        envoiEmailAgents(demandesImpacteesPk, demandesImpacteesPhrase, usager, model, demarcheDTO);
+        if (demarchesDataProvider.isEnvoieMailDesinscriptionUsagerPourAgents()) {
+            LOGGER.info("Envoi d'un email aux agents suite à la désinscription...");
+            envoiEmailAgents(demandesImpacteesPk, demandesImpacteesPhrase, usager, model, demarcheDTO);
+        }
 
         LOGGER.info("Envoi d'un email à l'usager suite à la désinscription...");
         envoiEmailUsager(demandesImpacteesPk, usager, langue, model, demarcheDTO);

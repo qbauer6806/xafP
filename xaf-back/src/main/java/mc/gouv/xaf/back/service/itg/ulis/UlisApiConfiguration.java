@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class UlisApiConfiguration {
 
     private static String MOYENS_GENERAUX_URL = "/moyens-generaux/api/v1/";
+    private static String MOYENS_GENERAUX_V2_URL = "/moyens-generaux/api/v2/";
     private static String TIERS_ORGANISATION_V1_URL = "/tiers-organisation/api/v1/";
     private static String WORKFLOW_URL = "/workflow/api/v1/";
     private static String ACCUEIL_COMMERCIALISATION_URL = "/accueil-commercialisation/api/v1/";
@@ -28,6 +29,13 @@ public class UlisApiConfiguration {
     @Bean
     public UlisClientApi ulisMoyensGenerauxClientApi() {
         return new UlisClientApi(ulisProperties.getApiUlisUrl() + MOYENS_GENERAUX_URL,
+                ulisProperties.getApiUlisAuthentUser(),
+                ulisProperties.getApiUlisAuthentPassword());
+    }
+
+    @Bean
+    public UlisClientApi ulisMoyensGenerauxClientV2Api() {
+        return new UlisClientApi(ulisProperties.getApiUlisUrl() + MOYENS_GENERAUX_V2_URL,
                 ulisProperties.getApiUlisAuthentUser(),
                 ulisProperties.getApiUlisAuthentPassword());
     }

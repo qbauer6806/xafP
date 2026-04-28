@@ -36,7 +36,7 @@ public class GestionJobsController {
     // Ne pas afficher dans la liste des jobs, ceux concernant Kafka, si kafkaEnabled=false
     private List<JobNamesEnum> filterJobList(List<JobNamesEnum> jobList) {
         List<JobNamesEnum> newList = new ArrayList<>();
-        boolean kafkaEnabled = kafkaProperties.isKafkaSSLEnabled();
+        boolean kafkaEnabled = kafkaProperties.isKafkaEnabled();
         for (JobNamesEnum job : jobList) {
             if (JobNamesEnum.SYNCHRONISATION_GLOBALE_GU.name().equals(job.name())
                     || JobNamesEnum.TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA.name().equals(job.name())

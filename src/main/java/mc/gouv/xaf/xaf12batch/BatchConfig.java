@@ -28,8 +28,9 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.SimpleStepBuilder;
+import org.springframework.batch.core.step.builder.TaskletStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaItemWriter;
@@ -46,6 +47,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @EnableBatchProcessing
 public class BatchConfig {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfig.class);
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -79,8 +82,6 @@ public class BatchConfig {
 
     @Value("${batch.steps:}")
     private String stepsToRun;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchConfig.class);
 
     public BatchConfig(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         this.jobRepository = jobRepository;
@@ -129,7 +130,8 @@ public class BatchConfig {
 
     @Bean
     public JpaPagingItemReader<DemandesUsagersBO> usagersReader(EntityManagerFactory entityManagerFactory) {
-        return new JpaPagingItemReaderBuilder<DemandesUsagersBO>().name("usagersReader")
+        return new JpaPagingItemReaderBuilder<DemandesUsagersBO>()
+                .name("usagersReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT d FROM DemandesUsagersBO d WHERE d.id < 1000000000 ORDER BY d.id ASC")
                 .pageSize(10)
@@ -141,14 +143,17 @@ public class BatchConfig {
         return file -> {
             LOGGER.info("Traitement du file ID {}", file.getPkDemandesFiles());
             String url = file.getUrl();
-            if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
+
+            if (url != null && isSupportedFile(url)) {
                 String text = demandeFileTransformer.getFileText(url);
+
                 if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
                     LOGGER.warn("Fichier {} : contenu trop long ou fichier inexistant, ignoré", file.getPkDemandesFiles());
                 } else {
                     file.setContenu(text);
                 }
             }
+
             return file;
         };
     }
@@ -158,14 +163,18 @@ public class BatchConfig {
         return file -> {
             LOGGER.info("Traitement de complementFile ID {}", file.getPkDemandesComplementsFiles());
             String url = file.getUrl();
-            if (url != null && (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".rtf") || url.endsWith(".pdf"))) {
+
+            if (url != null && isSupportedFile(url)) {
                 String text = demandeFileTransformer.getFileText(url);
+
                 if (text.length() > 100000 || text.startsWith("{\"errors\":")) {
-                    LOGGER.warn("Fichier {} : contenu trop long ou fichier inexistant, ignoré",  file.getPkDemandesComplementsFiles());
+                    LOGGER.warn("Fichier {} : contenu trop long ou fichier inexistant, ignoré",
+                            file.getPkDemandesComplementsFiles());
                 } else {
                     file.setContenu(text);
                 }
             }
+
             return file;
         };
     }
@@ -174,27 +183,30 @@ public class BatchConfig {
     public ItemProcessor<DemandeBO, DemandeBO> demandesProcessor() {
         return demande -> {
             LOGGER.info("Traitement de la demande ID {}", demande.getPkDemandes());
+
             if (demande.getConfig() != null) {
                 JsonNode config = demande.getConfig().getContenu();
                 JsonNode contenu = demande.getContenu();
                 JsonNode contenuTrad = demande.getContenuTrad();
-                JsonNode contenuInitial =
-                        demande.getContenuInitial() != null ? demande.getContenuInitial().get("contenu") : null;
-                // changer les valeur/valeurExtra
+                JsonNode contenuInitial = demande.getContenuInitial() != null
+                        ? demande.getContenuInitial().get("contenu")
+                        : null;
+
                 demandeTransformer.changeChoixAdditionnel(contenu);
                 demandeTransformer.changeChoixAdditionnel(contenuTrad);
                 demandeTransformer.changeChoixAdditionnel(contenuInitial);
-                // changer les choix multiple avec le nouveau format
+
                 demandeTransformer.changeChoixMultiple(config, contenu);
                 demandeTransformer.changeChoixMultiple(config, contenuTrad);
                 demandeTransformer.changeChoixMultiple(config, contenuInitial);
-                // changer les types complexes dans les tableaux
+
                 demandeTransformer.changeTableauComplexe(config, contenu);
                 demandeTransformer.changeTableauComplexe(config, contenuTrad);
                 demandeTransformer.changeTableauComplexe(config, contenuInitial);
-                // transformer les clés qui sont dans contenuTrad en libellé
+
                 demandeTransformer.setContenuTrad(contenuTrad, config);
             }
+
             return demande;
         };
     }
@@ -214,11 +226,13 @@ public class BatchConfig {
         return usagerBo -> {
             LOGGER.info("Traitement de l'usager ID {}", usagerBo.getId());
             GichuniUsagerDTO usager = usagersCache.get(usagerBo.getId());
+
             if (usager == null) {
                 LOGGER.warn("Usager ID {} non trouvé", usagerBo.getId());
             } else {
                 demandesUsagersTransformer.user2Bo(usager, usagerBo);
             }
+
             return usagerBo;
         };
     }
@@ -258,102 +272,141 @@ public class BatchConfig {
                 .build();
     }
 
-
     @Bean
     public Step filesStep(EntityManagerFactory entityManagerFactory) {
-        return new StepBuilder("filesStep", jobRepository)
+        SimpleStepBuilder<DemandesFilesBO, DemandesFilesBO> builder = new StepBuilder("filesStep", jobRepository)
                 .<DemandesFilesBO, DemandesFilesBO>chunk(10, transactionManager)
                 .reader(filesReader(entityManagerFactory))
                 .processor(filesProcessor())
-                .writer(filesWriter(entityManagerFactory))
-                .allowStartIfComplete(true)
-                .build();
+                .writer(filesWriter(entityManagerFactory));
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step complementsFilesStep(EntityManagerFactory entityManagerFactory) {
-        return new StepBuilder("complementsFilesStep", jobRepository)
-                .<DemandesComplementsFilesBO, DemandesComplementsFilesBO>chunk(10, transactionManager)
-                .reader(complementsFilesReader(entityManagerFactory))
-                .processor(complementsFilesProcessor())
-                .writer(complementsFilesWriter(entityManagerFactory))
-                .allowStartIfComplete(true)
-                .build();
+        SimpleStepBuilder<DemandesComplementsFilesBO, DemandesComplementsFilesBO> builder =
+                new StepBuilder("complementsFilesStep", jobRepository)
+                        .<DemandesComplementsFilesBO, DemandesComplementsFilesBO>chunk(10, transactionManager)
+                        .reader(complementsFilesReader(entityManagerFactory))
+                        .processor(complementsFilesProcessor())
+                        .writer(complementsFilesWriter(entityManagerFactory));
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step demandesStep(EntityManagerFactory entityManagerFactory) {
-        return new StepBuilder("demandesStep", jobRepository)
+        SimpleStepBuilder<DemandeBO, DemandeBO> builder = new StepBuilder("demandesStep", jobRepository)
                 .<DemandeBO, DemandeBO>chunk(10, transactionManager)
                 .reader(demandesReader(entityManagerFactory))
                 .processor(demandesProcessor())
-                .writer(demandesWriter(entityManagerFactory))
-                .allowStartIfComplete(true)
-                .build();
+                .writer(demandesWriter(entityManagerFactory));
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step agentsStep(EntityManagerFactory entityManagerFactory) {
-        return new StepBuilder("agentsStep", jobRepository)
-                .<DemandesAgentsBO, DemandesAgentsBO>chunk(10, transactionManager)
-                .reader(agentsReader(entityManagerFactory))
-                .processor(agentsProcessor())
-                .writer(agentsWriter(entityManagerFactory))
-                .allowStartIfComplete(true)
-                .build();
+        SimpleStepBuilder<DemandesAgentsBO, DemandesAgentsBO> builder =
+                new StepBuilder("agentsStep", jobRepository)
+                        .<DemandesAgentsBO, DemandesAgentsBO>chunk(10, transactionManager)
+                        .reader(agentsReader(entityManagerFactory))
+                        .processor(agentsProcessor())
+                        .writer(agentsWriter(entityManagerFactory));
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step usagersStep(EntityManagerFactory entityManagerFactory) {
-        return new StepBuilder("usagersStep", jobRepository)
-                .<DemandesUsagersBO, DemandesUsagersBO>chunk(10, transactionManager)
-                .reader(usagersReader(entityManagerFactory))
-                .processor(usagersProcessor())
-                .writer(usagersWriter(entityManagerFactory))
-                .allowStartIfComplete(true)
-                .build();
+        SimpleStepBuilder<DemandesUsagersBO, DemandesUsagersBO> builder =
+                new StepBuilder("usagersStep", jobRepository)
+                        .<DemandesUsagersBO, DemandesUsagersBO>chunk(10, transactionManager)
+                        .reader(usagersReader(entityManagerFactory))
+                        .processor(usagersProcessor())
+                        .writer(usagersWriter(entityManagerFactory));
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step resetMarqueursStep() {
-        return new StepBuilder("resetMarqueursStep", jobRepository).tasklet(resetMarqueursTasklet, transactionManager)
-                .allowStartIfComplete(true).build();
+        TaskletStepBuilder builder = new StepBuilder("resetMarqueursStep", jobRepository)
+                .tasklet(resetMarqueursTasklet, transactionManager);
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step migrateCommentaireBpmStep() {
-        return new StepBuilder("migrateCommentaireBpmStep", jobRepository).tasklet(migrateCommentairesBpmTasklet,
-                transactionManager).allowStartIfComplete(true).build();
+        TaskletStepBuilder builder = new StepBuilder("migrateCommentaireBpmStep", jobRepository)
+                .tasklet(migrateCommentairesBpmTasklet, transactionManager);
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public Step duplicateFilesStep() {
-        return new StepBuilder("duplicateFilesStep", jobRepository).tasklet(duplicateFilesTasklet, transactionManager)
-                .allowStartIfComplete(true).build();
+        TaskletStepBuilder builder = new StepBuilder("duplicateFilesStep", jobRepository)
+                .tasklet(duplicateFilesTasklet, transactionManager);
+
+        if (forceStepRestart()) {
+            builder.allowStartIfComplete(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
-    public Job batchJob() {
+    public Job batchJob(EntityManagerFactory entityManagerFactory) {
         Set<String> stepsSet = getStepsSet();
-        // 1. Initialisation du builder
-        SimpleJobBuilder builder = new JobBuilder("batchJob", jobRepository).incrementer(new RunIdIncrementer())
-                .start(emptyStep()); // On commence par un step technique vide ou le premier step actif
 
-        // 2. Ajout conditionnel des steps
+        SimpleJobBuilder builder = new JobBuilder("batchJob", jobRepository)
+                .start(emptyStep());
+
         if (stepsSet == null || stepsSet.contains("files")) {
-            builder.next(filesStep(null));
+            builder.next(filesStep(entityManagerFactory));
         }
         if (stepsSet == null || stepsSet.contains("complementsFiles")) {
-            builder.next(complementsFilesStep(null));
+            builder.next(complementsFilesStep(entityManagerFactory));
         }
         if (stepsSet == null || stepsSet.contains("demandes")) {
-            builder.next(demandesStep(null));
+            builder.next(demandesStep(entityManagerFactory));
         }
         if (stepsSet == null || stepsSet.contains("agents")) {
-            builder.next(agentsStep(null));
+            builder.next(agentsStep(entityManagerFactory));
         }
         if (stepsSet == null || stepsSet.contains("usagers")) {
-            builder.next(usagersStep(null));
+            builder.next(usagersStep(entityManagerFactory));
         }
         if (stepsSet == null || stepsSet.contains("resetMarqueurs")) {
             builder.next(resetMarqueursStep());
@@ -361,37 +414,53 @@ public class BatchConfig {
         if (stepsSet == null || stepsSet.contains("migrateCommentaireBpm")) {
             builder.next(migrateCommentaireBpmStep());
         }
-        if (stepsSet == null || stepsSet.contains("duplicateFiles")) {
-            builder.next(duplicateFilesStep());
-        }
 
         return builder.build();
     }
 
-    /**
-     * Un step qui ne fait rien, utile pour amorcer le builder si le premier step de la liste est désactivé.
-     */
+    @Bean
+    public Job duplicateFilesJob() {
+        return new JobBuilder("duplicateFilesJob", jobRepository)
+                .start(duplicateFilesStep())
+                .build();
+    }
+
     @Bean
     public Step emptyStep() {
-        return new StepBuilder("emptyStep", jobRepository).tasklet(
-                (contribution, chunkContext) -> RepeatStatus.FINISHED, transactionManager).build();
+        return new StepBuilder("emptyStep", jobRepository)
+                .tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED, transactionManager)
+                .build();
     }
 
     @Bean
     public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> enableFlowable5CompatibilityConfigurer() {
-        return (SpringProcessEngineConfiguration processEngineConfiguration) -> {
+        return processEngineConfiguration -> {
             processEngineConfiguration.setFlowable5CompatibilityEnabled(true);
             processEngineConfiguration.setFlowable5CompatibilityHandlerFactory(
                     DefaultFlowable5SpringCompatibilityHandler::new);
         };
-
     }
 
     private Set<String> getStepsSet() {
-        if (stepsToRun == null || stepsToRun.isEmpty()) {
+        if (stepsToRun == null || stepsToRun.isBlank()) {
             return null;
         }
-        return Arrays.stream(stepsToRun.split(",")).map(String::trim).collect(Collectors.toSet());
+
+        return Arrays.stream(stepsToRun.split(","))
+                .map(String::trim)
+                .filter(step -> !step.isEmpty())
+                .collect(Collectors.toSet());
     }
 
+    private boolean forceStepRestart() {
+        return stepsToRun != null && !stepsToRun.isBlank();
+    }
+
+    private boolean isSupportedFile(String url) {
+        String lowerUrl = url.toLowerCase();
+        return lowerUrl.endsWith(".doc")
+                || lowerUrl.endsWith(".docx")
+                || lowerUrl.endsWith(".rtf")
+                || lowerUrl.endsWith(".pdf");
+    }
 }

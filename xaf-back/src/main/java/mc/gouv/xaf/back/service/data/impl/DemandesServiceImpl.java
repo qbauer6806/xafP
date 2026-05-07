@@ -585,7 +585,7 @@ public class DemandesServiceImpl implements DemandesService {
             if (marqueursForRecap != null) {
                 map = new HashMap<>();
                 for (String identifiant : marqueursForRecap) {
-                    MarqueurDTO marqueur = marqueursService.getMarqueur(demande.getConfigBuildId(),
+                    MarqueurDTO marqueur = marqueursService.getMarqueur(demande.getConfig().get("buildId").asText(),
                             identifiant);
                     if (marqueur != null) {
                         String valeur;

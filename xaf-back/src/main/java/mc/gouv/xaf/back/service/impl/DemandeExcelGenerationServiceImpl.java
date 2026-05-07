@@ -115,7 +115,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
             List<Row> rows = new ArrayList<>();
             int n = 1;
             for (DemandeDTO demande : demandes) {
-                if (buildId.equals(demande.getConfig().get("buildId").asText())) {
+                if (buildId.equals(demande.getConfigBuildId())) {
                     LOGGER.info("Ecriture de la ligne de la demande {}...", demande.getPkDemandes());
                     Row demRow = sheet.createRow(n);
                     writeRow(workbook, sections, demRow, demande, false);

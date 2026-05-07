@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +22,10 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.shared.dto.BuildDemandeFromMarqueursDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.MappingOptionDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -483,7 +487,7 @@ public class MarqueursServiceImpl implements MarqueursService {
     @Override
     public String getMarqueurChoixTradFrOuEn(DemandeDTO demandeDTO, String marqueurIdentifiant) {
         if ("en".equals(demandeDTO.getLangue())) {
-            MarqueurDTO marqueurDTO = getMarqueur(demandeDTO.getConfig().get("buildId").asText(), marqueurIdentifiant);
+            MarqueurDTO marqueurDTO = getMarqueur(demandeDTO.getConfigBuildId(), marqueurIdentifiant);
 
             return Optional.ofNullable(marqueurDTO).map(MarqueurDTO::getOptions).map(opts -> opts.get("en"))
                     .map(mapEn -> mapEn.get(demandeDTO.getMarqueur(marqueurIdentifiant))).map(JsonNode::asText)
@@ -491,5 +495,61 @@ public class MarqueursServiceImpl implements MarqueursService {
         }
         return demandeDTO.getMarqueurTrad(marqueurIdentifiant);
     }
+
+    /**
+     * Permet de récuperer la list des options possibles d'un champ d'une demande pour un formulaire
+     *
+     * @param demandeDTO
+     *         la demande concernée (doit contenir une config et un buildId)
+     * @param marqueurId
+     *         c'est l'idPredixe dans la config du champ concerné
+     * @throws DemarcheException
+     *         si impossible de récupérer le buildId de la demande
+     */
+    @Override
+    public List<MappingOptionDTO> recupererMappingOptions(DemandeDTO demandeDTO, String marqueurId) {
+        String buildId = demandeDTO.getConfigBuildId();
+        MarqueurDTO marqueurDTO = getMarqueur(buildId, marqueurId);
+        return marqueurDTO != null && marqueurDTO.getOptions() != null && marqueurDTO.getOptions().has("fr")
+                ? extractMappingOptions(marqueurDTO.getOptions().get("fr"))
+                : Collections.emptyList();
+    }
+
+    /**
+     * Permet de récuperer l'option correspondante à la valeur en entrée depuis la list des options possibles d'un champ
+     * d'une demande pour un formulaire
+     *
+     * @param demandeDTO
+     *         la demande concernée (doit contenir une config et un buildId)
+     * @param marqueurId
+     *         c'est l'idPredixe dans la config du champ concerné
+     * @param valeur
+     *         c'est la valeur qu'on veut rechercher dans la list des options
+     * @throws DemarcheException
+     *         si impossible de récupérer le buildId de la demande
+     */
+    @Override
+    public Optional<MappingOptionDTO> recupererOptionDepuisValeur(DemandeDTO demandeDTO, String marqueurId,
+            String valeur) {
+        List<MappingOptionDTO> champOptions = recupererMappingOptions(demandeDTO, marqueurId);
+
+        return Optional.ofNullable(champOptions).orElse(List.of()).stream().filter(Objects::nonNull)
+                .filter(item -> StringUtils.equalsIgnoreCase(item.originalName(), valeur)).findFirst();
+    }
+
+    private List<MappingOptionDTO> extractMappingOptions(JsonNode rootNode) {
+
+        if (rootNode == null || !rootNode.isObject()) {
+            return List.of();
+        }
+
+        List<MappingOptionDTO> results = new ArrayList<>();
+
+        rootNode.properties().forEach(entry -> results.add(new MappingOptionDTO(entry.getKey(),
+                entry.getValue() != null ? entry.getValue().asText() : StringUtils.EMPTY)));
+
+        return results;
+    }
+
 
 }

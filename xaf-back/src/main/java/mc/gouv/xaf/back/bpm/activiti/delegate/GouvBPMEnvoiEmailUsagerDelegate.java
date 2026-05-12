@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
@@ -14,6 +15,7 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.api.delegate.Expression;
@@ -34,7 +36,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailUsagerDelegate.class);
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final UsagersCache usagerCache;
     private final MailService mailService;
     private final DemandesService demandesService;
@@ -90,10 +92,9 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 
         String prenom = StringUtils.EMPTY;
         String nom = StringUtils.EMPTY;
@@ -112,7 +113,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
         if ("true".equals(copieCacheeAuServiceStr)) {
             LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
-            emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
+            emailInfo.addBcc(demarcheDTO.getEmailService(), StringUtils.EMPTY);
         }
 
         String copieCacheeProprieteMailStr = null;

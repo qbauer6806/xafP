@@ -14,6 +14,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.data.impl.DemandesConfigHelperService;
@@ -61,11 +62,11 @@ public class GestionTemplateController extends AbstractController {
 
     private final GestionTemplateService gestionTemplateService;
     private final TemplatesService templatesService;
-    private final AfBackUtils afBackUtils;
     private final AfMailTemplateModelProvider afMailTemplateModelProvider;
     private final MarqueursService marqueursService;
     private final DemandesConfigHelperService demandesConfigHelperService;
     private final DemandesService demandesService;
+    private final DemarchesService demarchesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
     private static final String FR_ONLY_VAR = "frOnly";
@@ -207,7 +208,7 @@ public class GestionTemplateController extends AbstractController {
 
     private boolean isFrenchOnly() {
         // S'il n'y a qu'une langue on ne récupère que les templates FR
-        Map<String, String> langues = afBackUtils.getLanguesDisponibles();
+        Map<String, String> langues = demarchesService.getLanguesDisponibles();
         return langues.size() == 1 && langues.containsKey("fr");
     }
 

@@ -20,6 +20,7 @@ import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
 import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -28,6 +29,7 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +65,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
     private final MailService mailService;
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     private final CommandesService commandesService;
 
@@ -143,8 +145,8 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         emailInfo.setLangue(demandeDTO.getLangue());
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
         DemandeUsagerDTO usager = demandeDTO.getUsager();
         if (usager != null) {
             emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());

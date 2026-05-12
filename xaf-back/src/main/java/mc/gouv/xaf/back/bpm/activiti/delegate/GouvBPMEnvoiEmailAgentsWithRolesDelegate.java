@@ -7,12 +7,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.api.delegate.Expression;
@@ -35,6 +37,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailAgentsWithRolesDelegate.class);
 
     private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final MailService mailService;
     private final DemandesService demandesService;
     private final AfMailTemplateModelProvider afMailTemplateModelProvider;
@@ -75,10 +78,9 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 
         LOGGER.info("Calcul des agents ayant les rôles requis pour l'envoi de l'email...");
         String rolesStr = (String) roles.getValue(execution);
@@ -101,7 +103,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
 
             if ("true".equals(copieAuServiceStr)) {
                 LOGGER.info("Paramètre \"copieAuService\" spécifié, placer le service en copie carbone...");
-                emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
+                emailInfo.addCc(demarcheDTO.getEmailService(), StringUtils.EMPTY);
             }
 
             String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());

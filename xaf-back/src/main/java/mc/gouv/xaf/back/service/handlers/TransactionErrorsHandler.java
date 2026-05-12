@@ -12,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -44,7 +46,7 @@ public class TransactionErrorsHandler {
     private final PropertiesService propertiesService;
     private final MailService mailService;
     private final GouvPropertiesResolver gouvPropertiesResolver;
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     public ErrorEventDTO createErrorEvent(String contexte, List<DemandeBO> demandeBOS, Exception e) {
         String[] tab = preparerMail(demandeBOS);
@@ -126,8 +128,9 @@ public class TransactionErrorsHandler {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(MAIL_ROLLBACK_CORPS);
         emailInfo.setSubjectTemplateCode(MAIL_ROLLBACK_OBJET);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, errorEventDTO.getDemandeIds());
         emailInfo.setLangue("fr");
         return emailInfo;

@@ -39,11 +39,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
-import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.service.FileClient;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
@@ -61,11 +58,9 @@ import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PaysDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.TypedocDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
@@ -129,8 +124,6 @@ public class AfBackUtils {
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
     public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
-    public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
-
     public static final String CODE_ALPHA2_APATRIDE = "SP";
     public static final String CODE_ALPHA2_APATRIDE_NOMEN = "XX";
 
@@ -145,17 +138,12 @@ public class AfBackUtils {
     @Lazy
     private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    private MailClient mailClient = null;
-
     private FileClient fileClient = null;
 
     private SmsClient smsClient = null;
 
     @Lazy
     private final UtilisateursCache utilisateursCache;
-
-    @Lazy
-    private final DemarchesService demarchesService;
 
     @Lazy
     private final DemarchesDataProvider demarchesDataProvider;
@@ -165,9 +153,6 @@ public class AfBackUtils {
 
     @Lazy
     private final UtilisateursUtils utilisateursUtils;
-
-    @Lazy
-    private final PropertiesService propertiesService;
 
     @Lazy
     private final MotifsCache motifsCache;
@@ -287,15 +272,6 @@ public class AfBackUtils {
         return new SimpleDateFormat(FILE_DATE_AND_TIME_SUFFIX_FORMAT).format(new Date());
     }
 
-    public MailClient getMailClient() {
-        if (mailClient == null) {
-            String mailUrl = gouvPropertiesResolver.getMailUrl();
-            String mailJwt = gouvPropertiesResolver.getMailJwt();
-            mailClient = new MailClient(mailUrl, mailJwt);
-        }
-        return mailClient;
-    }
-
     public FileClient getFileClient() {
         if (fileClient == null) {
             fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
@@ -312,32 +288,6 @@ public class AfBackUtils {
         return smsClient;
     }
 
-    /**
-     * Retourne une version "cachée" des informations de la démarche
-     *
-     * @return
-     */
-    public DemarcheDTO getDemarcheInfos() {
-        return demarchesService.getDemarche();
-    }
-
-    /**
-     * Retourne le nom complet de la démarche
-     *
-     * @return
-     */
-    public String getDemarcheNom() {
-        return getDemarcheInfos().getNom();
-    }
-
-    /**
-     * Retourne le nom complet de la démarche en Anglais
-     *
-     * @return
-     */
-    public String getDemarcheNomEn() {
-        return getDemarcheInfos().getNomEn();
-    }
 
     /**
      * Permet de récupérer une donnée d'une demande
@@ -742,26 +692,6 @@ public class AfBackUtils {
 
     public static String mConnectDateToString(Date date) {
         return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
-    }
-
-    public Map<String, String> getLanguesDisponibles() {
-        DemarcheDTO demarche = getDemarcheInfos();
-        Map<String, String> langues = new HashMap<>();
-        if (demarche.getLangues().contains("fr")) {
-            langues.put("fr", "Français");
-        }
-        if (demarche.getLangues().contains("en")) {
-            langues.put("en", "Anglais");
-        }
-        return langues;
-    }
-
-    public boolean isEmailHtmlEnabled() {
-        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(XAF_EMAIL_HTML_ENABLED);
-        if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
-            return false;
-        }
-        return Boolean.parseBoolean(emailHtmlEnabledProp.getValue());
     }
 
     /**

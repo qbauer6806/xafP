@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.controller;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.sms.SmsTemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionSmsTemplateService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -37,7 +38,7 @@ public class GestionSmsTemplateController extends AbstractController {
 
     private final SmsTemplatesService smsTemplatesService;
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionSmsTemplateController.class);
     private static final String TS_CODE_VAR = "tsCode";
@@ -87,7 +88,7 @@ public class GestionSmsTemplateController extends AbstractController {
 
     private boolean isFrenchOnly() {
         // S'il n'y a qu'une langue on ne récupère que les templates FR
-        Map<String, String> langues = afBackUtils.getLanguesDisponibles();
+        Map<String, String> langues = demarchesService.getLanguesDisponibles();
         return langues.size() == 1 && langues.containsKey("fr");
     }
 }

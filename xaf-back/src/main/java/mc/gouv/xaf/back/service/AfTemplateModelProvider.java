@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
@@ -37,6 +38,7 @@ public class AfTemplateModelProvider {
     private final UsagersCache usagersCache;
     private final UtilisateursUtils utilisateursUtils;
     private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final MessageSource messageSource;
     private final GouvPropertiesResolver gouvPropertiesResolver;
     private final PropertiesService propertiesService;
@@ -133,7 +135,7 @@ public class AfTemplateModelProvider {
 
     public Map<String, Object> getGenericModelMail() {
         Map<String, Object> model = new HashMap<>();
-        DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
+        DemarcheDTO demarcheInfos = demarchesService.getDemarche();
         model.put("nomTs", demarcheInfos.getNom());
         model.put("nomTsEn", demarcheInfos.getNomEn());
         model.put("nomDirection", demarcheInfos.getNomDirection());
@@ -157,7 +159,7 @@ public class AfTemplateModelProvider {
 
     public Map<String, Object> getGenericModelPdf(DemandeDTO demandeDTO) {
         Map<String, Object> map = getGenericModelMail(demandeDTO);
-        map.put("adresseService", StringUtils.replace(afBackUtils.getDemarcheInfos().getAdresseService(), "<br/>",
+        map.put("adresseService", StringUtils.replace(demarchesService.getDemarche().getAdresseService(), "<br/>",
                 System.lineSeparator()));
         return map;
     }

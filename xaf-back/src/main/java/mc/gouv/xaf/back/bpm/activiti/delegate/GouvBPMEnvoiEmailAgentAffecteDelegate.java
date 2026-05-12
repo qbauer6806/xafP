@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -13,6 +14,7 @@ import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.api.delegate.Expression;
@@ -32,8 +34,8 @@ import org.springframework.stereotype.Component;
 public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailAgentAffecteDelegate.class);
-
-    private final AfBackUtils afBackUtils;
+    
+    private final DemarchesService demarchesService;
     private final MailService mailService;
     private final DemandesService demandesService;
     private final UtilisateursCache utilisateursCache;
@@ -72,10 +74,9 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
 
         // On récupère l'agent dans le bpmn parce qu'en cas de demande info compl, agent sera null dans demandeDto car il considère
         // que l'appel provient du front, et donc l'agent est caché pour raison de confidentialité
@@ -88,7 +89,7 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
 
             if ("true".equals(copieAuServiceStr)) {
                 LOGGER.info("Paramètre \"copieAuService\" spécifié, placer le service en copie carbone...");
-                emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
+                emailInfo.addCc(demarcheDTO.getEmailService(), StringUtils.EMPTY);
             }
 
             if (agent.getMail() != null) {

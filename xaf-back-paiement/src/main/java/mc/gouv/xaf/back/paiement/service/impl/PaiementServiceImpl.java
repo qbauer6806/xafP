@@ -71,6 +71,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
@@ -78,11 +79,11 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.keycloak.KeycloakTokenService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.AdresseFacturationDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
@@ -146,7 +147,7 @@ public class PaiementServiceImpl implements PaiementService {
     private final KeycloakTokenService keycloakTokenService;
     private final FactureService factureService;
     private final MailService mailService;
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final AfMailTemplateModelProvider afMailTemplateModelProvider;
     private final PaiementHistoriqueService paiementHistoriqueService;
 
@@ -501,11 +502,10 @@ public class PaiementServiceImpl implements PaiementService {
             emailInfo.setBodyTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + CORPS);
             emailInfo.setSubjectTemplateCode(MAIL_DEBIT_ECHEC_AGENT_CODE + OBJET);
         }
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
+        emailInfo.addTo(demarcheDTO.getEmailService(), demarcheDTO.getNom());
         emailInfo.setLangue("fr");
         return emailInfo;
     }

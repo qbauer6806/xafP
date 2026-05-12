@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
@@ -44,7 +45,7 @@ public class DemandesCourrierController extends AbstractController {
 
     private final BackGouvPropertiesResolver gouvPropertiesResolver;
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     private final DemarchesDataProvider demarchesDataProvider;
 
@@ -144,7 +145,7 @@ public class DemandesCourrierController extends AbstractController {
         canaux.add(DemandeCanalEnum.COURRIER);
         canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
         mav.addObject("canaux", canaux);
-        mav.addObject("langues", afBackUtils.getLanguesDisponibles());
+        mav.addObject("langues", demarchesService.getLanguesDisponibles());
 
         // Récuperation de la dernière demande pour duplication
         demandesService.getDerniereDemandePourDuplication(usagerId,

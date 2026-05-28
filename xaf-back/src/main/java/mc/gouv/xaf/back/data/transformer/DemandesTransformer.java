@@ -24,6 +24,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
@@ -251,6 +252,12 @@ public class DemandesTransformer {
         demandeDTO.setCanal(DemandeCanalEnum.valueOf(projection.getCanal()));
         demandeDTO.setLangue(projection.getLangue());
         demandeDTO.setDateCreation(projection.getDateCreation());
+        DemandeUsagerDTO usager = new DemandeUsagerDTO();
+        usager.setNom(projection.getUsager().getNom());
+        usager.setId(projection.getUsager().getId());
+        usager.setPrenom(projection.getUsager().getPrenom());
+        usager.setEmail(projection.getUsager().getEmail());
+        demandeDTO.setUsager(usager);
         return demandeDTO;
     }
 

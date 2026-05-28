@@ -16,4 +16,6 @@ public interface DemandeLightProjection {
     String getLangue();
 
     Date getDateCreation();
+
+    UsagerLightProjection getUsager();
 }

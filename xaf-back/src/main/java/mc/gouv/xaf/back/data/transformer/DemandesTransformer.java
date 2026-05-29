@@ -404,54 +404,12 @@ public class DemandesTransformer {
         page.setNumber(bos.getNumber());
         page.setSize(bos.getSize());
         page.setNumberOfElements(bos.getNumberOfElements());
-        page.setContent(bo2DtoPageLight(bos.getContent()));
+        page.setContent(bo2Dto(bos.getContent()));
         page.setTotalPages(bos.getTotalPages());
         page.setFirst(bos.isFirst());
         page.setLast(bos.isLast());
         page.setSort(bos.getSort());
         return page;
-    }
-
-    /**
-     * Mapping léger pour les endpoints de pagination FO.
-     * On évite les gros blobs JSON et collections coûteuses.
-     */
-    private List<DemandeDTO> bo2DtoPageLight(List<DemandeBO> bos) {
-        ArrayList<DemandeDTO> dtos = new ArrayList<>();
-        for (DemandeBO bo : bos) {
-            if (bo == null) {
-                continue;
-            }
-
-            DemandeDTO dto = new DemandeDTO();
-            dto.setFkAccess(bo.getFkAccess().getPkAccess());
-            dto.setDateCreation(bo.getDateCreation());
-            dto.setDateDerModif(bo.getDateDerModif());
-            dto.setLangue(bo.getLangue());
-            dto.setCanal(DemandeCanalEnum.valueOf(bo.getCanal()));
-            dto.setObservations(bo.getObservations());
-            dto.setPkDemandes(bo.getPkDemandes());
-            dto.setCreeParAgentId(bo.getCreeParAgentId());
-            dto.setIdentifiant(bo.getIdentifiant());
-            dto.setCourrierDateReception(bo.getCourrierDateReception());
-            dto.setCourrierRefInterne(bo.getCourrierRefInterne());
-            dto.setUsagerId(bo.getFkAccess().getUsagerId());
-            dto.setRecapType(bo.getRecapType());
-            dto.setPkDemandeSource(bo.getPkDemandeSource());
-            dto.setModificationTimestamp(bo.getModificationTimestamp());
-
-            if (bo.getTypeConnexionUsager() != null) {
-                dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
-            }
-
-            if (bo.getDernierStatut() != null) {
-                DemandesStatutsBO statut = bo.getDernierStatut();
-                dto.setDernierStatut(DemandesStatutsTransformer.bo2Dto(statut));
-            }
-
-            dtos.add(dto);
-        }
-        return dtos;
     }
 
 }

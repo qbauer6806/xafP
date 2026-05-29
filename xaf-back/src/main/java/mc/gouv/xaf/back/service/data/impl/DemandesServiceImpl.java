@@ -37,6 +37,7 @@ import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
+import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
@@ -75,6 +76,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -808,14 +810,44 @@ public class DemandesServiceImpl implements DemandesService {
         String sortColumn = paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<DemandeBO> bos;
+        Page<DemandePageableProjection> page;
         if (status != null) {
-            bos = demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(usagerId, status,
-                    pageable);
+            page = demandesRepository.findPageLightByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(
+                    usagerId, status, pageable);
         } else {
-            bos = demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrue(usagerId, pageable);
+            page = demandesRepository.findPageLightByFkAccessUsagerIdAndFkAccessActiveTrue(usagerId, pageable);
         }
-        return demandesTransformer.boPage2DtoPage(bos);
+        return toDemandePage(page);
+    }
+
+    private static mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
+        mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
+        page.setTotalElements(p.getTotalElements());
+        page.setNumber(p.getNumber());
+        page.setSize(p.getSize());
+        page.setNumberOfElements(p.getNumberOfElements());
+        page.setTotalPages(p.getTotalPages());
+        page.setFirst(p.isFirst());
+        page.setLast(p.isLast());
+        page.setSort(p.getSort());
+        page.setContent(p.getContent().stream().map(DemandesServiceImpl::toDemandeDto).toList());
+        return page;
+    }
+
+    private static DemandeDTO toDemandeDto(DemandePageableProjection p) {
+        DemandeDTO dto = new DemandeDTO();
+        dto.setPkDemandes(p.getPkDemandes());
+        dto.setDateCreation(p.getDateCreation());
+        dto.setIdentifiant(p.getIdentifiant());
+        if (p.getPkStatut() != null) {
+            DemandeStatutDTO statut = new DemandeStatutDTO();
+            statut.setPkStatut(p.getPkStatut());
+            statut.setLibelle(p.getStatutLibelle());
+            statut.setName(p.getStatutName());
+            statut.setDate(p.getStatutDate());
+            dto.setDernierStatut(statut);
+        }
+        return dto;
     }
 
     @Override

@@ -78,12 +78,32 @@ public class BrouillonsTransformer {
         page.setNumber(bos.getNumber());
         page.setSize(bos.getSize());
         page.setNumberOfElements(bos.getNumberOfElements());
-        page.setContent(bo2Dto(bos.getContent()));
+        page.setContent(bo2DtoPageLight(bos.getContent()));
         page.setTotalPages(bos.getTotalPages());
         page.setFirst(bos.isFirst());
         page.setLast(bos.isLast());
         page.setSort(bos.getSort());
         return page;
+    }
+
+    private static List<BrouillonDTO> bo2DtoPageLight(List<BrouillonBO> bos) {
+        ArrayList<BrouillonDTO> dtos = new ArrayList<>();
+        for (BrouillonBO bo : bos) {
+            if (bo == null) {
+                continue;
+            }
+            BrouillonDTO dto = new BrouillonDTO();
+            dto.setFkAccess(bo.getFkAccess().getPkAccess());
+            dto.setDateCreation(bo.getDateCreation());
+            dto.setDateDerModif(bo.getDateDerModif());
+            dto.setPkBrouillons(bo.getPkBrouillons());
+            dto.setUsagerId(bo.getFkAccess().getUsagerId());
+            DemandeConfigBO demandeConfigBO = bo.getConfig();
+            dto.setBuildId(demandeConfigBO != null ? demandeConfigBO.getBuildId() : null);
+            dto.setRecapType(bo.getRecapType());
+            dtos.add(dto);
+        }
+        return dtos;
     }
 
     public static void setDernierStatut(BrouillonDTO brouillonDTO, String notTransmitted, String deprecated,

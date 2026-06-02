@@ -52,6 +52,9 @@ public class GouvBPMDemandeRectifDelegate implements JavaDelegate {
         commInterne.setAgentId(AfBackUtils.getAuthenticatedAgentId());
         commInterne.setDate(new Date());
         commInterne.setFkDemandes(demandeId);
+        if (commentaireUsagerStr == null) {
+            commentaireUsagerStr = "";
+        }
         commInterne.setCommentaire("<b>Demande de rectification : </b>" + commentaireUsagerStr);
         demandesCommentaireService.putCommentaireInterne(commInterne);
 

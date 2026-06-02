@@ -10,8 +10,8 @@ import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
@@ -19,7 +19,7 @@ import org.springframework.data.repository.query.Param;
  */
 // On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre des '_'
 @SuppressWarnings("java:S100")
-public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
+public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
 
     DemandeBO findByIdentifiant(String identifiant);
 

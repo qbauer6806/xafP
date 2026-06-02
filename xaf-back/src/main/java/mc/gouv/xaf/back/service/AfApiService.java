@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
@@ -507,14 +508,15 @@ public class AfApiService implements AfApi {
         envoiEmailUsager(demandesImpacteesPk, usager, langue, model, demarcheDTO);
 
         // Génération de l'historique pour chaque demande impactée
-        List<Integer> demandesAPasserEnAnnulee = demandesAPasserEnAnnuleeDTO.stream().map(DemandeDTO::getPkDemandes)
-                .toList();
+        Set<Integer> demandesAPasserEnAnnulee = demandesAPasserEnAnnuleeDTO.stream().map(DemandeDTO::getPkDemandes)
+                .collect(Collectors.toSet());
         for (DemandeDTO demande : demandes) {
             LOGGER.info("Génération de l'historique pour la demande {}", demande.getPkDemandes());
             DemandeHistoriqueDTO histo = demandesHistoriqueService.desinscriptionUsager(
                     demande.getDernierStatut().getName(), usagerId,
                     demandesAPasserEnAnnulee.contains(demande.getPkDemandes()));
-            demandesHistoriqueService.saveHisto(demande.getPkDemandes(), histo);
+            demandesHistoriqueService.saveHistoDesinscription(demande.getPkDemandes(), histo,
+                    demande.getDernierStatut().getPkStatut());
         }
 
         if (!fromGU) {

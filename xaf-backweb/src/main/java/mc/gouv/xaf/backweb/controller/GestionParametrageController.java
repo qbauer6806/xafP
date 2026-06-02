@@ -90,9 +90,11 @@ public class GestionParametrageController {
         mav.addObject("displayName", applicationName.toUpperCase());
         mav.addObject("xafVersion", xafVersion);
         DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
-        JsonNode node = config.getContenu().get("wysiwygVersion");
-        String wysiwygVersion = node != null ? node.asText() : null;
-        mav.addObject("wysiwygVersion", wysiwygVersion);
+        if (config != null) {
+            JsonNode node = config.getContenu().get("wysiwygVersion");
+            String wysiwygVersion = node != null ? node.asText() : null;
+            mav.addObject("wysiwygVersion", wysiwygVersion);
+        }
         mav.addObject("tsVersion", mavenVersion);
 
         LOGGER.info("======================= Fin /gestion/parametrage. Méthode form");

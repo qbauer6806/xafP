@@ -67,14 +67,14 @@ $(document).ready(function () {
           var facetName = facet.name;
           var categoryLibelle = default_category
           var categoryId = default_category
-          var facetLibelle = facetName;
+          var facetLibelle = facet.label || facetName;
           facetName = facetName.replace(/'/g, "")
           var facetLink = facetName + linkIdSuffix
           if (facet.categoryId) {
-            categoryLibelle = facet.allCategories.find(obj => {
+            var category = facet.allCategories.find(obj => {
               return obj.id === facet.categoryId
-            }).label;
-            facetLibelle = facet.label;
+            });
+            categoryLibelle = category ? category.label : default_category;
             categoryId = facet.categoryId;
           }
 

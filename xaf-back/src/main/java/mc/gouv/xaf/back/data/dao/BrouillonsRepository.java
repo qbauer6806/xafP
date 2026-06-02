@@ -2,11 +2,13 @@ package mc.gouv.xaf.back.data.dao;
 
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
+import mc.gouv.xaf.back.data.projection.BrouillonPageableProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author qdeme
@@ -22,6 +24,20 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
      * Récupération brouillons de l'usager FRONT (paginée)
      */
     Page<BrouillonBO> findByFkAccess_UsagerIdAndFkAccess_Active(Integer usagerId, boolean active, Pageable pageRequest);
+
+    @Query("""
+            select b.pkBrouillons as pkBrouillons,
+                   b.dateCreation as dateCreation,
+                   b.dateDerModif as dateDerModif,
+                   c.buildId as buildId,
+                   b.recapType as recapType
+            from BrouillonBO b
+            left join b.config c
+            where b.fkAccess.usagerId = :usagerId
+              and b.fkAccess.active = true
+            """)
+    Page<BrouillonPageableProjection> findPageLightByFkAccess_UsagerIdAndFkAccess_Active(
+            @Param("usagerId") Integer usagerId, Pageable pageRequest);
 
     /**
      * Récupération brouillons de l'usager FRONT

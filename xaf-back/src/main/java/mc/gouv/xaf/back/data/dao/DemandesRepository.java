@@ -6,6 +6,7 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
@@ -78,6 +79,39 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
             List<String> status, Pageable pageRequest);
 
     Page<DemandeBO> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId, Pageable pageable);
+
+    @Query("""
+            select d.pkDemandes as pkDemandes,
+                   d.dateCreation as dateCreation,
+                   d.identifiant as identifiant,
+                   ds.pkDemandesStatuts as pkStatut,
+                   ds.libelle as statutLibelle,
+                   ds.name as statutName,
+                   ds.date as statutDate
+            from DemandeBO d
+            left join d.dernierStatut ds
+            where d.fkAccess.usagerId = :usagerId
+              and d.fkAccess.active = true
+            """)
+    Page<DemandePageableProjection> findPageLightByFkAccessUsagerIdAndFkAccessActiveTrue(
+            @Param("usagerId") Integer usagerId, Pageable pageable);
+
+    @Query("""
+            select d.pkDemandes as pkDemandes,
+                   d.dateCreation as dateCreation,
+                   d.identifiant as identifiant,
+                   ds.pkDemandesStatuts as pkStatut,
+                   ds.libelle as statutLibelle,
+                   ds.name as statutName,
+                   ds.date as statutDate
+            from DemandeBO d
+            left join d.dernierStatut ds
+            where d.fkAccess.usagerId = :usagerId
+              and d.fkAccess.active = true
+              and ds.name in :status
+            """)
+    Page<DemandePageableProjection> findPageLightByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(
+            @Param("usagerId") Integer usagerId, @Param("status") List<String> status, Pageable pageable);
 
     List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
 

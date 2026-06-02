@@ -18,6 +18,7 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import mc.gouv.xaf.back.data.projection.BrouillonPageableProjection;
 import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -29,6 +30,7 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,17 +272,42 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     @Override
     public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
         // b.dateDerModif ?
-        String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" : paramDTO.getSort();
+        String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "dateDerModif" : paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<BrouillonBO> bos = brouillonsRepository.findByFkAccess_UsagerIdAndFkAccess_Active(usagerId, true,
-                pageable);
-        mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
+        Page<BrouillonPageableProjection> bos = brouillonsRepository.findPageLightByFkAccess_UsagerIdAndFkAccess_Active(
+                usagerId, pageable);
+        mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = toBrouillonPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
         String lastBuildId = demandesConfigHelperService.getLastBuildId();
         brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
                 demarchesDataProvider.getBrouillonStatutNotTransmitted(),
                 demarchesDataProvider.getBrouillonStatutDeprecated(), lastBuildId));
         return brouillonDTOS;
+    }
+
+    private static mc.gouv.xaf.shared.dto.Page<BrouillonDTO> toBrouillonPage(Page<BrouillonPageableProjection> p) {
+        mc.gouv.xaf.shared.dto.Page<BrouillonDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
+        page.setTotalElements(p.getTotalElements());
+        page.setNumber(p.getNumber());
+        page.setSize(p.getSize());
+        page.setNumberOfElements(p.getNumberOfElements());
+        page.setTotalPages(p.getTotalPages());
+        page.setFirst(p.isFirst());
+        page.setLast(p.isLast());
+        page.setSort(p.getSort());
+        page.setContent(p.getContent().stream().map(BrouillonsServiceImpl::toBrouillonDto).toList());
+        return page;
+    }
+
+    private static BrouillonDTO toBrouillonDto(BrouillonPageableProjection p) {
+        BrouillonDTO dto = new BrouillonDTO();
+        dto.setPkBrouillons(p.getPkBrouillons());
+        dto.setDateCreation(p.getDateCreation());
+        dto.setDateDerModif(p.getDateDerModif());
+        dto.setBuildId(p.getBuildId());
+        dto.setRecapType(p.getRecapType());
+        dto.setDernierStatut(new DemandeStatutDTO());
+        return dto;
     }
 }

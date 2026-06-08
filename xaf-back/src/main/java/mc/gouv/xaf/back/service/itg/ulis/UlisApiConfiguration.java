@@ -17,12 +17,13 @@ public class UlisApiConfiguration {
     private static String TIERS_ORGANISATION_V1_URL = "/tiers-organisation/api/v1/";
     private static String WORKFLOW_URL = "/workflow/api/v1/";
     private static String ACCUEIL_COMMERCIALISATION_URL = "/accueil-commercialisation/api/v1/";
+    private static String GESTION_RELATION_TIERS_URL = "/gestion-relation-tiers/api/v1/";
 
     @Autowired
     private UlisProperties ulisProperties;
 
     /*
-     * Ces 4 beans sont injectés dans LogdomcUlisApiService pour effectuer les différentes opérations sur ULIS que ce
+     * Ces 6 beans sont injectés dans LogdomcUlisApiService pour effectuer les différentes opérations sur ULIS que ce
      * soit sur des propositions, des tiers ou des factures.
      */
 
@@ -61,5 +62,13 @@ public class UlisApiConfiguration {
                 ulisProperties.getApiUlisUrl() + ACCUEIL_COMMERCIALISATION_URL,
                 ulisProperties.getApiUlisAuthentUser(),
                 ulisProperties.getApiUlisAuthentPassword());
-    }    
+    }
+
+    @Bean
+    public UlisClientApi gestionRelationTiersClientApi() {
+        return new UlisClientApi(
+                ulisProperties.getApiUlisUrl() + GESTION_RELATION_TIERS_URL,
+                ulisProperties.getApiUlisAuthentUser(),
+                ulisProperties.getApiUlisAuthentPassword());
+    }
 }

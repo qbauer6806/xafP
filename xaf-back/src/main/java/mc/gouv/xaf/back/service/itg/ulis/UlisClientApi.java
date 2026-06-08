@@ -35,6 +35,7 @@ public class UlisClientApi implements AutoCloseable {
     public static final String CONTEXT_PATH_CODIFICATION = "codifications";
     public static final String CONTEXT_PATH_INDEXATION_GED = "indexation-ged";
     public static final String CONTEXT_PATH_EDITION_BUREAUTIQUE = "editions-bureautiques";
+    public static final String CONTEXT_PATH_CREATION_AFFAIRE = "crm/affaires";
 
     private final Client client;
     private final WebTarget target;

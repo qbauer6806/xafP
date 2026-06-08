@@ -37,6 +37,7 @@ import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
+import mc.gouv.xaf.back.data.projection.DemandeExcelLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
@@ -72,9 +73,11 @@ import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AfDemandeExcelFlatDTO;
+import mc.gouv.xaf.shared.dto.AfDemandeExcelTemplateDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
@@ -149,6 +152,37 @@ public class DemandesServiceImpl implements DemandesService {
     private final Optional<CloneDemandeExtender> cloneDemandExtenders;
     private final DemandesHelperService demandesHelperService;
     private final PropertiesService propertiesService;
+    private final AfBackUtils afBackUtils;
+
+    private static mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
+        mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
+        page.setTotalElements(p.getTotalElements());
+        page.setNumber(p.getNumber());
+        page.setSize(p.getSize());
+        page.setNumberOfElements(p.getNumberOfElements());
+        page.setTotalPages(p.getTotalPages());
+        page.setFirst(p.isFirst());
+        page.setLast(p.isLast());
+        page.setSort(p.getSort());
+        page.setContent(p.getContent().stream().map(DemandesServiceImpl::toDemandeDto).toList());
+        return page;
+    }
+
+    private static DemandeDTO toDemandeDto(DemandePageableProjection p) {
+        DemandeDTO dto = new DemandeDTO();
+        dto.setPkDemandes(p.getPkDemandes());
+        dto.setDateCreation(p.getDateCreation());
+        dto.setIdentifiant(p.getIdentifiant());
+        if (p.getPkStatut() != null) {
+            DemandeStatutDTO statut = new DemandeStatutDTO();
+            statut.setPkStatut(p.getPkStatut());
+            statut.setLibelle(p.getStatutLibelle());
+            statut.setName(p.getStatutName());
+            statut.setDate(p.getStatutDate());
+            dto.setDernierStatut(statut);
+        }
+        return dto;
+    }
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -465,22 +499,99 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public Page<AfDemandeExcelFlatDTO> retrieveDemandesExcelPageable(Pageable pageable,
             ExcelRechercheDTO excelRechercheDTO, long total) {
-        Page<DemandeExportDTO> demandesPage = rechercheDemandesUtils.getDemandesExcelPageable(excelRechercheDTO,
-                pageable, total);
+        Page<DemandeExcelLightProjection> demandesPage = rechercheDemandesUtils.getDemandesExcelPageable(
+                excelRechercheDTO, pageable, total);
 
-        return demandesPage.map(demande -> {
-            DemandeDTO dto = demandesTransformer.exportProjection2Dto(demande);
-            // pour des questions de performances et éviter l'effet n+1 sur le onetomany, on doit récupérer les data dans un second temps
-            dto.setData(demandesDataService.getDemandeDatasProjection(demande.getPkDemandes()));
-            // mapper les marqueurs
-            List<MarqueurDTO> marqueurs = marqueursService.getMarqueurs(demande.getConfig().getBuildId());
-            dto.setMarqueurs(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenu()));
-            // mapper les marqueurs
-            dto.setMarqueursTrad(demandesTransformer.buildMarqueurs(marqueurs, demande.getContenuTrad()));
-            dto.setComplements(demandesComplementsService.getDemandesComplements(demande.getPkDemandes())
-                    .toArray(DemandeComplementsDTO[]::new));
-            return excelExportModelProvider.getDemandeFlat(dto);
-        });
+        return demandesPage.map(this::toExcelFlatDto);
+    }
+
+    private AfDemandeExcelFlatDTO toExcelFlatDto(DemandeExcelLightProjection demande) {
+        LOGGER.debug("Export Excel - préparation de la ligne [pkDemandes={}, identifiant={}, dateCreation={}]",
+                demande.getPkDemandes(), demande.getIdentifiant(), demande.getDateCreation());
+        DemandeFlatDTO flat = new DemandeFlatDTO();
+        flat.setPkDemandes(demande.getPkDemandes());
+        flat.setDateCreation(afBackUtils.convertDateToString(demande.getDateCreation()));
+        flat.setCourrierDateReception(afBackUtils.convertDateToString(demande.getCourrierDateReception()));
+        flat.setCanal(AfBackUtils.getSafeString(demande.getCanal()));
+        flat.setCourrierRefInterne(AfBackUtils.getSafeString(demande.getCourrierRefInterne()));
+        flat.setAgentAffecteNom(AfBackUtils.getSafeString(demande.getAgentAffecteNom()));
+        flat.setIdentifiant(AfBackUtils.getSafeString(demande.getIdentifiant()));
+
+        AfDemandeExcelTemplateDTO dto = new AfDemandeExcelTemplateDTO(flat);
+        dto.setEtatInterne(AfBackUtils.getSafeString(demande.getEtatInterne()));
+        dto.setDemandeurDateNaissance(AfBackUtils.getSafeString(demande.getDemandeurDateNaissance()));
+        dto.setSituationFamiliale(AfBackUtils.getSafeString(demande.getSituationFamiliale()));
+        dto.setDemandeurSituation(normalizeScalarOrArray(demande.getDemandeurSituation()));
+        dto.setConjointDateNaissance(AfBackUtils.getSafeString(demande.getConjointDateNaissance()));
+        dto.setConjointSituation(normalizeScalarOrArray(demande.getConjointSituation()));
+        dto.setPersonnesFoyerDateNaissance(extractAndJoin(demande.getPersonnesFoyerJson(), "datenaissance"));
+        dto.setPersonnesFoyerModeGarde(extractAndJoin(demande.getPersonnesFoyerJson(), "modegarde"));
+        dto.setPersonnesFoyerSituation(extractAndJoin(demande.getPersonnesFoyerJson(), "profession"));
+        dto.setPersonnesAscendantDateNaissance(extractAndJoin(demande.getPersonnesAscendantJson(), "datenaissance"));
+        dto.setPersonnesAscendantSituation(extractAndJoin(demande.getPersonnesAscendantJson(), "profession"));
+        dto.setRetourMonaco(AfBackUtils.getSafeString(demande.getRetourMonaco()));
+        dto.setLogementActuelType(AfBackUtils.getSafeString(demande.getLogementActuelType()));
+        dto.setLogementActuelSecteur(AfBackUtils.getSafeString(demande.getLogementActuelSecteur()));
+        dto.setLogementActuelComposition(AfBackUtils.getSafeString(demande.getLogementActuelComposition()));
+        dto.setLogementActuelOccupation(AfBackUtils.getSafeString(demande.getLogementActuelOccupation()));
+        dto.setLocataireAide(AfBackUtils.getSafeString(demande.getLocataireAide()));
+        dto.setBienImmobiliersProprietaire(AfBackUtils.getSafeString(demande.getBienImmobiliersProprietaire()));
+        dto.setNumeroDossierArchive("");
+        return dto;
+    }
+
+    private String extractAndJoin(String json, String fieldName) {
+        if (StringUtils.isBlank(json)) {
+            return "";
+        }
+        try {
+            JsonNode node = new ObjectMapper().readTree(json);
+            if (!node.isArray()) {
+                return "";
+            }
+            List<String> values = new ArrayList<>();
+            for (JsonNode item : node) {
+                String normalized = normalizeNodeValue(item.get(fieldName));
+                if (StringUtils.isNotBlank(normalized)) {
+                    values.add(normalized);
+                }
+            }
+            return String.join(" ; ", values);
+        } catch (IOException e) {
+            LOGGER.warn("Impossible de parser le sous-JSON d'export pour le champ {}", fieldName, e);
+            return "";
+        }
+    }
+
+    private String normalizeScalarOrArray(String value) {
+        if (StringUtils.isBlank(value)) {
+            return "";
+        }
+        try {
+            return normalizeNodeValue(new ObjectMapper().readTree(value));
+        } catch (IOException e) {
+            return value;
+        }
+    }
+
+    private String normalizeNodeValue(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) {
+            return "";
+        }
+        if (node.isArray()) {
+            List<String> values = new ArrayList<>();
+            for (JsonNode child : node) {
+                String normalized = normalizeNodeValue(child);
+                if (StringUtils.isNotBlank(normalized)) {
+                    values.add(normalized);
+                }
+            }
+            return String.join(", ", values);
+        }
+        if (node.isValueNode()) {
+            return node.asText();
+        }
+        return "";
     }
 
     /**
@@ -818,36 +929,6 @@ public class DemandesServiceImpl implements DemandesService {
             page = demandesRepository.findPageLightByFkAccessUsagerIdAndFkAccessActiveTrue(usagerId, pageable);
         }
         return toDemandePage(page);
-    }
-
-    private static mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
-        mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
-        page.setTotalElements(p.getTotalElements());
-        page.setNumber(p.getNumber());
-        page.setSize(p.getSize());
-        page.setNumberOfElements(p.getNumberOfElements());
-        page.setTotalPages(p.getTotalPages());
-        page.setFirst(p.isFirst());
-        page.setLast(p.isLast());
-        page.setSort(p.getSort());
-        page.setContent(p.getContent().stream().map(DemandesServiceImpl::toDemandeDto).toList());
-        return page;
-    }
-
-    private static DemandeDTO toDemandeDto(DemandePageableProjection p) {
-        DemandeDTO dto = new DemandeDTO();
-        dto.setPkDemandes(p.getPkDemandes());
-        dto.setDateCreation(p.getDateCreation());
-        dto.setIdentifiant(p.getIdentifiant());
-        if (p.getPkStatut() != null) {
-            DemandeStatutDTO statut = new DemandeStatutDTO();
-            statut.setPkStatut(p.getPkStatut());
-            statut.setLibelle(p.getStatutLibelle());
-            statut.setName(p.getStatutName());
-            statut.setDate(p.getStatutDate());
-            dto.setDernierStatut(statut);
-        }
-        return dto;
     }
 
     @Override

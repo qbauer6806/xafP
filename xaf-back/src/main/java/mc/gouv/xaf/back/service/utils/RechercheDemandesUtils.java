@@ -36,7 +36,7 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
+import mc.gouv.xaf.back.data.projection.DemandeExcelLightProjection;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPath;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPathConfiguration;
 import mc.gouv.xaf.shared.dto.ConfigRechercheDTO;
@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
@@ -450,31 +451,73 @@ public class RechercheDemandesUtils extends RechercheUtils {
         return cal;
     }
 
-    public Page<DemandeExportDTO> getDemandesExcelPageable(ExcelRechercheDTO excelRechercheDTO, Pageable pageable,
+    public Page<DemandeExcelLightProjection> getDemandesExcelPageable(ExcelRechercheDTO excelRechercheDTO, Pageable pageable,
             long total) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<DemandeExportDTO> cq = cb.createQuery(DemandeExportDTO.class);
+        CriteriaQuery<DemandeExcelLightProjection> cq = cb.createQuery(DemandeExcelLightProjection.class);
         Root<DemandeBO> root = cq.from(DemandeBO.class);
 
         Join<DemandeBO, DemandesAgentsBO> agentJoin = root.join(AGENT, JoinType.LEFT);
-        Join<DemandeBO, DemandesUsagersBO> usagerJoin = root.join(USAGER, JoinType.LEFT);
-        Join<DemandeBO, DemandeConfigBO> configJoin = root.join(CONFIG, JoinType.LEFT);
         Join<DemandeBO, DemandesStatutsBO> statutJoin = root.join(DERNIER_STATUT, JoinType.LEFT);
 
         // Projection
-        cq.select(cb.construct(DemandeExportDTO.class, root.get(PK_DEMANDES), root.get(DATE_CREATION),
-                root.get("dateDerModif"), root.get("courrierDateReception"), root.get("contenu"),
-                root.get("contenuTrad"), root.get("langue"), root.get(CANAL), root.get("observations"),
-                root.get("courrierRefInterne"), agentJoin, usagerJoin, configJoin, statutJoin, root.get(IDENTIFIANT)));
+        cq.select(cb.construct(DemandeExcelLightProjection.class, root.get(PK_DEMANDES), root.get(IDENTIFIANT),
+                root.get(DATE_CREATION), statutJoin.get(LIBELLE), agentJoin.get("nomAffichage"), root.get(CANAL),
+                root.get("courrierRefInterne"), root.get("courrierDateReception"),
+                jsonText(root, cb, "contenuTrad", "donnee", "demandeur", "datenaissance"),
+                jsonText(root, cb, "contenuTrad", "donnee", "demandeur", "situationfamiliale"),
+                jsonText(root, cb, "contenuTrad", "donnee", "demandeur", "profession"),
+                jsonText(root, cb, "contenuTrad", "donnee", "conjoint", "datenaissance"),
+                jsonText(root, cb, "contenuTrad", "donnee", "conjoint", "profession"),
+                jsonText(root, cb, "contenuTrad", "donnee", "habitantfoyer"),
+                jsonText(root, cb, "contenuTrad", "donnee", "habitantascendant"),
+                jsonText(root, cb, "contenuTrad", "donnee", "motif", "retourmonaco"),
+                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "type"),
+                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "secteur"),
+                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "composition"),
+                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "occupation"),
+                jsonText(root, cb, "contenuTrad", "donnee", "locataire", "aide"),
+                jsonText(root, cb, "contenuTrad", "donnee", "biensimmobiliers", "proprietaire")));
 
         List<Predicate> predicates = buildPredicatesExcel(root, cb, excelRechercheDTO);
         cq.where(predicates.toArray(Predicate[]::new));
+        cq.distinct(true);
+        applyExcelSort(cq, root, cb, pageable);
         // Pagination
-        TypedQuery<DemandeExportDTO> query = em.createQuery(cq);
+        TypedQuery<DemandeExcelLightProjection> query = em.createQuery(cq);
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(query.getResultList(), pageable, total);
+    }
+
+    private Expression<String> jsonText(Root<DemandeBO> root, CriteriaBuilder cb, String jsonColumn,
+            String... path) {
+        List<Expression<?>> expressions = new ArrayList<>();
+        expressions.add(root.get(jsonColumn));
+        for (String item : path) {
+            expressions.add(cb.literal(item));
+        }
+        return cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
+    }
+
+    private void applyExcelSort(CriteriaQuery<?> cq, Root<DemandeBO> root, CriteriaBuilder cb, Pageable pageable) {
+        List<jakarta.persistence.criteria.Order> orders = new ArrayList<>();
+
+        if (pageable != null && pageable.getSort() != null && pageable.getSort().isSorted()) {
+            for (Sort.Order sortOrder : pageable.getSort()) {
+                Expression<?> expression = getExpression(sortOrder, root, new ArrayList<>(), cb);
+                orders.add(sortOrder.isAscending() ? cb.asc(expression) : cb.desc(expression));
+            }
+            if (pageable.getSort().stream().noneMatch(sortOrder -> PK_DEMANDES.equals(sortOrder.getProperty()))) {
+                orders.add(cb.desc(root.get(PK_DEMANDES)));
+            }
+        } else {
+            orders.add(cb.desc(root.get(DATE_CREATION)));
+            orders.add(cb.desc(root.get(PK_DEMANDES)));
+        }
+
+        cq.orderBy(orders);
     }
 
     public long countDemandesExcel(ExcelRechercheDTO excelRechercheDTO) {

@@ -31,7 +31,7 @@ pipeline {
                     def nexusIqStage = "develop"
 
                     if (env.TAG_NAME != null && env.TAG_NAME.length() > 0) {
-                        def matcher = env.TAG_NAME =~ /^[a-zA-Z0-9]+-(?<version>\d+\.\d+\.\d+(\.\d+)?(?<prerelease>-[a-zA-Z0-9-_.]+)?)$/
+                        def matcher = env.TAG_NAME =~ /^[a-zA-Z]+-(?<version>\d+\.\d+\.\d+(\.\d+)?(?<prerelease>-[a-zA-Z0-9-_.]+)?)$/
                         if (matcher.matches()) {
                             mvnVersion = matcher.group("version")
                             if (matcher.group("prerelease")) {
@@ -39,9 +39,6 @@ pipeline {
                             } else {
                                 nexusIqStage = "release"
                             }
-                        } else if (env.TAG_NAME ==~ /^[a-zA-Z0-9]+-[a-zA-Z][a-zA-Z0-9-_.]*$/) {
-                            mvnVersion = env.TAG_NAME
-                            nexusIqStage = "stage-release"
                         } else {
                             error 'Le nom du tag n\'est pas valide'
                         }

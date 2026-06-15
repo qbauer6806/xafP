@@ -80,6 +80,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -173,6 +174,12 @@ public class DemandesServiceImpl implements DemandesService {
         dto.setPkDemandes(p.getPkDemandes());
         dto.setDateCreation(p.getDateCreation());
         dto.setIdentifiant(p.getIdentifiant());
+        if (p.getUsagerPrenom() != null || p.getUsagerNom() != null) {
+            DemandeUsagerDTO usager = new DemandeUsagerDTO();
+            usager.setPrenom(p.getUsagerPrenom());
+            usager.setNom(p.getUsagerNom());
+            dto.setUsager(usager);
+        }
         if (p.getPkStatut() != null) {
             DemandeStatutDTO statut = new DemandeStatutDTO();
             statut.setPkStatut(p.getPkStatut());

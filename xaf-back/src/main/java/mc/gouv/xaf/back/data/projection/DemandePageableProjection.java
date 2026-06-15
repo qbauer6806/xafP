@@ -10,6 +10,10 @@ public interface DemandePageableProjection {
 
     String getIdentifiant();
 
+    String getUsagerPrenom();
+
+    String getUsagerNom();
+
     Integer getPkStatut();
 
     String getStatutLibelle();

@@ -84,11 +84,14 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
             select d.pkDemandes as pkDemandes,
                    d.dateCreation as dateCreation,
                    d.identifiant as identifiant,
+                   u.prenom as usagerPrenom,
+                   u.nom as usagerNom,
                    ds.pkDemandesStatuts as pkStatut,
                    ds.libelle as statutLibelle,
                    ds.name as statutName,
                    ds.date as statutDate
             from DemandeBO d
+            left join d.usager u
             left join d.dernierStatut ds
             where d.fkAccess.usagerId = :usagerId
               and d.fkAccess.active = true
@@ -100,11 +103,14 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
             select d.pkDemandes as pkDemandes,
                    d.dateCreation as dateCreation,
                    d.identifiant as identifiant,
+                   u.prenom as usagerPrenom,
+                   u.nom as usagerNom,
                    ds.pkDemandesStatuts as pkStatut,
                    ds.libelle as statutLibelle,
                    ds.name as statutName,
                    ds.date as statutDate
             from DemandeBO d
+            left join d.usager u
             left join d.dernierStatut ds
             where d.fkAccess.usagerId = :usagerId
               and d.fkAccess.active = true

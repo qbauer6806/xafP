@@ -20,4 +20,6 @@ public class ExcelRechercheDTO {
 
     private DataRechercheDTO data;
 
+    private ConfigRechercheDTO config;
+
 }

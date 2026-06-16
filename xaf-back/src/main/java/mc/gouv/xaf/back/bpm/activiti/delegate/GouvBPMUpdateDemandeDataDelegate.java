@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMException;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -30,6 +31,7 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
 
     private final DemandesDataService demandesDataService;
     private final DemandesStatutsService demandesStatutsService;
+    private final DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -51,7 +53,7 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
         // xaf 12 on n'utilise plus le flag IS_EN_ATTENTE_VALIDATION pour les validations hiérarchiques
         // on est obligé de laisser cette condition pour faire marcher les anciennes demandes qui sont encore actives avec des vieux bpmn
         if (dataKeyStr.equals("IS_EN_ATTENTE_VALIDATION") && dataValueStr.equals("1")) {
-            demandesStatutsService.updateStatut(demandeId, "VALIDATION_HIERARCHIQUE",
+            demandesStatutsService.updateStatut(demandeId, demarchesDataProvider.getIsEnAttenteValidationStatus(),
                     AfBackUtils.getAuthenticatedAgentId(), null, null, null, null);
         } else {
             demandesDataService.saveOrUpdateDemandeData(demandeId, dataKeyStr, dataValueStr);

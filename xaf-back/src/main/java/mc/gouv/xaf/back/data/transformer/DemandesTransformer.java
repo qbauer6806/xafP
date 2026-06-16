@@ -236,6 +236,10 @@ public class DemandesTransformer {
             DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
             dto.setDernierStatut(statutDto);
         }
+        // mapper le buildId
+        if (demandeExportDTO.getConfig() != null) {
+            dto.setBuildId(demandeExportDTO.getConfig().getBuildId());
+        }
         return dto;
     }
 

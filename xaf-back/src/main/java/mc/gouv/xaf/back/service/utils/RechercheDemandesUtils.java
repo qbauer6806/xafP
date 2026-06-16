@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
@@ -38,6 +39,8 @@ import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPath;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPathConfiguration;
+import mc.gouv.xaf.shared.dto.ConfigRechercheDTO;
+import mc.gouv.xaf.shared.dto.ConfigRechercheDTO.ConfigRechercheOperand;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
@@ -72,6 +75,8 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String SEARCH_VECTOR = "searchVector";
     private static final String USAGER = "usager";
     private static final String DATA = "data";
+    private static final String CONFIG = "config";
+    private static final String BUILD_ID = "buildId";
     private static final String VALUE = "value";
     private static final String KEY = "key";
     private static final String PK_DEMANDES = "pkDemandes";
@@ -453,7 +458,7 @@ public class RechercheDemandesUtils extends RechercheUtils {
 
         Join<DemandeBO, DemandesAgentsBO> agentJoin = root.join(AGENT, JoinType.LEFT);
         Join<DemandeBO, DemandesUsagersBO> usagerJoin = root.join(USAGER, JoinType.LEFT);
-        Join<DemandeBO, DemandeConfigBO> configJoin = root.join("config", JoinType.LEFT);
+        Join<DemandeBO, DemandeConfigBO> configJoin = root.join(CONFIG, JoinType.LEFT);
         Join<DemandeBO, DemandesStatutsBO> statutJoin = root.join(DERNIER_STATUT, JoinType.LEFT);
 
         // Projection
@@ -513,6 +518,27 @@ public class RechercheDemandesUtils extends RechercheUtils {
             // vérifier c'est une array
             predicates.add(cb.and(cb.equal(demandesData.<String> get(VALUE), value),
                     cb.equal(demandesData.<String> get(KEY), excelRechercheDTO.getData().getKey())));
+        }
+
+        // Créer un prédicat pour config
+        ConfigRechercheDTO config = excelRechercheDTO.getConfig();
+        if (config != null && !config.isEmpty()) {
+            List<Predicate> configPredicates = new ArrayList<>();
+            Join<DemandeBO, DemandeConfigBO> demandesConfig = root.join(CONFIG);
+            Set<String> buildIdsInclude = config.getBuildIdsInclude();
+            Set<String> buildIdsExclude = config.getBuildIdsExclude();
+
+            if (buildIdsInclude != null && !buildIdsInclude.isEmpty()) {
+                configPredicates.add(demandesConfig.get(BUILD_ID).in(buildIdsInclude));
+            }
+            if (buildIdsExclude != null && !buildIdsExclude.isEmpty()) {
+                configPredicates.add(cb.not(demandesConfig.get(BUILD_ID).in(buildIdsExclude)));
+            }
+            if (!configPredicates.isEmpty()) {
+                predicates.add(config.getOperand() == ConfigRechercheOperand.OR
+                        ? cb.or(configPredicates.toArray(new Predicate[0]))
+                        : cb.and(configPredicates.toArray(new Predicate[0])));
+            }
         }
         return predicates;
     }

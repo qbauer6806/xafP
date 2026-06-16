@@ -888,12 +888,17 @@ public class AfBackUtils {
         donneeExterneKeyArray.removeFirst();
         //     "[donnee,demandeur]" / field = prenom
         String field = donneeExterneKeyArray.removeLast();
-        // "/donnee/demandeur"
-        String p = "/" + String.join("/", donneeExterneKeyArray);
-        // Vérifier si le nœud existe
-        JsonNode targetNode = contenu.at(p);
-        if (!targetNode.isMissingNode()) {
-            ((ObjectNode) targetNode).put(field, nouvelleValeur);
+
+        JsonNode parentNode;
+        if (donneeExterneKeyArray.isEmpty()) {
+            parentNode = contenu;
+        } else {
+            // "/donnee/demandeur"
+            String parentPath = "/" + String.join("/", donneeExterneKeyArray);
+            parentNode = contenu.at(parentPath);
+        }
+        if (!parentNode.isMissingNode()) {
+            ((ObjectNode) parentNode).set(field, nouvelleValeur);
         }
     }
 

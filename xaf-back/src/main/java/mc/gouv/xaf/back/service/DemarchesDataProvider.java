@@ -135,6 +135,14 @@ public interface DemarchesDataProvider {
     }
 
     /**
+     * Permet d'activer ou de désactiver l'envoi du mail de désinscription aux agents pour une démarche. Par défaut, la
+     * fonctionnalité est activée.
+     */
+    default boolean isEnvoieMailDesinscriptionUsagerPourAgents() {
+        return true;
+    }
+
+    /**
      * Retourne le libellé du statut brouillon non transmis
      */
     default String getBrouillonStatutNotTransmitted() {
@@ -248,6 +256,17 @@ public interface DemarchesDataProvider {
 
     default List<SearchFilterDefinition> getFilterDataRecherche() {
         return List.of();
+    }
+
+    /**
+     * Permet d’assurer la compatibilité avec les anciennes demandes encore actives, utilisant d’anciens fichiers BPMN
+     * lorsque le flag IS_EN_ATTENTE_VALIDATION est égal à 1. Dans ce cas, la méthode renvoie le statut cible à
+     * appliquer
+     *
+     * Par défaut, retourne TSCODEDemandeStatutEnum.VALIDATION_HIERARCHIQUE.name().
+     */
+    default String getIsEnAttenteValidationStatus() {
+        return "VALIDATION_HIERARCHIQUE";
     }
 
 }

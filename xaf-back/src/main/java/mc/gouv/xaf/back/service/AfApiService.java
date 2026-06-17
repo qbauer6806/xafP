@@ -478,7 +478,7 @@ public class AfApiService implements AfApi {
 
         // Récupération de la liste des demandes effectuées par l'usager
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager...");
-        List<DemandeDTO> demandes = demandesService.getDemandesLight(usagerId);
+        List<DemandeDTO> demandes = demandesService.getDemandesLightUsagerActive(usagerId);
 
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
         String statutAnnulee = XafDemandeStatutEnum.ANNULEE.name();

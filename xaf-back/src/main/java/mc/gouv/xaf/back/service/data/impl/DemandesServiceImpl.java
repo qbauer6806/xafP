@@ -38,6 +38,7 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
+import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
@@ -901,6 +902,14 @@ public class DemandesServiceImpl implements DemandesService {
     public AfDemandeExcelFlatIterable retrieveDemandesExcel(ExcelRechercheDTO excelRecherche) {
         long total = rechercheDemandesUtils.countDemandesExcel(excelRecherche);
         return new AfDemandeExcelFlatIterable(this, excelRecherche, total);
+    }
+
+    @Override
+    public List<DemandeDTO> getDemandesLightUsagerActive(Integer usagerId) {
+        LOGGER.info("Récupération en base des demandes pour l'usager {}", usagerId);
+        checkAccess(usagerId);
+        return demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrue(usagerId, DemandeLightProjection.class)
+                .stream().map(demandesTransformer::lightProjection2Dto).toList();
     }
 
 }

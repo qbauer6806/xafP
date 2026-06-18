@@ -40,6 +40,7 @@ import mc.gouv.xaf.back.data.model.ErrorEventDTO;
 import mc.gouv.xaf.back.data.projection.DemandeExcelLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
+import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
@@ -705,7 +706,7 @@ public class DemandesServiceImpl implements DemandesService {
             if (marqueursForRecap != null) {
                 map = new HashMap<>();
                 for (String identifiant : marqueursForRecap) {
-                    MarqueurDTO marqueur = marqueursService.getMarqueur(demande.getConfig().get("buildId").asText(),
+                    MarqueurDTO marqueur = marqueursService.getMarqueur(demande.getConfigBuildId(),
                             identifiant);
                     if (marqueur != null) {
                         String valeur;
@@ -1021,6 +1022,14 @@ public class DemandesServiceImpl implements DemandesService {
     public AfDemandeExcelFlatIterable retrieveDemandesExcel(ExcelRechercheDTO excelRecherche) {
         long total = rechercheDemandesUtils.countDemandesExcel(excelRecherche);
         return new AfDemandeExcelFlatIterable(this, excelRecherche, total);
+    }
+
+    @Override
+    public List<DemandeDTO> getDemandesLightUsagerActive(Integer usagerId) {
+        LOGGER.info("Récupération en base des demandes pour l'usager {}", usagerId);
+        checkAccess(usagerId);
+        return demandesRepository.findByFkAccessUsagerIdAndFkAccessActiveTrue(usagerId, DemandeLightProjection.class)
+                .stream().map(demandesTransformer::lightProjection2Dto).toList();
     }
 
 }

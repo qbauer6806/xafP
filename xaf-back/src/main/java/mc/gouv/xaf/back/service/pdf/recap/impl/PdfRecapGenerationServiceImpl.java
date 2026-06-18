@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.pdf.recap.PdfHeaderProvider;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
@@ -59,6 +60,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
     private final PdfHeaderProvider pdfHeaderProvider;
 
     private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     @Override
     public void generateAndStorePdf(DemandeDTO demande) throws IOException {
@@ -185,7 +187,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             LOGGER.info("Création d'un fichier temporaire pour stocker le HTML...");
             htmlSource = File.createTempFile("tmpRecapHtml", ".html");
 
-            DemarcheDTO demarche = afBackUtils.getDemarcheInfos();
+            DemarcheDTO demarche = demarchesService.getDemarche();
             try (PrintWriter writer = new PrintWriter(htmlSource)) {
                 writer.println("<!DOCTYPE html><html><head>");
 
@@ -245,7 +247,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
                 writer.println("<h1>Récapitulatif de la demande</h1>");
                 writer.println("<h2>");
-                writer.println(StringEscapeUtils.escapeXml(afBackUtils.getDemarcheNom()));
+                writer.println(StringEscapeUtils.escapeXml(demarche.getNom()));
                 writer.println("</h2>");
 
                 writer.println("<table class=\"table-section sectiondemande\">");

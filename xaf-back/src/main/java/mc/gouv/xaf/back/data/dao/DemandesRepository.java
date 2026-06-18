@@ -6,8 +6,8 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
+import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -120,6 +120,19 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
             @Param("usagerId") Integer usagerId, @Param("status") List<String> status, Pageable pageable);
 
     List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
+    /**
+     * Recherche une liste d'entités en fonction de l'identifiant usager fourni et vérifie que l'accès associé est
+     * actif. Les entités retournées sont transformées vers l'interface de projection spécifiée.
+     *
+     * @param <T>
+     *         Le type de l'interface de projection vers laquelle le résultat doit être mappé.
+     * @param usagerId
+     *         L'identifiant de l'usager pour lequel les entités liées aux accès actifs doivent être récupérées.
+     * @param interfaceRetour
+     *         Le type de classe de l'interface de projection pour le mapping des résultats.
+     * @return Une liste d'entités mappées vers l'interface de projection spécifiée.
+     */
+    <T> List<T> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId, Class<T> interfaceRetour);
 
     boolean existsByAgent(DemandesAgentsBO agent);
 

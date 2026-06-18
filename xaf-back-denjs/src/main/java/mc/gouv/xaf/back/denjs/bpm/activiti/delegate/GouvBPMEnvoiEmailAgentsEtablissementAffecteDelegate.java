@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -17,6 +18,7 @@ import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.api.delegate.Expression;
@@ -39,7 +41,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
     private static final Logger LOGGER = LoggerFactory.getLogger(
             GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate.class);
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final MailService mailService;
     private final DemandesService demandesService;
     private final GouvPropertiesResolver gouvPropertiesResolver;
@@ -87,10 +89,9 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarche = demarchesService.getDemarche();
+        emailInfo.setFrom(demarche.getEmailFrom(), demarche.getEmailFromNom());
+        emailInfo.setReplyto(demarche.getEmailReplyto(), demarche.getEmailReplytoNom());
 
         LOGGER.info("Liste de matricules destinataires de l'e-mail : {}", matriculesDestinataires);
         for (String matricule : matriculesDestinataires) {

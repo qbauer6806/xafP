@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class AfBackWebControllerAdvice {
     private long buildTimestamp = 0;
     private static final String DATE_FORMAT_TS_MAVEN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     @ModelAttribute(name = "helpUrl")
     public String addHelpUrl() {
@@ -121,7 +121,7 @@ public class AfBackWebControllerAdvice {
     @ModelAttribute("nomDemarche")
     public String globalNomDemarche() {
         try {
-            return afBackUtils.getDemarcheNom();
+            return demarchesService.getDemarche().getNom();
         } catch (Exception ex) {
             LOGGER.error("Erreur de recuperation du nom de la demarche", ex);
             return StringUtils.EMPTY;

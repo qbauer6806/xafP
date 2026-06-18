@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 
 @Setter
 @Getter
@@ -100,6 +101,19 @@ public class AbstractDemandeDTO implements Serializable {
             }
         }
         return new ArrayList<>();
+    }
+
+    @JsonIgnore
+    public String getConfigBuildId() {
+        if (config == null) {
+            throw new DemarcheException(String.format("Erreur technique: Demande %s sans aucune config", pkDemandes));
+        }
+        JsonNode buildId = config.get("buildId");
+        if (buildId == null) {
+            throw new DemarcheException(
+                    String.format("Erreur technique: la config de la demande %s n'a pas de buildId", pkDemandes));
+        }
+        return buildId.asText();
     }
 
 

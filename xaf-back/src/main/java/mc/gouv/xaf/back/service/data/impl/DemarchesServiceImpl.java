@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
@@ -75,6 +77,19 @@ public class DemarchesServiceImpl implements DemarchesService {
             updateDemarche(demarche);
         }
 
+    }
+
+    @Override
+    public Map<String, String> getLanguesDisponibles() {
+        DemarcheDTO demarche = getDemarche();
+        Map<String, String> langues = new HashMap<>();
+        if (demarche.getLangues().contains("fr")) {
+            langues.put("fr", "Français");
+        }
+        if (demarche.getLangues().contains("en")) {
+            langues.put("en", "Anglais");
+        }
+        return langues;
     }
 
 }

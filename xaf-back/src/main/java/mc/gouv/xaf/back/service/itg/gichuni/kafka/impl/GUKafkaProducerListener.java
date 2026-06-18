@@ -7,11 +7,13 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -38,7 +40,7 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
     private final PropertiesService propertiesService;
     private final GouvPropertiesResolver gouvPropertiesResolver;
     private final MailService mailService;
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
 
     private static final String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
@@ -129,10 +131,9 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
             EmailInfoDTO emailInfo = new EmailInfoDTO();
             emailInfo.setBodyTemplateCode(corps);
             emailInfo.setSubjectTemplateCode(objet);
-            emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                    afBackUtils.getDemarcheInfos().getEmailFromNom());
-            emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                    afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+            DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+            emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+            emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
             emailInfo.setLangue("fr");
             for (String adresseMail : adresses) {
                 emailInfo.addTo(adresseMail, "Support Technique");

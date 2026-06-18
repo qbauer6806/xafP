@@ -16,12 +16,14 @@ import java.util.TreeSet;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.dto.mail.AddressBlockDTO;
@@ -53,14 +55,16 @@ public class MailServiceImpl implements MailService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
 
     private static final String XAF_NOTIFICATION_MAIL_AGENT = "XAF_NOTIFICATION_MAIL_AGENT";
+    public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
     private static final String BODY_TAG = "TEMPLATE_BODY";
     private static final String SUBJECT_TAG = "TEMPLATE_SUBJECT";
 
     private final TemplatesService templatesService;
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final PropertiesService propertiesService;
     private final VelocityEngine velocityEngine;
     private final ToolManager manager;
+    private final MailClient mailClient;
 
     /**
      * {@inheritDoc}
@@ -98,7 +102,6 @@ public class MailServiceImpl implements MailService {
             return;
         }
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
-        MailClient mailClient = afBackUtils.getMailClient();
         mailClient.sendEmail(email, attachments);
     }
 
@@ -195,14 +198,15 @@ public class MailServiceImpl implements MailService {
         String mailSubjectToSend = output.toString();
 
         // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
-        if (afBackUtils.isEmailHtmlEnabled()) {
+        if (isEmailHtmlEnabled()) {
             LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
             context = getContext();
             context.put("emailBodyToSend", mailBodyToSend);
-            if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
-                context.put("titreTs", afBackUtils.getDemarcheNomEn());
+            DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+            if (langue.equals("en") && StringUtils.isNotBlank(demarcheDTO.getNomEn())) {
+                context.put("titreTs", demarcheDTO.getNomEn());
             } else {
-                context.put("titreTs", afBackUtils.getDemarcheNom());
+                context.put("titreTs", demarcheDTO.getNom());
             }
             InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
             String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -215,6 +219,14 @@ public class MailServiceImpl implements MailService {
         }
 
         return new String[] { mailSubjectToSend, mailBodyToSend };
+    }
+
+    private boolean isEmailHtmlEnabled() {
+        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(XAF_EMAIL_HTML_ENABLED);
+        if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
+            return false;
+        }
+        return Boolean.parseBoolean(emailHtmlEnabledProp.getValue());
     }
 
     private Context getContext() {
@@ -238,10 +250,9 @@ public class MailServiceImpl implements MailService {
         emailInfo.setLangue("fr");
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, identifiantDemande);
 
         for (String adresseMail : mails) {

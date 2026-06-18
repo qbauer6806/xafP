@@ -66,7 +66,7 @@ public class GestionParametrageController {
         LOGGER.info("Appel de la page /gestion/parametrage. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/parametrage/parametrage");
         if (afBackUtils.getDemarcheCanHandleProperties()) {
-            DemarcheDTO demarche = afBackUtils.getDemarcheInfos();
+            DemarcheDTO demarche = demarchesService.getDemarche();
             parametrageFormBean.setNomDemarche(demarche.getNom());
             parametrageFormBean.setEmailFrom(demarche.getEmailFrom());
             parametrageFormBean.setEmailFromNom(demarche.getEmailFromNom());
@@ -115,7 +115,7 @@ public class GestionParametrageController {
 
         mav = new ModelAndView(REDIRECT);
 
-        DemarcheDTO demarche = afBackUtils.getDemarcheInfos();
+        DemarcheDTO demarche = demarchesService.getDemarche();
         demarche.setNom(parametrageFormBean.getNomDemarche());
         demarche.setEmailFrom(parametrageFormBean.getEmailFrom());
         demarche.setEmailFromNom(parametrageFormBean.getEmailFromNom());

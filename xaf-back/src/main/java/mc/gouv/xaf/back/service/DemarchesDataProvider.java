@@ -16,6 +16,7 @@ import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
 import mc.gouv.xaf.shared.enums.XafCodeMotifEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.Nullable;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -118,7 +119,13 @@ public interface DemarchesDataProvider {
     String getHistoAction(String statutName, HistoValidationEnum histoValidationEnum, String dernierStatut,
             HistoValidationNiveauEnum niveauEnum);
 
-    default String getHistoRole() {
+    /**
+     * Permets de définir le role de l'agent à afficher dans l'historique selon statut cible et celui d'avant
+     *
+     * @param targetState statut cible, peut être null
+     * @param dernierStatut dernier statut connu, peut être null
+     */
+    default String getHistoRole(@Nullable String targetState, @Nullable String dernierStatut) {
         return "Utilisateur";
     }
 
@@ -206,7 +213,7 @@ public interface DemarchesDataProvider {
     /**
      * Permet d'indiquer si la démarche permet l'envoi de SMS et donc d'afficher le menu
      * de paramétrage des templates de SMS ou non
-     * 
+     *
      * @return
      */
 	default boolean getDemarcheCanSendSms() {

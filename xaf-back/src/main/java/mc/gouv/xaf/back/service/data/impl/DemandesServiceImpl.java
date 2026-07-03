@@ -49,7 +49,6 @@ import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.DemandePageableInformationsProvider;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -155,7 +154,6 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemandesHelperService demandesHelperService;
     private final PropertiesService propertiesService;
     private final AfBackUtils afBackUtils;
-    private final List<DemandePageableInformationsProvider> demandePageableInformationsProviders;
 
     private mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
 //        Map<Integer, Map<String, Object>> informationsParDemande =

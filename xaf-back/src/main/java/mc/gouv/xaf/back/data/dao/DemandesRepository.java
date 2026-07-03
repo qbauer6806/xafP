@@ -6,6 +6,7 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.data.projection.DemandeContenuProjection;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
@@ -85,6 +86,7 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
                    d.dateCreation as dateCreation,
                    d.identifiant as identifiant,
                    u.prenom as usagerPrenom,
+                   d.contenu as contenu,
                    u.nom as usagerNom,
                    ds.pkDemandesStatuts as pkStatut,
                    ds.libelle as statutLibelle,
@@ -103,6 +105,7 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
             select d.pkDemandes as pkDemandes,
                    d.dateCreation as dateCreation,
                    d.identifiant as identifiant,
+                   d.contenu as contenu,
                    u.prenom as usagerPrenom,
                    u.nom as usagerNom,
                    ds.pkDemandesStatuts as pkStatut,
@@ -118,6 +121,14 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
             """)
     Page<DemandePageableProjection> findPageLightByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(
             @Param("usagerId") Integer usagerId, @Param("status") List<String> status, Pageable pageable);
+
+    @Query("""
+            select d.pkDemandes as pkDemandes,
+                   d.contenu as contenu
+            from DemandeBO d
+            where d.pkDemandes in :ids
+            """)
+    List<DemandeContenuProjection> findContenusByPkDemandesIn(@Param("ids") List<Integer> ids);
 
     List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
     /**

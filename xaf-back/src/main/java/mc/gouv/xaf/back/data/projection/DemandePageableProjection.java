@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.data.projection;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 
 public interface DemandePageableProjection {
@@ -7,6 +8,8 @@ public interface DemandePageableProjection {
     Integer getPkDemandes();
 
     Date getDateCreation();
+
+    JsonNode getContenu();
 
     String getIdentifiant();
 

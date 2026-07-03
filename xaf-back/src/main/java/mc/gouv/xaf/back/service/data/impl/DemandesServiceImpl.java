@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
@@ -37,6 +38,7 @@ import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
+import mc.gouv.xaf.back.data.projection.DemandeContenuProjection;
 import mc.gouv.xaf.back.data.projection.DemandeExcelLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
@@ -55,6 +57,8 @@ import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.DemandePageableInformationField;
+import mc.gouv.xaf.back.service.data.DemandePageableInformationsProvider;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -155,8 +159,12 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemandesHelperService demandesHelperService;
     private final PropertiesService propertiesService;
     private final AfBackUtils afBackUtils;
+    private final List<DemandePageableInformationsProvider> demandePageableInformationsProviders;
 
-    private static mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
+    private mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
+//        Map<Integer, Map<String, Object>> informationsParDemande =
+//                getInformationsAffichageParDemande(p.getContent());
+
         mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
         page.setTotalElements(p.getTotalElements());
         page.setNumber(p.getNumber());
@@ -166,7 +174,14 @@ public class DemandesServiceImpl implements DemandesService {
         page.setFirst(p.isFirst());
         page.setLast(p.isLast());
         page.setSort(p.getSort());
-        page.setContent(p.getContent().stream().map(DemandesServiceImpl::toDemandeDto).toList());
+        page.setContent(p.getContent().stream()
+                .map(projection -> {
+                    DemandeDTO dto = toDemandeDto(projection);
+//                    dto.setInformationsAffichage(
+//                            informationsParDemande.getOrDefault(projection.getPkDemandes(), Map.of()));
+                    return dto;
+                })
+                .toList());
         return page;
     }
 
@@ -175,6 +190,7 @@ public class DemandesServiceImpl implements DemandesService {
         dto.setPkDemandes(p.getPkDemandes());
         dto.setDateCreation(p.getDateCreation());
         dto.setIdentifiant(p.getIdentifiant());
+        dto.setContenu(p.getContenu());
         if (p.getUsagerPrenom() != null || p.getUsagerNom() != null) {
             DemandeUsagerDTO usager = new DemandeUsagerDTO();
             usager.setPrenom(p.getUsagerPrenom());
@@ -190,6 +206,60 @@ public class DemandesServiceImpl implements DemandesService {
             dto.setDernierStatut(statut);
         }
         return dto;
+    }
+
+    private Map<Integer, Map<String, Object>> getInformationsAffichageParDemande(
+            List<DemandePageableProjection> demandes) {
+        List<DemandePageableInformationField> fields = demandePageableInformationsProviders.stream()
+                .flatMap(provider -> provider.getFields().stream())
+                .toList();
+
+        if (fields.isEmpty() || demandes.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Integer> ids = demandes.stream()
+                .map(DemandePageableProjection::getPkDemandes)
+                .toList();
+
+        return demandesRepository.findContenusByPkDemandesIn(ids).stream()
+                .collect(Collectors.toMap(
+                        DemandeContenuProjection::getPkDemandes,
+                        projection -> extractInformationsAffichage(projection.getContenu(), fields),
+                        (left, right) -> left));
+    }
+
+    private Map<String, Object> extractInformationsAffichage(
+            JsonNode contenu,
+            List<DemandePageableInformationField> fields) {
+        if (contenu == null || contenu.isNull()) {
+            return Map.of();
+        }
+
+        Map<String, Object> informations = new HashMap<>();
+
+        for (DemandePageableInformationField field : fields) {
+            JsonNode value = contenu.at(field.jsonPointer());
+
+            if (!value.isMissingNode() && !value.isNull()) {
+                informations.put(field.key(), toInformationAffichageValue(value));
+            }
+        }
+
+        return informations;
+    }
+
+    private Object toInformationAffichageValue(JsonNode value) {
+        if (value.isTextual()) {
+            return value.asText();
+        }
+        if (value.isNumber()) {
+            return value.numberValue();
+        }
+        if (value.isBoolean()) {
+            return value.asBoolean();
+        }
+        return value;
     }
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
@@ -520,7 +590,7 @@ public class DemandesServiceImpl implements DemandesService {
         flat.setPkDemandes(demande.getPkDemandes());
         flat.setDateCreation(afBackUtils.convertDateToString(demande.getDateCreation()));
         flat.setCourrierDateReception(afBackUtils.convertDateToString(demande.getCourrierDateReception()));
-        flat.setCanal(AfBackUtils.getSafeString(demande.getCanal()));
+        flat.setCanal(DemandeCanalEnum.getLibelleFromName(demande.getCanal().toString()));
         flat.setCourrierRefInterne(AfBackUtils.getSafeString(demande.getCourrierRefInterne()));
         flat.setAgentAffecteNom(AfBackUtils.getSafeString(demande.getAgentAffecteNom()));
         flat.setIdentifiant(AfBackUtils.getSafeString(demande.getIdentifiant()));

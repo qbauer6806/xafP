@@ -6,7 +6,6 @@ import java.util.Optional;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.data.projection.DemandeContenuProjection;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
 import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.projection.DemandeRecapProjection;
@@ -122,13 +121,13 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
     Page<DemandePageableProjection> findPageLightByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(
             @Param("usagerId") Integer usagerId, @Param("status") List<String> status, Pageable pageable);
 
-    @Query("""
-            select d.pkDemandes as pkDemandes,
-                   d.contenu as contenu
-            from DemandeBO d
-            where d.pkDemandes in :ids
-            """)
-    List<DemandeContenuProjection> findContenusByPkDemandesIn(@Param("ids") List<Integer> ids);
+//    @Query("""
+//            select d.pkDemandes as pkDemandes,
+//                   d.contenu as contenu
+//            from DemandeBO d
+//            where d.pkDemandes in :ids
+//            """)
+//    List<DemandeContenuProjection> findContenusByPkDemandesIn(@Param("ids") List<Integer> ids);
 
     List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
     /**

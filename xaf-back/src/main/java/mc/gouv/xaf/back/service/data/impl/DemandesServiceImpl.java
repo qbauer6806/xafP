@@ -208,26 +208,26 @@ public class DemandesServiceImpl implements DemandesService {
         return dto;
     }
 
-    private Map<Integer, Map<String, Object>> getInformationsAffichageParDemande(
-            List<DemandePageableProjection> demandes) {
-        List<DemandePageableInformationField> fields = demandePageableInformationsProviders.stream()
-                .flatMap(provider -> provider.getFields().stream())
-                .toList();
-
-        if (fields.isEmpty() || demandes.isEmpty()) {
-            return Map.of();
-        }
-
-        List<Integer> ids = demandes.stream()
-                .map(DemandePageableProjection::getPkDemandes)
-                .toList();
-
-        return demandesRepository.findContenusByPkDemandesIn(ids).stream()
-                .collect(Collectors.toMap(
-                        DemandeContenuProjection::getPkDemandes,
-                        projection -> extractInformationsAffichage(projection.getContenu(), fields),
-                        (left, right) -> left));
-    }
+//    private Map<Integer, Map<String, Object>> getInformationsAffichageParDemande(
+//            List<DemandePageableProjection> demandes) {
+//        List<DemandePageableInformationField> fields = demandePageableInformationsProviders.stream()
+//                .flatMap(provider -> provider.getFields().stream())
+//                .toList();
+//
+//        if (fields.isEmpty() || demandes.isEmpty()) {
+//            return Map.of();
+//        }
+//
+//        List<Integer> ids = demandes.stream()
+//                .map(DemandePageableProjection::getPkDemandes)
+//                .toList();
+//
+//        return demandesRepository.findContenusByPkDemandesIn(ids).stream()
+//                .collect(Collectors.toMap(
+//                        DemandeContenuProjection::getPkDemandes,
+//                        projection -> extractInformationsAffichage(projection.getContenu(), fields),
+//                        (left, right) -> left));
+//    }
 
     private Map<String, Object> extractInformationsAffichage(
             JsonNode contenu,

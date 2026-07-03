@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
@@ -38,11 +37,9 @@ import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
 import mc.gouv.xaf.back.data.model.ErrorEventDTO;
-import mc.gouv.xaf.back.data.projection.DemandeContenuProjection;
 import mc.gouv.xaf.back.data.projection.DemandeExcelLightProjection;
-import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
-import mc.gouv.xaf.back.data.projection.DemandeExportDTO;
 import mc.gouv.xaf.back.data.projection.DemandeLightProjection;
+import mc.gouv.xaf.back.data.projection.DemandePageableProjection;
 import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
@@ -52,13 +49,12 @@ import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.DemandePageableInformationsProvider;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
-import mc.gouv.xaf.back.service.data.DemandePageableInformationField;
-import mc.gouv.xaf.back.service.data.DemandePageableInformationsProvider;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -229,38 +225,38 @@ public class DemandesServiceImpl implements DemandesService {
 //                        (left, right) -> left));
 //    }
 
-    private Map<String, Object> extractInformationsAffichage(
-            JsonNode contenu,
-            List<DemandePageableInformationField> fields) {
-        if (contenu == null || contenu.isNull()) {
-            return Map.of();
-        }
+//    private Map<String, Object> extractInformationsAffichage(
+//            JsonNode contenu,
+//            List<DemandePageableInformationField> fields) {
+//        if (contenu == null || contenu.isNull()) {
+//            return Map.of();
+//        }
+//
+//        Map<String, Object> informations = new HashMap<>();
+//
+//        for (DemandePageableInformationField field : fields) {
+//            JsonNode value = contenu.at(field.jsonPointer());
+//
+//            if (!value.isMissingNode() && !value.isNull()) {
+//                informations.put(field.key(), toInformationAffichageValue(value));
+//            }
+//        }
+//
+//        return informations;
+//    }
 
-        Map<String, Object> informations = new HashMap<>();
-
-        for (DemandePageableInformationField field : fields) {
-            JsonNode value = contenu.at(field.jsonPointer());
-
-            if (!value.isMissingNode() && !value.isNull()) {
-                informations.put(field.key(), toInformationAffichageValue(value));
-            }
-        }
-
-        return informations;
-    }
-
-    private Object toInformationAffichageValue(JsonNode value) {
-        if (value.isTextual()) {
-            return value.asText();
-        }
-        if (value.isNumber()) {
-            return value.numberValue();
-        }
-        if (value.isBoolean()) {
-            return value.asBoolean();
-        }
-        return value;
-    }
+//    private Object toInformationAffichageValue(JsonNode value) {
+//        if (value.isTextual()) {
+//            return value.asText();
+//        }
+//        if (value.isNumber()) {
+//            return value.numberValue();
+//        }
+//        if (value.isBoolean()) {
+//            return value.asBoolean();
+//        }
+//        return value;
+//    }
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");

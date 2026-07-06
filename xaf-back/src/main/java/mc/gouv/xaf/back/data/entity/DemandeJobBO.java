@@ -27,9 +27,8 @@ public class DemandeJobBO {
     @Column(name = "ID", nullable = false)
     private Integer id;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "JOB_NAME", nullable = false)
-    private JobNamesEnum jobName;
+    private String jobName;
 
     @Column(name = "DATE_CREATION", nullable = false)
     private Date dateCreation;

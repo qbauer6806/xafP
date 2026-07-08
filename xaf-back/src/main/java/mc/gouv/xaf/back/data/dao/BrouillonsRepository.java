@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.data.dao;
 
+import java.util.Date;
 import java.util.List;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.projection.BrouillonPageableProjection;
@@ -54,4 +55,28 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
     @Modifying
     @Query("UPDATE BrouillonBO b SET b.config.buildId = :newBuildId WHERE b.config.buildId = :oldBuildId")
     void updateBuildIdForBrouillons(String oldBuildId, String newBuildId);
+
+    @Query("""
+            select b
+            from BrouillonBO b
+            join b.fkAccess a
+            where b.dateCreation is not null
+            and a.usagerId is not null
+            and b.dateCreation < :dateFinSuppression
+            """)
+    Page<BrouillonBO> findBrouillonsASupprimer(Date dateFinSuppression, Pageable pageable);
+
+    @Query("""
+            select b
+            from BrouillonBO b
+            join b.fkAccess a
+            where b.dateCreation is not null
+            and a.usagerId is not null
+            and b.dateCreation >= :debut
+            and b.dateCreation < :fin
+            """)
+    Page<BrouillonBO> findBrouillonsParDateCreation(
+            Date debut,
+            Date fin,
+            Pageable pageable);
 }

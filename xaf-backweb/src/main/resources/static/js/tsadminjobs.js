@@ -50,7 +50,18 @@ var jobsColumns = [
   }, {
     "data": "msg",
     render: function (data, type, job) {
-      return '<span>' + job.msg.trim() + '</span>';
+      var msg = job.msg.trim();
+      // Si le message contient des logs d'exécution, afficher un résumé + bouton pour ouvrir la modale
+      if (msg.indexOf('--- Logs d') !== -1) {
+        var parts = msg.split("--- Logs d'exécution ---");
+        var msgHeader = (parts[0] || '').replace(/\n/g, '<br>');
+        return '<div>' + msgHeader
+            + '<a href="javascript:void(0);" class="btn-voir-logs" style="cursor:pointer;color:#337ab7;font-size:0.9em;text-decoration:underline;"'
+            + ' data-jobname="' + job.jobName.trim() + '"'
+            + ' data-msg="' + encodeURIComponent(job.msg) + '"'
+            + '>Voir les logs d\'exécution</a></div>';
+      }
+      return '<span>' + msg.replace(/\n/g, '<br>') + '</span>';
     }
   }];
 
@@ -140,4 +151,53 @@ $("#cancelExecuteJobButton").click(function () {
   $('.modal').modal('hide');
 
 });
+
+// Ouverture de la modale des logs d'exécution
+$('#datatable-jobs').on('click', '.btn-voir-logs', function () {
+  var jobName = $(this).data('jobname');
+  var fullMsg = decodeURIComponent($(this).data('msg'));
+
+  var separator = "--- Logs d'exécution ---";
+  var parts = fullMsg.split(separator);
+  var msgHeader = (parts[0] || '').trim();
+  var logs = (parts[1] || '').trim();
+  $('#jobLogsModalTitle').text(jobName);
+  $('#jobLogsModalHeader').html(msgHeader.replace(/\n/g, '<br>'));
+
+  // Coloriser les logs par niveau
+  var colorizedLogs = colorizeLogLines(logs);
+  $('#jobLogsModalContent').html(colorizedLogs);
+
+  $('#jobLogsModal').modal();
+});
+
+function colorizeLogLines(logs) {
+  if (!logs) return '';
+  var lines = logs.split('\n');
+  var result = '';
+  for (var i = 0; i < lines.length; i++) {
+    var line = escapeHtml(lines[i]);
+    if (!line.trim()) continue;
+    if (line.indexOf('] ERROR ') !== -1) {
+      result += '<div style="color:#fc8181;font-weight:bold;">' + line + '</div>';
+    } else if (line.indexOf('] WARN ') !== -1) {
+      result += '<div style="color:#fbd38d;font-weight:bold;">' + line + '</div>';
+    } else if (line.indexOf('] DEBUG ') !== -1) {
+      result += '<div style="color:#a0aec0;">' + line + '</div>';
+    } else {
+      result += '<div style="color:#e2e8f0;">' + line + '</div>';
+    }
+  }
+  return result;
+}
+
+function escapeHtml(text) {
+  return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+}
+
 

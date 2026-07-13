@@ -1,0 +1,2269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Éditeur BPMN / Flowable</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.6.2/dist/assets/diagram-js.css" />
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.6.2/dist/assets/bpmn-js.css" />
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.6.2/dist/assets/bpmn-font/css/bpmn.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@bpmn-io/properties-panel@3.23.0/dist/assets/properties-panel.css" />
+
+  <style>
+    :root {
+      --toolbar-h: 72px;
+      --monaco-red: #c8102e;
+      --monaco-red-dark: #9f0d24;
+      --monaco-red-soft: #fff1f3;
+      --monaco-white: #ffffff;
+      --monaco-gold: #d6b45f;
+      --ink: #1f2430;
+      --muted: #667085;
+      --line: #e6e8ee;
+      --panel: #ffffff;
+      --panel-soft: #fafbfc;
+      --shadow: 0 10px 28px rgba(16, 24, 40, .10);
+      --radius: 14px;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+      overflow: hidden;
+      color: var(--ink);
+      background: linear-gradient(135deg, #ffffff 0%, #fff7f8 45%, #ffffff 100%);
+    }
+
+    #toolbar {
+      height: var(--toolbar-h);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(90deg, var(--monaco-red) 0%, var(--monaco-red-dark) 48%, #ffffff 48%, #ffffff 100%);
+      border-bottom: 1px solid rgba(200,16,46,.20);
+      box-shadow: 0 6px 18px rgba(16,24,40,.12);
+      position: relative;
+      z-index: 3;
+    }
+
+    #toolbar::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--monaco-gold), rgba(214,180,95,.15), var(--monaco-red));
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 250px;
+      color: white;
+      margin-right: 8px;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #ffffff 50%, var(--monaco-red) 50%, var(--monaco-red) 100%);
+      border: 1px solid rgba(255,255,255,.6);
+      box-shadow: 0 6px 16px rgba(0,0,0,.18);
+      flex: 0 0 auto;
+    }
+
+    .brand-title { font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
+    .brand-subtitle { font-size: 12px; opacity: .86; margin-top: 3px; }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 999px;
+      padding: 6px;
+      box-shadow: 0 6px 16px rgba(16,24,40,.08);
+      backdrop-filter: blur(8px);
+    }
+
+    button, label.file-btn {
+      border: 1px solid rgba(200,16,46,.18);
+      border-radius: 999px;
+      background: #fff;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 650;
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgba(16,24,40,.05);
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+    }
+
+    button:hover, label.file-btn:hover {
+      background: var(--monaco-red-soft);
+      border-color: rgba(200,16,46,.35);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(200,16,46,.12);
+    }
+
+    button.primary, label.file-btn.primary {
+      background: var(--monaco-red);
+      color: white;
+      border-color: var(--monaco-red);
+    }
+
+    button.primary:hover, label.file-btn.primary:hover {
+      background: var(--monaco-red-dark);
+      border-color: var(--monaco-red-dark);
+      box-shadow: 0 8px 18px rgba(200,16,46,.24);
+    }
+
+    input[type="file"] { display: none; }
+
+    select.toolbar-select {
+      border: 1px solid rgba(200,16,46,.18);
+      border-radius: 999px;
+      background: #fff;
+      padding: 8px 30px 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 650;
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgba(16,24,40,.05);
+      max-width: 220px;
+      outline: none;
+    }
+
+    select.toolbar-select:hover {
+      background: var(--monaco-red-soft);
+      border-color: rgba(200,16,46,.35);
+    }
+
+    select.toolbar-select:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      background: #f8f9fb;
+    }
+
+    #status {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--monaco-red-dark);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(200,16,46,.16);
+      border-radius: 999px;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    #layout {
+      height: calc(100% - var(--toolbar-h));
+      display: flex;
+      padding: 12px;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+
+    #canvas {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      background:
+        radial-gradient(circle at 18px 18px, rgba(200,16,46,.055) 2px, transparent 2px) 0 0 / 36px 36px,
+        linear-gradient(180deg, #fff, #fffafa);
+      border: 1px solid rgba(200,16,46,.16);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    #canvas.drag-over {
+      outline: 3px dashed var(--monaco-red);
+      outline-offset: -10px;
+      background:
+        radial-gradient(circle at 18px 18px, rgba(200,16,46,.08) 2px, transparent 2px) 0 0 / 36px 36px,
+        linear-gradient(180deg, #fff7f8, #ffffff);
+    }
+
+    #dropOverlay {
+      position: absolute;
+      inset: 88px 468px 24px 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 5;
+      border: 2px dashed rgba(200,16,46,.55);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.86);
+      color: var(--monaco-red-dark);
+      font-size: 22px;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+    }
+
+    body.dragging-file #dropOverlay { display: flex; }
+
+    #rightPanel {
+      width: 440px;
+      height: 100%;
+      border: 1px solid rgba(200,16,46,.18);
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      min-height: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    #flowablePanel {
+      order: 1;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 14px 16px 18px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #ffffff 0%, #fff8f9 170px, #ffffff 360px);
+    }
+
+    #standardPanelShell {
+      order: 2;
+      flex: 0 0 auto;
+      border-top: 1px solid rgba(200,16,46,.16);
+      background: #fff;
+      min-height: 48px;
+    }
+
+    #standardPanelHeader {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 14px;
+      box-sizing: border-box;
+      cursor: pointer;
+      background: linear-gradient(90deg, #fff, var(--monaco-red-soft));
+      border-bottom: 1px solid rgba(200,16,46,.12);
+      user-select: none;
+    }
+
+    #standardPanelHeader strong { font-size: 13px; color: var(--monaco-red-dark); }
+    #standardPanelHeader span { font-size: 12px; color: var(--muted); }
+    #standardPanelToggle { padding: 5px 10px; font-size: 12px; }
+
+    #properties {
+      height: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .18s ease, height .18s ease;
+    }
+    #standardPanelShell.open #properties {
+      height: 260px;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    #properties .bio-properties-panel,
+    #properties .bio-properties-panel-container { height: 100%; min-height: 0; }
+    #properties .bio-properties-panel { border-left: none; }
+
+    #flowablePanel h3 {
+      margin: 16px 0 9px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--monaco-red-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #flowablePanel h3:first-child { margin-top: 0; }
+    #flowablePanel h3::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 99px;
+      background: var(--monaco-red);
+      box-shadow: 0 0 0 4px rgba(200,16,46,.10);
+      flex: 0 0 auto;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    code {
+      background: rgba(200,16,46,.07);
+      border: 1px solid rgba(200,16,46,.10);
+      color: var(--monaco-red-dark);
+      padding: 1px 4px;
+      border-radius: 5px;
+    }
+
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #3f4655;
+      margin-bottom: 5px;
+    }
+    .field input, .field textarea, .mini-row input, .mini-row select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 12px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+    .field input:focus, .field textarea:focus, .mini-row input:focus, .mini-row select:focus {
+      border-color: rgba(200,16,46,.55);
+      box-shadow: 0 0 0 4px rgba(200,16,46,.09);
+    }
+
+    #selectedInfo {
+      background: linear-gradient(135deg, var(--monaco-red-soft), #fff);
+      border: 1px solid rgba(200,16,46,.13);
+      border-radius: 12px;
+      padding: 10px;
+      color: #4b5565;
+    }
+
+    .flowable-card {
+      border: 1px solid rgba(200,16,46,.13);
+      border-radius: 13px;
+      padding: 10px;
+      margin-bottom: 9px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 4px 12px rgba(16,24,40,.05);
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      gap: 7px;
+      margin-bottom: 7px;
+      align-items: end;
+    }
+    .mini-row .field { margin-bottom: 0; }
+    .mini-row button, .flowable-card button {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+    .mini-row button.remove-fpv {
+      height: 35px;
+      min-width: 35px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    .split { display: none; }
+
+    .djs-palette, .djs-context-pad .entry, .djs-popup {
+      border-radius: 10px !important;
+      box-shadow: 0 8px 22px rgba(16,24,40,.12) !important;
+      border-color: rgba(200,16,46,.16) !important;
+    }
+
+    .djs-palette .entry:hover,
+    .djs-context-pad .entry:hover {
+      background-color: var(--monaco-red-soft) !important;
+      color: var(--monaco-red-dark) !important;
+    }
+
+
+
+    @media (max-width: 1100px) {
+      #rightPanel { width: 390px; }
+      .brand { min-width: 180px; }
+      .brand-subtitle { display: none; }
+      #toolbar { gap: 6px; padding: 8px; }
+      button, label.file-btn { padding: 7px 9px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true"></div>
+      <div>
+        <div class="brand-title">Éditeur BPMN Flowable</div>
+        <div id="processNameDisplay" class="brand-subtitle">Aucun processus chargé</div>
+      </div>
+    </div>
+    <div class="toolbar-group">
+      <button id="openBtn" class="primary" title="Ouvrir un fichier BPMN (Ctrl+O)">📂 Ouvrir</button>
+      <select id="recentFilesSelect" class="toolbar-select" title="Rouvrir un des 5 derniers BPMN. Chrome ne fournit pas le chemin Windows complet." disabled>
+        <option value="">Derniers BPMN…</option>
+      </select>
+      <input id="fileInput" type="file" accept=".bpmn,.xml" style="display:none" />
+      <button id="saveBtn" class="primary" title="Sauvegarder le fichier BPMN (Ctrl+S)">💾 Sauvegarder</button>
+      <button id="copyXmlBtn" title="Copier le XML BPMN dans le presse-papiers">📋 Copier XML</button>
+      <button id="downloadBtn" title="Télécharger une copie process.bpmn">📥 Télécharger</button>
+    </div>
+    <span id="status">Prêt</span>
+  </div>
+
+  <div id="layout">
+    <div id="canvas"><div id="dropOverlay">Dépose ton fichier BPMN ici</div></div>
+    <aside id="rightPanel">
+      <div id="flowablePanel">
+        <h3>Propriétés Flowable rapides</h3>
+        <div class="field"><label>Id BPMN</label><input id="f_id" /></div>
+        <div class="field"><label>Nom</label><input id="f_name" /></div>
+        <div class="field"><label>flowable:delegateExpression</label><input id="f_delegateExpression" /></div>
+        <div class="field"><label>flowable:assignee</label><input id="f_assignee" /></div>
+        <div class="field"><label>flowable:candidateGroups</label><input id="f_candidateGroups" /></div>
+
+        <div id="conditionExpressionBlock" style="display:none;">
+          <h3 style="margin-top:14px;">Condition sequenceFlow</h3>
+          <div class="field"><label>conditionExpression</label><textarea id="f_conditionExpression" rows="5"></textarea></div>
+        </div>
+
+        <div id="timerDefinitionBlock" style="display:none;">
+          <h3 style="margin-top:14px;">Timer</h3>
+          <div class="field"><label>timeDate</label><input id="f_timeDate" /></div>
+        </div>
+
+        <div id="messageDefinitionBlock" style="display:none;">
+          <h3 style="margin-top:14px;">Message event</h3>
+          <div class="field"><label>messageRef</label><select id="f_messageRef"></select></div>
+        </div>
+
+        <div id="globalMessagesBlock" style="display:none;">
+          <h3 style="margin-top:14px;">Messages BPMN globaux</h3>
+          <div class="hint">Affiché quand aucun élément du diagramme n’est sélectionné.</div>
+          <div id="globalMessages"></div>
+          <button id="addGlobalMessageBtn" type="button">Ajouter un message</button>
+        </div>
+
+        <div id="extensionFieldsBlock">
+          <h3 style="margin-top:14px;">ExtensionElements / flowable:field</h3>
+          <div id="extensionFields"></div>
+          <button id="addExtensionFieldBtn" type="button">Ajouter un flowable:field</button>
+        </div>
+
+        <div id="formPropertiesBlock">
+          <h3 style="margin-top:14px;">ExtensionElements / flowable:formProperty</h3>
+          <div id="formProperties"></div>
+          <button id="addFormPropertyBtn" type="button">Ajouter une formProperty</button>
+        </div>
+
+        <button id="applyFlowableBtn" style="margin-top:12px; width:100%;">Appliquer toutes les propriétés Flowable</button>
+      </div>
+      <div id="standardPanelShell">
+        <div id="standardPanelHeader" title="Afficher/masquer le panneau BPMN standard">
+          <div>
+            <strong>BPMN standard</strong><br />
+            <span>Id, nom, documentation, propriétés génériques</span>
+          </div>
+          <button id="standardPanelToggle" type="button">Afficher</button>
+        </div>
+        <div id="properties"></div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="https://unpkg.com/bpmn-js@18.6.2/dist/bpmn-modeler.development.js"></script>
+  <script src="https://unpkg.com/bpmn-js-properties-panel@5.60.0/dist/bpmn-js-properties-panel.umd.js"></script>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const flowableNs = 'http://flowable.org/bpmn';
+    let selectedElement = null;
+    let autoApplyTimer = null;
+    let currentFileHandle = null;
+    let currentFileName = 'process.bpmn';
+    let currentOpenMode = 'nouveau'; // nouveau | picker | import | dragdrop | recent
+    let currentRecentId = null;
+    let currentProcessName = '';
+    const processNameDisplay = document.getElementById('processNameDisplay');
+    const recentFilesSelect = document.getElementById('recentFilesSelect');
+    const RECENT_DB_NAME = 'flowable-bpmn-editor';
+    const RECENT_DB_VERSION = 1;
+    const RECENT_STORE = 'recentFiles';
+    const MAX_RECENT_FILES = 5;
+    let isDirty = false;
+    let suppressDirty = false;
+    let isRenderingFlowablePanel = false;
+
+    function scheduleAutoApplyFlowable(delay = 450) {
+      if (isRenderingFlowablePanel || !selectedElement || !selectedElement.businessObject) return;
+      clearTimeout(autoApplyTimer);
+      setStatus('Modification en attente…');
+      autoApplyTimer = setTimeout(() => {
+        applyFlowableProperties({ auto: true, refreshPanel: false });
+      }, delay);
+    }
+
+    function sanitizeFileName(name) {
+      return 'process.bpmn';
+    }
+
+    function modeLabel() {
+      if (currentFileHandle) return 'sauvegarde directe';
+      if (currentOpenMode === 'recent') return 'dernier fichier';
+      if (currentOpenMode === 'dragdrop') return 'glisser-déposer';
+      if (currentOpenMode === 'import') return 'import navigateur';
+      return 'nouveau fichier';
+    }
+
+    function extractProcessNameFromXml(xml) {
+      try {
+        const doc = new DOMParser().parseFromString(xml, 'application/xml');
+        const process = doc.getElementsByTagNameNS('http://www.omg.org/spec/BPMN/20100524/MODEL', 'process')[0]
+          || doc.getElementsByTagName('process')[0];
+        return (process && (process.getAttribute('name') || process.getAttribute('id'))) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function getProcessBusinessObject() {
+      try {
+        const definitions = modeler.getDefinitions && modeler.getDefinitions();
+        const rootElements = definitions && definitions.rootElements ? definitions.rootElements : [];
+        return rootElements.find(el => el && el.$type === 'bpmn:Process') || null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updateCurrentProcessNameFromModel(fallbackXml = '') {
+      const processBo = getProcessBusinessObject();
+      currentProcessName = (processBo && (processBo.name || processBo.id)) || extractProcessNameFromXml(fallbackXml) || '';
+      processNameDisplay.textContent = currentProcessName ? `Process : ${currentProcessName}` : 'Aucun processus chargé';
+      return currentProcessName;
+    }
+
+    function updateStatus(extra = '') {
+      const dirtyText = isDirty ? ' ● Modifié' : '';
+      const warning = currentFileHandle ? '' : ' · sauvegarde directe après choix d’emplacement';
+      statusEl.textContent = `📄 process.bpmn · ${modeLabel()}${dirtyText}${warning}${extra ? ' · ' + extra : ''}`;
+    }
+
+    function setStatus(message) { updateStatus(message); }
+
+    function markDirty() {
+      if (suppressDirty) return;
+      isDirty = true;
+      updateStatus();
+    }
+
+    function markSaved() {
+      isDirty = false;
+      currentFileName = 'process.bpmn';
+      updateStatus('Sauvegardé ✔');
+    }
+
+    function download(filename, data, type) {
+      const blob = new Blob([data], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function openRecentDb() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) {
+          reject(new Error('IndexedDB indisponible'));
+          return;
+        }
+        const request = indexedDB.open(RECENT_DB_NAME, RECENT_DB_VERSION);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(RECENT_STORE)) {
+            db.createObjectStore(RECENT_STORE, { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function readRecentEntries() {
+      try {
+        const db = await openRecentDb();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(RECENT_STORE, 'readonly');
+          const store = tx.objectStore(RECENT_STORE);
+          const request = store.getAll();
+          request.onsuccess = () => {
+            const entries = (request.result || [])
+              .filter(entry => entry && entry.handle)
+              .sort((a, b) => (b.openedAt || 0) - (a.openedAt || 0))
+              .slice(0, MAX_RECENT_FILES);
+            resolve(entries);
+          };
+          request.onerror = () => reject(request.error);
+        });
+      } catch (error) {
+        console.warn('Historique récent indisponible', error);
+        return [];
+      }
+    }
+
+    async function writeRecentEntries(entries) {
+      try {
+        const db = await openRecentDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(RECENT_STORE, 'readwrite');
+          const store = tx.objectStore(RECENT_STORE);
+          store.clear();
+          entries.slice(0, MAX_RECENT_FILES).forEach(entry => store.put(entry));
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      } catch (error) {
+        console.warn('Impossible de mémoriser les fichiers récents', error);
+      }
+    }
+
+    async function rememberFileHandle(handle, displayName, processName = currentProcessName) {
+      if (!handle) return;
+      const now = Date.now();
+      const id = `${handle.name || displayName || 'process.bpmn'}::${now}`;
+      const existing = await readRecentEntries();
+      const existingWithoutSameHandle = [];
+      for (const entry of existing) {
+        try {
+          if (entry.handle && typeof handle.isSameEntry === 'function' && await handle.isSameEntry(entry.handle)) {
+            continue;
+          }
+        } catch (e) {
+          // Si la comparaison échoue, on garde l'entrée : mieux vaut conserver l'historique.
+        }
+        existingWithoutSameHandle.push(entry);
+      }
+      const label = buildRecentDisplayLabel(handle.name || displayName || 'process.bpmn', now, processName);
+      const entry = {
+        id,
+        name: handle.name || displayName || 'process.bpmn',
+        displayName: label,
+        processName: processName || '',
+        // Les navigateurs n'exposent pas le chemin Windows complet pour des raisons de sécurité.
+        // On conserve donc le FileSystemFileHandle + le nom du process pour distinguer plusieurs process.bpmn.
+        fullPath: label,
+        handle,
+        openedAt: now
+      };
+      await writeRecentEntries([entry, ...existingWithoutSameHandle].slice(0, MAX_RECENT_FILES));
+      currentRecentId = id;
+      await refreshRecentFilesDropdown();
+    }
+
+    function buildRecentDisplayLabel(fileName, timestamp, processName = '') {
+      const date = new Date(timestamp || Date.now());
+      const pad = value => String(value).padStart(2, '0');
+      const stamp = `${pad(date.getDate())}/${pad(date.getMonth() + 1)} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      const processPart = processName ? `${processName} · ` : '';
+      return `${processPart}${fileName || 'process.bpmn'} · ${stamp}`;
+    }
+
+    async function refreshRecentFilesDropdown() {
+      const entries = await readRecentEntries();
+      recentFilesSelect.innerHTML = '<option value="">Derniers BPMN…</option>';
+      entries.forEach(entry => {
+        const option = document.createElement('option');
+        option.value = entry.id;
+        option.textContent = entry.fullPath || entry.displayName || entry.name || 'process.bpmn';
+        recentFilesSelect.appendChild(option);
+      });
+      recentFilesSelect.disabled = entries.length === 0;
+      recentFilesSelect.value = '';
+    }
+
+    async function ensureFilePermission(handle, mode = 'readwrite') {
+      if (!handle || typeof handle.queryPermission !== 'function') return true;
+      const options = { mode };
+      if ((await handle.queryPermission(options)) === 'granted') return true;
+      if (typeof handle.requestPermission === 'function') {
+        return (await handle.requestPermission(options)) === 'granted';
+      }
+      return false;
+    }
+
+    function confirmLoseUnsavedChanges() {
+      if (!isDirty) return true;
+      return window.confirm('Vous avez des modifications non sauvegardées. Ouvrir un autre fichier et perdre ces modifications ?');
+    }
+
+    async function openRecentFile(recentId) {
+      if (!recentId) return;
+      if (!confirmLoseUnsavedChanges()) {
+        recentFilesSelect.value = '';
+        return;
+      }
+
+      const entries = await readRecentEntries();
+      const entry = entries.find(item => item.id === recentId);
+      if (!entry || !entry.handle) {
+        setStatus('Fichier récent introuvable.');
+        await refreshRecentFilesDropdown();
+        return;
+      }
+
+      try {
+        const allowed = await ensureFilePermission(entry.handle, 'readwrite');
+        if (!allowed) {
+          setStatus('Autorisation refusée pour ce fichier récent.');
+          return;
+        }
+
+        const file = await entry.handle.getFile();
+        currentFileHandle = entry.handle;
+        currentOpenMode = 'recent';
+        currentRecentId = entry.id;
+        await importXml(await file.text(), file.name);
+        await rememberFileHandle(entry.handle, file.name, currentProcessName);
+        setStatus('Dernier BPMN ouvert');
+      } catch (error) {
+        console.warn(error);
+        setStatus('Impossible de rouvrir ce fichier récent. Il a peut-être été déplacé ou supprimé.');
+      } finally {
+        recentFilesSelect.value = '';
+      }
+    }
+
+    function ensureExpandedSubProcesses(xml) {
+      return xml.replace(/<bpmndi:BPMNShape([^>]*bpmnElement="[^"]*subprocess[^"]*"[^>]*)>/gi, (match, attrs) => {
+        return /isExpanded=/i.test(match) ? match.replace(/isExpanded="false"/i, 'isExpanded="true"') : `<bpmndi:BPMNShape${attrs} isExpanded="true">`;
+      });
+    }
+
+    const propertiesPanel = window.BpmnJSPropertiesPanel;
+    const additionalModules = [];
+
+    if (propertiesPanel && propertiesPanel.BpmnPropertiesPanelModule && propertiesPanel.BpmnPropertiesProviderModule) {
+      additionalModules.push(propertiesPanel.BpmnPropertiesPanelModule, propertiesPanel.BpmnPropertiesProviderModule);
+    } else {
+      console.warn('bpmn-js-properties-panel non chargé. Le panneau Flowable rapide reste disponible.');
+    }
+
+    // Resize tasks en mode standalone : on évite un module RuleProvider custom fragile
+    // et on patche simplement la décision de règles après création du modeler.
+    const TASK_RESIZE_MIN = { width: 100, height: 70 };
+
+    // Déclaration minimale du namespace Flowable pour que bpmn-js sache cloner/exporter
+    // les propriétés Flowable lors des copier/coller de tâches. Sans descriptor moddle,
+    // certaines données inconnues peuvent rester affichables mais être perdues au clone.
+    const flowableModdleDescriptor = {
+      name: 'Flowable',
+      uri: flowableNs,
+      prefix: 'flowable',
+      xml: { tagAlias: 'lowerCase' },
+      associations: [],
+      types: [
+        {
+          name: 'ServiceTaskLike',
+          extends: ['bpmn:ServiceTask'],
+          properties: [
+            { name: 'delegateExpression', isAttr: true, type: 'String' },
+            { name: 'class', isAttr: true, type: 'String' },
+            { name: 'expression', isAttr: true, type: 'String' },
+            { name: 'resultVariable', isAttr: true, type: 'String' }
+          ]
+        },
+        {
+          name: 'UserTaskLike',
+          extends: ['bpmn:UserTask', 'bpmn:StartEvent'],
+          properties: [
+            { name: 'assignee', isAttr: true, type: 'String' },
+            { name: 'candidateUsers', isAttr: true, type: 'String' },
+            { name: 'candidateGroups', isAttr: true, type: 'String' },
+            { name: 'formKey', isAttr: true, type: 'String' },
+            { name: 'dueDate', isAttr: true, type: 'String' },
+            { name: 'priority', isAttr: true, type: 'String' }
+          ]
+        },
+        {
+          name: 'Field',
+          superClass: ['Element'],
+          properties: [
+            { name: 'name', isAttr: true, type: 'String' },
+            { name: 'stringValue', isAttr: true, type: 'String' },
+            { name: 'expression', isAttr: true, type: 'String' },
+            // Enfant XML <flowable:string>...</flowable:string>
+            // Important : ne pas le déclarer en isBody, sinon bpmn-moddle ne le rattache
+            // pas correctement et le panneau de droite perd name / valeur.
+            { name: 'string', type: 'flowable:string', isContainment: true }
+          ]
+        },
+        {
+          name: 'string',
+          superClass: ['Element'],
+          properties: [
+            { name: 'body', isBody: true, type: 'String' }
+          ]
+        },
+        {
+          name: 'FormProperty',
+          superClass: ['Element'],
+          properties: [
+            { name: 'id', isAttr: true, type: 'String' },
+            { name: 'name', isAttr: true, type: 'String' },
+            { name: 'type', isAttr: true, type: 'String' },
+            { name: 'required', isAttr: true, type: 'String' },
+            { name: 'readable', isAttr: true, type: 'String' },
+            { name: 'writable', isAttr: true, type: 'String' },
+            { name: 'values', isMany: true, isContainment: true, type: 'Value' }
+          ]
+        },
+        {
+          name: 'Value',
+          superClass: ['Element'],
+          properties: [
+            { name: 'id', isAttr: true, type: 'String' },
+            { name: 'name', isAttr: true, type: 'String' }
+          ]
+        },
+        {
+          name: 'ExecutionListener',
+          superClass: ['Element'],
+          properties: [
+            { name: 'event', isAttr: true, type: 'String' },
+            { name: 'delegateExpression', isAttr: true, type: 'String' },
+            { name: 'class', isAttr: true, type: 'String' }
+          ]
+        },
+        {
+          name: 'TaskListener',
+          superClass: ['Element'],
+          properties: [
+            { name: 'event', isAttr: true, type: 'String' },
+            { name: 'delegateExpression', isAttr: true, type: 'String' },
+            { name: 'class', isAttr: true, type: 'String' }
+          ]
+        }
+      ]
+    };
+
+    const modeler = new BpmnJS({
+      container: '#canvas',
+      propertiesPanel: { parent: '#properties' },
+      additionalModules,
+      moddleExtensions: { flowable: flowableModdleDescriptor }
+    });
+
+    function installTaskResizePatch() {
+      try {
+        const rules = modeler.get('rules');
+        if (!rules || rules.__flowableTaskResizePatched) return;
+
+        const originalAllowed = rules.allowed.bind(rules);
+
+        rules.allowed = function(action, context) {
+          if (action === 'shape.resize' && context && context.shape) {
+            const bo = context.shape.businessObject;
+            const isTaskLike = bo && (
+              bo.$instanceOf && (
+                bo.$instanceOf('bpmn:Task') ||
+                bo.$instanceOf('bpmn:CallActivity') ||
+                bo.$instanceOf('bpmn:SubProcess')
+              )
+            );
+
+            if (isTaskLike) {
+              if (context.newBounds) {
+                context.newBounds.width = Math.max(TASK_RESIZE_MIN.width, context.newBounds.width || TASK_RESIZE_MIN.width);
+                context.newBounds.height = Math.max(TASK_RESIZE_MIN.height, context.newBounds.height || TASK_RESIZE_MIN.height);
+              }
+              return true;
+            }
+          }
+
+          return originalAllowed(action, context);
+        };
+
+        rules.__flowableTaskResizePatched = true;
+        console.info('Resize des tâches Flowable activé.');
+      } catch (e) {
+        console.warn('Resize des tâches non activé :', e);
+      }
+    }
+
+    installTaskResizePatch();
+
+    function installResizeAutoApply() {
+      try {
+        const eventBus = modeler.get('eventBus');
+        if (!eventBus || eventBus.__flowableResizeAutoApplyInstalled) return;
+
+        const afterResize = (event) => {
+          const resizedShape = event && event.context && event.context.shape;
+          if (!resizedShape) return;
+
+          // Si l'utilisateur est en train d'éditer des propriétés Flowable puis resize la box,
+          // on applique aussi les champs du panneau pour synchroniser XML + canvas.
+          if (selectedElement && resizedShape.id === selectedElement.id) {
+            clearTimeout(autoApplyTimer);
+            applyFlowableProperties({ auto: true, refreshPanel: false });
+          }
+
+          eventBus.fire('element.changed', { element: resizedShape });
+          setStatus('Redimensionnement appliqué');
+        };
+
+        eventBus.on('commandStack.shape.resize.postExecuted', afterResize);
+        eventBus.on('commandStack.elements.move.postExecuted', (event) => {
+          const elements = event && event.context && event.context.shapes;
+          if (Array.isArray(elements) && selectedElement && elements.some(e => e.id === selectedElement.id)) {
+            clearTimeout(autoApplyTimer);
+            applyFlowableProperties({ auto: true, refreshPanel: false });
+          }
+        });
+
+        eventBus.__flowableResizeAutoApplyInstalled = true;
+      } catch (e) {
+        console.warn('Auto-application au resize non activée :', e);
+      }
+    }
+
+    installResizeAutoApply();
+
+    function installGlobalCtrlWheelZoom() {
+      if (document.__flowableGlobalCtrlWheelZoomInstalled) return;
+
+      document.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey) return;
+
+        const target = event.target;
+        const isEditable = target && (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable
+        );
+
+        // Même depuis le panneau de droite, Ctrl + molette doit zoomer le BPMN
+        // plutôt que la page. On évite simplement d'interférer avec les champs
+        // numériques si le navigateur essaie de changer leur valeur.
+        if (isEditable && target.type === 'number') return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        try {
+          const canvas = modeler.get('canvas');
+          const currentZoom = canvas.zoom();
+          const factor = event.deltaY < 0 ? 1.12 : 0.89;
+          const nextZoom = Math.max(0.2, Math.min(4, currentZoom * factor));
+          const viewbox = canvas.viewbox();
+          const center = {
+            x: viewbox.x + viewbox.width / 2,
+            y: viewbox.y + viewbox.height / 2
+          };
+
+          canvas.zoom(nextZoom, center);
+        } catch (error) {
+          console.warn('Zoom Ctrl + molette indisponible :', error);
+        }
+      }, { passive: false, capture: true });
+
+      document.__flowableGlobalCtrlWheelZoomInstalled = true;
+    }
+
+    installGlobalCtrlWheelZoom();
+
+    const defaultDiagram = `<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://flowable.org/bpmn20">
+  <process id="process" name="Nouveau processus" isExecutable="true">
+    <startEvent id="StartEvent_1" name="Début" flowable:formKey="wf:start" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="process">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <omgdc:Bounds x="180" y="120" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>`;
+
+    async function importXml(xml, fileName) {
+      try {
+        const finalXml = ensureExpandedSubProcesses(xml);
+        suppressDirty = true;
+        await modeler.importXML(finalXml);
+        suppressDirty = false;
+        updateCurrentProcessNameFromModel(finalXml);
+        modeler.get('canvas').zoom('fit-viewport');
+        currentFileName = 'process.bpmn';
+        isDirty = false;
+        updateStatus(fileName ? 'Importé depuis ' + fileName : 'BPMN chargé');
+      } catch (err) {
+        suppressDirty = false;
+        console.error(err);
+        setStatus('Erreur import : ' + err.message);
+        alert('Erreur import BPMN : ' + err.message);
+      }
+    }
+
+    function openFirstSubProcess() {
+      const elementRegistry = modeler.get('elementRegistry');
+      const canvas = modeler.get('canvas');
+      const sub = elementRegistry.filter(e => e.businessObject && e.businessObject.$type === 'bpmn:SubProcess')[0];
+      if (!sub) { setStatus('Aucun subprocess trouvé'); return; }
+      try {
+        canvas.setRootElement(sub);
+        canvas.zoom('fit-viewport');
+        setStatus('Subprocess ouvert : ' + sub.id);
+      } catch (e) {
+        canvas.zoom('fit-viewport', { x: sub.x + sub.width / 2, y: sub.y + sub.height / 2 });
+        setStatus('Subprocess centré : ' + sub.id);
+      }
+    }
+
+    function forceExpandedInMemory() {
+      const modeling = modeler.get('modeling');
+      const elementRegistry = modeler.get('elementRegistry');
+      elementRegistry.filter(e => e.businessObject && e.businessObject.$type === 'bpmn:SubProcess')
+        .forEach(e => modeling.updateProperties(e, { isExpanded: true }));
+      modeler.get('canvas').zoom('fit-viewport');
+      setStatus('Subprocess forcés visibles');
+    }
+
+    function getFlowableAttr(bo, key) {
+      if (!bo) return '';
+      // Sans descriptor moddle Flowable, bpmn-js conserve les attributs inconnus dans $attrs.
+      // Selon le fichier / la version, ils peuvent aussi être exposés directement.
+      return bo[key] || bo['flowable:' + key] || (bo.$attrs && bo.$attrs['flowable:' + key]) || '';
+    }
+
+    function setFlowableAttr(bo, key, value) {
+      const attrName = 'flowable:' + key;
+      bo.$attrs = bo.$attrs || {};
+
+      if (value) {
+        // Avec le descriptor Flowable, bpmn-js expose l'attribut sous son nom local
+        // (delegateExpression, assignee, etc.). On garde aussi $attrs pour compatibilité
+        // avec les fichiers ouverts avant descriptor / navigateurs plus permissifs.
+        bo[key] = value;
+        bo.$attrs[attrName] = value;
+      } else {
+        delete bo[key];
+        delete bo.$attrs[attrName];
+      }
+
+      if (Object.prototype.hasOwnProperty.call(bo, attrName)) {
+        delete bo[attrName];
+      }
+    }
+
+
+    function getExtensionValues(bo) {
+      return bo && bo.extensionElements && Array.isArray(bo.extensionElements.values)
+        ? bo.extensionElements.values
+        : [];
+    }
+
+    function isFlowableField(value) {
+      return value && (
+        value.$type === 'flowable:Field' ||
+        value.$type === 'flowable:field' ||
+        value.type === 'flowable:field' ||
+        value.type === 'flowable:Field'
+      );
+    }
+
+    function getAnyAttr(element, name) {
+      if (!element) return '';
+      const names = [name, 'flowable:' + name];
+      for (const n of names) {
+        if (element[n] !== undefined && element[n] !== null && element[n] !== '') return element[n];
+        if (element.$attrs && element.$attrs[n] !== undefined && element.$attrs[n] !== null && element.$attrs[n] !== '') return element.$attrs[n];
+      }
+      return '';
+    }
+
+    function setAnyAttr(element, name, value) {
+      element.$attrs = element.$attrs || {};
+      element[name] = value;
+      element.$attrs[name] = value;
+    }
+
+    function asArray(value) {
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
+    }
+
+    function isFlowableStringElement(value) {
+      return value && (
+        value.$type === 'flowable:String' || value.$type === 'flowable:string' ||
+        value.type === 'flowable:string' || value.type === 'flowable:String'
+      );
+    }
+
+    function getElementText(value) {
+      if (value === undefined || value === null) return '';
+      if (typeof value === 'string') return value;
+      return value.body || value.$body || value.text || value.value || '';
+    }
+
+    function getFlowableFieldName(field) {
+      return getAnyAttr(field, 'name');
+    }
+
+    function getFlowableFieldStringValue(field) {
+      // Avec descriptor : <flowable:string> est souvent dans field.string.
+      const directString = asArray(field.string).find(Boolean);
+      const directText = getElementText(directString);
+      if (directText) return directText;
+
+      // Sans descriptor / createAny : l'enfant peut être stocké dans $children, children ou values.
+      const children = [
+        ...asArray(field.$children),
+        ...asArray(field.children),
+        ...asArray(field.values)
+      ];
+      const stringChild = children.find(isFlowableStringElement);
+      const childText = getElementText(stringChild);
+      if (childText) return childText;
+
+      return getAnyAttr(field, 'stringValue') || getAnyAttr(field, 'expression') || getElementText(field);
+    }
+
+    function setFlowableFieldStringValue(field, value) {
+      const moddle = modeler.get('moddle');
+      let stringChild = asArray(field.string).find(Boolean);
+
+      if (!stringChild || typeof stringChild === 'string') {
+        const children = [
+          ...asArray(field.$children),
+          ...asArray(field.children),
+          ...asArray(field.values)
+        ];
+        stringChild = children.find(isFlowableStringElement);
+      }
+
+      if (!stringChild || typeof stringChild === 'string') {
+        try {
+          stringChild = moddle.create('flowable:string', { body: value });
+        } catch (e) {
+          stringChild = moddle.createAny('flowable:string', flowableNs, { body: value });
+        }
+      }
+
+      stringChild.body = value;
+      stringChild.$body = value;
+      stringChild.text = value;
+
+      // Avec le descriptor Flowable, field.string doit être un élément contenu.
+      // Surtout ne pas l'écrire en attribut, sinon l'export produit string="[object Object]".
+      field.string = stringChild;
+
+      // Nettoyage des variantes createAny / anciens patchs qui pouvaient être sérialisées
+      // en attributs parasites children="" ou string="[object Object]".
+      field.$children = asArray(field.$children).filter(c => !isFlowableStringElement(c));
+      if (Object.prototype.hasOwnProperty.call(field, 'children')) delete field.children;
+      if (field.$attrs) {
+        delete field.$attrs.string;
+        delete field.$attrs.children;
+        delete field.$attrs.values;
+      }
+    }
+
+    function readFlowableFields(bo) {
+      return getExtensionValues(bo)
+        .filter(isFlowableField)
+        .map(field => ({ name: getFlowableFieldName(field), value: getFlowableFieldStringValue(field) }));
+    }
+
+    function renderExtensionFields(bo) {
+      const container = document.getElementById('extensionFields');
+      container.innerHTML = '';
+
+      if (!bo) {
+        container.innerHTML = '<div class="hint">Aucun élément sélectionné.</div>';
+        return;
+      }
+
+      const fields = readFlowableFields(bo);
+      if (!fields.length) {
+        container.innerHTML = '<div class="hint">Aucun flowable:field sur cet élément.</div>';
+      }
+
+      fields.forEach(field => addExtensionFieldRow(field.name, field.value));
+    }
+
+    function addExtensionFieldRow(name = '', value = '') {
+      const container = document.getElementById('extensionFields');
+      const row = document.createElement('div');
+      row.className = 'extension-row';
+      row.style.border = '1px solid #ddd';
+      row.style.borderRadius = '6px';
+      row.style.padding = '8px';
+      row.style.marginBottom = '8px';
+      row.innerHTML = `
+        <div class="field"><label>name</label><input class="ext-name" value="${escapeHtml(name)}" /></div>
+        <div class="field"><label>flowable:string</label><textarea class="ext-value" rows="2">${escapeHtml(value)}</textarea></div>
+        <button type="button" class="remove-ext">Supprimer</button>
+      `;
+      row.querySelector('.remove-ext').addEventListener('click', () => { row.remove(); scheduleAutoApplyFlowable(0); });
+      container.appendChild(row);
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+    }
+
+    function applyExtensionFields(bo) {
+      const moddle = modeler.get('moddle');
+      const rows = Array.from(document.querySelectorAll('#extensionFields .extension-row'));
+      const values = rows
+        .map(row => ({
+          name: row.querySelector('.ext-name').value.trim(),
+          value: row.querySelector('.ext-value').value
+        }))
+        .filter(field => field.name);
+
+      if (!values.length) {
+        if (bo.extensionElements) {
+          bo.extensionElements.values = getExtensionValues(bo).filter(v => !isFlowableField(v));
+        }
+        return;
+      }
+
+      if (!bo.extensionElements) {
+        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] });
+      }
+
+      const nonFlowableFields = getExtensionValues(bo).filter(v => !isFlowableField(v));
+      const flowableFields = values.map(({ name, value }) => {
+        let field;
+        try {
+          field = moddle.create('flowable:Field', { name });
+        } catch (e) {
+          field = moddle.createAny('flowable:field', flowableNs, { name });
+        }
+        setAnyAttr(field, 'name', name);
+        setFlowableFieldStringValue(field, value);
+        return field;
+      });
+
+      bo.extensionElements.values = [...nonFlowableFields, ...flowableFields];
+    }
+
+
+
+    function isFlowableFormProperty(value) {
+      return value && (
+        value.$type === 'flowable:FormProperty' || value.$type === 'flowable:formProperty' ||
+        value.type === 'flowable:formProperty' || value.type === 'flowable:FormProperty'
+      );
+    }
+
+    function isFlowableValue(value) {
+      return value && (
+        value.$type === 'flowable:Value' || value.$type === 'flowable:value' ||
+        value.type === 'flowable:value' || value.type === 'flowable:Value'
+      );
+    }
+
+    function readFormProperties(bo) {
+      return getExtensionValues(bo).filter(isFlowableFormProperty).map(fp => {
+        // Selon l'origine du BPMN, le descriptor Flowable ou un copier/coller bpmn-js,
+        // les <flowable:value> peuvent se retrouver dans values, $children ou children.
+        const children = [
+          ...asArray(fp.values),
+          ...asArray(fp.$children),
+          ...asArray(fp.children)
+        ];
+        return {
+          id: getAnyAttr(fp, 'id'),
+          name: '',
+          type: getAnyAttr(fp, 'type'),
+          required: String(getAnyAttr(fp, 'required') || '').toLowerCase() === 'true',
+          readable: String(getAnyAttr(fp, 'readable') || '').toLowerCase() === 'true',
+          writable: String(getAnyAttr(fp, 'writable') || '').toLowerCase() === 'true',
+          values: children.filter(isFlowableValue).map(v => ({ id: getAnyAttr(v, 'id'), name: getAnyAttr(v, 'name') }))
+        };
+      });
+    }
+
+    function renderFormProperties(bo) {
+      const container = document.getElementById('formProperties');
+      container.innerHTML = '';
+      if (!bo) { container.innerHTML = '<div class="hint">Aucun élément sélectionné.</div>'; return; }
+      const props = readFormProperties(bo);
+      if (!props.length) container.innerHTML = '<div class="hint">Aucune flowable:formProperty sur cet élément.</div>';
+      props.forEach(addFormPropertyRow);
+    }
+
+    function addFormPropertyRow(prop = { id: '', name: '', type: 'string', required: false, readable: false, writable: false, values: [] }) {
+      const container = document.getElementById('formProperties');
+      const card = document.createElement('div');
+      card.className = 'flowable-card form-property-row';
+      card.innerHTML = `
+        <div class="field"><label>id</label><input class="fp-id" value="${escapeHtml(prop.id)}" /></div>
+        <div class="field"><label>type</label><input class="fp-type" value="${escapeHtml(prop.type || 'string')}" /></div>
+<label class="hint"><input class="fp-required" type="checkbox" ${prop.required ? 'checked' : ''}/> required</label>
+        <label class="hint"><input class="fp-readable" type="checkbox" ${prop.readable ? 'checked' : ''}/> readable</label>
+        <label class="hint"><input class="fp-writable" type="checkbox" ${prop.writable ? 'checked' : ''}/> writable</label>
+        <div class="hint" style="margin-top:8px;">Valeurs enum</div>
+        <div class="fp-values"></div>
+        <button type="button" class="add-fp-value">Ajouter une valeur</button>
+        <button type="button" class="remove-fp">Supprimer cette formProperty</button>
+      `;
+      card.querySelector('.remove-fp').addEventListener('click', () => { card.remove(); scheduleAutoApplyFlowable(0); });
+      card.querySelector('.add-fp-value').addEventListener('click', () => addFormPropertyValueRow(card.querySelector('.fp-values'), '', ''));
+      const valuesContainer = card.querySelector('.fp-values');
+      (prop.values || []).forEach(v => addFormPropertyValueRow(valuesContainer, v.id, v.name));
+      container.appendChild(card);
+    }
+
+    function addFormPropertyValueRow(container, id = '', name = '') {
+      const row = document.createElement('div');
+      row.className = 'mini-row fp-value-row';
+      row.innerHTML = `
+        <div class="field"><label>id</label><input class="fpv-id" value="${escapeHtml(id)}" /></div>
+        <div class="field"><label>name</label><input class="fpv-name" value="${escapeHtml(name)}" /></div>
+        <button type="button" class="remove-fpv">×</button>
+      `;
+      row.querySelector('.remove-fpv').addEventListener('click', () => { row.remove(); scheduleAutoApplyFlowable(0); });
+      container.appendChild(row);
+    }
+
+    function applyFormProperties(bo) {
+      const moddle = modeler.get('moddle');
+      const rows = Array.from(document.querySelectorAll('#formProperties .form-property-row'));
+      const props = rows.map(row => {
+        const values = Array.from(row.querySelectorAll('.fp-value-row')).map(vrow => ({
+          id: vrow.querySelector('.fpv-id').value.trim(),
+          name: vrow.querySelector('.fpv-name').value.trim()
+        })).filter(v => v.id || v.name);
+        return {
+          id: row.querySelector('.fp-id').value.trim(),
+          type: row.querySelector('.fp-type').value.trim(),
+          name: '',
+          required: row.querySelector('.fp-required').checked,
+          readable: row.querySelector('.fp-readable').checked,
+          writable: row.querySelector('.fp-writable').checked,
+          values
+        };
+      }).filter(p => p.id);
+
+      if (!bo.extensionElements) bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] });
+      const others = getExtensionValues(bo).filter(v => !isFlowableFormProperty(v));
+      const formProps = props.map(p => {
+        const fp = moddle.createAny('flowable:formProperty', flowableNs, {});
+        setAnyAttr(fp, 'id', p.id);
+        if (p.type) setAnyAttr(fp, 'type', p.type);
+        if (p.required) setAnyAttr(fp, 'required', 'true');
+        if (p.readable) setAnyAttr(fp, 'readable', 'true');
+        if (p.writable) setAnyAttr(fp, 'writable', 'true');
+        fp.$children = p.values.map(v => {
+          const val = moddle.createAny('flowable:value', flowableNs, {});
+          if (v.id) setAnyAttr(val, 'id', v.id);
+          if (v.name) setAnyAttr(val, 'name', v.name);
+          return val;
+        });
+        return fp;
+      });
+      bo.extensionElements.values = [...others, ...formProps];
+    }
+
+    function isFlowableListener(value) {
+      return value && (
+        value.$type === 'flowable:ExecutionListener' || value.$type === 'flowable:executionListener' ||
+        value.$type === 'flowable:TaskListener' || value.$type === 'flowable:taskListener' ||
+        value.type === 'flowable:executionListener' || value.type === 'flowable:taskListener'
+      );
+    }
+
+    function getListenerKind(value) {
+      const t = (value.$type || value.type || '').toLowerCase();
+      return t.includes('tasklistener') || t.includes('task-listener') ? 'taskListener' : 'executionListener';
+    }
+
+    function renderListeners(bo) {
+      const container = document.getElementById('listeners');
+      container.innerHTML = '';
+      if (!bo) { container.innerHTML = '<div class="hint">Aucun élément sélectionné.</div>'; return; }
+      const listeners = getExtensionValues(bo).filter(isFlowableListener).map(l => ({
+        kind: getListenerKind(l),
+        event: getAnyAttr(l, 'event'),
+        delegateExpression: getAnyAttr(l, 'delegateExpression') || getAnyAttr(l, 'flowable:delegateExpression'),
+        className: getAnyAttr(l, 'class') || getAnyAttr(l, 'flowable:class')
+      }));
+      if (!listeners.length) container.innerHTML = '<div class="hint">Aucun listener sur cet élément.</div>';
+      listeners.forEach(addListenerRow);
+    }
+
+    function addListenerRow(listener = { kind: 'executionListener', event: '', delegateExpression: '', className: '' }) {
+      const container = document.getElementById('listeners');
+      const card = document.createElement('div');
+      card.className = 'flowable-card listener-row';
+      card.dataset.kind = listener.kind || 'executionListener';
+      card.innerHTML = `
+        <div class="hint"><strong>${escapeHtml(card.dataset.kind)}</strong></div>
+        <div class="field"><label>event</label><input class="li-event" value="${escapeHtml(listener.event)}" /></div>
+        <div class="field"><label>delegateExpression</label><input class="li-delegate" value="${escapeHtml(listener.delegateExpression)}" /></div>
+        <div class="field"><label>class</label><input class="li-class" value="${escapeHtml(listener.className)}" /></div>
+        <button type="button" class="remove-li">Supprimer ce listener</button>
+      `;
+      card.querySelector('.remove-li').addEventListener('click', () => { card.remove(); scheduleAutoApplyFlowable(0); });
+      container.appendChild(card);
+    }
+
+    function applyListeners(bo) {
+      const moddle = modeler.get('moddle');
+      if (!bo.extensionElements) bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] });
+      const rows = Array.from(document.querySelectorAll('#listeners .listener-row'));
+      const listeners = rows.map(row => ({
+        kind: row.dataset.kind || 'executionListener',
+        event: row.querySelector('.li-event').value.trim(),
+        delegateExpression: row.querySelector('.li-delegate').value.trim(),
+        className: row.querySelector('.li-class').value.trim()
+      })).filter(l => l.event || l.delegateExpression || l.className);
+      const others = getExtensionValues(bo).filter(v => !isFlowableListener(v));
+      const values = listeners.map(l => {
+        const el = moddle.createAny('flowable:' + l.kind, flowableNs, {});
+        if (l.event) setAnyAttr(el, 'event', l.event);
+        if (l.delegateExpression) setAnyAttr(el, 'delegateExpression', l.delegateExpression);
+        if (l.className) setAnyAttr(el, 'class', l.className);
+        return el;
+      });
+      bo.extensionElements.values = [...others, ...values];
+    }
+
+    let flowableClipboardSnapshot = null;
+
+    function isEditableTarget(target) {
+      return target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable
+      );
+    }
+
+    function readFlowableListeners(bo) {
+      return getExtensionValues(bo).filter(isFlowableListener).map(l => ({
+        kind: getListenerKind(l),
+        event: getAnyAttr(l, 'event'),
+        delegateExpression: getAnyAttr(l, 'delegateExpression') || getAnyAttr(l, 'flowable:delegateExpression'),
+        className: getAnyAttr(l, 'class') || getAnyAttr(l, 'flowable:class')
+      }));
+    }
+
+    function captureFlowableData(bo) {
+      if (!bo) return null;
+      const data = {
+        type: bo.$type || '',
+        attrs: {
+          delegateExpression: getFlowableAttr(bo, 'delegateExpression'),
+          assignee: getFlowableAttr(bo, 'assignee'),
+          candidateUsers: getFlowableAttr(bo, 'candidateUsers'),
+          candidateGroups: getFlowableAttr(bo, 'candidateGroups'),
+          formKey: getFlowableAttr(bo, 'formKey'),
+          dueDate: getFlowableAttr(bo, 'dueDate'),
+          priority: getFlowableAttr(bo, 'priority')
+        },
+        fields: readFlowableFields(bo),
+        formProperties: readFormProperties(bo),
+        listeners: readFlowableListeners(bo)
+      };
+
+      const hasAttr = Object.values(data.attrs).some(Boolean);
+      const hasExtensions = data.fields.length || data.formProperties.length || data.listeners.length;
+      return hasAttr || hasExtensions ? data : null;
+    }
+
+    function createFlowableFieldFromSnapshot(moddle, fieldData) {
+      const field = moddle.createAny('flowable:field', flowableNs, {});
+      if (fieldData.name) setAnyAttr(field, 'name', fieldData.name);
+      setFlowableFieldStringValue(field, fieldData.value || '');
+      return field;
+    }
+
+    function createFlowableFormPropertyFromSnapshot(moddle, propData) {
+      const fp = moddle.createAny('flowable:formProperty', flowableNs, {});
+      if (propData.id) setAnyAttr(fp, 'id', propData.id);
+      if (propData.type) setAnyAttr(fp, 'type', propData.type);
+      if (propData.required) setAnyAttr(fp, 'required', 'true');
+      if (propData.readable) setAnyAttr(fp, 'readable', 'true');
+      if (propData.writable) setAnyAttr(fp, 'writable', 'true');
+      fp.$children = (propData.values || []).map(v => {
+        const val = moddle.createAny('flowable:value', flowableNs, {});
+        if (v.id) setAnyAttr(val, 'id', v.id);
+        if (v.name) setAnyAttr(val, 'name', v.name);
+        return val;
+      });
+      return fp;
+    }
+
+    function createFlowableListenerFromSnapshot(moddle, listenerData) {
+      const el = moddle.createAny('flowable:' + (listenerData.kind || 'executionListener'), flowableNs, {});
+      if (listenerData.event) setAnyAttr(el, 'event', listenerData.event);
+      if (listenerData.delegateExpression) setAnyAttr(el, 'delegateExpression', listenerData.delegateExpression);
+      if (listenerData.className) setAnyAttr(el, 'class', listenerData.className);
+      return el;
+    }
+
+    function applyFlowableDataToBusinessObject(bo, data) {
+      if (!bo || !data) return false;
+      const moddle = modeler.get('moddle');
+      Object.entries(data.attrs || {}).forEach(([key, value]) => {
+        if (value) setFlowableAttr(bo, key, value);
+      });
+
+      const clonedExtensions = [
+        ...(data.fields || []).map(field => createFlowableFieldFromSnapshot(moddle, field)),
+        ...(data.formProperties || []).map(prop => createFlowableFormPropertyFromSnapshot(moddle, prop)),
+        ...(data.listeners || []).map(listener => createFlowableListenerFromSnapshot(moddle, listener))
+      ];
+
+      if (clonedExtensions.length) {
+        const existingValues = getExtensionValues(bo);
+        const others = existingValues.filter(v =>
+          !isFlowableField(v) &&
+          !isFlowableFormProperty(v) &&
+          !isFlowableListener(v)
+        );
+        bo.extensionElements = moddle.create('bpmn:ExtensionElements', {
+          values: [...others, ...clonedExtensions]
+        });
+      }
+      return true;
+    }
+
+    function captureFlowableClipboardSnapshot() {
+      try {
+        const selection = modeler.get('selection').get() || [];
+        const snapshot = selection
+          .map(element => captureFlowableData(element && element.businessObject))
+          .filter(Boolean);
+        flowableClipboardSnapshot = snapshot.length ? snapshot : null;
+      } catch (e) {
+        console.warn('Capture Flowable copier/coller impossible :', e);
+        flowableClipboardSnapshot = null;
+      }
+    }
+
+    function restoreFlowableClipboardSnapshotOnPaste() {
+      if (!flowableClipboardSnapshot || !flowableClipboardSnapshot.length) return;
+      window.setTimeout(() => {
+        try {
+          const selection = modeler.get('selection').get() || [];
+          if (!selection.length) return;
+          let changed = false;
+          selection.forEach((element, index) => {
+            const bo = element && element.businessObject;
+            const data = flowableClipboardSnapshot[Math.min(index, flowableClipboardSnapshot.length - 1)];
+            if (!bo || !data) return;
+            // On ne force pas strictement le type : certains clones bpmn-js transforment les sous-types,
+            // mais les propriétés Flowable restent valables pour userTask/serviceTask compatibles.
+            changed = applyFlowableDataToBusinessObject(bo, data) || changed;
+            modeler.get('eventBus').fire('element.changed', { element });
+          });
+          if (changed) {
+            markDirty();
+            readSelected();
+            setStatus('Copier/coller Flowable restauré');
+          }
+        } catch (e) {
+          console.warn('Restauration Flowable après collage impossible :', e);
+        }
+      }, 80);
+    }
+
+    function installFlowableCopyPastePatch() {
+      document.addEventListener('keydown', (event) => {
+        const key = event.key && event.key.toLowerCase();
+        const ctrlOrCmd = event.ctrlKey || event.metaKey;
+        if (!ctrlOrCmd || isEditableTarget(event.target)) return;
+
+        if (key === 'c' || key === 'x') {
+          captureFlowableClipboardSnapshot();
+        }
+
+        if (key === 'v') {
+          restoreFlowableClipboardSnapshotOnPaste();
+        }
+      }, true);
+    }
+
+    installFlowableCopyPastePatch();
+
+
+    function isSequenceFlow(bo) {
+      return bo && bo.$type === 'bpmn:SequenceFlow';
+    }
+
+    function isServiceTask(bo) {
+      return bo && bo.$type === 'bpmn:ServiceTask';
+    }
+
+    function isUserTask(bo) {
+      return bo && bo.$type === 'bpmn:UserTask';
+    }
+
+    function isTimerEvent(bo) {
+      return !!getTimerEventDefinition(bo);
+    }
+
+    function isMessageEvent(bo) {
+      return !!getMessageEventDefinition(bo);
+    }
+
+    function getDefinitionsRootElements() {
+      const definitions = modeler.getDefinitions && modeler.getDefinitions();
+      return definitions && Array.isArray(definitions.rootElements) ? definitions.rootElements : [];
+    }
+
+    function getGlobalMessages() {
+      return getDefinitionsRootElements().filter(el => el && el.$type === 'bpmn:Message');
+    }
+
+    function getTimerEventDefinition(bo) {
+      const defs = bo && Array.isArray(bo.eventDefinitions) ? bo.eventDefinitions : [];
+      return defs.find(def => def && def.$type === 'bpmn:TimerEventDefinition') || null;
+    }
+
+    function getMessageEventDefinition(bo) {
+      const defs = bo && Array.isArray(bo.eventDefinitions) ? bo.eventDefinitions : [];
+      return defs.find(def => def && def.$type === 'bpmn:MessageEventDefinition') || null;
+    }
+
+    function getExpressionText(expr) {
+      if (!expr) return '';
+      return expr.body || expr.$body || expr.text || '';
+    }
+
+    function setExpressionText(target, propertyName, value) {
+      const text = (value || '').trim();
+      if (!text) {
+        target[propertyName] = undefined;
+        return;
+      }
+      const moddle = modeler.get('moddle');
+      if (target[propertyName]) {
+        target[propertyName].body = text;
+        target[propertyName].$body = text;
+      } else {
+        target[propertyName] = moddle.create('bpmn:FormalExpression', { body: text });
+        target[propertyName].$body = text;
+      }
+    }
+
+    function getTimerTimeDateText(bo) {
+      const timer = getTimerEventDefinition(bo);
+      return timer ? getExpressionText(timer.timeDate) : '';
+    }
+
+    function setTimerTimeDateText(bo, value) {
+      const timer = getTimerEventDefinition(bo);
+      if (!timer) return;
+      setExpressionText(timer, 'timeDate', value);
+    }
+
+    function renderMessageRefSelect(bo) {
+      const select = document.getElementById('f_messageRef');
+      const messageDef = getMessageEventDefinition(bo);
+      const messages = getGlobalMessages();
+      const currentRef = messageDef && messageDef.messageRef ? messageDef.messageRef.id : '';
+      select.innerHTML = '<option value="">Aucun message</option>';
+      messages.forEach(message => {
+        const option = document.createElement('option');
+        option.value = message.id || '';
+        option.textContent = `${message.name || message.id || '(message sans id)'}${message.id ? ' · ' + message.id : ''}`;
+        if (message.id === currentRef) option.selected = true;
+        select.appendChild(option);
+      });
+      if (!messages.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Aucun message défini';
+        select.appendChild(option);
+      }
+    }
+
+    function setMessageRef(bo, messageId) {
+      const messageDef = getMessageEventDefinition(bo);
+      if (!messageDef) return;
+      const message = getGlobalMessages().find(m => m.id === messageId) || null;
+      messageDef.messageRef = message || undefined;
+    }
+
+    function renderGlobalMessages() {
+      const container = document.getElementById('globalMessages');
+      container.innerHTML = '';
+      const messages = getGlobalMessages();
+      if (!messages.length) {
+        container.innerHTML = '<div class="hint">Aucun message BPMN global.</div>';
+        return;
+      }
+      messages.forEach(message => addGlobalMessageRow(message.id || '', message.name || ''));
+    }
+
+    function addGlobalMessageRow(id = '', name = '') {
+      const container = document.getElementById('globalMessages');
+      const row = document.createElement('div');
+      row.className = 'flowable-card global-message-row';
+      row.innerHTML = `
+        <div class="field"><label>id</label><input class="msg-id" value="${escapeHtml(id)}" /></div>
+        <div class="field"><label>name</label><input class="msg-name" value="${escapeHtml(name)}" /></div>
+        <button type="button" class="remove-msg">Supprimer ce message</button>
+      `;
+      row.querySelector('.remove-msg').addEventListener('click', () => { row.remove(); scheduleAutoApplyFlowable(0); });
+      container.appendChild(row);
+    }
+
+    function applyGlobalMessages() {
+      const definitions = modeler.getDefinitions && modeler.getDefinitions();
+      if (!definitions) return;
+      const moddle = modeler.get('moddle');
+      const rows = Array.from(document.querySelectorAll('#globalMessages .global-message-row'));
+      const nextMessages = rows.map(row => ({
+        id: row.querySelector('.msg-id').value.trim(),
+        name: row.querySelector('.msg-name').value.trim()
+      })).filter(m => m.id || m.name).map(m => moddle.create('bpmn:Message', {
+        id: m.id || ('Message_' + Date.now()),
+        name: m.name || m.id || ''
+      }));
+
+      const oldMessages = getGlobalMessages();
+      const oldById = new Map(oldMessages.map(m => [m.id, m]));
+      nextMessages.forEach(msg => {
+        const old = oldById.get(msg.id);
+        if (old) {
+          old.name = msg.name;
+        }
+      });
+
+      const reusableMessages = nextMessages.map(msg => oldById.get(msg.id) || msg);
+      const validIds = new Set(reusableMessages.map(m => m.id));
+      getDefinitionsRootElements().forEach(el => {
+        if (!el || !Array.isArray(el.eventDefinitions)) return;
+        el.eventDefinitions.forEach(def => {
+          if (def && def.$type === 'bpmn:MessageEventDefinition' && def.messageRef && !validIds.has(def.messageRef.id)) {
+            def.messageRef = undefined;
+          }
+        });
+      });
+
+      definitions.rootElements = [
+        ...getDefinitionsRootElements().filter(el => el && el.$type !== 'bpmn:Message'),
+        ...reusableMessages
+      ];
+    }
+
+    function setBlockVisible(id, visible) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = visible ? '' : 'none';
+    }
+
+    function getConditionExpressionText(bo) {
+      return bo ? getExpressionText(bo.conditionExpression) : '';
+    }
+
+    function setConditionExpressionText(bo, value) {
+      if (!isSequenceFlow(bo)) return;
+      setExpressionText(bo, 'conditionExpression', value);
+    }
+
+    function readSelected() {
+      isRenderingFlowablePanel = true;
+      const bo = selectedElement && selectedElement.businessObject;
+      ['id','name'].forEach(k => {
+        const input = document.getElementById('f_' + k);
+        if (!bo) { input.value = ''; input.disabled = true; return; }
+        input.disabled = false;
+        input.value = bo[k] || '';
+      });
+
+      const showGlobalMessages = !bo;
+      const showDelegate = isServiceTask(bo);
+      const showUserAssignment = isUserTask(bo);
+      const showCondition = isSequenceFlow(bo);
+      const showFields = isServiceTask(bo);
+      const showFormProperties = isUserTask(bo);
+      const showTimer = isTimerEvent(bo);
+      const showMessage = isMessageEvent(bo);
+
+      ['delegateExpression','assignee','candidateGroups'].forEach(k => {
+        const input = document.getElementById('f_' + k);
+        if (!bo) {
+          input.value = '';
+          input.disabled = true;
+          input.closest('.field').style.display = 'none';
+          return;
+        }
+        const visible = k === 'delegateExpression' ? showDelegate : showUserAssignment;
+        input.closest('.field').style.display = visible ? '' : 'none';
+        input.disabled = !visible;
+        input.value = visible ? getFlowableAttr(bo, k) : '';
+      });
+
+      const conditionInput = document.getElementById('f_conditionExpression');
+      setBlockVisible('conditionExpressionBlock', showCondition);
+      conditionInput.disabled = !showCondition;
+      conditionInput.value = showCondition ? getConditionExpressionText(bo) : '';
+
+      const timeDateInput = document.getElementById('f_timeDate');
+      setBlockVisible('timerDefinitionBlock', showTimer);
+      timeDateInput.disabled = !showTimer;
+      timeDateInput.value = showTimer ? getTimerTimeDateText(bo) : '';
+
+      setBlockVisible('messageDefinitionBlock', showMessage);
+      if (showMessage) renderMessageRefSelect(bo);
+
+      setBlockVisible('globalMessagesBlock', showGlobalMessages);
+      if (showGlobalMessages) renderGlobalMessages(); else document.getElementById('globalMessages').innerHTML = '';
+
+      setBlockVisible('extensionFieldsBlock', showFields);
+      setBlockVisible('formPropertiesBlock', showFormProperties);
+
+      if (showFields) renderExtensionFields(bo); else document.getElementById('extensionFields').innerHTML = '';
+      if (showFormProperties) renderFormProperties(bo); else document.getElementById('formProperties').innerHTML = '';
+      isRenderingFlowablePanel = false;
+    }
+
+    function applyFlowableProperties(options = {}) {
+      if (!selectedElement || !selectedElement.businessObject) {
+        applyGlobalMessages();
+        markDirty();
+        setStatus(options.auto ? 'Messages appliqués automatiquement' : 'Messages BPMN appliqués');
+        if (options.refreshPanel !== false) readSelected();
+        return;
+      }
+      const modeling = modeler.get('modeling');
+      const bo = selectedElement.businessObject;
+
+      const newId = document.getElementById('f_id').value.trim();
+      const newName = document.getElementById('f_name').value.trim();
+
+      if (newId && newId !== bo.id) {
+        modeling.updateProperties(selectedElement, { id: newId });
+      }
+
+      // updateLabel est nécessaire pour rafraîchir immédiatement le libellé visible sur le canvas.
+      // updateProperties({ name }) met bien à jour le XML, mais selon le type d'élément le rendu peut ne pas bouger tout de suite.
+      if ((bo.name || '') !== newName) {
+        if (typeof modeling.updateLabel === 'function') {
+          modeling.updateLabel(selectedElement, newName);
+        } else {
+          modeling.updateProperties(selectedElement, { name: newName });
+        }
+      }
+
+      if (isServiceTask(bo)) {
+        setFlowableAttr(bo, 'delegateExpression', document.getElementById('f_delegateExpression').value.trim());
+        applyExtensionFields(bo);
+      }
+
+      if (isUserTask(bo)) {
+        setFlowableAttr(bo, 'assignee', document.getElementById('f_assignee').value.trim());
+        setFlowableAttr(bo, 'candidateGroups', document.getElementById('f_candidateGroups').value.trim());
+        applyFormProperties(bo);
+      }
+
+      if (isSequenceFlow(bo)) {
+        setConditionExpressionText(bo, document.getElementById('f_conditionExpression').value);
+      }
+
+      if (isTimerEvent(bo)) {
+        setTimerTimeDateText(bo, document.getElementById('f_timeDate').value);
+      }
+
+      if (isMessageEvent(bo)) {
+        setMessageRef(bo, document.getElementById('f_messageRef').value);
+      }
+
+      // Force le rafraîchissement du rendu et du XML exporté.
+      modeler.get('eventBus').fire('element.changed', { element: selectedElement });
+      if (selectedElement.businessObject && selectedElement.businessObject.$type === 'bpmn:Process') {
+        updateCurrentProcessNameFromModel();
+      }
+      markDirty();
+      setStatus(options.auto ? 'Propriétés appliquées automatiquement' : 'Propriétés Flowable appliquées');
+      if (options.refreshPanel !== false) {
+        readSelected();
+      }
+    }
+
+
+    function installDirtyTracking() {
+      const eventBus = modeler.get('eventBus');
+      const dirtyEvents = [
+        'commandStack.changed',
+        'shape.added',
+        'shape.removed',
+        'connection.added',
+        'connection.removed'
+      ];
+      dirtyEvents.forEach(eventName => eventBus.on(eventName, () => markDirty()));
+    }
+
+    installDirtyTracking();
+
+    window.addEventListener('beforeunload', (event) => {
+      if (!isDirty) return;
+      event.preventDefault();
+      event.returnValue = '';
+    });
+
+    modeler.on('selection.changed', (event) => {
+      selectedElement = event.newSelection && event.newSelection[0] ? event.newSelection[0] : null;
+      readSelected();
+    });
+
+    async function openWithFilePicker() {
+      if (!confirmLoseUnsavedChanges()) return;
+      if (!('showOpenFilePicker' in window)) {
+        document.getElementById('fileInput').click();
+        return;
+      }
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{
+            description: 'Fichier BPMN',
+            accept: { 'application/xml': ['.bpmn', '.xml'] }
+          }],
+          multiple: false
+        });
+        const file = await handle.getFile();
+        currentFileHandle = handle;
+        currentOpenMode = 'picker';
+        currentRecentId = null;
+        await importXml(await file.text(), file.name);
+        await rememberFileHandle(handle, file.name, currentProcessName);
+      } catch (error) {
+        if (error && error.name === 'AbortError') {
+          setStatus('Ouverture annulée');
+          return;
+        }
+        console.warn(error);
+        document.getElementById('fileInput').click();
+      }
+    }
+
+    document.getElementById('openBtn').addEventListener('click', openWithFilePicker);
+
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!confirmLoseUnsavedChanges()) {
+        event.target.value = '';
+        return;
+      }
+      currentFileHandle = null;
+      currentRecentId = null;
+      currentOpenMode = 'import';
+      importXml(await file.text(), file.name);
+      event.target.value = '';
+    });
+
+    recentFilesSelect.addEventListener('change', async (event) => {
+      await openRecentFile(event.target.value);
+    });
+
+    document.getElementById('addExtensionFieldBtn').addEventListener('click', () => addExtensionFieldRow('', ''));
+    document.getElementById('addFormPropertyBtn').addEventListener('click', () => addFormPropertyRow());
+    document.getElementById('addGlobalMessageBtn').addEventListener('click', () => addGlobalMessageRow('', ''));
+    document.getElementById('applyFlowableBtn').addEventListener('click', () => applyFlowableProperties({ refreshPanel: true }));
+
+    // Auto-application avec debounce : évite de devoir cliquer sur le bouton à chaque modification.
+    // On évite de rafraîchir tout le panneau pendant la saisie pour ne pas perdre le focus.
+    document.getElementById('flowablePanel').addEventListener('input', (event) => {
+      if (!event.target.matches('input, textarea, select')) return;
+      if (event.target.id === 'f_id') return; // l'id reste appliqué au changement pour éviter les ids intermédiaires invalides
+      scheduleAutoApplyFlowable();
+    });
+
+    document.getElementById('flowablePanel').addEventListener('change', (event) => {
+      if (!event.target.matches('input, textarea, select')) return;
+      if (event.target.id === 'f_id') {
+        scheduleAutoApplyFlowable(0);
+        return;
+      }
+      scheduleAutoApplyFlowable(0);
+    });
+
+    document.getElementById('f_name').addEventListener('input', (event) => {
+      if (!selectedElement || !selectedElement.businessObject) return;
+      const modeling = modeler.get('modeling');
+      const newName = event.target.value;
+      if (typeof modeling.updateLabel === 'function') {
+        modeling.updateLabel(selectedElement, newName);
+      } else {
+        modeling.updateProperties(selectedElement, { name: newName });
+      }
+      if (selectedElement.businessObject.$type === 'bpmn:Process') {
+        updateCurrentProcessNameFromModel();
+      }
+      markDirty();
+      setStatus('Nom mis à jour sur le diagramme');
+    });
+
+    document.getElementById('f_id').addEventListener('change', (event) => {
+      if (!selectedElement || !selectedElement.businessObject) return;
+      const newId = event.target.value.trim();
+      if (!newId || newId === selectedElement.businessObject.id) return;
+      modeler.get('modeling').updateProperties(selectedElement, { id: newId });
+      markDirty();
+      setStatus('Id BPMN mis à jour');
+      readSelected();
+    });
+
+    const standardPanelShell = document.getElementById('standardPanelShell');
+    const standardPanelToggle = document.getElementById('standardPanelToggle');
+    function toggleStandardPanel(forceOpen) {
+      const open = typeof forceOpen === 'boolean' ? forceOpen : !standardPanelShell.classList.contains('open');
+      standardPanelShell.classList.toggle('open', open);
+      standardPanelToggle.textContent = open ? 'Masquer' : 'Afficher';
+    }
+    document.getElementById('standardPanelHeader').addEventListener('click', (event) => {
+      event.preventDefault();
+      toggleStandardPanel();
+    });
+    standardPanelToggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleStandardPanel();
+    });
+
+    function normalizeFlowableFieldsBeforeExport() {
+      try {
+        const moddle = modeler.get('moddle');
+        const elementRegistry = modeler.get('elementRegistry');
+        elementRegistry.forEach(element => {
+          const bo = element && element.businessObject;
+          getExtensionValues(bo).filter(isFlowableField).forEach(field => {
+            const name = getFlowableFieldName(field);
+            const value = getFlowableFieldStringValue(field);
+
+            // Repartir d'un modèle propre avant saveXML :
+            // - name reste un attribut
+            // - string doit être un élément enfant <flowable:string>texte</flowable:string>
+            // - jamais d'attribut string="[object Object]" ni children=""
+            if (field.$attrs) {
+              delete field.$attrs.string;
+              delete field.$attrs.children;
+              delete field.$attrs.values;
+              delete field.$attrs.type;
+            }
+            if (Object.prototype.hasOwnProperty.call(field, 'children')) delete field.children;
+            if (Object.prototype.hasOwnProperty.call(field, 'values')) delete field.values;
+            if (name) setAnyAttr(field, 'name', name);
+
+            let stringChild;
+            try {
+              stringChild = moddle.create('flowable:string', { body: value });
+            } catch (e) {
+              stringChild = moddle.createAny('flowable:string', flowableNs, { body: value });
+            }
+            stringChild.body = value;
+            stringChild.$body = value;
+            field.string = stringChild;
+            field.$children = [];
+          });
+        });
+      } catch (e) {
+        console.warn('Normalisation Flowable avant export impossible :', e);
+      }
+    }
+
+    function repairMalformedFlowableFieldXml(xml) {
+      // Filet de sécurité : si une ancienne structure a quand même produit string="[object Object]",
+      // on évite au minimum de sauvegarder cet attribut invalide. La normalisation ci-dessus
+      // doit normalement conserver la vraie valeur dans <flowable:string>.
+      return xml
+        .replace(/\sstring="\[object Object\]"/g, '')
+        .replace(/\schildren=""/g, '')
+        .replace(/\svalues=""/g, '');
+    }
+
+    async function getCurrentXml() {
+      normalizeFlowableFieldsBeforeExport();
+      const { xml } = await modeler.saveXML({ format: true });
+      return ensureExpandedSubProcesses(repairMalformedFlowableFieldXml(xml));
+    }
+
+    async function saveWithFileSystemAccess() {
+      if (!('showSaveFilePicker' in window)) {
+        throw new Error('API File System Access indisponible');
+      }
+
+      let pickedNewHandle = false;
+      if (!currentFileHandle) {
+        currentFileHandle = await window.showSaveFilePicker({
+          suggestedName: 'process.bpmn',
+          types: [{
+            description: 'Fichier BPMN',
+            accept: { 'application/xml': ['.bpmn', '.xml'] }
+          }]
+        });
+        pickedNewHandle = true;
+      }
+
+      if (!pickedNewHandle) {
+        const allowed = await ensureFilePermission(currentFileHandle, 'readwrite');
+        if (!allowed) throw new Error('Permission écriture refusée');
+      }
+
+      const writable = await currentFileHandle.createWritable();
+      await writable.write(await getCurrentXml());
+      await writable.close();
+      updateCurrentProcessNameFromModel();
+      await rememberFileHandle(currentFileHandle, currentFileHandle.name || 'process.bpmn', currentProcessName);
+      markSaved();
+    }
+
+    async function saveCurrentBpmn() {
+      // Avant sauvegarde, on force l'application des champs en cours de saisie.
+      clearTimeout(autoApplyTimer);
+      if (selectedElement && selectedElement.businessObject) {
+        applyFlowableProperties({ auto: true, refreshPanel: false });
+      }
+
+      try {
+        await saveWithFileSystemAccess();
+      } catch (error) {
+        if (error && error.name === 'AbortError') {
+          setStatus('Sauvegarde annulée.');
+          return;
+        }
+        console.warn(error);
+        setStatus('Sauvegarde directe impossible : téléchargement à la place.');
+        download('process.bpmn', await getCurrentXml(), 'application/xml');
+        markSaved();
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', saveCurrentBpmn);
+
+    async function saveAsCurrentBpmn() {
+      const oldHandle = currentFileHandle;
+      currentFileHandle = null;
+      try {
+        await saveCurrentBpmn();
+      } catch (e) {
+        currentFileHandle = oldHandle;
+        throw e;
+      }
+    }
+
+    document.addEventListener('keydown', async (event) => {
+      const key = event.key && event.key.toLowerCase();
+      const ctrlOrCmd = event.ctrlKey || event.metaKey;
+
+      if (ctrlOrCmd && key === 's') {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.shiftKey) await saveAsCurrentBpmn();
+        else await saveCurrentBpmn();
+      }
+
+      if (ctrlOrCmd && key === 'o') {
+        event.preventDefault();
+        event.stopPropagation();
+        await openWithFilePicker();
+      }
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+      download('process.bpmn', await getCurrentXml(), 'application/xml');
+    });
+
+    document.getElementById('copyXmlBtn').addEventListener('click', async () => {
+      const output = await getCurrentXml();
+
+      try {
+        await navigator.clipboard.writeText(output);
+        setStatus('XML BPMN copié dans le presse-papiers.');
+      } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = output;
+        textarea.setAttribute('readonly', 'readonly');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setStatus('XML BPMN copié dans le presse-papiers.');
+      }
+    });
+
+
+    function isFileDrag(event) {
+      return Array.from(event.dataTransfer?.types || []).includes('Files');
+    }
+
+    ['dragenter', 'dragover'].forEach(type => {
+      document.addEventListener(type, (event) => {
+        if (!isFileDrag(event)) return;
+        event.preventDefault();
+        document.body.classList.add('dragging-file');
+        document.getElementById('canvas').classList.add('drag-over');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(type => {
+      document.addEventListener(type, (event) => {
+        if (type === 'drop' || event.clientX <= 0 || event.clientY <= 0 || event.clientX >= window.innerWidth || event.clientY >= window.innerHeight) {
+          document.body.classList.remove('dragging-file');
+          document.getElementById('canvas').classList.remove('drag-over');
+        }
+      });
+    });
+
+    document.addEventListener('drop', async (event) => {
+      if (!isFileDrag(event)) return;
+      event.preventDefault();
+      const file = Array.from(event.dataTransfer.files || [])[0];
+      if (!file) return;
+      if (!confirmLoseUnsavedChanges()) return;
+      if (!/\.(bpmn|xml)$/i.test(file.name)) {
+        setStatus('Dépose un fichier .bpmn ou .xml');
+        return;
+      }
+      currentFileHandle = null;
+      currentRecentId = null;
+      currentOpenMode = 'dragdrop';
+      importXml(await file.text(), file.name);
+    });
+
+    refreshRecentFilesDropdown();
+    importXml(defaultDiagram);
+  </script>
+</body>
+</html>

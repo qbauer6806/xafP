@@ -99,6 +99,7 @@ import mc.gouv.xaf.shared.paiement.tableaupaiement.TableauDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -278,6 +279,7 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiementBo.setPaymentMethodAccount(info.getPan());
             moyenPaiementBo.setExpiryDate(PaiementUtils.calculateExpiration(Integer.valueOf(info.getExpiryMonth()),
                     Integer.valueOf(info.getExpiryYear())));
+            moyenPaiementBo.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
             // Changer la demande de status
             debitEtMajStatut(moyenPaiementBo);
         }
@@ -419,20 +421,24 @@ public class PaiementServiceImpl implements PaiementService {
         // En fonction de l'idTs retrouver toutes les informations (moyen paiement, facturation)
         DemandeBO demandeBo = demandesRepository.findByIdentifiant(idTs);
         Integer pkDemandes = demandeBo.getPkDemandes();
-        Optional<CommandeDemandeBO> latestCommandeForDemande = commandeDemandeRepository.findLatestCommandeForDemande(
-                pkDemandes);
-        CommandeDemandeBO commandeDemande = latestCommandeForDemande.orElseThrow(
+        //On récupère le moyen de paiement associé à la demande avec PageRequest pour limiter le résultat à une ligne
+        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findFirstByDemandeIdWithToken(pkDemandes,
+                PageRequest.of(0, 1)).stream().findFirst().orElseThrow(() -> new EntityNotFoundException(
+                "Aucun moyen de paiement valide trouvé pour le débit de la demande " + pkDemandes));
+
+        Integer pkCommandes = moyenPaiement.getCommande().getPkCommandes();
+
+        CommandeDemandeBO commandeDemande = commandeDemandeRepository.findFirstByCommandeIdOrderByDateCreationDesc(
+                pkCommandes).orElseThrow(
                 () -> new EntityNotFoundException("Aucune commande trouvée pour la demande " + pkDemandes));
-        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByDemande_PkDemandesAndLastCreationDate(pkDemandes);
-        InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(
-                moyenPaiement.getCommande().getPkCommandes());
+
+        InformationFacturationBO infoFacturation = infoFacturationRepository.findByCommande_PkCommandes(pkCommandes);
+
         DebitInputDTO debitInputDTO = mwpaymtTransformer.infoDebitToMwpaymtDebitDTO(idTs, orderIdResid, moyenPaiement,
                 infoFacturation, commandeDemande.getMontant());
         MwpaymtApiClient mwpaymtApiClient = new MwpaymtApiClient(gouvPropertiesResolver.getMwpaymtUrl(), keycloakToken);
         DemandesUsagersBO usager = demandeBo.getUsager();
         Integer usagerId = usager.getId();
-        GouvBPMUser user = new GouvBPMUser();
-        user.setId(usagerId.toString());
         DebitOutputDTO debit;
         try {
             if (paiementsDataProvider.isCaisseOuverte()) {

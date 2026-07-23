@@ -4,8 +4,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 public interface IndexControllerInterface {
 
-    public ModelAndView form();
+    ModelAndView form();
 
-    public ModelAndView formIndex();
+    ModelAndView formIndex();
 
 }

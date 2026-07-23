@@ -106,8 +106,7 @@ public class DemandesHistoriqueService {
                 + CLOSING_SPAN;
         ;
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
-                demarchesDataProvider.getHistoRole(), action,
-                statutValidationName);
+                demarchesDataProvider.getHistoRole(targetState, null), action, statutValidationName);
         return histoTs2Dem(contenu, null, agentId);
     }
 
@@ -165,7 +164,9 @@ public class DemandesHistoriqueService {
             name = (usagerId != null) ? usagersUtils.getUsagerNameFromID(usagerId) : agentName;
             role = (usagerId != null)
                     ? USAGER
-                    : (StringUtils.isNotBlank(agentId) ? demarchesDataProvider.getHistoRole() : null);
+                    : (StringUtils.isNotBlank(agentId)
+                            ? demarchesDataProvider.getHistoRole(targetState, dernierStatut)
+                            : null);
         }
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(name, role, action, statut);
         return histoTs2Dem(contenu, usagerId, agentId);
@@ -181,8 +182,8 @@ public class DemandesHistoriqueService {
         } else {
             // par agent
             String action = "Rectifie la demande à la place de l'usager";
-            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId), demarchesDataProvider.getHistoRole(),
-                    action, targetState);
+            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId),
+                    demarchesDataProvider.getHistoRole(targetState, null), action, targetState);
         }
         return histoTs2Dem(contenu, usagerId, agentId);
     }
@@ -207,8 +208,8 @@ public class DemandesHistoriqueService {
             String name = usagersUtils.getUsagerNameFromID(usagerId);
             contenu = new DemandeHistoriqueContenuDTO(name, USAGER, action, targetState);
         } else {
-            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId), demarchesDataProvider.getHistoRole(), action,
-                    targetState);
+            contenu = new DemandeHistoriqueContenuDTO(getAgentName(agentId),
+                    demarchesDataProvider.getHistoRole(targetState, null), action, targetState);
         }
         return histoTs2Dem(contenu, usagerId, agentAffecteId);
     }
@@ -236,8 +237,8 @@ public class DemandesHistoriqueService {
                 "Demande dupliquée (Demande d'origine <a href='" + gouvPropertiesResolver.getBackUrl() + "/demandes/"
                         + oldDemande.getPkDemandes() + "'><span>" + oldDemande.getIdentifiant() + "</span></a>)";
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
-                demarchesDataProvider.getHistoRole(), action,
-                demarchesDataProvider.getPremierStatutCreationDemande());
+                demarchesDataProvider.getHistoRole(demarchesDataProvider.getPremierStatutCreationDemande(), null),
+                action, demarchesDataProvider.getPremierStatutCreationDemande());
         return histoTs2Dem(contenu, null, agentId);
     }
 
@@ -249,8 +250,7 @@ public class DemandesHistoriqueService {
                 + "/demandes/" + nouvelleDemande.getPkDemandes() + "'><span>" + nouvelleDemande.getIdentifiant()
                 + "</span></a>)";
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
-                demarchesDataProvider.getHistoRole(), action,
-                oldDemandeStatutName);
+                demarchesDataProvider.getHistoRole(oldDemandeStatutName, null), action, oldDemandeStatutName);
         return histoTs2Dem(contenu, null, agentId);
     }
 
@@ -277,7 +277,7 @@ public class DemandesHistoriqueService {
         String agentName = getAgentName(agentId);
         String html = "Supprime le fichier " + truncateMiddle(fileName);
         DemandeHistoriqueContenuDTO contenu = new DemandeHistoriqueContenuDTO(agentName,
-                demarchesDataProvider.getHistoRole(), html, null);
+                demarchesDataProvider.getHistoRole(null, null), html, null);
         return histoTs2Dem(contenu, null, agentId);
     }
 

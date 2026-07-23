@@ -17,8 +17,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.dto.ConfigDTO;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
@@ -61,7 +61,7 @@ public class MarqueursController extends AbstractController {
 
     private final DemandesConfigService demandesConfigService;
     private final MarqueursService marqueursService;
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {
@@ -100,7 +100,7 @@ public class MarqueursController extends AbstractController {
             mav.addObject("buildId", currentBuildId);
         }
 
-        mav.addObject("isFrenchOnly", afBackUtils.getLanguesDisponibles().size() == 1);
+        mav.addObject("isFrenchOnly", demarchesService.getLanguesDisponibles().size() == 1);
 
         LOGGER.info("======================= Fin /marqueurs");
 

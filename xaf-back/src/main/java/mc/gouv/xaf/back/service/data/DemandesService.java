@@ -162,4 +162,14 @@ public interface DemandesService {
     Page<AfDemandeExcelFlatDTO> retrieveDemandesExcelPageable(Pageable pageable, ExcelRechercheDTO excelRechercheDTO,
             long total);
 
+    /**
+     * Récupère la liste des demandes légères actives associées à un utilisateur spécifique active.
+     *
+     * @param usagerId
+     *         L'identifiant de l'utilisateur dont les demandes actives doivent être récupérées.
+     * @return Une liste de demandes légères (sous forme de {@link DemandeDTO}) associées à l'identifiant utilisateur
+     *         fourni, filtrées pour n'inclure que les demandes actives.
+     */
+    List<DemandeDTO> getDemandesLightUsagerActive(Integer usagerId);
+
 }

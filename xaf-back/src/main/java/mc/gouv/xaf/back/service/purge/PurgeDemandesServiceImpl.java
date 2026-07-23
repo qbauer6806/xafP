@@ -34,6 +34,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.data.impl.DemandesHelperService;
@@ -50,6 +51,7 @@ import mc.gouv.xaf.back.service.itg.mail.impl.AfMailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
@@ -81,7 +83,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private final DemarchesDataProvider demarchesDataProvider;
     private final GouvPropertiesResolver gouvPropertiesResolver;
     private final MailService mailService;
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
     private final PropertiesService propertiesService;
     private final StatistiquesRepository statRepository;
     private final DemandesRepository demandesRepository;
@@ -368,7 +370,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_CORPS";
 
         EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
-        emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
+        emailInfoDTO.addTo(demarchesService.getDemarche().getEmailService(), StringUtils.EMPTY);
         Map<String, Object> model = afTemplateModelProvider.getGenericModelMail();
         model.put("demandes", demandesAPurger);
         model.put("delai", delai);
@@ -403,10 +405,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         emailInfo.setLangue(langue);
 
         return emailInfo;

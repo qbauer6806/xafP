@@ -13,13 +13,14 @@ import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.TicketRecapitulatifService;
 import mc.gouv.xaf.back.service.AfTemplateModelProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.dto.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TicketRecapitulatifServiceImpl.class);
 
-    private final AfBackUtils afBackUtils;
+    private final DemarchesService demarchesService;
 
     private final MailService mailService;
 
@@ -72,10 +73,9 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        DemarcheDTO demarcheDTO = demarchesService.getDemarche();
+        emailInfo.setFrom(demarcheDTO.getEmailFrom(), demarcheDTO.getEmailFromNom());
+        emailInfo.setReplyto(demarcheDTO.getEmailReplyto(), demarcheDTO.getEmailReplytoNom());
         emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         emailInfo.setLangue(demandeDto.getLangue());
 

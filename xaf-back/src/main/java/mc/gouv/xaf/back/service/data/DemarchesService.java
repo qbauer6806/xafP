@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Service permettant la manipulation des démarches.
@@ -38,5 +39,7 @@ public interface DemarchesService {
     String exportConfig() throws IOException;
 
     void importConfig(byte[] file) throws IOException;
+
+    Map<String, String> getLanguesDisponibles();
 
 }

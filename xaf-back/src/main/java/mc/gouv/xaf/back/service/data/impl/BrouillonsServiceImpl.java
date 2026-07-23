@@ -303,6 +303,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     private static BrouillonDTO toBrouillonDto(BrouillonPageableProjection p) {
         BrouillonDTO dto = new BrouillonDTO();
         dto.setPkBrouillons(p.getPkBrouillons());
+        dto.setContenu(p.getContenu());
         dto.setDateCreation(p.getDateCreation());
         dto.setDateDerModif(p.getDateDerModif());
         dto.setBuildId(p.getBuildId());

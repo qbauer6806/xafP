@@ -30,6 +30,7 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
             select b.pkBrouillons as pkBrouillons,
                    b.dateCreation as dateCreation,
                    b.dateDerModif as dateDerModif,
+                   b.contenu as contenu,
                    c.buildId as buildId,
                    b.recapType as recapType
             from BrouillonBO b

@@ -52,4 +52,22 @@ public interface CommandeDemandeRepository extends JpaRepository<CommandeDemande
 
     void deleteByDemande_PkDemandesIn(Set<Integer> pkDemandes);
 
+    /**
+     * Récupère le {@link CommandeDemandeBO} le plus récent associé à un identifiant de commande spécifique, trié par
+     * date de création par ordre décroissant.
+     *
+     * @param commandeId
+     *         L'identifiant de la commande pour laquelle le {@link CommandeDemandeBO} le plus récent doit être
+     *         récupéré.
+     * @return Un {@link Optional} contenant le {@link CommandeDemandeBO} le plus récent s'il est trouvé, ou un
+     *         {@link Optional} vide si aucune donnée correspondante n'existe.
+     */
+    @Query("""
+                SELECT cd FROM CommandeDemandeBO cd
+                JOIN cd.commande c
+                WHERE c.pkCommandes = :commandeId
+                ORDER BY c.dateCreation DESC
+            """)
+    Optional<CommandeDemandeBO> findFirstByCommandeIdOrderByDateCreationDesc(@Param("commandeId") Integer commandeId);
+
 }

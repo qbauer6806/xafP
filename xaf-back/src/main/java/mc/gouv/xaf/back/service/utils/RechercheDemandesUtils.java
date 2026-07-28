@@ -47,6 +47,7 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -147,18 +148,18 @@ public class RechercheDemandesUtils extends RechercheUtils {
         Expression<?> e = null;
         String orderProperty = order.getProperty();
         // Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
-        if (StringUtils.equalsIgnoreCase(orderProperty, USAGER_ID)) {
+        if (Strings.CI.equals(orderProperty, USAGER_ID)) {
             Join<DemandeBO, AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
             e = f.get(orderProperty);
-        } else if (StringUtils.equalsIgnoreCase(orderProperty, "dernierStatut.libelle")) {
+        } else if (Strings.CI.equals(orderProperty, "dernierStatut.libelle")) {
             Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
             e = f.get(LIBELLE);
             groupBy.add(f.get(LIBELLE));
-        } else if (StringUtils.equalsIgnoreCase(orderProperty, "agent.nomAffichage")) {
+        } else if (Strings.CI.equals(orderProperty, "agent.nomAffichage")) {
             Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
             e = f.get("nomAffichage");
             groupBy.add(f.get("nomAffichage"));
-        } else if (StringUtils.startsWith(orderProperty, "data.")) {
+        } else if (Strings.CI.startsWith(orderProperty, "data.")) {
             e = this.getExpressionData(root, orderProperty, cb);
         } else if (orderProperty.startsWith(CONTENU) || orderProperty.startsWith(CONTENU_TRAD)) {
             e = getJsonOrderExpression(root, cb, orderProperty);

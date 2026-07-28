@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -52,7 +52,7 @@ class DocHolderControllerTest {
                 ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build());
 
         ResponseEntity<?> responseEntity = docHolderTypedocController.doGet(request);
-        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, responseEntity.getStatusCodeValue());
+        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, responseEntity.getStatusCode().value());
     }
 
     private static Stream<Arguments> emptyOrInvalidFileParameters() {
@@ -85,7 +85,7 @@ class DocHolderControllerTest {
 
             ResponseEntity<?> responseEntity = docHolderFileController.doPost(request);
             Assertions.assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST.value(),
-                    responseEntity.getStatusCodeValue());
+                    responseEntity.getStatusCode().value());
         }
     }
 }

@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +13,8 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -45,7 +46,7 @@ public interface DemandesService {
      *         Fields à récupérer (si null on récupére tous les fields)
      * @return Page des demandes recherchées
      */
-    Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields);
+    PagedModel<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields);
 
     mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(Integer usagerId, List<String> status,
             PageParamDTO paramDTO);

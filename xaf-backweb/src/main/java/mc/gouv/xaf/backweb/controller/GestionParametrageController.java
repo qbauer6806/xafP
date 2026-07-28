@@ -1,6 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -92,7 +92,7 @@ public class GestionParametrageController {
         DemandeConfigBO config = demandesConfigHelperService.getLastConfig();
         if (config != null) {
             JsonNode node = config.getContenu().get("wysiwygVersion");
-            String wysiwygVersion = node != null ? node.asText() : null;
+            String wysiwygVersion = node != null ? node.asString() : null;
             mav.addObject("wysiwygVersion", wysiwygVersion);
         }
         mav.addObject("tsVersion", mavenVersion);

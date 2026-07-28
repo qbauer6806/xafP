@@ -1,7 +1,7 @@
 package mc.gouv.xaf.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -74,7 +74,7 @@ public class AfApiController {
 
     @PostMapping(value = "/demandes")
     public DemandeDTO creerDemandeRequest(@Valid @RequestBody DemandeInputDTO demande,
-            @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId) throws JacksonException {
         LOGGER.debug("AbstractAfApiController.creerDemande({}, {})", demande, usagerId);
         return afApiService.creerDemande(demande, usagerId);
     }
@@ -90,14 +90,14 @@ public class AfApiController {
 
     @PutMapping(value = "/demandes/{demandeId}/lock")
     public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp) throws JacksonException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
         return afApiService.lockDemande(demandeId, usagerId, timestamp);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/unlock")
     public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request) throws JacksonException {
         LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
         return afApiService.unlockDemande(demandeId, usagerId);
     }

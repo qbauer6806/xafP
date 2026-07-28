@@ -9,8 +9,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -170,7 +170,7 @@ class DemandesTransformerTest {
         try {
             demandeBO.setContenu(mapper.readTree(
                     "{\"donnee\":{\"demandeur\":{\"titre\":null,\"prenom\":\"Tom\",\"nom\":\"TORREZE\",\"email\":null},\"derogation\":{\"typedemande\":\"SUSPENSION\",\"annee\":\"2019\",\"dateinfosal\":null,\"effectifentreprise\":\"45\",\"presencedeleguepersonnel\":\"NO\",\"datederniereelection\":null,\"dateinfodp\":null,\"identitedp\":null,\"motifdemande\":\"cds\"},\"attribut\":{\"demandeur\":{\"declarant\":\"DECLARANT\"},\"civilite\":null,\"monegasque\":null,\"adresse\":{\"ligne1\":null,\"ligne2\":null,\"ligne3\":null,\"codePostal\":null,\"ville\":null,\"pays\":null},\"email\":\"ttorreze.ext@gouv.mc\",\"date\":{\"heure\":{\"naissance\":null}},\"lieu\":{\"naissance\":null},\"telephone\":{\"indicatif\":null,\"numero\":null},\"fiscale\":{\"titulaire\":null,\"bic\":null,\"iban\":null},\"declarant\":{\"civilite\":\"0\",\"nom\":\"Tomconsult\",\"prenom\":\"a,b,c\",\"monegasque\":\"NO\",\"resident\":\"NO\",\"adresse\":{\"ligne1\":\"2, rue du pioupiou\",\"ligne2\":null,\"ligne3\":null,\"codePostal\":\"Monaco\",\"ville\":\"98000\",\"pays\":\"FR\"}},\"nom\":null,\"prenoms\":null,\"resident\":null}},\"raison\":{\"sociale\":\"\"}}"));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
         demandeBO.setFkAccess(new AccessBO());

@@ -5,9 +5,9 @@ import static mc.gouv.xaf.front.util.DocHolderUtils.DATE_CREATION_NODE;
 import static mc.gouv.xaf.front.util.DocHolderUtils.DOCHOLDER_CONSENT_NODE;
 import static mc.gouv.xaf.front.util.DocHolderUtils.JSON_DATE_FORMAT;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -70,24 +70,18 @@ public class DocHolderConsentController {
 
         LOGGER.info("Déserialisation des données d'accès");
         JsonNode docholderConsentNode = access.getContenu().get(DOCHOLDER_CONSENT_NODE);
-        try {
-            if (docholderConsentNode == null) {
-                LOGGER.info("Aucun noeud json " + DOCHOLDER_CONSENT_NODE + " trouvé");
+        if (docholderConsentNode == null) {
+            LOGGER.info("Aucun noeud json " + DOCHOLDER_CONSENT_NODE + " trouvé");
+            return ResponseEntity.notFound().build();
+        } else {
+            DocHolderConsentDTO docholderConsent = mapper.readValue(docholderConsentNode.toString(),
+                    DocHolderConsentDTO.class);
+            if (docholderConsent == null) {
                 return ResponseEntity.notFound().build();
             } else {
-                DocHolderConsentDTO docholderConsent = mapper.readValue(docholderConsentNode.toString(),
-                        DocHolderConsentDTO.class);
-                if (docholderConsent == null) {
-                    return ResponseEntity.notFound().build();
-                } else {
-                    LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
-                    return ResponseEntity.status(docholderConsent.isConsenting() ? 204 : 404).build();
-                }
+                LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
+                return ResponseEntity.status(docholderConsent.isConsenting() ? 204 : 404).build();
             }
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la déserialisation de la requête", e);
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
-                    SharedMessages.ERREUR_INTERNE);
         }
 
     }

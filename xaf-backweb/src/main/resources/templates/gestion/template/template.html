@@ -327,12 +327,12 @@
       "orderable": false,
       "keyword": false,
       render: function (data, type, template, meta) {
-        return '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
+        return '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Visualiser" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
             '<i class="icon-action_editer"></i></button>' +
-            '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '" ' +
+            '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Modifier" style="margin-right: 8px" data-ligne="' + meta.row + '" ' +
             'onclick="window.location.href=\''+ APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue +'\'">' +
             '<i class="icon-action_modifier"></i></button>' +
-            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-ligne="' + meta.row + '" onclick="openSuppressionModal(\'' + template.code + '\', \'' + template.langue + '\')">' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Supprimer" data-ligne="' + meta.row + '" onclick="openSuppressionModal(\'' + template.code + '\', \'' + template.langue + '\')">' +
             '<i class="icon-action_supprimer"></i></button>';
       }
     }];
@@ -429,7 +429,6 @@
 
   /*<![CDATA[*/
   $(document).ready(function () {
-    var urlModif = /*[[@{/gestion/template/update}]]*/[];
     var templateList = /*[[${templateList}]]*/[];
 
     // Ici nous transformons la liste des DTO des templates en une liste compréhensible par les gestionnaires
@@ -477,7 +476,17 @@
       order: [ [3, "desc"], [0, "asc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
       columns: columnsProperties,
       data: templateListRegrouped,
-      language: frenchTranslation
+      language: frenchTranslation,
+      // bugfix #29868 - afficher les tooltips dans les datatable
+      drawCallback: function (settings) {
+        $('[data-toggle="tooltip"]').tooltip();
+      }
+    });
+
+    table.on('draw', function () {
+      $("#templatesCounter").text(
+          table.rows({ search: 'applied' }).count()
+      );
     });
 
     // Filtrer par FR au départ

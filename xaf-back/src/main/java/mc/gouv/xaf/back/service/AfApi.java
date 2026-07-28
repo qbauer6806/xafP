@@ -8,8 +8,8 @@ import org.apache.tika.exception.TikaException;
 import org.springframework.http.ResponseEntity;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -40,7 +40,7 @@ public interface AfApi {
 
     void annulerDemande(Integer demandeId, Integer usagerId);
 
-    DemandeDTO creerDemande(@Valid DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
+    DemandeDTO creerDemande(@Valid DemandeInputDTO demande, Integer usagerId) throws JacksonException;
 
     DemandeDTO updateDemande(Integer demandeId, @Valid DemandeInputDTO demande, Integer usagerId);
 
@@ -91,9 +91,9 @@ public interface AfApi {
     
     void deleteFile(String file);
     
-    DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException;
+    DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JacksonException;
 
-    DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException;
+    DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JacksonException;
 
     ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId);
 

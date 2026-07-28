@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.denjs.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +65,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
             DenjsAffectationAgentDTO[] affsArray = mapper.readValue(affectations.getValue(),
                     DenjsAffectationAgentDTO[].class);
             return new ArrayList<>(Arrays.asList(affsArray));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur pendant mapper.readValue() des affectations en base", e);
         }
         return new ArrayList<>();
@@ -83,7 +83,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
         try {
             DenjsEtablissementDTO[] etabsArray = mapper.readValue(etabs.getValue(), DenjsEtablissementDTO[].class);
             return Arrays.asList(etabsArray);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur pendant mapper.readValue() des établissements en base", e);
         }
         return new ArrayList<>();
@@ -143,7 +143,7 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
         String json = "";
         try {
             json = mapper.writeValueAsString(affs);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur pendant le mapper.writeValueAsString() des affectations", e);
         }
         affectations.setValue(json);

@@ -18,7 +18,9 @@ public class AuthenticationListener implements ApplicationListener<Authenticatio
         // Dans le cas ou l'utilisateur s'est loggué via logon et non un appel WS avec HabApiController/StageApiController/*ApiController
         if (principal instanceof User) {
             User u = (User) event.getAuthentication().getPrincipal();
-            utilisateursCache.add(u.getMatricule(), u);
+            if (u != null) {
+                utilisateursCache.add(u.getMatricule(), u);
+            }
         }
 
     }

@@ -1,11 +1,11 @@
 package mc.gouv.xaf.front.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.IntNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -76,13 +76,13 @@ public class GichuniService {
     private UsagerInfosDTO setupUsagerInfos(ArrayNode resp, UsagerInfosDTO uinfos) {
         ObjectNode node = (ObjectNode) resp.get(0);
         JsonNode n = node.get("raisonSociale");
-        if (n instanceof TextNode) {
-            String raisonSociale = n.asText();
+        if (n instanceof StringNode) {
+            String raisonSociale = n.asString();
             uinfos.setRaisonSociale(raisonSociale);
         }
         n = node.get("login");
-        if (n instanceof TextNode) {
-            String login = n.asText();
+        if (n instanceof StringNode) {
+            String login = n.asString();
             uinfos.setLogin(login);
         }
         JsonNode sh = node.get("etat");
@@ -96,38 +96,38 @@ public class GichuniService {
             uinfos.setTitre(titre);
         }
         n = node.get("paysCode");
-        if (n instanceof TextNode) {
-            String paysCode = n.asText();
+        if (n instanceof StringNode) {
+            String paysCode = n.asString();
             uinfos.setPaysCode(paysCode);
         }
         n = node.get("adresse1");
-        if (n instanceof TextNode) {
-            String adresse1 = n.asText();
+        if (n instanceof StringNode) {
+            String adresse1 = n.asString();
             uinfos.setAdresse1(adresse1);
         }
         n = node.get("adresse2");
-        if (n instanceof TextNode) {
-            String adresse2 = n.asText();
+        if (n instanceof StringNode) {
+            String adresse2 = n.asString();
             uinfos.setAdresse2(adresse2);
         }
         n = node.get("complementAdresse");
-        if (n instanceof TextNode) {
-            String complementAdresse = n.asText();
+        if (n instanceof StringNode) {
+            String complementAdresse = n.asString();
             uinfos.setComplementAdresse(complementAdresse);
         }
         n = node.get("codePostal");
-        if (n instanceof TextNode) {
-            String codePostal = n.asText();
+        if (n instanceof StringNode) {
+            String codePostal = n.asString();
             uinfos.setCodePostal(codePostal);
         }
         n = node.get("ville");
-        if (n instanceof TextNode) {
-            String ville = n.asText();
+        if (n instanceof StringNode) {
+            String ville = n.asString();
             uinfos.setVille(ville);
         }
         n = node.get("nomPays");
-        if (n instanceof TextNode) {
-            String nomPays = n.asText();
+        if (n instanceof StringNode) {
+            String nomPays = n.asString();
             uinfos.setNomPays(nomPays);
         }
         return uinfos;

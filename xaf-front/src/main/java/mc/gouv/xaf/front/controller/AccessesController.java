@@ -8,7 +8,6 @@ import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
@@ -81,7 +81,7 @@ public class AccessesController {
         AccessDTO access;
         try {
             access = xafFrontserverUtils.getAfApiClient().getAccess(usagerInfosDTO.getId());
-        } catch (NotFoundWebException e) {
+        } catch (HttpClientErrorException.NotFound e) {
             return ResponseEntity.notFound().build();
         }
         LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}",

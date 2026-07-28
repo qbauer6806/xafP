@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -255,7 +255,7 @@ public class PropertiesServiceImpl implements PropertiesService {
                 return "ERREUR";
             }
             Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises)
-                    .filter(e -> e.getId().equals(pathNode.asText())).findFirst();
+                    .filter(e -> e.getId().equals(pathNode.asString())).findFirst();
             String result = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
             if (null != result) {
                 // refs #33280 - [BO] Traitement de la demande - Erreur 500 suite à tentative de génération du récap pour une demande ayant ''&" dans le nom de l'entreprise partenaire

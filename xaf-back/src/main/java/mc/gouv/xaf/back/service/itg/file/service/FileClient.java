@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.itg.file.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.IOException;
@@ -109,7 +109,7 @@ public class FileClient {
     }
 
     private URI createUrl(String virtualPath) {
-        return UriComponentsBuilder.fromHttpUrl(serviceUrl).path(SLASH).path(virtualPath).build().toUri();
+        return UriComponentsBuilder.fromUriString(serviceUrl).path(SLASH).path(virtualPath).build().toUri();
 
     }
 
@@ -205,7 +205,7 @@ public class FileClient {
             JsonNode errorsNode = root.get(ERRORS);
             String errorMessage =
                     errorsNode != null && errorsNode.isArray() && !errorsNode.isEmpty() ? errorsNode.get(0).get(LIBELLE)
-                            .asText() : "Erreur lors de l'enregistrement du fichier";
+                            .asString() : "Erreur lors de l'enregistrement du fichier";
             throw new IOException(errorMessage);
         }
 
@@ -280,7 +280,7 @@ public class FileClient {
             JsonNode errorsNode = root.get(ERRORS);
             String errorMessage =
                     errorsNode != null && errorsNode.isArray() && !errorsNode.isEmpty() ? errorsNode.get(0).get(LIBELLE)
-                            .asText() : "Erreur lors de la récupération de la liste des fichiers.";
+                            .asString() : "Erreur lors de la récupération de la liste des fichiers.";
             throw new IOException(errorMessage);
         }
         FileDTO[] fileDtos = objectMapper.readValue(getResponse.getEntity().getContent(), FileDTO[].class);
@@ -305,7 +305,7 @@ public class FileClient {
             JsonNode errorsNode = root.get(ERRORS);
             String errorMessage =
                     errorsNode != null && errorsNode.isArray() && !errorsNode.isEmpty() ? errorsNode.get(0).get(LIBELLE)
-                            .asText() : "Erreur lors de la suppression du fichier.";
+                            .asString() : "Erreur lors de la suppression du fichier.";
             throw new IOException(errorMessage);
         }
     }
@@ -348,7 +348,7 @@ public class FileClient {
             JsonNode errorsNode = root.get(ERRORS);
             String errorMessage =
                     errorsNode != null && errorsNode.isArray() && !errorsNode.isEmpty() ? errorsNode.get(0).get(LIBELLE)
-                            .asText() : "Erreur lors de la suppression des fichiers.";
+                            .asString() : "Erreur lors de la suppression des fichiers.";
             throw new IOException(errorMessage);
         }
         return objectMapper.readValue(strResp, FileBatchResponseDTO.class);

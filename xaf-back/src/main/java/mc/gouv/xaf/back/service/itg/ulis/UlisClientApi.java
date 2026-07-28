@@ -1,16 +1,13 @@
 package mc.gouv.xaf.back.service.itg.ulis;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
 import lombok.Getter;
 import mc.gouv.xaf.apiclient.authentication.AuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.apache5.connector.Apache5ConnectorProvider;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestClient;
 
 @Getter
-public class UlisClientApi implements AutoCloseable {
+public class UlisClientApi {
 
 
     public static final String CONTEXT_USER_HEADER = "Context-User";
@@ -37,36 +34,14 @@ public class UlisClientApi implements AutoCloseable {
     public static final String CONTEXT_PATH_EDITION_BUREAUTIQUE = "editions-bureautiques";
     public static final String CONTEXT_PATH_CREATION_AFFAIRE = "crm/affaires";
 
-    private final Client client;
-    private final WebTarget target;
+    private final RestClient restClient;
     private final AuthorizationHeaderProvider authorizationHeaderProvider;
 
-    @SuppressWarnings("java:S2095")
     public UlisClientApi(String serviceUrl, String user, String password) {
         this.authorizationHeaderProvider = new BasicAuthorizationHeaderProvider(user, password);
 
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.connectorProvider(new Apache5ConnectorProvider());
-
-        this.client = ClientBuilder.newClient(clientConfig).register(UlisObjectMapperProvider.class)
-                .register(UlisLogFilter.class);
-
-        this.target = this.client.target(serviceUrl);
+        this.restClient = RestClient.builder().baseUrl(serviceUrl).requestFactory(UlisLogInterceptor.requestFactory())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeaderProvider.getHeaderValue())
+                .requestInterceptor(new UlisLogInterceptor()).build();
     }
-
-    public WebTarget getTarget() {
-        return target;
-    }
-
-    public AuthorizationHeaderProvider getAuthorizationHeaderProvider() {
-        return authorizationHeaderProvider;
-    }
-
-    @Override
-    public void close() {
-        if (client != null) {
-            client.close();
-        }
-    }
-
 }

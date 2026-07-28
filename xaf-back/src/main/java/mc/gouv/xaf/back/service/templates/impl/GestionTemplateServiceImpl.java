@@ -1,11 +1,6 @@
 package mc.gouv.xaf.back.service.templates.impl;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,12 +15,17 @@ import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.shared.dto.ExportTemplateDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.shared.formbean.TemplateCreateFormBean;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Implémentation du service pour la gestion des templates
@@ -162,8 +162,8 @@ public class GestionTemplateServiceImpl implements GestionTemplateService {
         List<ExportTemplateDTO> config;
         try {
             config = mapper.readValue(file, new TypeReference<>() {});
-        } catch (JsonParseException | JsonMappingException e) {
-            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        } catch (StreamReadException | DatabindException e) {
+            throw new DemarcheException("Le fichier ne respecte pas la structure des fichiers à importer");
         }
 
         if (config != null) {

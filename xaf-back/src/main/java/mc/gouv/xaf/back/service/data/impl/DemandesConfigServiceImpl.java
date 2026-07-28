@@ -1,12 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +12,15 @@ import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
 import mc.gouv.xaf.back.service.data.RechercheAdminService;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -59,19 +57,19 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
     @Override
     public JsonNode saveConfig(JsonNode configNode) {
         ObjectMapper mapper = new ObjectMapper();
-        String buildId = configNode.get("buildId").asText();
+        String buildId = configNode.get("buildId").asString();
         // si la config existe et que son contenu et != null, on ne la sauvegarde pas
         DemandeConfigBO existingConfig = demandesConfigRepository.findOneByBuildId(buildId);
 
         if (existingConfig == null || existingConfig.getContenu() == null) {
             // on génère le noeud modelPaths
-            JsonNode modelPaths = mapper.createObjectNode();
+            ObjectNode modelPaths = mapper.createObjectNode();
             ArrayNode marqueurs = mapper.createArrayNode();
             Map<String, String> rechercheAvancee = new HashMap<>();
             findPaths(configNode.get("recap"), marqueurs, rechercheAvancee);
             // le noeud marqueurs contient tous les chemins
-            ((ObjectNode) modelPaths).put("marqueurs", marqueurs);
-            ((ObjectNode) configNode).put("modelPaths", modelPaths);
+            modelPaths.set("marqueurs", marqueurs);
+            ((ObjectNode) configNode).set("modelPaths", modelPaths);
             // on récupère la dernière config avant d'ajouter la nouvelle
             DemandeConfigBO lastConfig = demandesConfigHelperService.getLastConfig();
             String lastBuildId = lastConfig != null ? lastConfig.getBuildId() : null;
@@ -99,11 +97,11 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         List<JsonNode> champsNodes = recap.findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                String type = champ.get("type").asText();
-                if (!type.equals("tableau")) {
-                    String path = champ.get("path").asText();
+                String type = champ.get("type").asString();
+                if (!type.equals("tableau") && !type.equals("fichier")) {
+                    String path = champ.get("path").asString();
                     addToPathByType(marqueurs, type, path);
-                    String label = champ.get("label").asText();
+                    String label = champ.get("label").asString();
                     addToPathByType(rechercheAvancee, type, path, label);
                 }
 
@@ -113,11 +111,11 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         List<JsonNode> tableauxNodes = new ArrayList<>();
         extractTableauNodes(recap, tableauxNodes);
         for (JsonNode tableau : tableauxNodes) {
-            String rootPath = tableau.get("path").asText();
+            String rootPath = tableau.get("path").asString();
             marqueurs.add(rootPath);
             for (JsonNode champ : tableau.get("columns")) {
-                String path = rootPath + "." + champ.get("path").asText();
-                addToPathByType(marqueurs, champ.get("type").asText(), path);
+                String path = rootPath + "." + champ.get("path").asString();
+                addToPathByType(marqueurs, champ.get("type").asString(), path);
             }
         }
     }
@@ -169,7 +167,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
             }
 
             // Parcourir les enfants de l'objet
-            node.fields().forEachRemaining(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+            node.properties().forEach(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
         } else if (node.isArray()) {
             // Si le nœud est un tableau
             node.forEach(childNode -> extractTableauNodes(childNode, tableauNodes));
@@ -205,11 +203,7 @@ public class DemandesConfigServiceImpl implements DemandesConfigService {
         ObjectReader reader = mapper.readerFor(new TypeReference<List<String>>() {
 
         });
-        try {
-            return reader.readValue(modelPaths);
-        } catch (IOException e) {
-            throw new DemarcheException("Erreur lors de la récupération des chemins", e);
-        }
+        return reader.readValue(modelPaths);
     }
 
 }

@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.data;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 

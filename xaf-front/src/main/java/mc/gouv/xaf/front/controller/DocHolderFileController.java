@@ -1,8 +1,5 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -43,6 +40,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Controller
 @RequestMapping("/doc-holder/file")
@@ -129,7 +130,7 @@ public class DocHolderFileController {
     protected ResponseEntity doPost(HttpServletRequest req) throws IOException {
         LOGGER.info("====================== {} doPost()", req.getServletPath());
 
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);
@@ -323,7 +324,7 @@ public class DocHolderFileController {
             return ResponseEntity.status(statusCode)
                     .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
 
-        } catch (JsonProcessingException jpe) {
+        } catch (JacksonException jpe) {
             LOGGER.info("Erreur lors de la conversion des paramètres en json");
             return ResponseEntity.internalServerError().build();
         } catch (UnsupportedOperationException | IOException ioe) {

@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -70,6 +69,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service d'appel à FILE pour les démarches
@@ -438,7 +438,7 @@ public class FileServiceImpl implements FileService {
         }
 
         // On met (ou remplace) dans le header la métadonnée qui contient la nouvelle metadonnée
-        if (headers.containsKey(metadata)) {
+        if (headers.containsHeader(metadata)) {
             headers.set(metadata, value);
         } else {
             headers.add(metadata, value);

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -28,8 +29,9 @@ public class MDCLogFilterAPI implements Filter {
         boolean successfulSessionRegistration = false;
 
         // Dans le cas de la servlet monitor il n'y a pas d'authentification
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            String user = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            String user = authentication.getName();
 
             if (!StringUtils.isBlank(user)) {
                 MDC.put(USER_KEY, user);

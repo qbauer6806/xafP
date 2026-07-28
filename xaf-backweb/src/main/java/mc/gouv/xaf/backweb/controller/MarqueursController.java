@@ -1,6 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayInputStream;
@@ -83,7 +83,7 @@ public class MarqueursController extends AbstractController {
             configDTO.setDate(dateTime.format(formatter));
             configDTO.setVersion(config.getVersion() != null ? config.getVersion() : "");
             JsonNode node = config.getContenu().get("wysiwygVersion");
-            String wysiwygVersion = node != null ?  "WYSI " + node.asText() : "";
+            String wysiwygVersion = node != null ?  "WYSI " + node.asString() : "";
             configDTO.setWysiwygVersion(wysiwygVersion);
             configDTOS.add(configDTO);
         }

@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -75,14 +75,14 @@ public class DocHolderUtils {
         SimpleDateFormat dateFormat = new SimpleDateFormat(JSON_DATE_FORMAT);
         JsonNode dateNode = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(DATE_CREATION_NODE);
 
-        if (StringUtils.isEmpty(dateNode.textValue())) {
+        if (StringUtils.isEmpty(dateNode.stringValue())) {
             return false;
         }
 
         try {
             boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE)
                     .asBoolean();
-            Date dateConsent = dateFormat.parse(dateNode.asText());
+            Date dateConsent = dateFormat.parse(dateNode.asString());
             Date oneYearPlusOneMonth = Date.from(
                     dateConsent.toInstant().atZone(zoneId).plusYears(1).plusMonths(1).toInstant());
             Date today = Date.from(Instant.now().atZone(zoneId).toInstant());

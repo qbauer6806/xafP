@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -234,8 +234,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                         ObjectNode objectNodeTrad = (ObjectNode) nodeTrad;
 
                         JsonNode urlNode = objectNode.get("url");
-                        if (urlNode != null && objectNodeTrad != null && urlNode.isTextual() && oldUrl.equals(
-                                urlNode.asText())) {
+                        if (urlNode != null && objectNodeTrad != null && urlNode.isString() && oldUrl.equals(
+                                urlNode.asString())) {
                             objectNode.put("url", newUrl);
                             objectNodeTrad.put("url", newUrl);
                         }
@@ -331,8 +331,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                     // on le met dans contenuTrad aussi au cas où
                     ObjectNode objectNodeTrad = (ObjectNode) nodeTrad;
                     JsonNode urlNode = objectNode.get("url");
-                    if (urlNode != null && objectNodeTrad != null && urlNode.isTextual() && url.equals(
-                            urlNode.asText())) {
+                    if (urlNode != null && objectNodeTrad != null && urlNode.isString() && url.equals(
+                            urlNode.asString())) {
                         objectNode.put("supprimee", true);
                         objectNodeTrad.put("supprimee", true);
                     }
@@ -382,8 +382,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         JsonNode fichiersConfig = demandeBO.getConfig().getContenu().get("recap").get("fichiers");
         return StreamSupport.stream(fichiersConfig.spliterator(), false)
                 .flatMap(f -> StreamSupport.stream(f.path("champs").spliterator(), false))
-                .flatMap(c -> StreamSupport.stream(c.path("path").spliterator(), false)).filter(JsonNode::isTextual)
-                .map(JsonNode::asText).toList();
+                .flatMap(c -> StreamSupport.stream(c.path("path").spliterator(), false)).filter(JsonNode::isString)
+                .map(JsonNode::asString).toList();
     }
 
     private ParentAndIndex resolveParentArray(JsonNode root, String path) {

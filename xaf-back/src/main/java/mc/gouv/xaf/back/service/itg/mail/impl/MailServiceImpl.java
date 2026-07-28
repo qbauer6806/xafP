@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -70,19 +70,19 @@ public class MailServiceImpl implements MailService {
      * {@inheritDoc}
      */
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JacksonException {
         sendMail(emailInfo, model, null, null);
     }
 
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail)
-            throws JsonProcessingException {
+            throws JacksonException {
         sendMail(emailInfo, model, null, audienceMail);
     }
 
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments)
-            throws JsonProcessingException {
+            throws JacksonException {
         sendMail(emailInfo, model, attachments, null);
     }
 
@@ -91,7 +91,7 @@ public class MailServiceImpl implements MailService {
      */
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments,
-            MailAudienceEnum audienceMail) throws JsonProcessingException {
+            MailAudienceEnum audienceMail) throws JacksonException {
         LOGGER.debug("MailServiceImpl.sendMail({}, {}, {}, {})", emailInfo, model, attachments, audienceMail);
         if (MailAudienceEnum.AGENT.equals(audienceMail) && !notificationMailAgentProperty()) {
             LOGGER.info("PAS d'envoi email aux agents du service");

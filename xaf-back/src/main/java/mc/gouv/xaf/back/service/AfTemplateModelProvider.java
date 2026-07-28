@@ -6,10 +6,10 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.SharedMessages;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AfTemplateModelProvider {
 
-    private final MotifsCache motifsCache;
+    private final MotifsService motifsService;
     private final UsagersCache usagersCache;
     private final UtilisateursUtils utilisateursUtils;
     private final AfBackUtils afBackUtils;
@@ -89,7 +89,7 @@ public class AfTemplateModelProvider {
             model.put("titreFr", titreFr);
 
             if (!StringUtils.isBlank(codeMotif) && !"null".equals(codeMotif)) {
-                MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
+                MotifDTO motif = motifsService.getMotif(codeMotif, "fr");
                 if (motif == null) {
                     throw new DemarcheException(
                             "Impossible de trouver le motif pour le code : " + codeMotif + " et la langue : "

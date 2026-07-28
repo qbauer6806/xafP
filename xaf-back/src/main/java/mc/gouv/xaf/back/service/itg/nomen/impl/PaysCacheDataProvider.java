@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.itg.nomen.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
@@ -185,7 +185,7 @@ public class PaysCacheDataProvider implements GouvCacheDataProvider<String, Pays
         else {
             try {
                 nomenRet = mapper.treeToValue(paysDbCacheFr.getData(), NomenNomenclatureDTO.class);
-            } catch (JsonProcessingException | IllegalArgumentException e) {
+            } catch (JacksonException | IllegalArgumentException e) {
                 LOGGER.error("Erreur lors de mapper.treeToValue() dans getPaysFromCacheDbOrApi()", e);
             }
         }

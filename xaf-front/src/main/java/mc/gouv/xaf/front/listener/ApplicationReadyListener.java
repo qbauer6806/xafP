@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.listener;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
@@ -30,11 +30,20 @@ public class ApplicationReadyListener implements ApplicationListener<Application
             LOGGER.error("Impossible de lire le fichier config.json");
             throw new DemarcheException(e);
         }
-        // suppression du noeud donneesExternes car pas utile à sauvegarder dans la bdd
+
         ((ObjectNode) config).remove("donneesExternes");
+
         AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
-        while (afApiClient.creerConfig(config) == null) {
-            LOGGER.info("API injoignable, nouvel essai dans 10 secondes");
+
+        while (true) {
+            try {
+                if (afApiClient.creerConfig(config) != null) {
+                    break;
+                }
+            } catch (Exception e) {
+                LOGGER.info("API injoignable, nouvel essai dans 10 secondes");
+            }
+
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
@@ -42,6 +51,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
                 throw new DemarcheException(e);
             }
         }
+
         LOGGER.info("API joignable");
     }
 }

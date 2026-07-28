@@ -7,7 +7,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.MappedInterceptor;
 
 @Configuration
-@EnableCaching
 public class AfBackWebConfig implements WebMvcConfigurer {
 
     @Bean

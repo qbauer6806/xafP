@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -109,7 +109,7 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
         try {
             String json = mapper.writeValueAsString(sdm);
             LOGGER.info("Message à envoyer : {}", json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur lors du mapper.writeValueAsString(sdm)", e);
         }
 
@@ -125,7 +125,7 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
             dto = guKafkaOutboxService.createOutboxElement(dto);
 
             LOGGER.info("Élément Outbox créé : {}", dto);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur lors du mapper.writeValueAsString()", e);
         }
     }

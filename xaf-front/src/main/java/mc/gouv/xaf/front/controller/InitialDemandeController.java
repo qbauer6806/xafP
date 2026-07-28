@@ -1,13 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +22,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Servlet mettant à disposition les donnees externes
@@ -66,8 +66,7 @@ public class InitialDemandeController {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
         }
 
-        ObjectMapper omapper = new ObjectMapper();
-        omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper omapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
         List<PropertiesDTO> properties = xafFrontserverUtils.getAfApiClient().getFrontProperties();
         PropertiesDTO property = properties.stream()
@@ -80,17 +79,10 @@ public class InitialDemandeController {
         Map<String, String[]> data = new HashMap<>();
 
         if (property != null && property.getValue() != null) {
-            try {
-                List<String> parameters = omapper.readValue(property.getValue(), new TypeReference<List<String>>() {
+            List<String> parameters = omapper.readValue(property.getValue(), new TypeReference<List<String>>() {
 
-                });
-                parameters.forEach(
-                        parameterName -> data.put(parameterName, request.getParameterMap().get(parameterName)));
-            } catch (IOException e) {
-                LOGGER.warn(
-                        "Impossible de traiter XAF_DONNEES_EXTERNES_PARAMETER_LIST. Vérifier le format de la properties",
-                        e);
-            }
+            });
+            parameters.forEach(parameterName -> data.put(parameterName, request.getParameterMap().get(parameterName)));
         }
 
         try {
@@ -117,9 +109,10 @@ public class InitialDemandeController {
             data.put(USAGER_INFO_TITRE, new String[] { String.valueOf(usagerInfosDTO.getTitre()) });
 
             JsonNode retour = xafFrontserverUtils.getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+            ObjectMapper mapper = JsonMapper.builder().changeDefaultPropertyInclusion(
+                            inclusion -> inclusion.withValueInclusion(JsonInclude.Include.NON_NULL)
+                                    .withContentInclusion(JsonInclude.Include.NON_NULL))
+                    .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")).build();
 
             DonneesExternesDemandeDTO resultSearch = mapper.treeToValue(retour, DonneesExternesDemandeDTO.class);
 
@@ -136,8 +129,8 @@ public class InitialDemandeController {
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-        } catch (JsonProcessingException e) {
-            LOGGER.error("JsonProcessingException. Impossible de recuperer les donnees externes", e);
+        } catch (JacksonException e) {
+            LOGGER.error("JacksonException. Impossible de recuperer les donnees externes", e);
             return ResponseEntity.internalServerError().build();
         } catch (IllegalArgumentException e) {
             LOGGER.error("IOException. Impossible de recuperer les donnees externes", e);

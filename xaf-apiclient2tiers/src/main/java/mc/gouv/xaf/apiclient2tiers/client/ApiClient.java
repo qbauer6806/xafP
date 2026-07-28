@@ -1,17 +1,9 @@
 package mc.gouv.xaf.apiclient2tiers.client;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
 import lombok.Getter;
-import lombok.Setter;
 import mc.gouv.xaf.apiclient2tiers.authentication.AuthorizationHeaderProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestClient;
 
 /**
  * @author qdeme
@@ -19,73 +11,17 @@ import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 @Getter
 public abstract class ApiClient {
 
-    private String serviceUrl;
-    @Setter
-    private AuthorizationHeaderProvider authorizationHeaderProvider;
-
-    /**
-     * Target Jax-rs
-     */
-    private WebTarget target;
-
-    private Client client;
-
-    /**
-     * Configuration par défaut de jackson avec DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES = false
-     *
-     * @param isMultipartSupported
-     *         indique si le client gère du multipart
-     */
-    protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider,
-            boolean isMultipartSupported) {
-        this.serviceUrl = serviceUrl;
-        this.authorizationHeaderProvider = authorizationHeaderProvider;
-
-        final var jacksonJsonProvider = createAndConfigureJacksonJsonProvider();
-        this.client = ClientBuilder.newClient(new ClientConfig(jacksonJsonProvider));
-
-        // Si nous faisons du multi-part
-        if (isMultipartSupported) {
-            client.register(MultiPartWriter.class);
-        }
-
-        this.target = client.target(serviceUrl);
-    }
-
-    private JacksonJsonProvider createAndConfigureJacksonJsonProvider() {
-        final JacksonJsonProvider jacksonJsonProvider = new JacksonJsonProvider();
-
-        var om = new ObjectMapper();
-        // Par défaut, on ne lève pas d'exception si des champs sont retournés dans le JSON mais n'existent pas dans le
-        // DTO
-        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        // Ajout de cette configuration par défaut our ne pas avoir d'exception si des entités ont des
-        // annotations @JsonFilter sans configuration de filter associé
-        var filters = new SimpleFilterProvider();
-        filters.setFailOnUnknownId(false);
-        om.setFilterProvider(filters);
-        jacksonJsonProvider.setMapper(om);
-
-        return jacksonJsonProvider;
-    }
+    private final String serviceUrl;
+    private final AuthorizationHeaderProvider authorizationHeaderProvider;
+    private final RestClient restClient;
 
     protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider) {
         this.serviceUrl = serviceUrl;
         this.authorizationHeaderProvider = authorizationHeaderProvider;
-        final var jacksonJsonProvider = createAndConfigureJacksonJsonProvider();
-        this.client = ClientBuilder.newClient(new ClientConfig(jacksonJsonProvider));
-        this.target = client.target(serviceUrl);
-    }
 
-    /**
-     * Constructeur permettant de configurer l'ApiCLient à partir d'un client créé et configuré en amont
-     */
-    protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider, Client client) {
-        this.serviceUrl = serviceUrl;
-        this.authorizationHeaderProvider = authorizationHeaderProvider;
-        this.client = client;
-        this.target = client.target(serviceUrl);
+        this.restClient = RestClient.builder().baseUrl(serviceUrl)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeaderProvider.getHeaderValue()).build();
     }
 
 }
+

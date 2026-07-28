@@ -1,19 +1,18 @@
 package mc.gouv.xaf.api.config;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import jakarta.annotation.PostConstruct;
 import java.lang.management.ManagementFactory;
-import mc.gouv.xaf.api.date.util.ISO8601WithMillisDateFormat;
 import mc.gouv.xaf.back.config.filter.RequestLoggingFilter;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
+import org.springframework.boot.jetty.servlet.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import tools.jackson.databind.json.JsonMapper.Builder;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 @Configuration
 public class ApiConfig {
@@ -43,23 +42,19 @@ public class ApiConfig {
             return new XafJackson2ObjectMapperBuilderCustomizer();
         }
 
-        static final class XafJackson2ObjectMapperBuilderCustomizer
-                implements Jackson2ObjectMapperBuilderCustomizer, Ordered {
-
-            @Override
-            public void customize(Jackson2ObjectMapperBuilder builder) {
-                builder.dateFormat(new ISO8601WithMillisDateFormat());
-
-                // Ajout de cette configuration par défaut our ne pas avoir d'exception si des entités ont des
-                // annotations @JsonFilter sans configuration de filter associé
-                var filters = new SimpleFilterProvider();
-                filters.setFailOnUnknownId(false);
-                builder.filters(filters);
-            }
+        static final class XafJackson2ObjectMapperBuilderCustomizer implements JsonMapperBuilderCustomizer, Ordered {
 
             @Override
             public int getOrder() {
                 return 1;
+            }
+
+            @Override
+            public void customize(Builder builder) {
+                var filters = new SimpleFilterProvider().setFailOnUnknownId(false);
+
+                builder.filterProvider(filters);
+
             }
         }
     }

@@ -52,7 +52,7 @@ public class DynamicJSServiceImpl implements DynamicJSService {
         for (DemandeCanalEnum canal : DemandeCanalEnum.values()) {
             first = DynamicJSBuilderUtils.ifElse(builder, first);
             builder.append(DEBUT).append(canal.name()).append("\" === canal) {\n");
-            builder.append(RETURN).append(canal).append(FIN);
+            builder.append(RETURN).append(canal.getLibelle()).append(FIN);
         }
         builder.append(RETURN_INCONNU);
     }

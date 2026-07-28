@@ -157,7 +157,7 @@ public class Proxy2TiersController {
             return ResponseEntity.status(responseEntity.getStatusCode()).headers(responseEntity.getHeaders())
                     .body(responseEntity.getBody());
         } catch (HttpClientErrorException ex) {
-            return ResponseEntity.status(ex.getRawStatusCode()).headers(ex.getResponseHeaders())
+            return ResponseEntity.status(ex.getStatusCode()).headers(ex.getResponseHeaders())
                     .body(ex.getResponseBodyAsString());
         } catch (IOException ex) {
             return ResponseEntity.status(500).body(ex.getMessage());

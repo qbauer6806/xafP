@@ -1,7 +1,7 @@
 package mc.gouv.xaf.backweb.web.config;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import java.lang.management.ManagementFactory;
+import java.text.SimpleDateFormat;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
@@ -9,13 +9,13 @@ import org.eclipse.jetty.server.ForwardedRequestCustomizer;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
-import org.springframework.boot.web.server.ErrorPage;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
+import org.springframework.boot.jetty.servlet.JettyServletWebServerFactory;
+import org.springframework.boot.web.error.ErrorPage;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class WebConfig {
@@ -60,11 +60,9 @@ public class WebConfig {
      * https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/
      */
     @Bean
-    @ConditionalOnMissingBean(Jackson2ObjectMapperBuilder.class)
-    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
-        var builder = new Jackson2ObjectMapperBuilder();
-        builder.dateFormat(new ISO8601DateFormat());
-        return builder;
+    @ConditionalOnMissingBean
+    public JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {
+        return builder -> builder.defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
     }
 
 }

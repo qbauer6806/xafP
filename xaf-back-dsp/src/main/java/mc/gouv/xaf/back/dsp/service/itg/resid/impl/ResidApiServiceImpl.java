@@ -3,8 +3,9 @@ package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidDate;
 import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidHourMinute;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.client.RestClient;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -42,7 +43,6 @@ import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -85,14 +85,10 @@ public class ResidApiServiceImpl implements ResidApiService {
     public static final String RESID_RETOUR_DEBIT_PATH = "/paiement/retourDebit";
 
     private final GouvPropertiesResolver gouvPropertiesResolver;
-
     private final FileService fileService;
-
-    private final RestTemplateBuilder restTemplateBuilder;
-
     private final RestitutionStatistiquesService restitutionStatsService;
 
-    private RestTemplate restTemplate;
+    private RestClient restClient;
 
     @Override
     public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte,
@@ -182,7 +178,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.info("Appel à l'API RESID pour le changement de situation");
 
         ResponseEntity<ResidHttpResponseDTO> responseEntity = submitDemandeResident(changementsituation,
-                new ParameterizedTypeReference<ResidHttpResponseDTO>() {
+                new ParameterizedTypeReference<>() {
 
                 }, files, url, RESID_CHANGEMENT_SITUATION_PATH, jwt);
 
@@ -211,7 +207,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.info("Appel à l'API RESID pour le certificat de residence");
 
         ResponseEntity<ResidHttpResponseDTO> responseEntity = submitDemandeResident(certificatResidence,
-                new ParameterizedTypeReference<ResidHttpResponseDTO>() {
+                new ParameterizedTypeReference<>() {
 
                 }, files, url, RESID_CERTIFICAT_RESIDENCE_PATH, jwt);
 
@@ -233,15 +229,14 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity.getBody();
     }
 
-    public <T, Y> ResponseEntity<Y> submitDemandeResident(T residObject, ParameterizedTypeReference<Y> type,
+    private <T, Y> ResponseEntity<Y> submitDemandeResident(T residObject, ParameterizedTypeReference<Y> type,
             Map<Integer, DemandeFileDTO> files, String residUrl, final String entryPoint, String jwt)
             throws IOException {
 
         MultiValueMap<String, Object> parts = this.createMultiparts(residObject, files);
         HttpHeaders headers = getResidMultipartRequestHeaders(jwt);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
 
-        RestTemplate rest = this.getRestTemplate();
+        RestClient rest = this.getRestClient();
 
         String requestUrl = residUrl + entryPoint;
         URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
@@ -252,7 +247,8 @@ public class ResidApiServiceImpl implements ResidApiService {
         String body = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(residObject);
         LOGGER.debug("Body: {}", body);
 
-        ResponseEntity<Y> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, type);
+        ResponseEntity<Y> responseEntity = rest.post().uri(uri).headers(h -> h.addAll(headers)).body(parts).retrieve()
+                .toEntity(type);
 
         // RESID Appel de l'API
         LOGGER.info("Fin appel RESID");
@@ -260,14 +256,15 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity;
     }
 
-    private RestTemplate getRestTemplate() {
-        if (restTemplate == null) {
-            restTemplate = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler())
-                    .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
+    private RestClient getRestClient() {
+        if (restClient == null) {
+            restClient = RestClient.builder()
+                    .requestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
+                    .defaultStatusHandler(new ResidErrorResponseErrorHandler()).messageConverters(
+                            converters -> converters.addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8)))
                     .build();
-            restTemplate.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         }
-        return restTemplate;
+        return restClient;
     }
 
     private <T> MultiValueMap<String, Object> createMultiparts(T residObject, Map<Integer, DemandeFileDTO> files)
@@ -326,7 +323,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
     @Override
     public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt)
-            throws JsonProcessingException, ResidHttpResponseException {
+            throws JacksonException, ResidHttpResponseException {
         LOGGER.info("Récupération du statut RESID de {}", idDemande);
 
         ResidStatutDemandeDTO statut = null;
@@ -341,20 +338,17 @@ public class ResidApiServiceImpl implements ResidApiService {
 
     @Override
     public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt)
-            throws JsonProcessingException, ResidHttpResponseException {
+            throws JacksonException, ResidHttpResponseException {
         LOGGER.info("Récupération des statuts RESID de {}", idsDemandes);
 
         // Construction du rest template
-        RestTemplate rest = this.getRestTemplate();
+        RestClient rest = this.getRestClient();
 
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
         String requestUrl = url + RESID_ETATS_DEMANDES_BY_ID_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
 
-        // Construction de la requête
-        HttpEntity<String> requestEntity = new HttpEntity<>(MAPPER.writeValueAsString(idsDemandes), headers);
-        URI uri = builder.build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
 
         // Logs DEBUG
         LOGGER.debug("-- Appel RESID Get état d'une demande");
@@ -364,8 +358,9 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.debug("Body: {}", body);
 
         // Appel et réponse
-        ResponseEntity<List<ResidStatutDemandeDTO>> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
-                new ParameterizedTypeReference<>() {
+        ResponseEntity<List<ResidStatutDemandeDTO>> responseEntity = rest.post().uri(uri)
+                .headers(h -> h.addAll(headers)).body(MAPPER.writeValueAsString(idsDemandes)).retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {
 
                 });
 
@@ -415,27 +410,25 @@ public class ResidApiServiceImpl implements ResidApiService {
     public ResidUsagerNpdhlDTO getUsagerDln1f(ResidInitialDemandeParamDTO paramDTO, String url, String jwt,
             Integer usagerId) throws ParseException {
         LOGGER.info("Appel à l'API RESID v2 /usagers/npdhl pour demander l'usager correspondant");
-        RestTemplate rest = this.getRestTemplate();
+
+        RestClient rest = this.getRestClient();
         HttpHeaders headers = getResidRequestHeaders(jwt);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)
+        URI uri = UriComponentsBuilder.fromUriString(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)
                 .queryParam("nom", paramDTO.getNom()).queryParam("prenoms", paramDTO.getPrenom())
                 .queryParam("dateNaissance", convertMConnectDateToResidDate(paramDTO.getDateNaissance()))
                 .queryParam("heureNaissance", convertMConnectDateToResidHourMinute(paramDTO.getDateNaissance()))
                 .queryParam("villeNaissance", paramDTO.getVilleNaissance())
-                .queryParam("paysNaissance", paramDTO.getPaysNaissance());
-        URI uri = builder.build().encode().toUri();
+                .queryParam("paysNaissance", paramDTO.getPaysNaissance()).build().encode().toUri();
 
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         LOGGER.debug("-- Appel RESID Get usager v2");
         LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
         LOGGER.debug(HEADERS_LOG, headers);
 
         try {
-            ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
-                    new ParameterizedTypeReference<>() {
+            ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.get().uri(uri).headers(h -> h.addAll(headers))
+                    .retrieve().toEntity(ResidUsagerNpdhlDTO.class);
 
-                    });
             restitutionStatsService.saveRestitutionStatistique(
                     createStatsAStocker(HttpStatus.OK.value(), usagerId, ""));
             return responseEntity.getBody();
@@ -455,29 +448,22 @@ public class ResidApiServiceImpl implements ResidApiService {
     public ResidCaisseOuverteDTO getCaisseOuverte(String url, String jwt) {
         LOGGER.info("Appel à l'API RESID v2 /caisseOuverte pour connaitre le statut de la caisse");
 
-        // Construction du rest template
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        // Construction du rest client
+        RestClient rest = this.getRestClient();
 
         // Headers et URL
         HttpHeaders headers = getResidRequestHeaders(jwt);
         String requestUrl = url + RESID_ETAT_CAISSE_PATH;
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(requestUrl);
-
-        // Construction de la requête
-        URI uri = builder.build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
 
         // Logs DEBUG
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         LOGGER.debug("-- Appel RESID Get état de la caisse");
         LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
         LOGGER.debug(HEADERS_LOG, headers);
 
         // Appel et réponse
-        ResponseEntity<ResidCaisseOuverteDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
-                new ParameterizedTypeReference<>() {
-
-                });
+        ResponseEntity<ResidCaisseOuverteDTO> responseEntity = rest.get().uri(uri).headers(h -> h.addAll(headers))
+                .retrieve().toEntity(ResidCaisseOuverteDTO.class);
 
         LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
 
@@ -490,9 +476,9 @@ public class ResidApiServiceImpl implements ResidApiService {
     public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt) throws IOException {
 
         LOGGER.info("Préparation de la requête à destination de RESID pour récupération de PDF");
-        // Construction du rest template
-        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
-        rest.getMessageConverters().addFirst(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        // Construction du rest client
+        RestClient rest = this.getRestClient();
 
         String requestUrl = url + RESID_RETOUR_DEBIT_PATH;
         URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
@@ -509,14 +495,12 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         // Corps global de la requête multipart
         MultiValueMap<String, Object> multipartBody = new LinkedMultiValueMap<>();
-        multipartBody.add("informationDebit", jsonPart);  //
+        multipartBody.add("informationDebit", jsonPart);
 
         // Headers de la requête principale
         HttpHeaders headers = getResidRequestHeaders(jwt);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         headers.setAccept(List.of(MediaType.APPLICATION_PDF));  // PDF en réponse
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartBody, headers);
 
         // Logs DEBUG
         LOGGER.debug("-- Appel à RESID pour téléchargement de PDF");
@@ -525,18 +509,14 @@ public class ResidApiServiceImpl implements ResidApiService {
         LOGGER.debug("Body: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(informationDebit));
 
         // Appel HTTP
-        ResponseEntity<byte[]> responseEntity = rest.exchange(
-                uri,
-                HttpMethod.POST,
-                requestEntity,
-                byte[].class
-        );
+        ResponseEntity<byte[]> responseEntity = rest.post().uri(uri).headers(h -> h.addAll(headers)).body(multipartBody)
+                .retrieve().toEntity(byte[].class);
 
         LOGGER.info("Fin de l'appel vers RESID pour téléchargement de PDF");
 
         if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
             byte[] pdfContent = responseEntity.getBody();
-            String fileName = "recu_debit.pdf"; // ou autre nom
+            String fileName = "recu_debit.pdf";
             return new MockMultipartFile(
                     fileName,
                     fileName,

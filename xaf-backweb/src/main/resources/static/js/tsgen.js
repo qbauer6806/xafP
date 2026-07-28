@@ -84,11 +84,10 @@ APP.getConfigurationDataTable = function (columns) {
       "url": APP.getContextPath() + "/ws/demandes/pageable",
       "dataSrc": function (json) {
 
-        json['recordsTotal'] = json['totalElements'];
-        json['recordsFiltered'] = json['totalElements'];
+        json['recordsTotal'] = json.page.totalElements;
+        json['recordsFiltered'] = json.page.totalElements;
 
-        //json['data'] = json['content'];
-        $("#demandesSize").html(json.totalElements)
+        $("#demandesSize").html(json.page.totalElements);
         return json.content;
       },
       "error": function (xhr, error, thrown) {

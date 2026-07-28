@@ -1,14 +1,10 @@
 package mc.gouv.xaf.apiclient.paiement.monetico;
 
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import mc.gouv.xaf.apiclient.AfApiClient;
-import mc.gouv.xaf.apiclient.exception.ExceptionManager;
 import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
-import java.util.List;
+import org.springframework.http.MediaType;
 
 public class MoneticoApiClient extends AfApiClient {
 
@@ -38,14 +34,10 @@ public class MoneticoApiClient extends AfApiClient {
      * @return un objet PaiementDTO pour construire le formulaire de paiement
      */
     public MoneticoDTO getPaiement(String demandesId, String langue, Integer usagerId, boolean iframe) {
-        Response res = getTarget().path("/paiement").queryParam(RequestConstant.DEMANDES_ID_PARAM, demandesId)
+        return getRestClient().get().uri(uriBuilder -> uriBuilder.path("/paiement")
+                .queryParam(RequestConstant.DEMANDES_ID_PARAM, demandesId)
                 .queryParam(RequestConstant.LANGUE_PARAM, langue).queryParam(RequestConstant.USAGERID_PARAM, usagerId)
-                .queryParam(PaiementMoneticoConstant.IFRAME_PARAM, iframe).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(MoneticoDTO.class);
+                .queryParam(PaiementMoneticoConstant.IFRAME_PARAM, iframe).build()).retrieve().body(MoneticoDTO.class);
     }
 
     /**
@@ -56,13 +48,8 @@ public class MoneticoApiClient extends AfApiClient {
      * @return une chaine de caractère contenant le résultat de la vérification de la clé MAC
      */
     public String updatePaiementStatus(MoneticoResponseDTO moneticoResponseDTO) {
-        Response res = getTarget().path("/paiement").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
-                .post(Entity.entity(moneticoResponseDTO, MediaType.APPLICATION_JSON));
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(String.class);
+        return getRestClient().post().uri("/paiement").contentType(MediaType.APPLICATION_JSON).body(moneticoResponseDTO)
+                .retrieve().body(String.class);
     }
 
 }

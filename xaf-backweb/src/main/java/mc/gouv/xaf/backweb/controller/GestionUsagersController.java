@@ -1,7 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;

@@ -20,7 +20,6 @@ public class TemplateFormBean {
     @Size(min = 3, max = 128, message = "Le code doit avoir une taille comprise entre 3 et 128")
     private String code;
 
-    @NotEmpty
     @NotNull(message = "L'objet du mail doit être précisé")
     @Size(min = 3, max = 256, message = "L'objet du mail doit avoir une taille comprise entre 3 et 256")
     private String objet;

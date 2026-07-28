@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class DemandesConfigTransformer {
             return null;
         }
         DemandeConfigBO bo = new DemandeConfigBO();
-        bo.setBuildId(jsonNode.get("buildId").asText());
+        bo.setBuildId(jsonNode.get("buildId").asString());
         bo.setContenu(jsonNode);
         bo.setVersion(mavenVersion);
         return bo;

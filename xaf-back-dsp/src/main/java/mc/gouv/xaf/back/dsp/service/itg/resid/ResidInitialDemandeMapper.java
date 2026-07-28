@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -19,9 +19,9 @@ public interface ResidInitialDemandeMapper {
      * @param paramDTO
      *         {@link ResidInitialDemandeParamDTO} les paramètres envoyés par l'usager
      * @return L'objet transformé en fonction du TS
-     * @throws JsonProcessingException
+     * @throws JacksonException
      * @throws ParseException
      */
     DemandeDTO mapperDonneesResid(ResidUsagerNpdhlDTO usagerNpdhlDTO, Integer usagerId, ResidInitialDemandeParamDTO paramDTO)
-            throws JsonProcessingException, ParseException;
+            throws JacksonException, ParseException;
 }

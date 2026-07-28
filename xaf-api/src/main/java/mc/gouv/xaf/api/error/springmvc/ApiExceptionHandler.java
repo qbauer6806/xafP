@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,20 +91,6 @@ public class ApiExceptionHandler {
     public @ResponseBody ErrorsDTO handle415Exception(HttpServletRequest req, HttpServletResponse res, Exception ex) {
         LOGGER.error(ERREUR_MSG, req.getPathInfo(), ex);
         return handleMetierWebException(res, new UnsupportedMediaTypeWebException(ex));
-    }
-
-    /**
-     * Gestion des erreurs qui peuvent être renvoyés par jersey client Notamment lors de l'utilisation en mode proxy
-     */
-    @ExceptionHandler({ WebApplicationException.class })
-    public @ResponseBody ErrorsDTO handleJaxRsException(HttpServletRequest req, HttpServletResponse res,
-            WebApplicationException ex) {
-        LOGGER.error(ERREUR_MSG, req.getPathInfo(), ex);
-        var errorsDTO = new ErrorsDTO();
-        errorsDTO.setHttpStatus(ex.getResponse().getStatus());
-        errorsDTO.setMessage(ex.getMessage());
-        res.setStatus(ex.getResponse().getStatus());
-        return errorsDTO;
     }
 
     @ExceptionHandler({ ConstraintViolationException.class })

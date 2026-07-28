@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class ErrorController {
                 for (JsonNode objNode : arrayNode) {
                     JsonNode stack = objNode.get("stack");
                     if (stack != null && !stack.isNull()) {
-                        LOGGER.error(stack.asText());
+                        LOGGER.error(stack.asString());
                     }
                 }
             }

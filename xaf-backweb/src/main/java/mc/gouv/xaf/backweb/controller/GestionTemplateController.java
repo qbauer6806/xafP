@@ -104,19 +104,22 @@ public class GestionTemplateController extends AbstractController {
     }
 
     @PostMapping(path = "/update")
-    public String traiterUpdate(@Valid @ModelAttribute("templateFormBean") TemplateFormBean templateFormBean,
+    public ModelAndView traiterUpdate(@Valid @ModelAttribute("templateFormBean") TemplateFormBean templateFormBean,
             BindingResult bindingResult, RedirectAttributes ra) {
         LOGGER.info("Appel de la page /gestion/template/update. Méthode traiterUpdate");
 
         if (bindingResult.hasErrors()) {
-            return "gestion/template/templateupdate";
+            List<String> erreurs = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).toList();
+            ra.addFlashAttribute(SharedMessages.ERROR_MESSAGES, erreurs);
+            return new ModelAndView(
+                    "redirect:/gestion/template/update?code=" + UriUtils.encode(templateFormBean.getCode(),
+                            StandardCharsets.UTF_8) + "&langue=" + templateFormBean.getLangue());
         }
 
         gestionTemplateService.saveTemplateForm(templateFormBean);
-        ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, MESSAGE_SUCCESS_MODIFICATION);
+        ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, Collections.singletonList(MESSAGE_SUCCESS_MODIFICATION));
 
-        return "redirect:/gestion/template/update?code=" + UriUtils.encode(templateFormBean.getCode(),
-                StandardCharsets.UTF_8) + "&langue=" + templateFormBean.getLangue();
+        return new ModelAndView("redirect:/gestion/template");
     }
 
     @GetMapping(path = "/create")

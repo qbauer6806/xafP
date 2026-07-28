@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.service.scheduling;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -67,7 +67,7 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
                         JsonNode dateNode = contenu.findPath(DOCHOLDER_CONSENT_NODE).findPath(DATE_CREATION_NODE);
                         boolean isConsenting = contenu.findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE)
                                 .asBoolean();
-                        Date dateConsent = dateFormat.parse(dateNode.asText());
+                        Date dateConsent = dateFormat.parse(dateNode.asString());
                         Date oneYearPlusOneMonth = Date.from(
                                 dateConsent.toInstant().atZone(ZoneId.of("Europe/Monaco")).plusYears(1).plusMonths(1)
                                         .toInstant());
@@ -84,7 +84,7 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
                     }
                 } catch (ParseException e) {
                     LOGGER.error("Impossible de parser la date de consentement au porte-documents de l'utilisateur", e);
-                } catch (JsonProcessingException e) {
+                } catch (JacksonException e) {
                     LOGGER.error("Impossible de parser le contenu des données d'accès en JSON", e);
                 }
             }

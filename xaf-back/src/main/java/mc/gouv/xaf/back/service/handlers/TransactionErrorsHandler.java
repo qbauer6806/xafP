@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.handlers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -106,7 +106,7 @@ public class TransactionErrorsHandler {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-    public void handleRollbackEvent(ErrorEventDTO errorEventDTO) throws JsonProcessingException {
+    public void handleRollbackEvent(ErrorEventDTO errorEventDTO) throws JacksonException {
         LOGGER.error("Erreur - Rollback de la BDD ");
         LOGGER.error("Récupération des adresses mails de contact");
         PropertiesDTO propertiesDTO = propertiesService.getProperty(XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);

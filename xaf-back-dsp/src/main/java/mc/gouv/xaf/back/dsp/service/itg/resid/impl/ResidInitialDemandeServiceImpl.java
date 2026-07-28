@@ -1,11 +1,6 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
@@ -24,6 +19,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -45,21 +45,18 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
 
     private final ResidInitialDemandeMapper residInitialDemandeMapper;
 
-    static final ObjectMapper mapper = new ObjectMapper();
-
-    static {
-        mapper.registerModule(new JavaTimeModule()); // pour la gestion des OffsetDateTime
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+    static final ObjectMapper mapper = JsonMapper.builder().changeDefaultPropertyInclusion(
+                    inclusion -> inclusion.withValueInclusion(JsonInclude.Include.NON_NULL)
+                            .withContentInclusion(JsonInclude.Include.NON_NULL))
+            .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"))
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /**
      * {@inheritDoc}
      */
     @Override
     public JsonNode getInitialDemande(Integer usagerId, Map<String, String[]> params)
-            throws ResidHttpResponseException, ParseException, JsonProcessingException {
+            throws ResidHttpResponseException, ParseException, JacksonException {
         if (!this.isMconnectCall(params)) {
             LOGGER.info("Impossible d'appeler RESID avec les données fournies");
             DonneesExternesDemandeDTO donneesExternesDemandeDTO = new DonneesExternesDemandeDTO();

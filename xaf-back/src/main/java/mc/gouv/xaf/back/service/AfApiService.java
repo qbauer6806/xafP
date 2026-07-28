@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
@@ -170,7 +170,7 @@ public class AfApiService implements AfApi {
 
     @Override
     @Transactional
-    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException {
+    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JacksonException {
 
         LOGGER.info("Appel à DEM...");
 
@@ -194,7 +194,7 @@ public class AfApiService implements AfApi {
     }
 
     private DemandeDTO traiterAndSaveCreateDemande(DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException {
+            throws JacksonException {
 
         final DemandeDTO demandeDto = buildDemandeFromInputAfterCreate(demande, usagerId);
         createDemandeExtenders.ifPresent(extender -> extender.applyCreateTreatment(demande, demandeDto));
@@ -826,7 +826,7 @@ public class AfApiService implements AfApi {
     }
 
     @Override
-    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
+    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JacksonException {
 
         DemandeDTO demandeDto = new DemandeDTO();
 
@@ -842,7 +842,7 @@ public class AfApiService implements AfApi {
     }
 
     @Override
-    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException {
+    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JacksonException {
 
         DemandeDTO demandeDto = new DemandeDTO();
 

@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -21,19 +21,19 @@ public interface MailService {
     /**
      * Permet d'envoyer un email avec substitution de variables (templating)
      */
-    void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException;
+    void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JacksonException;
 
     void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail)
-            throws JsonProcessingException;
+            throws JacksonException;
 
     /**
      * Permet d'envoyer un email avec substitution de variables (templating) + pièces jointes
      */
     void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments)
-            throws JsonProcessingException;
+            throws JacksonException;
 
     void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments,
-            MailAudienceEnum audienceMail) throws JsonProcessingException;
+            MailAudienceEnum audienceMail) throws JacksonException;
 
     /**
      * Permet d'obtenir un aperçu de l'email qui serait envoyé

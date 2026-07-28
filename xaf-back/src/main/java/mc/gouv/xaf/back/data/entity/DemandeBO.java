@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.data.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,8 +18,8 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Classe BO de la table DEM.DEMANDES
@@ -141,11 +139,9 @@ public class DemandeBO {
     @Column(name = "TYPE_CONNEXION_USAGER", length = 256)
     private String typeConnexionUsager;
 
-    @Type(PostgreSQLTSVectorType.class)
     @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 
-    @Type(PostgreSQLTSVectorType.class)
     @Column(name = "search_vector_contenu", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVectorContenu;
 

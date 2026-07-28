@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <title th:text="${nomDemarche}"></title>
+
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+
+  <style>
+    /* Hack charte graphique pour avoir un toggle toujours bleu */
+    input:checked + .slider, input + input[type="hidden"] + .slider {
+      outline: 3px solid #0F607C;
+    }
+
+    input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
+      background-color: #0F607C;
+    }
+
+    form .form-group span {
+      padding-top: 0;
+    }
+  </style>
+
+</head>
+
+<body th:with="pageConfigurationActive='active'">
+
+<div>
+
+  <div th:replace="~{fragments/header :: header}"></div>
+
+  <div id="wrapper">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+
+      <div class="breadcrumbContent">
+        <div class="breadcrumb">
+          <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
+            id="ariane1" th:href="@{/gestion/motifs}"
+            class="breadcrumb-link">MOTIFS</a> &gt; <span>Création</span>
+        </div>
+        <div class="triangleTopright"></div>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-xs-6">
+            <h1 class="titre">Formulaire de création du motif</h1>
+          </div>
+        </div>
+        <div class="row">
+
+          <form class="form-horizontal" id="formTemplate"
+                th:action="@{/gestion/motifs/create}" method="POST"
+                th:object="${motifCreateFormBean}">
+
+            <div class="col-xs-12">
+              <div class="panel panel-simple">
+                <div class="row container-fluid">
+                  <div class="form-group">
+                    <div class="col-xs-2">
+                      <label for="code">Code (majuscules et des underscores)<span class="required"></span>: </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <input type="text" id="code" th:field="*{code}" class="form-control"
+                             style="text-transform: uppercase;"
+                             pattern="^[A-Z_]+$"
+                             title="Uniquement des majuscules et des underscores"
+                             oninput="this.value = this.value.toUpperCase().replace(/[^A-Z_]/g,'')" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="statut">Statut cible<span class="required"></span>: </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <select id="statut" name="statut" th:field="*{statut}" class="form-control">
+                        <option th:each="statut : ${statuts}" th:value="${statut.key}"
+                                th:text="${statut.value}"></option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="libelleFr">Libellé<span class="required"></span>: </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <input type="text" id="libelleFr" name="libelleFr" th:field="*{libelleFr}"
+                             class="form-control"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="commentairePrerempliFr">Commentaire prérempli (français): </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <textarea id="commentairePrerempliFr" name="commentairePrerempliFr"
+                                th:field="*{commentairePrerempliFr}"
+                                class="form-control" rows="5"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="texteAEnvoyerFr">Texte à envoyer (français) :
+                      </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <textarea id="texteAEnvoyerFr" name="texteAEnvoyerFr"
+                                th:field="*{texteAEnvoyerFr}"
+                                class="form-control" rows="5"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="libelleEn">Libellé (anglais) : </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <input type="text" id="libelleEn" name="libelleEn" th:field="*{libelleEn}"
+                             class="form-control"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="commentairePrerempliEn">Commentaire prérempli (anglais) : </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <textarea id="commentairePrerempliEn" name="commentairePrerempliEn"
+                                th:field="*{commentairePrerempliEn}"
+                                class="form-control" rows="5"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row container-fluid mt-15">
+                  <div th:class="form-group">
+                    <div class="col-xs-2">
+                      <label for="texteAEnvoyerEn">Texte à envoyer (anglais) : </label>
+                    </div>
+                    <div class="col-xs-10">
+                      <textarea id="texteAEnvoyerEn" name="texteAEnvoyerEn"
+                                th:field="*{texteAEnvoyerEn}"
+                                class="form-control" rows="5"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-15">
+                  <div class="col-xs-12 text-right">
+                    <a id="btnRetourMotifs" class="btn btn-action-second ripple-effect"
+                       th:href="@{/gestion/motifs}">Retour</a>
+                    <input id="validerBtn" type="submit" value="Valider"
+                           class="btn btn-action ripple-effect"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+          <div class="container-fluid">
+            <small>Les champs obligatoires sont suivis par *</small>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<div th:replace="~{fragments/message :: message}"></div>
+
+<script th:inline="javascript">
+
+  $(document).ready(function () {
+
+    /*<![CDATA[*/
+
+    var successMessage = /*[[${successMessages}]]*/'';
+    if (successMessage) {
+      $.notify({message: successMessage}, {type: 'success'});
+    }
+
+    var messagesErrorList = /*[[${errorMessages}]]*/'default';
+    if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+      $.each(messagesErrorList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'danger'
+        });
+      });
+    }
+
+    /*]]>*/
+
+  });
+</script>
+</body>
+</html>

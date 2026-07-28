@@ -4,7 +4,7 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;

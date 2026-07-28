@@ -3,14 +3,6 @@ package mc.gouv.xaf.back.service.utils;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.COURRIER;
 import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.GUICHET_PHYSIQUE;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -41,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.itg.file.service.FileClient;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.Droit;
@@ -48,7 +41,6 @@ import mc.gouv.xaf.back.service.itg.logon.dto.Role;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
 import mc.gouv.xaf.back.service.itg.sms.impl.SmsClient;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
@@ -66,13 +58,20 @@ import mc.gouv.xaf.shared.dto.TypedocDTO;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -155,7 +154,7 @@ public class AfBackUtils {
     private final UtilisateursUtils utilisateursUtils;
 
     @Lazy
-    private final MotifsCache motifsCache;
+    private final MotifsService motifsService;
 
     @Lazy
     private final PaysCache paysCache;
@@ -166,15 +165,8 @@ public class AfBackUtils {
     public static final short GENDER_MME_INDEX = 1;
     public static final short GENDER_MLLE_INDEX = 2;
 
-    /* pour n'utiliser qu'une seule instance d'objectmapper (threadsafe). */
-    static final ObjectMapper mapper = new ObjectMapper();
-
-    static {
-        mapper.registerModule(new JavaTimeModule()); // pour la gestion des OffsetDateTime
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+    static final JsonMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
 
     public static String getAuthenticatedAgentId() {
         if (SecurityContextHolder.getContext() != null
@@ -246,7 +238,7 @@ public class AfBackUtils {
         if (CollectionUtils.isEmpty(values)) {
             return null;
         }
-        return values.stream().filter(paysDTO -> StringUtils.equalsIgnoreCase(paysDTO.getCodeAlpha3(), alpha3))
+        return values.stream().filter(paysDTO -> Strings.CS.equals(paysDTO.getCodeAlpha3(), alpha3))
                 .findFirst().map(PaysDTO::getCode).orElse(null);
     }
 
@@ -316,9 +308,9 @@ public class AfBackUtils {
     public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
         DemandeFlatDTO flat = new DemandeFlatDTO();
         flat.setAgentAffecteId(demande.getAgentAffecteId());
-        String agent = demande.getAgent() != null ? demande.getAgent().getNomAffichage() : "";
+        String agent = demande.getAgent() != null ? demande.getAgent().getNomAffichage() : StringUtils.EMPTY;
         flat.setAgentAffecteNom(getSafeString(agent));
-        flat.setCanal(demande.getCanal().toString());
+        flat.setCanal(demande.getCanal() != null ? demande.getCanal().getLibelle() : StringUtils.EMPTY);
         flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
         flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
         flat.setDateCreation(convertDateToString(demande.getDateCreation()));
@@ -336,7 +328,7 @@ public class AfBackUtils {
         }
         // motif
         if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {
-            MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
+            MotifDTO motif = motifsService.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
             flat.setMotif(motif != null ? motif.getLibelle() : null);
         }
         // marqueurs
@@ -497,7 +489,7 @@ public class AfBackUtils {
     }
 
     public static String getSafeString(final String value) {
-        return StringUtils.isBlank(value) ? "" : value;
+        return StringUtils.isBlank(value) ? StringUtils.EMPTY : value;
     }
 
     /**
@@ -573,16 +565,16 @@ public class AfBackUtils {
         String result = " ";
         if (StringUtils.isNotBlank(str)) {
             if (str.contains("&#28;")) {
-                str = StringUtils.replace(str, "&#28;", " ");
+                str = Strings.CS.replace(str, "&#28;", " ");
             }
             if (str.contains("\u001C")) {
-                str = StringUtils.replace(str, "\u001C", " ");
+                str = Strings.CS.replace(str, "\u001C", " ");
             }
             if (str.contains("\u001A")) {
-                str = StringUtils.replace(str, "\u001A", " ");
+                str = Strings.CS.replace(str, "\u001A", " ");
             }
             if (str.contains("\u0017")) {
-                str = StringUtils.replace(str, "\u0017", " ");
+                str = Strings.CS.replace(str, "\u0017", " ");
             }
             result = str;
         }
@@ -614,7 +606,7 @@ public class AfBackUtils {
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.readValue(demPropertyValue, Map.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
         }
         return Collections.emptyMap();
@@ -634,13 +626,13 @@ public class AfBackUtils {
      * Utilisé dans certains exports excel
      */
     public static String convertTelIndicateur(String indicateur) {
-        return StringUtils.replace(indicateur, "t", "+");
+        return Strings.CS.replace(indicateur, "t", "+");
     }
 
     public static Double parseDoubleSafe(String texte) {
         double parsed = 0.0;
         if (StringUtils.isNotEmpty(texte)) {
-            String safe = StringUtils.replace(texte, ",", ".", -1);
+            String safe = Strings.CS.replace(texte, ",", ".", -1);
             try {
                 parsed = Double.parseDouble(safe);
             } catch (NumberFormatException e) {
@@ -655,7 +647,7 @@ public class AfBackUtils {
     }
 
     public static String formatDoubleToCurrency(Double number, String langue) {
-        Locale local = StringUtils.equals("fr", langue) ? Locale.FRANCE : Locale.US;
+        Locale local = Strings.CS.equals("fr", langue) ? Locale.FRANCE : Locale.US;
         NumberFormat formatter = NumberFormat.getCurrencyInstance(local);
         DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) formatter).getDecimalFormatSymbols();
         decimalFormatSymbols.setCurrencySymbol("€");
@@ -717,23 +709,23 @@ public class AfBackUtils {
         }
 
         JsonNode node = getNodeFromPath(contenu, path);
-        if (node == null || (node.isTextual() && "null".equals(node.asText()))) {
+        if (node == null || (node.isString() && "null".equals(node.asString()))) {
             return "";
         }
 
         // Si c'est un texte simple
-        if (node.isTextual()) {
-            return node.asText();
+        if (node.isString()) {
+            return node.asString();
         }
 
         // Si c'est un array
         if (node.isArray()) {
             // Si l'array contient uniquement des chaînes de caractères, c'est un type choixMultiple
-            if (!node.isEmpty() && node.get(0).isTextual()) {
+            if (!node.isEmpty() && node.get(0).isString()) {
                 List<String> choices = new ArrayList<>(node.size());
                 node.forEach(arrayElement -> {
-                    if (arrayElement.isTextual()) {
-                        choices.add(arrayElement.asText());
+                    if (arrayElement.isString()) {
+                        choices.add(arrayElement.asString());
                     }
                 });
                 return choices;
@@ -741,11 +733,11 @@ public class AfBackUtils {
 
             // Sinon, c'est un type tableau
             List<Map<String, String>> list = new ArrayList<>(node.size());
+
             node.forEach(arrayElement -> {
                 Map<String, String> map = new HashMap<>();
-                arrayElement.fields().forEachRemaining(tableauDonnee -> {
+                arrayElement.properties().forEach(tableauDonnee -> {
                     String donneeTableauPath = path + "." + tableauDonnee.getKey();
-
                     // Récupération directe du marqueur
                     MarqueurDTO marqueur = marqueursMap.get(donneeTableauPath);
                     if (marqueur != null) {
@@ -758,7 +750,10 @@ public class AfBackUtils {
                             String suffixedPath = donneeTableauPath + "." + suffixe;
                             marqueur = marqueursMap.get(suffixedPath);
                             if (marqueur != null) {
-                                putMarqueurTableau(map, tableauDonnee.getValue().get(suffixe), marqueur);
+                                var suffixNode = tableauDonnee.getValue().get(suffixe);
+                                if (suffixNode != null) {
+                                    putMarqueurTableau(map, suffixNode, marqueur);
+                                }
                             }
                         }
                     }
@@ -774,13 +769,13 @@ public class AfBackUtils {
     private void putMarqueurTableau(Map<String, String> map, JsonNode tableauDonneeNode, MarqueurDTO marqueurFound) {
         String donneeTableauValue = "";
         if (tableauDonneeNode != null && !tableauDonneeNode.isNull()) {
-            if (tableauDonneeNode.isTextual() && !"null".equals(tableauDonneeNode.asText())) {
+            if (tableauDonneeNode.isString() && !"null".equals(tableauDonneeNode.asString())) {
                 // cas texte simple dans tableau
-                donneeTableauValue = tableauDonneeNode.asText();
+                donneeTableauValue = tableauDonneeNode.asString();
             } else if (tableauDonneeNode.isArray()) {
                 // cas choix multiple dans tableau, on stocke sous format "VALEUR1, VALEUR2"
                 donneeTableauValue = StreamSupport.stream(tableauDonneeNode.spliterator(), false)
-                        .filter(JsonNode::isTextual).map(JsonNode::asText).collect(Collectors.joining(", "));
+                        .filter(JsonNode::isString).map(JsonNode::asString).collect(Collectors.joining(", "));
             }
         }
         map.put(marqueurFound.getIdentifiant(), donneeTableauValue);
@@ -846,7 +841,7 @@ public class AfBackUtils {
         ObjectMapper mapper = new ObjectMapper();
         try {
             contenu = mapper.treeToValue(demHisto.getContenu(), DemandeHistoriqueContenuDTO.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur", e);
         }
         tsHisto.setContenu(contenu);
@@ -1014,12 +1009,10 @@ public class AfBackUtils {
     }
 
     public static boolean hasRole(final String role) {
-        if (SecurityContextHolder.getContext() == null) {
-            return false;
-        }
-        Collection<? extends GrantedAuthority> auth = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities();
-        return auth.stream().anyMatch(grantedAuthority -> (grantedAuthority.getAuthority().equals(role)));
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> role.equals(authority.getAuthority()));
     }
 
     /**

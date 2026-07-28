@@ -1,9 +1,11 @@
 package mc.gouv.xaf.back.service.data;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
+import mc.gouv.xaf.shared.dto.ExportMotifDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.formbean.MotifCreateFormBean;
 
 /**
  * Service permettant la manipulation des motifs.
@@ -34,6 +36,8 @@ public interface MotifsService {
      */
     List<MotifDTO> getMotifs();
 
+    List<MotifDTO> getMotifs(String langue);
+
     /**
      * Permet de sauvegarder ou mettre à jour un motif en base
      *
@@ -43,13 +47,25 @@ public interface MotifsService {
      */
     MotifDTO saveOrUpdateMotif(MotifDTO motif);
 
-    /**
-     * <p>Permet de supprimer un motif à partir du MotifID</p>
-     * <p>Attention : ce n'est pas une suppression réelle, mais plutôt un archivage.</p>
-     *
-     * @param pkMotif,
-     *         id du motif
-     */
-    void deleteMotif(Integer pkMotif);
+    MotifDTO desactiverMotif(String motifCode, String langue);
+
+    MotifDTO activerMotif(String motifCode, String langue);
+
+    MotifDTO getMotif(String codeMotif, String langue);
+
+    List<MotifDTO> getMotifs(String langue, String statut);
+
+    List<MotifDTO> getFilteredMotifs(String langue, List<String> codes);
+
+    MotifDTO getMotif(String codeMotif, String langue, String statut);
+
+    String[] getMotifPreviewByText(String bodyTemplateText, String subjectTemplateText, Map<String, Object> model)
+            throws IOException;
+
+    String exportConfig() throws IOException;
+
+    List<ExportMotifDTO> importConfig(byte[] file) throws IOException;
+
+    void saveMotifForm(MotifCreateFormBean formBean);
 
 }

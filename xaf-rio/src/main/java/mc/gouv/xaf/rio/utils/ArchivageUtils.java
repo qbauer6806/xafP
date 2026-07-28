@@ -41,9 +41,9 @@ public class ArchivageUtils {
     public static Predicate<TacheDTO> filtrerTache(String ref) {
         return tacheDTO -> {
             if (CODE_TYPE_PERMIS.equals(tacheDTO.getCodeType())) {
-                return StringUtils.equals(ref, tacheDTO.getContenu().at("/numPermis").asText());
+                return StringUtils.equals(ref, tacheDTO.getContenu().at("/numPermis").asString());
             } else if (CODE_TYPE_IMMAT.equals(tacheDTO.getCodeType())) {
-                return StringUtils.equals(ref, tacheDTO.getContenu().at("/numRegistre").asText());
+                return StringUtils.equals(ref, tacheDTO.getContenu().at("/numRegistre").asString());
             }
             return false;
         };
@@ -135,10 +135,10 @@ public class ArchivageUtils {
     private static Function<TacheDTO, String> getKey() {
         return tacheDTO -> {
             if (CODE_TYPE_PERMIS.equals(tacheDTO.getCodeType())) {
-                return tacheDTO.getContenu().at("/numPermis").asText();
+                return tacheDTO.getContenu().at("/numPermis").asString();
             } else {
                 // Sinon on va cherche le numéro de registre
-                return tacheDTO.getContenu().at("/numRegistre").asText();
+                return tacheDTO.getContenu().at("/numRegistre").asString();
             }
         };
     }

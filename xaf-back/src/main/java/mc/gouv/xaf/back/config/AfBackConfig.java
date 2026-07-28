@@ -26,7 +26,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
  * @author qdeme
  */
 @Configuration
-@EnableCaching
 @RequiredArgsConstructor
 public class AfBackConfig {
 

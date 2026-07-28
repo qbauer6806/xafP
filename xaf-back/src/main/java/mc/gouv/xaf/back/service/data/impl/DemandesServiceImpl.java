@@ -1,8 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.opensagres.xdocreport.converter.ConverterTypeTo;
 import fr.opensagres.xdocreport.converter.Options;
 import fr.opensagres.xdocreport.core.XDocReportException;
@@ -55,6 +52,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MarqueursService;
+import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.demande.CloneDemandeExtender;
 import mc.gouv.xaf.back.service.excel.AfDemandeExcelFlatIterable;
@@ -64,7 +62,6 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.service.itg.nomen.PaysCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.postprocessing.AfPostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -99,9 +96,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -138,7 +139,7 @@ public class DemandesServiceImpl implements DemandesService {
     private final DemandesComplementsRepository demandesComplementsRepository;
     private final AfExcelExportModelProvider excelExportModelProvider;
     private final AfTemplateModelProvider afTemplateModelProvider;
-    private final MotifsCache motifsCache;
+    private final MotifsService motifsService;
     private final DemandeFilesCategorizer demandeFilesCategorizer;
     private final DemarchesDataProvider demarchesDataProvider;
     private final MarqueursService marqueursService;
@@ -268,9 +269,10 @@ public class DemandesServiceImpl implements DemandesService {
         List<JsonNode> champsNodes = config.get("recap").findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                if (!champ.get("type").asText().equals("tableau")) {
+                if (!champ.get("type").asString().equals("tableau") && !champ.get("type").asString()
+                        .equals("fichier")) {
                     JsonNode mapping = champ.get("mapping");
-                    String path = champ.get("path").asText();
+                    String path = champ.get("path").asString();
                     processContenuTrad(contenuTrad, mappings, mapping, champ, path);
                 }
             }
@@ -279,14 +281,14 @@ public class DemandesServiceImpl implements DemandesService {
         List<JsonNode> tableauxNodes = new ArrayList<>();
         extractTableauNodes(config.get("recap"), tableauxNodes);
         for (JsonNode tableau : tableauxNodes) {
-            String rootPath = tableau.get("path").asText();
+            String rootPath = tableau.get("path").asString();
             // on regarde si dans le contenu on a une array correspondant à ce path
             JsonNode array = AfBackUtils.getNodeFromPath(contenuTrad, rootPath);
             for (JsonNode champ : tableau.get("columns")) {
                 JsonNode mapping = champ.get("mapping");
                 // il faut itérer sur chaque contenu du tableau
                 for (int i = 0; i < array.size(); i++) {
-                    String path = rootPath + "." + i + "." + champ.get("path").asText();
+                    String path = rootPath + "." + i + "." + champ.get("path").asString();
                     processContenuTrad(contenuTrad, mappings, mapping, champ, path);
                 }
 
@@ -303,7 +305,7 @@ public class DemandesServiceImpl implements DemandesService {
             }
 
             // Parcourir les enfants de l'objet
-            node.fields().forEachRemaining(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
+            node.properties().forEach(entry -> extractTableauNodes(entry.getValue(), tableauNodes));
         } else if (node.isArray()) {
             // Si le nœud est un tableau
             node.forEach(childNode -> extractTableauNodes(childNode, tableauNodes));
@@ -323,12 +325,12 @@ public class DemandesServiceImpl implements DemandesService {
                     ArrayNode arrayNodeValues = objectMapper.createArrayNode();
                     for (JsonNode element : enumKeyNode) {
                         String enumValue;
-                        String enumKey = element.asText();
-                        JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                        String enumKey = element.asString();
+                        JsonNode enumFound = mappings.get(mapping.asString()).get("languages").get("fr").get("values")
                                 .get(enumKey);
                         if (enumFound != null) {
                             // si on trouve l'enum, alors on récupère la valeur
-                            enumValue = enumFound.asText();
+                            enumValue = enumFound.asString();
                         } else {
                             // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
                             enumValue = enumKey;
@@ -339,28 +341,28 @@ public class DemandesServiceImpl implements DemandesService {
                 } else {
                     // choix
                     String enumValue = "";
-                    String enumKey = enumKeyNode.asText();
+                    String enumKey = enumKeyNode.asString();
                     JsonNode isDynamic = champ.get("isDynamic");
                     if (isDynamic != null && !isDynamic.asBoolean()) {
-                        JsonNode enumFound = mappings.get(mapping.asText()).get("languages").get("fr").get("values")
+                        JsonNode enumFound = mappings.get(mapping.asString()).get("languages").get("fr").get("values")
                                 .get(enumKey);
                         if (enumFound != null) {
                             // si on trouve l'enum, alors on récupère la valeur
-                            enumValue = enumFound.asText();
+                            enumValue = enumFound.asString();
                         } else {
                             // sinon cela veut dire que la traduction a déjà été effectuée du coup on peut réutiliser la valeur
                             enumValue = enumKey;
                         }
-                    } else if (mapping.asText().equals("nationalites")) {
+                    } else if (mapping.asString().equals("nationalites")) {
                         enumValue = StringUtils.isBlank(enumKey)
                                 ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getNationalite() : enumKey;
-                    } else if (mapping.asText().equals("pays")) {
+                    } else if (mapping.asString().equals("pays")) {
                         enumValue = StringUtils.isBlank(enumKey)
                                 ? ""
                                 : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
-                    } else if (mapping.asText().startsWith("properties_")) {
-                        String propertyKey = mapping.asText().replaceFirst("^properties_", "") + "_FR";
+                    } else if (mapping.asString().startsWith("properties_")) {
+                        String propertyKey = mapping.asString().replaceFirst("^properties_", "") + "_FR";
                         PropertiesDTO prop = propertiesService.getProperty(propertyKey);
                         if (prop != null) {
                             PropertiesListEntityDTO[] listProperties = AfBackUtils.parserPropertiesListJson(
@@ -379,26 +381,26 @@ public class DemandesServiceImpl implements DemandesService {
                     AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
                 }
             }
-        } else if (champ.get("type").asText().equals("adresse")) {
+        } else if (champ.get("type").asString().equals("adresse")) {
             // le champ est de type adresse donc on doit remplacer le pays
             path += ".pays";
             JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (enumKeyNode != null && !enumKeyNode.isNull() && !enumKeyNode.isMissingNode()) {
-                String enumKey = enumKeyNode.asText();
+                String enumKey = enumKeyNode.asString();
                 String enumValue = StringUtils.isBlank(enumKey)
                         ? ""
                         : paysCache.get(enumKey) != null ? paysCache.get(enumKey).getLibelle() : enumKey;
                 AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
             }
-        } else if (champ.get("type").asText().equals("date")) {
+        } else if (champ.get("type").asString().equals("date")) {
             JsonNode dateNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
             if (dateNode != null && !dateNode.isNull()) {
-                String date = dateNode.asText();
+                String date = dateNode.asString();
                 // Si la date a un format d'affichage
                 String format = "dd/MM/yyyy";
                 JsonNode formatNode = champ.get("displayJavaFormat");
                 if (formatNode != null && !formatNode.isNull()) {
-                    format = formatNode.asText();
+                    format = formatNode.asString();
                 }
                 AfBackUtils.setNodeValue(contenuTrad, path, AfBackUtils.changeDateStringFormat(format, date));
             }
@@ -557,13 +559,13 @@ public class DemandesServiceImpl implements DemandesService {
         if (demande.getComplements() != null) {
             for (DemandeComplementsDTO demandeComplementsDTO : demande.getComplements()) {
                 String codeMotif = demandeComplementsDTO.getQuestion().getCodeMotif();
-                demandeComplementsDTO.getQuestion().setCodeMotif(motifsCache.getMotif(codeMotif, "fr").getLibelle());
+                demandeComplementsDTO.getQuestion().setCodeMotif(motifsService.getMotif(codeMotif, "fr").getLibelle());
             }
         }
         // transformer le motif
         String codeMotif = demande.getDernierStatut().getCodeMotif();
         if (codeMotif != null) {
-            MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
+            MotifDTO motif = motifsService.getMotif(codeMotif, "fr");
             demande.getDernierStatut().setCodeMotif(motif != null ? motif.getLibelle() : codeMotif);
         }
         byte[] bytes;
@@ -794,13 +796,15 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     @Override
-    public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
+    public PagedModel<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
+            String[] fields) {
 
         Long totalCount = rechercheDemandesUtils.getDemandesCount(demandeRecherche);
         List<DemandeBO> demandes = rechercheDemandesUtils.getDemandesPageable(demandeRecherche, pageable);
         List<DemandeDTO> demandesDto = demandesTransformer.bo2Dto(demandes, fields);
 
-        return new PageImpl<>(demandesDto, pageable, totalCount);
+        Page<DemandeDTO> page = new PageImpl<>(demandesDto, pageable, totalCount);
+        return new PagedModel<>(page);
     }
 
     @Override

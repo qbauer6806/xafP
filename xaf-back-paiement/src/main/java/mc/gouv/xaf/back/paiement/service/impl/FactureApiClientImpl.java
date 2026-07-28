@@ -3,16 +3,7 @@ package mc.gouv.xaf.back.paiement.service.impl;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,57 +18,51 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.http.client.HttpResponseException;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 @Component
 public class FactureApiClientImpl implements FactureApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FactureApiClientImpl.class);
+
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String CHECK_ROUTE = "v1/ts/ecritures/paiement/check";
     public static final String PAIEMENT_ROUTE = "v1/ts/ecritures/paiement";
     public static final String FACTURE_ROUTE = "v1/ts/ecritures/getfacture";
     public static final String PERMIS_ROUTE = "v1/permis/{numPermis}";
-    private final WebTarget targetCheck;
-    private final WebTarget targetCreate;
-    private final WebTarget targetGet;
+
+    private final RestClient restClient;
     private final OperationHelper operationHelper;
     private final PaiementPropertiesResolver paiementPropertiesResolver;
     private final MailService mailService;
 
     public FactureApiClientImpl(PaiementPropertiesResolver paiementPropertiesResolver, OperationHelper operationHelper,
             MailService mailService) {
-        String serviceUrl = paiementPropertiesResolver.getFactureUrl();
-        ClientConfig config = new ClientConfig();
-
-        HttpUrlConnectorProvider cp = new HttpUrlConnectorProvider();
-        config.connectorProvider(cp);
-        cp.connectionFactory(url -> (HttpURLConnection) url.openConnection());
-
-        config.register(JacksonJsonProvider.class);
-        try (Client client = ClientBuilder.newClient()) {
-            this.targetCheck = client.target(serviceUrl + CHECK_ROUTE);
-            this.targetCreate = client.target(serviceUrl + PAIEMENT_ROUTE);
-            this.targetGet = client.target(serviceUrl + FACTURE_ROUTE);
-        }
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;
+
+        this.restClient = RestClient.builder().baseUrl(paiementPropertiesResolver.getFactureUrl())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
+                .build();
     }
 
     @Override
     public String check(String numFacture) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
-        Response response = this.targetCheck.queryParam("numFacture", numFacture)
-                .queryParam("registre", paiementPropertiesResolver.getRegistre()).request()
-                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken()).get();
 
-        String responseString = response.readEntity(String.class);
+        String responseString = restClient.get()
+                .uri(uriBuilder -> uriBuilder.path(CHECK_ROUTE).queryParam("numFacture", numFacture)
+                        .queryParam("registre", paiementPropertiesResolver.getRegistre()).build()).retrieve()
+                .body(String.class);
+
         LOGGER.info("return : {}", responseString);
         return responseString;
     }
@@ -85,18 +70,21 @@ public class FactureApiClientImpl implements FactureApiClient {
     @Override
     public Optional<String> createFacture(List<CirRequestDTO> lignes, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
+
         Operation<String> operation = new Operation<>() {
 
             @Override
             public void execute() throws HttpResponseException {
-                Response response = targetCreate.request()
-                        .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-                        .post(Entity.entity(lignes, MediaType.APPLICATION_JSON));
+                String responseBody = restClient.post().uri(PAIEMENT_ROUTE).contentType(MediaType.APPLICATION_JSON)
+                        .body(lignes).exchange((request, response) -> {
+                            if (!response.getStatusCode().isSameCodeAs(HttpStatus.CREATED)) {
+                                throw new HttpResponseException(response.getStatusCode().value(),
+                                        "CIR createFacture() failed");
+                            }
+                            return new String(response.getBody().readAllBytes());
+                        });
 
-                if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-                    throw new HttpResponseException(response.getStatus(), "CIR createFacture() failed");
-                }
-                setResult(response.readEntity(String.class));
+                setResult(responseBody);
             }
 
             @Override
@@ -112,6 +100,7 @@ public class FactureApiClientImpl implements FactureApiClient {
         } catch (Exception e) {
             sendMail(demandeDTO, operation, 6);
         }
+
         return Optional.empty();
     }
 
@@ -124,15 +113,17 @@ public class FactureApiClientImpl implements FactureApiClient {
 
             @Override
             public void execute() throws HttpResponseException {
-                Response response = targetGet.queryParam("numFacture", numFacture).request("application/pdf")
-                        .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-                        .get();
+                InputStream inputStream = restClient.get()
+                        .uri(uriBuilder -> uriBuilder.path(FACTURE_ROUTE).queryParam("numFacture", numFacture).build())
+                        .accept(MediaType.APPLICATION_PDF).exchange((request, response) -> {
+                            if (!response.getStatusCode().isSameCodeAs(HttpStatus.OK)) {
+                                throw new HttpResponseException(response.getStatusCode().value(),
+                                        "CIR getFacture() failed");
+                            }
 
-                if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                    throw new HttpResponseException(response.getStatus(), "CIR getFacture() failed");
-                }
+                            return response.getBody();
+                        });
 
-                InputStream inputStream = response.readEntity(InputStream.class);
                 setResult(inputStream);
                 logEndMethod(getLogger());
             }
@@ -156,12 +147,15 @@ public class FactureApiClientImpl implements FactureApiClient {
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
         String bodyTemplateCode = "MAIL_CIR_ECHEC_CORPS";
         String subjectTemplateCode = "MAIL_CIR_ECHEC_OBJET";
+
         Set<String> mailingLists = mailService.getMailingLists(
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
+
         Map<String, Object> model = new HashMap<>();
         model.put("resultat", operation.getResult());
+
         mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(),
                 demandeDTO.getIdentifiant(), incident, model, null);
     }

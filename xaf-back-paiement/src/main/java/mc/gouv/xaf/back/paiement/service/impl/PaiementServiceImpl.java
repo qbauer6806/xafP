@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.paiement.service.impl;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

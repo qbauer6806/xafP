@@ -1,9 +1,9 @@
 package mc.gouv.sup.xaf12;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,45 +47,45 @@ public class GenerateConfigFromRecaps {
             ArrayNode marqueurs = mapper.createArrayNode();
             JsonNode displayFields = recapFront.get("initDonnees").get("projectDemande").get("displayFields");
             for (JsonNode displayField : displayFields) {
-                String type = displayField.get("type").asText();
+                String type = displayField.get("type").asString();
                 JsonNode data = displayField.get("data");
                 if (type.equals("adresse") || type.equals("adresseMc") || type.equals("iban") || type.equals(
                         "telephone")) {
                     for (JsonNode d : data) {
-                        marqueurs.add(d.asText());
+                        marqueurs.add(d.asString());
                     }
-                } else if (!type.equals("fichier") && data.asText().startsWith("contenu.")) {
-                    marqueurs.add(data.asText());
+                } else if (!type.equals("fichier") && data.asString().startsWith("contenu.")) {
+                    marqueurs.add(data.asString());
                 }
             }
             // chercher les tableaux, dans le recapBack
             List<JsonNode> tableauxNodes = new ArrayList<>();
             extractTableauNodes(recapBack, tableauxNodes);
             for (JsonNode tableau : tableauxNodes) {
-                String rootPath = tableau.get("path").asText();
+                String rootPath = tableau.get("path").asString();
                 marqueurs.add(rootPath);
                 for (JsonNode champ : tableau.get("columns")) {
                     // sur les types adresse, telephone... il n'y a pas de path
                     JsonNode pathNode = champ.get("path");
                     String path = rootPath + ".";
                     if (pathNode != null) {
-                        path += champ.get("path").asText();
+                        path += champ.get("path").asString();
                     } else {
-                        String type = champ.get("type").asText();
+                        String type = champ.get("type").asString();
                         switch (type) {
                             case "adresse", "adresseMc" -> {
                                 String suffix = "Ligne1";
-                                String pathWithSuffix = champ.get("ligne1").asText();
+                                String pathWithSuffix = champ.get("ligne1").asString();
                                 path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
                             }
                             case "iban" -> {
                                 String suffix = "Iban";
-                                String pathWithSuffix = champ.get("iban").asText();
+                                String pathWithSuffix = champ.get("iban").asString();
                                 path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
                             }
                             case "telephone" -> {
                                 String suffix = "Indicatif";
-                                String pathWithSuffix = champ.get("indicatif").asText();
+                                String pathWithSuffix = champ.get("indicatif").asString();
                                 path += pathWithSuffix.substring(0, pathWithSuffix.length() - suffix.length());
                             }
                         }
@@ -102,7 +102,7 @@ public class GenerateConfigFromRecaps {
             cleanApostrophes((ObjectNode) properties);
 
             for (JsonNode n : recapBack) {
-                if (n.get("name").asText().equals("projectDemandeRecap")) {
+                if (n.get("name").asString().equals("projectDemandeRecap")) {
 
                     // recap
                     ObjectNode recapConfig = mapper.createObjectNode();
@@ -114,22 +114,22 @@ public class GenerateConfigFromRecaps {
                     for (JsonNode section : sections) {
                         // add titreKey
                         properties.get("fr").properties().forEach(property -> {
-                            if (property.getValue().asText().equals(section.get("titre").asText())) {
+                            if (property.getValue().asString().equals(section.get("titre").asString())) {
                                 ((ObjectNode) section).put("titreKey", property.getKey());
                             }
                         });
 
                         // section
-                        if (section.get("type").asText().equals("champs")) {
+                        if (section.get("type").asString().equals("champs")) {
                             for (JsonNode champ : section.get("champs")) {
                                 traitementChamp(champ, recapFront);
                             }
 
                         }
                         // sous section
-                        else if (section.get("type").asText().equals("sousSections")) {
+                        else if (section.get("type").asString().equals("sousSections")) {
                             for (JsonNode sousSection : section.get("sousSections")) {
-                                String type = sousSection.get("type").asText();
+                                String type = sousSection.get("type").asString();
                                 if ("tableau".equals(type)) {
                                     for (JsonNode columns : sousSection.get("columns")) {
                                         traitementChamp(columns, recapFront);
@@ -151,17 +151,17 @@ public class GenerateConfigFromRecaps {
                     // find fichiers
                     for (JsonNode sectionsRecapsFront : recapFront.get("initRecaps").get("projectDemandeRecap")
                             .get("sections")) {
-                        if (sectionsRecapsFront.get("type").asText().equals("fichiers")) {
+                        if (sectionsRecapsFront.get("type").asString().equals("fichiers")) {
 
-                            String titreKey = sectionsRecapsFront.get("titre").asText();
+                            String titreKey = sectionsRecapsFront.get("titre").asString();
                             // find titre in properties
                             properties.get("fr").properties().forEach(property -> {
                                 if (property.getKey().equals(titreKey)) {
-                                    fichiersNode.put("titre", property.getValue().asText());
+                                    fichiersNode.put("titre", property.getValue().asString());
                                 }
                             });
                             fichiersNode.put("titreKey", titreKey);
-                            fichiersNode.put("type", sectionsRecapsFront.get("type").asText());
+                            fichiersNode.put("type", sectionsRecapsFront.get("type").asString());
 
                             fichiersRecapsFront = sectionsRecapsFront.get("fichiers");
 
@@ -169,12 +169,12 @@ public class GenerateConfigFromRecaps {
                             int fileIndexCounter = 0;
                             for (JsonNode column : fichiersRecapsFront.get("columns")) {
                                 ObjectNode champ = mapper.createObjectNode();
-                                champ.put("type", column.get("type").asText());
-                                String idPrefix = column.get("idPrefix").asText();
+                                champ.put("type", column.get("type").asString());
+                                String idPrefix = column.get("idPrefix").asString();
                                 champ.put("idPrefix", idPrefix);
                                 properties.get("fr").properties().forEach(property -> {
                                     if (property.getKey().contains("." + idPrefix + ".")) {
-                                        champ.put("label", property.getValue().asText());
+                                        champ.put("label", property.getValue().asString());
                                         champ.put("labelKey", property.getKey());
                                     }
                                 });
@@ -201,17 +201,17 @@ public class GenerateConfigFromRecaps {
 
                     // idPrefix
                     if (fichiersRecapsFront != null) {
-                        fichiersNode.put("idPrefix", fichiersRecapsFront.get("idPrefix").asText());
+                        fichiersNode.put("idPrefix", fichiersRecapsFront.get("idPrefix").asString());
                     }
                     fichiersNode.put("path", "fichiers");
                     fichiersNode.put("virtual", true);
                     recapConfig.set("fichiers", fichiers);
 
                     // name
-                    recapConfig.put("name", n.get("name").asText());
+                    recapConfig.put("name", n.get("name").asString());
 
                     // donnee
-                    recapConfig.put("donnee", n.get("donnee").asText());
+                    recapConfig.put("donnee", n.get("donnee").asString());
 
                     config.set("recap", recapConfig);
 
@@ -226,7 +226,7 @@ public class GenerateConfigFromRecaps {
             }
             System.out.println(
                     "INSERT INTO TSCode.DEM_DEMANDES_CONFIG (build_id, contenu) values (" + config.get("buildId")
-                            .asText() + ",'" + config.toString().replace("'", "''")
+                            .asString() + ",'" + config.toString().replace("'", "''")
                             + "') ON CONFLICT (build_id) DO UPDATE SET contenu = EXCLUDED.contenu;");
             System.out.println();
         }
@@ -254,7 +254,7 @@ public class GenerateConfigFromRecaps {
 
     private static void addToPathByType(ArrayNode arrayNode, JsonNode champ, String path) {
         if (!path.isEmpty()) {
-            String type = champ.get("type").asText();
+            String type = champ.get("type").asString();
             switch (type) {
                 case "adresse" -> {
                     addToPath(arrayNode, path, "ligne1");
@@ -295,9 +295,9 @@ public class GenerateConfigFromRecaps {
             if (valueNode.isObject()) {
                 // Appel récursif pour les objets imbriqués
                 cleanApostrophes((ObjectNode) valueNode);
-            } else if (valueNode.isTextual()) {
+            } else if (valueNode.isString()) {
                 // Nettoyage des apostrophes dans les chaînes
-                String value = valueNode.asText().replaceAll("(^')|('$)", "")  // supprime apostrophes début/fin
+                String value = valueNode.asString().replaceAll("(^')|('$)", "")  // supprime apostrophes début/fin
                         .replaceAll("''", "'");       // remplace doubles apostrophes
 
                 node.put(entry.getKey(), value);
@@ -348,23 +348,23 @@ public class GenerateConfigFromRecaps {
     private static void traitementChamp(JsonNode champ, JsonNode recapFront) {
         // add path
         // dans les champs classique on a .ligne1 à la fin des path, mais dans les tableaux on a Ligne1
-        if (champ.get("type").asText().equals("adresseMc") || champ.get("type").asText().equals("adresse")) {
+        if (champ.get("type").asString().equals("adresseMc") || champ.get("type").asString().equals("adresse")) {
             ((ObjectNode) champ).put("path",
-                    champ.get("ligne1").asText().replace(".ligne1", "").replaceAll("Ligne1$", ""));
+                    champ.get("ligne1").asString().replace(".ligne1", "").replaceAll("Ligne1$", ""));
             ((ObjectNode) champ).remove("ligne1");
             ((ObjectNode) champ).remove("ligne2");
             ((ObjectNode) champ).remove("ligne3");
             ((ObjectNode) champ).remove("codePostal");
             ((ObjectNode) champ).remove("ville");
             ((ObjectNode) champ).remove("pays");
-        } else if (champ.get("type").asText().equals("iban")) {
-            ((ObjectNode) champ).put("path", champ.get("iban").asText().replace(".iban", "").replaceAll("Iban$", ""));
+        } else if (champ.get("type").asString().equals("iban")) {
+            ((ObjectNode) champ).put("path", champ.get("iban").asString().replace(".iban", "").replaceAll("Iban$", ""));
             ((ObjectNode) champ).remove("iban");
             ((ObjectNode) champ).remove("bic");
             ((ObjectNode) champ).remove("titulaire");
-        } else if (champ.get("type").asText().equals("telephone")) {
+        } else if (champ.get("type").asString().equals("telephone")) {
             ((ObjectNode) champ).put("path",
-                    champ.get("indicatif").asText().replace(".indicatif", "").replaceAll("Indicatif$", ""));
+                    champ.get("indicatif").asString().replace(".indicatif", "").replaceAll("Indicatif$", ""));
             ((ObjectNode) champ).remove("indicatif");
             ((ObjectNode) champ).remove("numero");
         }
@@ -374,9 +374,9 @@ public class GenerateConfigFromRecaps {
         // add labelKey
         ((ObjectNode) champ).put("labelKey", "ts.donnee.projectDemande." + idPrefix);
         // add idPrefix if not present, only in tableaux
-        if ((champ.get("idPrefix") == null || champ.get("idPrefix").isNull()) && champ.get("path").asText()
+        if ((champ.get("idPrefix") == null || champ.get("idPrefix").isNull()) && champ.get("path").asString()
                 .contains("Tableau")) {
-            ((ObjectNode) champ).put("idPrefix", champ.get("path").asText());
+            ((ObjectNode) champ).put("idPrefix", champ.get("path").asString());
         }
     }
 
@@ -385,8 +385,8 @@ public class GenerateConfigFromRecaps {
         String idPrefixChamp = getIdPrefixChamp(champ, recapFront);
         if (StringUtils.isNotBlank(idPrefixChamp)) {
             idPrefix = idPrefixChamp.concat(".nomChamp");
-        } else if (champ.get("path").asText().contains("Tableau")) {
-            idPrefix = champ.get("path").asText() + ".nomHeader";
+        } else if (champ.get("path").asString().contains("Tableau")) {
+            idPrefix = champ.get("path").asString() + ".nomHeader";
         }
         return idPrefix;
     }
@@ -404,12 +404,12 @@ public class GenerateConfigFromRecaps {
             String dataString;
 
             if (data.isArray() && !data.isEmpty()) {
-                dataString = data.get(0).asText();
+                dataString = data.get(0).asString();
             } else {
-                dataString = data.asText();
+                dataString = data.asString();
             }
 
-            String champPath = champ.path("path").asText();
+            String champPath = champ.path("path").asString();
             if (dataString.equals(champPath) || dataString.contains(champPath + ".")) {
                 idPrefix = e.getKey();
                 break;

@@ -1,8 +1,8 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class DemandesController {
     private final XafFrontserverUtils xafFrontserverUtils;
 
     private ResponseEntity traiterDemande(HttpMethod httpMethod, HttpServletRequest request, Integer demandeId,
-            DemandeInputDTO demandeInput) throws JsonProcessingException {
+            DemandeInputDTO demandeInput) throws JacksonException {
         ObjectMapper mapper = new ObjectMapper();
         AfApiClient afApiClient = xafFrontserverUtils.getAfApiClient();
 
@@ -118,7 +118,7 @@ public class DemandesController {
         LOGGER.info("====================== /demandes doPost()");
         try {
             return traiterDemande(HttpMethod.POST, request, demandeId, demandeInput);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
                     "DemandesServlet - Une erreur est survenue lors de l'appel à la méthode " + HttpMethod.POST);
         }
@@ -137,7 +137,7 @@ public class DemandesController {
         LOGGER.info("====================== /demandes doPut()");
         try {
             return traiterDemande(HttpMethod.PUT, request, demandeId, demandeInput);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
                     "DemandesServlet - Une erreur est survenue lors de l'appel à la méthode " + HttpMethod.PUT);
         }
@@ -174,7 +174,7 @@ public class DemandesController {
             try {
                 donneesMConnectDTO = mapper.treeToValue(usagerInfosDTO.getDonneesExternes().get("mconnect"),
                         DonneesMConnectDTO.class);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }

@@ -3,34 +3,17 @@ package mc.gouv.xaf.back.paiement.service.itg.monetico;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpResponseException;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-
+import lombok.Getter;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -41,6 +24,13 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 @Component
 public class MoneticoApiClient implements PaiementApiClient {
@@ -51,7 +41,9 @@ public class MoneticoApiClient implements PaiementApiClient {
     private static final String CDR = "cdr";
     private static final String AUT = "aut";
     private static final String LIB = "lib";
-    private final WebTarget target;
+    @Getter
+    private final RestClient restClient;
+    @Getter
     private final String tpe;
     private final PaiementPropertiesResolver paiementPropertiesResolver;
     private final OperationHelper operationHelper;
@@ -66,15 +58,7 @@ public class MoneticoApiClient implements PaiementApiClient {
             MailService mailService, PropertiesService propertiesService,
             PaiementSecurityService paiementSecurityService) {
 
-        ClientConfig config = new ClientConfig();
-
-        HttpUrlConnectorProvider cp = new HttpUrlConnectorProvider();
-        config.connectorProvider(cp);
-        cp.connectionFactory(url -> (HttpURLConnection) url.openConnection());
-        config.register(JacksonJsonProvider.class);
-        try (Client client = ClientBuilder.newClient(config)) {
-            this.target = client.target(paiementPropertiesResolver.getCaptureUrl());
-        }
+        this.restClient = RestClient.builder().baseUrl(paiementPropertiesResolver.getCaptureUrl()).build();
 
         this.tpe = paiementPropertiesResolver.getTpe();
         this.paiementPropertiesResolver = paiementPropertiesResolver;
@@ -158,14 +142,6 @@ public class MoneticoApiClient implements PaiementApiClient {
         }*/
     }
 
-    public WebTarget getTarget() {
-        return target;
-    }
-
-    public String getTpe() {
-        return tpe;
-    }
-
     private Operation<String> buildOperation(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO) {
         return new Operation<>() {
 
@@ -198,7 +174,7 @@ public class MoneticoApiClient implements PaiementApiClient {
                         "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
                 if (errorProp != null && "true".equals(errorProp.getValue())) {
                     // On met le statut 400 pour éviter de faire plusieurs tentatives
-                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(),
+                    throw new HttpResponseException(HttpStatus.BAD_REQUEST.value(),
                             "Capture du paiement désactivé");
                 }
 
@@ -216,20 +192,27 @@ public class MoneticoApiClient implements PaiementApiClient {
                                     + "lib=autorisation refusee";
                     statutCode = 200;
                 } else {
-                    Response response = getTarget().queryParam("TPE", captureDTO.getTpe())
-                            .queryParam("date", captureDTO.getDate())
-                            .queryParam("date_commande", captureDTO.getDateCommande())
-                            .queryParam("lgue", captureDTO.getLgue()).queryParam("montant", captureDTO.getMontant())
-                            .queryParam("montant_a_capturer", captureDTO.getMontantACapturer())
-                            .queryParam("montant_deja_capture", captureDTO.getMontantDejaCapture())
-                            .queryParam("montant_restant", captureDTO.getMontantRestant())
-                            .queryParam("reference", captureDTO.getReference())
-                            .queryParam("societe", captureDTO.getSociete())
-                            .queryParam("version", captureDTO.getVersion()).queryParam("MAC", mac)
-                            .request(MediaType.APPLICATION_JSON).get();
+                    Map<String, Object> result = getRestClient().get()
+                            .uri(uriBuilder -> uriBuilder.queryParam("TPE", captureDTO.getTpe())
+                                    .queryParam("date", captureDTO.getDate())
+                                    .queryParam("date_commande", captureDTO.getDateCommande())
+                                    .queryParam("lgue", captureDTO.getLgue())
+                                    .queryParam("montant", captureDTO.getMontant())
+                                    .queryParam("montant_a_capturer", captureDTO.getMontantACapturer())
+                                    .queryParam("montant_deja_capture", captureDTO.getMontantDejaCapture())
+                                    .queryParam("montant_restant", captureDTO.getMontantRestant())
+                                    .queryParam("reference", captureDTO.getReference())
+                                    .queryParam("societe", captureDTO.getSociete())
+                                    .queryParam("version", captureDTO.getVersion()).queryParam("MAC", mac).build())
+                            .exchange((request, response) -> {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("status", response.getStatusCode().value());
+                                map.put("body", new String(response.getBody().readAllBytes()));
+                                return map;
+                            });
 
-                    responseString = response.readEntity(String.class);
-                    statutCode = response.getStatus();
+                    responseString = (String) result.get("body");
+                    statutCode = (Integer) result.get("status");
                 }
                 LOGGER.info("Capture [ responseString {}] ", responseString);
                 setResult(responseString);

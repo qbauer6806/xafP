@@ -1,70 +1,60 @@
 package mc.gouv.xaf.back.service.itg.nomen;
 
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.client.ApiClient;
-import mc.gouv.xaf.apiclient.exception.ExceptionManager;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.nomen.dto.NomenNomenclatureDTO;
 import org.springframework.stereotype.Component;
 
-/**
- * Client permettant d'appeler l'API NOMEN
- * 
- * @author qdeme
- * 
- */
 @Component
 public class NomenClient extends ApiClient {
 
     public static final String NOMEN_PATH = "nomenclatures";
-
     public static final String VALEUR_PATH = "/valeurs";
-    
+
     public NomenClient(GouvPropertiesResolver resolver) {
         super(resolver.getNomenUrl(), new JwtAuthorizationHeaderProvider(resolver.getNomenJwt()));
     }
 
     public NomenNomenclatureDTO getNomenclature(String identifiant) {
-        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(NomenNomenclatureDTO.class);
+        return getRestClient().get()
+                .uri("/" + NOMEN_PATH + "/{identifiant}" + VALEUR_PATH, identifiant)
+                .retrieve()
+                .body(NomenNomenclatureDTO.class);
     }
 
     public NomenNomenclatureDTO getNomenclatureAvecLocale(String identifiant, String locale) {
-        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurLangue", locale)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(NomenNomenclatureDTO.class);
+        return getRestClient().get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/" + NOMEN_PATH + "/{identifiant}" + VALEUR_PATH)
+                        .queryParam("valeurLangue", locale)
+                        .build(identifiant))
+                .retrieve()
+                .body(NomenNomenclatureDTO.class);
     }
 
     public NomenNomenclatureDTO getNomenclatureValeur(String identifiant, String valeur) {
-        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurCode", valeur)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
-
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(NomenNomenclatureDTO.class);
+        return getRestClient().get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/" + NOMEN_PATH + "/{identifiant}" + VALEUR_PATH)
+                        .queryParam("valeurCode", valeur)
+                        .build(identifiant))
+                .retrieve()
+                .body(NomenNomenclatureDTO.class);
     }
 
-    public NomenNomenclatureDTO getNomenclatureValeurAvecLocale(String identifiant, String valeur, String locale) {
-        Response res = getTarget().path(NOMEN_PATH + "/" + identifiant + VALEUR_PATH).queryParam("valeurCode", valeur)
-                .queryParam("valeurLangue", locale).request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+    public NomenNomenclatureDTO getNomenclatureValeurAvecLocale(
+            String identifiant,
+            String valeur,
+            String locale) {
 
-        ExceptionManager.checkExceptionResponse(res);
-
-        return res.readEntity(NomenNomenclatureDTO.class);
+        return getRestClient().get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/" + NOMEN_PATH + "/{identifiant}" + VALEUR_PATH)
+                        .queryParam("valeurCode", valeur)
+                        .queryParam("valeurLangue", locale)
+                        .build(identifiant))
+                .retrieve()
+                .body(NomenNomenclatureDTO.class);
     }
-
 }

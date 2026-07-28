@@ -1,9 +1,7 @@
 package mc.gouv.xaf.back.data.entity;
 
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 import jakarta.validation.constraints.NotBlank;
 
 import jakarta.persistence.Column;
@@ -66,7 +64,6 @@ public class DemandesCourriersBO {
     @Size(max = 128)
     private String identifiant;
 
-    @Type(PostgreSQLTSVectorType.class)
     @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 

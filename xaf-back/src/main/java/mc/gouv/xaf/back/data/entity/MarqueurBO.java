@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.data.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +9,9 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 @Setter
 @Getter
@@ -45,7 +45,7 @@ public class MarqueurBO {
     private String type;
 
     @Column(name = "OPTIONS", columnDefinition = "JSONB", nullable = false)
-    @Type(JsonType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private JsonNode options;
 
 }

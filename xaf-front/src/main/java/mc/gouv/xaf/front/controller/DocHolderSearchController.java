@@ -1,7 +1,5 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Controller
 @RequestMapping("/doc-holder/search")
@@ -42,7 +43,7 @@ public class DocHolderSearchController {
     protected ResponseEntity doPost(HttpServletRequest req) throws IOException {
         LOGGER.info("====================== {} doPost()", req.getServletPath());
 
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper mapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
         LOGGER.info("Vérification usager connecté");
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(req);

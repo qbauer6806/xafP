@@ -1,12 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +19,17 @@ import mc.gouv.xaf.shared.dto.MappingOptionDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -155,17 +156,17 @@ public class MarqueursServiceImpl implements MarqueursService {
         List<JsonNode> champsNodes = sections.findValues("champs");
         for (JsonNode champs : champsNodes) {
             for (JsonNode champ : champs) {
-                if (champ.get("path").asText().equals(modifiedModelPath) && !champ.get("type").asText()
+                if (champ.get("path").asString().equals(modifiedModelPath) && !champ.get("type").asString()
                         .equals("tableau")) {
                     if (marqueurDTO.getDescription() == null || marqueurDTO.getDescription().isEmpty()) {
                         // si c'est un type particulier on ajoute le suffixe
-                        String description = champ.get("label").asText();
+                        String description = champ.get("label").asString();
                         if (suffixeFound != null) {
                             description = description + " - " + suffixeFound;
                         }
                         marqueurDTO.setDescription(description);
                     }
-                    marqueurDTO.setType(champ.get("type").asText());
+                    marqueurDTO.setType(champ.get("type").asString());
                     setMarqueursOptions(marqueurDTO, champ, mappings);
                     return marqueurDTO;
                 }
@@ -178,25 +179,25 @@ public class MarqueursServiceImpl implements MarqueursService {
             String title = "Tableau " + entry.getKey();
             JsonNode tableau = entry.getValue();
             // on regarde d'abord si c'est le chemin racine du tableau
-            if (tableau.get("path").asText().equals(modifiedModelPath)) {
+            if (tableau.get("path").asString().equals(modifiedModelPath)) {
                 if (marqueurDTO.getDescription() == null || marqueurDTO.getDescription().isEmpty()) {
                     marqueurDTO.setDescription(title);
                 }
-                marqueurDTO.setType(tableau.get("type").asText());
+                marqueurDTO.setType(tableau.get("type").asString());
                 return marqueurDTO;
             }
             for (JsonNode column : tableau.get("columns")) {
-                String path = column.get("path").asText();
+                String path = column.get("path").asString();
                 if (path.equals(modifiedModelPath.substring(modifiedModelPath.lastIndexOf('.') + 1))) {
                     if (marqueurDTO.getDescription() == null || marqueurDTO.getDescription().isEmpty()) {
                         // si c'est un type particulier on ajoute le suffixe
-                        String description = column.get("label").asText();
+                        String description = column.get("label").asString();
                         if (suffixeFound != null) {
                             description = description + " - " + suffixeFound;
                         }
                         marqueurDTO.setDescription(title + " - " + description);
                     }
-                    marqueurDTO.setType(column.get("type").asText());
+                    marqueurDTO.setType(column.get("type").asString());
                     setMarqueursOptions(marqueurDTO, column, mappings);
                     return marqueurDTO;
                 }
@@ -212,7 +213,7 @@ public class MarqueursServiceImpl implements MarqueursService {
         if (("choix".equals(marqueurDTO.getType()) || "choixMultiple".equals(marqueurDTO.getType())) && (
                 isDynamic == null || !isDynamic.asBoolean())) {
             // Récupère le mapping pour ce champ
-            JsonNode mappingNode = mappings.get(champ.get("mapping").asText());
+            JsonNode mappingNode = mappings.get(champ.get("mapping").asString());
             if (mappingNode != null && mappingNode.has("languages")) {
                 JsonNode languages = mappingNode.get("languages");
 
@@ -242,16 +243,16 @@ public class MarqueursServiceImpl implements MarqueursService {
         if (node.isObject()) {
             JsonNode typeNode = node.get("type");
             JsonNode titreNode = node.get("titre");
-            if (typeNode != null && "tableau".equals(typeNode.asText())) {
+            if (typeNode != null && "tableau".equals(typeNode.asString())) {
                 // On suppose que le titre est dans le nœud parent direct
-                String titre = (parentTitle != null) ? parentTitle : titreNode.asText();
+                String titre = (parentTitle != null) ? parentTitle : titreNode.asString();
                 tableauWithTitle.add(Map.entry(titre, node));
             }
 
-            String currentTitle = (titreNode != null) ? titreNode.asText() : parentTitle;
+            String currentTitle = (titreNode != null) ? titreNode.asString() : parentTitle;
 
             // Parcourir les enfants de l'objet
-            node.fields().forEachRemaining(
+            node.properties().forEach(
                     entry -> extractTableauNodesWithParents(entry.getValue(), currentTitle, tableauWithTitle));
         } else if (node.isArray()) {
             // Si le nœud est un tableau
@@ -443,7 +444,7 @@ public class MarqueursServiceImpl implements MarqueursService {
                                         // Sécurité : si ce n'est pas un tableau, on met un tableau vide
                                         itemNode.set(lastPath, mapper.createArrayNode());
                                     }
-                                } catch (JsonProcessingException e) {
+                                } catch (JacksonException e) {
                                     // JSON invalide → tableau vide
                                     itemNode.set(lastPath, mapper.createArrayNode());
                                 }
@@ -459,7 +460,7 @@ public class MarqueursServiceImpl implements MarqueursService {
                                 } else {
                                     ObjectNode newNode = mapper.createObjectNode();
                                     newNode.put(lastPath, value);
-                                    itemNode.put(rootPath, newNode);
+                                    itemNode.set(rootPath, newNode);
                                 }
                             } else {
                                 // cas type simple
@@ -490,7 +491,7 @@ public class MarqueursServiceImpl implements MarqueursService {
             MarqueurDTO marqueurDTO = getMarqueur(demandeDTO.getConfigBuildId(), marqueurIdentifiant);
 
             return Optional.ofNullable(marqueurDTO).map(MarqueurDTO::getOptions).map(opts -> opts.get("en"))
-                    .map(mapEn -> mapEn.get(demandeDTO.getMarqueur(marqueurIdentifiant))).map(JsonNode::asText)
+                    .map(mapEn -> mapEn.get(demandeDTO.getMarqueur(marqueurIdentifiant))).map(JsonNode::asString)
                     .orElseGet(() -> demandeDTO.getMarqueurTrad(marqueurIdentifiant));
         }
         return demandeDTO.getMarqueurTrad(marqueurIdentifiant);
@@ -534,7 +535,7 @@ public class MarqueursServiceImpl implements MarqueursService {
         List<MappingOptionDTO> champOptions = recupererMappingOptions(demandeDTO, marqueurId);
 
         return Optional.ofNullable(champOptions).orElse(List.of()).stream().filter(Objects::nonNull)
-                .filter(item -> StringUtils.equalsIgnoreCase(item.originalName(), valeur)).findFirst();
+                .filter(item -> Strings.CI.equals(item.originalName(), valeur)).findFirst();
     }
 
     private List<MappingOptionDTO> extractMappingOptions(JsonNode rootNode) {
@@ -546,7 +547,7 @@ public class MarqueursServiceImpl implements MarqueursService {
         List<MappingOptionDTO> results = new ArrayList<>();
 
         rootNode.properties().forEach(entry -> results.add(new MappingOptionDTO(entry.getKey(),
-                entry.getValue() != null ? entry.getValue().asText() : StringUtils.EMPTY)));
+                entry.getValue() != null ? entry.getValue().asString() : StringUtils.EMPTY)));
 
         return results;
     }

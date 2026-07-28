@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -25,29 +25,29 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
 
     private static final String ECHEC_VELOCITY = "Velocity template processing failed.";
 
-    private final MotifsCache motifsCache;
+    private final MotifsService motifsService;
     private final AfMotifsTemplateModelProvider afMotifsTemplateModelProvider;
     private final VelocityEngine velocityEngine;
     private final ToolManager manager;
 
     public MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) {
-        MotifDTO motif = motifsCache.getMotif(codeMotif, langue);
+        MotifDTO motif = motifsService.getMotif(codeMotif, langue);
         List<MotifDTO> populatedMotifs = populateMotifs(demande, Collections.singletonList(motif));
         return (!populatedMotifs.isEmpty()) ? populatedMotifs.getFirst() : null;
     }
 
     public List<MotifDTO> getMotifs(DemandeDTO demande, String langue, String statut) {
-        List<MotifDTO> motifList = motifsCache.getMotifs(langue, statut);
+        List<MotifDTO> motifList = motifsService.getMotifs(langue, statut);
         return populateMotifs(demande, motifList);
     }
 
     public List<MotifDTO> getMotifs(DemandeDTO demande, String langue) {
-        List<MotifDTO> motifList = motifsCache.getMotifs(langue);
+        List<MotifDTO> motifList = motifsService.getMotifs(langue);
         return populateMotifs(demande, motifList);
     }
 
     public List<MotifDTO> getFilteredMotifs(DemandeDTO demande, String langue, List<String> codes) {
-        List<MotifDTO> motifList = motifsCache.getFilteredMotifs(langue, codes);
+        List<MotifDTO> motifList = motifsService.getFilteredMotifs(langue, codes);
         return populateMotifs(demande, motifList);
     }
 

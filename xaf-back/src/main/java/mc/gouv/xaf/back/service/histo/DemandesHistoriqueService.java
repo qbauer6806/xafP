@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.histo;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

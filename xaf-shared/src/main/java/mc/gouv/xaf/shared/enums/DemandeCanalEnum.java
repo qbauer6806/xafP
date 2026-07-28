@@ -1,12 +1,14 @@
 package mc.gouv.xaf.shared.enums;
 
 import java.text.Collator;
+import lombok.Getter;
 
 /**
  * Enum représentant les modes de transmission (ou canaux) possibles pour une demande.
  *
  * @author qdeme
  */
+@Getter
 public enum DemandeCanalEnum {
 
     GUICHET_VIRTUEL("Téléservice"),
@@ -54,11 +56,6 @@ public enum DemandeCanalEnum {
                 libelle = canal.libelle;
             }
         }
-        return libelle;
-    }
-
-    @Override
-    public String toString() {
         return libelle;
     }
 

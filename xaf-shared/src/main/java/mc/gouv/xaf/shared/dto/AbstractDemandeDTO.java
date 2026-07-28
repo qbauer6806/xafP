@@ -2,7 +2,7 @@ package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public class AbstractDemandeDTO implements Serializable {
             throw new DemarcheException(
                     String.format("Erreur technique: la config de la demande %s n'a pas de buildId", pkDemandes));
         }
-        return buildId.asText();
+        return buildId.asString();
     }
 
 

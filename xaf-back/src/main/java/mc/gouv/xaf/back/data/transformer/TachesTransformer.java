@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.entity.TacheBO;
 import mc.gouv.xaf.shared.dto.TacheDTO;
 import org.slf4j.Logger;
@@ -34,11 +34,7 @@ public class TachesTransformer {
 
         // Mapper le contenu de la tache
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            dto.setContenu(mapper.readTree(bo.getContenu()));
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
+        dto.setContenu(mapper.readTree(bo.getContenu()));
 
         return dto;
     }
@@ -57,7 +53,7 @@ public class TachesTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
 

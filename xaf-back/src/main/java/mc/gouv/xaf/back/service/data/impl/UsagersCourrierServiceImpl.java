@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.NullNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -22,7 +22,6 @@ import mc.gouv.xaf.back.data.transformer.UsagerCourrierTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
@@ -51,7 +50,6 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     private final AccessService accessService;
     private final DemandesHelperService demandesHelperService;
     private final EntityManager em;
-    private final UsagersService usagersService;
     private final DemandesUsagersRepository demandesUsagersRepository;
     private final DemandesUsagersTransformer demandesUsagersTransformer;
 
@@ -78,10 +76,15 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         UsagerCourrierDTO usagerCourrierDto = UsagerCourrierTransformer.bo2Dto(usagersCourrierBO);
         LOGGER.info("Récupération du nombre de demandes effectuées par cet usager courrier...");
-        Integer nbDemandes = usagersService.getNbDemandesUsager(usagersCourrierBO.getPkUsagersCourrier());
+        Integer nbDemandes = getNbDemandesUsager(usagersCourrierBO.getPkUsagersCourrier());
         usagerCourrierDto.setNbDemandes(nbDemandes);
         return usagerCourrierDto;
     }
+
+    private Integer getNbDemandesUsager(Integer usagerId) {
+        return demandesRepository.countByFkAccess_UsagerIdAndFkAccess_ActiveTrue(usagerId);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -127,7 +130,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Récupération du nombre de demandes effectuées par les usagers courrier...");
         for (UsagerCourrierDTO uc : usagersCourrier) {
-            Integer nbDemandes = usagersService.getNbDemandesUsager(uc.getPkUsagersCourrier());
+            Integer nbDemandes = getNbDemandesUsager(uc.getPkUsagersCourrier());
             uc.setNbDemandes(nbDemandes);
         }
 

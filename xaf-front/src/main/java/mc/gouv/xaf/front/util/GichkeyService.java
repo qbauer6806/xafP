@@ -1,12 +1,12 @@
 package mc.gouv.xaf.front.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.BooleanNode;
+import tools.jackson.databind.node.IntNode;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -127,11 +127,11 @@ public class GichkeyService {
     private KeycloakTokenInfo jsonToTokenInfo(String resp) throws IOException {
         KeycloakTokenInfo tokenInfo = new KeycloakTokenInfo();
         ObjectNode node = new ObjectMapper().readValue(resp, ObjectNode.class);
-        TextNode n = (TextNode) node.get("access_token");
-        String accessToken = n.asText();
+        StringNode n = (StringNode) node.get("access_token");
+        String accessToken = n.asString();
         tokenInfo.setAccessToken(accessToken);
-        n = (TextNode) node.get(RequestConstant.REFRESH_TOKEN_PARAM);
-        String refreshToken = n.asText();
+        n = (StringNode) node.get(RequestConstant.REFRESH_TOKEN_PARAM);
+        String refreshToken = n.asString();
         tokenInfo.setRefreshToken(refreshToken);
         IntNode in = (IntNode) node.get("expires_in");
         Integer expiresIn = in.asInt();
@@ -139,17 +139,17 @@ public class GichkeyService {
         in = (IntNode) node.get("refresh_expires_in");
         Integer refreshExpiresIn = in.asInt();
         tokenInfo.setRefreshExpiresIn(refreshExpiresIn);
-        n = (TextNode) node.get("token_type");
-        String tokenType = n.asText();
+        n = (StringNode) node.get("token_type");
+        String tokenType = n.asString();
         tokenInfo.setTokenType(tokenType);
         in = (IntNode) node.get("not-before-policy");
         Integer notBeforePolicy = in.asInt();
         tokenInfo.setNotBeforePolicy(notBeforePolicy);
-        n = (TextNode) node.get("session_state");
-        String sessionState = n.asText();
+        n = (StringNode) node.get("session_state");
+        String sessionState = n.asString();
         tokenInfo.setSessionState(sessionState);
-        n = (TextNode) node.get(RequestConstant.SCOPE_PARAM);
-        String scope = n.asText();
+        n = (StringNode) node.get(RequestConstant.SCOPE_PARAM);
+        String scope = n.asString();
         tokenInfo.setScope(scope);
         return tokenInfo;
     }
@@ -162,53 +162,48 @@ public class GichkeyService {
 
         LOGGER.debug("payload={}", payload);
 
-        ObjectNode node = null;
-        try {
-            node = new ObjectMapper().readValue(payload, ObjectNode.class);
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors du new ObjectMapper().readValue()", e);
-        }
+        ObjectNode node = new ObjectMapper().readValue(payload, ObjectNode.class);
         if (node == null) {
             LOGGER.error("getUsagerInfosFromToken : node == null !");
             return null;
         }
-        TextNode nameNode = (TextNode) node.get("family_name");
-        TextNode givenNameNode = (TextNode) node.get("given_name");
-        TextNode secondNameNode = (TextNode) node.get("secondName");
-        TextNode thirdNameNode = (TextNode) node.get("thirdName");
-        TextNode nationalityNode = (TextNode) node.get("nationality");
-        TextNode birthNameNode = (TextNode) node.get("birth_name");
-        TextNode birthCityNode = (TextNode) node.get("birth_city");
-        TextNode birthDateNode = (TextNode) node.get("birth_date");
-        TextNode phoneNumberNode = (TextNode) node.get("phone_number");
-        TextNode landlineNumberNode = (TextNode) node.get("landline_number");
-        TextNode publicFunctionStatusNode = (TextNode) node.get("public_function_status");
+        StringNode nameNode = (StringNode) node.get("family_name");
+        StringNode givenNameNode = (StringNode) node.get("given_name");
+        StringNode secondNameNode = (StringNode) node.get("secondName");
+        StringNode thirdNameNode = (StringNode) node.get("thirdName");
+        StringNode nationalityNode = (StringNode) node.get("nationality");
+        StringNode birthNameNode = (StringNode) node.get("birth_name");
+        StringNode birthCityNode = (StringNode) node.get("birth_city");
+        StringNode birthDateNode = (StringNode) node.get("birth_date");
+        StringNode phoneNumberNode = (StringNode) node.get("phone_number");
+        StringNode landlineNumberNode = (StringNode) node.get("landline_number");
+        StringNode publicFunctionStatusNode = (StringNode) node.get("public_function_status");
         BooleanNode phoneNumberVerifiedNode = (BooleanNode) node.get("phone_number_verified");
         BooleanNode emailVerifiedNode = (BooleanNode) node.get("email_verified");
-        TextNode emailNode = (TextNode) node.get("email");
+        StringNode emailNode = (StringNode) node.get("email");
         IntNode usagerIdNode = (IntNode) node.get("usager_id");
-        TextNode subNode = (TextNode) node.get("sub");
-        TextNode typeNode = (TextNode) node.get("type");
-        String usagerNom = nameNode.asText();
-        String usagerPrenom = givenNameNode.asText();
-        String usagerSecondPrenom = secondNameNode != null ? secondNameNode.asText() : null;
-        String usagerTroisiemePrenom = thirdNameNode != null ? thirdNameNode.asText() : null;
-        String usagerNationalite = nationalityNode != null ? nationalityNode.asText() : null;
-        String usagerNomNaissance = birthNameNode != null ? birthNameNode.asText() : null;
-        String usagerVilleNaissance = birthCityNode != null ? birthCityNode.asText() : null;
-        String usagerTelephonePortable = phoneNumberNode != null ? phoneNumberNode.asText() : null;
+        StringNode subNode = (StringNode) node.get("sub");
+        StringNode typeNode = (StringNode) node.get("type");
+        String usagerNom = nameNode.asString();
+        String usagerPrenom = givenNameNode.asString();
+        String usagerSecondPrenom = secondNameNode != null ? secondNameNode.asString() : null;
+        String usagerTroisiemePrenom = thirdNameNode != null ? thirdNameNode.asString() : null;
+        String usagerNationalite = nationalityNode != null ? nationalityNode.asString() : null;
+        String usagerNomNaissance = birthNameNode != null ? birthNameNode.asString() : null;
+        String usagerVilleNaissance = birthCityNode != null ? birthCityNode.asString() : null;
+        String usagerTelephonePortable = phoneNumberNode != null ? phoneNumberNode.asString() : null;
         boolean usagerTelephonePortableVerifie = phoneNumberVerifiedNode != null && phoneNumberVerifiedNode.asBoolean();
         boolean emailVerifie = emailVerifiedNode != null && emailVerifiedNode.asBoolean();
-        String usagerTelephoneFixe = landlineNumberNode != null ? landlineNumberNode.asText() : null;
-        String usagerDateNaissance = birthDateNode != null ? birthDateNode.asText() : null;
+        String usagerTelephoneFixe = landlineNumberNode != null ? landlineNumberNode.asString() : null;
+        String usagerDateNaissance = birthDateNode != null ? birthDateNode.asString() : null;
         String usagerStatutFonctionPublique =
-                publicFunctionStatusNode != null ? publicFunctionStatusNode.asText() : null;
-        String usagerEmail = emailNode.asText();
+                publicFunctionStatusNode != null ? publicFunctionStatusNode.asString() : null;
+        String usagerEmail = emailNode.asString();
         Integer usagerId = usagerIdNode.asInt();
-        String usagerSub = subNode.asText();
+        String usagerSub = subNode.asString();
         String type = null;
         if (typeNode != null) {
-            type = typeNode.asText();
+            type = typeNode.asString();
         }
 
         LOGGER.debug("Usager : {} {} ({})", usagerPrenom, usagerNom, usagerEmail);
@@ -251,29 +246,29 @@ public class GichkeyService {
         if (mconnect != null && !(mconnect instanceof NullNode)) {
             try {
 
-                TextNode givenNameNode0 = (TextNode) mconnect.get("given_name");
-                TextNode familyNameNode = (TextNode) mconnect.get("family_name");
-                TextNode mconnectBirthNameNode = (TextNode) mconnect.get("birth_name");
-                TextNode genderNode = (TextNode) mconnect.get("gender");
-                TextNode birthPlaceNode = (TextNode) mconnect.get("birth_place");
-                TextNode birthDatetimeNode = (TextNode) mconnect.get("birth_datetime");
-                TextNode authorityNode = (TextNode) mconnect.get("authority");
-                TextNode birthPlaceCountryNode = (TextNode) mconnect.get("birth_place_country");
-                TextNode birthPlaceCityNode = (TextNode) mconnect.get("birth_place_city");
+                StringNode givenNameNode0 = (StringNode) mconnect.get("given_name");
+                StringNode familyNameNode = (StringNode) mconnect.get("family_name");
+                StringNode mconnectBirthNameNode = (StringNode) mconnect.get("birth_name");
+                StringNode genderNode = (StringNode) mconnect.get("gender");
+                StringNode birthPlaceNode = (StringNode) mconnect.get("birth_place");
+                StringNode birthDatetimeNode = (StringNode) mconnect.get("birth_datetime");
+                StringNode authorityNode = (StringNode) mconnect.get("authority");
+                StringNode birthPlaceCountryNode = (StringNode) mconnect.get("birth_place_country");
+                StringNode birthPlaceCityNode = (StringNode) mconnect.get("birth_place_city");
                 DonneesMConnectDTO mConnectUInfos = new DonneesMConnectDTO();
-                mConnectUInfos.setGivenName(givenNameNode0.asText());
-                mConnectUInfos.setFamilyName(familyNameNode.asText());
-                mConnectUInfos.setBirthName(mconnectBirthNameNode.asText());
-                mConnectUInfos.setGender(genderNode.asText());
-                mConnectUInfos.setBirthPlace(birthPlaceNode.asText());
+                mConnectUInfos.setGivenName(givenNameNode0.asString());
+                mConnectUInfos.setFamilyName(familyNameNode.asString());
+                mConnectUInfos.setBirthName(mconnectBirthNameNode.asString());
+                mConnectUInfos.setGender(genderNode.asString());
+                mConnectUInfos.setBirthPlace(birthPlaceNode.asString());
                 mConnectUInfos.setBirthDatetime(
-                        new SimpleDateFormat("yyyyMMddHHmmss").parse(birthDatetimeNode.asText()));
-                mConnectUInfos.setAuthority(authorityNode.asText());
-                mConnectUInfos.setBirthPlaceCountry(birthPlaceCountryNode.asText());
-                mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asText());
+                        new SimpleDateFormat("yyyyMMddHHmmss").parse(birthDatetimeNode.asString()));
+                mConnectUInfos.setAuthority(authorityNode.asString());
+                mConnectUInfos.setBirthPlaceCountry(birthPlaceCountryNode.asString());
+                mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asString());
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode donneesExternes = mapper.createObjectNode();
-                donneesExternes.put("mconnect", mapper.valueToTree(mConnectUInfos));
+                donneesExternes.set("mconnect", mapper.valueToTree(mConnectUInfos));
                 uinfos.setDonneesExternes(donneesExternes);
                 LOGGER.debug("Informations MConnect disponibles : {}", mConnectUInfos);
                 uinfos.setMConnect(true);
@@ -290,15 +285,17 @@ public class GichkeyService {
         JsonNode invoiceAddressNode = node.get("invoice_address");
         if (invoiceAddressNode != null && !invoiceAddressNode.isEmpty()) {
             AdresseFacturationDTO invoiceAddress = new AdresseFacturationDTO();
-            String streetAddress = invoiceAddressNode.get("street_address") != null ? invoiceAddressNode.get("street_address").asText() : "";
+            String streetAddress =
+                    invoiceAddressNode.get("street_address") != null ? invoiceAddressNode.get("street_address")
+                                                                       .asString() : "";
             // On supprime les compléments d'adresse de l'adresse de facturation
             String[] split = streetAddress.split("\\n");
             invoiceAddress.setAdresse(split[0]);
             invoiceAddress.setComplAdresse1(split.length > 1 ? split[1] : "");
             invoiceAddress.setComplAdresse2(split.length == 3 ? split[2] : "");
-            invoiceAddress.setCodePostal(invoiceAddressNode.path("postal_code").asText(""));
-            invoiceAddress.setPaysCode(invoiceAddressNode.path("country").asText(""));
-            invoiceAddress.setVille(invoiceAddressNode.path("locality").asText(""));
+            invoiceAddress.setCodePostal(invoiceAddressNode.path("postal_code").asString(""));
+            invoiceAddress.setPaysCode(invoiceAddressNode.path("country").asString(""));
+            invoiceAddress.setVille(invoiceAddressNode.path("locality").asString(""));
             uinfos.setAdresseFacturation(invoiceAddress);
         }
     }

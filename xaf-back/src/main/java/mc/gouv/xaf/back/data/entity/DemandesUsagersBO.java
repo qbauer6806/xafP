@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.data.entity;
 
-import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -8,7 +7,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 /**
  * Classe BO de la table DEM.DEM_DEMANDES_USAGERS
@@ -77,7 +75,6 @@ public class DemandesUsagersBO {
     @Size(max = 128)
     private String login;
 
-    @Type(PostgreSQLTSVectorType.class)
     @Column(name = "search_vector", columnDefinition = "tsvector", insertable = false, updatable = false)
     private String searchVector;
 

@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
@@ -45,19 +45,19 @@ class ResidInitialDemandeServiceImplTest {
 
     @Test
     void testGetInitialDemandeWhenParamIsEmptyThenReturnNOK()
-            throws ParseException, JsonProcessingException, ResidHttpResponseException {
+            throws ParseException, JacksonException, ResidHttpResponseException {
 
         // Call the method to test
         JsonNode result = residInitialDemandeService.getInitialDemande(1, new HashMap<>());
 
         // Assert the result or perform other necessary validations
         assertEquals(1, result.size());
-        assertEquals("NOK", result.get("statut").asText());
+        assertEquals("NOK", result.get("statut").asString());
         verify(residApiService, Mockito.never()).getUsagerDln1f(any(), any(), any(), any());
     }
 
     @Test
-    void testGetInitialDemandeWhenTokenIsEmptyThenThrowException() throws ParseException, JsonProcessingException {
+    void testGetInitialDemandeWhenTokenIsEmptyThenThrowException() throws ParseException, JacksonException {
 
         when(residPropertiesResolver.getResidApiJwt()).thenReturn(null);
 
@@ -72,7 +72,7 @@ class ResidInitialDemandeServiceImplTest {
     }
 
     @Test
-    void testGetInitialDemandeWhenUrlResidIsEmptyThenThrowException() throws ParseException, JsonProcessingException {
+    void testGetInitialDemandeWhenUrlResidIsEmptyThenThrowException() throws ParseException, JacksonException {
 
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
         when(residPropertiesResolver.getResidApiUrl()).thenReturn(null);
@@ -88,7 +88,7 @@ class ResidInitialDemandeServiceImplTest {
 
     @Test
     void testGetInitialDemandeWhenResidReturnNullThenReturnNOK()
-            throws ParseException, JsonProcessingException, ResidHttpResponseException {
+            throws ParseException, JacksonException, ResidHttpResponseException {
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
         when(residPropertiesResolver.getResidApiUrl()).thenReturn("mocked_url");
         // Mocking ResidApiService response
@@ -102,13 +102,13 @@ class ResidInitialDemandeServiceImplTest {
 
         // Assert the result or perform other necessary validations
         assertEquals(1, result.size());
-        assertEquals("NOK", result.get("statut").asText());
+        assertEquals("NOK", result.get("statut").asString());
         verify(residInitialDemandeMapper, Mockito.never()).mapperDonneesResid(any(), any(), any());
     }
 
     @Test
     void testGetInitialDemandeWhenResidIsOKThenReturnStatusOK()
-            throws ParseException, JsonProcessingException, ResidHttpResponseException {
+            throws ParseException, JacksonException, ResidHttpResponseException {
         // Mocking external services
         when(residPropertiesResolver.getResidApiJwt()).thenReturn("mocked_jwt");
         when(residPropertiesResolver.getResidApiUrl()).thenReturn("mocked_url");
@@ -122,8 +122,8 @@ class ResidInitialDemandeServiceImplTest {
         JsonNode result = residInitialDemandeService.getInitialDemande(1, params);
 
         // Assert the result or perform other necessary validations
-        assertEquals(SourceDonneesEnum.RESID.name(), result.get("source").asText());
-        assertEquals("OK", result.get("statut").asText());
+        assertEquals(SourceDonneesEnum.RESID.name(), result.get("source").asString());
+        assertEquals("OK", result.get("statut").asString());
     }
 
     private Map<String, String[]> getParams() {

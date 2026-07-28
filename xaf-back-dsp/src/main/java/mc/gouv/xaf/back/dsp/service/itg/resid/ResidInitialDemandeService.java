@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 
 import java.text.ParseException;
@@ -17,8 +17,8 @@ public interface ResidInitialDemandeService {
      * @return
      * @throws ResidHttpResponseException
      * @throws ParseException
-     * @throws JsonProcessingException
+     * @throws JacksonException
      */
     JsonNode getInitialDemande(Integer usagerId, Map<String, String[]> params)
-            throws ResidHttpResponseException, ParseException, JsonProcessingException;
+            throws ResidHttpResponseException, ParseException, JacksonException;
 }

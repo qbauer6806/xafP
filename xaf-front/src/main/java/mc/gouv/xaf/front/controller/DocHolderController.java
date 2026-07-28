@@ -2,8 +2,8 @@ package mc.gouv.xaf.front.controller;
 
 import static mc.gouv.xaf.front.util.DocHolderUtils.DOCHOLDER_CONSENT_NODE;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

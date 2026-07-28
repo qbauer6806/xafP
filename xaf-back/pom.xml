@@ -21,8 +21,8 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.springframework.kafka</groupId>
-      <artifactId>spring-kafka</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-kafka</artifactId>
     </dependency>
 
     <dependency>
@@ -32,8 +32,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-flyway</artifactId>
     </dependency>
 
     <dependency>
@@ -54,11 +54,6 @@
   </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
@@ -69,7 +64,7 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+        <artifactId>spring-boot-starter-webmvc</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.springframework.boot</groupId>
@@ -101,20 +96,10 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jersey</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-tomcat</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
     <!-- Permet le décodage automatique des objets JSON reçus en POST -->
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+        <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
@@ -176,7 +161,7 @@
 
     <dependency>
       <groupId>fr.opensagres.xdocreport</groupId>
-      <artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
+      <artifactId>fr.opensagres.poi.xwpf.converter.core</artifactId>
       <version>${xdocreport.version}</version>
     </dependency>
 
@@ -188,27 +173,39 @@
 
     <dependency>
       <groupId>fr.opensagres.xdocreport</groupId>
+      <artifactId>fr.opensagres.poi.xwpf.converter.pdf.openpdf</artifactId>
+      <version>${xdocreport.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>fr.opensagres.xdocreport</groupId>
       <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
       <version>${xdocreport.version}</version>
+      <!-- On exclut itext car CVE / non maintenu / changement de license, donc on utilise le converter openpdf à la place -->
+      <exclusions>
+        <exclusion>
+          <groupId>com.lowagie</groupId>
+          <artifactId>itext</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.itextpdf</groupId>
+          <artifactId>itextpdf</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>fr.opensagres.xdocreport</groupId>
-      <artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
-      <version>${xdocreport.version}</version>
-
-    </dependency>
-    <dependency>
-      <groupId>fr.opensagres.xdocreport</groupId>
-      <artifactId>fr.opensagres.xdocreport.document.ods</artifactId>
+      <artifactId>fr.opensagres.xdocreport.openpdf.extension</artifactId>
       <version>${xdocreport.version}</version>
     </dependency>
 
     <dependency>
       <groupId>fr.opensagres.xdocreport</groupId>
-      <artifactId>fr.opensagres.poi.xwpf.converter.core</artifactId>
+      <artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
       <version>${xdocreport.version}</version>
     </dependency>
+
 
     <!-- Fin génération de PDF -->
 
@@ -301,7 +298,7 @@
     <!-- Pour appeler l'API GICHUNI en OIDC -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        <artifactId>spring-boot-starter-security-oauth2-client</artifactId>
     </dependency>
 
     <dependency>
@@ -311,25 +308,10 @@
     </dependency>
 
     <dependency>
-      <groupId>io.hypersistence</groupId>
-      <artifactId>hypersistence-utils-hibernate-63</artifactId>
-      <version>3.10.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.velocity.tools</groupId>
-      <artifactId>velocity-tools-generic</artifactId>
-      <version>3.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.glassfish.jersey.connectors</groupId>
-      <artifactId>jersey-apache5-connector</artifactId>
-    </dependency>
+
   </dependencies>
 
 </project>

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 @EqualsAndHashCode(callSuper = false)
 public class JwtAuthToken extends AbstractAuthenticationToken {
@@ -31,7 +32,7 @@ public class JwtAuthToken extends AbstractAuthenticationToken {
     private String applicationName;
 
     public JwtAuthToken(String token) {
-        super(null);
+        super(AuthorityUtils.NO_AUTHORITIES);
         this.token = token;
     }
 

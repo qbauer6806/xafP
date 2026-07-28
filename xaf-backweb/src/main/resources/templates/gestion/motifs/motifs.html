@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta name="description" content=""/>
+  <meta name="author" content=""/>
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+  <title th:text="${nomDemarche}"></title>
+
+  <!-- Import FONTS -->
+  <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+
+  <!-- Import CSS -->
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
+        rel="stylesheet"/>
+  <link rel="shortcut icon" type="image/x-icon"
+        th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+        rel="stylesheet"/>
+  <style>
+
+    /* Hack charte graphique pour une datable avec une barre de recherche et la pagination qui s'affiche correctement*/
+    .dataTables_wrapper .dataTables_length {
+      display: inline-block;
+      padding: 12px;
+      width: 50%;
+      text-align: left;
+      border-right: none;
+      border-left: 2px solid #068BAD;
+      background: #E7F4F8;
+      color: #068BAD;
+      filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+      display: inline-block;
+      padding: 10px;
+      width: 50%;
+      text-align: right;
+      border-right: 2px solid #068BAD;
+      background: #E7F4F8;
+      color: #068BAD;
+      filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+    }
+
+    .tableContent .table {
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+
+    /* Hack charte graphique pour avoir un toggle toujours bleu */
+    input:checked + .slider, input + input[type="hidden"] + .slider {
+      outline: 3px solid #0F607C;
+    }
+
+    input:checked + .slider:before, input + input[type="hidden"] + .slider:before {
+      background-color: #0F607C;
+    }
+
+  </style>
+
+</head>
+<body th:with="pageConfigurationActive='active'">
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div id="wrapper">
+
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+        <a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt; <span>MOTIFS</span>
+      </div>
+      <div class="triangleTopright"></div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-6">
+          <h1>Administration des motifs</h1>
+        </div>
+        <div class="col-xs-6 text-right">
+
+          <a th:href="@{/gestion/motifs/create}" id="createmotif"
+             style="float: right; margin-left: 10px"
+             class="btn btn-action ripple-effect pull-right"><span>Créer un motif</span></a>
+
+          <form th:action="@{/gestion/motifs/import-motifs}" method="post"
+                enctype="multipart/form-data">
+            <input type="submit" value="Valider l'import"
+                   style="float: right; margin-left: 10px"
+                   id="submitImportConfigButtonButton"
+                   class="btn btn-action ripple-effect pull-right" disabled/>
+
+            <input type="file" name="file" value="Importer" style="margin-left: 10px"
+                   id="importConfigButtonButton" accept=".json"
+                   class="btn btn-action ripple-effect pull-right"/>
+          </form>
+
+          <a th:href="@{/gestion/motifs/export-motifs}" id="exportCourrielsButton"
+             style="float: right; margin-left: 10px" class="btn btn-action ripple-effect pull-right">
+            <i class="icon-action_telecharger"></i> <span>Export JSON</span>
+          </a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 text-right">
+
+					<span th:if="${!frOnly}">
+						<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
+						<div class="toggle" style="display:inline-block; transform: translateY(35%);">
+							<label class="switch">
+								<input class="switch-input" id="switchLangue" type="checkbox" checked="" name="langue" value="LANGUE" />
+								<input type="hidden" checked="" />
+								<span class="slider"></span>
+							</label>
+
+						</div>
+						<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
+					</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12 tableContent">
+          <div class="tableTitle">motifs<span
+              class="badge badgeState" id="motifsCounter">0</span></div>
+          <table id="datatable-motifs" class="table table-striped" style="width: 100%">
+            <thead>
+            <tr>
+              <th>Code</th>
+              <th>Libellé</th>
+              <th>Statut cible</th>
+              <th>Commentaire prérempli</th>
+              <th>Texte à envoyer</th>
+              <th>Date archive</th>
+              <th>Langue</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- FIN CONTENU -->
+
+  <!-- EDITION MODAL -->
+  <div id="visualisationModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width: 70%">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Prévisualisation du motif<span id="codeMailModal"></span></h4>
+        </div>
+        <div class="modal-body">
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row">
+                <div class="col-xs-4">
+                  <label for="pkDemandeTest">Tester ce motif avec la demande (identifiant technique)<span class="required"></span>: </label>
+                </div>
+                <div class="col-xs-6">
+                  <input type="text" id="pkDemandeTest" th:object="${motifFormBean}" th:value="${pkDemandeTest}" class="form-control"/>
+                </div>
+                <div class="col-xs-2">
+                  <button class="btn btn-action ripple-effect" id="validerPkDemandePreview"
+                          name="validerPkDemandePreview" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p><span id="corpsMailModal"></span></p>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN EDITION MODAL -->
+
+  <!-- SUPPRESSION MODAL -->
+  <div id="suppressionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Voulez-vous réellement désactiver le motif ?</h4>
+        </div>
+        <div class="modal-body">
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row" style="text-align: center">
+                <div class="col-md-12">
+                  <button class="btn btn-action-second ripple-effect"
+                          id="annulerSuppression"
+                          name="annulerSuppression" type="button"
+                          value="Annuler" style="margin-right: 20px"
+                          data-dismiss="modal" aria-label="Annuler">
+                    Annuler
+                  </button>
+                  <button class="btn btn-action ripple-effect" id="validerSuppression"
+                          name="validerSuppression" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN SUPPRESSION MODAL -->
+
+  <!-- ACTIVATION MODAL -->
+  <div id="activationModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Voulez-vous réellement activer le motif ?</h4>
+        </div>
+        <div class="modal-body">
+          <div style="margin-top: 20px">
+            <div th:class="form-group">
+              <div class="row" style="text-align: center">
+                <div class="col-md-12">
+                  <button class="btn btn-action-second ripple-effect"
+                          id="annulerActivation"
+                          name="annulerActivation" type="button"
+                          value="Annuler" style="margin-right: 20px"
+                          data-dismiss="modal" aria-label="Annuler">
+                    Annuler
+                  </button>
+                  <button class="btn btn-action ripple-effect" id="validerActivation"
+                          name="validerActivation" type="button"
+                          value="Valider">
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN ACTIVATION MODAL -->
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/datetime-moment.js(${applicationBuildTimestamp})}"></script>
+
+<script th:inline="javascript">
+
+  var currentCodeMotif = '';
+  var currentCommentairePrerempli = '';
+  var currentTexteAEnvoyer = '';
+
+  var currentDeletionCode = '';
+  var currentDeletionLang = '';
+  var currentActivationCode = '';
+  var currentActivationLang = '';
+
+  var messagesSuccessList = /*[[${successMessages}]]*/'default';
+  var pkDemandeTest = /*[[${pkDemandeTest}]]*/;
+
+  if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+    $.each(messagesSuccessList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'success'
+      });
+    });
+  }
+
+  var messagesErrorList = /*[[${errorMessages}]]*/'default';
+
+  if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+    $.each(messagesErrorList, function (key, msg) {
+      $.notify({
+        message: msg
+      }, {
+        type: 'danger'
+      });
+    });
+  }
+
+
+  $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+  var columnsProperties = [
+    {
+      data: "code",
+      render: function (data, type, motif) {
+        return textRenderer(motif.code);
+      }
+    },
+    {
+      data: "libelle",
+      render: function (data, type, motif) {
+        return textRenderer(motif.libelle);
+      },
+    },
+    {
+      data: "statut",
+      render: function (data, type, motif) {
+        return textRenderer(motif.statut);
+      }
+    },
+    {
+      data: "commentairePrerempli",
+      render: function (data, type, motif) {
+        return textRenderer(motif.commentairePrerempli);
+      }
+    },
+    {
+      data: "texteAEnvoyer",
+      render: function (data, type, motif) {
+        return textRenderer(motif.texteAEnvoyer);
+      }
+    },
+    {
+      data: "dateArchive",
+      render: function (data, type, motif) {
+        if(motif.dateArchive) {
+          return moment(motif.dateArchive).format("DD/MM/YYYY");
+        }
+        return "";
+      }
+    },
+    {
+      data: "langue",
+      visible: false,
+      searchable: true,
+      render: function (data, type, motif) {
+        return textRenderer(motif.langue);
+      }
+    },
+    {
+      "orderable": false,
+      "keyword": false,
+      render: function (data, type, motif, meta) {
+        var visualiserButton = '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Visualiser" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
+            '<i class="icon-action_editer"></i></button>';
+
+        if (motif.dateArchive) {
+          return visualiserButton +
+              '<button class="boutonActiver btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Activer" data-ligne="' + meta.row + '" onclick="openActivationModal(\'' + motif.code + '\', \'' + motif.langue + '\')">' +
+              '<i class="icon-traitement_valider"></i></button>';
+        }
+
+        return visualiserButton +
+            '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Modifier" style="margin-right: 8px" data-ligne="' + meta.row + '" ' +
+            'onclick="window.location.href=\''+ APP.getContextPath() + '/gestion/motifs/update?code=' + motif.code + '&langue=' + motif.langue +'\'">' +
+            '<i class="icon-action_modifier"></i></button>' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Désactiver" data-ligne="' + meta.row + '" onclick="openSuppressionModal(\'' + motif.code + '\', \'' + motif.langue + '\')">' +
+            '<i class="icon-action_case_fermeture"></i></button>';
+      }
+    }];
+
+
+  function openSuppressionModal(motifCode, motifLangue) {
+    currentDeletionCode = motifCode;
+    currentDeletionLang = motifLangue;
+    $('#suppressionModal').modal();
+  }
+
+  $('#validerSuppression').click(function () {
+    deletemotif();
+    return true;
+  })
+
+  function openActivationModal(motifCode, motifLangue) {
+    currentActivationCode = motifCode;
+    currentActivationLang = motifLangue;
+    $('#activationModal').modal();
+  }
+
+  $('#validerActivation').click(function () {
+    activermotif();
+    return true;
+  })
+
+  function deletemotif() {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    $.ajax({
+      url: APP.getContextPath() + '/gestion/motifs/desactiver/' + currentDeletionLang + '/' + currentDeletionCode,
+      type: 'DELETE',
+      beforeSend: function (xhr) { xhr.setRequestHeader(header, token); },
+      success: function (data) {
+        $('#suppressionModal').modal('hide');
+
+        $.notify({ message: 'Motif désactivé avec succès' }, { type: 'success' });
+
+        var table = $('#datatable-motifs').DataTable();
+
+        table.rows().every(function () {
+          var rowData = this.data();
+
+          if (rowData.code === data.code && rowData.langue === data.langue) {
+            rowData.dateArchive = data.dateArchive;
+            this.data(rowData);
+            return false;
+          }
+        });
+
+        table.draw(false);
+      },
+      error: function (xhr) {
+        let msg = "Une erreur est survenue.";
+        try { msg = JSON.parse(xhr.responseText)?.message || msg; } catch(e){}
+        $.notify({ message: msg }, { type: 'danger' });
+      }
+    });
+  }
+
+  function activermotif() {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    $.ajax({
+      url: APP.getContextPath() + '/gestion/motifs/activer/' + currentActivationLang + '/' + currentActivationCode,
+      type: 'PUT',
+      beforeSend: function (xhr) { xhr.setRequestHeader(header, token); },
+      success: function (data) {
+        $('#activationModal').modal('hide');
+
+        $.notify({ message: 'Motif activé avec succès' }, { type: 'success' });
+
+        var table = $('#datatable-motifs').DataTable();
+
+        table.rows().every(function () {
+          var rowData = this.data();
+
+          if (rowData.code === data.code && rowData.langue === data.langue) {
+            rowData.dateArchive = data.dateArchive;
+            this.data(rowData);
+            return false;
+          }
+        });
+
+        table.draw(false);
+      },
+      error: function (xhr) {
+        let msg = "Une erreur est survenue.";
+        try { msg = JSON.parse(xhr.responseText)?.message || msg; } catch(e){}
+        $.notify({ message: msg }, { type: 'danger' });
+      }
+    });
+  }
+
+  var makePreviewCall = function (pkDemande) {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    var body = {
+      codeMotifChoisi: currentCodeMotif,
+      pkDemande: pkDemande,
+      commentairePrerempli: currentCommentairePrerempli,
+      texteAEnvoyer: currentTexteAEnvoyer
+    };
+
+    $.ajax({
+      url: APP.getContextPath() + '/ws/motifpreview-by-text',
+      type: 'post',
+      contentType: 'application/json',
+      data: JSON.stringify(body),
+      dataType: "html",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader(header, token);
+        $('#visualisationModal').modal();
+        $('#corpsMailModal').html("Chargement en cours...");
+      },
+      success: function (data) {
+        $('#corpsMailModal').html(data);
+      },
+      error: function (xhr, status, error) {
+        const msg =JSON.parse(xhr.responseText)?.message || "Une erreur est survenue.";
+        $.notify({message: msg}, {type: 'danger'});
+      }
+    });
+  };
+
+  $("#validerPkDemandePreview").click(function () {
+    makePreviewCall($('#pkDemandeTest').val());
+    return true;
+  });
+
+  /*<![CDATA[*/
+  $(document).ready(function () {
+    var motifList = /*[[${motifList}]]*/[];
+
+    // Ici nous transformons la liste des DTO des motifs en une liste compréhensible par les gestionnaires
+    // On regroupera donc les motifs objet + corps
+
+
+    $("#motifsCounter").text(motifList.length);
+    var table = $('#datatable-motifs').DataTable({
+      paging: true,
+      pageLength: 10,
+      searching: true,
+      select: false,
+      bInfo: false,
+      order: [ [0, "asc"]], // NE PAS supprimer l'espace entre les deux accolades de debut
+      columns: columnsProperties,
+      data: motifList,
+      language: frenchTranslation,
+      // bugfix #29868 - afficher les tooltips dans les datatable
+      drawCallback: function (settings) {
+        $('[data-toggle="tooltip"]').tooltip();
+      }
+    });
+
+    table.on('draw', function () {
+      $("#motifsCounter").text(
+          table.rows({ search: 'applied' }).count()
+      );
+    });
+
+    // Filtrer par FR au départ
+    table.columns(6).search('fr').draw();
+
+    table.on('click', 'button.boutonVisualiser', function (e) {
+      e.preventDefault();
+      isCreate = false;
+
+      var ligne = $(this).data("ligne");
+      var contenuMail = table.row(ligne).data();
+
+      currentCodeMotif = contenuMail.code;
+      currentCommentairePrerempli = contenuMail.commentairePrerempli;
+      currentTexteAEnvoyer = contenuMail.texteAEnvoyer;
+
+      makePreviewCall(pkDemandeTest);
+
+      $('#visualisationModal').modal();
+
+      return true;
+    });
+
+    $('#importConfigButtonButton').change(function () {
+      const fileInput = document.getElementById('importConfigButtonButton');
+
+      if (fileInput.files.length > 0) {
+        $('#submitImportConfigButtonButton').prop('disabled', false);// Active le bouton si un fichier est sélectionné
+      } else {
+        $('#submitImportConfigButtonButton').prop('disabled', true); // Désactive le bouton si aucun fichier n'est sélectionné
+      }
+    });
+
+    $("#switchLangue").click(function() {
+      // false == anglais --- true == francais
+      if(this.checked) {
+        table.columns(6).search('fr', true, false).draw();
+      } else {
+        table.columns(6).search('en', true, false).draw();
+      }
+    });
+
+  });
+  /*]]>*/
+</script>
+
+</body>
+</html>

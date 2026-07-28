@@ -3,9 +3,10 @@ package mc.gouv.xaf.back.service.data.impl;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static mc.gouv.xaf.back.service.utils.AfBackUtils.hasRole;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.Strings;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.el.PropertyNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.demande.AnnulerDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
@@ -49,7 +51,6 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemandesComplementsComparator;
@@ -133,7 +134,7 @@ public class TraitementService {
     private final DemandesStatutsService demandesStatutsService;
     private final GUKafkaUtils guKafkaUtils;
     private final GUKafkaProducer guKafkaProducer;
-    private final MotifsCache motifsCache;
+    private final MotifsService motifsService;
     private final AfBackUtils afBackUtils;
     private final UtilisateursUtils utilisateursUtils;
     private final DemandeRecapHTMLService demandeRecapHTMLService;
@@ -335,7 +336,7 @@ public class TraitementService {
         String safeActiveTask = AfBackUtils.logSafe(activeTaskDefinitionKey);
         LOGGER.info("Vérification {} = {}", safeActiveTask, activeTask.getTaskDefinitionKey());
         // Si l'active n'est plus la bonne souhaitée
-        if (!StringUtils.equals(activeTaskDefinitionKey, activeTask.getTaskDefinitionKey())) {
+        if (!Strings.CS.equals(activeTaskDefinitionKey, activeTask.getTaskDefinitionKey())) {
             return returnErrorMessage(pkDemande, messageCode, redirectAttributes);
 
         }
@@ -354,7 +355,7 @@ public class TraitementService {
         mav.addObject("extensionsWhitelist", this.getExtensionsWhitelist());
         mav.addObject("maxFileSize", this.getMaxTailleFichier());
 
-        mav.addObject("MotifsCache", motifsCache);
+        mav.addObject("MotifsService", motifsService);
         mav.addObject("demandeur", demarchesDataProvider.getDemandeur(demande));
         mav.addObject("utilisateurAffecte", afBackUtils.getUtilisateurAffecte(demande));
         List<DemandeCommentaireDTO> commInternes = demandesCommentaireService.getCommentairesInternes(
@@ -436,15 +437,14 @@ public class TraitementService {
      *         {@code LECTURE_ROLE} ou {@code SAISIE_ROLE} ; {@code false} sinon.
      */
     private boolean hasOtherRoleLectureAndSaisie() {
-        var context = SecurityContextHolder.getContext();
-        if (context == null || context.getAuthentication() == null || CollectionUtils.isEmpty(
-                context.getAuthentication().getAuthorities())) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || CollectionUtils.isEmpty(authentication.getAuthorities())) {
             return false;
         }
-        var authorities = context.getAuthentication().getAuthorities();
         // Retourne true si au moins un rôle de l'utilisateur n'est PAS LECTURE_ROLE ou SAISIE_ROLE
-        return authorities.stream().map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> !StringUtils.equalsAny(role, LECTURE_ROLE, SAISIE_ROLE));
+        return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> !Strings.CS.equalsAny(role, LECTURE_ROLE, SAISIE_ROLE));
     }
 
     private boolean uploadPieceJustificativeActive(boolean isAgentAssigned) {
@@ -553,7 +553,7 @@ public class TraitementService {
         }
     }
 
-    public ModelAndView dupliquer(@RequestParam() Integer pkDemande) throws JsonProcessingException {
+    public ModelAndView dupliquer(@RequestParam() Integer pkDemande) throws JacksonException {
 
         DemandeDTO demandeDupliquee = this.dupliquerDemande(pkDemande);
         ModelAndView mav = new ModelAndView(REDIRECT + demandeDupliquee.getPkDemandes());

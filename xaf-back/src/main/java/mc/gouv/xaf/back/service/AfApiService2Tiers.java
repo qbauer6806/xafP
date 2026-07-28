@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -322,12 +322,12 @@ public class AfApiService2Tiers implements AfApi, AfApi2Tiers {
     }
 
     @Override
-    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
+    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JacksonException {
         return afBackUtils.getAfApiClient2Tiers().lockDemande(demandeId, usagerId, timestamp);
     }
 
     @Override
-    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException {
+    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JacksonException {
         return afBackUtils.getAfApiClient2Tiers().unlockDemande(demandeId, usagerId);
     }
 

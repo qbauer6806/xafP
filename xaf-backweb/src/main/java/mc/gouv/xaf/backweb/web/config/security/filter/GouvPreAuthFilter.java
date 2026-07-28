@@ -45,11 +45,11 @@ public class GouvPreAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         var context = SecurityContextHolder.getContext();
+        var authentication = context.getAuthentication();
         var gouvSession = request.getParameter(LogonBean.GOUV_SESSION_REQUEST_PARAM);
 
         // Déjà authentifié et pas de nouvelle session => on continue
-        if (context.getAuthentication() != null && context.getAuthentication().isAuthenticated() && StringUtils.isBlank(
-                gouvSession)) {
+        if (authentication != null && authentication.isAuthenticated() && StringUtils.isBlank(gouvSession)) {
             chain.doFilter(request, response);
             return;
         }

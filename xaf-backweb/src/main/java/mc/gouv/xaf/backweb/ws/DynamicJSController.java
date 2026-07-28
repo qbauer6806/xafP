@@ -3,7 +3,6 @@ package mc.gouv.xaf.backweb.ws;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.service.DynamicJSService;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +22,7 @@ public class DynamicJSController {
     @GetMapping(value = "/dynamicjs.js", produces = "application/javascript")
     public ResponseEntity<String> getResponse() {
         String js = dynamicJSService.getResponse();
-        return new ResponseEntity<>(js, null, HttpStatus.OK);
+        return ResponseEntity.ok(js);
     }
 
 }

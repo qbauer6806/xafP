@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,7 +62,7 @@ public class DocHolderToFileController {
         }
 
         JsonNode urlNode = jsonNode.get("url");
-        String fileUrl = (urlNode != null && !urlNode.isNull()) ? urlNode.asText() : null;
+        String fileUrl = (urlNode != null && !urlNode.isNull()) ? urlNode.asString() : null;
 
         if (StringUtils.isEmpty(fileUrl)) {
             LOGGER.error("Erreur lors de la récupération du paramètre 'url' => paramètre vide ou inconnu.");

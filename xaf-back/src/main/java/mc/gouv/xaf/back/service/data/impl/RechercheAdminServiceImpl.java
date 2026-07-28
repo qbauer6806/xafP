@@ -1,10 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,11 +23,16 @@ import mc.gouv.xaf.back.exception.UsedCategoryException;
 import mc.gouv.xaf.back.service.data.RechercheAdminService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -234,8 +234,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         ExportImportConfigDTO config;
         try {
             config = mapper.readValue(file, ExportImportConfigDTO.class);
-        } catch (JsonParseException | JsonMappingException e) {
-            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        } catch (StreamReadException | DatabindException e) {
+            throw new DemarcheException("Le fichier ne respecte pas la structure des fichiers à importer");
         }
 
         if (config != null) {
@@ -297,7 +297,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         if (sections.isArray()) {
             for (JsonNode section : sections) {
-                String titre = section.path("titre").asText(null);
+                String titre = section.path("titre").asString(null);
                 if (titre != null) {
                     String titreEscape = HTMLEscapeUtils.escape(titre);
                     if (existingLabels.add(titreEscape)) { // add() retourne false si déjà présent
@@ -365,12 +365,12 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             }
         }
         for (JsonNode section : sections) {
-            String titre = section.path("titre").asText(null);
+            String titre = section.path("titre").asString(null);
 
             // Vérifie si un champ contient le path
             boolean match =
-                    section.path("champs").findValuesAsText("path").contains(targetPath) || section.path("columns")
-                            .findValuesAsText("path").contains(targetPath);
+                    section.path("champs").findValuesAsString("path").contains(targetPath) || section.path("columns")
+                            .findValuesAsString("path").contains(targetPath);
 
             if (match) {
                 return titre;

@@ -4,7 +4,7 @@ import static mc.gouv.xaf.rio.utils.ArchivageUtils.filtrerTache;
 import static mc.gouv.xaf.rio.utils.ArchivageUtils.getAllFichiers;
 import static mc.gouv.xaf.rio.utils.ArchivageUtils.getReferencesTaches;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

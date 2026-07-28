@@ -1,11 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +19,7 @@ import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
+import mc.gouv.xaf.shared.exception.DemarcheException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +36,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
 
 @GouvRestController
 @Controller
@@ -68,7 +68,7 @@ public class GestionConfigJsonController {
 
     @GetMapping(path = "/properties")
     public List<PropertiesListEntityDTO> getJsonProperties(@RequestParam(name = "key") String key)
-            throws BadRequestException, JsonProcessingException {
+            throws JacksonException {
 
         List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<>();
         PropertiesDTO property = propertiesService.getProperty(key);
@@ -80,8 +80,8 @@ public class GestionConfigJsonController {
                 jsonObjectsToDisplay = Arrays.asList(
                         mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
             }
-        } catch (JsonParseException | JsonMappingException e) {
-            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        } catch (StreamReadException | DatabindException e) {
+            throw new DemarcheException("Le fichier ne respecte pas la structure des fichiers à importer");
         }
 
         // Set de la liste utile dans le model and view
@@ -172,8 +172,8 @@ public class GestionConfigJsonController {
                 newValues = mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class);
             }
             oldValues = mapper.readValue(oldValue, PropertiesListEntityDTO[].class);
-        } catch (JsonParseException | JsonMappingException e) {
-            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        } catch (StreamReadException | DatabindException e) {
+            throw new DemarcheException("Le fichier ne respecte pas la structure des fichiers à importer");
         }
         // vérifier s'l n'y a pas de suppression de propriété
         if (containsAllLabels(oldValues, newValues)) {
@@ -186,7 +186,7 @@ public class GestionConfigJsonController {
             LOGGER.info("======================= Fin /gestion/configjson/import");
             return mav;
         }
-        throw new BadRequestException("Il n'est pas possible de supprimer des données");
+        throw new DemarcheException("Il n'est pas possible de supprimer des données");
     }
 
     private boolean containsAllLabels(PropertiesListEntityDTO[] oldValues, PropertiesListEntityDTO[] newValues) {

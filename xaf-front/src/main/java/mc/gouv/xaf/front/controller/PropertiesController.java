@@ -1,6 +1,6 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;

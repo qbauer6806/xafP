@@ -135,7 +135,8 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         if (request instanceof ContentCachingRequestWrapper contentCachingRequestWrapper) {
             return contentCachingRequestWrapper;
         } else {
-            return new ContentCachingRequestWrapper(request);
+            // valeur par défaut 1 MB
+            return new ContentCachingRequestWrapper(request, 1024 * 1024);
         }
     }
 

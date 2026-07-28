@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.config.ApiserverCondition;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.GUGenericKafkaMessage;
@@ -51,7 +51,7 @@ public class GUKafkaConsumer {
                 throw new GUKafkaException(
                         "Version de message Kafka (GU) non supportée (" + genericMessage.getVersion() + ")");
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur lors du mapper.readValue() du message Kafka (GU) reçu", e);
         }
 
@@ -67,7 +67,7 @@ public class GUKafkaConsumer {
                         messageStr,
                         mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerGUMessage.class);
                 guKafkaEventListener.desinscriptionUsagerGuichetUnique(message);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 LOGGER.error("Erreur lors du second mapper.readValue() du message Kafka (GU) reçu", e);
             }
         }

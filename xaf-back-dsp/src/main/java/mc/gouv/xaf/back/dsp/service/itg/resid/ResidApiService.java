@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -42,10 +42,10 @@ public interface ResidApiService {
             Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException;
 
     ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt)
-            throws JsonProcessingException, ResidHttpResponseException;
+            throws JacksonException, ResidHttpResponseException;
 
     List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt)
-            throws JsonProcessingException, ResidHttpResponseException;
+            throws JacksonException, ResidHttpResponseException;
 
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
 

@@ -11,10 +11,7 @@ import mc.gouv.xaf.rio.dto.RioFileDocumentDTO;
 import mc.gouv.xaf.rio.service.RioApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -22,7 +19,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -43,7 +40,7 @@ public class RioApiClientImpl implements RioApiClient {
     public static final String RIO_GET_FILE_DOCUMENT = "/documents/%s/%s/notices/%s/files/%s";
 
     private final ArchivageProperties archivageProperties;
-    private final RestTemplateBuilder restTemplateBuilder;
+    private RestClient restClient;
 
     @PostConstruct
     @SuppressWarnings("squid:S2696")
@@ -57,20 +54,19 @@ public class RioApiClientImpl implements RioApiClient {
 
         LOGGER.info("Création du document {}", refDocument);
 
-        RestTemplate rest = getRestTemplate();
+        RestClient rest = getRestClient();
 
         HttpHeaders headers = getRioRequestHeaders();
         RioDocumentRequestDTO documentRqDTO = new RioDocumentRequestDTO();
         documentRqDTO.setCodeApplication(codeAppli);
         documentRqDTO.setLastModifier(lastModifier);
         documentRqDTO.setCodeNotice(codeNotice);
-        HttpEntity<RioDocumentRequestDTO> requestEntity = new HttpEntity<>(documentRqDTO, headers);
 
         String requestUrl = url + String.format(RIO_CREATE_DOCUMENT, refDocument);
-        URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).build().encode().toUri();
 
-        ResponseEntity<RioDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
-                RioDocumentDTO.class);
+        ResponseEntity<RioDocumentDTO> responseEntity = rest.post().uri(uri).headers(h -> h.addAll(headers))
+                .body(documentRqDTO).retrieve().toEntity(RioDocumentDTO.class);
 
         LOGGER.info("Fin création du document {}", refDocument);
 
@@ -82,16 +78,15 @@ public class RioApiClientImpl implements RioApiClient {
 
         LOGGER.info("Récupération du document {}", refDocument);
 
-        RestTemplate rest = getRestTemplate();
+        RestClient rest = getRestClient();
 
         HttpHeaders headers = getRioRequestHeaders();
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
         String requestUrl = url + String.format(RIO_GET_DOCUMENT, codeAppli, refDocument, codeNotice);
-        URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).queryParam("user", user).build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).queryParam("user", user).build().encode().toUri();
 
-        ResponseEntity<RioDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
-                RioDocumentDTO.class);
+        ResponseEntity<RioDocumentDTO> responseEntity = rest.get().uri(uri).headers(h -> h.addAll(headers)).retrieve()
+                .toEntity(RioDocumentDTO.class);
 
         LOGGER.info("Fin récupération du document {}", refDocument);
 
@@ -103,16 +98,15 @@ public class RioApiClientImpl implements RioApiClient {
 
         LOGGER.info("Suppression du document {}", refDocument);
 
-        RestTemplate rest = getRestTemplate();
+        RestClient rest = getRestClient();
 
         HttpHeaders headers = getRioRequestHeaders();
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
         String requestUrl = url + String.format(RIO_DELETE_DOCUMENT, codeAppli, refDocument, codeNotice);
-        URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).queryParam("user", user).build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).queryParam("user", user).build().encode().toUri();
 
-        ResponseEntity<RioDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.DELETE, requestEntity,
-                RioDocumentDTO.class);
+        ResponseEntity<RioDocumentDTO> responseEntity = rest.delete().uri(uri).headers(h -> h.addAll(headers))
+                .retrieve().toEntity(RioDocumentDTO.class);
 
         LOGGER.info("Fin suppression du document {}", refDocument);
 
@@ -130,18 +124,16 @@ public class RioApiClientImpl implements RioApiClient {
         parts.add("file", file);
 
         HttpHeaders headers = getRioMultipartRequestHeaders();
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
 
-        RestTemplate rest = restTemplateBuilder.build();
-        rest.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        RestClient rest = getRestClient();
 
         String requestUrl =
                 url + String.format(RIO_CREATE_FILE_DOCUMENT, codeAppli, refDocument, keyDocument, codeNotice);
         LOGGER.info("Appel à RIO : {}", requestUrl);
-        URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).queryParam("user", user).build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).queryParam("user", user).build().encode().toUri();
 
-        ResponseEntity<RioFileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
-                RioFileDocumentDTO.class);
+        ResponseEntity<RioFileDocumentDTO> responseEntity = rest.post().uri(uri).headers(h -> h.addAll(headers))
+                .body(parts).retrieve().toEntity(RioFileDocumentDTO.class);
 
         LOGGER.info("Statut de la réponse de RIO : {}", responseEntity.getStatusCode());
         if (null != responseEntity.getBody()) {
@@ -159,16 +151,15 @@ public class RioApiClientImpl implements RioApiClient {
 
         LOGGER.info("Récupération du fichier (keyfile) {} pour le document {}", keyFile, refDocument);
 
-        RestTemplate rest = getRestTemplate();
+        RestClient rest = getRestClient();
 
         HttpHeaders headers = getRioRequestHeaders();
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
         String requestUrl = url + String.format(RIO_GET_FILE_DOCUMENT, codeAppli, refDocument, codeNotice, keyFile);
-        URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).queryParam("user", user).build().encode().toUri();
+        URI uri = UriComponentsBuilder.fromUriString(requestUrl).queryParam("user", user).build().encode().toUri();
 
-        ResponseEntity<RioFileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
-                RioFileDocumentDTO.class);
+        ResponseEntity<RioFileDocumentDTO> responseEntity = rest.get().uri(uri).headers(h -> h.addAll(headers))
+                .retrieve().toEntity(RioFileDocumentDTO.class);
 
         LOGGER.info("Fin récupération du fichier (keyfile) {} pour le document {}", keyFile, refDocument);
 
@@ -191,12 +182,14 @@ public class RioApiClientImpl implements RioApiClient {
         return headers;
     }
 
-    private RestTemplate getRestTemplate() {
-
-        RestTemplate rest = restTemplateBuilder.build();
-        rest.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
-        rest.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-        rest.getMessageConverters().add(new FormHttpMessageConverter());
-        return rest;
+    private RestClient getRestClient() {
+        if (restClient == null) {
+            restClient = RestClient.builder().messageConverters(converters -> {
+                converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+                converters.add(new MappingJackson2HttpMessageConverter());
+                converters.add(new FormHttpMessageConverter());
+            }).build();
+        }
+        return restClient;
     }
 }

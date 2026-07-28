@@ -1,8 +1,5 @@
 package mc.gouv.xaf.back.paiement.service.kafka.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.paiement.service.kafka.GUKafkaPaiementProducer;
 import mc.gouv.xaf.back.paiement.service.kafka.dto.AffichagePaiementMessage;
@@ -14,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @ConditionalOnExpression(value = "'${mc.gouv.appli.shared.backapi.kafka.enabled}' == 'true'")
@@ -24,12 +24,7 @@ public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
 
     private final KafkaOutboxService guKafkaOutboxService;
 
-    private static final ObjectMapper mapper;
-
-    static {
-        mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-    }
+    private static final ObjectMapper mapper = JsonMapper.builder().build();
 
     @Override
     public void sendAffichagePaiementMessage(AffichagePaiementMessage apm) {
@@ -48,7 +43,7 @@ public class GUKafkaPaiementProducerImpl implements GUKafkaPaiementProducer {
             dto = guKafkaOutboxService.createOutboxElement(dto);
 
             LOGGER.info("Élément Outbox créé : {}", dto);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("Erreur lors du mapper.writeValueAsString()", e);
         }
     }

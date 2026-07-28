@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.core.JacksonException;
 
 import mc.gouv.xaf.back.dsp.dto.ResidAdresseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
@@ -223,7 +223,7 @@ public class ResidApiServiceMockImpl implements ResidApiService {
 
     @Override
     public MultipartFile submitRetourDebit(ResidInformationDebitDTO informationDebit, String url, String jwt)
-            throws JsonProcessingException {
+            throws JacksonException {
         return null;
     }
 
@@ -261,13 +261,13 @@ public class ResidApiServiceMockImpl implements ResidApiService {
 
     @Override
     public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt)
-            throws JsonProcessingException, ResidHttpResponseException {
+            throws JacksonException, ResidHttpResponseException {
         return null;
     }
 
     @Override
     public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt)
-            throws JsonProcessingException, ResidHttpResponseException {
+            throws JacksonException, ResidHttpResponseException {
         return new ArrayList<>();
     }
 

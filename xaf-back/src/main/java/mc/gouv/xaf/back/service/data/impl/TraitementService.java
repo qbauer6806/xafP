@@ -41,6 +41,7 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.demande.AnnulerDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.histo.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -140,6 +141,7 @@ public class TraitementService {
     private final DemandesHelperService demandesHelperService;
     private final PurgeDemandesService purgeDemandesService;
     private final Optional<CreateDemandeBpmnVariablesProvider> createDemandeBpmnVariablesProvider;
+    private final Optional<AnnulerDemandeExtender> annulerDemandeExtender;
 
     public ModelAndView infosAdministration(
             @ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
@@ -639,8 +641,9 @@ public class TraitementService {
 
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), null);
-        gouvBPM.setProcessBusinessVariables(pkDemande, variables);
+        annulerDemandeExtender.ifPresent(extender -> extender.appliquerAnnulerTraitement(pkDemande, variables));
 
+        gouvBPM.setProcessBusinessVariables(pkDemande, variables);
         gouvBPM.annulerDemande(pkDemande, agent, null, codeMotif, commentaire, XafDemandeStatutEnum.ANNULEE.name());
 
         DemandeHistoriqueDTO histo = demandesHistoriqueService.statusChangeAgent(XafDemandeStatutEnum.ANNULEE.name());
@@ -742,6 +745,5 @@ public class TraitementService {
         }
         return null;
     }
-
 
 }

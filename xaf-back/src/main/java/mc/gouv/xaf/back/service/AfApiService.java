@@ -35,6 +35,7 @@ import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.RectificationService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.demande.AnnulerDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeBpmnVariablesProvider;
 import mc.gouv.xaf.back.service.demande.CreateDemandeExtender;
 import mc.gouv.xaf.back.service.demande.CreateDemandeFinalizer;
@@ -131,6 +132,7 @@ public class AfApiService implements AfApi {
     protected final PaysCache paysCache;
     private final Optional<CreateDemandeFinalizer> createDemandeFinalizers;
     private final Optional<CreateDemandeExtender> createDemandeExtenders;
+    private final Optional<AnnulerDemandeExtender> annulerDemandeExtender;
     private final Optional<CustomRequestService> customRequestService;
     private final Optional<DonneesExternesService> donneesExternesService;
     private final DemandesStatutsService demandesStatutsService;
@@ -153,6 +155,8 @@ public class AfApiService implements AfApi {
 
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeId);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), usagerId.toString());
+        annulerDemandeExtender.ifPresent(extender -> extender.appliquerAnnulerTraitement(demandeId, variables));
+
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
         gouvBPM.annulerDemande(demandeId, null, usager, demarchesDataProvider.getCodeMotifAnnulationParUsager(), null,
@@ -540,8 +544,8 @@ public class AfApiService implements AfApi {
     /**
      * Constitution de la liste des demandes impactées (celles qui passent au statut ANNULEE) pour l'envoi de l'email
      */
-    private String[] getDemandesImpactees(List<DemandeDTO> demandes,
-            List<DemandeDTO> demandesAPasserEnAnnuleeDTO, String statutAnnuleeName) {
+    private String[] getDemandesImpactees(List<DemandeDTO> demandes, List<DemandeDTO> demandesAPasserEnAnnuleeDTO,
+            String statutAnnuleeName) {
 
         StringBuilder demandesImpacteesIdentifiants = new StringBuilder();
         StringBuilder demandesImpacteesPk = new StringBuilder();

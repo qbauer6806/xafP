@@ -271,7 +271,7 @@ public class GichkeyService {
                 donneesExternes.set("mconnect", mapper.valueToTree(mConnectUInfos));
                 uinfos.setDonneesExternes(donneesExternes);
                 LOGGER.debug("Informations MConnect disponibles : {}", mConnectUInfos);
-                uinfos.setMConnect(true);
+                uinfos.setMconnect(true);
                 // Mettre login à "" si usager MConnect
                 uinfos.setLogin("");
             } catch (ParseException e) {

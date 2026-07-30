@@ -86,7 +86,7 @@ public class InitialDemandeController {
         }
 
         try {
-            if (usagerInfosDTO.isMConnect()) {
+            if (usagerInfosDTO.isMconnect()) {
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
                 DonneesExternesDTO donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
                 data.put(MCONNECT_PARAM_FAMILYNAME,

@@ -42,7 +42,7 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
 
     @Setter
     @Getter
-    protected boolean mConnect = false;
+    protected boolean mconnect = false;
 
     public String getTitreLabel() {
         if (getTitre() == null) {

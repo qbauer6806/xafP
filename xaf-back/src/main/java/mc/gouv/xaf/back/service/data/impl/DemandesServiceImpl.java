@@ -618,34 +618,25 @@ public class DemandesServiceImpl implements DemandesService {
         if (StringUtils.isBlank(json)) {
             return "";
         }
-        try {
-            JsonNode node = new ObjectMapper().readTree(json);
-            if (!node.isArray()) {
-                return "";
-            }
-            List<String> values = new ArrayList<>();
-            for (JsonNode item : node) {
-                String normalized = normalizeNodeValue(item.get(fieldName));
-                if (StringUtils.isNotBlank(normalized)) {
-                    values.add(normalized);
-                }
-            }
-            return String.join(" ; ", values);
-        } catch (IOException e) {
-            LOGGER.warn("Impossible de parser le sous-JSON d'export pour le champ {}", fieldName, e);
+        JsonNode node = new ObjectMapper().readTree(json);
+        if (!node.isArray()) {
             return "";
         }
+        List<String> values = new ArrayList<>();
+        for (JsonNode item : node) {
+            String normalized = normalizeNodeValue(item.get(fieldName));
+            if (StringUtils.isNotBlank(normalized)) {
+                values.add(normalized);
+            }
+        }
+        return String.join(" ; ", values);
     }
 
     private String normalizeScalarOrArray(String value) {
         if (StringUtils.isBlank(value)) {
             return "";
         }
-        try {
-            return normalizeNodeValue(new ObjectMapper().readTree(value));
-        } catch (IOException e) {
-            return value;
-        }
+        return normalizeNodeValue(new ObjectMapper().readTree(value));
     }
 
     private String normalizeNodeValue(JsonNode node) {

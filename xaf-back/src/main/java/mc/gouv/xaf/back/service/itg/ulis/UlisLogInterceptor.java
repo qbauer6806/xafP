@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.itg.ulis;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
@@ -12,9 +12,20 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.StreamUtils;
 
+@Slf4j
 public class UlisLogInterceptor implements ClientHttpRequestInterceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UlisLogInterceptor.class);
+
+    private final boolean logBody;
+
+    public UlisLogInterceptor() {
+        this(true);
+    }
+
+    public UlisLogInterceptor(boolean logBody) {
+        this.logBody = logBody;
+    }
 
     @Override
     public ClientHttpResponse intercept(
@@ -22,7 +33,11 @@ public class UlisLogInterceptor implements ClientHttpRequestInterceptor {
             byte[] body,
             ClientHttpRequestExecution execution) throws IOException {
 
-        LOGGER.info("API Call to ULIS - REQUEST body: {}", new String(body, StandardCharsets.UTF_8));
+        if (logBody) {
+            log.info("API Call to ULIS - REQUEST body: {}", new String(body, StandardCharsets.UTF_8));
+        } else {
+            log.info("API Call to ULIS - REQUEST (body masqué)");
+        }
 
         ClientHttpResponse response = execution.execute(request, body);
 

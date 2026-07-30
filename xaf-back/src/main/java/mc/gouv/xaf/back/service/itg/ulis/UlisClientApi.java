@@ -35,6 +35,7 @@ public class UlisClientApi {
     public static final String CONTEXT_PATH_CREATION_AFFAIRE = "crm/affaires";
 
     private final RestClient restClient;
+    private final RestClient restClientNoBodyLog;
     private final AuthorizationHeaderProvider authorizationHeaderProvider;
 
     public UlisClientApi(String serviceUrl, String user, String password) {
@@ -43,5 +44,10 @@ public class UlisClientApi {
         this.restClient = RestClient.builder().baseUrl(serviceUrl).requestFactory(UlisLogInterceptor.requestFactory())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeaderProvider.getHeaderValue())
                 .requestInterceptor(new UlisLogInterceptor()).build();
+
+        this.restClientNoBodyLog = RestClient.builder().baseUrl(serviceUrl)
+                .requestFactory(UlisLogInterceptor.requestFactory())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeaderProvider.getHeaderValue())
+                .requestInterceptor(new UlisLogInterceptor(false)).build();
     }
 }

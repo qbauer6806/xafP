@@ -247,9 +247,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 
 
     private String buildAdresseHTML(JsonNode node, JsonNode  champ) {
-        String ligne1 = getNode(node, champ, "ligne1").stringValue();
-        String ligne2 = getNode(node, champ, "ligne2").stringValue();
-        String ligne3 = getNode(node, champ, "ligne3").stringValue();
+        String ligne1 = getNode(node, champ, "ligne1").stringValue(null);
+        String ligne2 = getNode(node, champ, "ligne2").stringValue(null);
+        String ligne3 = getNode(node, champ, "ligne3").stringValue(null);
         StringBuilder ret = new StringBuilder();
         if (StringUtils.isNotEmpty(ligne1)) {
             ret.append(ligne1);
@@ -323,12 +323,12 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                             if (pathNode instanceof ObjectNode) {
                                 JsonNode valeurNode = node.at(path + "/valeur");
                                 if (valeurNode instanceof MissingNode || valeurNode instanceof NullNode || (
-                                        valeurNode instanceof StringNode && valeurNode.stringValue().equals("AUTRE"))) {
+                                        valeurNode instanceof StringNode && valeurNode.stringValue(null).equals("AUTRE"))) {
                                     JsonNode node0 = node.at(path + "/valeurExtra");
                                     if (node0 == null || node0 instanceof NullNode) {
                                         return "";
                                     } else {
-                                        return node0.stringValue();
+                                        return node0.stringValue(null);
                                     }
                                 }
                             }
@@ -391,9 +391,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 } else {
                     String ret = buildAdresseHTML(node, jsonObject);
                     if (StringUtils.isNotEmpty(ret)) {
-                        String codePostal = getNode(node, jsonObject, "codePostal").stringValue();
-                        String ville = getNode(node, jsonObject, "ville").stringValue();
-                        String pays = getNode(node, jsonObject, "pays").stringValue();
+                        String codePostal = getNode(node, jsonObject, "codePostal").stringValue(null);
+                        String ville = getNode(node, jsonObject, "ville").stringValue(null);
+                        String pays = getNode(node, jsonObject, "pays").stringValue(null);
                         ret += "\n" + codePostal + " " + ville;
                         if (StringUtils.isNotBlank(pays)) {
                             ret += "\n" + paysCache.get(pays).getLibelle();
@@ -413,9 +413,9 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 if (header) {
                     return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asString() : "";
                 } else {
-                    String titulaire = getNode(node, jsonObject, "titulaire").stringValue();
-                    String bic = getNode(node, jsonObject, "bic").stringValue();
-                    String iban = getNode(node, jsonObject, "iban").stringValue();
+                    String titulaire = getNode(node, jsonObject, "titulaire").stringValue(null);
+                    String bic = getNode(node, jsonObject, "bic").stringValue(null);
+                    String iban = getNode(node, jsonObject, "iban").stringValue(null);
                     return iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
                 }
             }
@@ -423,8 +423,8 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 if (header) {
                     return jsonObject.has(LABEL) ? jsonObject.get(LABEL).asString() : "";
                 } else {
-                    String indicatif = getNode(node, jsonObject, "indicatif").stringValue();
-                    String numero = getNode(node, jsonObject, "numero").stringValue();
+                    String indicatif = getNode(node, jsonObject, "indicatif").stringValue(null);
+                    String numero = getNode(node, jsonObject, "numero").stringValue(null);
                     return AfBackUtils.genererTelephone(indicatif, numero);
                 }
             }

@@ -1,5 +1,10 @@
 package mc.gouv.xaf.shared.dto.sourcefiable.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+
+@Getter
 public enum SourceFiablesEnum {
 
     DSP("DSP - Identité numérique", "Autorité d’enregistrement DSP", Constants.IDENTITE_NUMERIQUE),
@@ -18,17 +23,24 @@ public enum SourceFiablesEnum {
         this.application = application;
     }
 
-    public String getService() {
-        return service;
-    }
-
-    public String getApplication() {
-        return application;
-    }
-
     @Override
     public String toString() {
         return libelle;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return name();
+    }
+
+    @JsonCreator
+    public static SourceFiablesEnum fromValue(String value) {
+        for (SourceFiablesEnum e : values()) {
+            if (e.name().equals(value)) {
+                return e;
+            }
+        }
+        throw new IllegalArgumentException("Unknown value: " + value);
     }
 
     private static class Constants {

@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.paiement.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -15,6 +17,21 @@ public enum PaiementStatutEnum {
 
     PaiementStatutEnum(String libelle) {
         this.libelle = libelle;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return name();
+    }
+
+    @JsonCreator
+    public static PaiementStatutEnum fromValue(String value) {
+        for (PaiementStatutEnum e : values()) {
+            if (e.name().equals(value)) {
+                return e;
+            }
+        }
+        throw new IllegalArgumentException("Unknown value: " + value);
     }
 
     @Override

@@ -75,7 +75,7 @@ public class DocHolderUtils {
         SimpleDateFormat dateFormat = new SimpleDateFormat(JSON_DATE_FORMAT);
         JsonNode dateNode = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(DATE_CREATION_NODE);
 
-        if (StringUtils.isEmpty(dateNode.stringValue())) {
+        if (StringUtils.isEmpty(dateNode.stringValue(null))) {
             return false;
         }
 

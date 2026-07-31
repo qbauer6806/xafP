@@ -2,9 +2,11 @@ package mc.gouv.xaf.back.service.itg.ulis;
 
 import mc.gouv.xaf.back.properties.UlisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-
+import tools.jackson.databind.module.SimpleModule;
+import java.time.OffsetDateTime;
 
 /*
  * Composant qui gère la configuration du client API vers ULIS pour chaque opération: tiers, factures ou proposition.
@@ -70,5 +72,11 @@ public class UlisApiConfiguration {
                 ulisProperties.getApiUlisUrl() + GESTION_RELATION_TIERS_URL,
                 ulisProperties.getApiUlisAuthentUser(),
                 ulisProperties.getApiUlisAuthentPassword());
+    }
+
+    @Bean
+    JsonMapperBuilderCustomizer ulisDateCustomizer() {
+        return builder -> builder.addModule(new SimpleModule()
+                .addSerializer(OffsetDateTime.class, new UlisOffsetDateTimeSerializer()));
     }
 }

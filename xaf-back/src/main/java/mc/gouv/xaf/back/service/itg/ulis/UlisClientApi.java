@@ -1,10 +1,14 @@
 package mc.gouv.xaf.back.service.itg.ulis;
 
+import java.time.OffsetDateTime;
 import lombok.Getter;
 import mc.gouv.xaf.apiclient.authentication.AuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 @Getter
 public class UlisClientApi {
@@ -38,16 +42,28 @@ public class UlisClientApi {
     private final RestClient restClientNoBodyLog;
     private final AuthorizationHeaderProvider authorizationHeaderProvider;
 
+    private static final JsonMapper ULIS_MAPPER = JsonMapper.builder()
+            .addModule(new SimpleModule()
+                    .addSerializer(OffsetDateTime.class, new UlisOffsetDateTimeSerializer()))
+            .build();
+
     public UlisClientApi(String serviceUrl, String user, String password) {
         this.authorizationHeaderProvider = new BasicAuthorizationHeaderProvider(user, password);
 
-        this.restClient = RestClient.builder().baseUrl(serviceUrl).requestFactory(UlisLogInterceptor.requestFactory())
+        this.restClient = RestClient.builder().baseUrl(serviceUrl)
+                .requestFactory(UlisLogInterceptor.requestFactory())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeaderProvider.getHeaderValue())
-                .requestInterceptor(new UlisLogInterceptor()).build();
+                .requestInterceptor(new UlisLogInterceptor())
+                .configureMessageConverters(builder ->
+                        builder.withJsonConverter(new JacksonJsonHttpMessageConverter(ULIS_MAPPER)))
+                .build();
 
         this.restClientNoBodyLog = RestClient.builder().baseUrl(serviceUrl)
                 .requestFactory(UlisLogInterceptor.requestFactory())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, authorizationHeaderProvider.getHeaderValue())
-                .requestInterceptor(new UlisLogInterceptor(false)).build();
+                .requestInterceptor(new UlisLogInterceptor(false))
+                .configureMessageConverters(builder ->
+                        builder.withJsonConverter(new JacksonJsonHttpMessageConverter(ULIS_MAPPER)))
+                .build();
     }
 }

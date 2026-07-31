@@ -9,7 +9,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.util.StreamUtils;
 
 @Slf4j
@@ -48,6 +48,6 @@ public class UlisLogInterceptor implements ClientHttpRequestInterceptor {
     }
 
     public static BufferingClientHttpRequestFactory requestFactory() {
-        return new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+        return new BufferingClientHttpRequestFactory(new JdkClientHttpRequestFactory());
     }
 }

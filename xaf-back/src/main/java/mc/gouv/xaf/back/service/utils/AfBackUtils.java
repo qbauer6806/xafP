@@ -319,12 +319,12 @@ public class AfBackUtils {
         flat.setLangue(getSafeString(demande.getLangue()));
         flat.setObservations(getSafeString(demande.getObservations()));
         flat.setPkDemandes(demande.getPkDemandes());
-        flat.setUsagerId(demande.getUsagerId());
         DemandeUsagerDTO usager = demande.getUsager();
         if (usager != null) {
             flat.setUsagerNom(getSafeString(usager.getNom()));
             flat.setUsagerPrenom(getSafeString(usager.getPrenom()));
             flat.setUsagerEmail(getSafeString(usager.getEmail()));
+            flat.setUsagerId(usager.getId());
         }
         // motif
         if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {

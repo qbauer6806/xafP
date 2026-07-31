@@ -437,7 +437,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private boolean isAdresseCertifiee(DemandeDTO demande, JsonNode champ, String modelPath) {
-        String ligne1 = escape(getNode(demande.getContenuTrad(), champ, LIGNE1).stringValue(), false);
+        String ligne1 = escape(getNode(demande.getContenuTrad(), champ, LIGNE1).stringValue(null), false);
         if (StringUtils.isNotEmpty(ligne1)) {
             return modelPath.equals(champ.get("path").asString());
         }
@@ -581,9 +581,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             buildAdresseHTML(adresseBuilder, node, champ, isPdfRecap);
             return adresseBuilder.toString();
         } else if (Strings.CS.equals(type, "iban")) {
-            String titulaire = escape(getNode(node, champ, "titulaire").stringValue(), isPdfRecap);
-            String bic = escape(getNode(node, champ, "bic").stringValue(), isPdfRecap);
-            String iban = escape(getNode(node, champ, "iban").stringValue(), isPdfRecap);
+            String titulaire = escape(getNode(node, champ, "titulaire").stringValue(null), isPdfRecap);
+            String bic = escape(getNode(node, champ, "bic").stringValue(null), isPdfRecap);
+            String iban = escape(getNode(node, champ, "iban").stringValue(null), isPdfRecap);
             return iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
         } else if (Strings.CS.equals(type, "telephone")) {
             return buildTelephoneHTML(node, champ, isPdfRecap);
@@ -636,9 +636,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private void buildAdresseHTML(StringBuilder adresseBuilder, JsonNode node, JsonNode champ, boolean isPdfRecap) {
         String idPrefix = champ.has(ID_PREFIX) ? champ.get(ID_PREFIX).asString() : "";
-        String ligne1 = escape(getNode(node, champ, LIGNE1).stringValue(), isPdfRecap);
-        String ligne2 = escape(getNode(node, champ, "ligne2").stringValue(), isPdfRecap);
-        String ligne3 = escape(getNode(node, champ, "ligne3").stringValue(), isPdfRecap);
+        String ligne1 = escape(getNode(node, champ, LIGNE1).stringValue(null), isPdfRecap);
+        String ligne2 = escape(getNode(node, champ, "ligne2").stringValue(null), isPdfRecap);
+        String ligne3 = escape(getNode(node, champ, "ligne3").stringValue(null), isPdfRecap);
 
         if (StringUtils.isNotEmpty(ligne1)) {
             adresseBuilder.append("<span ");
@@ -684,9 +684,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private void buildComplementAdresseHTML(StringBuilder adresseBuilder, JsonNode node, JsonNode champ,
             boolean isPdfRecap, boolean pourTableau, List<SourceFiableDTO> donneesCertifiees) {
         if (!adresseBuilder.isEmpty()) {
-            String codePostal = escape(getNode(node, champ, CODE_POSTAL).stringValue(), isPdfRecap);
-            String ville = escape(getNode(node, champ, VILLE).stringValue(), isPdfRecap);
-            String pays = getNode(node, champ, "pays").stringValue();
+            String codePostal = escape(getNode(node, champ, CODE_POSTAL).stringValue(null), isPdfRecap);
+            String ville = escape(getNode(node, champ, VILLE).stringValue(null), isPdfRecap);
+            String pays = getNode(node, champ, "pays").stringValue(null);
             if (pourTableau) {
                 adresseBuilder.append("<br/><span>").append(codePostal).append(' ').append(ville).append(SPAN_CLOSE);
                 if (StringUtils.isNotBlank(pays)) {
@@ -734,8 +734,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private String buildTelephoneHTML(JsonNode node, JsonNode champ, boolean isPdfRecap) {
-        String indicatif = getNode(node, champ, "indicatif").stringValue();
-        String numero = escape(getNode(node, champ, "numero").stringValue(), isPdfRecap);
+        String indicatif = getNode(node, champ, "indicatif").stringValue(null);
+        String numero = escape(getNode(node, champ, "numero").stringValue(null), isPdfRecap);
         return AfBackUtils.genererTelephone(indicatif, numero);
     }
 

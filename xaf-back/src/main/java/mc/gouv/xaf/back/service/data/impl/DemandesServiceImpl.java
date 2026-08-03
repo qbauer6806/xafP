@@ -977,7 +977,7 @@ public class DemandesServiceImpl implements DemandesService {
         Long totalCount = rechercheDemandesUtils.getDemandesCount(demandeRecherche);
         List<DemandeBO> demandes = rechercheDemandesUtils.getDemandesPageable(demandeRecherche, pageable);
         List<DemandeDTO> demandesDto = demandesTransformer.bo2Dto(demandes, fields);
-        demandesTransformer.hideInfosPageable(demandesDto);
+        demandesDto.forEach(demandesTransformer::hideInfosPageable);
 
         Page<DemandeDTO> page = new PageImpl<>(demandesDto, pageable, totalCount);
         return new PagedModel<>(page);

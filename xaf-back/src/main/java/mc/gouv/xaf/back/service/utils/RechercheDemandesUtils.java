@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -10,6 +11,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.SetJoin;
 import java.lang.reflect.Field;
 import java.text.ParseException;
@@ -36,7 +38,7 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.data.projection.DemandeExcelLightProjection;
+import mc.gouv.xaf.back.service.excel.DemandeExcelProjectionSelectionProvider;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPath;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPathConfiguration;
 import mc.gouv.xaf.shared.dto.ConfigRechercheDTO;
@@ -84,12 +86,15 @@ public class RechercheDemandesUtils extends RechercheUtils {
     private static final String PK_DEMANDES = "pkDemandes";
 
     private final Optional<RechercheSortPathConfiguration> rechercheSortPathConfiguration;
+    private final Optional<DemandeExcelProjectionSelectionProvider> demandeExcelProjectionSelectionProvider;
     private final EntityManager em;
 
     public RechercheDemandesUtils(EntityManager em,
-            Optional<RechercheSortPathConfiguration> rechercheSortPathConfiguration) {
+            Optional<RechercheSortPathConfiguration> rechercheSortPathConfiguration,
+            Optional<DemandeExcelProjectionSelectionProvider> demandeExcelProjectionSelectionProvider) {
         this.em = em;
         this.rechercheSortPathConfiguration = rechercheSortPathConfiguration;
+        this.demandeExcelProjectionSelectionProvider = demandeExcelProjectionSelectionProvider;
     }
 
     public Long getDemandesCount(DemandeRechercheDTO demandeRecherche) {
@@ -452,54 +457,41 @@ public class RechercheDemandesUtils extends RechercheUtils {
         return cal;
     }
 
-    public Page<DemandeExcelLightProjection> getDemandesExcelPageable(ExcelRechercheDTO excelRechercheDTO, Pageable pageable,
-            long total) {
+    public Page<Tuple> getDemandesExcelTuplePageable(ExcelRechercheDTO excelRechercheDTO, Pageable pageable, long total) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<DemandeExcelLightProjection> cq = cb.createQuery(DemandeExcelLightProjection.class);
+        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
         Root<DemandeBO> root = cq.from(DemandeBO.class);
 
         Join<DemandeBO, DemandesAgentsBO> agentJoin = root.join(AGENT, JoinType.LEFT);
         Join<DemandeBO, DemandesStatutsBO> statutJoin = root.join(DERNIER_STATUT, JoinType.LEFT);
 
-        // Projection
-        cq.select(cb.construct(DemandeExcelLightProjection.class, root.get(PK_DEMANDES), root.get(IDENTIFIANT),
-                root.get(DATE_CREATION), statutJoin.get(LIBELLE), agentJoin.get("nomAffichage"), root.get(CANAL),
-                root.get("courrierRefInterne"), root.get("courrierDateReception"),
-                jsonText(root, cb, "contenuTrad", "donnee", "demandeur", "datenaissance"),
-                jsonText(root, cb, "contenuTrad", "donnee", "demandeur", "situationfamiliale"),
-                jsonText(root, cb, "contenuTrad", "donnee", "demandeur", "profession"),
-                jsonText(root, cb, "contenuTrad", "donnee", "conjoint", "datenaissance"),
-                jsonText(root, cb, "contenuTrad", "donnee", "conjoint", "profession"),
-                jsonText(root, cb, "contenuTrad", "donnee", "habitantfoyer"),
-                jsonText(root, cb, "contenuTrad", "donnee", "habitantascendant"),
-                jsonText(root, cb, "contenuTrad", "donnee", "motif", "retourmonaco"),
-                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "type"),
-                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "secteur"),
-                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "composition"),
-                jsonText(root, cb, "contenuTrad", "donnee", "logementactuel", "occupation"),
-                jsonText(root, cb, "contenuTrad", "donnee", "locataire", "aide"),
-                jsonText(root, cb, "contenuTrad", "donnee", "biensimmobiliers", "proprietaire")));
+        List<Selection<?>> selections = new ArrayList<>();
+        selections.add(root.get(PK_DEMANDES).alias(PK_DEMANDES));
+        selections.add(root.get(IDENTIFIANT).alias(IDENTIFIANT));
+        selections.add(root.get(DATE_CREATION).alias(DATE_CREATION));
+        selections.add(statutJoin.get(LIBELLE).alias("etatInterne"));
+        selections.add(agentJoin.get("nomAffichage").alias("agentAffecteNom"));
+        selections.add(root.get(CANAL).alias(CANAL));
+        selections.add(root.get("courrierRefInterne").alias("courrierRefInterne"));
+        selections.add(root.get("courrierDateReception").alias("courrierDateReception"));
+        selections.add(root.get("observations").alias("observations"));
+        demandeExcelProjectionSelectionProvider
+                .map(provider -> provider.buildSelections(root, cb))
+                .filter(CollectionUtils::isNotEmpty)
+                .ifPresent(selections::addAll);
+
+        cq.multiselect(selections);
 
         List<Predicate> predicates = buildPredicatesExcel(root, cb, excelRechercheDTO);
         cq.where(predicates.toArray(Predicate[]::new));
         cq.distinct(true);
         applyExcelSort(cq, root, cb, pageable);
-        // Pagination
-        TypedQuery<DemandeExcelLightProjection> query = em.createQuery(cq);
+
+        TypedQuery<Tuple> query = em.createQuery(cq);
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(query.getResultList(), pageable, total);
-    }
-
-    private Expression<String> jsonText(Root<DemandeBO> root, CriteriaBuilder cb, String jsonColumn,
-            String... path) {
-        List<Expression<?>> expressions = new ArrayList<>();
-        expressions.add(root.get(jsonColumn));
-        for (String item : path) {
-            expressions.add(cb.literal(item));
-        }
-        return cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
     }
 
     private void applyExcelSort(CriteriaQuery<?> cq, Root<DemandeBO> root, CriteriaBuilder cb, Pageable pageable) {

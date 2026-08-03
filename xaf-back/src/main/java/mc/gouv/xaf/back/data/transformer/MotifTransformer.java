@@ -90,7 +90,7 @@ public class MotifTransformer {
     public static ExportMotifDTO bo2ExportDto(MotifBO bo) {
         ExportMotifDTO dto = new ExportMotifDTO();
         dto.setCode(bo.getCode());
-        dto.setLibelle(bo.getCode());
+        dto.setLibelle(bo.getLibelle());
         dto.setStatut(bo.getStatut());
         dto.setStatutCourant(bo.getStatutCourant());
         dto.setLangue(bo.getLangue());

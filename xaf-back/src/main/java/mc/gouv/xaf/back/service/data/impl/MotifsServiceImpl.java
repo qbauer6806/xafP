@@ -1,13 +1,10 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import mc.gouv.xaf.back.data.dao.MotifsRepository;
 import mc.gouv.xaf.back.data.entity.MotifBO;
@@ -15,9 +12,7 @@ import mc.gouv.xaf.back.data.transformer.MotifTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.ExportMotifDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.exception.DemarcheException;
 import mc.gouv.xaf.shared.formbean.MotifCreateFormBean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.VelocityEngine;
@@ -28,10 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service permettant la manipulation des motifs.
@@ -208,63 +199,6 @@ public class MotifsServiceImpl implements MotifsService {
         String texteAEnvoyerToSend = output.toString();
 
         return new String[] { commentairePrerempliToSend, texteAEnvoyerToSend };
-    }
-
-    @Override
-    public String exportConfig() throws IOException {
-
-        LOGGER.info("Début de l'export de la configuration des templates");
-
-        List<MotifDTO> motifDTOS = MotifTransformer.bo2Dto(motifsRepository.findAll());
-
-        // Convertir en fichier d'export
-        List<ExportMotifDTO> exportTemplateList = new ArrayList<>();
-        for (MotifDTO motifDTO : motifDTOS) {
-            ExportMotifDTO exportMotifDTO = new ExportMotifDTO();
-            exportMotifDTO.setCode(motifDTO.getCode());
-            exportMotifDTO.setLibelle(motifDTO.getLibelle());
-            exportMotifDTO.setStatut(motifDTO.getStatut());
-            exportMotifDTO.setStatutCourant(motifDTO.getStatutCourant());
-            exportMotifDTO.setLangue(motifDTO.getLangue());
-            exportMotifDTO.setDateArchive(motifDTO.getDateArchive());
-            exportMotifDTO.setCommentairePrerempli(motifDTO.getCommentairePrerempli());
-            exportMotifDTO.setTexteAEnvoyer(motifDTO.getTexteAEnvoyer());
-            exportTemplateList.add(exportMotifDTO);
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportTemplateList);
-        LOGGER.debug("Fin de l'export de la configuration des templates, fichier exporté {}", exportedConfig);
-        return exportedConfig;
-    }
-
-    @Override
-    public List<ExportMotifDTO> importConfig(byte[] file) throws IOException {
-
-        LOGGER.info("Début de l'import de la configuration");
-
-        ObjectMapper mapper = new ObjectMapper();
-        List<ExportMotifDTO> config;
-        try {
-            config = mapper.readValue(file, new TypeReference<>() {
-
-            });
-        } catch (StreamReadException | DatabindException e) {
-            throw new DemarcheException("Le fichier ne respecte pas la structure des fichiers à importer");
-        }
-
-        if (config != null) {
-            motifsRepository.deleteAll();
-            Iterable<MotifBO> saved = motifsRepository.saveAll(MotifTransformer.exportDto2Bo(config));
-            List<MotifBO> configBo = StreamSupport.stream(saved.spliterator(), false).collect(Collectors.toList());
-
-            LOGGER.info("Fin de l'import de la configuration");
-
-            return MotifTransformer.bo2ExportDto(configBo);
-        }
-
-        LOGGER.info("La configuration n'a pas pu être importée");
-        return null;
     }
 
     @jakarta.transaction.Transactional

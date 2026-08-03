@@ -21,13 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-/**
- * Sert à générer la preview des emails
- *
- * @author qdeme
- */
 @GouvRestController
-@Secured("ROLE_LECTURE")
+@Secured("ROLE_CONFIGURATION")
 @RequestMapping("/ws")
 @RequiredArgsConstructor
 public class MotifPreviewController extends AbstractController {

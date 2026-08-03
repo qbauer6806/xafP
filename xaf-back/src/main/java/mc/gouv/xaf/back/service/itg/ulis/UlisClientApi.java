@@ -1,12 +1,15 @@
 package mc.gouv.xaf.back.service.itg.ulis;
 
+import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import mc.gouv.xaf.apiclient.authentication.AuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
@@ -42,9 +45,12 @@ public class UlisClientApi {
     private final RestClient restClientNoBodyLog;
     private final AuthorizationHeaderProvider authorizationHeaderProvider;
 
-    private static final JsonMapper ULIS_MAPPER = JsonMapper.builder()
+    public static final JsonMapper ULIS_MAPPER = JsonMapper.builder()
             .addModule(new SimpleModule()
                     .addSerializer(OffsetDateTime.class, new UlisOffsetDateTimeSerializer()))
+            .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+            .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"))
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
     public UlisClientApi(String serviceUrl, String user, String password) {

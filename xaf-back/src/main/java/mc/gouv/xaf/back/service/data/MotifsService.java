@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.data;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import mc.gouv.xaf.shared.dto.ExportMotifDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.formbean.MotifCreateFormBean;
 
@@ -61,10 +60,6 @@ public interface MotifsService {
 
     String[] getMotifPreviewByText(String bodyTemplateText, String subjectTemplateText, Map<String, Object> model)
             throws IOException;
-
-    String exportConfig() throws IOException;
-
-    List<ExportMotifDTO> importConfig(byte[] file) throws IOException;
 
     void saveMotifForm(MotifCreateFormBean formBean);
 

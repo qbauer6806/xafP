@@ -259,7 +259,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private boolean containsValue(JsonNode node, String searched) {
         for (Map.Entry<String, JsonNode> entry : node.properties()) {
-            if (entry.getValue().asString().equals(searched)) {
+            JsonNode value = entry.getValue();
+
+            if (value.isValueNode() && searched.equals(value.asString())) {
                 return true;
             }
         }

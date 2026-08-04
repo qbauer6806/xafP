@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.MotifsService;
+import mc.gouv.xaf.back.service.motifs.GestionMotifsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -50,6 +51,7 @@ import org.springframework.web.util.UriUtils;
 public class GestionMotifsController extends AbstractController {
 
     private final MotifsService motifsService;
+    private final GestionMotifsService gestionMotifsService;
     private final DemandesService demandesService;
     private final DemarchesService demarchesService;
     private final DemarchesDataProvider demarchesDataProvider;
@@ -169,7 +171,7 @@ public class GestionMotifsController extends AbstractController {
 
         LOGGER.info("Appel /export-motifs. Méthode exportMotifs");
 
-        String jsonFile = motifsService.exportConfig();
+        String jsonFile = gestionMotifsService.exportConfig();
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=export-motifs-" + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(
@@ -190,7 +192,7 @@ public class GestionMotifsController extends AbstractController {
             throws IOException {
 
         LOGGER.info("Appel /import-motifs");
-        motifsService.importConfig(file.getBytes());
+        gestionMotifsService.importConfig(file.getBytes());
         ra.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES,
                 Collections.singletonList("L'import a été effectué avec succès"));
 

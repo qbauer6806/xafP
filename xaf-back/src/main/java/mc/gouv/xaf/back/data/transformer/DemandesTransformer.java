@@ -23,6 +23,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.MarqueurDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -319,8 +321,30 @@ public class DemandesTransformer {
 
     private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
-        dto.setDonneesCertifiees(mapper.treeToValue(bo.getDonneesCertifiees(), SourceFiableDTO[].class));
+        dto.setDonneesCertifiees(donneesCertifieesJsonToArray(bo.getDonneesCertifiees(), mapper));
         return dto;
+    }
+
+    private static SourceFiableDTO[] donneesCertifieesJsonToArray(JsonNode node, ObjectMapper mapper) {
+        if (node == null || node.isNull() || node.isMissingNode() || !node.isArray() || node.isEmpty()) {
+            return new SourceFiableDTO[0];
+        }
+        try {
+            JsonNode premierElement = node.get(0);
+            // Ancien format : ["contenu.donnee.demandeur.nom", ...]
+            if (premierElement.isString()) {
+                SourceFiableDTO[] result = new SourceFiableDTO[node.size()];
+                for (int i = 0; i < node.size(); i++) {
+                    result[i] = new SourceFiableDTO(node.get(i).stringValue(), SourceFiablesEnum.MCONNECT);
+                }
+                return result;
+            }
+            // Nouveau format : [{...}, {...}]
+            return mapper.treeToValue(node, SourceFiableDTO[].class);
+        } catch (JacksonException e) {
+            LOGGER.error("Erreur lors de la conversion des données certifiées", e);
+            return new SourceFiableDTO[0];
+        }
     }
 
     private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {

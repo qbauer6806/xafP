@@ -3,40 +3,59 @@
       class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 
 <head>
-
   <meta charset="utf-8"/>
   <meta http-equiv="x-ua-compatible" content="ie=edge"/>
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-  <meta name="description" content=""/>
-  <meta name="author" content=""/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <meta th:name="_csrf" th:content="${_csrf.token}"/>
+  <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title th:text="${nomDemarche}"></title>
 
-  <!-- Import FONTS -->
   <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
 
-  <!-- Import CSS -->
-  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-        rel="stylesheet" type="text/css"/>
+  <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" type="text/css"/>
   <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
   <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
   <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
-  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
-        rel="stylesheet"/>
-  <link
-      th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
-      rel="stylesheet"/>
+  <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}" rel="stylesheet"/>
+  <link th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}" rel="stylesheet"/>
 
-  <link rel="shortcut icon" type="image/x-icon"
-        th:href="@{/img/favicon.ico}"/>
-  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-        rel="stylesheet"/>
-  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-        rel="stylesheet"/>
-  <link
-      th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
-      rel="stylesheet"/>
+  <link rel="shortcut icon" type="image/x-icon" th:href="@{/img/favicon.ico}"/>
+  <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
+  <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
 
+  <style>
+    #grilleDemandes .form-inline .btn { margin-top: 0; vertical-align: middle; }
+
+    .filtres-barre { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 15px; }
+    .filtres-barre label { margin: 0; }
+    #pageLength { width: auto; }
+    .page-length-group { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    .bandeau-hors-prod {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      margin-bottom: 20px;
+      border: 1px solid #f0ad4e;
+      border-left: 4px solid #f0ad4e;
+      border-radius: 3px;
+      background-color: #fcf8e3;
+      color: #8a6d3b;
+    }
+    .bandeau-hors-prod .icon-warning { font-size: 18px; line-height: 1; }
+    .bandeau-hors-prod strong { color: #8a6d3b; }
+
+    .zone-forcage {
+      margin-top: 15px;
+      padding: 10px 12px;
+      border: 1px solid #f0ad4e;
+      border-radius: 3px;
+      background-color: #fcf8e3;
+    }
+    .zone-forcage label { color: #8a6d3b; font-weight: 600; cursor: pointer; margin: 0; }
+    .zone-forcage .aide { display: block; margin-top: 4px; font-weight: normal; color: #8a6d3b; font-size: 12px; }
+  </style>
 </head>
 
 <body th:with="pagePurgeActive='active'">
@@ -44,201 +63,342 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div id="wrapper">
-
   <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-  <!-- DEBUT CONTENU -->
   <div id="page-content-wrapper">
 
     <div class="breadcrumbContent">
       <div class="breadcrumb">
         <a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
-        <a id="ariane1" th:href="@{/gestion/purgeselective}" class="breadcrumb-item">Purge
-          sélective</a>&nbsp;&gt;&nbsp;
+        <a id="ariane1" th:href="@{/gestion/purgeselective}" class="breadcrumb-item active">Purge sélective</a>
       </div>
       <div class="triangleTopright"></div>
     </div>
 
     <div class="container-fluid">
-      <div class="text-center">
-        <h1>Purge sélective</h1>
-      </div>
-      <br/><br/>
-
-      <!-- Formulaire pour saisir l'identifiant -->
-      <form th:action="@{/gestion/purgeselective}" method="post" id="purgeForm">
-
-
-        <div class="col-xs-12 text-right">
-          <button type="button" class="btn btn-action ripple-effect" id="addIdentifiant">
-            <i class="icon-action_plus"></i><span>Ajouter un identifiant</span>
-          </button>
-          <button type="submit" class="btn btn-action ripple-effect"><i class="icon-action_supprimer"></i><span>Purger les demandes</span></button>
-
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>Purge sélective</h1>
+          <p class="text-muted">
+            Sélectionnez les demandes à purger. Seules les demandes dans un statut final seront
+            effectivement purgées.
+          </p>
         </div>
+      </div>
 
-        <div id="identifiantsContainer">
-          <div class="row identifiantRow" style="display: flex;align-items: center;justify-content: center; margin-bottom:10px;">
-            <div class="col-xs-4 col-md-3 col-lg-2 text-center">
-              <h2 style="margin-top:0; margin-bottom: 0">Identifiant de la demande</h2>
-            </div>
-            <div class="col-xs-4 col-md-3 col-lg-2 form-group">
-              <label></label>
-              <input type="text" name="identifiants" class="form-control identifiantInput" placeholder="Saisir l'identifiant"/>
-              <div class="errorMessage" style="color: red; margin-top: 5px; display: none;">
-                Format attendu : XXX-XXXXXXXX-XXXX
+      <div class="row" th:if="${!prod}">
+        <div class="col-xs-12">
+          <div class="bandeau-hors-prod">
+            <span class="icon-warning icon-action_alerte"></span>
+            <span>
+        <strong>Environnement hors production.</strong>
+        Vous pouvez purger les demandes qui ne sont pas dans un statut final,
+        en cochant l'option correspondante dans la fenêtre de confirmation.
+      </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sélection des demandes -->
+      <div class="row mb-20">
+        <div class="col-xs-12">
+          <div class="panel-group">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="panel-title">
+                  <a aria-controls="grilleDemandes" aria-expanded="true"
+                     data-toggle="collapse" href="#grilleDemandes" role="button">
+                    <span class="pannelState icon-action_accordeon-ouvert"></span>
+                    Sélection des demandes
+                    <span class="badge badgeState info" id="compteurSelection">0</span>
+                  </a>
+                </h4>
+              </div>
+              <div id="grilleDemandes" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <div class="form-inline filtres-barre">
+                    <input type="text" id="rechercheDemande" class="form-control"
+                           placeholder="Rechercher (identifiant, usager...)">
+                    <label for="dateDebut">Du</label>
+                    <input type="text" id="dateDebut" class="form-control datepicker"
+                           placeholder="jj/mm/aaaa" autocomplete="off" style="width:120px;">
+                    <label for="dateFin">Au</label>
+                    <input type="text" id="dateFin" class="form-control datepicker"
+                           placeholder="jj/mm/aaaa" autocomplete="off" style="width:120px;">
+                    <select id="filtreStatut" class="form-control">
+                      <option value="">Tous les statuts</option>
+                      <option th:each="s : ${statuts}" th:value="${s.key}" th:text="${s.value}"></option>
+                    </select>
+                    <button class="btn btn-action ripple-effect" id="btnRechercher">
+                      <span class="icon-action_chercher"></span>&nbsp;&nbsp;Rechercher
+                    </button>
+                    <button class="btn btn-action-second ripple-effect" id="btnReset">Réinitialiser</button>
+                    <span class="page-length-group">
+                      <label for="pageLength">Afficher</label>
+                      <select id="pageLength" class="form-control">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                      </select>
+                    </span>
+                  </div>
+
+                  <table class="table table-striped table-bordered" id="tableDemandes"
+                         style="width:100%">
+                    <thead>
+                    <tr>
+                      <th style="width: 40px;">
+                        <input type="checkbox" id="checkTous" title="Tout sélectionner">
+                      </th>
+                      <th>Identifiant</th>
+                      <th>Date création</th>
+                      <th>Usager</th>
+                      <th>Statut</th>
+                      <th>Build ID</th>
+                    </tr>
+                    </thead>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-
-      </form>
-
-    </div>
-  </div>
-
-  <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+      <!-- Purge -->
+      <div class="row mb-20">
+        <div class="col-xs-12 text-right">
+          <button class="btn btn-action ripple-effect" id="btnPurger" disabled>
+            <i class="icon-action_supprimer"></i>&nbsp;&nbsp;Purger les demandes sélectionnées
           </button>
-          <h4 class="modal-title">Confirmer la purge</h4>
-        </div>
-        <div class="modal-body">
-          <p>Voulez-vous vraiment purger les demandes suivantes ?</p>
-          <ul id="confirmIdentifiants"></ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-action-second ripple-effect" data-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-action ripple-effect" id="confirmBtn">Confirmer</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
+<!-- Modale de confirmation -->
+<div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Confirmer la purge</h4>
+      </div>
+      <div class="modal-body">
+        <p>Voulez-vous vraiment purger <strong><span id="confirmCount">0</span></strong> demande(s) ?</p>
+        <p class="text-muted">Les demandes qui ne sont pas dans un statut final seront ignorées.</p>
+
+        <!-- Option de forçage : uniquement hors production -->
+        <div class="zone-forcage" th:if="${!prod}">
+          <label for="forcerNonFinal">
+            <input type="checkbox" id="forcerNonFinal">
+            Hors production : purger aussi les demandes en statut non final
+            <span class="aide">
+              Cette option supprime les demandes sélectionnées même si elles ne sont pas dans un
+              statut final. Réservée aux environnements de développement / recette.
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-action-second ripple-effect" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-action ripple-effect" id="confirmBtn">Confirmer</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
 
 <script type="text/javascript" th:inline="javascript">
+  /*<![CDATA[*/
+  var urlDemandes = /*[[@{/gestion/purgeselective/demandes}]]*/ '';
+  var urlPurger = /*[[@{/gestion/purgeselective/purger}]]*/ '';
+  var csrfToken = $('meta[name="_csrf"]').attr('content');
+  var csrfHeader = $('meta[name="_csrf_header"]').attr('content');
 
-  $(".errorTooltip").each(
-      function () {
-        var $this = $(this);
-        var title = $this.data("title");
-        //New title sans les crochets car les erreurs et un toString d'un tableau d'erreur messages
-        var newTitle = title.substring(1,
-            title.length - 1);
-        $this.tooltip({
-          placement: "bottom",
-          title: newTitle
-        });
-      });
+  // pkDemandes sélectionnées (persistées à travers la pagination server-side)
+  var selection = new Set();
 
-  const form = document.getElementById('purgeForm');
-  const container = document.getElementById('identifiantsContainer');
-  const addBtn = document.getElementById('addIdentifiant');
-  const confirmList = document.getElementById('confirmIdentifiants');
-  const confirmBtn = document.getElementById('confirmBtn');
+  $(document).ready(function () {
 
-  const regex = /^[A-Z]{3}-[A-Z0-9]{8}-[A-Z0-9]{4}$/i;
+    // Datepickers
+    $('.datepicker').datepicker({
+      format: 'dd/mm/yyyy',
+      language: 'fr',
+      autoclose: true,
+      todayHighlight: true
+    });
 
-  // Ajout d’un champ supplémentaire
-  addBtn.addEventListener('click', () => {
-    const newRow = document.querySelector('.identifiantRow').cloneNode(true);
-    newRow.querySelector('.identifiantInput').value = '';
-    newRow.querySelector('.errorMessage').style.display = 'none';
-    container.appendChild(newRow);
-  });
+    var ordreInitial = [];
+    ordreInitial.push([2, 'desc']);
 
-  // Validation avant affichage modal
-  form.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const inputs = form.querySelectorAll('.identifiantInput');
-    let allValid = true;
-    let values = [];
-
-    inputs.forEach(input => {
-      const errorMessage = input.parentNode.querySelector('.errorMessage');
-      if (!regex.test(input.value)) {
-        errorMessage.style.display = 'block';
-        allValid = false;
-      } else {
-        errorMessage.style.display = 'none';
-        values.push(input.value);
+    var table = $('#tableDemandes').DataTable({
+      serverSide: true,
+      processing: true,
+      searching: false,
+      lengthChange: false,        // désactive le sélecteur natif "Show X entries"
+      pageLength: 20,
+      order: ordreInitial,
+      ajax: {
+        url: urlDemandes,
+        data: function (d) {
+          d.texte = $('#rechercheDemande').val();
+          d.dateDebut = $('#dateDebut').val();
+          d.dateFin = $('#dateFin').val();
+          d.statut = $('#filtreStatut').val();
+        }
+      },
+      columns: [
+        {
+          data: 'pkDemandes',
+          orderable: false,
+          render: function (pk) {
+            var checked = selection.has(pk) ? 'checked' : '';
+            return '<input type="checkbox" class="check-demande" value="' + pk + '" ' + checked + '>';
+          }
+        },
+        {data: 'identifiant'},
+        {data: 'dateCreation'},
+        {data: 'usager'},
+        {data: 'statut'},
+        {data: 'buildId'}
+      ],
+      drawCallback: function () {
+        majCompteurSelection();
+        // resync l'état "tout cocher" selon la page courante
+        var totalPage = $('#tableDemandes tbody .check-demande').length;
+        var cochesPage = $('#tableDemandes tbody .check-demande:checked').length;
+        $('#checkTous').prop('checked', totalPage > 0 && totalPage === cochesPage);
       }
     });
 
-    if (!allValid || values.length === 0) {
-      return;
+    // Sélecteur de nombre d'éléments custom (déporté dans la barre de filtres)
+    $('#pageLength').on('change', function () {
+      table.page.len(parseInt($(this).val(), 10)).draw();
+    });
+
+    // Recherche
+    $('#btnRechercher').click(function (e) {
+      e.preventDefault();
+      table.ajax.reload();
+    });
+    $('#rechercheDemande').keypress(function (e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        table.ajax.reload();
+      }
+    });
+    $('#btnReset').click(function (e) {
+      e.preventDefault();
+      $('#rechercheDemande').val('');
+      $('#dateDebut').val('');
+      $('#dateFin').val('');
+      $('#filtreStatut').val('');
+      $('#pageLength').val('10');
+      table.page.len(10);
+      table.ajax.reload();
+    });
+
+    // Sélection ligne par ligne
+    $('#tableDemandes tbody').on('change', '.check-demande', function () {
+      var pk = parseInt($(this).val(), 10);
+      if (this.checked) {
+        selection.add(pk);
+      } else {
+        selection.delete(pk);
+      }
+      majCompteurSelection();
+    });
+
+    // Tout sélectionner (page courante)
+    $('#checkTous').on('change', function () {
+      var checked = this.checked;
+      $('#tableDemandes tbody .check-demande').each(function () {
+        var pk = parseInt($(this).val(), 10);
+        $(this).prop('checked', checked);
+        if (checked) {
+          selection.add(pk);
+        } else {
+          selection.delete(pk);
+        }
+      });
+      majCompteurSelection();
+    });
+
+    function majCompteurSelection() {
+      $('#compteurSelection').text(selection.size);
+      $('#btnPurger').prop('disabled', selection.size === 0);
     }
 
-    // Affiche la liste dans la modal
-    confirmList.innerHTML = '';
-    values.forEach(v => {
-      const li = document.createElement('li');
-      li.textContent = v;
-      confirmList.appendChild(li);
+    // --- Purge ---
+    $('#btnPurger').click(function () {
+      if (selection.size === 0) {
+        alert('Veuillez sélectionner au moins une demande.');
+        return;
+      }
+      $('#confirmCount').text(selection.size);
+      // Réinitialise l'option de forçage à chaque ouverture de la modale
+      $('#forcerNonFinal').prop('checked', false);
+      $('#confirmModal').modal('show');
     });
 
-    $('#confirmModal').modal('show');
+    $('#confirmBtn').click(function () {
+      var $btn = $(this);
+      $btn.prop('disabled', true).addClass('loading');
+
+      // La checkbox n'existe que hors prod ; en prod le flag reste false.
+      var forcerNonFinal = $('#forcerNonFinal').is(':checked');
+
+      var headers = {'Content-Type': 'application/json'};
+      if (csrfHeader && csrfToken) {
+        headers[csrfHeader] = csrfToken;
+      }
+
+      var payload = {
+        pkDemandes: Array.from(selection),
+        forcerNonFinal: forcerNonFinal
+      };
+
+      fetch(urlPurger, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      }).then(function (response) {
+        if (!response.ok) {
+          throw new Error('Purge échouée');
+        }
+        return response.json();
+      }).then(function (res) {
+        afficherMessages(res.successMessages, 'success');
+        afficherMessages(res.warningMessages, 'warning');
+        afficherMessages(res.errorMessages, 'danger');
+        selection.clear();
+        table.ajax.reload(null, false);
+      }).catch(function () {
+        $.notify({message: 'Erreur lors de la purge.'}, {type: 'danger'});
+      }).finally(function () {
+        $('#confirmModal').modal('hide');
+        $btn.prop('disabled', false).removeClass('loading');
+      });
+    });
+
+    function afficherMessages(messages, type) {
+      if (!messages) {
+        return;
+      }
+      $.each(messages, function (i, msg) {
+        $.notify({message: msg}, {type: type});
+      });
+    }
   });
-
-  // Confirmation et soumission réelle
-  confirmBtn.addEventListener('click', () => {
-    confirmBtn.disabled = true;
-    confirmBtn.classList.add('loading');
-    form.submit();
-  });
-
-  var messagesWarningList = /*[[${warningMessages}]]*/'default';
-
-  if (messagesWarningList !== 'undefined' && messagesWarningList !== null) {
-    $.each(messagesWarningList, function (key, msg) {
-      $.notify({
-        message: msg
-      }, {
-        type: 'warning'
-      });
-    });
-  }
-
-  var messagesSuccessList = /*[[${successMessages}]]*/'default';
-
-  if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-    $.each(messagesSuccessList, function (key, msg) {
-      $.notify({
-        message: msg
-      }, {
-        type: 'success'
-      });
-    });
-  }
-
-  var messagesErrorList = /*[[${errorMessages}]]*/'default';
-
-  if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-    $.each(messagesErrorList, function (key, msg) {
-      $.notify({
-        message: msg
-      }, {
-        type: 'danger'
-      });
-    });
-  }
-
+  /*]]>*/
 </script>
+</body>
 </html>
-
-
-
-
-
-
-
-

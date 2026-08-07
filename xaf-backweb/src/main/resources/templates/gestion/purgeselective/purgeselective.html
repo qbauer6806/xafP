@@ -264,7 +264,14 @@
             return '<input type="checkbox" class="check-demande" value="' + pk + '" ' + checked + '>';
           }
         },
-        {data: 'identifiant'},
+        {
+          data: 'identifiant',
+          render: function (data, type, demande) {
+            return "<a href='" + APP.getContextPath() + "/demandes/"
+                + demande.pkDemandes + "'><span class='identifiant'>"
+                + demande.identifiant + "</span></a>";
+          }
+        },
         {data: 'dateCreation'},
         {data: 'usager'},
         {data: 'statut'},

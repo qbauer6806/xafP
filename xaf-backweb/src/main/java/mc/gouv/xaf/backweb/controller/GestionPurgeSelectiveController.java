@@ -8,20 +8,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import mc.gouv.xaf.back.data.projection.DemandePurgeProjection;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.RechercheDemandesUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -45,6 +47,7 @@ public class GestionPurgeSelectiveController extends AbstractController {
     private final PurgeDemandesService purgeDemandesService;
     private final DemarchesDataProvider demarchesDataProvider;
     private final UtilisateursUtils utilisateursUtils;
+    private final RechercheDemandesUtils rechercheDemandesUtils;
     private final Environment environment;
 
     @GetMapping
@@ -57,22 +60,6 @@ public class GestionPurgeSelectiveController extends AbstractController {
         return mav;
     }
 
-    /**
-     * Endpoint DataTable server-side : renvoie une page de demandes au format attendu par DataTables.
-     *
-     * @param draw
-     *         compteur DataTables (à renvoyer tel quel)
-     * @param start
-     *         index du premier élément
-     * @param length
-     *         taille de page
-     * @param texte
-     *         terme de recherche libre (optionnel)
-     * @param dateDebut
-     *         borne basse de la plage de dates de création (format dd/MM/yyyy, optionnel)
-     * @param dateFin
-     *         borne haute de la plage de dates de création (format dd/MM/yyyy, optionnel)
-     */
     @GetMapping(value = "/demandes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Map<String, Object> listerDemandes(@RequestParam(defaultValue = "1") int draw,
@@ -93,23 +80,24 @@ public class GestionPurgeSelectiveController extends AbstractController {
         recherche.setCreationStartDate(parseDateDebut(dateDebut));
         recherche.setCreationEndDate(parseDateFin(dateFin));
 
-        PagedModel<DemandeDTO> pageDemandes = demandesService.getDemandes(recherche, pageable,
-                new String[] {"pkDemandes", "identifiant", "dateCreation", "usager", "dernierStatut", "config"});
+        long total = rechercheDemandesUtils.getDemandesCount(recherche);
+        Page<DemandePurgeProjection> pageDemandes = rechercheDemandesUtils.getDemandesPurgePageable(recherche, pageable,
+                total);
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         List<Map<String, Object>> data = new ArrayList<>();
-        for (DemandeDTO d : pageDemandes.getContent()) {
+        for (DemandePurgeProjection d : pageDemandes.getContent()) {
             Map<String, Object> ligne = new HashMap<>();
-            ligne.put("pkDemandes", d.getPkDemandes());
-            ligne.put("identifiant", d.getIdentifiant());
-            ligne.put("dateCreation", d.getDateCreation() != null ? sdf.format(d.getDateCreation()) : "");
-            ligne.put("usager", getUsagerAffichage(d));
-            ligne.put("statut", d.getDernierStatut() != null ? d.getDernierStatut().getLibelle() : "");
-            ligne.put("buildId", getBuildIdSafe(d));
+            ligne.put("pkDemandes", d.pkDemandes());
+            ligne.put("identifiant", d.identifiant());
+            ligne.put("dateCreation", d.dateCreation() != null ? sdf.format(d.dateCreation()) : "");
+            String prenom = d.usagerPrenom() != null ? d.usagerPrenom() : "";
+            String nom = d.usagerNom() != null ? d.usagerNom() : "";
+            ligne.put("usager", (prenom + " " + nom).trim());
+            ligne.put("statut", d.statutLibelle() != null ? d.statutLibelle() : "");
+            ligne.put("buildId", d.buildId() != null ? d.buildId() : "");
             data.add(ligne);
         }
-
-        long total = pageDemandes.getMetadata() != null ? pageDemandes.getMetadata().totalElements() : data.size();
 
         Map<String, Object> reponse = new HashMap<>();
         reponse.put("draw", draw);
@@ -119,9 +107,6 @@ public class GestionPurgeSelectiveController extends AbstractController {
         return reponse;
     }
 
-    /**
-     * Purge les demandes sélectionnées (par pkDemandes). Renvoie les messages de résultat en JSON.
-     */
     @PostMapping(value = "/purger", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Map<String, Object> purger(@RequestBody PurgeRequest requete) {
@@ -178,22 +163,12 @@ public class GestionPurgeSelectiveController extends AbstractController {
             }
         }
 
+        // purge des fichiers seulement si au moins une demande a été supprimée
         if (!successMessages.isEmpty()) {
             purgeDemandesService.executerPurgeFichiers();
         }
 
         return buildReponse(successMessages, warningMessages, errorMessages);
-    }
-
-    /**
-     * Corps de la requête de purge.
-     *
-     * @param pkDemandes
-     *         les pk des demandes à purger
-     * @param forcerNonFinal
-     *         true pour purger aussi les demandes en statut non final (ignoré en prod)
-     */
-    public record PurgeRequest(List<Integer> pkDemandes, boolean forcerNonFinal) {
     }
 
     private Map<String, Object> buildReponse(List<String> successMessages, List<String> warningMessages,
@@ -205,21 +180,14 @@ public class GestionPurgeSelectiveController extends AbstractController {
         return reponse;
     }
 
-    private String getUsagerAffichage(DemandeDTO d) {
-        if (d.getUsager() == null) {
-            return "";
-        }
-        String prenom = d.getUsager().getPrenom() != null ? d.getUsager().getPrenom() : "";
-        String nom = d.getUsager().getNom() != null ? d.getUsager().getNom() : "";
-        return (prenom + " " + nom).trim();
+    private boolean isProd() {
+        return Arrays.stream(environment.getActiveProfiles())
+                .anyMatch(p -> p.equalsIgnoreCase("prod"));
     }
 
-    private String getBuildIdSafe(DemandeDTO d) {
-        try {
-            return d.getConfigBuildId();
-        } catch (Exception e) {
-            return "";
-        }
+    private String getNomEnvironnement() {
+        String[] profils = environment.getActiveProfiles();
+        return profils.length > 0 ? String.join(", ", profils) : "default";
     }
 
     /**
@@ -253,13 +221,6 @@ public class GestionPurgeSelectiveController extends AbstractController {
         }
     }
 
-    private String getNomEnvironnement() {
-        String[] profils = environment.getActiveProfiles();
-        return profils.length > 0 ? String.join(", ", profils) : "default";
-    }
-
-    private boolean isProd() {
-        return Arrays.stream(environment.getActiveProfiles())
-                .anyMatch(p -> p.equalsIgnoreCase("prod"));
+    public record PurgeRequest(List<Integer> pkDemandes, boolean forcerNonFinal) {
     }
 }

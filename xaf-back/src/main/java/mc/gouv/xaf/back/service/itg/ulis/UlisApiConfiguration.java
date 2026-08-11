@@ -20,6 +20,7 @@ public class UlisApiConfiguration {
     private static String WORKFLOW_URL = "/workflow/api/v1/";
     private static String ACCUEIL_COMMERCIALISATION_URL = "/accueil-commercialisation/api/v1/";
     private static String GESTION_RELATION_TIERS_URL = "/gestion-relation-tiers/api/v1/";
+    private static String PATRIMOINE_V1_URL = "/patrimoine/api/v1/";
 
     @Autowired
     private UlisProperties ulisProperties;
@@ -70,6 +71,14 @@ public class UlisApiConfiguration {
     public UlisClientApi gestionRelationTiersClientApi() {
         return new UlisClientApi(
                 ulisProperties.getApiUlisUrl() + GESTION_RELATION_TIERS_URL,
+                ulisProperties.getApiUlisAuthentUser(),
+                ulisProperties.getApiUlisAuthentPassword());
+    }
+
+    @Bean
+    public UlisClientApi patrimoineClientApi() {
+        return new UlisClientApi(
+                ulisProperties.getApiUlisUrl() + PATRIMOINE_V1_URL,
                 ulisProperties.getApiUlisAuthentUser(),
                 ulisProperties.getApiUlisAuthentPassword());
     }

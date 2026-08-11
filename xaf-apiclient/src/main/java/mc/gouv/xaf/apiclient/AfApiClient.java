@@ -217,7 +217,7 @@ public class AfApiClient extends ApiClient {
     }
 
     public void deleteFile(String fileUrl) {
-        getRestClient().delete().uri("/file/{fileUrl}", fileUrl).retrieve().toBodilessEntity();
+        getRestClient().delete().uri("/file/" + fileUrl).retrieve().toBodilessEntity();
     }
 
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {

@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +12,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
-import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
@@ -22,12 +20,10 @@ import mc.gouv.xaf.back.service.purge.PurgeBrouillonsService;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 import mc.gouv.xaf.shared.enums.JobNamesEnum;
 import mc.gouv.xaf.shared.enums.JobStatutsEnum;
-import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
@@ -50,17 +46,10 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     private final GUKafkaProducer guKafkaProducer;
     private final KafkaOutboxService kafkaOutboxService;
     private final PurgeBrouillonsService purgeBrouillonsService;
-    private final GouvSchedulerService gouvSchedulerService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void launch(JobNamesEnum jobName) {
-        launch(jobName != null ? jobName.name() : null);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void launch(String jobName) {
 
         DemandeJobBO job = new DemandeJobBO();
 
@@ -70,9 +59,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                 throw new IllegalArgumentException("Aucun job à lancer");
             }
 
-            JobNamesEnum jobEnum = JobNamesEnum.getByName(jobName);
-            String libelle = jobEnum != null ? jobEnum.getLibelle() : jobName;
-            LOGGER.info("Début du lancement du job {}", libelle);
+            LOGGER.info("Début du lancement du job {}", jobName.getLibelle());
 
             logExecutionStart(job, jobName);
 
@@ -92,56 +79,44 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         try {
             String msg = "";
 
-            JobNamesEnum jobEnum = JobNamesEnum.getByName(job.getJobName());
-
-            if (jobEnum != null) {
-                switch (jobEnum) {
-                    case TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA:
-                        if (gouvPropertiesResolver.isBackserver()) {
-                            // Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
-                            msg = context.getBean(GUKafkaDLTConsumer.class).traiterDLT();
-                        } else {
-                            throw new DemarchesServiceException("Ce job doit être lancé par le backserver",
-                                    HttpStatus.UNAUTHORIZED);
-                        }
-                        break;
-                    case TRAITEMENT_OUTBOX_KAFKA:
-                        msg = kafkaOutboxTraitementJob.execute();
-                        break;
-                    case SYNCHRONISATION_GLOBALE_GU:
-                        List<UsagerDemandesRecapDTO> usagerDemandesRecaps = guKafkaUtils.getUsagerDemandesRecapList();
-                        guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecaps);
-                        msg = "Message placé dans l'Outbox Kafka pour envoi";
-                        break;
-                    case RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA:
-                        Integer nbMessages = kafkaOutboxService.getNbOutboxElements();
-                        msg = "L'Outbox Kafka contient " + nbMessages;
-                        if (nbMessages > 1) {
-                            msg += " messages.";
-                        } else {
-                            msg += " message.";
-                        }
-                        break;
-                    case PURGE_BROUILLONS:
-                        String res = purgeBrouillonsService.purgerBrouillons();
-                        msg = "Purge des brouillons terminée.<br>" + res;
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                // Si ce n'est pas un job statique, on tente de le lancer via Quartz
-                // Le GouvJobListener se chargera de mettre à jour le statut et les logs
-                gouvSchedulerService.triggerJob(job.getJobName(), job.getId());
-                // Ne pas appeler logSuccess ici : le listener mettra à jour le job une fois terminé
-                return;
+            switch (job.getJobName()) {
+                case TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA:
+                    if (gouvPropertiesResolver.isBackserver()) {
+                        // Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
+                        msg = context.getBean(GUKafkaDLTConsumer.class).traiterDLT();
+                    } else {
+                        throw new DemarchesServiceException("Ce job doit être lancé par le backserver",
+                                HttpStatus.UNAUTHORIZED);
+                    }
+                    break;
+                case TRAITEMENT_OUTBOX_KAFKA:
+                    msg = kafkaOutboxTraitementJob.execute();
+                    break;
+                case SYNCHRONISATION_GLOBALE_GU:
+                    List<UsagerDemandesRecapDTO> usagerDemandesRecaps = guKafkaUtils.getUsagerDemandesRecapList();
+                    guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecaps);
+                    msg = "Message placé dans l'Outbox Kafka pour envoi";
+                    break;
+                case RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA:
+                    Integer nbMessages = kafkaOutboxService.getNbOutboxElements();
+                    msg = "L'Outbox Kafka contient " + nbMessages;
+                    if (nbMessages > 1) {
+                        msg += " messages.";
+                    } else {
+                        msg += " message.";
+                    }
+                    break;
+                case PURGE_BROUILLONS:
+                    String res = purgeBrouillonsService.purgerBrouillons();
+                    msg = "Purge des brouillons terminée.<br>" + res;
+                    break;
+                default:
+                    break;
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);
 
-            JobNamesEnum jobLogEnum = JobNamesEnum.getByName(job.getJobName());
-            String libelle = jobLogEnum != null ? jobLogEnum.getLibelle() : job.getJobName();
-            LOGGER.info("Fin du lancement du job {}", libelle);
+            LOGGER.info("Fin du lancement du job {}", job.getJobName().getLibelle());
 
         } catch (Exception e) {
             context.getBean(DemandeJobServiceImpl.class).logErrors(job.getId(), e);
@@ -149,7 +124,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void logExecutionStart(DemandeJobBO job, String jobName) {
+    public void logExecutionStart(DemandeJobBO job, JobNamesEnum jobName) {
         Date now = new Date();
         job.setDateCreation(now);
         job.setDateDernModif(now);
@@ -175,9 +150,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
         if (jobOpt.isPresent()) {
             DemandeJobBO job = jobOpt.get();
-            JobNamesEnum jobEnum = JobNamesEnum.getByName(job.getJobName());
-            String libelle = jobEnum != null ? jobEnum.getLibelle() : job.getJobName();
-            LOGGER.error("Une erreur est survenue lors du lancement du job {} : {}", libelle,
+            LOGGER.error("Une erreur est survenue lors du lancement du job {} : {}", job.getJobName().getLibelle(),
                     errorMsg, e);
             job.setStatut(JobStatutsEnum.ERROR);
             job.setMsg(errorMsg.toString());
@@ -192,9 +165,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
         if (jobOpt.isPresent()) {
             DemandeJobBO job = jobOpt.get();
-            JobNamesEnum jobEnum = JobNamesEnum.getByName(job.getJobName());
-            String libelle = jobEnum != null ? jobEnum.getLibelle() : job.getJobName();
-            LOGGER.info("Le job {} a été exécuté avec succès", libelle);
+            LOGGER.info("Le job {} a été exécuté avec succès", job.getJobName().getLibelle());
             job.setStatut(JobStatutsEnum.SUCCEEDED);
             job.setMsg(msg);
             job.setDateDernModif(new Date());

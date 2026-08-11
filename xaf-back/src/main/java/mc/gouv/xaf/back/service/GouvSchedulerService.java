@@ -4,7 +4,6 @@ import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import java.util.List;
 
 /**
  * Service permettant une gestion des jobs Quartz
@@ -22,17 +21,4 @@ public interface GouvSchedulerService {
     Trigger getTrigger(String trigger) throws SchedulerException;
 
     void deleteExistingJob(String jobKey) throws SchedulerException;
-    
-    List<String> getAllJobNames() throws SchedulerException;
-
-    void triggerJob(String jobName) throws SchedulerException;
-
-    /**
-     * Déclenche un job Quartz et lie l'exécution à un enregistrement DemandeJob
-     * pour capturer les logs d'exécution.
-     *
-     * @param jobName       Nom du job à déclencher
-     * @param demandeJobId  ID de l'enregistrement DemandeJob pour le suivi des logs
-     */
-    void triggerJob(String jobName, Integer demandeJobId) throws SchedulerException;
 }

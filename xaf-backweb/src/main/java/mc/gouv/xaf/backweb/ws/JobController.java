@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.ws;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,8 +28,8 @@ public class JobController {
 
     @PostMapping(value = "/execute")
     public String execute(@RequestParam("jobName") String jobName) {
-        LOGGER.info("Appel du webservice /ws/admin/job/execute pour le job {}", jobName);
-        demandeJobService.launch(jobName);
+        LOGGER.info("Appel du webservice /ws/admin/job/execute");
+        demandeJobService.launch(JobNamesEnum.getByName(jobName));
         return "Demande d'exécution du job " + jobName + " prise en compte";
     }
 

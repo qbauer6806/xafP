@@ -10,7 +10,5 @@ public interface DemandeJobService {
 
     void launch(JobNamesEnum jobName);
 
-    void launch(String jobName);
-
     Page<DemandeJobDTO> list(Pageable pageable);
 }

@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.shared.enums.JobNamesEnum;
 
 public class DemandeJobTransformer {
 
@@ -25,9 +24,7 @@ public class DemandeJobTransformer {
         jobDTO.setDateCreation(jobBO.getDateCreation());
         jobDTO.setDateDernModif(jobBO.getDateDernModif());
         jobDTO.setMsg(jobBO.getMsg());
-        String jobName = jobBO.getJobName();
-        JobNamesEnum jobEnum = JobNamesEnum.getByName(jobName);
-        jobDTO.setJobName(jobEnum != null ? jobEnum.getLibelle() : jobName);
+        jobDTO.setJobName((jobBO.getJobName() != null) ? jobBO.getJobName().getLibelle() : null);
         jobDTO.setStatut((jobBO.getStatut() != null) ? jobBO.getStatut().getLibelle() : null);
         jobDTO.setStatutCode((jobBO.getStatut() != null) ? jobBO.getStatut().name() : null);
         return jobDTO;

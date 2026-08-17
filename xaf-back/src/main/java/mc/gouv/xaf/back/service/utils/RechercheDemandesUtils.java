@@ -38,7 +38,6 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
-import mc.gouv.xaf.back.data.projection.DemandePurgeProjection;
 import mc.gouv.xaf.back.service.excel.DemandeExcelProjectionSelectionProvider;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPath;
 import mc.gouv.xaf.back.service.utils.customorder.RechercheSortPathConfiguration;
@@ -578,43 +577,6 @@ public class RechercheDemandesUtils extends RechercheUtils {
             }
         }
         return predicates;
-    }
-
-    /**
-     * Projection paginée pour la liste de purge sélective, réutilisant buildQuery pour le filtrage.
-     */
-    public Page<DemandePurgeProjection> getDemandesPurgePageable(DemandeRechercheDTO demandeRecherche, Pageable pageable,
-            long total) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<DemandePurgeProjection> cq = cb.createQuery(DemandePurgeProjection.class);
-
-        Root<DemandeBO> root = buildQuery(cq, demandeRecherche, cb);
-
-        Join<DemandeBO, DemandesUsagersBO> usager = root.join(USAGER, JoinType.LEFT);
-        Join<DemandeBO, DemandesStatutsBO> statut = root.join(DERNIER_STATUT, JoinType.LEFT);
-        Join<DemandeBO, DemandeConfigBO> config = root.join(CONFIG, JoinType.LEFT);
-
-        cq.select(cb.construct(DemandePurgeProjection.class,
-                root.get(PK_DEMANDES),
-                root.get(IDENTIFIANT),
-                root.get(DATE_CREATION),
-                usager.get("prenom"),
-                usager.get("nom"),
-                statut.get(LIBELLE),
-                config.get(BUILD_ID)));
-        cq.distinct(true);
-
-        Order order = pageable.getSort().iterator().hasNext() ? pageable.getSort().iterator().next() : null;
-        if (order != null) {
-            Expression<?> e = getExpression(order, root, new ArrayList<>(), cb);
-            cq.orderBy(order.getDirection() == Direction.ASC ? cb.asc(e) : cb.desc(e));
-        }
-
-        TypedQuery<DemandePurgeProjection> query = em.createQuery(cq);
-        query.setFirstResult((int) pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
-
-        return new PageImpl<>(query.getResultList(), pageable, total);
     }
 
 }

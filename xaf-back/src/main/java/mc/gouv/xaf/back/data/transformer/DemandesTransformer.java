@@ -35,8 +35,6 @@ import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
 
 /**
  * @author qdeme
@@ -60,7 +58,6 @@ public class DemandesTransformer {
     private final DemarchesDataProvider demarchesDataProvider;
     private final AfBackUtils afBackUtils;
     private final MarqueursTransformer marqueursTransformer;
-    private final JsonMapper jsonMapper;
 
     public DemandeDTO bo2Dto(DemandeBO bo) {
         return bo2Dto(bo, null);
@@ -295,23 +292,7 @@ public class DemandesTransformer {
     public void hideInfosPageable(DemandeDTO demandeDTO) {
         demandeDTO.setContenuInitial(null);
         demandeDTO.setMeta(null);
-        reduireConfig(demandeDTO);
-    }
-
-    /**
-     * Ne conserve que les informations importantes de config
-     */
-    private void reduireConfig(DemandeDTO demandeDTO) {
-        JsonNode config = demandeDTO.getConfig();
-        if (config == null) {
-            return;
-        }
-        JsonNode buildId = config.get("buildId");
-        ObjectNode configReduite = jsonMapper.createObjectNode();
-        if (buildId != null) {
-            configReduite.set("buildId", buildId);
-        }
-        demandeDTO.setConfig(configReduite);
+        demandeDTO.setConfig(null);
     }
 
     public void hideInfos(List<DemandeDTO> demandeDTOS) {

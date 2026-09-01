@@ -180,8 +180,6 @@ public class DemandesServiceImpl implements DemandesService {
     }
 
     private mc.gouv.xaf.shared.dto.Page<DemandeDTO> toDemandePage(Page<DemandePageableProjection> p) {
-//        Map<Integer, Map<String, Object>> informationsParDemande =
-//                getInformationsAffichageParDemande(p.getContent());
 
         mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
         page.setTotalElements(p.getTotalElements());
@@ -195,67 +193,11 @@ public class DemandesServiceImpl implements DemandesService {
         page.setContent(p.getContent().stream()
                 .map(projection -> {
                     DemandeDTO dto = toDemandeDto(projection);
-//                    dto.setInformationsAffichage(
-//                            informationsParDemande.getOrDefault(projection.getPkDemandes(), Map.of()));
                     return dto;
                 })
                 .toList());
         return page;
     }
-
-//    private Map<Integer, Map<String, Object>> getInformationsAffichageParDemande(
-//            List<DemandePageableProjection> demandes) {
-//        List<DemandePageableInformationField> fields = demandePageableInformationsProviders.stream()
-//                .flatMap(provider -> provider.getFields().stream())
-//                .toList();
-//
-//        if (fields.isEmpty() || demandes.isEmpty()) {
-//            return Map.of();
-//        }
-//
-//        List<Integer> ids = demandes.stream()
-//                .map(DemandePageableProjection::getPkDemandes)
-//                .toList();
-//
-//        return demandesRepository.findContenusByPkDemandesIn(ids).stream()
-//                .collect(Collectors.toMap(
-//                        DemandeContenuProjection::getPkDemandes,
-//                        projection -> extractInformationsAffichage(projection.getContenu(), fields),
-//                        (left, right) -> left));
-//    }
-
-//    private Map<String, Object> extractInformationsAffichage(
-//            JsonNode contenu,
-//            List<DemandePageableInformationField> fields) {
-//        if (contenu == null || contenu.isNull()) {
-//            return Map.of();
-//        }
-//
-//        Map<String, Object> informations = new HashMap<>();
-//
-//        for (DemandePageableInformationField field : fields) {
-//            JsonNode value = contenu.at(field.jsonPointer());
-//
-//            if (!value.isMissingNode() && !value.isNull()) {
-//                informations.put(field.key(), toInformationAffichageValue(value));
-//            }
-//        }
-//
-//        return informations;
-//    }
-
-//    private Object toInformationAffichageValue(JsonNode value) {
-//        if (value.isTextual()) {
-//            return value.asText();
-//        }
-//        if (value.isNumber()) {
-//            return value.numberValue();
-//        }
-//        if (value.isBoolean()) {
-//            return value.asBoolean();
-//        }
-//        return value;
-//    }
 
     private String generatePublicIDWithoutCollisionCheck(String prefixe) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");

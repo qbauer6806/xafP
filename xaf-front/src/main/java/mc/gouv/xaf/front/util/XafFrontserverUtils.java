@@ -1,5 +1,6 @@
 package mc.gouv.xaf.front.util;
 
+import org.springframework.web.client.HttpStatusCodeException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,23 +37,34 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class XafFrontserverUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XafFrontserverUtils.class);
-
     public static final String CONTAINER_ROOT = "ROOT";
-
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
-
     public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
-
     public static final String FILE_METADATA_TYPEMODELE = "X-MC-TypeModele";
-
     public static final String XSRF_COOKIE = "XSRF-TOKEN";
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
     public static final int USAGERID_OFFSET = 1000000000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(XafFrontserverUtils.class);
     private static final String POST = "POST";
 
     private final FrontGouvPropertiesResolver propertiesResolver;
     private final GichkeyService gichkeyService;
+
+    public static boolean isUsagerCourrier(Integer usagerId) {
+        return usagerId > USAGERID_OFFSET;
+    }
+
+    public static String createXsrfToken(HttpSession session) {
+        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
+        return DigestUtils.sha256Hex(xsrfToken);
+    }
+
+    /**
+     * Echappe les caractères posant problèmes dans les logs selon la règle Sonar javasecurity:S5145
+     */
+    public static String logSafe(String str) {
+        return str != null ? str.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+    }
 
     /**
      * Vérifie que les donneesExternes reçues de la part de l'utilisateur ne sont pas traffiquées, en les comparant à la
@@ -82,10 +94,6 @@ public class XafFrontserverUtils {
             }
         }
         return true;
-    }
-
-    public enum ServiceTarget {
-        FILE
     }
 
     /**
@@ -161,10 +169,6 @@ public class XafFrontserverUtils {
         return usagerInfosDTO;
     }
 
-    public static boolean isUsagerCourrier(Integer usagerId) {
-        return usagerId > USAGERID_OFFSET;
-    }
-
     /**
      * Retourne le header d'authentification JWT correspondant au service à appeler
      *
@@ -178,11 +182,6 @@ public class XafFrontserverUtils {
             jwt += propertiesResolver.getFileJwt();
         }
         return jwt;
-    }
-
-    public static String createXsrfToken(HttpSession session) {
-        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
-        return DigestUtils.sha256Hex(xsrfToken);
     }
 
     public AfApiClient getAfApiClient() {
@@ -204,16 +203,27 @@ public class XafFrontserverUtils {
         return mapper.readValue(inputStream, JsonNode.class);
     }
 
-    /**
-     * Echappe les caractères posant problèmes dans les logs selon la règle Sonar javasecurity:S5145
-     */
-    public static String logSafe(String str) {
-        return str != null ? str.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
-    }
-
     public int getCodeErreur(Exception exception) {
         return exception instanceof WebException webException
                 ? webException.getHttpStatus()
                 : HttpStatus.INTERNAL_SERVER_ERROR.value();
+    }
+
+    public int getCodeErreurHttpClient(Exception exception, int... allowedStatusCodes) {
+        if (exception instanceof HttpStatusCodeException httpException) {
+            int statusCode = httpException.getStatusCode().value();
+
+            for (int allowedStatusCode : allowedStatusCodes) {
+                if (statusCode == allowedStatusCode) {
+                    return statusCode;
+                }
+            }
+        }
+
+        return HttpStatus.INTERNAL_SERVER_ERROR.value();
+    }
+
+    public enum ServiceTarget {
+        FILE
     }
 }

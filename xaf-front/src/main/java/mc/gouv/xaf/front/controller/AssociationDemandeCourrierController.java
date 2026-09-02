@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * Servlet permettant d'associer une demande courrier à un usager téléservice.
@@ -64,9 +65,17 @@ public class AssociationDemandeCourrierController {
             LOGGER.info("====================== Fin /associerDemandeCourrier doPost()");
 
             return ResponseEntity.ok().build();
+        } catch (HttpStatusCodeException exception) {
+            LOGGER.error("AssociationDemandeCourrierController - Erreur fonctionnelle lors de l'appel POST", exception);
+            return ResponseEntity.status(
+                            xafFrontserverUtils.getCodeErreurHttpClient(
+                                    exception,
+                                    HttpStatus.SC_BAD_REQUEST,
+                                    HttpStatus.SC_NOT_FOUND))
+                    .build();
         } catch (Exception exception) {
             LOGGER.error(
-                    "AssociationDemandeCourrierServlet - Une erreur est survenue lors de l'appel à la méthode POST",
+                    "AssociationDemandeCourrierController - Une erreur est survenue lors de l'appel POST",
                     exception);
             return ResponseEntity.status(xafFrontserverUtils.getCodeErreur(exception)).build();
         }

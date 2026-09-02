@@ -121,14 +121,6 @@ public interface DemandesRepository extends JpaRepository<DemandeBO, Integer> {
     Page<DemandePageableProjection> findPageLightByFkAccessUsagerIdAndFkAccessActiveTrueAndDernierStatutNameIn(
             @Param("usagerId") Integer usagerId, @Param("status") List<String> status, Pageable pageable);
 
-//    @Query("""
-//            select d.pkDemandes as pkDemandes,
-//                   d.contenu as contenu
-//            from DemandeBO d
-//            where d.pkDemandes in :ids
-//            """)
-//    List<DemandeContenuProjection> findContenusByPkDemandesIn(@Param("ids") List<Integer> ids);
-
     List<DemandeRecapProjection> findByFkAccessUsagerIdAndFkAccessActiveTrue(Integer usagerId);
     /**
      * Recherche une liste d'entités en fonction de l'identifiant usager fourni et vérifie que l'accès associé est
